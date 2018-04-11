@@ -1,2 +1,2 @@
 # app-contentstudio
-Enonix XP - Content Studio app
+Enonic XP - Content Studio app
