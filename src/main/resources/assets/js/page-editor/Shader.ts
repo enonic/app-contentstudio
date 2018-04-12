@@ -86,7 +86,7 @@ export class Shader {
             return;
         }
 
-        if (api.ClassHelper.getClassName(element) == 'PageView') {
+        if (api.ClassHelper.getClassName(element) === 'PageView') {
             this.resizeToPage();
         } else {
             this.resizeToElement(element);

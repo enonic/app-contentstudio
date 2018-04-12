@@ -145,8 +145,8 @@ export class IssueDetailsDialog
             const tabBar = new TabBar();
             this.tabPanel = new NavigatedDeckPanel(tabBar);
             this.tabPanel.onPanelShown(event => {
-                const isAssignees = event.getPanel() == assigneesPanel;
-                const isComments = event.getPanel() == commentsPanel;
+                const isAssignees = event.getPanel() === assigneesPanel;
+                const isComments = event.getPanel() === commentsPanel;
                 this.toggleClass('tab-assignees', isAssignees);
                 this.toggleClass('tab-comments', isComments);
                 this.toggleClass('tab-items', !isAssignees && !isComments);
@@ -343,13 +343,13 @@ export class IssueDetailsDialog
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
             issues.some(issue => {
-                if (issue.getId() == this.issue.getId()) {
+                if (issue.getId() === this.issue.getId()) {
                     if (this.isVisible() && !this.skipNextServerUpdatedEvent) {
                         updateHandler(issue);
                     } else {
                         // we've probably triggered the save ourselves so just update the pojo and read-only status
                         this.issue = issue;
-                        this.setReadOnly(issue && issue.getIssueStatus() == IssueStatus.CLOSED);
+                        this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
                     }
                     return true;
                 }
@@ -391,7 +391,7 @@ export class IssueDetailsDialog
             this.commentTextArea.setValue('', true);
         }
 
-        this.setReadOnly(issue && issue.getIssueStatus() == IssueStatus.CLOSED);
+        this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         this.issue = issue;
 
         return this;
@@ -538,7 +538,7 @@ export class IssueDetailsDialog
 
     private doUpdateIssue(newStatus: IssueStatus, autoSave: boolean = false): wemQ.Promise<void> {
         const publishRequest = this.createPublishRequest();
-        const statusChanged = newStatus != this.issue.getIssueStatus();
+        const statusChanged = newStatus !== this.issue.getIssueStatus();
 
         return new UpdateIssueRequest(this.issue.getId())
             .setTitle(this.header.getTitle())
@@ -646,7 +646,7 @@ export class IssueDetailsDialog
     }
 
     private toggleControlsAccordingToStatus(status: IssueStatus) {
-        this.toggleClass('closed', (status == IssueStatus.CLOSED));
+        this.toggleClass('closed', (status === IssueStatus.CLOSED));
     }
 
     protected isScheduleButtonAllowed(): boolean {

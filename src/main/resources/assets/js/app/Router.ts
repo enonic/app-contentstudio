@@ -6,7 +6,7 @@ export class Router {
 
     static setHash(path: string) {
 
-        if(Router.prevHash != hasher.getHash()) {
+        if (Router.prevHash !== hasher.getHash()) {
             Router.prevHash = hasher.getHash();
         }
 
@@ -20,7 +20,7 @@ export class Router {
     }
 
     static back() {
-        if(Router.prevHash) {
+        if (Router.prevHash) {
             Router.setHash(Router.prevHash);
         }
     }

@@ -16,13 +16,13 @@ export class DeleteItemViewer
     }
 
     setInboundDependencyCount(value: number) {
-        if (value == 0) {
+        if (value === 0) {
             return;
         }
 
         const inboundDependencyEl = new AEl('inbound-dependency');
 
-        inboundDependencyEl.setHtml((value == 1 ? i18n('dialog.delete.dependency') : i18n('dialog.delete.dependencies')) + ': ' + value);
+        inboundDependencyEl.setHtml((value === 1 ? i18n('dialog.delete.dependency') : i18n('dialog.delete.dependencies')) + ': ' + value);
 
         inboundDependencyEl.onClicked(() => {
 

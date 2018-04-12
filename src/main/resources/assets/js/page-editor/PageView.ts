@@ -300,7 +300,7 @@ export class PageView
         });
 
         LiveEditPageViewReadyEvent.on(event => {
-            if (this == event.getPageView()) {
+            if (this === event.getPageView()) {
                 this.appendContainerForTextToolbar();
             }
         });
@@ -641,7 +641,7 @@ export class PageView
 
     isEmpty(): boolean {
         return !this.pageModel || this.pageModel.getMode() === PageMode.NO_CONTROLLER ||
-               this.isEmptyPageTemplate() || (this.isRenderable == false);
+               this.isEmptyPageTemplate() || (this.isRenderable === false);
     }
 
     private isEmptyPageTemplate(): boolean {

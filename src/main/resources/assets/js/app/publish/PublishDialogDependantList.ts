@@ -105,5 +105,5 @@ export function isContentSummaryValid(item: ContentSummaryAndCompareStatus): boo
 }
 
 export function isContentSummaryReadOnly(item: ContentSummaryAndCompareStatus): boolean {
-    return item.isReadOnly() == true; // can be undefined so thus to true
+    return item.isReadOnly() === true; // can be undefined so thus to true
 }

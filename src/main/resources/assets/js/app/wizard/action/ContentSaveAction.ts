@@ -14,7 +14,7 @@ export class ContentSaveAction
     }
 
     isSavedStateEnabled(): boolean {
-        return ContentSaveAction.CLASS_NAME_SAVED == this.getIconClass();
+        return ContentSaveAction.CLASS_NAME_SAVED === this.getIconClass();
     }
 
     protected saveChanges(wizardPanel: ContentWizardPanel): wemQ.Promise<any> {

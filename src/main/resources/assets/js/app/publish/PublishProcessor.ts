@@ -78,7 +78,7 @@ export class PublishProcessor {
         let ids = this.getContentToPublishIds();
 
         let resolveDependenciesRequest;
-        if (ids.length == 0) {
+        if (ids.length === 0) {
             // spare a request if there're no ids
             const result = ResolvePublishDependenciesResult.create()
                 .setDependentContents([])
@@ -109,7 +109,7 @@ export class PublishProcessor {
             this.allPublishable = result.isAllPublishable();
 
             let resolveDescendantsRequest;
-            if (this.dependantIds.length == 0) {
+            if (this.dependantIds.length === 0) {
                 // spare the request if there're no dependants
                 resolveDescendantsRequest = wemQ([]);
             } else {

@@ -50,7 +50,7 @@ export class IssueStatusSelector
                 .join(' '));
             this.addClass(option.name.toLowerCase());
 
-            if (!silent && value != this.value) {
+            if (!silent && value !== this.value) {
                 this.notifyValueChanged(
                     new api.ValueChangedEvent(IssueStatusFormatter.formatStatus(this.value), IssueStatusFormatter.formatStatus(value)));
             }

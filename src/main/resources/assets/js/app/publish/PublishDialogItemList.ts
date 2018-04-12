@@ -260,7 +260,7 @@ class IncludeChildrenToggler
     }
 
     toggle(condition?: boolean, silent?: boolean): boolean {
-        if (!this.readOnly && this.isEnabled() != condition) {
+        if (!this.readOnly && this.isEnabled() !== condition) {
             this.toggleClass('on', condition);
 
             this.tooltip.setText(this.isEnabled() ? i18n('dialog.publish.excludeChildren') : i18n('dialog.publish.includeChildren'));

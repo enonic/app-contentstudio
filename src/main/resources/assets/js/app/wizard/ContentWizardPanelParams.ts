@@ -50,7 +50,7 @@ export class ContentWizardPanelParams {
 
     toString(): string {
 
-        return this.tabId && this.tabId.getMode() == 'browse'
+        return this.tabId && this.tabId.getMode() === 'browse'
             ? this.tabId.getMode() + '/' + this.tabId.getId()
             : this.contentId
                    ? 'edit/' + this.contentId.toString()

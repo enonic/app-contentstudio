@@ -96,7 +96,7 @@ export class DependantItemsDialog
 
         this.dependantList = this.createDependantList();
         this.dependantList.addClass('dependant-list');
-        if (config.showDependantList != undefined) {
+        if (config.showDependantList !== undefined) {
             this.showDependantList = config.showDependantList;
         }
         this.dependantContainerBody.appendChild(this.dependantList);
@@ -422,10 +422,10 @@ export class DialogDependantList
     }
 
     private static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
-        return +(a.isReadOnly() == true);
+        return +(a.isReadOnly() === true);
     }
 
     private static validityToNumber(a: ContentSummaryAndCompareStatus): number {
-        return +(a.getContentSummary().isValid() == true);
+        return +(a.getContentSummary().isValid() === true);
     }
 }

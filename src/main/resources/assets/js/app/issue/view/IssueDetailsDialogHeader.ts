@@ -31,7 +31,7 @@ export class IssueDetailsDialogHeader
         super('modal-dialog-header');
         this.input = new IssueDetailsInPlaceTextInput(title);
         this.input.onEditModeChanged((editMode, newValue, oldValue) => {
-            if (!editMode && newValue != oldValue) {
+            if (!editMode && newValue !== oldValue) {
                 this.notifyTitleChanged(newValue, oldValue);
             }
         });

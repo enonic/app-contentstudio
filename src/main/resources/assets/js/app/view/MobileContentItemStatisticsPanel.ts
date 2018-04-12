@@ -185,7 +185,7 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
     }
 
     unSlideOut(listener: () => void) {
-        this.slideOutListeners = this.slideOutListeners.filter(curr => curr != listener);
+        this.slideOutListeners = this.slideOutListeners.filter(curr => curr !== listener);
     }
 
     notifySlideOut() {

@@ -250,18 +250,18 @@ class PageTemplateViewer {
 
         pageTemplateView.setMainName(this.getPageModeString());
 
-        if (this.pageMode == PageMode.FRAGMENT) {
+        if (this.pageMode === PageMode.FRAGMENT) {
             pageTemplateView.setIconClass(api.StyleHelper.getCommonIconCls('fragment'));
         } else {
             const descriptorEl = this.getDescriptorEl();
             if (descriptorEl) {
                 pageTemplateView.setSubNameElements([descriptorEl]);
             }
-            if (this.pageMode == PageMode.AUTOMATIC) {
+            if (this.pageMode === PageMode.AUTOMATIC) {
                 pageTemplateView.setIconClass('icon-wand');
-            } else if (this.pageMode == PageMode.FORCED_TEMPLATE) {
+            } else if (this.pageMode === PageMode.FORCED_TEMPLATE) {
                 pageTemplateView.setIconClass('icon-newspaper');
-            } else if (this.pageMode == PageMode.FORCED_CONTROLLER) {
+            } else if (this.pageMode === PageMode.FORCED_CONTROLLER) {
                 pageTemplateView.setIconClass('icon-cog');
             }
         }
