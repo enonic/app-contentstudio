@@ -1,0 +1,331 @@
+.issue-details-dialog {
+  @toggler-width: 35px;
+
+  .dialog-content {
+    padding: 5px 0;
+    min-height: 200px;
+    position: relative; // to be able to position empty text message absolutely
+
+    .deck-panel {
+      overflow: visible;
+
+      & > .panel {
+        overflow: visible;
+
+        input {
+          .input-glow();
+        }
+      }
+    }
+  }
+
+  .modal-dialog-header {
+    margin-bottom: 0;
+    padding-bottom: 0 !important;
+    padding-right: 30px;
+    position: relative;
+
+    .inplace-text-input {
+      margin-top: -4px;
+
+      .inplace-toggle {
+        margin-right: -7px;
+      }
+      .inplace-text {
+        line-height: 38px;
+
+        .title-id {
+          color: @admin-font-gray1;
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .issue-details-sub-title {
+      margin: 5px 0 0 39px;
+      font-size: 13px;
+
+      .creator, .assignee {
+        color: @admin-font-gray3;
+      }
+
+      .issue-status-selector {
+        float: right;
+        display: inline-block;
+        min-width: inherit;
+        margin: 0;
+        vertical-align: middle;
+
+        &.open {
+          .tab-menu-button {
+            background-color: @admin-green;
+          }
+        }
+        &.closed {
+          .tab-menu-button {
+            background-color: @admin-font-gray2;
+          }
+        }
+
+        .tab-menu-button {
+          display: inline-block;
+          font-weight: bold;
+          padding: 2px 20px;
+          border-radius: 4px;
+          margin: 0 0 5px 5px;
+
+          &:before {
+            content: '';
+          }
+
+          .label {
+            margin: 0;
+            color: white;
+          }
+        }
+
+        .menu {
+          text-align: center;
+          min-width: inherit;
+          li {
+            padding: 1px 5px;
+            border-radius: 4px;
+          }
+        }
+      }
+
+      .status-info {
+        vertical-align: middle;
+        color: @admin-font-gray1;
+      }
+    }
+
+    .sub-title {
+      margin: 10px 0 30px;
+      font-size: 14px;
+
+      .creator, .assignee {
+        color: @admin-black;
+        font-weight: bold;
+      }
+    }
+
+    .tab-bar {
+      margin-top: 5px;
+      background: transparent;
+      display: flex;
+
+      .tab-bar-item {
+        flex: 1;
+      }
+    }
+  }
+  .modal-dialog-body {
+    padding-right: 30px;
+  }
+  .panel {
+    position: static;
+  }
+
+  .include-children-toggler {
+    font-size: 20px;
+    line-height: 32px;
+
+    .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, false);
+
+    &.on {
+      .button(@admin-button-blue1, transparent, @admin-button-blue1, transparent, false);
+
+      padding: 0;
+      width: @toggler-width;
+    }
+
+    padding: 0;
+    width: @toggler-width;
+  }
+
+  .required {
+    &:after {
+      display: none;
+    }
+  }
+
+  .browse-selection-item {
+    &:first-child {
+      padding-top: 0;
+    }
+
+    .remove {
+      display: none;
+    }
+  }
+
+  .publish-dialog-item-list {
+    margin-top: 20px;
+
+    .browse-selection-item {
+
+      .status {
+        line-height: 32px;
+      }
+    }
+
+    &.contains-toggleable {
+
+      .browse-selection-item:not(.toggleable) {
+        margin-left: @toggler-width;
+      }
+
+      .include-children-toggler {
+        cursor: default;
+        &:hover {
+          &:before {
+            color: @admin-font-gray2;
+          }
+          &.on {
+            &:before {
+              color: @admin-button-blue1;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .button-container {
+    width: 100%;
+
+    .dialog-button, .menu-button {
+      float: right;
+      display: none !important; // need important here because dialog sets display style inline
+    }
+
+    .dialog-button {
+
+      &.close-issue {
+        .dialog-button(@form-button-font, @admin-button-gray3);
+        margin-left: 0;
+      }
+
+      &.reopen-issue {
+        .dialog-button(@form-button-font, @admin-green);
+      }
+
+      .cancel-button-bottom {
+        float: left;
+        margin: 0;
+      }
+    }
+
+    + .no-action-message {
+      display: none;
+      line-height: 36px;
+      font-size: 15px;
+      float: right;
+    }
+  }
+
+  .modal-dialog-footer {
+    .issue-comment-textarea {
+      display: none;
+      padding-bottom: 20px;
+    }
+  }
+
+  &.nested {
+    .button-container .cancel-button-bottom {
+      display: block;
+    }
+  }
+
+  &.is-processing {
+    .issue-dialog-form,
+    .edit-issue,
+    .items-header,
+    .dialog-buttons div.checkbox {
+      display: none;
+    }
+
+    .button-container .cancel-button-bottom {
+      float: none;
+    }
+    .title {
+      padding-bottom: 10px;
+    }
+
+    .sub-title {
+      display: none;
+    }
+  }
+
+  .dialog-buttons {
+    position: relative;
+  }
+
+  &.tab-comments {
+    &:not(.closed) {
+      .dialog-content {
+        min-height: 124px; // subtract textarea height to keep overall dialog height
+      }
+      .modal-dialog-footer {
+        // it's placed in footer to stick to bottom so show it manually
+        .issue-comment-textarea {
+          display: flex;
+          textarea {
+            min-height: 52px;
+          }
+        }
+
+        .button-container {
+          .close-issue, .comment-issue {
+            display: block !important;
+          }
+        }
+      }
+    }
+    &.closed {
+      .modal-dialog-footer {
+        .button-container {
+          .reopen-issue {
+            display: block !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.tab-items:not(.closed) {
+    &:not(.no-action) {
+      .modal-dialog-footer {
+        .button-container {
+          .publish-issue {
+            display: block !important;
+          }
+        }
+      }
+    }
+    &.no-action {
+      .modal-dialog-footer {
+        .no-action-message {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  &.tab-assignees {
+    .dialog-content {
+      min-height: 256px;
+    }
+    .modal-dialog-footer {
+      padding-top: 0;
+    }
+  }
+
+  &.no-action {
+    .dependants {
+      display: none;
+    }
+  }
+
+}

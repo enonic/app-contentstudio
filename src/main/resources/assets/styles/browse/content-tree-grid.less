@@ -1,0 +1,52 @@
+.content-tree-grid {
+  .grid .slick-row {
+    .status {
+      text-overflow: clip;
+      padding-left: 0;
+      font-size: 0.9em;
+
+      span {
+        white-space: normal;
+      }
+    }
+
+    &.readonly {
+      opacity: 0.5;
+    }
+
+    &:not(.selected) {
+      .slick-cell:not(.selected).status {
+        .content-status-mixin();
+      }
+    }
+  }
+
+  .icon-menu, .icon-sort-alpha-asc, .icon-sort-alpha-desc, .icon-sort-num-asc, .icon-sort-num-desc {
+    line-height: 37px;
+  }
+
+  .grid .slick-row {
+    .slick-cell {
+      &.status {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        line-height: unset;
+
+        .pending_delete {
+          font-size: 0.8em;
+        }
+      }
+
+      &.modified {
+        padding-left: 8px;
+      }
+
+      &.order .sort-dialog-trigger:before {
+        margin-left: 6px;
+      }
+    }
+  }
+
+}

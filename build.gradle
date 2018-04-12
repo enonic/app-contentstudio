@@ -1,0 +1,124 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'com.enonic.defaults' version '1.0.3'
+    id 'com.enonic.xp.app' version '1.1.0'
+    id "com.moowork.node" version '1.1.1'
+}
+
+group = 'com.enonic.xp'
+version = '6.15.0-SNAPSHOT'
+libAdminUiVersion = '1.3.0-SNAPSHOT'
+
+app {
+    name = 'com.enonic.xp.app.contentstudio'
+    displayName = 'Content Studio'
+    systemApp = true
+    systemVersion = "${version}"
+    devSourcePaths += file("$rootDir/../lib-admin-ui/src/main/resources")
+}
+
+dependencies {
+    compile "${group}:portal-api:${version}"
+    include "${group}:lib-admin:${version}"
+    include "${group}:lib-mustache:${version}"
+    include "${group}:lib-portal:${version}"
+    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    xp.enonicRepo()
+}
+
+node {
+    download = true
+    version = '8.10.0'
+}
+
+
+task flush( type: org.gradle.api.tasks.Delete, dependsOn: clean ) {
+    description = 'Clean the project from built sources and dependencies'
+    delete '.xp'
+}
+
+task npmInstallForce( type: NpmTask ) {
+    description = 'Update all project node dependencies'
+    args = ['install', '--force']
+}
+
+task cleanNode( type: org.gradle.api.tasks.Delete ) {
+    delete 'node_modules'
+}
+
+task lint( type: NpmTask, dependsOn: npmInstall ) {
+    args = [ 'run', 'lint' ]
+    inputs.files fileTree( dir: 'modules', include: '**/src/main/**.*' )
+    outputs.dir file('gradle')
+    outputs.upToDateWhen { false }
+}
+
+task webpack( type: NodeTask, dependsOn: lint ) {
+    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    description = 'Build UI resources (ts, css, etc).'
+    inputs.dir 'src/main'
+    outputs.dir "${buildDir}/resources/main"
+    script = file( './node_modules/webpack/bin/webpack' )
+}
+
+jar {
+    exclude 'assets/**/*.ts'
+    exclude 'assets/**/*.less'
+
+    exclude 'assets/styles/*.js'
+    exclude 'assets/page-editor/styles/*.js'
+    exclude 'assets/page-editor/lib/_include.js'
+    exclude 'assets/page-editor/lib/jquery*.js'
+
+    exclude 'assets/icons/fonts/*.*'
+
+    dependsOn += webpack
+}
+
+jar.outputs.dir "${buildDir}/resources/main"
+processResources.dependsOn += unpackDevResources
+
+if ( hasProperty( 'env' ) )
+{
+    addBuildDependency()
+    applyExcludedTasks()
+}
+
+def applyExcludedTasks() {
+    def libAdminUi = gradle.includedBuild( 'lib-admin-ui' )
+    Closure permittedTasks = { it == 'lint' || it == 'test' }
+    def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( permittedTasks )
+    libAdminUi.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
+}
+
+def addBuildDependency() {
+    def buildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
+
+    build.dependsOn += buildTask
+    clean.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
+    flush.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
+
+    def webpackTask = tasks.findByPath( ':webpack' )
+    def unpackDevResources = tasks.findByPath( ':unpackDevResources' )
+
+    if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResources
+    unpackDevResources.dependsOn += buildTask
+}
+
+def nodeEnvironment() {
+    def environments = [ prod : 'production', dev: 'development' ]
+    def nodeEnv = environments[hasProperty( 'env' ) ? env : 'prod']
+    return nodeEnv != null ? nodeEnv : 'production'
+}
