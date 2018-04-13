@@ -1,0 +1,27 @@
+import '../../../../../../api.ts';
+import {FragmentDropdown} from './FragmentDropdown';
+
+export class FragmentSelectorForm
+    extends api.ui.form.Form {
+
+    private fragmentSelector: FragmentDropdown;
+
+    constructor(fragmentSelector: FragmentDropdown, title?: string) {
+        super('fragment-dropdown-form');
+        this.fragmentSelector = fragmentSelector;
+
+        let fieldSet = new api.ui.form.Fieldset();
+        if (!api.util.StringHelper.isBlank(title)) {
+            fieldSet.add(new api.ui.form.FormItemBuilder(fragmentSelector).setLabel(title).build());
+        } else {
+            fieldSet.add(new api.ui.form.FormItemBuilder(fragmentSelector).build());
+        }
+
+        this.add(fieldSet);
+    }
+
+    getSelector(): FragmentDropdown {
+        return this.fragmentSelector;
+    }
+
+}

@@ -1,0 +1,77 @@
+.@{_CLS_PREFIX}page-view {
+
+  &.empty {
+
+    .@{_CLS_PREFIX}item-view {
+      display: none;
+    }
+
+    // placeholder should occupy whole page when empty
+    & > .@{_CLS_PREFIX}page-placeholder {
+      height: 100%;
+      margin: 0;
+
+      .@{_CLS_PREFIX}page-descriptor-placeholder {
+        position: absolute;
+        top: 50%;
+        margin-top: -58px;
+        width: calc(~'100% - 30px');
+      }
+
+      .page-placeholder-info {
+
+        &:not(.empty) {
+          .icon-page-template;
+          &:before {
+            display: block;
+            position: absolute;
+            color: @placeholder-icon;
+            font-size: 105px;
+            left: 50%;
+            margin-left: -50px;
+            margin-top: 65px;
+          }
+        }
+
+        &.empty {
+          margin-left: 45px;
+        }
+
+        .page-placeholder-info-line1 {
+          font-size: 22px;
+          color: @admin-dark-gray;
+          margin-bottom: 10px;
+        }
+
+        .page-placeholder-info-line2 {
+          font-size: 14px;
+          color: @admin-font-gray1;
+        }
+      }
+    }
+  }
+
+  .html-area-modal-dialog {
+    .@{_COMMON_PREFIX}text-input {
+      color: inherit;
+      font-size: 12px;
+    }
+
+    .input-wrapper .checkbox.form-input {
+      margin-top: 0;
+    }
+  }
+
+  &:before {
+    display: none;
+  }
+
+  .@{_CLS_PREFIX}page-descriptor-dropdown {
+    margin-top: 53px;
+  }
+
+  .mce-widget.mce-tooltip.mce-tooltip-n {
+    position: fixed;
+    z-index: @z-index-context-menu + 1 !important;
+  }
+}

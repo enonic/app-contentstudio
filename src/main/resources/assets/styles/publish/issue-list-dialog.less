@@ -1,0 +1,168 @@
+.issue-list-dialog {
+
+  .docked-panel {
+    width: auto;
+    box-shadow: none;
+    position: inherit !important;
+    background-color: transparent;
+
+    .tab-bar {
+      position: relative !important;
+      background-color: transparent;
+      border: 0 none;
+      overflow: visible;
+
+      .tab-bar-item {
+        top: 0;
+        right: 0;
+        display: inline;
+        border: 0 none;
+        padding: 7px 5px;
+        position: absolute;
+
+        &.active {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .panel {
+    position: inherit;
+
+    .filters {
+      margin-bottom: 20px;
+      padding: 0 5px;
+      display: flex;
+
+      .checkbox {
+        padding: 8px 5px 8px 0;
+
+        &.disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+      }
+
+      .my-issues-filter {
+        margin-right: 20px;
+      }
+    }
+
+    .issue-list {
+      overflow: auto;
+      cursor: pointer;
+      min-height: 30px;
+
+      .issue-list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+
+        &:hover {
+          background-color: @admin-bg-light-gray;
+        }
+
+        &:focus {
+          outline: none;
+        }
+
+        .names-and-icon-view {
+          cursor: pointer;
+
+          .icon-signup {
+            color: @admin-font-gray2;
+            &:not(.closed) {
+              color: @admin-green;
+            }
+
+            font-size: 26px;
+          }
+
+          .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
+            &:hover {
+              cursor: pointer;
+            }
+          }
+
+          .@{_COMMON_PREFIX}main-name {
+            height: 17px;
+            font-weight: bold;
+            text-transform: capitalize;
+          }
+        }
+
+        .assignees-line {
+          display: flex;
+
+          .principal-viewer-compact {
+            position: relative;
+            top: 3px;
+
+            &:last-child {
+              margin-right: 18px;
+            }
+          }
+        }
+
+        .all-assignees-tooltip {
+          font-size: 16px;
+          align-self: flex-end;
+          padding-bottom: 5px;
+          margin-left: 5px;
+        }
+      }
+    }
+
+    .no-issues-message {
+      .watermark-text(18px, true);
+      top: calc(~'50% + 24px');
+      left: 0;
+    }
+
+    .creator, .assignee {
+      color: @admin-black;
+      font-weight: bold;
+    }
+  }
+
+  &.masked {
+    opacity: 0;
+  }
+
+  @media screen and (max-width: 480px) {
+    .filters {
+      flex-wrap: wrap;
+      max-width: 200px;
+    }
+  }
+}
+
+.browse-toolbar {
+  .show-issues-dialog-button {
+    padding-top: 1px;
+    padding-right: 14px;
+
+    &:before {
+      font-size: 20px;
+    }
+
+    &.has-assigned-issues {
+      padding-right: 2px;
+
+      &:after {
+        content: "";
+        background: @admin-blue;
+        position: relative;
+        bottom: 16px;
+        right: 7px;
+        padding: 6px;
+        border-radius: 8px;
+        font-size: 0;
+        z-index: 1;
+      }
+    }
+
+    .icon-signup();
+  }
+}

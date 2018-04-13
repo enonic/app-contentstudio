@@ -1,0 +1,12 @@
+if ( hasProperty( 'env' ) ) {
+    addBuild('../xp')
+    addBuild('../lib-admin-ui')
+}
+
+def addBuild( name )
+{
+    def dir = new File( (File) settingsDir, name )
+    if (dir.directory) {
+        includeBuild name
+    }
+}

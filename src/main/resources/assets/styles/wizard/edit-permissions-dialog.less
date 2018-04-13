@@ -1,0 +1,116 @@
+.edit-permissions-dialog {
+
+  .modal-dialog-header .path {
+    font-size: 16px;
+  }
+
+  .modal-dialog-header {
+    @media screen and (max-height: 360px) {
+      margin-bottom: 5px;
+    }
+  }
+
+  .inherit-perm-check {
+    margin-bottom: 20px;
+
+    @media screen and (max-height: 360px) {
+      margin-bottom: 5px;
+    }
+  }
+
+  .overwrite-child-check {
+    position: absolute;
+    bottom: 27px;
+    z-index: 1;
+    &.checkbox label {
+      color: @admin-blue !important;
+    }
+
+    @media screen and (max-height: 360px) {
+      bottom: 25px;
+    }
+  }
+
+  .form-view {
+    @media screen and (max-height: 360px) {
+      margin-top: 5px;
+    }
+  }
+
+  .@{_COMMON_PREFIX}.combobox.followed-by-options {
+    @media screen and (max-height: 360px) {
+      margin-bottom: 5px;
+    }
+  }
+
+  .principal-combobox {
+
+    .access-control-list {
+      padding: 5px 0;
+
+      .access-control-entry {
+        height: auto;
+        padding: 6px 42px 6px 5px;
+
+        .access-selector ul.upward {
+          padding: 4px 4px 38px;
+          margin-top: -114px;
+        }
+
+        .remove {
+          top: 14px;
+        }
+      }
+    }
+
+    &.disabled {
+      .@{_COMMON_PREFIX}.combobox {
+        display: none;
+      }
+
+      .access-control-entry {
+
+        .icon-close {
+          display: none;
+        }
+
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}names-view {
+            color: @admin-font-gray2;
+          }
+        }
+
+        .access-selector {
+          .label {
+            color: @admin-font-gray2;
+          }
+        }
+
+        .permission-toggle {
+          &.allow, &.deny {
+            padding: 1px 9px;
+            color: @admin-white;
+          }
+
+          &.allow {
+            background: @admin-shadow-gray;
+            border: 1px solid @admin-medium-gray-border;
+          }
+
+          &.deny {
+            background: @admin-dark-gray;
+            border: 1px solid @admin-medium-gray-border;
+          }
+        }
+
+      }
+
+    }
+
+  }
+
+  section {
+    height: 100%;
+  }
+
+}
