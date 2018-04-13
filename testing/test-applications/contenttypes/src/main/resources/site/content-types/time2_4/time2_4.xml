@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Time</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="time2_4" type="Time">
+      <label>Time</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="2" maximum="4"/>
+      <help-text>time</help-text>
+    </input>
+  </form>
+</content-type>

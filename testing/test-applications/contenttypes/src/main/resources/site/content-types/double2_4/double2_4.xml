@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Double</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="double" type="Double">
+      <label>Double</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="2" maximum="4"/>
+      <help-text>required 2</help-text>
+    </input>
+  </form>
+</content-type>

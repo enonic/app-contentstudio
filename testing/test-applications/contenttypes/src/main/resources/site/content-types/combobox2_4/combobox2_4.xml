@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Combo box</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="combobox_min2_max4" type="ComboBox">
+      <label>combobox 2:4</label>
+      <indexed>true</indexed>
+      <occurrences minimum="2" maximum="4"/>
+      <config>
+        <option value="o1">option A</option>
+        <option value="o2">option B</option>
+        <option value="o3">option C</option>
+        <option value="o4">option D</option>
+        <option value="o5">option E</option>
+      </config>
+    </input>
+  </form>
+</content-type>

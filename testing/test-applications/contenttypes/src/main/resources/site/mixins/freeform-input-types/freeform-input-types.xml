@@ -1,0 +1,57 @@
+<mixin>
+  <display-name>Input types</display-name>
+  <items>
+    <option-set name="type">
+      <label>input type</label>
+      <expanded>false</expanded>
+      <occurrences minimum="1" maximum="1"/>
+      <options minimum="1" maximum="1">
+        <option name="text">
+          <label>text</label>
+        </option>
+        <option name="submit">
+          <label>submit</label>
+        </option>
+        <option name="image">
+          <label>image</label>
+          <items>
+            <input name="src" type="ImageSelector">
+              <label>src</label>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="scale">
+              <label>scale</label>
+              <help-text>See http://xp.readthedocs.io/en/stable/reference/image-processor/scaling.html</help-text>
+              <occurrences minimum="1" maximum="1"/>
+              <default>height(30)</default>
+            </input>
+          </items>
+        </option>
+        <option name="hidden">
+          <label>hidden</label>
+        </option>
+        <option name="number">
+          <label>number</label>
+        </option>
+        <option name="email">
+          <label>email</label>
+        </option>
+        <option name="date">
+          <label>date</label>
+        </option>
+        <option name="datetime">
+          <label>datetime</label>
+        </option>
+        <option name="datetime-local">
+          <label>datetime-local</label>
+        </option>
+        <option name="month">
+          <label>month</label>
+        </option>
+        <option name="color">
+          <label>color</label>
+        </option>
+      </options>
+    </option-set>
+  </items>
+</mixin>

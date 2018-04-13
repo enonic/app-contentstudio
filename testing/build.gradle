@@ -1,0 +1,158 @@
+import com.enonic.uitest.server.ServerInstance
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+            jcenter()
+        }
+    }
+
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-gulp-plugin:0.13'
+        classpath "com.moowork.gradle:gradle-node-plugin:0.13"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'maven'
+    id 'com.enonic.defaults' version '1.0.3'
+    id 'com.moowork.node' version '0.13'
+    id 'com.moowork.gulp' version '0.13'
+
+}
+
+group = 'com.enonic.xp.js_testing'
+version = '1.0'
+
+configurations {
+    distro
+}
+
+apply plugin: 'com.enonic.defaults'
+apply plugin: 'com.moowork.node'
+apply plugin: 'com.moowork.gulp'
+
+enonic {
+    publishRepo = 'inhouse'
+}
+
+ext {
+    xpVersion = '6.15.0-SNAPSHOT'
+    unpackDir = "$buildDir${File.separator}install"
+    screenshotsDir = "$buildDir${File.separator}screenshots"
+    reportsDir = "$buildDir${File.separator}reports"
+    distroDir = "$unpackDir${File.separator}enonic-xp-$xpVersion"
+    deployDir = "$distroDir${File.separator}home${File.separator}deploy"
+    appDir = "$projectDir${File.separator}test-applications"
+    allureResultsDir = "allure-results"
+    xpHome = "$distroDir${File.separator}home"
+    configDir = "$xpHome${File.separator}config"
+    xpServer = new ServerInstance()
+}
+
+task copyConfig( type: Copy ) {
+    println "$appDir${File.separator}common-config"
+    from "$appDir${File.separator}common-config"
+    include '**.*.cfg'
+    include '*.properties'
+    into file( configDir )
+}
+
+task copyApps( type: Copy ) {
+    println '*********************************************************'
+    println '* task started:copyApps  *'
+    println '*********************************************************'
+    println appDir
+    from file( appDir )
+    include '*.jar'
+    into file( deployDir )
+}
+dependencies {
+    compile "com.enonic.xp:core-api:$xpVersion"
+    distro "com.enonic.xp:distro:$xpVersion@zip"
+}
+
+task unpackDistro( type: Copy ) {
+    from {
+        configurations.distro.collect { zipTree( it ) }
+    }
+    into file( unpackDir )
+}
+
+task zipScreenshots( type: Zip ) {
+    from screenshotsDir
+    include '*'
+    include '*/*'
+    classifier 'screenshots'
+}
+
+task zipAllure( type: Zip ) {
+    from allureResultsDir
+    include '*'
+    include '*/*'
+    classifier 'allureResults'
+}
+
+artifacts {
+    archives zipScreenshots
+    archives zipAllure
+}
+
+jar.enabled = true
+
+task startServer( dependsOn: [unpackDistro, copyConfig] ) {
+    doLast {
+        xpServer.installDir = file( distroDir )
+        xpServer.startupDelay = 40000
+        xpServer.start()
+    }
+    copyConfig.mustRunAfter unpackDistro
+}
+
+task stopServer {
+    doLast {
+        xpServer.stop()
+    }
+}
+
+tasks.withType( Test ) {
+    jvmArgs '-Xms128m', '-Xmx1024m'
+    testLogging {
+        exceptionFormat "full"
+        events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        displayGranularity = 0
+    }
+}
+
+task deleteFolders( type: Delete ) {
+    delete unpackDir, screenshotsDir, reportsDir
+}
+
+task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
+
+//run the tusk in the gulpfile.js. Name of the task is 'test'
+task testContentStudioApp( type: GulpTask, dependsOn: [npmInstall, startServer, copyApps,] ) {
+    inputs.files fileTree( dir: '.' )
+    outputs.files fileTree( dir: '/test-results' )
+    args = ['test']
+    //npmInstall.mustRunAfter buildApplications
+    startServer.mustRunAfter npmInstall
+    copyApps.mustRunAfter startServer
+}
+
+task testContentStudioAppLocally( type: GulpTask, dependsOn: [npmInstall] ) {
+    inputs.files fileTree( dir: '.' )
+    outputs.files fileTree( dir: '/test-results' )
+    args = ['test']
+}
+testContentStudioApp.finalizedBy = ['stopServer']
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'http://repo.enonic.com/public'
+    }
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Tag</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="tag_2_5" type="Tag">
+      <label>Tag 2:5</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="2" maximum="5"/>
+      <help-text>Some help text</help-text>
+    </input>
+  </form>
+</content-type>

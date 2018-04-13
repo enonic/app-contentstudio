@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Using Mixins</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <item-set name="images">
+      <label>Images</label>
+      <items>
+        <input name="label" type="TextLine">
+          <label>Label</label>
+          <occurrences minimum="0" maximum="1"/>
+          <help-text>select an image</help-text>
+        </input>
+        <inline mixin="com.enonic.xp.testing.contenttypes:select-image"/>
+      </items>
+      <occurrences minimum="0" maximum="0"/>
+    </item-set>
+  </form>
+</content-type>

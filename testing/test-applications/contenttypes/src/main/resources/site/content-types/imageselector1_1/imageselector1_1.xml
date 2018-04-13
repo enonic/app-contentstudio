@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Image selector</display-name>
+  <super-type>base:structured</super-type>
+  <allow-child-content>true</allow-child-content>
+  <form>
+    <input name="imageselector_min1_max1" type="ImageSelector">
+      <label>One required</label>
+      <indexed>true</indexed>
+      <occurrences minimum="1" maximum="1"/>
+      <config/>
+    </input>
+  </form>
+</content-type>

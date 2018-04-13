@@ -1,0 +1,21 @@
+buildscript {
+    ext {
+        xpVersion = '6.15.0-SNAPSHOT'
+    }
+
+}
+plugins {
+    id 'maven'
+    id 'com.enonic.xp.app' version '1.0.13'
+}
+apply plugin: 'com.enonic.defaults'
+version = '2.0.0'
+app {
+    name = 'com.enonic.xp.testing.second_app'
+    displayName = 'Second Selenium App'
+}
+
+dependencies {
+    compile 'com.enonic.xp:core-api:6.15.0-SNAPSHOT'
+}
+

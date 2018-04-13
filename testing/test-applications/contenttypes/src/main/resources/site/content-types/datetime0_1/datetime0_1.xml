@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Date Time</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="datetime" type="DateTime">
+      <config>
+        <timezone>false</timezone>
+      </config>
+      <label>DateTime (no tz)</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="0" maximum="1"/>
+      <help-text>date Time</help-text>
+    </input>
+  </form>
+</content-type>

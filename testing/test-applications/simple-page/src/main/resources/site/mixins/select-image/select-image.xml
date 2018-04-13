@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mixin>
+  <display-name>Selected image</display-name>
+  <items>
+    <input type="ImageSelector" name="selectedImage">
+      <label>Select image</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+  </items>
+</mixin> 

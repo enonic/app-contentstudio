@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Html Area</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="htmlarea_2_4" type="HtmlArea">
+      <label>HTML content 2:4</label>
+      <occurrences minimum="2" maximum="4"/>
+    </input>
+  </form>
+</content-type>

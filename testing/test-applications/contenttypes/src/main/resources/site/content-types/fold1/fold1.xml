@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Folders</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input type="ContentSelector" name="postsFolder">
+      <label>Posts folder</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config>
+        <relationship-type>system:reference</relationship-type>
+
+      </config>
+    </input>
+  </form>
+</content-type>
+

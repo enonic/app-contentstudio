@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Relationship</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="defRelation" type="ContentSelector">
+      <label>A DEFAULT relation 2:4</label>
+      <occurrences minimum="2" maximum="4"/>
+      <config>
+        <relationship-type>system:reference</relationship-type>
+      </config>
+    </input>
+  </form>
+</content-type>

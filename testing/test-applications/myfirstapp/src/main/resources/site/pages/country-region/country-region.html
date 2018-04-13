@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Country Region</title>
+</head>
+<body data-portal-component-type="page">
+<h1>Country</h1>
+
+<div data-portal-component-type="region" data-portal-region="country">
+    <div data-th-if="${mainRegion}" data-th-each="component : ${mainRegion.components}" data-th-remove="tag">
+        <div data-portal-component="${component.path}" data-th-remove="tag"></div>
+    </div>
+</div>
+</body>
+</html>

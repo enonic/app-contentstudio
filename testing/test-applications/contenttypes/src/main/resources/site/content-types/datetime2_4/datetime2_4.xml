@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Date Time</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="requiredDatetime" type="DateTime">
+      <config>
+        <timezone>true</timezone>
+      </config>
+      <label>DateTime 2:4 (with tz)</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="2" maximum="4"/>
+      <help-text>help text</help-text>
+    </input>
+  </form>
+</content-type>

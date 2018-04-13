@@ -1,0 +1,37 @@
+buildscript {
+    ext {
+        xpVersion = '6.15.0-SNAPSHOT'
+    }
+
+}
+plugins {
+    id 'maven'
+    id 'com.enonic.xp.app' version '1.0.13'
+}
+apply plugin: 'com.enonic.defaults'
+version = '2.0.0'
+app {
+    name = 'com.enonic.xp.testing.contenttypes'
+    displayName = 'All Content Types App'
+}
+
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+    compile "com.enonic.xp:core-api:${xpVersion}"
+    compile "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.xp:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-thymeleaf:${xpVersion}"
+    include "com.enonic.xp:lib-mustache:${xpVersion}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'http://repo.enonic.com/public'
+    }
+}
+
+
+

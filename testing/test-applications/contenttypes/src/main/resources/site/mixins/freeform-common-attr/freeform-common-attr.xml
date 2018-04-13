@@ -1,0 +1,25 @@
+<mixin>
+  <display-name>Common input attributes</display-name>
+  <items>
+    <input type="TextLine" name="class">
+      <label>class</label>
+      <help-text></help-text>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+    <input type="TextLine" name="style">
+      <label>style</label>
+      <help-text></help-text>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+    <input type="TextLine" name="id">
+      <label>id</label>
+      <help-text></help-text>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+    <input type="TextLine" name="name">
+      <label>name</label>
+      <help-text></help-text>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+  </items>
+</mixin>

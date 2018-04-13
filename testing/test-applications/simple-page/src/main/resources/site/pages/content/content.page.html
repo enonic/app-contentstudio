@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <title>All input types</title>
+</head>
+
+<body data-portal-component-type="page">
+
+<div>
+    <div id="content">
+        <h3>Add new content</h3>
+
+        <form action="#" data-th-action="${postUrl}" method="post" id="contentform">
+            <p>
+                <label>Checkbox</label>
+                <input id="checkBox" name="checkbox" type="Checkbox" value="true"/>
+            </p>
+
+            <p>
+                <label>Date/Time</label>
+                <input id="dateTime" name="datetime" type="DateTime" size="30" aria-required="true" value="2015-04-20T14:30:25"/>
+            </p>
+
+            <p>
+                <label>Date</label>
+                <input id="date" name="date" type="text" size="30" aria-required="true" value="2015-04-20"/>
+            </p>
+
+            <p>
+                <label>Geopoint</label>
+                <input id="geopoint" name="geopoint" type="GeoPoint" size="30" aria-required="true" value="10, 20"/>
+            </p>
+
+            <p>
+                <label>Combobox</label>
+                <input type="text" name="combobox" list="browsers" size="30" aria-required="true" value="o1"/>
+                <datalist id="browsers">
+                    <option name="o1">opt1</option>
+                    <option name="o2">opt2</option>
+                </datalist>
+            </p>
+            <p>
+                <label>Double</label>
+                <input id="double" name="double" type="text" size="30" aria-required="true" value="21.0"/>
+            </p>
+
+            <p>
+                <label>HtmlArea</label>
+                <textarea id="htmlarea" name="htmlarea" size="30" aria-required="true" style="height: 52px;">Html area test</textarea>
+            </p>
+
+            <p>
+                <label>Long</label>
+                <input id="long" name="long" type="text" size="30" aria-required="true" value="20"/>
+            </p>
+
+            <p>
+                <label>TextLine</label>
+                <input id="textline" name="textline" type="text" size="30" aria-required="true" value="my text line"/>
+            </p>
+
+            <p>
+                <label>TextArea</label>
+                <textarea id="textarea" name="textarea" size="30" aria-required="true" style="height: 52px;">Text area test</textarea>
+            </p>
+
+            <p>
+                <label>Time</label>
+                <input id="time" name="time" type="text" size="30" aria-required="true" value="20:03"/>
+            </p>
+
+            <p>
+                <label>Xml</label>
+                <input id="xml" name="xml" type="text" size="30" aria-required="true" value="&lt;tag1&gt;value&lt;/tag1&gt;"></input>
+            </p>
+
+            <p>
+                <label>Tag</label>
+                <input id="tag" name="tag" type="text" size="30" aria-required="true" value="my-tag"/>
+            </p>
+
+            <p>
+                <label>Radiobuttons</label>
+
+            <div>
+                <input type="radio" name="radio" value="o1" checked="true">Option 1</input>
+            </div>
+            <div>
+                <input type="radio" name="radio" value="o2">Option 2</input>
+            </div>
+            </p>
+            <p>
+                <input id="submit" class="submit" type="submit" value="Post Content" name="submit"/>
+                <input id="content_ID" type="hidden" data-th-value="${content._id}" value="15" name="content_ID"/>
+            </p>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

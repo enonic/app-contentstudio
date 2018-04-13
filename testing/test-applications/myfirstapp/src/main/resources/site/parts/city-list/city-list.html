@@ -1,0 +1,11 @@
+<div class="cities" style="min-height:100px;">
+    <h3>Cities</h3>
+
+    <div class="city" data-th-each="city : ${cities}">
+        <h3 data-th-text="${city.name}"></h3>
+
+        <div data-th-if="${city.cityPopulation}" data-th-text="${city.cityPopulation}"></div>
+        <div data-th-id="${city.mapId}" style="width:100%;height:300px;"></div>
+        <br/><br/>
+    </div>
+</div>

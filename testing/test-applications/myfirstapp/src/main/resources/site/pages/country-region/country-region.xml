@@ -1,0 +1,7 @@
+<page>
+  <display-name>Country Region</display-name>
+  <config/>
+  <regions>
+    <region name="country"/>
+  </regions>
+</page>

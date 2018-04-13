@@ -1,0 +1,110 @@
+<mixin>
+  <display-name>Freeform</display-name>
+  <items>
+    <item-set name="freeform">
+      <label>Form config</label>
+      <occurrences minimum="1" maximum="1"/>
+      <items>
+        <input type="TextLine" name="action">
+          <label>Action</label>
+          <help-text></help-text>
+          <occurrences minimum="0" maximum="1"/>
+        </input>
+        <input name="method" type="ComboBox">
+          <label>Method</label>
+          <occurrences minimum="1" maximum="1"/>
+          <config>
+            <option value="get">Get</option>
+            <option value="post">Post</option>
+          </config>
+          <default>get</default>
+        </input>
+        <input type="TextLine" name="class">
+          <label>Form class</label>
+          <help-text></help-text>
+          <occurrences minimum="0" maximum="1"/>
+        </input>
+        <item-set name="inputs">
+          <label>Input</label>
+          <occurrences minimum="1" maximum="0"/>
+          <items>
+            <input type="TextLine" name="label">
+              <label>label</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="id">
+              <label>id</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="name">
+              <label>name</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="class">
+              <label>class</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <option-set name="element">
+              <label>element type</label>
+              <expanded>false</expanded>
+              <occurrences minimum="1" maximum="1"/>
+              <options minimum="1" maximum="1">
+                <option name="input">
+                  <label>Input</label>
+                  <items>
+                    <input type="TextLine" name="value">
+                      <label>Value</label>
+                      <help-text></help-text>
+                      <occurrences minimum="0" maximum="1"/>
+                    </input>
+                    <input type="TextLine" name="placeholder">
+                      <label>Placeholder</label>
+                      <help-text></help-text>
+                      <occurrences minimum="0" maximum="1"/>
+                    </input>
+                    <inline mixin="freeform-input-types"/>
+                  </items>
+                </option>
+                <option name="button">
+                  <label>Button</label>
+                  <items>
+                    <input type="TextLine" name="value">
+                      <label>Value</label>
+                      <help-text></help-text>
+                      <occurrences minimum="0" maximum="1"/>
+                    </input>
+                  </items>
+                </option>
+                <option name="select">
+                  <label>Select</label>
+                  <items>
+                    <item-set name="options">
+                      <label>Options</label>
+                      <occurrences minimum="1" maximum="0"/>
+                      <items>
+                        <input type="TextLine" name="name">
+                          <label>Name</label>
+                          <help-text></help-text>
+                          <occurrences minimum="1" maximum="1"/>
+                        </input>
+                        <input type="TextLine" name="value">
+                          <label>Value</label>
+                          <help-text></help-text>
+                          <occurrences minimum="1" maximum="1"/>
+                        </input>
+                      </items>
+                    </item-set>
+                  </items>
+                </option>
+              </options>
+            </option-set>
+          </items>
+        </item-set>
+      </items>
+    </item-set>
+  </items>
+</mixin>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<id-provider xmlns="urn:enonic:xp:model:1.0">
+  <mode>MIXED</mode>
+  <config>
+
+    <field-set name="client">
+      <label>Client</label>
+      <items>
+        <input name="appDomain" type="TextLine">
+          <label>Domain</label>
+          <help-text>Copy the field "Domain" from your Auth0 client settings.</help-text>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+        <input name="appClientId" type="TextLine">
+          <label>Client ID</label>
+          <help-text>Copy the field "Client ID" from your Auth0 client settings.</help-text>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+        <input name="appSecret" type="TextLine">
+          <label>Client secret</label>
+          <help-text>Copy the field "Client Secret" from your Auth0 client settings.</help-text>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+      </items>
+    </field-set>
+    <field-set name="groups">
+      <label>Groups</label>
+      <items>
+        <input name="defaultPrincipals" type="PrincipalSelector">
+          <label>Groups</label>
+          <help-text>Groups automatically associated to new users.</help-text>
+          <occurrences minimum="0" maximum="0"/>
+          <config>
+            <principalType>GROUP</principalType>
+          </config>
+        </input>
+      </items>
+    </field-set>
+    <field-set name="options">
+      <label>Widget options</label>
+      <items>
+        <field-set name="display">
+          <label>Display</label>
+          <items>
+            <input name="allowedConnections" type="TextLine">
+              <label>Allowed connections</label>
+              <help-text>Connections displayed by the widget. Defaults to all enabled connections. Examples:
+                Username-Password-Authentication, github.
+              </help-text>
+              <occurrences minimum="0" maximum="0"/>
+            </input>
+            <input name="displayAvatar" type="Checkbox">
+              <label>Display avatar</label>
+              <help-text>Whether or not the user avatar and display name is fetched from Gravatar and display in the widget header.
+              </help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+            <input name="language" type="ComboBox">
+              <label>Language</label>
+              <help-text>Language of the widget.</help-text>
+              <occurrences minimum="1" maximum="1"/>
+              <config>
+                <option value="pt-br">Brazilian Portuguese</option>
+                <option value="ca">Catalan</option>
+                <option value="zh">Chinese</option>
+                <option value="cs">Czech</option>
+                <option value="da">Danish</option>
+                <option value="nl">Dutch</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="hu">Hungarian</option>
+                <option value="it">Italian</option>
+                <option value="nb">Norwegian Bokmål</option>
+                <option value="pl">Polish</option>
+                <option value="ru">Russian</option>
+                <option value="es">Spanish</option>
+                <option value="sv">Swedish</option>
+                <option value="zh-tw">Taiwanese Mandarin</option>
+                <option value="tr">Turkish</option>
+                <option value="vi">Vietnamese</option>
+              </config>
+              <default>en</default>
+            </input>
+            <input name="title" type="TextLine">
+              <label>Title</label>
+              <help-text>Title of the widget</help-text>
+              <occurrences minimum="1" maximum="1"/>
+              <default>Auth0</default>
+            </input>
+          </items>
+        </field-set>
+        <field-set name="theme">
+          <label>Theme</label>
+          <items>
+            <input name="labeledSubmitButton" type="Checkbox">
+              <label>Labelled submit button</label>
+              <help-text>Whether or not the submit button should have a label. When unchecked, an icon will be shown instead.</help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+            <input name="logo" type="TextLine">
+              <label>Logo URL</label>
+              <help-text>Image URL that will be placed in the widget's header. Defaults to Auth0's logo</help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input name="primaryColor" type="TextLine">
+              <label>Primary color</label>
+              <help-text>Primary color of the widget. Defaults to #ea5323.</help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+          </items>
+        </field-set>
+        <field-set name="social">
+          <label>Social</label>
+          <items>
+            <input name="socialButtonStyle" type="ComboBox">
+              <label>Social button style</label>
+              <help-text>Size of the buttons for the social providers.</help-text>
+              <occurrences minimum="1" maximum="1"/>
+              <config>
+                <option value="small">Small</option>
+                <option value="big">Big</option>
+              </config>
+              <default>small</default>
+            </input>
+          </items>
+        </field-set>
+        <field-set name="database">
+          <label>Database</label>
+          <items>
+            <input name="allowLogin" type="Checkbox">
+              <label>Allow login</label>
+              <help-text>When unchecked, the widget won't display the login screen</help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+            <input name="allowForgotPassword" type="Checkbox">
+              <label>Allow forgot password</label>
+              <help-text>When unchecked, the widget won't display the "Don't remember your password?" link</help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+            <input name="allowSignUp" type="Checkbox">
+              <label>Allow signup</label>
+              <help-text>When unchecked, the widget won't display the signup screen.</help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+            <input name="initialScreen" type="ComboBox">
+              <label>Initial screen</label>
+              <help-text>Name of the screen that will be shown when the widget is opened.</help-text>
+              <occurrences minimum="1" maximum="1"/>
+              <config>
+                <option value="login">Login</option>
+                <option value="signUp">Sign Up</option>
+                <option value="forgotPassword">Forgot Password</option>
+              </config>
+              <default>login</default>
+            </input>
+            <input name="loginAfterSignUp" type="Checkbox">
+              <label>Login after sign up</label>
+              <help-text>Whether or not the user will be signed in after a successful sign up.</help-text>
+              <occurrences minimum="0" maximum="1"/>
+              <default>checked</default>
+            </input>
+          </items>
+        </field-set>
+      </items>
+    </field-set>
+  </config>
+</id-provider>

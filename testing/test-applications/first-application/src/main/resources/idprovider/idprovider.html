@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Auth0</title>
+    <script src="https://cdn.auth0.com/js/lock/10.5.1/lock.min.js"></script>
+    {{{configScript}}}
+    <script>
+        var lock = new Auth0Lock('{{authConfig.appClientId}}', '{{authConfig.appDomain}}', lockOptions);
+        var auth0 = new Auth0(auth0Options);
+    </script>
+</head>
+<body>
+<script>
+    document.body.style.display = 'none';
+    auth0.getSSOData(function (err, data) {
+        if (err) {
+            document.body.style.display = 'inline';
+            lock.show({
+                flashMessage: {
+                    type: 'error',
+                    text: err
+                }
+            });
+        } else {
+            if (data.sso) {
+                window.location = authorizeUrl;
+            } else {
+                document.body.style.display = 'inline';
+                lock.show({
+                    flashMessage: '{{#error}}true{{/error}}' ? {
+                        type: 'error',
+                        text: '{{#error}}{{error}}{{/error}}'
+                    } : undefined
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>

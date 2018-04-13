@@ -1,0 +1,220 @@
+<mixin>
+  <display-name>Freeform</display-name>
+  <items>
+    <item-set name="freeform">
+      <label>Form config</label>
+      <occurrences minimum="1" maximum="1"/>
+      <items>
+        <input name="reCaptcha" type="CheckBox">
+          <label>Use reCaptcha</label>
+          <occurrences minimum="0" maximum="1"/>
+          <default>unchecked</default>
+          <help-text>Will display reCaptcha for this form</help-text>
+        </input>
+        <input name="xhr" type="CheckBox">
+          <label>Use XHR</label>
+          <occurrences minimum="0" maximum="1"/>
+          <default>checked</default>
+          <help-text>Use asynchronous form</help-text>
+        </input>
+        <option-set name="action">
+          <label>Action</label>
+          <expanded>false</expanded>
+          <occurrences minimum="1" maximum="1"/>
+          <options minimum="1" maximum="1">
+            <option name="save">
+              <label>Save form data</label>
+              <default>true</default>
+            </option>
+            <option name="url">
+              <label>Submit to url</label>
+              <items>
+                <input type="TextLine" name="url">
+                  <label>Url</label>
+                  <help-text></help-text>
+                </input>
+              </items>
+            </option>
+            <option name="content">
+              <label>Redirect to content</label>
+              <items>
+                <input name="content" type="ContentSelector">
+                  <label>Select content</label>
+                  <occurrences minimum="0" maximum="1"/>
+                  <config></config>
+                </input>
+              </items>
+            </option>
+            <option name="email">
+              <label>Send e-mail</label>
+              <items>
+                <input name="receipt" type="CheckBox">
+                  <label>Store receipt</label>
+                  <occurrences minimum="0" maximum="1"/>
+                  <default>checked</default>
+                  <help-text>Will store receipt of all send emails</help-text>
+                </input>
+                <input type="TextLine" name="from">
+                  <label>From e-mail</label>
+                  <help-text>Include displayName with �Some Name &lt;name@domain.org&gt;� Make sure your smtp server can send from this
+                    address
+                  </help-text>
+                </input>
+                <input type="TextLine" name="to">
+                  <label>To e-mail</label>
+                  <help-text></help-text>
+                </input>
+                <input type="TextLine" name="subject">
+                  <label>Subject</label>
+                  <help-text></help-text>
+                </input>
+                <input type="HtmlArea" name="body">
+                  <label>Body</label>
+                  <help-text>Use %[input name]% to use form input values in generated email</help-text>
+                  <config>
+                    <exclude>*</exclude>
+                    <include>styleselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | charmap anchor |
+                      table
+                    </include>
+                  </config>
+                </input>
+              </items>
+            </option>
+          </options>
+        </option-set>
+        <input name="method" type="ComboBox">
+          <label>Method</label>
+          <occurrences minimum="1" maximum="1"/>
+          <config>
+            <option value="get">Get</option>
+            <option value="post">Post</option>
+          </config>
+          <default>get</default>
+        </input>
+        <inline mixin="freeform-common-attr"/>
+        <item-set name="customattributes">
+          <label>custom attribute</label>
+          <occurrences minimum="0" maximum="0"/>
+          <items>
+            <inline mixin="freeform-name-value"/>
+          </items>
+        </item-set>
+        <item-set name="fieldsets">
+          <label>Fieldset</label>
+          <occurrences minimum="1" maximum="0"/>
+          <items>
+            <input type="TextLine" name="legend">
+              <label>legend</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="class">
+              <label>class</label>
+              <help-text></help-text>
+              <occurrences minimum="0" maximum="1"/>
+            </input>
+            <item-set name="inputs">
+              <label>Input</label>
+              <occurrences minimum="1" maximum="0"/>
+              <items>
+                <inline mixin="freeform-common-attr"/>
+                <input type="TextLine" name="label">
+                  <label>label</label>
+                  <help-text></help-text>
+                  <occurrences minimum="0" maximum="1"/>
+                </input>
+                <item-set name="customattributes">
+                  <label>custom attribute</label>
+                  <occurrences minimum="0" maximum="0"/>
+                  <items>
+                    <inline mixin="freeform-name-value"/>
+                  </items>
+                </item-set>
+                <option-set name="element">
+                  <label>element type</label>
+                  <expanded>false</expanded>
+                  <occurrences minimum="1" maximum="1"/>
+                  <options minimum="1" maximum="1">
+                    <option name="input">
+                      <label>Input</label>
+                      <default>true</default>
+                      <items>
+                        <input name="required" type="RadioButton">
+                          <label>Required</label>
+                          <occurrences minimum="0" maximum="0"/>
+                          <config>
+                            <option value="false">false</option>
+                            <option value="true">true</option>
+                          </config>
+                          <default>false</default>
+                        </input>
+                        <input type="TextLine" name="value">
+                          <label>Value</label>
+                          <help-text></help-text>
+                          <occurrences minimum="0" maximum="1"/>
+                        </input>
+                        <input type="TextLine" name="placeholder">
+                          <label>Placeholder</label>
+                          <help-text></help-text>
+                          <occurrences minimum="0" maximum="1"/>
+                        </input>
+                        <inline mixin="freeform-input-types"/>
+                      </items>
+                    </option>
+                    <option name="textarea">
+                      <label>Textarea</label>
+                      <items>
+                        <input name="required" type="RadioButton">
+                          <label>Required</label>
+                          <occurrences minimum="0" maximum="0"/>
+                          <config>
+                            <option value="false">false</option>
+                            <option value="true">true</option>
+                          </config>
+                          <default>false</default>
+                        </input>
+                        <input type="TextLine" name="placeholder">
+                          <label>Placeholder</label>
+                          <help-text></help-text>
+                          <occurrences minimum="0" maximum="1"/>
+                        </input>
+                        <input type="TextLine" name="rows">
+                          <label>Rows</label>
+                          <help-text></help-text>
+                          <occurrences minimum="0" maximum="1"/>
+                        </input>
+                        <input type="TextLine" name="cols">
+                          <label>Cols</label>
+                          <help-text></help-text>
+                          <occurrences minimum="0" maximum="1"/>
+                        </input>
+                      </items>
+                    </option>
+                    <option name="button">
+                      <label>Button</label>
+                      <items>
+                        <inline mixin="freeform-name-value"/>
+                      </items>
+                    </option>
+                    <option name="select">
+                      <label>Select</label>
+                      <items>
+                        <item-set name="options">
+                          <label>Options</label>
+                          <occurrences minimum="1" maximum="0"/>
+                          <items>
+                            <inline mixin="freeform-name-value"/>
+                          </items>
+                        </item-set>
+                      </items>
+                    </option>
+                  </options>
+                </option-set>
+              </items>
+            </item-set>
+          </items>
+        </item-set>
+      </items>
+    </item-set>
+  </items>
+</mixin>

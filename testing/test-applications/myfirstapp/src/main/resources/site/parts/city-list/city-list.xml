@@ -1,0 +1,19 @@
+<part>
+  <display-name>City list</display-name>
+  <config>
+    <input type="ComboBox" name="mapType">
+      <label>Map type</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config>
+        <option value="ROADMAP">ROADMAP</option>
+        <option value="SATELLITE">SATELLITE</option>
+        <option value="HYBRID">HYBRID</option>
+        <option value="TERRAIN">TERRAIN</option>
+      </config>
+    </input>
+    <input type="TextLine" name="zoom">
+      <label>Zoom level 1-15</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+  </config>
+</part>

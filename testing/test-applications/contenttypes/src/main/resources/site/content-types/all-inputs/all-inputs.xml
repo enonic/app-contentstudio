@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>All the Input Types</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="myCheckbox" type="Checkbox">
+      <label>Checkbox</label>
+      <occurrences minimum="0" maximum="0"/>
+    </input>
+    <input name="myComboBox" type="ComboBox">
+      <label>ComboBox</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config>
+        <option value="option1">myOption 1</option>
+        <option value="option2">myOption 2</option>
+      </config>
+    </input>
+
+    <input name="double" type="Double">
+      <label>Double</label>
+      <occurrences minimum="0" maximum="0"/>
+    </input>
+    <input name="myGeoPoint" type="GeoPoint">
+      <label>GeoPoint</label>
+      <occurrences minimum="0" maximum="0"/>
+    </input>
+
+    <input name="myImageSelector" type="ImageSelector">
+      <label>ImageSelector</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config/>
+    </input>
+    <input name="long" type="Long">
+      <label>Long</label>
+      <occurrences minimum="0" maximum="0"/>
+    </input>
+    <input name="myRelationship" type="ContentSelector">
+      <label>Relationship (like)</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config>
+        <relationship-type>system:reference</relationship-type>
+      </config>
+    </input>
+    <input name="myRadioButtons" type="RadioButton">
+      <label>Radio Buttons</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config>
+        <option value="option1">myOption 1</option>
+        <option value="option2">myOption 2</option>
+      </config>
+    </input>
+
+    <input name="TextLine_0_1" type="TextLine">
+      <label>TextLine</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+  </form>
+</content-type>

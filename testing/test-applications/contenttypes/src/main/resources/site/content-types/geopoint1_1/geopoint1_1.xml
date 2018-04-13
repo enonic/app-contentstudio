@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Geo Location 1:1</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="geo-location" type="GeoPoint">
+      <label>req geo location</label>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="1" maximum="1"/>
+      <help-text>Where are you?</help-text>
+    </input>
+  </form>
+</content-type>

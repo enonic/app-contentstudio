@@ -1,0 +1,28 @@
+plugins {
+    id 'maven'
+    id 'com.enonic.xp.app' version '1.0.13'
+}
+apply plugin: 'com.enonic.defaults'
+app {
+    name = 'com.enonic.xp.testing.first_app'
+    displayName = 'First Selenium App'
+}
+version = '2.0.0'
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+    compile "com.enonic.xp:core-api:6.15.0-SNAPSHOT"
+    compile "com.enonic.xp:portal-api:6.15.0-SNAPSHOT"
+    include "com.enonic.xp:lib-content:6.15.0-SNAPSHOT"
+    include "com.enonic.xp:lib-portal:6.15.0-SNAPSHOT"
+    include "com.enonic.xp:lib-thymeleaf:6.15.0-SNAPSHOT"
+    include "com.enonic.xp:lib-mustache:6.15.0-SNAPSHOT"
+    include "com.enonic.xp:lib-i18n:6.15.0-SNAPSHOT"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    xp.enonicRepo()
+}
+
+

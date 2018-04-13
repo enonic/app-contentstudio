@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Custom Selector</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="my-custom-selector-1" type="CustomSelector">
+      <label>Custom Selector (0-2)</label>
+      <occurrences minimum="0" maximum="2"/>
+      <config>
+        <service>customSelector</service>
+      </config>
+    </input>
+  </form>
+</content-type>

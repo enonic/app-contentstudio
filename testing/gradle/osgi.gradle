@@ -1,0 +1,12 @@
+import com.enonic.gradle.OsgiConfigurator
+
+apply plugin: 'org.dm.bundle'
+
+bundle {
+    instruction 'Bundle-SymbolicName', group + '.' + name.replace( '-', '.' )
+    instruction '-nouses', 'true'
+    instruction '-dsannotations', '*'
+    instruction 'Implementation-Version', project.version
+}
+
+OsgiConfigurator.configure( project );

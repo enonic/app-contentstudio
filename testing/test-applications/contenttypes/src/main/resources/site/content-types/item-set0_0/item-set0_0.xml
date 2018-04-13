@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Item set</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <item-set name="myItemSet">
+      <label>ItemSet</label>
+      <items>
+        <input name="textLine" type="TextLine">
+          <label>TextLine</label>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+        <input name="myHtmlArea" type="HtmlArea">
+          <label>HtmlArea</label>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+      </items>
+      <occurrences minimum="0" maximum="0"/>
+    </item-set>
+  </form>
+</content-type>

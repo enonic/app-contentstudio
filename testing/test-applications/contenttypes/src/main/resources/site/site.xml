@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site>
+  <config>
+    <input type="ImageSelector" name="backgroundImage">
+      <label>Background image</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config/>
+    </input>
+    <input type="TextLine" name="numPosts">
+      <label>Max posts per page</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+    <input type="ContentSelector" name="postsFolder">
+      <label>Posts folder</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config>
+        <relationship-type>system:reference</relationship-type>
+        <allow-content-type>base:folder</allow-content-type>
+      </config>
+    </input>
+    <input type="HtmlArea" name="footerText">
+      <label>Footer text</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+    <input name="commentSort" type="ComboBox">
+      <label>Comments sort</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config>
+        <option value="ASC">Oldest on top</option>
+        <option value="DESC">Newest on top</option>
+      </config>
+    </input>
+
+    <input type="Checkbox" name="noLogin">
+      <label>Disallow login</label>
+      <occurrences minimum="0" maximum="1"/>
+    </input>
+  </config>
+</site>

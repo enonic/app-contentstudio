@@ -1,0 +1,16 @@
+<div>
+    <div>
+        <h2>Cities distances</h2>
+    </div>
+    <div>
+        <span>Cities ordered by distance from: </span><span data-th-text="${currentCity}"></span>
+    </div>
+    <div>
+        <span>Cities total: </span><span data-th-text="${total}"></span>
+    </div>
+    <div>
+        <ol>
+            <li data-th-each="bucket : ${buckets}" data-th-text="${bucket.key} + ': ' + ${bucket.docCount}"/>
+        </ol>
+    </div>
+</div>

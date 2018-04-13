@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Country list</title>
+</head>
+<body data-portal-component-type="page">
+<h1>Country list</h1>
+
+<h2>Countries</h2>
+<ul>
+    <li data-th-each="country : ${countries}">
+        <strong>
+            <a data-th-href="${country.contentUrl}" data-th-text="${country.name}"></a>
+        </strong>
+    </li>
+</ul>
+</body>
+</html>

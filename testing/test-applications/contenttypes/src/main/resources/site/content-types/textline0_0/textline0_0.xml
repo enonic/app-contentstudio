@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<content-type>
+  <display-name>Text Line</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="TextLine_0_0" type="TextLine">
+      <label>Text Line 1:0</label>
+      <default>default text</default>
+      <indexed>true</indexed>
+      <custom-text>Custom text</custom-text>
+      <occurrences minimum="0" maximum="0"/>
+      <help-text>one or more required text inputs</help-text>
+    </input>
+  </form>
+</content-type>
