@@ -20,6 +20,7 @@ import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import Content = api.content.Content;
 import TreeNode = api.ui.treegrid.TreeNode;
+import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
@@ -376,6 +377,12 @@ export class PageComponentsView
         this.tree.onLoaded(() => {
             this.bindTextComponentViewsUpdateOnTextModify();
             this.subscribeOnFragmentLoadError();
+        });
+
+        this.tree.onDataChanged((event: DataChangedEvent<ItemView>) => {
+            if (event.getType() !== DataChangedEvent.UPDATED) {
+                this.constrainToParent();
+            }
         });
 
         this.tree.getGrid().subscribeOnDrag(() => {
