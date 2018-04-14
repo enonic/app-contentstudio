@@ -208,7 +208,6 @@ export class MoveContentDialog
     }
 
     show() {
-        api.dom.Body.get().appendChild(this);
         super.show();
         this.destinationSearchInput.giveFocus();
     }

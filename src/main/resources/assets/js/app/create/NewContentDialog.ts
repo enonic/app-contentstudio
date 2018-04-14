@@ -49,7 +49,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
         this.appendElementsToDialog();
 
-        api.dom.Body.get().appendChild(this);
     }
 
     protected createHeader(): NewContentDialogHeader {
@@ -167,7 +166,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
         this.appendChildToContentPanel(this.recentContentTypes);
 
-        this.getContentPanel().getParentElement().appendChild(this.loadMask);
     }
 
     setParentContent(parent: api.content.Content) {
@@ -197,6 +195,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     show() {
+        this.getContentPanel().getParentElement().appendChild(this.loadMask);
         this.updateDialogTitlePath();
 
         this.fileInput.disable();
@@ -214,6 +213,10 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.mostPopularContentTypes.hide();
         this.clearAllItems();
         super.hide();
+
+        if (this.getContentPanel().getParentElement().hasChild(this.loadMask)) {
+            this.getContentPanel().getParentElement().removeChild(this.loadMask);
+        }
     }
 
     close() {
