@@ -32,20 +32,19 @@
     }
   }
 
+  &.locked {
+    .grid {
+      pointer-events: none;
+    }
+  }
+
+
   .tree-grid {
     width: 370px;
     padding-bottom: 15px;
     height: auto;
     overflow-y: auto;
     flex: 1 auto;
-
-    &.masked .grid {
-      pointer-events: none;
-    }
-
-    & + .@{_COMMON_PREFIX}mask {
-      z-index: -1;
-    }
 
     .grid {
       height: initial !important;
