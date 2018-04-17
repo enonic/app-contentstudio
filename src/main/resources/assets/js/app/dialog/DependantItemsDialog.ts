@@ -178,7 +178,6 @@ export class DependantItemsDialog
     }
 
     show(hideLoadMask: boolean = false) {
-        api.dom.Body.get().appendChild(this);
         this.setDependantListVisible(this.showDependantList);
         super.show();
         if (!hideLoadMask) {

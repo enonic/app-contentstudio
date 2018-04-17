@@ -40,7 +40,6 @@ export class ConfirmContentDeleteDialog
     }
 
     show() {
-        api.dom.Body.get().appendChild(this);
         super.show();
         this.input.giveFocus();
     }

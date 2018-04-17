@@ -36,7 +36,6 @@ export class SchedulePublishDialog
         this.resetPublishDates();
         this.formView.displayValidationErrors(false);
         this.confirmScheduleAction.setEnabled(true);
-        api.dom.Body.get().appendChild(this);
         super.show();
     }
 

@@ -102,8 +102,6 @@ export class EditPermissionsDialog
         });
         this.addAction(this.applyAction, true);
 
-        api.dom.Body.get().appendChild(this);
-
         this.comboBox.onOptionValueChanged(comboBoxChangeListener);
         this.comboBox.onOptionSelected(comboBoxChangeListener);
         this.comboBox.onOptionDeselected(comboBoxChangeListener);
