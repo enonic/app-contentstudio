@@ -20,7 +20,7 @@ import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import Content = api.content.Content;
 import TreeNode = api.ui.treegrid.TreeNode;
-import Mask = api.ui.mask.Mask;
+import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
@@ -45,8 +45,6 @@ export class PageComponentsView
     private modal: boolean;
     private floating: boolean;
     private draggable: boolean;
-
-    private mask: Mask;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -93,11 +91,11 @@ export class PageComponentsView
 
         this.setModal(false).setFloating(true).setDraggable(true);
 
-        this.onShown((event) => {
+        this.onShown(() => {
             this.constrainToParent();
             this.getHTMLElement().style.display = '';
             if (this.pageView && this.pageView.isLocked()) {
-                this.mask.show();
+                this.addClass('locked');
             }
         });
 
@@ -132,15 +130,13 @@ export class PageComponentsView
 
     setPageView(pageView: PageView) {
 
-        if (this.mask) {
-            this.destroyMask();
-        }
+        this.removeClass('locked');
 
         this.pageView = pageView;
         if (!this.tree && this.content && this.pageView) {
 
             this.createTree(this.content, this.pageView);
-            this.initMask();
+            this.initLock();
 
         } else if (this.tree) {
 
@@ -148,7 +144,7 @@ export class PageComponentsView
             Highlighter.get().hide();
 
             this.tree.setPageView(pageView).then(() => {
-                this.initMask();
+                this.initLock();
             });
         }
 
@@ -159,26 +155,13 @@ export class PageComponentsView
         this.pageView.onPageLocked(this.pageLockedHandler.bind(this));
     }
 
-    private destroyMask() {
-        this.mask.remove();
-        this.mask = null;
-
-        if (this.pageView && !api.BrowserHelper.isIE()) { // Live Edit iframe changed, so old pageView object is not reachable in IE
-            this.pageView.unPageLocked(this.pageLockedHandler.bind(this));
-        }
-    }
-
-    private initMask() {
-        this.mask = new Mask(this.tree);
-        this.appendChild(this.mask);
-        this.applyMaskToTree();
-
+    private initLock() {
         if (this.pageView.isLocked()) {
-            this.mask.show();
+            this.addClass('locked');
         }
 
-        this.mask.onContextMenu((event: MouseEvent) => this.maskClickHandler(event));
-        this.mask.onClicked((event: MouseEvent) => this.maskClickHandler(event));
+        this.onContextMenu((event: MouseEvent) => this.lockedViewClickHandler(event));
+        this.onClicked((event: MouseEvent) => this.lockedViewClickHandler(event));
     }
 
     setContent(content: Content) {
@@ -394,7 +377,12 @@ export class PageComponentsView
         this.tree.onLoaded(() => {
             this.bindTextComponentViewsUpdateOnTextModify();
             this.subscribeOnFragmentLoadError();
-            this.applyMaskToTree();
+        });
+
+        this.tree.onDataChanged((event: DataChangedEvent<ItemView>) => {
+            if (event.getType() !== DataChangedEvent.UPDATED) {
+                this.constrainToParent();
+            }
         });
 
         this.tree.getGrid().subscribeOnDrag(() => {
@@ -404,13 +392,6 @@ export class PageComponentsView
         this.tree.getGrid().subscribeOnDragEnd(() => {
             this.removeClass('dragging');
         });
-    }
-
-    private applyMaskToTree() {
-        if (!this.mask || !this.tree) {
-            return;
-        }
-        this.mask.getEl().setHeightPx(this.tree.getEl().getHeight());
     }
 
     private highlightInvalidItems() {
@@ -430,10 +411,7 @@ export class PageComponentsView
     }
 
     private isMenuIcon(element: HTMLElement): boolean {
-        if (!!element && !!element.className && element.className.indexOf('menu-icon') > -1) {
-            return true;
-        }
-        return false;
+        return !!element && !!element.className && element.className.indexOf('menu-icon') > -1;
     }
 
     private bindTextComponentViewsUpdateOnTextModify() {
@@ -645,20 +623,14 @@ export class PageComponentsView
         }
     }
 
-    private pageLockedHandler(value: boolean) {
-        if (this.mask) {
-            if (value) {
-                this.mask.show();
-            } else {
-                this.mask.hide();
-            }
-        }
+    private pageLockedHandler(lock: boolean) {
+        this.toggleClass('locked', lock);
         if (this.tree) {
             this.tree.reload();
         }
     }
 
-    private maskClickHandler(event: MouseEvent) {
+    private lockedViewClickHandler(event: MouseEvent) {
         event.stopPropagation();
         event.preventDefault();
 
