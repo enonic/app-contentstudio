@@ -32,7 +32,9 @@
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/_all.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/_all.css">
-
+    <script type="text/javascript">
+        var CKEDITOR_BASEPATH = '{{assetsUri}}/admin/common/lib/ckeditor/';
+    </script>
     <script type="text/javascript" src="{{assetsUri}}/admin/common/lib/_all.js"></script>
 
 </head>
@@ -43,6 +45,7 @@
     var CONFIG = {
         appId: '{{appId}}',
         xpVersion: '{{xpVersion}}',
+        isCkeUsed: {{isCkeUsed}},
         appIconUrl: '{{assetsUri}}/icons/icon-white.svg',
         assetsUri: '{{assetsUri}}',
         adminUrl: '{{adminUrl}}',
@@ -50,6 +53,10 @@
         messages: {{{messages}}},
         launcherUrl: '{{launcherUrl}}'
     };
+
+    if (CKEDITOR) {
+        CKEDITOR.config.language = '{{locale}}';
+    }
 </script>
 
 <!-- App javascript -->
