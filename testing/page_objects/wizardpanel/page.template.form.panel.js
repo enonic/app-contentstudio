@@ -40,7 +40,7 @@ var pageTemplateForm = Object.create(page, {
             return this.doClick(selector).catch(err=> {
                 this.saveScreenshot('err_remove_support');
                 throw new Error('error when clicking on remove-support icon ' + err);
-            })
+            }).pause(1000);
         }
     }
 });
