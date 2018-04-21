@@ -15,7 +15,7 @@ import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import i18n = api.util.i18n;
 import ImageContentComboBox = api.content.image.ImageContentComboBox;
 import ContentSelectedOptionsView = api.content.ContentSelectedOptionsView;
-import ImageTreeSelectorItem = api.content.image.ImageTreeSelectorItem;
+import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
@@ -139,15 +139,15 @@ export class ImageInspectionPanel
 
     private initSelectorListeners() {
 
-        this.imageSelector.onOptionSelected((event: SelectedOptionEvent<ImageTreeSelectorItem>) => {
+        this.imageSelector.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
-                let option: Option<ImageTreeSelectorItem> = event.getSelectedOption().getOption();
+                let option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
                 let imageContent = option.displayValue;
                 this.imageComponent.setImage(imageContent.getContentId(), imageContent.getDisplayName());
             }
         });
 
-        this.imageSelector.onOptionDeselected((event: SelectedOptionEvent<ImageTreeSelectorItem>) => {
+        this.imageSelector.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
                 this.imageComponent.reset();
             }
