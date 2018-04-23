@@ -41,6 +41,8 @@ import RegionPath = api.content.page.region.RegionPath;
 import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
 
+declare var CONFIG;
+
 export class PageViewBuilder {
 
     liveEditModel: LiveEditModel;
@@ -119,6 +121,8 @@ export class PageView
 
     private isRenderable: boolean;
 
+    private isCKEditor: boolean;
+
     constructor(builder: PageViewBuilder) {
 
         super(new ItemViewBuilder()
@@ -129,6 +133,8 @@ export class PageView
             .setType(PageItemType.get())
             .setElement(builder.element)
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditModel.getContent())));
+
+        this.isCKEditor = CONFIG.isCkeUsed;
 
         this.setPlaceholder(new PagePlaceholder(this));
 
@@ -330,7 +336,11 @@ export class PageView
 
     appendContainerForTextToolbar() {
         if (!this.hasToolbarContainer()) {
-            this.editorToolbar = new api.dom.DivEl('mce-toolbar-container');
+            if (this.isCKEditor) {
+                this.editorToolbar = new api.dom.DivEl('cke-toolbar-container').setId('cke-toolbar-container').setContentEditable(true);
+            } else {
+                this.editorToolbar = new api.dom.DivEl('mce-toolbar-container');
+            }
             this.appendChild(this.editorToolbar);
             this.addClass('has-toolbar-container');
             PageViewController.get().setEditorToolbar(this.editorToolbar);
@@ -339,6 +349,14 @@ export class PageView
 
     private hasToolbarContainer(): boolean {
         return this.hasClass('has-toolbar-container');
+    }
+
+    getEditorToolbarContainerId(): string {
+        if (this.editorToolbar) {
+            return this.editorToolbar.getId();
+        }
+
+        return null;
     }
 
     private setIgnorePropertyChanges(value: boolean) {
@@ -472,11 +490,12 @@ export class PageView
     }
 
     private isTextEditorToolbarClicked(event: MouseEvent) {
-        let target = <HTMLElement> event.target;
+        const target = <HTMLElement> event.target;
+        const prefix = this.isCKEditor ? 'cke' : 'mce';
         if (!!target) {
-            let parent = <HTMLElement> target.parentElement;
-            return (target.id.indexOf('mce') >= 0 || target.className.indexOf('mce') >= 0 ||
-                    parent.id.indexOf('mce') >= 0 || parent.className.indexOf('mce') >= 0);
+            const parent = <HTMLElement> target.parentElement;
+            return (target.id.indexOf(prefix) >= 0 || target.className.indexOf(prefix) >= 0 ||
+                    parent.id.indexOf(prefix) >= 0 || parent.className.indexOf(prefix) >= 0);
         }
         return false;
     }
@@ -613,7 +632,11 @@ export class PageView
     }
 
     private getEditorToolbarWidth(): number {
-        return wemjq(`.mce-toolbar-container .mce-tinymce-inline:not([style*='display: none'])`).outerHeight();
+        if (this.isCKEditor) {
+            return wemjq(`.cke-toolbar-container .cke_reset_all:not([style*='display: none']) .cke_top`).outerHeight();
+        } else {
+            return wemjq(`.mce-toolbar-container .mce-tinymce-inline:not([style*='display: none'])`).outerHeight();
+        }
     }
 
     hasTargetWithinTextComponent(target: HTMLElement) {

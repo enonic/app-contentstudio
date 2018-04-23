@@ -29,7 +29,7 @@ export class TextComponentViewBuilder
     }
 }
 
-export class TextComponentView
+export class TextComponentViewCK
     extends ComponentView<TextComponent> {
 
     private rootElement: api.dom.Element;
@@ -107,7 +107,7 @@ export class TextComponentView
             tinymce.activeEditor.fire('blur');
         }
         this.focusOnInit = true;
-        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        this.addClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
         if (!this.isEditorReady()) {
             this.initEditor();
         } else if (this.htmlAreaEditor) {
@@ -186,7 +186,7 @@ export class TextComponentView
         this.startPageTextEditMode();
         if (this.htmlAreaEditor) {
             this.htmlAreaEditor.focus();
-            this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+            this.addClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
         }
         Highlighter.get().hide();
     }
@@ -206,7 +206,7 @@ export class TextComponentView
     }
 
     handleClick(event: MouseEvent) {
-        if (TextComponentView.debug) {
+        if (TextComponentViewCK.debug) {
             console.group('Handling click [' + this.getId() + '] at ' + new Date().getTime());
             console.log(event);
         }
@@ -217,7 +217,7 @@ export class TextComponentView
         }
 
         if (this.isEditMode() && this.isActive()) {
-            if (TextComponentView.debug) {
+            if (TextComponentViewCK.debug) {
                 console.log('Is in text edit mode, not handling click');
                 console.groupEnd();
             }
@@ -226,19 +226,19 @@ export class TextComponentView
 
         let timeSinceLastClick = new Date().getTime() - this.lastClicked;
 
-        if (timeSinceLastClick > TextComponentView.DBL_CLICK_TIMEOUT) {
+        if (timeSinceLastClick > TextComponentViewCK.DBL_CLICK_TIMEOUT) {
             this.singleClickTimer = setTimeout(() => {
-                if (TextComponentView.debug) {
-                    console.log('no dblclick occured during ' + TextComponentView.DBL_CLICK_TIMEOUT + 'ms, notifying click', this);
+                if (TextComponentViewCK.debug) {
+                    console.log('no dblclick occured during ' + TextComponentViewCK.DBL_CLICK_TIMEOUT + 'ms, notifying click', this);
                     console.groupEnd();
                 }
 
                 this.doHandleClick(event);
-            }, TextComponentView.DBL_CLICK_TIMEOUT);
+            }, TextComponentViewCK.DBL_CLICK_TIMEOUT);
 
         } else {
 
-            if (TextComponentView.debug) {
+            if (TextComponentViewCK.debug) {
                 console.log('dblclick occured after ' + timeSinceLastClick + 'ms, notifying dbl click', this);
                 // end the group started by the first click first
                 console.groupEnd();
@@ -266,7 +266,7 @@ export class TextComponentView
             if (this.htmlAreaEditor) {
                 this.processEditorValue();
             }
-            this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+            this.removeClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
             this.triggerEventInActiveEditorForFirefox('blur');
         }
 
@@ -281,12 +281,12 @@ export class TextComponentView
             if (this.component.isEmpty()) {
                 if (this.htmlAreaEditor) {
                     if (this.isCKEditor) {
-                        this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
+                        this.htmlAreaEditor.setData(TextComponentViewCK.DEFAULT_TEXT);
                     } else {
-                        this.htmlAreaEditor.setContent(TextComponentView.DEFAULT_TEXT);
+                        this.htmlAreaEditor.setContent(TextComponentViewCK.DEFAULT_TEXT);
                     }
                 }
-                this.rootElement.setHtml(TextComponentView.DEFAULT_TEXT, false);
+                this.rootElement.setHtml(TextComponentViewCK.DEFAULT_TEXT, false);
                 this.selectText();
             }
 
@@ -304,11 +304,11 @@ export class TextComponentView
     }
 
     private onFocusHandler(e: FocusEvent) {
-        this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        this.addClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
     }
 
     private onBlurHandler(e: FocusEvent) {
-        this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+        this.removeClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
 
         if (!this.isCKEditor) {
             this.collapseEditorMenuItems();
@@ -337,7 +337,7 @@ export class TextComponentView
 
         if (e.keyCode === 27 || saveShortcut) { // esc or Cmd-S
             PageViewController.get().setTextEditMode(false);
-            this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+            this.removeClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
         } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
             let nextFocusable = api.dom.FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
             if (nextFocusable) {
@@ -444,7 +444,7 @@ export class TextComponentView
         if (this.component.getText()) {
             this.htmlAreaEditor.setContent(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
         } else {
-            this.htmlAreaEditor.setContent(TextComponentView.DEFAULT_TEXT);
+            this.htmlAreaEditor.setContent(TextComponentViewCK.DEFAULT_TEXT);
             this.htmlAreaEditor.selection.select(this.htmlAreaEditor.getBody(), true);
         }
         if (this.focusOnInit && this.isAdded()) {
@@ -465,7 +465,7 @@ export class TextComponentView
         if (this.component.getText()) {
             this.htmlAreaEditor.setData(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
         } else {
-            this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
+            this.htmlAreaEditor.setData(TextComponentViewCK.DEFAULT_TEXT);
         }
 
         if (this.focusOnInit && this.isAdded()) {
@@ -493,7 +493,7 @@ export class TextComponentView
         let textItemViews = (<PageView>this.getPageView()).getItemViewsByType(TextItemType.get());
 
         let editorFocused = textItemViews.some((view: ItemView) => {
-            return view.getEl().hasClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+            return view.getEl().hasClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
         });
 
         let dialogVisible = !!this.modalDialog && this.modalDialog.isVisible();
@@ -515,9 +515,9 @@ export class TextComponentView
 
     private processEditorValueTinyMce() {
         if (this.isEditorEmpty()) {
-            this.component.setText(TextComponentView.DEFAULT_TEXT);
+            this.component.setText(TextComponentViewCK.DEFAULT_TEXT);
             // copy editor content over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = TextComponentView.DEFAULT_TEXT;
+            this.rootElement.getHTMLElement().innerHTML = TextComponentViewCK.DEFAULT_TEXT;
         } else {
             // copy editor raw content (without any processing!) over to the root html element
             this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getContent({format: 'raw'});
@@ -528,9 +528,9 @@ export class TextComponentView
 
     private processEditorValueCKE() {
         if (this.isEditorEmptyCKE()) {
-            this.component.setText(TextComponentView.DEFAULT_TEXT);
+            this.component.setText(TextComponentViewCK.DEFAULT_TEXT);
             // copy editor content over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = TextComponentView.DEFAULT_TEXT;
+            this.rootElement.getHTMLElement().innerHTML = TextComponentViewCK.DEFAULT_TEXT;
         } else {
             // copy editor raw content (without any processing!) over to the root html element
             this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getSnapshot();

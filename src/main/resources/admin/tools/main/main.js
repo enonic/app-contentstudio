@@ -14,7 +14,9 @@ function handleGet() {
         appName: 'Content Studio',
         appId: app.name,
         xpVersion: app.version,
+        isCkeUsed: app.config.htmlarea === 'ckeditor',
         messages: admin.getPhrases(),
+        locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl()
     };

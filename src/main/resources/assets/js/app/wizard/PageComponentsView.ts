@@ -9,6 +9,7 @@ import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
+import {TextComponentViewCK} from '../../page-editor/text/TextComponentViewCK';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
@@ -210,7 +211,8 @@ export class PageComponentsView
                             }
                         }
 
-                        if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
+                        if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView) ||
+                            api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentViewCK)) {
                             this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
                         }
 
@@ -306,7 +308,8 @@ export class PageComponentsView
             }
 
             let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData();
-            let isTextComponent = api.ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
+            let isTextComponent = api.ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView) ||
+                                  api.ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentViewCK);
 
             if (isTextComponent) {
                 this.editTextComponent(clickedItemView);
@@ -418,7 +421,8 @@ export class PageComponentsView
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
             return dataItem.getData();
         }).filter((itemView: ItemView) => {
-            return api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
+            return api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView) ||
+                   api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentViewCK);
         }).forEach((textComponentView: TextComponentView) => {
             this.bindTreeTextNodeUpdateOnTextComponentModify(textComponentView);
         });
