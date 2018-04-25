@@ -71,6 +71,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             }).then(()=> {
                 return contentWizard.waitAndClickOnSave();
             }).then(()=> {
+                studioUtils.saveScreenshot("support_selected_in_template");
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(()=> {
                 return contentWizard.waitForControllerOptionFilterInputNotVisible();
