@@ -1,6 +1,5 @@
 import '../../api.ts';
 import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortContentTabMenuItem';
-
 import ChildOrder = api.content.order.ChildOrder;
 import QueryField = api.query.QueryField;
 import FieldOrderExprBuilder = api.content.order.FieldOrderExprBuilder;
@@ -17,6 +16,8 @@ export class SortContentTabMenuItems {
     public SORT_DESC_DISPALAY_NAME_ITEM: SortContentTabMenuItem;
     public SORT_ASC_MODIFIED_ITEM: SortContentTabMenuItem;
     public SORT_DESC_MODIFIED_ITEM: SortContentTabMenuItem;
+    public SORT_ASC_PUBLISH_ITEM: SortContentTabMenuItem;
+    public SORT_DESC_PUBLISH_ITEM: SortContentTabMenuItem;
     public SORT_MANUAL_ITEM: SortContentTabMenuItem;
 
     private items: SortContentTabMenuItem[] = [];
@@ -44,14 +45,27 @@ export class SortContentTabMenuItems {
         this.SORT_DESC_MODIFIED_ITEM =
             createOrder(i18n('field.sortType.modifiedDesc'),
                 [{field: QueryField.MODIFIED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}]);
+        this.SORT_ASC_PUBLISH_ITEM =
+            createOrder(i18n('field.sortType.publishAsc'),
+                [{field: QueryField.PUBLISH_FROM, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]);
+        this.SORT_DESC_PUBLISH_ITEM =
+            createOrder(i18n('field.sortType.publishDesc'),
+                [{field: QueryField.PUBLISH_FROM, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}]);
         this.SORT_MANUAL_ITEM =
             createOrder(i18n('field.sortType.manual'), [
                 {field: QueryField.MANUAL_ORDER_VALUE, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE},
                 {field: QueryField.TIMESTAMP, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}
             ]);
 
-        this.items.push(this.SORT_ASC_DISPALAY_NAME_ITEM, this.SORT_DESC_DISPALAY_NAME_ITEM, this.SORT_ASC_MODIFIED_ITEM,
-            this.SORT_DESC_MODIFIED_ITEM, this.SORT_MANUAL_ITEM);
+        this.items.push(
+            this.SORT_ASC_DISPALAY_NAME_ITEM,
+            this.SORT_DESC_DISPALAY_NAME_ITEM,
+            this.SORT_ASC_MODIFIED_ITEM,
+            this.SORT_DESC_MODIFIED_ITEM,
+            this.SORT_ASC_PUBLISH_ITEM,
+            this.SORT_DESC_PUBLISH_ITEM,
+            this.SORT_MANUAL_ITEM
+        );
     }
 
     getAllItems(): SortContentTabMenuItem[] {
