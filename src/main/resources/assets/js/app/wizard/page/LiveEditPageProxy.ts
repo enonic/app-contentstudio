@@ -39,7 +39,7 @@ import Component = api.content.page.region.Component;
 import RenderingMode = api.rendering.RenderingMode;
 import Workspace = api.content.Branch;
 import EditContentEvent = api.content.event.EditContentEvent;
-import CreateHtmlAreaDialogEvent = api.util.htmlarea.dialog.CreateHtmlAreaDialogEvent;
+import CreateHtmlAreaDialogEvent = api.util.htmlarea.editor.CreateHtmlAreaDialogEvent;
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 
 import i18n = api.util.i18n;
