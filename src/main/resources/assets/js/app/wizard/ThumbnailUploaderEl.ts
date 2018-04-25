@@ -19,8 +19,8 @@ export class ThumbnailUploaderEl extends api.ui.uploader.UploaderEl<api.content.
         if (config.resultAlwaysVisisble == null) {
             config.resultAlwaysVisisble = true;
         }
-        if (config.allowTypes == null) {
-            config.allowTypes = [
+        if (config.allowExtensions == null) {
+            config.allowExtensions = [
                 {title: 'Image files', extensions: 'jpg,gif,png,svg'}
             ];
         }

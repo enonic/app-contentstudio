@@ -6,7 +6,7 @@ import ImageComponent = api.content.page.region.ImageComponent;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import i18n = api.util.i18n;
 import ImageOptionDataLoader = api.content.image.ImageOptionDataLoader;
-import ImageTreeSelectorItem = api.content.image.ImageTreeSelectorItem;
+import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 
 export class ImagePlaceholder
     extends ItemViewPlaceholder {
@@ -44,7 +44,7 @@ export class ImagePlaceholder
             .build();
 
         this.comboBox.getComboBox().getInput().setPlaceholder(i18n('field.image.option.placeholder'));
-        this.comboBox.onOptionSelected((event: SelectedOptionEvent<ImageTreeSelectorItem>) => {
+        this.comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
 
             let component: ImageComponent = this.imageComponentView.getComponent();
             let imageContent = event.getSelectedOption().getOption().displayValue;
