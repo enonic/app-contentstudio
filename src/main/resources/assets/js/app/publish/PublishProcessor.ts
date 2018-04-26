@@ -1,5 +1,5 @@
 import {PublishDialogItemList} from './PublishDialogItemList';
-import {isContentSummaryValid, PublishDialogDependantList} from './PublishDialogDependantList';
+import {PublishDialogDependantList} from './PublishDialogDependantList';
 import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
@@ -56,11 +56,12 @@ export class PublishProcessor {
             this.reloadDependenciesDebounced(true);
         });
 
-        this.dependantList.onItemClicked((item: ContentSummaryAndCompareStatus) => {
-            if (!isContentSummaryValid(item)) {
-                new api.content.event.EditContentEvent([item]).fire();
-            }
-        });
+        const itemClickedFn = (item: ContentSummaryAndCompareStatus) => {
+            new api.content.event.EditContentEvent([item]).fire();
+        };
+
+        this.itemList.onItemClicked(itemClickedFn);
+        this.dependantList.onItemClicked(itemClickedFn);
 
         this.dependantList.onItemRemoveClicked((item: ContentSummaryAndCompareStatus) => {
             this.excludedIds.push(item.getContentId());

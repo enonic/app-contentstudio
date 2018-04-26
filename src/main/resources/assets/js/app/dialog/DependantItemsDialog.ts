@@ -341,6 +341,8 @@ export class DependantItemsDialog
 export class DialogItemList
     extends ListBox<ContentSummaryAndCompareStatus> {
 
+    private itemClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
+
     protected createItemViewer(): ContentSummaryAndCompareStatusViewer {
         return new ContentSummaryAndCompareStatusViewer();
     }
@@ -361,6 +363,12 @@ export class DialogItemList
         statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
 
+        statusItem.onClicked((event) => {
+            if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
+                this.notifyItemClicked(item);
+            }
+        });
+
         return statusItem;
     }
 
@@ -380,6 +388,24 @@ export class DialogItemList
     getItems(): ContentSummaryAndCompareStatus[] {
         return <ContentSummaryAndCompareStatus[]>super.getItems();
     }
+
+
+    onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+        this.itemClickListeners.push(listener);
+    }
+
+    unItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+        this.itemClickListeners = this.itemClickListeners.filter((curr) => {
+            return curr !== listener;
+        });
+    }
+
+    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
+        this.itemClickListeners.forEach(listener => {
+            listener(item);
+        });
+    }
+
 }
 
 export class DialogDependantList

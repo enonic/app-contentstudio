@@ -43,9 +43,10 @@ export class PublishDialogDependantList extends DialogDependantList {
             (<StatusSelectionItem>view).setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
         });
 
+        view.getEl().setTitle(item.getContentSummary().getPath().toString());
+
         if (!isContentSummaryValid(item)) {
             view.addClass('invalid');
-            view.getEl().setTitle(i18n('dialog.publish.editInvalid'));
         }
         if (isContentSummaryReadOnly(item)) {
             view.addClass('readonly');
