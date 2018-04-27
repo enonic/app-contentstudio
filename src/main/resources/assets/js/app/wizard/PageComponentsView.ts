@@ -638,6 +638,10 @@ export class PageComponentsView
         event.stopPropagation();
         event.preventDefault();
 
+        if (!this.pageView.isLocked()) {
+            return;
+        }
+
         if (this.contextMenu && this.contextMenu.isVisible()) {
             this.hideContextMenu();
         } else {
