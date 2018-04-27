@@ -734,7 +734,7 @@ export class ContentWizardPanel
         const item = this.getPersistedItem();
         const isSiteUpdated = content.getType().isSite();
         const isPageTemplateUpdated = content.getType().isPageTemplate();
-        const isItemUnderUpdatedSite  = item.getPath().isDescendantOf(content.getPath());
+        const isItemUnderUpdatedSite = item.getPath().isDescendantOf(content.getPath());
         const site = item.isSite() ? <Site>item : this.site;
 
         const isUpdatedItemUnderSite = site ? content.getPath().isDescendantOf(site.getPath()) : false;
@@ -1255,6 +1255,10 @@ export class ContentWizardPanel
                         }
 
                         this.wizardActions.setUnsavedChangesCallback(this.hasUnsavedChanges.bind(this));
+
+                        this.onLiveModelChanged(() => {
+                            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
+                        });
 
                         return wemQ(null);
                     });
@@ -1894,7 +1898,7 @@ export class ContentWizardPanel
 
     private isEditorEnabled(): boolean {
 
-        return !!this.site || ( this.shouldOpenEditorByDefault() && !api.util.ArrayHelper.contains(ContentWizardPanel.EDITOR_DISABLED_TYPES,
+        return !!this.site || (this.shouldOpenEditorByDefault() && !api.util.ArrayHelper.contains(ContentWizardPanel.EDITOR_DISABLED_TYPES,
             this.contentType.getContentTypeName()));
     }
 
@@ -1920,6 +1924,11 @@ export class ContentWizardPanel
                 this.currentContent = this.persistedContent;
 
             } else {
+                if (this.currentContent === this.persistedContent) {
+                    this.currentContent =
+                        ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(this.persistedContent.getContentSummary(),
+                            this.persistedContent.getCompareStatus(), this.persistedContent.getPublishStatus());
+                }
                 if (publishControls.isOnline()) {
                     this.currentContent.setCompareStatus(CompareStatus.NEWER);
                 }
