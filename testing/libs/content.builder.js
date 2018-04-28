@@ -17,6 +17,15 @@ module.exports = {
             parameters: parameters
         };
     },
+    buildHtmlArea: function (displayName, type, strings) {
+        return {
+            contentType: type,
+            displayName: displayName,
+            data: {
+                strings: strings
+            },
+        };
+    },
     buildSite: function (displayName, description, applications, controller) {
         return {
             contentType: appConst.contentTypes.SITE,
