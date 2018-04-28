@@ -5,7 +5,6 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const form = {
-    textArea: `//div[contains(@id,'inputtype.text.TextArea')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
     typeText: function (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`
