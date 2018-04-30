@@ -51,8 +51,13 @@
       .browse-selection-item {
         .remove {
           display: block;
+          margin-top: 11px;
         }
       }
+    }
+
+    .content-summary-and-compare-status-viewer:hover * {
+      cursor: pointer;
     }
 
     &:not(.contains-toggleable) + .dependants > .publish-dialog-dependant-list {
@@ -60,7 +65,7 @@
     }
 
     .browse-selection-item {
-      padding: 6px 0;
+      padding: 6px;
       &.removable {
         .remove {
           color: @admin-dark-gray;
@@ -71,11 +76,10 @@
   }
 
   .browse-selection-item {
-    padding: 4px 0;
+    padding: 4px;
     margin: 0;
     display: flex;
-    cursor: pointer;
-    * {
+    .dependant-item-viewer:hover * {
       cursor: pointer;
     }
 
@@ -113,7 +117,7 @@
       display: none;
 
       .dependants-header:not(:empty) {
-        margin: 10px 0 15px;
+        margin: 10px 0 10px;
         cursor: pointer;
         color: @admin-blue;
       }
@@ -133,11 +137,6 @@
           }
 
           .browse-selection-item {
-            padding-left: 2px;
-            cursor: pointer;
-            * {
-              cursor: pointer;
-            }
 
             &:hover {
               background-color: #eeeeee;

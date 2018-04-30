@@ -351,6 +351,7 @@ export class DialogItemList
         const itemViewer = this.createItemViewer();
 
         itemViewer.setObject(item);
+        itemViewer.getEl().setTitle(item.getContentSummary().getPath().toString());
 
         let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
             .setId(item.getId())
@@ -363,8 +364,9 @@ export class DialogItemList
         statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
 
-        statusItem.onClicked((event) => {
-            if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
+        itemViewer.onClicked((event) => {
+            const el = new api.dom.ElementHelper(<HTMLElement>event.target);
+            if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
                 this.notifyItemClicked(item);
             }
         });
@@ -411,6 +413,8 @@ export class DialogItemList
 export class DialogDependantList
     extends ListBox<ContentSummaryAndCompareStatus> {
 
+    private itemClickListeners: {(item: ContentSummaryAndCompareStatus): void}[] = [];
+
     constructor(className?: string) {
         super(className);
     }
@@ -420,6 +424,14 @@ export class DialogDependantList
         let dependantViewer = new DependantItemViewer();
 
         dependantViewer.setObject(item);
+        dependantViewer.getEl().setTitle(item.getContentSummary().getPath().toString());
+
+        dependantViewer.onClicked((event) => {
+            const el = new api.dom.ElementHelper(<HTMLElement>event.target);
+            if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
+                this.notifyItemClicked(item);
+            }
+        });
 
         let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
             .setId(item.getId())
@@ -439,6 +451,22 @@ export class DialogDependantList
     setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
         items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
         super.setItems(items, silent);
+    }
+
+    onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+        this.itemClickListeners.push(listener);
+    }
+
+    unItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+        this.itemClickListeners = this.itemClickListeners.filter((curr) => {
+            return curr !== listener;
+        });
+    }
+
+    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
+        this.itemClickListeners.forEach(listener => {
+            listener(item);
+        });
     }
 
     private static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
