@@ -1,3 +1,2 @@
 **/*.js
-!src/main/resources/**/*.js
-src/main/resources/assets/page-editor/**/*.js
+!src/main/resources/assets/js/**/*.js

@@ -8,6 +8,7 @@ import {LayoutItemType} from '../../../../../../page-editor/layout/LayoutItemTyp
 import {FragmentDropdown} from './FragmentDropdown';
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ContentSummary = api.content.ContentSummary;
+import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentId = api.content.ContentId;
 import GetContentSummaryByIdRequest = api.content.resource.GetContentSummaryByIdRequest;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
@@ -17,6 +18,7 @@ import Content = api.content.Content;
 import LayoutComponentType = api.content.page.region.LayoutComponentType;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
+import Button = api.ui.button.Button;
 import i18n = api.util.i18n;
 
 export class FragmentInspectionPanel
@@ -73,6 +75,25 @@ export class FragmentInspectionPanel
         this.handleContentUpdatedEvent();
         this.initSelectorListeners();
         this.appendChild(this.fragmentForm);
+
+        this.appendEditTemplateButton();
+    }
+
+    private appendEditTemplateButton() {
+        const saveAsTemplateButton = new Button(i18n('action.editFragment'));
+        saveAsTemplateButton.addClass('blue large');
+
+        saveAsTemplateButton.onClicked(() => {
+            const fragmentId: ContentId = this.fragmentComponent.getFragment();
+            if (fragmentId) {
+                const fragment: ContentSummary = this.fragmentSelector.getSelection(fragmentId);
+                const fragmentContent: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(fragment);
+
+                new api.content.event.EditContentEvent([fragmentContent]).fire();
+            }
+        });
+
+        this.fragmentForm.appendChild(saveAsTemplateButton);
     }
 
     private handleContentUpdatedEvent() {

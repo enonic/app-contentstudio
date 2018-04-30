@@ -175,7 +175,7 @@
       &.descriptor-based-dropdown-form,
       &.page-template-form,
       &.image-combobox-form,
-      &.fragment-combobox-form {
+      &.fragment-dropdown-form {
         margin-top: 0;
 
         label {
@@ -188,10 +188,10 @@
         }
       }
 
-      &.page-controller-form {
-        text-align: center; // to center save as template button
+      &.page-controller-form, &.fragment-dropdown-form {
+        text-align: center; // to center the button
 
-        .action-button.save-as-template {
+        fieldset + button {
           margin-top: @form-field-spacing;
         }
       }

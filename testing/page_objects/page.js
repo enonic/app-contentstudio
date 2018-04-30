@@ -67,6 +67,13 @@ Page.prototype.clearElement = function (selector) {
     return this.getBrowser().clearElement(selector);
 };
 
+Page.prototype.element = function (selector) {
+    return this.getBrowser().element(selector);
+};
+Page.prototype.elements = function (selector) {
+    return this.getBrowser().elements(selector);
+};
+
 Page.prototype.getText = function (selector) {
     return this.getBrowser().getText(selector);
 };
@@ -107,6 +114,10 @@ Page.prototype.getDisplayedElements = function (selector) {
         //});
         return Promise.all(pr).then(result => elems.value.filter((el, i) => result[i].value));
     })
+};
+
+Page.prototype.execute = function (script) {
+    return this.getBrowser().execute(script);
 };
 
 Page.prototype.isElementDisplayed = function (selector) {
