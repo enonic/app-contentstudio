@@ -4,6 +4,7 @@ const siteForm = require('./site.form.panel');
 const imageSelectorForm = require('./imageselector.form.panel');
 const articleForm = require('./article.form.panel');
 const pageTemplateForm = require('./page.template.form.panel');
+const htmlAreaForm = require('./htmlarea.form.panel');
 const appConst = require('../../libs/app_const');
 var panel = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -26,6 +27,12 @@ var contentWizardStepForm = Object.create(page, {
             }
             if (contentType.includes(appConst.contentTypes.PAGE_TEMPLATE)) {
                 return pageTemplateForm.type(data);
+            }
+            if (contentType.includes(appConst.contentTypes.HTML_AREA_0_1)) {
+                return htmlAreaForm.type(data);
+            }
+            if (contentType.includes(appConst.contentTypes.HTML_AREA_2_4)) {
+                return htmlAreaForm.type(data);
             }
         }
     },
