@@ -351,7 +351,6 @@ export class DialogItemList
         const itemViewer = this.createItemViewer();
 
         itemViewer.setObject(item);
-        itemViewer.getEl().setTitle(item.getContentSummary().getPath().toString());
 
         let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
             .setId(item.getId())
@@ -424,11 +423,10 @@ export class DialogDependantList
         let dependantViewer = new DependantItemViewer();
 
         dependantViewer.setObject(item);
-        dependantViewer.getEl().setTitle(item.getContentSummary().getPath().toString());
 
         dependantViewer.onClicked((event) => {
             const el = new api.dom.ElementHelper(<HTMLElement>event.target);
-            if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
+            if (!(el.hasClass('remove'))) {
                 this.notifyItemClicked(item);
             }
         });
