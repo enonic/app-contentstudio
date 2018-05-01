@@ -19,11 +19,19 @@
         white-space: nowrap;
       }
 
+      &:not(.toggleable) {
+        .include-children-toggler {
+          display: none;
+        }
+      }
     }
 
-    .browse-selection-item:not(.toggleable) {
-      .include-children-toggler {
-        visibility: hidden;
+    &.contains-toggleable {
+      .browse-selection-item:not(.toggleable) {
+        .include-children-toggler {
+          display: block;
+          visibility: hidden;
+        }
       }
     }
   }
