@@ -21,16 +21,9 @@
 
     }
 
-    &.contains-toggleable {
-
-      .browse-selection-item:not(.toggleable) {
-        margin-left: @toggler-width;
-      }
-
-    }
     .browse-selection-item:not(.toggleable) {
       .include-children-toggler {
-        display: none;
+        visibility: hidden;
       }
     }
   }

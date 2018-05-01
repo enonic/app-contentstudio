@@ -28,4 +28,12 @@ export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummar
             return 'image';
         }
     }
+
+    resolveHint(object: ContentSummaryAndCompareStatus): string {
+        return object.getPath().toString();
+    }
+
+    protected getHintTargetEl(): api.dom.ElementHelper {
+        return this.getNamesAndIconView().getEl();
+    }
 }

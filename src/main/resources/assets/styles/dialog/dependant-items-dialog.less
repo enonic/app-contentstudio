@@ -51,8 +51,13 @@
       .browse-selection-item {
         .remove {
           display: block;
+          margin-top: 11px;
         }
       }
+    }
+
+    .content-summary-and-compare-status-viewer:hover * {
+      cursor: pointer;
     }
 
     &:not(.contains-toggleable) + .dependants > .publish-dialog-dependant-list {
@@ -60,7 +65,7 @@
     }
 
     .browse-selection-item {
-      padding: 6px 0;
+      padding: 6px;
       &.removable {
         .remove {
           color: @admin-dark-gray;
@@ -71,9 +76,16 @@
   }
 
   .browse-selection-item {
-    padding: 4px 0;
+    padding: 4px;
     margin: 0;
     display: flex;
+    .dependant-item-viewer:hover * {
+      cursor: pointer;
+    }
+
+    &:hover {
+      background-color: #eeeeee;
+    }
 
     .viewer {
       flex: 5;
@@ -105,7 +117,7 @@
       display: none;
 
       .dependants-header:not(:empty) {
-        margin: 10px 0 15px;
+        margin: 10px 0 10px;
         cursor: pointer;
         color: @admin-blue;
       }
@@ -125,7 +137,10 @@
           }
 
           .browse-selection-item {
-            padding-left: 2px;
+
+            &:hover {
+              background-color: #eeeeee;
+            }
 
             .remove {
               height: 20px;
@@ -144,7 +159,6 @@
             }
 
             &.invalid {
-              cursor: pointer;
 
               .names-and-icon-view {
                 cursor: pointer;
@@ -161,10 +175,6 @@
                   cursor: pointer;
                 }
               }
-
-              &:hover {
-                background-color: #eeeeee;
-              }
             }
 
             .dependant-item-viewer {
@@ -176,6 +186,9 @@
             }
 
             .names-and-icon-view {
+              * {
+                pointer-events: none;
+              }
               .@{_COMMON_PREFIX}wrapper {
                 margin: 0;
                 height: 16px;

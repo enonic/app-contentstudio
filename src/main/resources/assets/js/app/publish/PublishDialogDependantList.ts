@@ -10,8 +10,6 @@ export class PublishDialogDependantList extends DialogDependantList {
 
     private requiredIds: ContentIds;
 
-    private itemClickListeners: {(item: ContentSummaryAndCompareStatus): void}[] = [];
-
     private removeClickListeners: {(item: ContentSummaryAndCompareStatus): void}[] = [];
 
     constructor() {
@@ -33,19 +31,12 @@ export class PublishDialogDependantList extends DialogDependantList {
         (<StatusSelectionItem>view).setIsRemovableFn(() => !this.requiredIds.contains(item.getContentId()) && !isPendingDelete);
         (<StatusSelectionItem>view).setRemoveHandlerFn(() => this.notifyItemRemoveClicked(item));
 
-        view.onClicked((event) => {
-            if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
-                this.notifyItemClicked(item);
-            }
-        });
-
         view.onRendered(() => {
             (<StatusSelectionItem>view).setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
         });
 
         if (!isContentSummaryValid(item)) {
             view.addClass('invalid');
-            view.getEl().setTitle(i18n('dialog.publish.editInvalid'));
         }
         if (isContentSummaryReadOnly(item)) {
             view.addClass('readonly');
@@ -61,22 +52,6 @@ export class PublishDialogDependantList extends DialogDependantList {
 
     public setReadOnly(value: boolean) {
         this.toggleClass('readonly', value);
-    }
-
-    onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners.push(listener);
-    }
-
-    unItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners = this.itemClickListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
-        this.itemClickListeners.forEach(listener => {
-            listener(item);
-        });
     }
 
     onItemRemoveClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
