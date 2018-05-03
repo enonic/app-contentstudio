@@ -362,6 +362,9 @@ export class IssueDetailsDialog
     setReadOnly(value: boolean) {
         this.getItemList().setReadOnly(value);
         this.getDependantList().setReadOnly(value);
+        this.itemSelector.setReadOnly(value);
+        this.assigneesCombobox.setReadOnly(value);
+        (<IssueDetailsDialogHeader>this.header).setReadOnly(value);
     }
 
     setIssue(issue: Issue): IssueDetailsDialog {
@@ -389,9 +392,8 @@ export class IssueDetailsDialog
 
             this.assigneesCombobox.setValue(issue.getApprovers().join(ComboBox.VALUE_SEPARATOR));
             this.commentTextArea.setValue('', true);
+            this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         }
-
-        this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         this.issue = issue;
 
         return this;
