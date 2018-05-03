@@ -4,6 +4,8 @@
 
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
+
 const form = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
     typeText: function (id, text) {
@@ -23,7 +25,7 @@ const htmlAreaForm = Object.create(page, {
 
     type: {
         value: function (data) {
-            return this.typeTextInHtmlArea(data.strings);
+            return this.typeTextInHtmlArea(data.texts);
         }
     },
 
@@ -34,15 +36,24 @@ const htmlAreaForm = Object.create(page, {
         }
     },
     typeTextInHtmlArea: {
-        value: function (...texts) {
-            return this.waitForVisible(`//div[contains(@id,'cke_api.ui.text.TextArea')]`).then(()=> {
+        value: function (texts) {
+            return this.waitForVisible(`//div[contains(@id,'cke_api.ui.text.TextArea')]`, appConst.TIMEOUT_3).then(()=> {
                 return this.getIdOfHtmlAreas();
             }).then(ids => {
-                const promises = texts.map((text, index) => {
+                const promises = [].concat(texts).map((text, index) => {
                     return this.execute(form.typeText([].concat(ids)[index], text));
                 });
                 return Promise.all(promises);
             });
+        }
+    },
+    clearHtmlArea: {
+        value: function (index) {
+            return this.waitForVisible(`//div[contains(@id,'cke_api.ui.text.TextArea')]`).then(()=> {
+                return this.getIdOfHtmlAreas();
+            }).then(ids => {
+                return this.execute(form.typeText(ids[index], ''));
+            }).pause(500);
         }
     },
     getTextFromHtmlArea: {
@@ -62,7 +73,15 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
-
+    showToolbarAndClickOnInsertImageButton: {
+        value: function () {
+            return this.doClick(`//div[contains(@id,'cke_api.ui.text.TextArea')]`).then(()=> {
+                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Image']`);
+            }).then(result=> {
+                return this.doClick(`//a[contains(@class,'cke_button') and @title='Image']`)
+            })
+        }
+    },
     waitForValidationRecording: {
         value: function (ms) {
             return this.waitForVisible(this.validationRecord, ms);

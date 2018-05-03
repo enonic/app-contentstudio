@@ -24,7 +24,7 @@ const liveFormPanel = Object.create(page, {
                 return this.getBrowser().frameParent();
             }).catch(err=> {
                 this.saveScreenshot('err_type_text_in_component');
-                return this.getBrowser().frameParent();
+                this.getBrowser().frameParent();
                 throw new Error('type text on tiny-mce: ' + err);
             });
         }

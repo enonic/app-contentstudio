@@ -17,12 +17,12 @@ module.exports = {
             parameters: parameters
         };
     },
-    buildHtmlArea: function (displayName, type, strings) {
+    buildHtmlArea: function (displayName, type, ...texts) {
         return {
             contentType: type,
             displayName: displayName,
             data: {
-                strings: strings
+                texts: texts
             },
         };
     },
