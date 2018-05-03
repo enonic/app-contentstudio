@@ -52,6 +52,6 @@ export class MostPopularItemsList extends NewContentDialogList {
     }
 
     private isAllowedContentType(contentType: ContentTypeName) {
-        return !contentType.isMedia() && !contentType.isDescendantOfMedia();
+        return !contentType.isMedia() && !contentType.isDescendantOfMedia() && !contentType.isFragment();
     }
 }
