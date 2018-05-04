@@ -38,7 +38,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
-    it.skip(`GIVEN 'htmlArea' content is opened WHEN 'insert image' icon has been clicked THEN 'Insert Image Dialog' should appear`,
+    it(`GIVEN 'htmlArea' content is opened WHEN 'insert image' icon has been clicked THEN 'Insert Image Dialog' should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -61,7 +61,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
-    it.skip(`GIVEN 'htmlArea' content is opened WHEN 'insert special characters' icon has been clicked THEN 'Insert Special Characters Dialog' should appear`,
+    it(`GIVEN 'htmlArea' content is opened WHEN 'insert special characters' icon has been clicked THEN 'Insert Special Characters Dialog' should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
@@ -73,7 +73,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
-    it.skip(`GIVEN 'htmlArea' content is opened WHEN 'insert macro' icon has been clicked THEN 'Insert Macro Dialog' should appear`,
+    it(`GIVEN 'htmlArea' content is opened WHEN 'insert macro' icon has been clicked THEN 'Insert Macro Dialog' should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -90,7 +90,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             })
         });
 
-    it.skip(`GIVEN 'htmlArea' content is opened WHEN 'insert link' icon has been clicked THEN 'Insert Link Dialog' should appear`,
+    it(`GIVEN 'htmlArea' content is opened WHEN 'insert link' icon has been clicked THEN 'Insert Link Dialog' should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
