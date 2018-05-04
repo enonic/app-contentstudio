@@ -41,7 +41,7 @@ describe('htmlarea.cke.spec:  html area with CKE`', function () {
 
 
     it(
-        `GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is not required`,
+        `GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(()=> {
                 return contentWizard.typeDisplayName('test_area2_4');
@@ -107,7 +107,6 @@ describe('htmlarea.cke.spec:  html area with CKE`', function () {
                 studioUtils.saveScreenshot('htmlarea_2_4_cleared');
                 assert.equal(result[0], '', 'the first area should be empty');
                 assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'text should be in the second area');
-
             }).then(()=> {
                 return assert.eventually.isTrue(contentWizard.isContentInvalid(),
                     "Red icon should appear in the wizard, because both inputs are required");
