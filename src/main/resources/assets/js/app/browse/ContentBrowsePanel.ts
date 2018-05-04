@@ -74,6 +74,9 @@ export class ContentBrowsePanel
         return <ContentTreeGridActions>super.getBrowseActions();
     }
 
+    getNonToolbarActions(): api.ui.Action[] {
+        return this.getBrowseActions().getPublishActions();
+    }
     protected createToolbar(): ContentBrowseToolbar {
         return new ContentBrowseToolbar(this.getBrowseActions());
     }

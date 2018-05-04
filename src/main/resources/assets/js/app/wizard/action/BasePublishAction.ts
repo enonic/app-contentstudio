@@ -6,6 +6,7 @@ import DefaultErrorHandler = api.DefaultErrorHandler;
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;
     label: string;
+    shortcut?: string;
     errorMessage?: string;
     omitCanPublishCheck?: boolean;
 }
@@ -15,7 +16,7 @@ export abstract class BasePublishAction extends api.ui.Action {
     private config: BasePublishActionConfig;
 
     constructor(config: BasePublishActionConfig) {
-        super(config.label);
+        super(config.label, config.shortcut);
 
         this.config = config;
         this.setEnabled(false);
