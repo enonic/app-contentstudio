@@ -89,4 +89,9 @@ export class ContentAppPanel
         }
     }
 
+    protected resolveActions(panel: api.ui.panel.Panel): api.ui.Action[] {
+        const actions = super.resolveActions(panel);
+        return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
+    }
+
 }
