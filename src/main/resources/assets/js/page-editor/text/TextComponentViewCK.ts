@@ -13,7 +13,6 @@ import {PageView} from '../PageView';
 declare var CONFIG;
 
 import TextComponent = api.content.page.region.TextComponent;
-import HTMLAreaBuilder = api.util.htmlarea.editor.HTMLAreaBuilder;
 import HTMLAreaBuilderCKE = api.util.htmlarea.editor.HTMLAreaBuilderCKE;
 import eventInfo = CKEDITOR.eventInfo;
 import HTMLAreaHelper = api.util.htmlarea.editor.HTMLAreaHelper;
@@ -42,8 +41,6 @@ export class TextComponentViewCK
 
     private editorContainer: api.dom.DivEl;
 
-    private isCKEditor: boolean;
-
     public static debug: boolean = false;
 
     private static DEFAULT_TEXT: string = '';
@@ -64,7 +61,6 @@ export class TextComponentViewCK
     constructor(builder: TextComponentViewBuilder) {
         super(builder.setPlaceholder(new TextPlaceholder()).setViewer(new TextComponentViewer()).setComponent(builder.component));
 
-        this.isCKEditor = CONFIG.isCkeUsed;
         this.addTextContextMenuActions();
         this.lastClicked = 0;
         this.liveEditModel = builder.parentRegionView.getLiveEditModel();
@@ -280,11 +276,7 @@ export class TextComponentViewCK
 
             if (this.component.isEmpty()) {
                 if (this.htmlAreaEditor) {
-                    if (this.isCKEditor) {
-                        this.htmlAreaEditor.setData(TextComponentViewCK.DEFAULT_TEXT);
-                    } else {
-                        this.htmlAreaEditor.setContent(TextComponentViewCK.DEFAULT_TEXT);
-                    }
+                    this.htmlAreaEditor.setData(TextComponentViewCK.DEFAULT_TEXT);
                 }
                 this.rootElement.setHtml(TextComponentViewCK.DEFAULT_TEXT, false);
                 this.selectText();
@@ -309,10 +301,6 @@ export class TextComponentViewCK
 
     private onBlurHandler(e: FocusEvent) {
         this.removeClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
-
-        if (!this.isCKEditor) {
-            this.collapseEditorMenuItems();
-        }
 
         setTimeout(() => {
             if (!this.anyEditorHasFocus()) {
@@ -362,45 +350,6 @@ export class TextComponentViewCK
     }
 
     private doInitEditor() {
-        if (this.isCKEditor) {
-            this.initEditorCKE();
-        } else {
-            this.initEditorTinyMce();
-        }
-    }
-
-    private initEditorTinyMce() {
-        this.isInitializingEditor = true;
-        const assetsUri = CONFIG.assetsUri;
-        const id = this.getId().replace(/\./g, '_');
-
-        this.addClass(id);
-
-        if (!this.editorContainer) {
-            this.editorContainer = new api.dom.DivEl('tiny-mce-here');
-            this.appendChild(this.editorContainer);
-        }
-
-        new HTMLAreaBuilder()
-            .setSelector('div.' + id + ' .tiny-mce-here')
-            .setAssetsUri(assetsUri)
-            .setInline(true)
-            .onCreateDialog(event => {
-                this.currentDialogConfig = event.getConfig();
-            }).setFocusHandler(this.onFocusHandler.bind(this))
-            .setBlurHandler(this.onBlurHandler.bind(this))
-            .setKeydownHandler(this.onKeydownHandler.bind(this))
-            .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setFixedToolbarContainer('.mce-toolbar-container')
-            .setContent(this.getContent())
-            .setEditableSourceCode(this.editableSourceCode)
-            .setContentPath(this.getContentPath())
-            .setApplicationKeys(this.getApplicationKeys())
-            .createEditor()
-            .then(this.handleEditorCreated.bind(this));
-    }
-
-    private initEditorCKE() {
         this.isInitializingEditor = true;
         let assetsUri = CONFIG.assetsUri;
         let id = this.getId().replace(/\./g, '_');
@@ -413,12 +362,12 @@ export class TextComponentViewCK
             this.appendChild(this.editorContainer);
         }
 
-        const ckeKeydownHandler = (ckEvent: eventInfo) => {
+        const keydownHandler = (ckEvent: eventInfo) => {
             const e: KeyboardEvent = ckEvent.data.domEvent.$;
             this.onKeydownHandler(e);
         };
 
-        this.htmlAreaEditor = new HTMLAreaBuilderCKE()
+       const editor: CKEDITOR.editor = new HTMLAreaBuilderCKE()
             .setEditorContainerId(this.getId() + '_editor')
             .setAssetsUri(assetsUri)
             .setInline(true)
@@ -427,7 +376,7 @@ export class TextComponentViewCK
             })
             .setFocusHandler(this.onFocusHandler.bind(this))
             .setBlurHandler(this.onBlurHandler.bind(this))
-            .setKeydownHandler(ckeKeydownHandler)
+            .setKeydownHandler(keydownHandler)
             .setNodeChangeHandler(this.processEditorValue.bind(this))
             .setFixedToolbarContainer(this.getPageView().getEditorToolbarContainerId())
             .setContent(this.getContent())
@@ -436,32 +385,12 @@ export class TextComponentViewCK
             .setApplicationKeys(this.getApplicationKeys())
             .createEditor();
 
-        this.htmlAreaEditor.on('instanceReady', this.handleEditorCreatedCKE.bind(this));
+        editor.on('instanceReady', this.handleEditorCreated.bind(this));
     }
 
-    private handleEditorCreated(editor: HtmlAreaEditor) {
-        this.htmlAreaEditor = editor;
-        if (this.component.getText()) {
-            this.htmlAreaEditor.setContent(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
-        } else {
-            this.htmlAreaEditor.setContent(TextComponentViewCK.DEFAULT_TEXT);
-            this.htmlAreaEditor.selection.select(this.htmlAreaEditor.getBody(), true);
-        }
-        if (this.focusOnInit && this.isAdded()) {
-            if (api.BrowserHelper.isFirefox()) {
-                setTimeout(() => {
-                    this.forceEditorFocus();
-                }, 100);
-            } else {
-                this.forceEditorFocus();
-            }
-        }
-        this.focusOnInit = false;
-        this.isInitializingEditor = false;
-        HTMLAreaHelper.updateImageAlignmentBehaviour(editor);
-    }
+    private handleEditorCreated(evt: eventInfo) {
+        this.htmlAreaEditor = evt.editor;
 
-    private handleEditorCreatedCKE() {
         if (this.component.getText()) {
             this.htmlAreaEditor.setData(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
         } else {
@@ -478,15 +407,8 @@ export class TextComponentViewCK
     private forceEditorFocus() {
         if (this.htmlAreaEditor) {
             this.htmlAreaEditor.focus();
-            if (!this.isCKEditor) {
-                wemjq(this.htmlAreaEditor.getElement()).simulate('click');
-            }
         }
         this.startPageTextEditMode();
-    }
-
-    private collapseEditorMenuItems() {
-        wemjq('.mce-menubtn.mce-active').click();
     }
 
     private anyEditorHasFocus(): boolean {
@@ -506,28 +428,7 @@ export class TextComponentViewCK
             return;
         }
 
-        if (this.isCKEditor) {
-            this.processEditorValueCKE();
-        } else {
-            this.processEditorValueTinyMce();
-        }
-    }
-
-    private processEditorValueTinyMce() {
         if (this.isEditorEmpty()) {
-            this.component.setText(TextComponentViewCK.DEFAULT_TEXT);
-            // copy editor content over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = TextComponentViewCK.DEFAULT_TEXT;
-        } else {
-            // copy editor raw content (without any processing!) over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getContent({format: 'raw'});
-            // but save processed text to the component
-            this.component.setText(HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.htmlAreaEditor.getContent()));
-        }
-    }
-
-    private processEditorValueCKE() {
-        if (this.isEditorEmptyCKE()) {
             this.component.setText(TextComponentViewCK.DEFAULT_TEXT);
             // copy editor content over to the root html element
             this.rootElement.getHTMLElement().innerHTML = TextComponentViewCK.DEFAULT_TEXT;
@@ -540,36 +441,11 @@ export class TextComponentViewCK
     }
 
     private isEditorEmpty(): boolean {
-        const editorContent = this.htmlAreaEditor.getContent();
-        return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
-    }
-
-    private isEditorEmptyCKE(): boolean {
         const editorContent = this.htmlAreaEditor.getData();
         return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
     }
 
     private destroyEditor(): void {
-        if (this.isCKEditor) {
-            this.destroyEditorCKE();
-        } else {
-            this.destroyEditorTinyMce();
-        }
-    }
-
-    private destroyEditorTinyMce(): void {
-        const editor = this.htmlAreaEditor;
-        if (editor) {
-            try {
-                editor.destroy(false);
-            } catch (e) {
-                //error thrown in FF on tab close - XP-2624
-            }
-        }
-        this.htmlAreaEditor = null;
-    }
-
-    private destroyEditorCKE(): void {
         const editor = this.htmlAreaEditor;
         if (editor) {
             editor.destroy(false);
@@ -579,11 +455,7 @@ export class TextComponentViewCK
 
     private selectText() {
         if (this.htmlAreaEditor) {
-            if (this.isCKEditor) {
-                //
-            } else {
-                this.htmlAreaEditor.selection.select(this.htmlAreaEditor.getBody(), true);
-            }
+            //
         }
     }
 
@@ -624,11 +496,8 @@ export class TextComponentViewCK
 
     extractText(): string {
         if (this.htmlAreaEditor) {
-            if (this.isCKEditor) {
-                return this.htmlAreaEditor.getData();
-            } else {
-                return this.htmlAreaEditor.getContent({format: 'text'}).trim();
-            }
+            return this.htmlAreaEditor.getData();
+
         }
 
         return wemjq(this.getHTMLElement()).text().trim();
