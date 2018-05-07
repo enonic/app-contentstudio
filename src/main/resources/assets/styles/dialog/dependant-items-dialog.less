@@ -36,6 +36,12 @@
   .publish-dialog-item-list {
     padding: 5px;
 
+    &.readonly {
+      .browse-selection-item {
+        pointer-events: none;
+      }
+    }
+
     &:not(.readonly) {
       .browse-selection-item {
         .remove {
