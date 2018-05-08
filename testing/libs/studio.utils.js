@@ -20,6 +20,14 @@ const confirmContentDeleteDialog = require('../page_objects/confirm.content.dele
 
 module.exports = {
     xpTabs: {},
+    setTextInCKE: function (id, text) {
+        let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
+        return webDriverHelper.browser.execute(script).then(() => {
+            let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
+            return webDriverHelper.browser.execute(script2);
+        })
+
+    },
     doCloseCurrentBrowserTab: function () {
         return webDriverHelper.browser.getTitle().then(title=> {
             if (title != 'Enonic XP Home') {
@@ -88,7 +96,7 @@ module.exports = {
             return contentWizardPanel.typeData(site);
         }).then(()=> {
             return contentWizardPanel.waitAndClickOnSave();
-        }).then(()=> {
+        }).pause(1000).then(() => {
             if (site.data.controller) {
                 return contentWizardPanel.selectPageDescriptor(site.data.controller);
             }

@@ -5,13 +5,13 @@ const chai = require('chai');
 chai.use(require('chai-as-promised'));
 const expect = chai.expect;
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const htmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const htmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
