@@ -78,7 +78,9 @@ const htmlAreaForm = Object.create(page, {
     getTextFromHtmlArea: {
         value: function () {
             let strings = [];
-            return this.getIdOfHtmlAreas().then(ids => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+                return this.getIdOfHtmlAreas();
+            }).then(ids => {
                 [].concat(ids).forEach(id => {
                     strings.push(this.execute(form.getText(id)));
                 });

@@ -28,50 +28,52 @@ describe('Move Fragment` specification', function () {
             this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 studioUtils.saveScreenshot(displayName + '_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
 
     it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("main");
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(()=> {
-                return liveFormPanel.typeTextInTextComponent('text_component_1');
-            }).then(()=> {
+            }).then(() => {
+                return liveFormPanel.typeTextInCKETextComponent('text_component_1');
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
                 return pageComponentView.openMenu("text_component_1");
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).pause(2000).then(()=> {
+            }).pause(2000).then(() => {
                 studioUtils.saveScreenshot('text_saved_as_fragment2')
             })
         });
-    // Verifies: xp-apps#747 Confirmation dialog does not appear, when a fragment is filtered
+    // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
     it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
         () => {
-            return studioUtils.findAndSelectContentByDisplayName('text_component_1').then(()=> {
+            return studioUtils.findAndSelectContentByDisplayName('text_component_1').then(() => {
                 return contentBrowsePanel.clickOnMoveButton();
-            }).then(()=> {
+            }).then(() => {
                 return moveContentDialog.waitForOpened();
-            }).then(()=> {
+            }).then(() => {
                 return moveContentDialog.clickOnMoveButton();
-            }).pause(2000).then(()=> {
-                //TODO add confirm content moving(when bug will be fixed: xp-apps#747)
-            }).then(()=> {
+            }).pause(2000).then(() => {
+                //TODO add confirm content moving(when bug will be fixed: app-contentstudio#22)
+            }).then(() => {
                 studioUtils.saveScreenshot('fragment_is_moved');
                 return contentBrowsePanel.waitForNotificationMessage();
-            }).then(result=> {
+            }).then(result => {
                 return assert.isTrue(result == `\"text_component_1\" was moved.`,
                     'correct notification message should appear');
             })
@@ -79,7 +81,7 @@ describe('Move Fragment` specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification starting: ' + this.title);
     });
 });
