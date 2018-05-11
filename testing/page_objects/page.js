@@ -10,11 +10,11 @@ Page.prototype.getBrowser = function () {
 };
 
 Page.prototype.numberOfElements = function (selector) {
-    return this.getBrowser().elements(selector).then((res)=> {
-        return res.value.filter(el=> {
+    return this.getBrowser().elements(selector).then((res) => {
+        return res.value.filter(el => {
             return this.getBrowser().elementIdDisplayed(el.ELEMENT);
         })
-    }).then((result)=> {
+    }).then((result) => {
         return Object.keys(result).length;
     });
 };
@@ -50,7 +50,7 @@ Page.prototype.isSpinnerVisible = function () {
 };
 
 Page.prototype.doClick = function (selector) {
-    return this.getBrowser().element(selector).then((result)=> {
+    return this.getBrowser().element(selector).then((result) => {
         return this.getBrowser().click(selector);
     }).catch(function (err) {
         throw Error(err.message + ` ` + selector);
@@ -58,7 +58,7 @@ Page.prototype.doClick = function (selector) {
 };
 
 Page.prototype.typeTextInInput = function (selector, text) {
-    return this.getBrowser().setValue(selector, text).catch((err)=> {
+    return this.getBrowser().setValue(selector, text).catch((err) => {
         throw new Error('text was not set in the input ' + err);
     })
 };
@@ -97,7 +97,7 @@ Page.prototype.getElementId = function (ele) {
     return ele.value.ELEMENT;
 };
 Page.prototype.isAttributePresent = function (selector, atrName) {
-    return this.getBrowser().getAttribute(selector, atrName).then(result=> {
+    return this.getBrowser().getAttribute(selector, atrName).then(result => {
         if (result == null) {
             return false;
         } else {
@@ -107,7 +107,7 @@ Page.prototype.isAttributePresent = function (selector, atrName) {
 };
 
 Page.prototype.getDisplayedElements = function (selector) {
-    return this.getBrowser().elements(selector).then(elems=> {
+    return this.getBrowser().elements(selector).then(elems => {
         let pr = elems.value.map(el => this.getBrowser().elementIdDisplayed(el.ELEMENT));
         //return Promise.all(pr).then(result=> {
         //    return elems.value.filter((el,i)=>result[i].value);
@@ -121,23 +121,23 @@ Page.prototype.execute = function (script) {
 };
 
 Page.prototype.isElementDisplayed = function (selector) {
-    return this.getDisplayedElements(selector).then(result=> {
+    return this.getDisplayedElements(selector).then(result => {
         return result.length > 0;
     })
 };
 
 Page.prototype.getTextFromElements = function (selector) {
     let json = [];
-    return this.getBrowser().elements(selector).then((result)=> {
-        result.value.forEach((val)=> {
+    return this.getBrowser().elements(selector).then((result) => {
+        result.value.forEach((val) => {
             json.push(this.getBrowser().elementIdText(val.ELEMENT));
         })
-        return Promise.all(json).then((p)=> {
+        return Promise.all(json).then((p) => {
             return p;
         });
-    }).then(responses=> {
+    }).then(responses => {
         let res = [];
-        responses.forEach((str)=> {
+        responses.forEach((str) => {
             return res.push(str.value);
         })
         return res;
@@ -150,9 +150,9 @@ Page.prototype.getTextFromInput = function (selector) {
 
 Page.prototype.saveScreenshot = function (name) {
     var screenshotsDir = path.join(__dirname, '/../build/screenshots/');
-    return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(()=> {
+    return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
         console.log('screenshot is saved ' + name);
-    }).catch(err=> {
+    }).catch(err => {
         console.log('screenshot was not saved ' + screenshotsDir + ' ' + err);
     })
 };
@@ -162,21 +162,21 @@ Page.prototype.getAttribute = function (selector, attributeName) {
 };
 
 Page.prototype.frame = function (id) {
-    return this.getBrowser().frame(id).catch(err=> {
+    return this.getBrowser().frame(id).catch(err => {
         console.log('Error when switch to frame ' + id);
         throw new Error('Error when switch to frame  ' + id);
     })
 };
 
 Page.prototype.waitForNotificationMessage = function () {
-    return this.getBrowser().waitForVisible(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).then(()=> {
+    return this.getBrowser().waitForVisible(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).then(() => {
         return this.getBrowser().getText(`//div[@class='notification-content']/span`);
     })
 };
 
 Page.prototype.waitForExpectedNotificationMessage = function (expectedMessage) {
     let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).catch((err)=> {
+    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).catch((err) => {
         this.saveScreenshot('err_notification_mess');
         throw new Error('expected notification message was not shown! ' + err);
     })
@@ -184,25 +184,25 @@ Page.prototype.waitForExpectedNotificationMessage = function (expectedMessage) {
 
 Page.prototype.waitForErrorNotificationMessage = function () {
     var selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(()=> {
+    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
         return this.getBrowser().getText(selector);
     })
 };
 
 Page.prototype.waitForNotificationWarning = function () {
     var selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(()=> {
+    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
         return this.getBrowser().getText(selector);
     })
 };
 Page.prototype.waitUntilInvalid = function (selector) {
-    return this.getBrowser().waitUntil(()=> {
-        return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+    return this.getBrowser().waitUntil(() => {
+        return this.getBrowser().getAttribute(selector, 'class').then(result => {
             return result.includes('invalid');
         });
-    }, 3000).then(()=> {
+    }, 3000).then(() => {
         return true;
-    }).catch((err)=> {
+    }).catch((err) => {
         return false;
     });
 },

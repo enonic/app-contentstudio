@@ -16,6 +16,7 @@ const issueListDialog = require('../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const deleteContentDialog = require('../page_objects/delete.content.dialog');
 const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
+const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 
 module.exports = {
@@ -26,83 +27,103 @@ module.exports = {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
             return webDriverHelper.browser.execute(script2);
         })
+    },
+    clickOnElement: function (selector) {
+        return webDriverHelper.browser.click(selector).then(() => {
+            console.log('clicked on ' + selector);
+        })
+    },
+    getTitle: function () {
+        return webDriverHelper.browser.getTitle();
+    },
+
+    getTextInCKE: function (id) {
+        let script = `return CKEDITOR.instances['${id}'].getData()`;
+        return webDriverHelper.browser.execute(script);
+    },
+    insertUrlLinkInCke: function (text, url) {
+        return insertLinkDialog.typeText(text).then(() => {
+            return insertLinkDialog.typeUrl(url);
+        }).then(() => {
+            return insertLinkDialog.clickOnInsertButton();
+        }).pause(700);
 
     },
     doCloseCurrentBrowserTab: function () {
-        return webDriverHelper.browser.getTitle().then(title=> {
+        return webDriverHelper.browser.getTitle().then(title => {
             if (title != 'Enonic XP Home') {
                 return webDriverHelper.browser.close();
             }
         })
     },
     openIssuesListDialog: function () {
-        return browsePanel.clickOnShowIssuesListButton().then(()=> {
+        return browsePanel.clickOnShowIssuesListButton().then(() => {
             return issueListDialog.waitForDialogVisible();
         })
     },
     openCreateIssueDialog: function () {
-        return browsePanel.clickOnShowIssuesListButton().then(()=> {
+        return browsePanel.clickOnShowIssuesListButton().then(() => {
             return issueListDialog.waitForDialogVisible(500);
-        }).then(()=> {
+        }).then(() => {
             return issueListDialog.clickOnNewIssueButton();
-        }).then(()=> {
+        }).then(() => {
             return createIssueDialog.waitForDialogLoaded();
         });
     },
     openPublishMenuAndClickOnCreateIssue: function () {
-        return browsePanel.openShowPublishMenuAndClickOnCreateIssue().then(()=> {
+        return browsePanel.openShowPublishMenuAndClickOnCreateIssue().then(() => {
             return createIssueDialog.waitForDialogLoaded();
         })
     },
     openContentWizard: function (contentType) {
-        return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(()=> {
+        return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
             return browsePanel.clickOnNewButton();
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.waitForOpened();
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.clickOnContentType(contentType);
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToNewWizard();
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitForOpened();
         })
     },
 
     doAddShortcut: function (shortcut) {
-        return this.openContentWizard(appConst.contentTypes.SHORTCUT).then(()=> {
+        return this.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
             return contentWizardPanel.typeData(shortcut);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
-        }).then(()=> {
+        }).then(() => {
             return this.doCloseWizardAndSwitchToGrid()
         }).pause(1000);
     },
     doAddFolder: function (folder) {
-        return this.openContentWizard(appConst.contentTypes.FOLDER).then(()=> {
+        return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             return contentWizardPanel.typeData(folder);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
-        }).then(()=> {
+        }).then(() => {
             return this.doCloseWizardAndSwitchToGrid()
         }).pause(1000);
     },
     doCloseWizardAndSwitchToGrid: function () {
-        return this.doCloseCurrentBrowserTab().then(()=> {
+        return this.doCloseCurrentBrowserTab().then(() => {
             return this.doSwitchToContentBrowsePanel();
         });
     },
     doAddSite: function (site) {
-        return this.openContentWizard(appConst.contentTypes.SITE).then(()=> {
+        return this.openContentWizard(appConst.contentTypes.SITE).then(() => {
             return contentWizardPanel.typeData(site);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
         }).pause(1000).then(() => {
             if (site.data.controller) {
                 return contentWizardPanel.selectPageDescriptor(site.data.controller);
             }
-        }).then(()=> {
+        }).then(() => {
             return this.doCloseCurrentBrowserTab();
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToContentBrowsePanel();
         }).pause(2000);
     },
@@ -110,164 +131,164 @@ module.exports = {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
     doOpenPageTemplateWizard: function (siteName) {
-        return this.typeNameInFilterPanel(siteName).then(()=> {
+        return this.typeNameInFilterPanel(siteName).then(() => {
             return browsePanel.waitForContentDisplayed(siteName);
-        }).pause(700).then(()=> {
+        }).pause(700).then(() => {
             return browsePanel.clickOnExpanderIcon(siteName);
-        }).pause(700).then(()=> {
+        }).pause(700).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
-        }).pause(500).then(()=> {
+        }).pause(500).then(() => {
             return browsePanel.clickOnNewButton();
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToNewWizard();
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitForOpened();
         });
     },
     doAddPageTemplate: function (siteName, template) {
-        return this.doOpenPageTemplateWizard(siteName).then(()=> {
+        return this.doOpenPageTemplateWizard(siteName).then(() => {
             return contentWizardPanel.typeData(template);
-        }).then(()=> {
+        }).then(() => {
             //autosaving should be here:
             return contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
-        }).then(()=> {
+        }).then(() => {
             this.saveScreenshot(template.displayName + '_created');
             return this.doCloseCurrentBrowserTab();
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToContentBrowsePanel();
         }).pause(2000);
     },
 
     doAddArticleContent: function (siteName, article) {
-        return this.findAndSelectItem(siteName).then(()=> {
+        return this.findAndSelectItem(siteName).then(() => {
             return this.openContentWizard(article.contentType);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.typeData(article);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
-        }).then(()=> {
+        }).then(() => {
             return this.doCloseCurrentBrowserTab();
-        }).then(()=> {
+        }).then(() => {
             this.doSwitchToContentBrowsePanel();
         }).pause(2000);
     },
     findAndSelectItem: function (name) {
-        return this.typeNameInFilterPanel(name).then(()=> {
+        return this.typeNameInFilterPanel(name).then(() => {
             return browsePanel.waitForRowByNameVisible(name);
-        }).pause(400).then(()=> {
+        }).pause(400).then(() => {
             return browsePanel.clickOnRowByName(name);
         });
     },
     findAndSelectContentByDisplayName: function (displayName) {
-        return this.typeNameInFilterPanel(displayName).then(()=> {
+        return this.typeNameInFilterPanel(displayName).then(() => {
             return browsePanel.waitForContentByDisplayNameVisible(displayName);
-        }).pause(400).then(()=> {
+        }).pause(400).then(() => {
             return browsePanel.clickOnRowByDisplayName(displayName);
         });
     },
     doDeleteContent: function (name) {
-        return this.findAndSelectItem(name).then(()=> {
+        return this.findAndSelectItem(name).then(() => {
             return browsePanel.clickOnDeleteButton();
-        }).pause(500).then(()=> {
+        }).pause(500).then(() => {
             return deleteContentDialog.clickOnDeleteButton();
-        }).then(()=> {
+        }).then(() => {
             return deleteContentDialog.waitForDialogClosed();
         }).pause(500);
     },
     selectContentAndOpenWizard: function (name) {
-        return this.findAndSelectItem(name).then(()=> {
+        return this.findAndSelectItem(name).then(() => {
             return browsePanel.waitForEditButtonEnabled();
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.clickOnEditButton();
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToNewWizard();
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitForOpened();
         })
     },
     findContentAndClickCheckBox: function (displayName) {
-        return this.typeNameInFilterPanel(name).then(()=> {
+        return this.typeNameInFilterPanel(name).then(() => {
             return browsePanel.waitForRowByNameVisible(name);
-        }).pause(400).then(()=> {
+        }).pause(400).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
         });
     },
     selectSiteAndOpenNewWizard: function (siteName, contentType) {
-        return this.findAndSelectItem(siteName).then(()=> {
+        return this.findAndSelectItem(siteName).then(() => {
             return browsePanel.waitForNewButtonEnabled();
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.clickOnNewButton();
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.waitForOpened();
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.typeSearchText(contentType);
-        }).then(()=> {
+        }).then(() => {
             return newContentDialog.clickOnContentType(contentType);
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToNewWizard();
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitForOpened();
         });
     },
     clickOnDeleteAndConfirm: function (numberOfContents) {
-        return browsePanel.clickOnDeleteButton().then(()=> {
+        return browsePanel.clickOnDeleteButton().then(() => {
             return deleteContentDialog.waitForDialogVisible(1000);
-        }).then(()=> {
+        }).then(() => {
             return deleteContentDialog.clickOnDeleteButton();
-        }).then(()=> {
+        }).then(() => {
             return confirmContentDeleteDialog.waitForDialogVisible();
-        }).then(()=> {
+        }).then(() => {
             return confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
-        }).pause(700).then(()=> {
+        }).pause(700).then(() => {
             return confirmContentDeleteDialog.clickOnConfirmButton();
-        }).then(()=> {
+        }).then(() => {
             return deleteContentDialog.waitForDialogClosed();
         })
     },
     typeNameInFilterPanel: function (name) {
-        return filterPanel.isPanelVisible().then((result)=> {
+        return filterPanel.isPanelVisible().then((result) => {
             if (!result) {
-                return browsePanel.clickOnSearchButton().then(()=> {
+                return browsePanel.clickOnSearchButton().then(() => {
                     return filterPanel.waitForOpened();
                 })
             }
             return;
-        }).then(()=> {
+        }).then(() => {
             return filterPanel.typeSearchText(name);
-        }).catch((err)=> {
+        }).catch((err) => {
             throw new Error(err);
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
         });
     },
     selectAndDeleteItem: function (name) {
-        return this.findAndSelectItem(name).pause(500).then(()=> {
+        return this.findAndSelectItem(name).pause(500).then(() => {
             return browsePanel.waitForDeleteButtonEnabled();
-        }).then((result)=> {
+        }).then((result) => {
             return browsePanel.clickOnDeleteButton();
-        }).then(()=> {
+        }).then(() => {
             return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3);
-        }).then(result=> {
+        }).then(result => {
             if (!result) {
                 throw new Error('Confirmation dialog is not loaded!')
             }
             return confirmationDialog.clickOnYesButton();
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.waitForSpinnerNotVisible();
         })
     },
-    confirmDelete: ()=> {
-        return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3).then(()=> {
+    confirmDelete: () => {
+        return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3).then(() => {
             return confirmationDialog.clickOnYesButton();
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.waitForSpinnerNotVisible();
         });
     },
 
     navigateToContentStudioApp: function () {
-        return launcherPanel.waitForPanelVisible(appConst.TIMEOUT_3).then((result)=> {
+        return launcherPanel.waitForPanelVisible(appConst.TIMEOUT_3).then((result) => {
             if (result) {
                 console.log("Launcher Panel is opened, click on the `Content Studio` link...");
                 return launcherPanel.clickOnContentStudioLink();
@@ -275,29 +296,29 @@ module.exports = {
                 console.log("Login Page is opened, type a password and name...");
                 return this.doLoginAndClickOnContentStudio();
             }
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).catch((err)=> {
+        }).catch((err) => {
             console.log('tried to navigate to Content Studio app, but: ' + err);
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigated to studio ' + err);
         })
     },
     doLoginAndClickOnContentStudio: function () {
-        return loginPage.doLogin().pause(900).then(()=> {
+        return loginPage.doLogin().pause(900).then(() => {
             return homePage.waitForXpTourVisible(appConst.TIMEOUT_2);
-        }).then((result)=> {
+        }).then((result) => {
             if (result) {
                 return homePage.doCloseXpTourDialog();
             }
-        }).then(()=> {
+        }).then(() => {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
         })
     },
 
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Studio app...');
-        return webDriverHelper.browser.getTitle().then(title=> {
+        return webDriverHelper.browser.getTitle().then(title => {
             if (title != "Content Studio - Enonic XP Admin") {
                 return this.switchToStudioTabWindow();
             }
@@ -308,7 +329,7 @@ module.exports = {
         console.log('testUtils:switching to Home page...');
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId)=> {
+            tabs.some((tabId) => {
                 prevPromise = prevPromise.then((isHome) => {
                     if (!isHome) {
                         return this.switchAndCheckTitle(tabId, "Enonic XP Home");
@@ -317,7 +338,7 @@ module.exports = {
                 });
             });
             return prevPromise;
-        }).then(()=> {
+        }).then(() => {
             return homePage.waitForLoaded(appConst.TIMEOUT_3);
         });
     },
@@ -326,48 +347,48 @@ module.exports = {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             this.xpTabs = tabs;
             return webDriverHelper.browser.switchTab(this.xpTabs[this.xpTabs.length - 1]);
-        }).then(()=> {
+        }).then(() => {
             return contentWizardPanel.waitForOpened();
         });
     },
     switchAndCheckTitle: function (tabId, reqTitle) {
-        return webDriverHelper.browser.switchTab(tabId).then(()=> {
-            return webDriverHelper.browser.getTitle().then(title=> {
+        return webDriverHelper.browser.switchTab(tabId).then(() => {
+            return webDriverHelper.browser.getTitle().then(title => {
                 return title.includes(reqTitle);
             })
         });
     },
 
     doLoginAndSwitchToContentStudio: function () {
-        return loginPage.doLogin().pause(1000).then(()=> {
+        return loginPage.doLogin().pause(1000).then(() => {
             return homePage.waitForXpTourVisible(appConst.TIMEOUT_3);
-        }).then((result)=> {
+        }).then((result) => {
             if (result) {
                 return homePage.doCloseXpTourDialog();
             }
-        }).then(()=> {
+        }).then(() => {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).catch((err)=> {
+        }).catch((err) => {
             throw new Error(err);
         })
     },
     doCloseWindowTabAndSwitchToBrowsePanel: function () {
-        return webDriverHelper.browser.close().pause(300).then(()=> {
+        return webDriverHelper.browser.close().pause(300).then(() => {
             return this.doSwitchToContentBrowsePanel();
         })
     },
 
     saveAndCloseWizard: function (displayName) {
-        return wizard.waitAndClickOnSave().pause(300).then(()=> {
+        return wizard.waitAndClickOnSave().pause(300).then(() => {
             return this.doCloseWindowTabAndSwitchToBrowsePanel()
         })
     },
     switchToStudioTabWindow: function () {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId)=> {
+            tabs.some((tabId) => {
                 prevPromise = prevPromise.then((isStudio) => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, "Content Studio - Enonic XP Admin");
@@ -376,14 +397,14 @@ module.exports = {
                 });
             });
             return prevPromise;
-        }).then(()=> {
+        }).then(() => {
             return browsePanel.waitForGridLoaded(appConst.TIMEOUT_3);
         });
     },
     switchToContentTabWindow: function (contentDisplayName) {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId)=> {
+            tabs.some((tabId) => {
                 prevPromise = prevPromise.then((isStudio) => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, contentDisplayName);
@@ -398,30 +419,30 @@ module.exports = {
         return webDriverHelper.browser.keys('\uE003');
     },
     doCloseAllWindowTabsAndSwitchToHome: function () {
-        return webDriverHelper.browser.getTabIds().then(tabIds=> {
+        return webDriverHelper.browser.getTabIds().then(tabIds => {
             let result = Promise.resolve();
-            tabIds.forEach((tabId)=> {
+            tabIds.forEach((tabId) => {
                 result = result.then(() => {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
-                }).then((result)=> {
+                }).then((result) => {
                     if (!result) {
-                        return webDriverHelper.browser.close().then(()=> {
+                        return webDriverHelper.browser.close().then(() => {
                             //return this.doSwitchToHome();
                         });
                     }
                 });
             });
             return result;
-        }).then(()=> {
+        }).then(() => {
             return this.doSwitchToHome();
         });
     },
     saveScreenshot: function (name) {
         var path = require('path')
         var screenshotsDir = path.join(__dirname, '/../build/screenshots/');
-        return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(()=> {
+        return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             return console.log('screenshot saved ' + name);
-        }).catch(err=> {
+        }).catch(err => {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
     }

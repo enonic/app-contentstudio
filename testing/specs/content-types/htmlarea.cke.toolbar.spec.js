@@ -23,6 +23,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
     webDriverHelper.setupBrowser();
 
     let SITE;
+    let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
 
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
@@ -49,7 +50,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
                 assert.isTrue(result, 'Insert Image Dialog should appear');
             });
         });
-    it.skip(`GIVEN 'htmlArea' content is opened WHEN 'insert anchor' icon has been clicked THEN 'Insert Anchor Dialog' should appear`,
+    it(`GIVEN 'htmlArea' content is opened WHEN 'insert anchor' icon has been clicked THEN 'Insert Anchor Dialog' should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
@@ -133,6 +134,27 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
                 return assert.eventually.isTrue(htmlAreaForm.isTableButtonDisplayed(), 'Table button should be present');
             });
         });
+
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+                return htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            }).then(() => {
+                return insertLinkDialog.typeText('test');
+            }).then(() => {
+                return insertLinkDialog.typeUrl('http://google.com');
+            }).then(() => {
+                return insertLinkDialog.clickOnInsertButton();
+            }).pause(500).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                return htmlAreaForm.getTextFromHtmlArea();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_0_1_url_link');
+                assert.equal(result[0], EXPECTED_URL, 'correct data should be in CKE');
+            });
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
 });

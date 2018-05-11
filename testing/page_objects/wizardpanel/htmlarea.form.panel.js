@@ -5,6 +5,7 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const insertLinkDialog = require('./insert.link.modal.dialog.cke');
 
 const form = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
@@ -143,6 +144,8 @@ const htmlAreaForm = Object.create(page, {
                 return this.waitForVisible(`//a[contains(@class,'cke_button') and contains(@title,'Link')]`);
             }).then(result => {
                 return this.doClick(`//a[contains(@class,'cke_button') and contains(@title,'Link')]`)
+            }).then(() => {
+                return insertLinkDialog.waitForDialogVisible();
             })
         }
     },
