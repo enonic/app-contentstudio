@@ -77,7 +77,7 @@ var contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
         }
     },
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     waitForPanelVisible: {
         value: function (ms) {
