@@ -18,14 +18,14 @@ var panel = {
     },
     checkboxByName: function (name) {
         return `${elements.itemByName(name)}` +
-               `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+            `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
     checkboxByDisplayName: displayName => `${elements.itemByDisplayName(
         displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 
     expanderIconByName: function (name) {
         return elements.itemByName(name) +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
+            `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
 
     },
 }
@@ -72,32 +72,37 @@ var contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
         }
     },
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    previewButton: {
+        get: function () {
+            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
+        }
+    },
+
 
     waitForPanelVisible: {
         value: function (ms) {
-            return this.waitForVisible(`${panel.toolbar}`, ms).catch(err=> {
+            return this.waitForVisible(`${panel.toolbar}`, ms).catch(err => {
                 throw new Error('Content browse panel was not loaded in ' + ms);
             });
         }
     },
     clickOnMoveButton: {
         value: function () {
-            return this.doClick(this.moveButton).catch(err=> {
+            return this.doClick(this.moveButton).catch(err => {
                 throw new Error('error when clicking on the Move button ' + err);
             })
         }
     },
     clickOnShowIssuesListButton: {
         value: function () {
-            return this.doClick(this.showIssuesListButton).catch(err=> {
+            return this.doClick(this.showIssuesListButton).catch(err => {
                 throw new Error('error when click on the button ' + err);
             })
         }
     },
     waitForContentDisplayed: {
         value: function (contentName) {
-            return this.waitForVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err)=> {
+            return this.waitForVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err) => {
                 console.log("item is not displayed:" + contentName);
                 this.saveScreenshot('err_find_' + contentName)
                 throw new Error('content not found! ' + contentName);
@@ -106,7 +111,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForItemNotDisplayed: {
         value: function (contentName) {
-            return this.waitForNotVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err)=> {
+            return this.waitForNotVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err) => {
                 console.log("content is still displayed:" + contentName);
                 return false;
             });
@@ -114,11 +119,11 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForGridLoaded: {
         value: function (ms) {
-            return this.waitForVisible(`${elements.GRID_CANVAS}`, ms).then(()=> {
+            return this.waitForVisible(`${elements.GRID_CANVAS}`, ms).then(() => {
                 return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-            }).then(()=> {
+            }).then(() => {
                 return console.log('content browse panel is loaded')
-            }).catch(err=> {
+            }).catch(err => {
                 throw new Error('content browse panel was not loaded in ' + ms);
             });
         }
@@ -130,18 +135,18 @@ var contentBrowsePanel = Object.create(page, {
     },
     clickOnNewButton: {
         value: function () {
-            return this.waitForEnabled(this.newButton, 1000).then(()=> {
+            return this.waitForEnabled(this.newButton, 1000).then(() => {
                 return this.doClick(this.newButton);
-            }).catch((err)=> {
+            }).catch((err) => {
                 throw new Error('New button is not enabled! ' + err);
             })
         }
     },
     clickOnEditButton: {
         value: function () {
-            return this.waitForEnabled(this.editButton, 1000).then(()=> {
+            return this.waitForEnabled(this.editButton, 1000).then(() => {
                 return this.doClick(this.editButton);
-            }).pause(500).catch((err)=> {
+            }).pause(500).catch((err) => {
                 this.saveScreenshot('err_browsepanel_edit');
                 throw new Error('Edit button is not enabled! ' + err);
             })
@@ -149,11 +154,21 @@ var contentBrowsePanel = Object.create(page, {
     },
     clickOnDeleteButton: {
         value: function () {
-            return this.waitForEnabled(this.deleteButton, 2000).then(()=> {
+            return this.waitForEnabled(this.deleteButton, 2000).then(() => {
                 return this.doClick(this.deleteButton);
-            }).catch((err)=> {
+            }).catch((err) => {
                 this.saveScreenshot('err_browsepanel_delete');
                 throw new Error('Delete button is not enabled! ' + err);
+            })
+        }
+    },
+    clickOnPreviewButton: {
+        value: function () {
+            return this.waitForEnabled(this.previewButton, 2000).then(() => {
+                return this.doClick(this.previewButton);
+            }).catch((err) => {
+                this.saveScreenshot('err_browsepanel_preview');
+                throw new Error('Error when clicking on Preview button ' + err);
             })
         }
     },
@@ -164,7 +179,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForNewButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.newButton, 3000).catch(err=> {
+            return this.waitForEnabled(this.newButton, 3000).catch(err => {
                 this.saveScreenshot('err_new_button');
                 return false;
             })
@@ -172,7 +187,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForEditButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.editButton, 3000).catch(err=> {
+            return this.waitForEnabled(this.editButton, 3000).catch(err => {
                 this.saveScreenshot('err_edit_button');
                 throw Error('Edit button is not enabled after ' + 3000 + 'ms')
             })
@@ -180,7 +195,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForDeleteButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.deleteButton, 3000).catch(err=> {
+            return this.waitForEnabled(this.deleteButton, 3000).catch(err => {
                 this.saveScreenshot('err_delete_button');
                 throw Error('Delete button is not enabled after ' + 3000 + 'ms')
             })
@@ -188,7 +203,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     waitForDeleteButtonDisabled: {
         value: function () {
-            return this.waitForDisabled(this.deleteButton, 3000).catch(err=> {
+            return this.waitForDisabled(this.deleteButton, 3000).catch(err => {
                 this.saveScreenshot('err_delete_disabled_button');
                 throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
             })
@@ -196,7 +211,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     isDeleteButtonEnabled: {
         value: function () {
-            return this.isEnabled(this.deleteButton).catch(err=> {
+            return this.isEnabled(this.deleteButton).catch(err => {
                 this.saveScreenshot('err_delete_button');
                 throw Error('Delete button should be enabled, timeout ' + 3000 + 'ms')
             })
@@ -215,9 +230,9 @@ var contentBrowsePanel = Object.create(page, {
     clickOnRowByName: {
         value: function (name) {
             var nameXpath = panel.treeGrid + elements.itemByName(name);
-            return this.waitForVisible(nameXpath, 3000).then(()=> {
+            return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
-            }).pause(400).catch((err)=> {
+            }).pause(400).catch((err) => {
                 this.saveScreenshot('err_find_' + name);
                 throw Error('Row with the name ' + name + ' was not found')
             })
@@ -226,9 +241,9 @@ var contentBrowsePanel = Object.create(page, {
     clickOnRowByDisplayName: {
         value: function (displayName) {
             var nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(nameXpath, 3000).then(()=> {
+            return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
-            }).pause(400).catch((err)=> {
+            }).pause(400).catch((err) => {
                 this.saveScreenshot('err_find_' + displayName);
                 throw Error('Row with the displayName ' + displayName + ' was not found')
             })
@@ -238,7 +253,7 @@ var contentBrowsePanel = Object.create(page, {
         value: function (name) {
             var nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000)
-                .catch((err)=> {
+                .catch((err) => {
                     this.saveScreenshot('err_find_' + name);
                     throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
                 })
@@ -247,10 +262,10 @@ var contentBrowsePanel = Object.create(page, {
     waitForContentByDisplayNameVisible: {
         value: function (displayName) {
             var nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(nameXpath, 3000).catch((err)=> {
+            return this.waitForVisible(nameXpath, 3000).catch((err) => {
                 this.saveScreenshot('err_find_' + displayName);
                 throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
-                })
+            })
         }
     },
     clickCheckboxAndSelectRowByDisplayName: {
@@ -267,9 +282,9 @@ var contentBrowsePanel = Object.create(page, {
     clickCheckboxAndSelectRowByName: {
         value: function (name) {
             var nameXpath = panel.checkboxByName(name);
-            return this.waitForVisible(nameXpath, 2000).then(()=> {
+            return this.waitForVisible(nameXpath, 2000).then(() => {
                 return this.doClick(nameXpath);
-            }).catch((err)=> {
+            }).catch((err) => {
                 this.saveScreenshot('err_find_item');
                 throw Error('Row with the name ' + name + ' was not found')
             })
@@ -277,16 +292,16 @@ var contentBrowsePanel = Object.create(page, {
     },
     doCloseWindowTabAndSwitchToBrowsePanel: {
         value: function (displayName) {
-            return this.getBrowser().close().pause(300).then(()=> {
+            return this.getBrowser().close().pause(300).then(() => {
                 return saveBeforeCloseDialog.isDialogPresent(100);
-            }).then((result)=> {
+            }).then((result) => {
                 if (result) {
-                    this.saveScreenshot('err_save_close_item').then(()=> {
+                    this.saveScreenshot('err_save_close_item').then(() => {
                         console.log('save before close dialog must not be present');
                         throw new Error('`Save Before Close` dialog should not appear when try to close the ' + displayName);
                     });
                 }
-            }).then(()=> {
+            }).then(() => {
                 return this.doSwitchToContentBrowsePanel();
             });
         }
@@ -294,7 +309,7 @@ var contentBrowsePanel = Object.create(page, {
     clickOnExpanderIcon: {
         value: function (name) {
             var expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
-            return this.doClick(expanderIcon).pause(700).catch(err=> {
+            return this.doClick(expanderIcon).pause(700).catch(err => {
                 this.saveScreenshot('err_click_on_expander ' + name);
                 throw new Error('error when click on expander-icon ' + err);
             })
@@ -304,7 +319,7 @@ var contentBrowsePanel = Object.create(page, {
     isRedIconDisplayed: {
         value: function (contentName) {
             var xpath = panel.contentSummaryByName(contentName);
-            return this.getBrowser().getAttribute(xpath, 'class').then(result=> {
+            return this.getBrowser().getAttribute(xpath, 'class').then(result => {
                 return result.includes('invalid');
             });
         }
@@ -318,11 +333,11 @@ var contentBrowsePanel = Object.create(page, {
     },
     openShowPublishMenuAndClickOnCreateIssue: {
         value: function () {
-            return this.doClick(this.showPublishMenuButton).then(()=> {
+            return this.doClick(this.showPublishMenuButton).then(() => {
                 return this.waitForVisible(this.createIssueMenuItem);
-            }).then(()=> {
+            }).then(() => {
                 return this.doClick(this.createIssueMenuItem);
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot("err_click_create_issue_menuItem");
                 throw new Error('error when try to click on Create Issue menu item, ' + err);
             })
