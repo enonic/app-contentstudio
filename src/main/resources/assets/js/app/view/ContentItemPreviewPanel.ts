@@ -1,6 +1,6 @@
 import '../../api.ts';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
-
+import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import RenderingMode = api.rendering.RenderingMode;
 import ViewItem = api.app.view.ViewItem;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -18,7 +18,8 @@ enum PREVIEW_TYPE {
     BLANK
 }
 
-export class ContentItemPreviewPanel extends api.app.view.ItemPreviewPanel {
+export class ContentItemPreviewPanel
+    extends api.app.view.ItemPreviewPanel<ContentSummaryAndCompareStatus> {
 
     private image: api.dom.ImgEl;
     private item: ViewItem<ContentSummaryAndCompareStatus>;
@@ -95,6 +96,10 @@ export class ContentItemPreviewPanel extends api.app.view.ItemPreviewPanel {
                 }
             }
         }
+    }
+
+    createToolbar(): ContentItemPreviewToolbar {
+        return new ContentItemPreviewToolbar();
     }
 
     private getLinkClicked(event: UIEvent): string {
@@ -179,6 +184,7 @@ export class ContentItemPreviewPanel extends api.app.view.ItemPreviewPanel {
                 }
             }
         }
+        this.toolbar.setItem(item);
         this.item = item;
     }
 
