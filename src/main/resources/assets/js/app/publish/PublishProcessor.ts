@@ -67,6 +67,10 @@ export class PublishProcessor {
             this.excludedIds.push(item.getContentId());
             this.reloadDependenciesDebounced();
         });
+
+        this.dependantList.onListChanged(() => {
+            this.reloadDependenciesDebounced(true);
+        });
     }
 
     reloadPublishDependencies(resetDependantItems?: boolean): wemQ.Promise<void> {
