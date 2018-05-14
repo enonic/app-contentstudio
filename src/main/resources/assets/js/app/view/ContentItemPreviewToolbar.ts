@@ -9,14 +9,18 @@ export class ContentItemPreviewToolbar
 
     constructor() {
         super('content-item-preview-toolbar');
-        this.status = new api.dom.SpanEl('content-status');
+        const invalidMark = new api.dom.DivEl('invalid-mark');
+        this.addElement(invalidMark);
+        this.status = new api.dom.DivEl('content-status');
         this.addElement(this.status);
     }
 
     setItem(item: ViewItem<ContentSummaryAndCompareStatus>) {
         if (this.getItem() !== item) {
             super.setItem(item);
-            this.status.setHtml(this.getStatusString(item.getModel()), false);
+            const model = item.getModel();
+            this.toggleClass('invalid', !model.getContentSummary().isValid());
+            this.status.setHtml(this.getStatusString(model), false);
         }
     }
 

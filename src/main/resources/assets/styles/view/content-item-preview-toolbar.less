@@ -1,9 +1,48 @@
 .content-item-preview-toolbar {
 
-  span.content-status {
+  @toolbar-size: 41px;
+  @mark-size: 20px;
+
+  & > * {
+    vertical-align: top;
+  }
+
+  &.invalid {
+
+    .invalid-mark {
+      display: inline-block;
+    }
+  }
+
+  .invalid-mark {
+    width: @toolbar-size;
+    height: @toolbar-size;
+    display: none;
+    position: relative;
+    border-right: 1px solid @admin-bg-light-gray;
+
+    &:before {
+      position: absolute;
+      top: (@toolbar-size - @mark-size)/2;
+      left: (@toolbar-size - @mark-size)/2;
+      width: @mark-size;
+      height: @mark-size;
+      line-height: @mark-size;
+      border-radius: @mark-size/2;
+      font-size: 14px;
+      z-index: 1;
+      text-align: center;
+      content: "!";
+      background: @admin-red;
+      color: @admin-white;
+    }
+  }
+
+  .content-status {
     margin-left: 14px;
     color: @admin-font-gray1;
     font-size: 13px;
+    display: inline-block;
 
     .content-status-mixin();
 
