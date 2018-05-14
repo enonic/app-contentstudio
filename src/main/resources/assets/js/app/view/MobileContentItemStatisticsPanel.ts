@@ -85,7 +85,7 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
 
     private initHeader() {
 
-        const icon = new api.dom.IEl('icon-more');
+        const icon = new api.dom.IEl('icon-more_vert');
         const backButton = new api.dom.DivEl('mobile-details-panel-back-button');
         backButton.onClicked((event) => {
             this.foldButton.collapse();
