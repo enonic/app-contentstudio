@@ -46,6 +46,7 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
                 button.onClicked(() => {
                     this.selectedChildOrder = order;
                     this.selectedIconClass = iconClass;
+                    this.markSelected();
                     this.select();
                 });
                 button.onFocus(() => {
@@ -62,6 +63,7 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
 
             this.selectedChildOrder = descending;
             this.selectedIconClass = `icon-sort-${descending.isAlpha() ? 'alpha' : 'num'}-desc`;
+            this.markSelected();
         } else {
             this.addClass('single');
             this.selectedChildOrder = <ChildOrder>builder.childOrder;
@@ -95,12 +97,33 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
         return this.selectedIconClass;
     }
 
+    getTooltip() {
+        const label = this.getLabel();
+        if (this.childOrder instanceof ChildOrder) {
+            return label;
+        }
+        const {ascending} = <AscDescOrder>this.childOrder;
+        const type = this.selectedChildOrder === ascending ? 'ascending' : 'descending';
+        return i18n(`tooltip.sortType.${type}`, label);
+    }
+
     hasChildOrder(order: ChildOrder): boolean {
         if (this.childOrder instanceof ChildOrder) {
             return this.childOrder === order;
-        } // else
+        }
         const {ascending, descending} = <AscDescOrder>this.childOrder;
         return ascending === order || descending === order;
+    }
+
+    private markSelected() {
+        const {ascending, descending} = <AscDescOrder>this.childOrder;
+        if (this.selectedChildOrder === ascending) {
+            this.descButton.removeClass('selected');
+            this.ascButton.addClass('selected');
+        } else if (this.selectedChildOrder === descending) {
+            this.ascButton.removeClass('selected');
+            this.descButton.addClass('selected');
+        }
     }
 }
 

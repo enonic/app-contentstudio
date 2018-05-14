@@ -70,13 +70,17 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
         });
 
         this.onNavigationItemSelected(() => {
+            const selectedItem = this.getSelectedNavigationItem();
+
             if (this.iconClass) {
                 this.getTabMenuButtonEl().getLabel().removeClass(this.iconClass);
             }
-            this.iconClass = this.getSelectedNavigationItem().getSelectedIconClass();
+            this.iconClass = selectedItem.getSelectedIconClass();
             if (this.iconClass) {
                 this.getTabMenuButtonEl().getLabel().addClass(this.iconClass);
             }
+
+            this.getTabMenuButtonEl().setLabelTitle(selectedItem.getTooltip());
         });
     }
 
