@@ -30,7 +30,7 @@ export class SortContentTabMenuItems {
 
         this.SORT_MANUAL_ITEM =
             new SortContentTabMenuItemBuilder()
-                .setLabel(i18n('field.sortType.manual'),)
+                .setLabel(i18n('field.sortType.manual'))
                 .setChildOrder(createChildOrder([
                     {field: QueryField.MANUAL_ORDER_VALUE, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE},
                     {field: QueryField.TIMESTAMP, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}

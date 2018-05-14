@@ -26,8 +26,7 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
         const itemBuilder = new TabMenuItemBuilder().setLabel(builder.label);
         if (isNotSingle(builder.childOrder)) {
             // Disable item click handlers
-            itemBuilder.setClickHandler(() => {
-            });
+            itemBuilder.setClickHandler(() => void 0);
         }
 
         super(<TabMenuItemBuilder>itemBuilder);
