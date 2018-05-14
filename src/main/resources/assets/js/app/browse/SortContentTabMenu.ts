@@ -1,10 +1,8 @@
 import '../../api.ts';
 import {SortContentTabMenuItem} from './SortContentTabMenuItem';
 import {SortContentTabMenuItems} from './SortContentTabMenuItems';
-
 import ChildOrder = api.content.order.ChildOrder;
 import DropdownHandle = api.ui.button.DropdownHandle;
-import ArrayHelper = api.util.ArrayHelper;
 import KeyHelper = api.ui.KeyHelper;
 import AppHelper = api.util.AppHelper;
 
@@ -16,18 +14,23 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
 
     private dropdownHandle: DropdownHandle;
 
+    private iconClass: string;
+
     constructor() {
         super('sort-tab-menu');
 
+        this.iconClass = '';
+
         this.navigationItems = new SortContentTabMenuItems();
         this.addNavigationItems(this.navigationItems.getAllItems());
-        this.selectNavigationItem(0);
 
         this.dropdownHandle = new DropdownHandle();
         this.appendChild(this.dropdownHandle);
         this.dropdownHandle.up();
 
         this.initEventHandlers();
+
+        this.selectNavigationItem(0);
     }
 
     initEventHandlers() {
@@ -65,6 +68,28 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
                 }
             }
         });
+
+        this.onNavigationItemSelected(() => {
+            if (this.iconClass) {
+                this.getTabMenuButtonEl().getLabel().removeClass(this.iconClass);
+            }
+            this.iconClass = this.getSelectedNavigationItem().getSelectedIconClass();
+            if (this.iconClass) {
+                this.getTabMenuButtonEl().getLabel().addClass(this.iconClass);
+            }
+        });
+    }
+
+    handleMenuKeyDown(event: KeyboardEvent) {
+        const item = <SortContentTabMenuItem>this.getFocusedTab();
+        if (KeyHelper.isArrowLeftKey(event)) {
+            item.giveFocusToAscending();
+        } else if (KeyHelper.isArrowRightKey(event)) {
+            item.giveFocusToDescending();
+        } else {
+            super.handleMenuKeyDown(event);
+        }
+        AppHelper.lockEvent(event);
     }
 
     returnFocusFromMenu(): boolean {
@@ -120,22 +145,17 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
     selectNavigationItemByOrder(order: ChildOrder) {
         const items = this.navigationItems.getAllItems();
 
-        items.some((item, index, array) => {
-            if (item.getChildOrder().equals(order)) {
-                // Move current order to the top of the list and select it
-                const reordered = array.slice();
-                ArrayHelper.moveElement(index, 0, reordered);
-                this.replaceNavigationItems(reordered);
-                this.selectNavigationItem(0);
-
-                return true; // break
+        items.some((item, index) => {
+            if (item.hasChildOrder(order)) {
+                this.selectNavigationItem(index);
+                return true;
             }
             return false;
         });
     }
 
     selectManualSortingItem() {
-        this.selectNavigationItemByOrder(this.navigationItems.SORT_MANUAL_ITEM.getChildOrder());
+        this.selectNavigationItemByOrder(this.navigationItems.SORT_MANUAL_ITEM.getSelectedChildOrder());
     }
 
     onSortOrderChanged(listener: () => void) {
