@@ -69,7 +69,7 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
             }
         });
 
-        this.onNavigationItemSelected(() => {
+        this.onSortOrderChanged(() => {
             const selectedItem = this.getSelectedNavigationItem();
 
             if (this.iconClass) {

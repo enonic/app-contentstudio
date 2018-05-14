@@ -37,7 +37,7 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
             const {ascending, descending} = <AscDescOrder>this.childOrder;
 
             const createButton = (order: ChildOrder) => {
-                const type = ascending === order ? 'ascending' : 'descending';
+                const type = order.equals(ascending) ? 'ascending' : 'descending';
                 const iconClass = `icon-sort-${order.isAlpha() ? 'alpha' : 'num'}-${type.slice(0, -6)}`;
 
                 const button = new Button();
@@ -46,7 +46,6 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
                 button.onClicked(() => {
                     this.selectedChildOrder = order;
                     this.selectedIconClass = iconClass;
-                    this.markSelected();
                     this.select();
                 });
                 button.onFocus(() => {
@@ -103,7 +102,7 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
             return label;
         }
         const {ascending} = <AscDescOrder>this.childOrder;
-        const type = this.selectedChildOrder === ascending ? 'ascending' : 'descending';
+        const type = this.selectedChildOrder.equals(ascending) ? 'ascending' : 'descending';
         return i18n(`tooltip.sortType.${type}`, label);
     }
 
@@ -112,18 +111,23 @@ export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
             return this.childOrder === order;
         }
         const {ascending, descending} = <AscDescOrder>this.childOrder;
-        return ascending === order || descending === order;
+        return order.equals(ascending) || order.equals(descending);
     }
 
     private markSelected() {
         const {ascending, descending} = <AscDescOrder>this.childOrder;
-        if (this.selectedChildOrder === ascending) {
+        if (this.selectedChildOrder.equals(ascending)) {
             this.descButton.removeClass('selected');
             this.ascButton.addClass('selected');
-        } else if (this.selectedChildOrder === descending) {
+        } else if (this.selectedChildOrder.equals(descending)) {
             this.ascButton.removeClass('selected');
             this.descButton.addClass('selected');
         }
+    }
+
+    select() {
+        this.markSelected();
+        super.select();
     }
 }
 
