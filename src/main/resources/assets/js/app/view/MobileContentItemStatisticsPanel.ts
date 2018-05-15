@@ -15,7 +15,6 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
 
     private itemHeader: api.dom.DivEl = new api.dom.DivEl('mobile-content-item-statistics-header');
     private headerLabel: api.dom.H6El = new api.dom.H6El('mobile-header-title');
-    private subHeaderLabel: api.dom.SpanEl = new api.dom.SpanEl();
 
     private previewPanel: ContentItemPreviewPanel;
     private detailsPanel: MobileDetailsPanel;
@@ -85,21 +84,17 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
     }
 
     private initHeader() {
-        this.itemHeader.appendChild(this.headerLabel);
-        this.itemHeader.appendChild(this.subHeaderLabel);
 
-        this.itemHeader.appendChild(this.foldButton);
-
-        let backButton = new api.dom.DivEl('mobile-details-panel-back-button');
+        const icon = new api.dom.IEl('icon-more_vert');
+        const backButton = new api.dom.DivEl('mobile-details-panel-back-button');
         backButton.onClicked((event) => {
             this.foldButton.collapse();
             this.slideAllOut();
             event.stopPropagation();
         });
-        this.itemHeader.appendChild(backButton);
+        this.itemHeader.appendChildren(this.headerLabel, icon, this.foldButton, backButton);
 
         this.appendChild(this.itemHeader);
-
     }
 
     private initDetailsPanel(detailsView: DetailsView) {
@@ -129,7 +124,6 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
             this.detailsPanel.setItem(!!item ? item.getModel() : null);
             if (item) {
                 this.setName(this.makeDisplayName(item));
-                this.setStatus(item.getModel());
             }
         }
     }
@@ -150,13 +144,7 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
     }
 
     private setName(name: string) {
-        this.headerLabel.setHtml(name);
-    }
-
-    private setStatus(content: ContentSummaryAndCompareStatus) {
-        this.subHeaderLabel.getHTMLElement().setAttribute('class', '');
-        this.subHeaderLabel.addClass(content.getStatusClass());
-        this.subHeaderLabel.setHtml(content.getStatusText());
+        this.headerLabel.getHTMLElement().textContent = name;
     }
 
     slideAllOut(silent?: boolean) {

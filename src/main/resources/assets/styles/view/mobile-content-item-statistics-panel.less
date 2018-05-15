@@ -1,5 +1,7 @@
 .mobile-content-item-statistics-panel {
 
+  @app-header-height: 36px;
+
   display: none;
   height: 100%;
   position: fixed;
@@ -36,61 +38,36 @@
     .mobile-header-title {
       cursor: pointer;
       display: inline-block;
-      max-width: calc(~'100% - 44px');
+      max-width: calc(~'100% - 36px');
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       font-weight: bold;
-      line-height: 18px;
+      line-height: 24px;
+      padding-right: 10px;
       .ellipsis();
+    }
 
-      position: relative;
-
-      &:after {
-        content: "";
-        position: absolute;
-        top: 5px;
-        right: 0;
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 8px solid @admin-white;
-        border-bottom: none;
-      }
-
+    i.icon-more_vert {
+      display: inline-block;
+      vertical-align: top;
+      line-height: 24px;
+      color: @admin-white;
+      font-weight: 100;
+      font-size: 16px;
+      transition: .5s all;
+      cursor: pointer;
     }
 
     &.expanded {
       z-index: 3;
 
-      .mobile-header-title:after {
-
-        border-top: none;
-        border-bottom: 8px solid @admin-white;
+      i.icon-more_vert {
+        transform: rotate(90deg);
       }
 
       + .content-item-preview-panel {
         pointer-events: none;
       }
-    }
-
-    > span {
-      cursor: pointer;
-      display: block;
-      font-size: 11px;
-      line-height: 8px;
-      opacity: 0.8;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-
-      &.online {
-        opacity: 1;
-        color: #7dce2f;
-      }
-    }
-
-    .mobile-header-title, > span {
-      padding-right: 20px;
     }
   }
 
@@ -150,12 +127,18 @@
       box-sizing: border-box;
 
       .action-button {
-        padding-left: 10px;
+        padding: 5px 0 10px 0;
+        width: auto;
+        display: block;
         span {
           color: @admin-white;
+          margin: 0 10px;
         }
         &.publish span {
           color: @admin-green;
+        }
+        &:hover span {
+          color: @admin-font-gray2;
         }
       }
     }
