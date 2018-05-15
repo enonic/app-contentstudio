@@ -367,7 +367,7 @@ export class ContentWizardPanel
     }
 
     protected createMainToolbar(): Toolbar {
-        return new ContentWizardToolbar(this.contentParams.application, this.wizardActions);
+        return new ContentWizardToolbar(this.wizardActions, this.persistedContent);
     }
 
     public getMainToolbar(): ContentWizardToolbar {
@@ -831,6 +831,7 @@ export class ContentWizardPanel
 
                 this.persistedContent = this.currentContent = updatedContent;
                 this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
+                this.getMainToolbar().setItem(updatedContent);
 
                 if (this.currentContent.getCompareStatus() != null) {
                     this.refreshScheduleWizardStep();

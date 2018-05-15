@@ -184,7 +184,7 @@ export class ContentItemPreviewPanel
                 }
             }
         }
-        this.toolbar.setItem(item);
+        this.toolbar.setItem(item.getModel());
         this.item = item;
     }
 

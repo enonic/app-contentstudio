@@ -1,6 +1,5 @@
-.content-item-preview-toolbar {
+.content-status-toolbar {
 
-  @toolbar-size: 41px;
   @mark-size: 20px;
 
   & > * {
@@ -15,16 +14,18 @@
   }
 
   .invalid-mark {
-    width: @toolbar-size;
-    height: @toolbar-size;
+    width: 44px;
+    height: 100%;
     display: none;
     position: relative;
     border-right: 1px solid @admin-bg-light-gray;
 
     &:before {
       position: absolute;
-      top: (@toolbar-size - @mark-size)/2;
-      left: (@toolbar-size - @mark-size)/2;
+      top: 50%;
+      left: 50%;
+      margin-top: -10px;
+      margin-left: -10px;
       width: @mark-size;
       height: @mark-size;
       line-height: @mark-size;
@@ -40,14 +41,19 @@
 
   .content-status {
     margin-left: 14px;
-    color: @admin-font-gray1;
     font-size: 13px;
     display: inline-block;
+    height: 100%;
 
     .content-status-mixin();
 
-    span {
+    span.status {
       color: @admin-black;
+    }
+
+    span.author {
+      margin-left: 5px;
+      color: @admin-font-gray1;
     }
   }
 
