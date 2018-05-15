@@ -55,6 +55,7 @@
       font-weight: 100;
       font-size: 16px;
       transition: .5s all;
+      cursor: pointer;
     }
 
     &.expanded {
@@ -126,12 +127,18 @@
       box-sizing: border-box;
 
       .action-button {
-        padding-left: 10px;
+        padding: 5px 0 10px 0;
+        width: auto;
+        display: block;
         span {
           color: @admin-white;
+          margin: 0 10px;
         }
         &.publish span {
           color: @admin-green;
+        }
+        &:hover span {
+          color: @admin-font-gray2;
         }
       }
     }
