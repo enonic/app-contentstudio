@@ -3,11 +3,11 @@
  */
 
 module.exports = Object.freeze({
-    FORM_VIEW:`//div[contains(@id,'FormView')]`,
-    CONTENT_SELECTOR:"//div[contains(@id,'ContentSelector')]",
+    FORM_VIEW: `//div[contains(@id,'FormView')]`,
+    CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
     NAMES_VIEW_BY_NAME: "//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
-    SLICK_VIEW_PORT:`//div[@class='slick-viewport']`,
+    SLICK_VIEW_PORT: `//div[@class='slick-viewport']`,
     SLICK_ROW: "//div[@class='slick-viewport']//div[contains(@class,'slick-row')]",
     SLICK_ROW_BY_NAME: "//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     SLICK_ROW_BY_DISPLAY_NAME: "//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'%s')]]",
@@ -20,9 +20,11 @@ module.exports = Object.freeze({
     TEXT_INPUT: `//input[@type='text']`,
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
+    tabBarItemByName: function (name) {
+        return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
+    },
     slickRowByDisplayName: function (container, displayName) {
-        return container +
-               `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+        return container + `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
     itemByDisplayName: function (displayName) {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`

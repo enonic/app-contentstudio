@@ -33,6 +33,11 @@ module.exports = {
             console.log('clicked on ' + selector);
         })
     },
+    isElementDisplayed: function (selector) {
+        return webDriverHelper.browser.isVisible(selector).catch((err) => {
+            console.log('Error, when checking the element ' + selector + '  ' + err);
+        })
+    },
     getTitle: function () {
         return webDriverHelper.browser.getTitle();
     },
@@ -45,6 +50,24 @@ module.exports = {
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.typeUrl(url);
         }).then(() => {
+            return insertLinkDialog.clickOnInsertButton();
+        }).pause(700);
+
+    },
+    insertDownloadLinkInCke: function (text, contentDisplayName) {
+        return insertLinkDialog.typeText(text).then(() => {
+            return insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
+        }).then(() => {
+            this.saveScreenshot('download_link_dialog');
+            return insertLinkDialog.clickOnInsertButton();
+        }).pause(700);
+
+    },
+    insertContentLinkInCke: function (text, contentDisplayName) {
+        return insertLinkDialog.typeText(text).then(() => {
+            return insertLinkDialog.selectTargetInContentTab(contentDisplayName);
+        }).then(() => {
+            this.saveScreenshot('content_link_dialog');
             return insertLinkDialog.clickOnInsertButton();
         }).pause(700);
 

@@ -16,7 +16,7 @@ const contentBuilder = require("../../libs/content.builder");
 const htmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('htmlarea.cke.spec:  html area with CKE`', function () {
+describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
