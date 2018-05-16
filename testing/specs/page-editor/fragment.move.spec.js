@@ -74,7 +74,7 @@ describe('Move Fragment` specification', function () {
                 studioUtils.saveScreenshot('fragment_is_moved');
                 return contentBrowsePanel.waitForNotificationMessage();
             }).then(result => {
-                return assert.isTrue(result == `\"text_component_1\" was moved.`,
+                return assert.isTrue(result == `Item \"text_component_1\" was moved.`,
                     'correct notification message should appear');
             })
         });
