@@ -23,10 +23,14 @@ export class ContentStatusToolbar
     setItem(item: ContentSummaryAndCompareStatus) {
         if (this.getItem() !== item) {
             super.setItem(item);
-            this.toggleClass('invalid', !item.getContentSummary().isValid());
+            this.toggleValid(item.getContentSummary() && item.getContentSummary().isValid());
             this.updateStatus(item);
             this.updateAuthor(item);
         }
+    }
+
+    toggleValid(valid: boolean) {
+        this.toggleClass('invalid', !valid);
     }
 
     private isOnline(content: ContentSummaryAndCompareStatus): boolean {
@@ -38,11 +42,17 @@ export class ContentStatusToolbar
         if (this.isOnline(content)) {
             this.status.addClass('online');
         }
-        this.status.addClass(content.getStatusClass());
-        this.status.setHtml(content.getStatusText());
+        if (content) {
+            this.status.addClass(content.getStatusClass());
+            this.status.setHtml(content.getStatusText());
+        }
     }
 
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
-        this.author.setHtml(i18n('field.preview.toolbar.status', content.getContentSummary().getModifier()));
+        let text = '';
+        if (content && content.getContentSummary()) {
+            text = i18n('field.preview.toolbar.status', content.getContentSummary().getModifier());
+        }
+        this.author.setHtml(text);
     }
 }

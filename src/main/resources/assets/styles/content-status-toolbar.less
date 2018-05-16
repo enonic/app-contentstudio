@@ -1,6 +1,7 @@
 .content-status-toolbar {
-
   @mark-size: 20px;
+
+  font-size: 14px;
 
   & > * {
     vertical-align: top;
@@ -41,17 +42,11 @@
 
   .content-status {
     margin-left: 14px;
-    font-size: 13px;
     display: inline-block;
-    height: 100%;
 
     .content-status-mixin();
 
-    span.status {
-      color: @admin-black;
-    }
-
-    span.author {
+    .author {
       margin-left: 5px;
       color: @admin-font-gray1;
     }

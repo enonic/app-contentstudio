@@ -61,6 +61,12 @@
       //transition: 0.1s;
     }
 
+    .thumbnail-uploader-el.invalid {
+      .result-container:after {
+        display: none; // don't display red circle on uploader since it's shown on toolbar
+      }
+    }
+
     .form-panel.minimized {
       .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
         display: none;

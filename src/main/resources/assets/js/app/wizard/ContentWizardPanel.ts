@@ -456,6 +456,7 @@ export class ContentWizardPanel
                 if (thumbnailUploader) {
                     thumbnailUploader.toggleClass('invalid', !isThisValid);
                 }
+                this.getMainToolbar().toggleValid(isThisValid);
                 this.getContentWizardToolbarPublishControls().setContentCanBePublished(this.checkContentCanBePublished());
                 if (!this.formState.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
