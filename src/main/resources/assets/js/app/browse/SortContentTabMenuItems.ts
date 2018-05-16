@@ -44,6 +44,11 @@ export class SortContentTabMenuItems {
                 createChildOrder([{field: QueryField.MODIFIED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
             ),
             createOrder(
+                i18n('field.sortType.created'),
+                createChildOrder([{field: QueryField.CREATED_TIME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
+                createChildOrder([{field: QueryField.CREATED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
+            ),
+            createOrder(
                 i18n('field.sortType.displayName'),
                 createChildOrder([{field: QueryField.DISPLAY_NAME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
                 createChildOrder([{field: QueryField.DISPLAY_NAME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
