@@ -10,9 +10,9 @@ export class MoveContentAction extends Action {
         super(i18n('action.moveMore'));
         this.setEnabled(false);
         this.onExecuted(() => {
-            let contents: api.content.ContentSummaryAndCompareStatus[]
+            const contents: api.content.ContentSummaryAndCompareStatus[]
                 = grid.getSelectedDataList();
-            new MoveContentEvent(contents, grid.getRoot().getCurrentRoot()).fire();
+            new MoveContentEvent(contents, grid.getRoot().getDefaultRoot()).fire();
         });
     }
 }

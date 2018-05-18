@@ -153,9 +153,13 @@
     }
   }
 
-  .publish-dialog-item-list {
-    margin-top: 20px;
+  &:not(.closed) {
+    .publish-dialog-item-list {
+      margin-top: 20px;
+    }
+  }
 
+  .publish-dialog-item-list {
     .browse-selection-item {
 
       .status {

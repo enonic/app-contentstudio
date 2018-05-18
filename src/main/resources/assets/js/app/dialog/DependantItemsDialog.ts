@@ -461,7 +461,7 @@ export class DialogDependantList
         });
     }
 
-    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
+    protected notifyItemClicked(item: ContentSummaryAndCompareStatus) {
         this.itemClickListeners.forEach(listener => {
             listener(item);
         });

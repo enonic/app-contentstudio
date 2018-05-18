@@ -12,58 +12,52 @@ interface OrderMeta {
 
 export class SortContentTabMenuItems {
 
-    private SORT_ASC_DISPALAY_NAME_ITEM: SortContentTabMenuItem;
-    private SORT_DESC_DISPLAY_NAME_ITEM: SortContentTabMenuItem;
-    private SORT_ASC_MODIFIED_ITEM: SortContentTabMenuItem;
-    private SORT_DESC_MODIFIED_ITEM: SortContentTabMenuItem;
-    private SORT_ASC_PUBLISH_ITEM: SortContentTabMenuItem;
-    private SORT_DESC_PUBLISH_ITEM: SortContentTabMenuItem;
     public SORT_MANUAL_ITEM: SortContentTabMenuItem;
 
     private items: SortContentTabMenuItem[] = [];
 
     constructor() {
-        const createOrder = (name, orders: OrderMeta[]) => {
+        const createChildOrder = (orders: OrderMeta[]) => {
             const order = new ChildOrder();
-
             orders.forEach((meta: OrderMeta) => {
                 order.addOrderExpr(new FieldOrderExprBuilder().setFieldName(meta.field).setDirection(meta.direction).build());
             });
-
-            return new SortContentTabMenuItemBuilder().setLabel(name).setChildOrder(order).build();
+            return order;
         };
 
-        this.SORT_ASC_DISPALAY_NAME_ITEM =
-            createOrder(i18n('field.sortType.displayNameAsc'),
-                [{field: QueryField.DISPLAY_NAME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]);
-        this.SORT_DESC_DISPLAY_NAME_ITEM =
-            createOrder(i18n('field.sortType.displayNameDesc'),
-                [{field: QueryField.DISPLAY_NAME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}]);
-        this.SORT_ASC_MODIFIED_ITEM =
-            createOrder(i18n('field.sortType.modifiedAsc'),
-                [{field: QueryField.MODIFIED_TIME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]);
-        this.SORT_DESC_MODIFIED_ITEM =
-            createOrder(i18n('field.sortType.modifiedDesc'),
-                [{field: QueryField.MODIFIED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}]);
-        this.SORT_ASC_PUBLISH_ITEM =
-            createOrder(i18n('field.sortType.publishAsc'),
-                [{field: QueryField.PUBLISH_FIRST, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]);
-        this.SORT_DESC_PUBLISH_ITEM =
-            createOrder(i18n('field.sortType.publishDesc'),
-                [{field: QueryField.PUBLISH_FIRST, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}]);
+        const createOrder = (name: string, ascending: ChildOrder, descending: ChildOrder) =>
+            new SortContentTabMenuItemBuilder().setLabel(name).setChildOrder({ascending, descending}).build();
+
         this.SORT_MANUAL_ITEM =
-            createOrder(i18n('field.sortType.manual'), [
-                {field: QueryField.MANUAL_ORDER_VALUE, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE},
-                {field: QueryField.TIMESTAMP, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}
-            ]);
+            new SortContentTabMenuItemBuilder()
+                .setLabel(i18n('field.sortType.manual'))
+                .setChildOrder(createChildOrder([
+                    {field: QueryField.MANUAL_ORDER_VALUE, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE},
+                    {field: QueryField.TIMESTAMP, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}
+                ]))
+                .build();
 
         this.items.push(
-            this.SORT_ASC_DISPALAY_NAME_ITEM,
-            this.SORT_DESC_DISPLAY_NAME_ITEM,
-            this.SORT_ASC_MODIFIED_ITEM,
-            this.SORT_DESC_MODIFIED_ITEM,
-            this.SORT_ASC_PUBLISH_ITEM,
-            this.SORT_DESC_PUBLISH_ITEM,
+            createOrder(
+                i18n('field.sortType.modified'),
+                createChildOrder([{field: QueryField.MODIFIED_TIME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
+                createChildOrder([{field: QueryField.MODIFIED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
+            ),
+            createOrder(
+                i18n('field.sortType.created'),
+                createChildOrder([{field: QueryField.CREATED_TIME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
+                createChildOrder([{field: QueryField.CREATED_TIME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
+            ),
+            createOrder(
+                i18n('field.sortType.displayName'),
+                createChildOrder([{field: QueryField.DISPLAY_NAME, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
+                createChildOrder([{field: QueryField.DISPLAY_NAME, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
+            ),
+            createOrder(
+                i18n('field.sortType.publish'),
+                createChildOrder([{field: QueryField.PUBLISH_FIRST, direction: ChildOrder.ASC_ORDER_DIRECTION_VALUE}]),
+                createChildOrder([{field: QueryField.PUBLISH_FIRST, direction: ChildOrder.DESC_ORDER_DIRECTION_VALUE}])
+            ),
             this.SORT_MANUAL_ITEM
         );
     }

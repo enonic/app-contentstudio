@@ -174,7 +174,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private handleOnSortOrderChangedEvent() {
-        let newOrder = this.sortContentMenu.getSelectedNavigationItem().getChildOrder();
+        const newOrder = this.sortContentMenu.getSelectedNavigationItem().getSelectedChildOrder();
 
         if (!this.curChildOrder.equals(newOrder)) {
 
