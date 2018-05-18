@@ -1,42 +1,30 @@
 import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
+import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import CycleButton = api.ui.button.CycleButton;
 import TogglerButton = api.ui.button.TogglerButton;
-import AppIcon = api.app.bar.AppIcon;
-import Application = api.app.Application;
-import Action = api.ui.Action;
+import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
-export class ContentWizardToolbar extends api.ui.toolbar.Toolbar {
+export class ContentWizardToolbar
+    extends ContentStatusToolbar {
 
     private contextWindowToggler: TogglerButton;
     private componentsViewToggler: TogglerButton;
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    constructor(application: Application, actions: ContentWizardActions) {
+    constructor(actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
 
-        this.addHomeButton(application);
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
         this.addTogglerButtons(actions);
-    }
 
-    private addHomeButton(application: Application) {
-        let homeAction = new Action(application.getName());
-        homeAction.onExecuted((action) => {
-            let tabId;
-            if (navigator.userAgent.search('Chrome') > -1) {
-                // add tab id for browsers that can focus tabs by id
-                tabId = application.getId();
-            }
-            window.open('#/browse', tabId);     // add browse to prevent tab reload because of url mismatch
-            return wemQ(null);
-        });
-
-        super.addElement(new AppIcon(application, homeAction));
+        if (item) {
+            this.setItem(item);
+        }
     }
 
     private addActionButtons(actions: ContentWizardActions) {

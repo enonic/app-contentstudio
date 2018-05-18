@@ -1,7 +1,9 @@
 import '../../api.ts';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
+import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
-export class ContentItemStatisticsPanel extends api.app.view.ItemStatisticsPanel<api.content.ContentSummaryAndCompareStatus> {
+export class ContentItemStatisticsPanel
+    extends api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
 
     private previewPanel: ContentItemPreviewPanel;
 
@@ -13,7 +15,7 @@ export class ContentItemStatisticsPanel extends api.app.view.ItemStatisticsPanel
         this.appendChild(this.previewPanel);
     }
 
-    setItem(item: api.app.view.ViewItem<api.content.ContentSummaryAndCompareStatus>) {
+    setItem(item: api.app.view.ViewItem<ContentSummaryAndCompareStatus>) {
         if (this.getItem() !== item) {
             super.setItem(item);
             this.previewPanel.setItem(item);
