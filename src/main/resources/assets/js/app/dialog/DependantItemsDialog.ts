@@ -82,7 +82,7 @@ export class DependantItemsDialog
 
         this.dependantsHeaderText = config.dependantsName || this.getDependantsHeader(config.showDependantList);
         this.dependantContainerHeader = new api.dom.H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
-        this.dependantContainerHeader.onClicked(e => {
+        this.dependantContainerHeader.onClicked(() => {
             const doShow = !this.dependantList.isVisible();
             this.setDependantListVisible(doShow);
             this.notifyResize();
@@ -237,8 +237,12 @@ export class DependantItemsDialog
         this.actionButton.setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
     }
 
+    protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
+        return this.getItemList().getItems();
+    }
+
     protected loadDescendantIds(filterStatuses?: CompareStatus[]) {
-        let contents = this.getItemList().getItems();
+        const contents = this.getContentsToLoad();
 
         return new api.content.resource.GetDescendantsOfContentsRequest().setContentPaths(
             contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()

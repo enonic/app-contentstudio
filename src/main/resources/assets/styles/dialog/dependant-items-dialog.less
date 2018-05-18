@@ -33,11 +33,19 @@
     margin-top: 20px;
   }
 
-  .publish-dialog-item-list {
+  .dialog-togglable-item-list {
     padding: 5px;
 
-    &.contains-toggleable .browse-selection-item:not(.toggleable) .viewer  {
-      margin-left: 35px;
+    &.contains-toggleable {
+      .browse-selection-item:not(.toggleable) {
+        .include-children-toggler {
+          display: block;
+          visibility: hidden;
+        }
+        .viewer {
+          margin-left: 35px;
+        }
+      }
     }
 
     &.readonly {
@@ -75,9 +83,19 @@
       &:hover {
         background-color: @admin-bg-light-gray;
       }
+
+      .status {
+        line-height: 32px;
+        white-space: nowrap;
+      }
+
+      &:not(.toggleable) {
+        .include-children-toggler {
+          display: none;
+        }
+      }
     }
   }
-
 
   .publish-dialog-dependant-list {
 

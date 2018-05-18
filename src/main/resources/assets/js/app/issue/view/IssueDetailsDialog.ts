@@ -294,7 +294,7 @@ export class IssueDetailsDialog
             this.updateShowScheduleDialogButton();
         });
         itemList.onItemRemoveClicked(handleRemoveItemClicked);
-        itemList.onExcludeChildrenListChanged(items => {
+        itemList.onChildrenListChanged(() => {
             if (!this.ignoreNextExcludeChildrenEvent) {
                 // save if toggle was updated manually only
                 this.saveOnLoaded = true;

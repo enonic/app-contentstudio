@@ -1,0 +1,54 @@
+.content-duplicate-dialog {
+
+  .browse-selection-item {
+    .viewer {
+      max-width: initial;
+    }
+    .status {
+      display: none;
+    }
+  }
+
+  .sub-title {
+    display: none;
+  }
+
+  .modal-dialog-body {
+    padding-right: 15px;
+  }
+
+  .include-child-check {
+    position: absolute;
+    bottom: 40px;
+    left: 38px;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+
+    @media screen and (max-height: 360px) {
+      bottom: 25px;
+    }
+  }
+
+  &.is-processing {
+    .item-list,
+    .include-child-check,
+    .dialog-buttons button.duplicate-action,
+    .dialog-buttons button.show-schedule-action {
+      display: none;
+    }
+  }
+
+  &.masked {
+    opacity: 0;
+  }
+}
+
+.@{_COMMON_PREFIX}modal-dialog {
+  &._0-240, &._240-360 {
+    &.content-duplicate-dialog .include-child-check {
+      left: 16px;
+    }
+  }
+}
