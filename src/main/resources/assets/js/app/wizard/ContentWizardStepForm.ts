@@ -5,15 +5,16 @@ import FormView = api.form.FormView;
 import PropertyTree = api.data.PropertyTree;
 import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
 
-export class ContentWizardStepForm extends api.app.wizard.WizardStepForm {
+export class ContentWizardStepForm
+    extends api.app.wizard.WizardStepForm {
 
-    private formContext: FormContext;
+    protected formContext: FormContext;
 
-    private form: Form;
+    protected form: Form;
 
-    private formView: FormView;
+    protected formView: FormView;
 
-    private data: PropertyTree;
+    protected data: PropertyTree;
 
     constructor() {
         super();
@@ -33,14 +34,14 @@ export class ContentWizardStepForm extends api.app.wizard.WizardStepForm {
         this.formContext = formContext;
         this.form = form;
         this.data = data;
-        return this.doLayout(form, data).then(() => {
-            if (form.getFormItems().length === 0) {
-                this.hide();
-            }
-        });
+        return this.doLayout(form, data);
     }
 
-    private doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
+    protected doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
+
+        if (this.formView) {
+            this.formView.remove();
+        }
 
         this.formView = new FormView(this.formContext, form, data.getRoot());
         return this.formView.layout().then(() => {
@@ -58,6 +59,10 @@ export class ContentWizardStepForm extends api.app.wizard.WizardStepForm {
                 this.previousValidation = event.getRecording();
                 this.notifyValidityChanged(new WizardStepValidityChangedEvent(event.isValid()));
             });
+
+            if (form.getFormItems().length === 0) {
+                this.hide();
+            }
         });
     }
 

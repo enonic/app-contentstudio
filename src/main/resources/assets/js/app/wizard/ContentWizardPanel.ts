@@ -17,6 +17,7 @@ import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {PageModel} from '../../page-editor/PageModel';
+import {XDataWizardStepForm} from './XDataWizardStepForm';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -57,6 +58,7 @@ import Mixin = api.schema.mixin.Mixin;
 import MixinName = api.schema.mixin.MixinName;
 import MixinNames = api.schema.mixin.MixinNames;
 import GetMixinByQualifiedNameRequest = api.schema.mixin.GetMixinByQualifiedNameRequest;
+import GetContentXDataRequest = api.schema.xdata.GetContentXDataRequest;
 
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentNamedEvent = api.content.event.ContentNamedEvent;
@@ -549,7 +551,7 @@ export class ContentWizardPanel
         this.startRememberFocus();
     }
 
-    private createSteps(): wemQ.Promise<Mixin[]> {
+    private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
         this.contentWizardStepForm = new ContentWizardStepForm();
         this.settingsWizardStepForm = new SettingsWizardStepForm();
         this.scheduleWizardStepForm = new ScheduleWizardStepForm();
@@ -562,39 +564,26 @@ export class ContentWizardPanel
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
             this.checkSecurityWizardStepFormAllowed(loginResult);
             return wemQ.all(applicationPromises);
-        }).then((applications: Application[]) => {
+        }).then(() => {
             this.handleMissingApp();
 
-            let metadataMixinPromises: wemQ.Promise<Mixin>[] = [];
-            metadataMixinPromises = metadataMixinPromises.concat(
-                this.contentType.getMetadata().map((name: MixinName) => {
-                    return this.fetchMixin(name);
-                }));
+            return new GetContentXDataRequest(contentId).sendAndParse().then(
+                (xDatas: Mixin[]) => {
 
-            applications.filter((app) => app != null).forEach((app: Application) => {
-                metadataMixinPromises = metadataMixinPromises.concat(
-                    app.getMetaSteps().map((name: MixinName) => {
-                        return this.fetchMixin(name);
-                    })
-                );
-            });
+                    let steps: WizardStep[] = [];
 
-            return wemQ.all(metadataMixinPromises);
-        }).then((mixins: Mixin[]) => {
-            let steps: WizardStep[] = [];
+                    this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+                    steps.push(this.contentWizardStep);
 
-            this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-            steps.push(this.contentWizardStep);
-
-            mixins.forEach((mixin: Mixin, index: number) => {
-                if (!this.metadataStepFormByName[mixin.getMixinName().toString()]) {
-                    let stepForm = new ContentWizardStepForm();
-                    this.metadataStepFormByName[mixin.getMixinName().toString()] = stepForm;
-                    steps.splice(index + 1, 0, new WizardStep(mixin.getDisplayName(), stepForm));
-                }
-            });
-            this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
-            steps.push(this.settingsWizardStep);
+                    xDatas.forEach((xData: Mixin, index: number) => {
+                        if (!this.metadataStepFormByName[xData.getMixinName().toString()]) {
+                            let stepForm = new XDataWizardStepForm(xData.isExternal());
+                            this.metadataStepFormByName[xData.getMixinName().toString()] = stepForm;
+                            steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
+                        }
+                    });
+                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
+                    steps.push(this.settingsWizardStep);
 
             this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
             this.scheduleWizardStepIndex = steps.length;
@@ -604,7 +593,8 @@ export class ContentWizardPanel
 
             this.setSteps(steps);
 
-            return mixins;
+                    return xDatas;
+                });
         });
     }
 
@@ -614,17 +604,6 @@ export class ContentWizardPanel
             liveFormPanel.skipNextReloadConfirmation(true);
         }
         super.close(checkCanClose);
-    }
-
-    private fetchMixin(name: MixinName): wemQ.Promise<Mixin> {
-        let deferred = wemQ.defer<Mixin>();
-        new GetMixinByQualifiedNameRequest(name).sendAndParse().then((mixin) => {
-            deferred.resolve(mixin);
-        }).catch((reason) => {
-            const msg = i18n('notify.wizard.noMixin', name.toString());
-            deferred.reject(new api.Exception(msg, api.ExceptionType.WARNING));
-        }).done();
-        return deferred.promise;
     }
 
     private fetchApplication(key: ApplicationKey): wemQ.Promise<Application> {
@@ -1206,7 +1185,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(formContext, content).then(() => {
 
-                return this.createSteps().then((schemas: Mixin[]) => {
+                return this.createSteps(content.getContentId()).then((schemas: Mixin[]) => {
 
                     let contentData = content.getContentData();
 
