@@ -1,5 +1,5 @@
 import '../../api.ts';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from "../dialog/DependantItemsWithProgressDialog";
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
@@ -51,10 +51,6 @@ export class ContentDuplicateDialog
         this.getItemList().onItemsRemoved(reloadDependenciesDebounced);
         this.getItemList().onItemsAdded(reloadDependenciesDebounced);
         this.getItemList().onChildrenListChanged(reloadDependenciesDebounced);
-    }
-
-    private reloadDependencies() {
-
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
