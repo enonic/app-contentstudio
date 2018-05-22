@@ -346,17 +346,38 @@ var contentBrowsePanel = Object.create(page, {
     },
     hotKeyPublish: {
         value: function () {
-            return this.getBrowser().keys(['Control', 'Alt', 'p']);
+            return this.getBrowser().status().then(status => {
+                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
+                    return this.getBrowser().keys(['Control', 'Alt', 'p']);
+                }
+                if (status.value.os.name.toLowerCase().includes('mac')) {
+                    return this.getBrowser().keys(['Command', 'Alt', 'p']);
+                }
+            })
         }
     },
     hotKeyDelete: {
         value: function () {
-            return this.getBrowser().keys(['Control', 'Delete']);
+            return this.getBrowser().status().then(status => {
+                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
+                    return this.getBrowser().keys(['Control', 'Delete']);
+                }
+                if (status.value.os.name.toLowerCase().includes('mac')) {
+                    return this.getBrowser().keys(['Command', 'Delete']);
+                }
+            })
         }
     },
     hotKeyEdit: {
         value: function () {
-            return this.getBrowser().keys(['Control', 'e']);
+            return this.getBrowser().status().then(status => {
+                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
+                    return this.getBrowser().keys(['Control', 'e']);
+                }
+                if (status.value.os.name.toLowerCase().includes('mac')) {
+                    return this.getBrowser().keys(['Command', 'e']);
+                }
+            })
         }
     },
 

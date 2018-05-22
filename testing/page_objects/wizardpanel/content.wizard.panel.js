@@ -296,12 +296,26 @@ const contentWizardPanel = Object.create(page, {
     },
     hotKeyDelete: {
         value: function () {
-            return this.getBrowser().keys(['Control', 'Delete']);
+            return this.getBrowser().status().then(status => {
+                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
+                    return this.getBrowser().keys(['Control', 'Delete']);
+                }
+                if (status.value.os.name.toLowerCase().includes('mac')) {
+                    return this.getBrowser().keys(['Command', 'Delete']);
+                }
+            })
         }
     },
     hotKeySave: {
         value: function () {
-            return this.getBrowser().keys(['Control', 's']);
+            return this.getBrowser().status().then(status => {
+                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
+                    return this.getBrowser().keys(['Control', 's']);
+                }
+                if (status.value.os.name.toLowerCase().includes('mac')) {
+                    return this.getBrowser().keys(['Command', 's']);
+                }
+            })
         }
     },
     hotKeyPublish: {

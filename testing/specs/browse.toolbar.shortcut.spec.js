@@ -45,7 +45,7 @@ describe('Browse toolbar shortcut spec`', function () {
     });
     it(`WHEN 'Ctrl+n' have been pressed THEN 'New content' dialog should be loaded`, () => {
         return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
-            return studioUtils.hotKeyNew();
+            return contentBrowsePanel.hotKeyNew();
         }).then(() => {
             return newContentDialog.waitForOpened();
         }).then(result => {
