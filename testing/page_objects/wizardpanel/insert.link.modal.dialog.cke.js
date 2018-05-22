@@ -1,6 +1,7 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const loaderComboBox = require('../components/loader.combobox');
 
 const dialog = {
     container: `//div[contains(@id,'LinkModalDialogCKE')]`,
@@ -51,6 +52,26 @@ var insertLinkDialog = Object.create(page, {
                 this.saveScreenshot('err_type_link_url');
                 throw new Error('error when type URL in Insert Link modal dialog ' + err);
             });
+        }
+    },
+    selectTargetInDownloadTab: {
+        value: function (targetDisplayName) {
+            let selector = dialog.container + elements.tabBarItemByName('Download');
+            return this.doClick(selector).then(() => {
+                return this.waitForVisible(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
+            }).then(() => {
+                return loaderComboBox.typeTextAndSelectOption(targetDisplayName);
+            })
+        }
+    },
+    selectTargetInContentTab: {
+        value: function (targetDisplayName) {
+            let selector = dialog.container + elements.tabBarItemByName('Content');
+            return this.doClick(selector).then(() => {
+                return this.waitForVisible(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
+            }).then(() => {
+                return loaderComboBox.typeTextAndSelectOption(targetDisplayName);
+            })
         }
     },
 

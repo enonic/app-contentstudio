@@ -1,6 +1,5 @@
 /**
- * Created on 06.04.2018.
- * Verifies: xp-apps#747 Issues with the moving of fragments(Confirmation dialog does not appear, when a fragment is filtered)
+ * Created on 16.05.2018.
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -13,16 +12,16 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const moveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
+const textComponentCke = require('../../page_objects/components/text.component');
 
-
-describe('Move Fragment` specification', function () {
+describe('Text Component with CKE - insert content link  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
+    const EXPECTED_SRC = '<p><a href="content://';
+
     it(`WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
@@ -39,7 +38,7 @@ describe('Move Fragment` specification', function () {
             });
         });
 
-    it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
+    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'content-link' has been inserted THEN correct data should be present in the CKE`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
@@ -48,34 +47,37 @@ describe('Move Fragment` specification', function () {
             }).then(() => {
                 return pageComponentView.selectMenuItem(["Insert", "Text"]);
             }).then(() => {
-                return liveFormPanel.typeTextInCKETextComponent('text_component_1');
+                return textComponentCke.switchToLiveEditFrame();
+            }).then(() => {
+                return textComponentCke.clickOnInsertLinkButton();
+            }).then(() => {
+                return studioUtils.insertContentLinkInCke("test", SITE.displayName);
+            }).pause(1000).then(() => {
+                return textComponentCke.switchToLiveEditFrame();
+            }).then(() => {
+                studioUtils.saveScreenshot('content_link_inserted');
+                return textComponentCke.getTextFromEditor();
+            }).then(result => {
+                console.log(result);
+                assert.isTrue(result.includes(EXPECTED_SRC), 'correct data should be in CKE');
+            }).then(() => {
+                return textComponentCke.switchToParentFrame();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return pageComponentView.openMenu("text_component_1");
-            }).then(() => {
-                return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).pause(2000).then(() => {
-                studioUtils.saveScreenshot('text_saved_as_fragment2')
             })
         });
-    // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
-    it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
+
+    it(`GIVEN the site it selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
         () => {
-            return studioUtils.findAndSelectContentByDisplayName('text_component_1').then(() => {
-                return contentBrowsePanel.clickOnMoveButton();
+            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
+                return contentBrowsePanel.clickOnPreviewButton();
+            }).pause(1000).then(() => {
+                return studioUtils.switchToContentTabWindow(SITE.displayName)
             }).then(() => {
-                return moveContentDialog.waitForOpened();
-            }).then(() => {
-                return moveContentDialog.clickOnMoveButton();
-            }).pause(2000).then(() => {
-                //TODO add confirm content moving(when bug will be fixed: app-contentstudio#22)
-            }).then(() => {
-                studioUtils.saveScreenshot('fragment_is_moved');
-                return contentBrowsePanel.waitForNotificationMessage();
+                return studioUtils.isElementDisplayed(`a=test`);
             }).then(result => {
-                return assert.isTrue(result == `Item \"text_component_1\" was moved.`,
-                    'correct notification message should appear');
+                studioUtils.saveScreenshot('content_link_present');
+                assert.isTrue(result, 'download link should be present on the page');
             })
         });
 
