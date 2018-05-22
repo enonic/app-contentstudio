@@ -71,8 +71,7 @@ export class XDataWizardStepForm
             this.notifyEnableChanged(value);
         }
 
-        this.toggleClass('enabled', this.enabled);
-        this.toggleClass('disabled', !this.enabled);
+        this.enabled ? this.show() : this.hide();
 
         if (changed) {
             if (this.enabled) {
