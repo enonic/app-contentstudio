@@ -52,7 +52,7 @@ export class PublishProcessor {
             }
         });
 
-        this.itemList.onExcludeChildrenListChanged((ids) => {
+        this.itemList.onChildrenListChanged(() => {
             this.reloadDependenciesDebounced(true);
         });
 
