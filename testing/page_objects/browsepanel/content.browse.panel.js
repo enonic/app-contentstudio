@@ -6,7 +6,7 @@ const saveBeforeCloseDialog = require('../save.before.close.dialog');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
-var panel = {
+const panel = {
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
@@ -343,7 +343,28 @@ var contentBrowsePanel = Object.create(page, {
             })
 
         }
-    }
+    },
+    hotKeyPublish: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 'Alt', 'p']);
+        }
+    },
+    hotKeyDelete: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 'Delete']);
+        }
+    },
+    hotKeyEdit: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 'e']);
+        }
+    },
+
+    hotKeyNew: {
+        value: function () {
+            return this.getBrowser().keys(['Alt', 'n']);
+        }
+    },
 });
 module.exports = contentBrowsePanel;
 

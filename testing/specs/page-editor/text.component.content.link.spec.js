@@ -22,7 +22,7 @@ describe('Text Component with CKE - insert content link  specification', functio
     let CONTROLLER_NAME = 'main region';
     const EXPECTED_SRC = '<p><a href="content://';
 
-    it(`WHEN new site has been added THEN the site should be listed in the grid`,
+    it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert content link  specification', functio
             })
         });
 
-    it(`GIVEN the site it selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
+    it(`GIVEN the site is selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();

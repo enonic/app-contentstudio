@@ -5,7 +5,11 @@ module.exports = Object.freeze({
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    TEST_FOLDER_WIT_IMAGES: `All Content types images`,
+    itemSavedNotificationMessage: function (name) {
+        return `\"${name}\" saved`
+    },
+    TEST_FOLDER_WITH_IMAGES: `All Content types images`,
+    TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
