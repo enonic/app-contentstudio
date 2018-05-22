@@ -68,7 +68,7 @@ describe('Text Component with CKE - insert download link  specification', functi
             })
         });
 
-    it(`GIVEN the site is selected WHEN 'Preview' button has been pressed THEN download-link should be present on the page`,
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present on the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();

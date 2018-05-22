@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert content link  specification', functio
             })
         });
 
-    it(`GIVEN the site is selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();

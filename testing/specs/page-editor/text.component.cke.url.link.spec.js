@@ -88,7 +88,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             })
         });
 
-    it(`GIVEN the site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Google'site should be loaded in the page`,
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Google'site should be loaded in the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();
