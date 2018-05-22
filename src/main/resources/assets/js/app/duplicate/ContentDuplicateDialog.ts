@@ -58,7 +58,7 @@ export class ContentDuplicateDialog
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
-        return this.getItemList().getItemViews().filter(view => view.withChildren()).map(view => view.getBrowseItem().getModel());
+        return this.getItemList().getItemViews().filter(view => view.includesChildren()).map(view => view.getBrowseItem().getModel());
     }
 
     protected manageDescendants() {
@@ -140,7 +140,7 @@ export class ContentDuplicateDialog
 
     private createDuplicateRequest(): DuplicateContentRequest {
         const duplicatableIds: DuplicatableId[] = this.getItemList().getItemViews().map(
-            item => (<DuplicatableId>{id: item.getContentId(), withChildren: item.withChildren()}));
+            item => (<DuplicatableId>{id: item.getContentId(), includeChildren: item.includesChildren()}));
 
         const duplicateRequest = new DuplicateContentRequest(duplicatableIds);
 

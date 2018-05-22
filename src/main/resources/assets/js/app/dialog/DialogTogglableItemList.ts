@@ -88,7 +88,7 @@ export class DialogTogglableItemList
 
     public hasActiveTogglers(): boolean {
         return this.getItemViews().some(
-            itemView => !!itemView.withChildren()
+            itemView => !!itemView.includesChildren()
         );
     }
 
@@ -204,7 +204,7 @@ export class TogglableStatusSelectionItem
         this.toggleClass('toggleable', value);
     }
 
-    withChildren(): boolean {
+    includesChildren(): boolean {
         return !this.toggler || this.toggler.isEnabled();
     }
 
