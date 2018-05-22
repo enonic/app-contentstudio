@@ -36,14 +36,17 @@ export class XDataWizardStepForm
         return this.external;
     }
 
-    onEnableChanged(listener: (value: boolean) => void) {
-        this.enableChangedListeners.push(listener);
+    isEnabled(): boolean {
+        return this.enabled;
     }
 
-    unEnableChanged(listener: (value: boolean) => void) {
-        this.enableChangedListeners = this.enableChangedListeners.filter((curr) => {
-            return curr !== listener;
-        });
+    resetForm() {
+        this.data.getRoot().removeAllProperties();
+        this.disabledData = null;
+
+        if (this.enabled) {
+            this.doLayout(this.form, this.data);
+        }
     }
 
     protected doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
@@ -96,6 +99,16 @@ export class XDataWizardStepForm
 
     private resetState(data: PropertyTree) {
         this.setEnabled(!this.external || data.getRoot().getSize() > 0, true);
+    }
+
+    onEnableChanged(listener: (value: boolean) => void) {
+        this.enableChangedListeners.push(listener);
+    }
+
+    unEnableChanged(listener: (value: boolean) => void) {
+        this.enableChangedListeners = this.enableChangedListeners.filter((curr) => {
+            return curr !== listener;
+        });
     }
 
     private notifyEnableChanged(value: boolean) {
