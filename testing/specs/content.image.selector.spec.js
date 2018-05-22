@@ -20,7 +20,7 @@ describe('content.image.selector: Image content specification', function () {
 
     let SITE;
     let imageSelectorContent;
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
+    it(`Precondition: WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
@@ -44,7 +44,7 @@ describe('content.image.selector: Image content specification', function () {
                 return imageSelectorForm.getTreeModeOptionDisplayNames();
             }).then(options=> {
                 studioUtils.saveScreenshot('img_sel_tree_mode');
-                assert.strictEqual(options[0], appConstant.TEST_FOLDER_WIT_IMAGES);
+                assert.strictEqual(options[0], appConstant.TEST_FOLDER_WITH_IMAGES);
             });
         });
 

@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const contentBuilder = require('../../libs/content.builder');
 const contentStepForm = require('./content.wizard.step.form');
 const contextWindow = require('./liveform/liveform.context.window');
-var wizard = {
+const wizard = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
@@ -21,7 +21,7 @@ var wizard = {
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
 };
-var contentWizardPanel = Object.create(page, {
+const contentWizardPanel = Object.create(page, {
 
     displayNameInput: {
         get: function () {
@@ -67,7 +67,7 @@ var contentWizardPanel = Object.create(page, {
     },
     waitForInspectionPanelTogglerVisible: {
         value: function (ms) {
-            return this.waitForVisible(this.showInspectionPanelToggler, ms).catch((err)=> {
+            return this.waitForVisible(this.showInspectionPanelToggler, ms).catch(err => {
                 this.saveScreenshot('err_open_inspection_panel');
                 throw new Error('Inspection Panel is not opened in ' + ms + '  ' + err);
             })
@@ -75,7 +75,7 @@ var contentWizardPanel = Object.create(page, {
     },
     waitForShowComponentVewTogglerVisible: {
         value: function (ms) {
-            return this.waitForVisible(this.showComponentViewToggler, ms).catch((err)=> {
+            return this.waitForVisible(this.showComponentViewToggler, ms).catch(err => {
                 this.saveScreenshot('err_open_component_view');
                 throw new Error('Component View is not opened in ' + ms + '  ' + err);
             })
@@ -83,28 +83,28 @@ var contentWizardPanel = Object.create(page, {
     },
     clickOnShowInspectionPanelToggler: {
         value: function () {
-            return this.doClick(this.showInspectionPanelToggler).catch(err=> {
+            return this.doClick(this.showInspectionPanelToggler).catch(err => {
                 return this.doCatch('err_click_on_show_inspection_button', err);
             })
         }
     },
     clickOnShowComponentViewToggler: {
         value: function () {
-            return this.doClick(this.showComponentViewToggler).catch(err=> {
+            return this.doClick(this.showComponentViewToggler).catch(err => {
                 return this.doCatch('err_click_on_show_component_view', err);
             }).pause(700);
         }
     },
     doOpenContextWindow: {
         value: function () {
-            return this.clickOnShowInspectionPanelToggler().then(()=> {
+            return this.clickOnShowInspectionPanelToggler().then(() => {
                 return contextWindow.waitForOpened();
             });
         }
     },
     typeData: {
         value: function (content) {
-            return this.typeDisplayName(content.displayName).then(()=> {
+            return this.typeDisplayName(content.displayName).then(() => {
                 if (content.data != null) {
                     return contentStepForm.type(content.data, content.contentType);
                 }
@@ -113,36 +113,36 @@ var contentWizardPanel = Object.create(page, {
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch((e)=> {
+            return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch(err => {
                 this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'))
-                throw new Error("Content wizard was not loaded! " + e);
+                throw new Error("Content wizard was not loaded! " + err);
             });
         }
     },
     waitForSaveButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.saveButton, appConst.TIMEOUT_3).catch(()=> {
+            return this.waitForEnabled(this.saveButton, appConst.TIMEOUT_3).catch(() => {
                 return false;
             })
         }
     },
     waitForSaveButtonDisabled: {
         value: function () {
-            return this.waitForDisabled(this.saveButton, appConst.TIMEOUT_3).catch(()=> {
+            return this.waitForDisabled(this.saveButton, appConst.TIMEOUT_3).catch(() => {
                 return false;
             })
         }
     },
     waitForSaveButtonVisible: {
         value: function () {
-            return this.waitForVisible(this.saveButton, appConst.TIMEOUT_3).catch(err=> {
+            return this.waitForVisible(this.saveButton, appConst.TIMEOUT_3).catch(err => {
                 return this.doCatch('err_save_button_vivsible', 'Save button is not visible ' + err);
             });
         }
     },
     waitForSavedButtonVisible: {
         value: function () {
-            return this.waitForVisible(this.savedButton, appConst.TIMEOUT_3).catch(err=> {
+            return this.waitForVisible(this.savedButton, appConst.TIMEOUT_3).catch(err => {
                 return this.doCatch('err_saved_button_vivsible', err);
             });
         }
@@ -164,24 +164,24 @@ var contentWizardPanel = Object.create(page, {
     },
     waitAndClickOnSave: {
         value: function () {
-            return this.waitForSaveButtonEnabled().then((result)=> {
+            return this.waitForSaveButtonEnabled().then(result => {
                 if (result) {
                     return this.doClick(this.saveButton);
                 } else {
                     throw new Error('Save button is disabled');
                 }
 
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_save');
                 throw new Error(`Error when click on Save button!` + err);
-            }).then(()=> {
+            }).then(() => {
                 return this.waitForNotificationMessage();
             })
         }
     },
     clickOnDelete: {
         value: function () {
-            return this.doClick(this.deleteButton).catch(err=> {
+            return this.doClick(this.deleteButton).catch(err => {
                 console.log(err);
                 this.saveScreenshot('err_delete_wizard');
                 throw new Error('Error when Delete button has been clicked ' + err);
@@ -191,9 +191,9 @@ var contentWizardPanel = Object.create(page, {
     isContentInvalid: {
         value: function () {
             let selector = this.thumbnailUploader;
-            return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+            return this.getBrowser().getAttribute(selector, 'class').then(result => {
                 return result.includes("invalid");
-            }).catch(err=> {
+            }).catch(err => {
                 throw new Error('error when try to find the content validation state: ' + err);
             });
         }
@@ -201,13 +201,13 @@ var contentWizardPanel = Object.create(page, {
     waitUntilInvalidIconAppears: {
         value: function (displayName) {
             let selector = this.thumbnailUploader;
-            return this.getBrowser().waitUntil(()=> {
-                return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+            return this.getBrowser().waitUntil(() => {
+                return this.getBrowser().getAttribute(selector, 'class').then(result => {
                     return result.includes('invalid');
                 });
-            }, 2000).then(()=> {
+            }, 2000).then(() => {
                 return true;
-            }).catch((err)=> {
+            }).catch((err) => {
                 throw new Error('content-wizard:invalid-icon was not found' + err);
             });
         }
@@ -215,13 +215,13 @@ var contentWizardPanel = Object.create(page, {
     waitUntilInvalidIconDisappears: {
         value: function (displayName) {
             let selector = this.thumbnailUploader;
-            return this.getBrowser().waitUntil(()=> {
-                return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+            return this.getBrowser().waitUntil(() => {
+                return this.getBrowser().getAttribute(selector, 'class').then(result => {
                     return !result.includes('invalid');
                 })
-            }, 2000).then(()=> {
+            }, 2000).then(() => {
                 return true;
-            }).catch((err)=> {
+            }).catch((err) => {
                 throw new Error(err);
             });
         }
@@ -234,7 +234,7 @@ var contentWizardPanel = Object.create(page, {
     },
     switchToLiveEditFrame: {
         value: function () {
-            return this.getBrowser().element(`${wizard.liveEditFrame}`).then(result=> {
+            return this.getBrowser().element(`${wizard.liveEditFrame}`).then(result => {
                 return this.frame(result.value);
             });
         }
@@ -243,14 +243,14 @@ var contentWizardPanel = Object.create(page, {
         value: function (pageControllerDisplayName) {
             let optionSelector = elements.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`,
                 pageControllerDisplayName);
-            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(()=> {
+            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
                 return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
-            }).then(()=> {
+            }).then(() => {
                 return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
-            }).catch(err=> {
+            }).catch(err => {
                 throw new Error('option was not found! ' + pageControllerDisplayName + ' ' + err);
-            }).then(()=> {
-                return this.doClick(optionSelector).catch((err)=> {
+            }).then(() => {
+                return this.doClick(optionSelector).catch((err) => {
                     this.saveScreenshot('err_select_option');
                     throw new Error('option not found!' + pageControllerDisplayName);
                 }).pause(500);
@@ -259,22 +259,22 @@ var contentWizardPanel = Object.create(page, {
     },
     selectPageDescriptor: {
         value: function (pageControllerDisplayName) {
-            return this.switchToLiveEditFrame().then(()=> {
+            return this.switchToLiveEditFrame().then(() => {
                 return this.doFilterAndClickOnOption(pageControllerDisplayName);
-            }).then(()=> {
+            }).then(() => {
                 return this.getBrowser().frameParent();
-            }).then(()=> {
+            }).then(() => {
                 return this.waitForInspectionPanelTogglerVisible();
             })
         }
     },
     waitForControllerOptionFilterInputVisible: {
         value: function () {
-            return this.switchToLiveEditFrame().then(()=> {
+            return this.switchToLiveEditFrame().then(() => {
                 return this.waitForVisible(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
-            }).catch(err=> {
+            }).catch(err => {
                 console.log(err);
-                return this.getBrowser().frameParent().then(()=> {
+                return this.getBrowser().frameParent().then(() => {
                     return false;
                 })
             })
@@ -282,18 +282,33 @@ var contentWizardPanel = Object.create(page, {
     },
     waitForControllerOptionFilterInputNotVisible: {
         value: function () {
-            return this.switchToLiveEditFrame().then(()=> {
+            return this.switchToLiveEditFrame().then(() => {
                 return this.waitForNotVisible(this.controllerOptionFilterInput, appConst.TIMEOUT_3);
-            }).catch(err=> {
+            }).catch(err => {
                 console.log(err);
-                return this.getBrowser().frameParent().then(()=> {
+                return this.getBrowser().frameParent().then(() => {
                     return false;
-                }).then(()=> {
+                }).then(() => {
                     return this.getBrowser().frameParent();
                 })
             })
         }
-    }
+    },
+    hotKeyDelete: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 'Delete']);
+        }
+    },
+    hotKeySave: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 's']);
+        }
+    },
+    hotKeyPublish: {
+        value: function () {
+            return this.getBrowser().keys(['Control', 'Alt', 'p']);
+        }
+    },
 });
 module.exports = contentWizardPanel;
 

@@ -111,6 +111,15 @@ module.exports = {
             return contentWizardPanel.waitForOpened();
         })
     },
+    openContentInWizard: function (contentName) {
+        return this.findAndSelectItem(contentName).then(() => {
+            return browsePanel.clickOnEditButton();
+        }).then(() => {
+            return this.doSwitchToNewWizard();
+        }).then(() => {
+            return contentWizardPanel.waitForOpened();
+        })
+    },
 
     doAddShortcut: function (shortcut) {
         return this.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {

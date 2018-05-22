@@ -19,6 +19,9 @@ Page.prototype.numberOfElements = function (selector) {
     });
 };
 
+Page.prototype.keys = function (value) {
+    return this.getBrowser().keys(value);
+};
 Page.prototype.getTitle = function () {
     return this.getBrowser().getTitle();
 };
