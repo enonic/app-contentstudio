@@ -27,7 +27,7 @@ export class ContentDuplicateDialog
                 title: i18n('dialog.duplicate'),
                 showDependantList: false,
                 dependantsDescription: i18n('dialog.duplicate.dependants'),
-                processingLabel: `${i18n('field.progress.deleting')}...`,
+                processingLabel: `${i18n('field.progress.duplicating')}...`,
                 processHandler: () => new ContentDuplicatePromptEvent([]).fire()
             }
         );
@@ -45,7 +45,11 @@ export class ContentDuplicateDialog
 
     private initItemListListeners() {
         const reloadDependenciesDebounced = api.util.AppHelper.debounce(() => {
-            this.manageDescendants();
+            if (this.getItemList().hasActiveTogglers()) {
+                this.manageDescendants();
+            } else {
+                this.clearDependantItems();
+            }
         }, 100, false);
 
         this.getItemList().onItemsRemoved(reloadDependenciesDebounced);

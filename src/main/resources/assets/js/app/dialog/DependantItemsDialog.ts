@@ -221,6 +221,11 @@ export class DependantItemsDialog
         this.dependantList.addItems(items);
     }
 
+    clearDependantItems() {
+        this.dependantIds = [];
+        this.dependantList.clearItems();
+    }
+
     setSubTitle(text: string, escapeHtml?: boolean) {
         this.subTitle.setHtml(text, escapeHtml);
     }

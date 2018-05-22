@@ -86,6 +86,12 @@ export class DialogTogglableItemList
         );
     }
 
+    public hasActiveTogglers(): boolean {
+        return this.getItemViews().some(
+            itemView => !!itemView.withChildren()
+        );
+    }
+
     public setReadOnly(value: boolean) {
         this.toggleClass('readonly', value);
         this.getItemViews().forEach((item) => {
