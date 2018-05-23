@@ -3,48 +3,51 @@
 
   font-size: 14px;
 
-  & > * {
-    vertical-align: top;
-  }
-
   &.invalid {
-
-    .invalid-mark {
-      display: inline-block;
+    .content-status-wrapper {
+      .invalid-mark {
+        display: inline-block;
+      }
+      .status {
+        margin-left: 0 !important;
+      }
     }
   }
 
-  .invalid-mark {
-    width: 44px;
-    height: 100%;
-    display: none;
-    position: relative;
-    border-right: 1px solid @admin-bg-light-gray;
-
-    &:before {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-top: -10px;
-      margin-left: -10px;
-      width: @mark-size;
-      height: @mark-size;
-      line-height: @mark-size;
-      border-radius: @mark-size/2;
-      font-size: 14px;
-      z-index: 1;
-      text-align: center;
-      content: "!";
-      background: @admin-red;
-      color: @admin-white;
-    }
-  }
-
-  .content-status {
-    margin-left: 14px;
+  .content-status-wrapper {
+    .content-status-mixin();
     display: inline-block;
 
-    .content-status-mixin();
+    .invalid-mark {
+      width: 44px;
+      height: 100%;
+      display: none;
+      position: relative;
+      border-right: 1px solid @admin-bg-light-gray;
+      vertical-align: middle;
+
+      &:before {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -10px;
+        margin-left: -10px;
+        width: @mark-size;
+        height: @mark-size;
+        line-height: @mark-size;
+        border-radius: @mark-size/2;
+        font-size: 14px;
+        z-index: 1;
+        text-align: center;
+        content: "!";
+        background: @admin-red;
+        color: @admin-white;
+      }
+    }
+
+    .status {
+      margin-left: 14px;
+    }
 
     .author {
       margin-left: 5px;
@@ -61,15 +64,18 @@
     height: 36px;
     line-height: 36px;
 
-    .content-status {
-      margin-left: 10px;
-    }
+    .content-status-wrapper {
 
-    .invalid-mark:before {
-      width: 18px;
-      height: 18px;
-      line-height: 18px;
-      font-size: 12px;
+      .invalid-mark:before {
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        font-size: 12px;
+      }
+
+      .status {
+        margin-left: 10px;
+      }
     }
   }
 }

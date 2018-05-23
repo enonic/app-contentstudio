@@ -4,20 +4,20 @@ import i18n = api.util.i18n;
 
 export class ContentStatusToolbar
     extends api.app.view.ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
+
     private status: api.dom.SpanEl;
     private author: api.dom.SpanEl;
 
     constructor(className?: string) {
         super('content-status-toolbar' + (className ? ' ' + className : ''));
 
-        const invalidMark = new api.dom.DivEl('invalid-mark');
-        this.addElement(invalidMark);
-        const statusWrapper = new api.dom.DivEl('content-status');
+        const statusWrapper = new api.dom.DivEl('content-status-wrapper');
         this.addElement(statusWrapper);
 
+        const invalidMark = new api.dom.DivEl('invalid-mark');
         this.status = new api.dom.SpanEl('status');
         this.author = new api.dom.SpanEl('author');
-        statusWrapper.appendChildren(this.status, this.author);
+        statusWrapper.appendChildren(invalidMark, this.status, this.author);
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -51,7 +51,8 @@ export class ContentStatusToolbar
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
         let text = '';
         if (content && content.getContentSummary()) {
-            text = i18n('field.preview.toolbar.status', content.getContentSummary().getModifier());
+            const name = content.getContentSummary().getModifier();
+            text = i18n('field.preview.toolbar.status', api.security.PrincipalKey.fromString(name).getId());
         }
         this.author.setHtml(text);
     }

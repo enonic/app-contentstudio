@@ -1,6 +1,7 @@
 import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import Action = api.ui.Action;
+import SpanEl = api.dom.SpanEl;
 import MenuButton = api.ui.button.MenuButton;
 import ActionButton = api.ui.button.ActionButton;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -15,6 +16,7 @@ export class ContentWizardToolbarPublishControls
     private createIssueAction: Action;
     private unpublishAction: Action;
     private publishMobileAction: Action;
+    private contentStateSpan: SpanEl;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
     private leafContent: boolean = true;
@@ -34,11 +36,13 @@ export class ContentWizardToolbarPublishControls
         this.publishButton = new MenuButton(this.publishAction, [this.publishTreeAction, this.unpublishAction, this.createIssueAction]);
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
+        this.contentStateSpan = new SpanEl('content-status');
+
         this.publishButtonForMobile = new ActionButton(this.publishMobileAction);
         this.publishButtonForMobile.addClass('mobile-edit-publish-button');
         this.publishButtonForMobile.setVisible(false);
 
-        this.appendChild(this.publishButton);
+        this.appendChildren(this.contentStateSpan, this.publishButton);
     }
 
     public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
@@ -90,6 +94,7 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction.setEnabled(canBePublished);
         this.publishMobileAction.setVisible(canBePublished);
 
+        this.contentStateSpan.setHtml(this.getContentStateValueForSpan(this.content), false);
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', api.content.CompareStatusFormatter.formatStatusTextFromContent(this.content)));
     }
@@ -108,6 +113,19 @@ export class ContentWizardToolbarPublishControls
                 loginResult, existing.getPermissions());
             this.setUserCanPublish(hasPublishPermission);
         });
+    }
+
+    private getContentStateValueForSpan(content: ContentSummaryAndCompareStatus): string {
+
+        let status = new api.dom.SpanEl();
+        if (this.isOnline()) {
+            status.addClass('online');
+        }
+
+        status.addClass(content.getStatusClass());
+        status.setHtml(content.getStatusText());
+
+        return i18n('field.publish.status', status.toString());
     }
 
     public getPublishButtonForMobile(): ActionButton {

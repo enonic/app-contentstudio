@@ -367,7 +367,7 @@ export class ContentWizardPanel
     }
 
     protected createMainToolbar(): Toolbar {
-        return new ContentWizardToolbar(this.wizardActions, this.persistedContent);
+        return new ContentWizardToolbar(this.contentParams.application, this.wizardActions);
     }
 
     public getMainToolbar(): ContentWizardToolbar {
