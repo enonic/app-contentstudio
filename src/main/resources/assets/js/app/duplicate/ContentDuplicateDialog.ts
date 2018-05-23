@@ -85,6 +85,11 @@ export class ContentDuplicateDialog
         return this;
     }
 
+    clearDependantItems() {
+        super.clearDependantItems();
+        this.countItemsToDuplicateAndUpdateButtonCounter();
+    }
+
     close() {
         super.close();
         if (this.messageId) {

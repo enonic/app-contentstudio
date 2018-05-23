@@ -249,10 +249,18 @@ export class DependantItemsDialog
     protected loadDescendantIds(filterStatuses?: CompareStatus[]) {
         const contents = this.getContentsToLoad();
 
+        const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
+
         return new api.content.resource.GetDescendantsOfContentsRequest().setContentPaths(
             contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()
             .then((result: ContentId[]) => {
                 this.dependantIds = result;
+
+                if (this.dependantIds) {
+                    this.dependantIds = this.dependantIds.filter(dependantId =>
+                        !api.util.ArrayHelper.contains(itemsIds, dependantId)
+                    );
+                }
             });
     }
 
@@ -421,7 +429,7 @@ export class DialogItemList
 export class DialogDependantList
     extends ListBox<ContentSummaryAndCompareStatus> {
 
-    private itemClickListeners: {(item: ContentSummaryAndCompareStatus): void}[] = [];
+    private itemClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
 
     constructor(className?: string) {
         super(className);
