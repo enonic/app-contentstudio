@@ -8,7 +8,7 @@ const dialog = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
-var insertAnchorModalDialog = Object.create(page, {
+const insertAnchorModalDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {
@@ -52,7 +52,7 @@ var insertAnchorModalDialog = Object.create(page, {
             })
         }
     },
-    waitForDialogVisible: {
+    waitForDialogLoaded: {
         value: function () {
             return this.waitForVisible(this.insertButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_open_insert_anchor_dialog');
