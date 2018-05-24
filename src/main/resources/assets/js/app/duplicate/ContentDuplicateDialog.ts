@@ -145,7 +145,7 @@ export class ContentDuplicateDialog
 
     private createDuplicateRequest(): DuplicateContentRequest {
         const duplicatableIds: DuplicatableId[] = this.getItemList().getItemViews().map(
-            item => (<DuplicatableId>{id: item.getContentId(), includeChildren: item.includesChildren()}));
+            item => (<DuplicatableId>{contentId: item.getContentId(), includeChildren: item.includesChildren()}));
 
         const duplicateRequest = new DuplicateContentRequest(duplicatableIds);
 
