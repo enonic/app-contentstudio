@@ -6,6 +6,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const utils = require('../../libs/studio.utils');
 const insertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const insertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 
 var component = {
     editor: `//div[contains(@id,'TextComponentViewCK_editor') and contains(@title,'Rich Text Editor')]`,
@@ -21,6 +22,11 @@ const textComponent = Object.create(page, {
     insertLinkButton: {
         get: function () {
             return `${component.toolbox}` + `//a[contains(@class,'cke_button') and contains(@title,'Link')]`;
+        }
+    },
+    insertAnchorButton: {
+        get: function () {
+            return `${component.toolbox}` + `//a[contains(@class,'cke_button') and contains(@title,'Anchor')]`;
         }
     },
     typeTextInCkeEditor: {
@@ -86,6 +92,17 @@ const textComponent = Object.create(page, {
                 return this.switchToParentFrame();
             }).then(() => {
                 return insertLinkDialog.waitForDialogVisible();
+            });
+        }
+    },
+    clickOnInsertAnchorButton: {
+        value: function () {
+            return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(result => {
+                return this.doClick(this.insertAnchorButton);
+            }).then(() => {
+                return this.switchToParentFrame();
+            }).then(() => {
+                return insertAnchorDialog.waitForDialogLoaded();
             });
         }
     },

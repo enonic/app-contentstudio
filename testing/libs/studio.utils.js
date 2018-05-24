@@ -456,10 +456,10 @@ module.exports = {
             tabIds.forEach((tabId) => {
                 result = result.then(() => {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
-                }).then((result) => {
+                }).then(result => {
                     if (!result) {
                         return webDriverHelper.browser.close().then(() => {
-                            //return this.doSwitchToHome();
+                            console.log(tabId + ' was closed');
                         });
                     }
                 });

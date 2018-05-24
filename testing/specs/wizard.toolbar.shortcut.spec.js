@@ -33,8 +33,6 @@ describe('Wizard toolbar - shortcut spec`', function () {
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, () => {
         return studioUtils.openContentInWizard(displayName).then(() => {
-            //return studioUtils.openContentInWizard(displayName)
-        }).then(() => {
             return contentWizard.hotKeyDelete();
         }).then(() => {
             return deleteContentDialog.waitForDialogVisible();
