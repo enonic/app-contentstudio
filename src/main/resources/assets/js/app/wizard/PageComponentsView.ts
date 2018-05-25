@@ -67,6 +67,8 @@ export class PageComponentsView
 
     private afterActionHandler: (action: Action) => void;
 
+    private textComponentsKeyupHandlers: any = {};
+
     constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
         super('page-components-view');
 
@@ -423,6 +425,8 @@ export class PageComponentsView
         }).filter((itemView: ItemView) => {
             return api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView) ||
                    api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentViewCK);
+        }).filter((textComponentView: TextComponentView) => {
+            return !textComponentView.getHTMLElement().onpaste; // filtering text components that already have these listeners
         }).forEach((textComponentView: TextComponentView) => {
             this.bindTreeTextNodeUpdateOnTextComponentModify(textComponentView);
         });

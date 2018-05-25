@@ -33,7 +33,7 @@ export class TextComponentViewCK
 
     private rootElement: api.dom.Element;
 
-    private htmlAreaEditor: any;
+    private htmlAreaEditor: CKEDITOR.editor;
 
     private isInitializingEditor: boolean;
 
@@ -495,9 +495,9 @@ export class TextComponentViewCK
     }
 
     extractText(): string {
-        if (this.htmlAreaEditor) {
-            return this.htmlAreaEditor.getData();
-
+        if (this.htmlAreaEditor) { // that makes cke cleanup
+            this.htmlAreaEditor.getSelection().reset();
+            return this.htmlAreaEditor.element.getText().trim();
         }
 
         return wemjq(this.getHTMLElement()).text().trim();
