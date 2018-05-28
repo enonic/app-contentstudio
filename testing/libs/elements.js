@@ -30,7 +30,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
     itemByName: function (name) {
-        return ` //div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
     },
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
 

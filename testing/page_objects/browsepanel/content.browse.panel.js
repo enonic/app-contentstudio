@@ -9,6 +9,8 @@ const appConst = require('../../libs/app_const');
 const panel = {
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
+    selectedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and contains(@class,'selected')]`,
+    checkedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
@@ -16,9 +18,12 @@ const panel = {
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
+    rowByDisplayName:
+        displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+
     checkboxByName: function (name) {
-        return `${elements.itemByName(name)}` +
-            `/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+        return `${elements.itemByName(
+            name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
     checkboxByDisplayName: displayName => `${elements.itemByDisplayName(
         displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
@@ -262,7 +267,7 @@ var contentBrowsePanel = Object.create(page, {
     waitForContentByDisplayNameVisible: {
         value: function (displayName) {
             var nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(nameXpath, 3000).catch((err) => {
+            return this.waitForVisible(nameXpath, 3000).catch(err => {
                 this.saveScreenshot('err_find_' + displayName);
                 throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
             })
@@ -273,23 +278,53 @@ var contentBrowsePanel = Object.create(page, {
             const displayNameXpath = panel.checkboxByDisplayName(displayName);
             return this.waitForVisible(displayNameXpath, 2000).then(() => {
                 return this.doClick(displayNameXpath);
-            }).catch((err) => {
+            }).pause(200).catch(err => {
                 this.saveScreenshot('err_find_item');
                 throw Error(`Row with the displayName ${displayName} was not found.`)
             })
         }
     },
-    clickCheckboxAndSelectRowByName: {
+    clickOnCheckboxAndSelectRowByName: {
         value: function (name) {
-            var nameXpath = panel.checkboxByName(name);
+            let nameXpath = panel.checkboxByName(name);
             return this.waitForVisible(nameXpath, 2000).then(() => {
                 return this.doClick(nameXpath);
-            }).catch((err) => {
+            }).pause(300).catch(err => {
                 this.saveScreenshot('err_find_item');
+                throw Error('Row with the name ' + name + ' was not found ' + err)
+            })
+        }
+    },
+    clickOnRowByDisplayName: {
+        value: function (name) {
+            var nameXpath = panel.rowByDisplayName(name);
+            return this.waitForVisible(nameXpath, 3000).then(() => {
+                return this.doClick(nameXpath);
+            }).pause(400).catch((err) => {
+                this.saveScreenshot('err_find_' + name);
                 throw Error('Row with the name ' + name + ' was not found')
             })
         }
     },
+    getNumberOfSelectedRows: {
+        value: function () {
+            return this.elements(panel.selectedRows).then(result => {
+                return result.value.length;
+            }).catch(err => {
+                throw new Error(`Error when getting selected rows ` + err);
+            });
+        }
+    },
+    getNumberOfCheckeddRows: {
+        value: function () {
+            return this.elements(panel.checkedRows).then(result => {
+                return result.value.length;
+            }).catch(err => {
+                throw new Error(`Error when getting selected rows ` + err);
+            });
+        }
+    },
+
     doCloseWindowTabAndSwitchToBrowsePanel: {
         value: function (displayName) {
             return this.getBrowser().close().pause(300).then(() => {
