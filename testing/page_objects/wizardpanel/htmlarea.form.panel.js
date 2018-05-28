@@ -145,7 +145,7 @@ const htmlAreaForm = Object.create(page, {
             }).then(result => {
                 return this.doClick(`//a[contains(@class,'cke_button') and contains(@title,'Link')]`)
             }).then(() => {
-                return insertLinkDialog.waitForDialogVisible();
+                return insertLinkDialog.waitForDialogLoaded();
             })
         }
     },

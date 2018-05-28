@@ -38,7 +38,7 @@ var newContentDialog = Object.create(page, {
     },
     clickOnCancelButtonTop: {
         value: function () {
-            return this.doClick(this.cancelButton).catch((err)=> {
+            return this.doClick(this.cancelButton).catch((err) => {
                 this.saveScreenshot('err_principal_dialog');
                 throw new Error('Error when try click on cancel button ' + err);
             })
@@ -46,7 +46,7 @@ var newContentDialog = Object.create(page, {
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(`${dialog.searchInput}`, appConst.TIMEOUT_3).catch(err=> {
+            return this.waitForVisible(`${dialog.searchInput}`, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_new_content_dialog_load');
                 throw new Error('New Content dialog was not loaded! ' + err);
             });
@@ -54,7 +54,7 @@ var newContentDialog = Object.create(page, {
     },
     waitForClosed: {
         value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(error=> {
+            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(error => {
                 this.saveScreenshot('err_new_content_dialog_close');
                 throw new Error('New Content Dialog was not closed');
             });
@@ -73,12 +73,12 @@ var newContentDialog = Object.create(page, {
     clickOnContentType: {
         value: function (contentTypeName) {
             let typeSelector = `${dialog.contentTypeByName(contentTypeName)}`;
-            return this.waitForVisible(typeSelector, appConst.TIMEOUT_3).then(()=> {
-            }).then(()=> {
+            return this.waitForVisible(typeSelector, appConst.TIMEOUT_3).then(() => {
+            }).then(() => {
                 return this.getDisplayedElements(typeSelector);
-            }).then((result)=> {
+            }).then(result => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot('err_click_contenttype')
                 throw new Error('clickOnContentType:' + err);
             }).pause(500);

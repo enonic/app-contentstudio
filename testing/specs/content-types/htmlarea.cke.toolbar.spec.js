@@ -55,7 +55,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
             }).then(() => {
-                return insertAnchorDialog.waitForDialogVisible();
+                return insertAnchorDialog.waitForDialogLoaded();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_insert_anchor_dialog');
                 assert.isTrue(result, 'Insert Anchor Dialog should appear');
@@ -67,7 +67,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
             }).then(() => {
-                return insertSpecialDialog.waitForDialogVisible();
+                return insertSpecialDialog.waitForDialogLoaded();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_insert_special_char_dialog');
                 assert.isTrue(result, 'Insert Special Characters Dialog should appear');
@@ -96,7 +96,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             }).then(() => {
-                return insertLinkDialog.waitForDialogVisible();
+                return insertLinkDialog.waitForDialogLoaded();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_insert_link_dialog');
                 assert.isTrue(result, 'Insert Link Dialog should appear');

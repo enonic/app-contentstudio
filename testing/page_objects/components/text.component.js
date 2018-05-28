@@ -78,7 +78,7 @@ const textComponent = Object.create(page, {
             return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(this.insertTableButton);
             }).then(() => {
-                console.log('Isert Table dialog');
+                console.log('Insert Table dialog');
                 //TODO finish it when bug with Table will be fixed
                 //return insertTableDialog.waotForVisible();
             });
@@ -91,7 +91,7 @@ const textComponent = Object.create(page, {
             }).then(() => {
                 return this.switchToParentFrame();
             }).then(() => {
-                return insertLinkDialog.waitForDialogVisible();
+                return insertLinkDialog.waitForDialogLoaded();
             });
         }
     },

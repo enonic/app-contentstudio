@@ -35,7 +35,7 @@ var insertSpecialCharacterDialog = Object.create(page, {
             })
         }
     },
-    waitForDialogVisible: {
+    waitForDialogLoaded: {
         value: function () {
             return this.waitForVisible(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_open_insert_anchor_dialog');
