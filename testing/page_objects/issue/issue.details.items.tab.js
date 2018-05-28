@@ -75,6 +75,17 @@ const issueDetailsDialogItemsTab = Object.create(page, {
             })
         }
     },
+    getNumberInDependentItemsLink: {
+        value: function () {
+            return this.getText(this.showDependentItemsLink).then(result => {
+                let startIndex = result.indexOf('(');
+                let endIndex = result.indexOf(')');
+                return result.substring(startIndex + 1, endIndex);
+            }).catch(err => {
+                throw new Error('Items Tab:error when click on dropdown handle : ' + err)
+            })
+        }
+    },
 
     //Show dependent items
     clickOnShowDependentItems: {

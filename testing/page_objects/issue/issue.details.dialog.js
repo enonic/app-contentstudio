@@ -4,6 +4,7 @@ const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
+    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     addCommentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Add Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
     assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
@@ -11,15 +12,22 @@ const xpath = {
     issueStatusSelector: `//div[contains(@id,'IssueStatusSelector')]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
+    noActionLabel: `//div[@class='no-action-message']`,
     issueCommentsListItemByText:
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
 
 };
 const issueDetailsDialog = Object.create(page, {
 
+
     closeIssueButton: {
         get: function () {
             return `${xpath.container}` + `${xpath.closeIssueButton}`;
+        }
+    },
+    reopenIssueButton: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.reopenIssueButton}`;
         }
     },
     addCommentButton: {
@@ -56,14 +64,14 @@ const issueDetailsDialog = Object.create(page, {
 
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(this.closeIssueButton, 1000).catch(err=> {
+            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, 1000).catch(err => {
                 throw new Error('Issue Details dialog is not loaded ' + err)
             });
         }
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, 1000).catch(err=> {
+            return this.waitForNotVisible(`${xpath.container}`, 1000).catch(err => {
                 this.saveScreenshot('err_close_is_det_dialog');
                 throw new Error('Issue Details Dialog should be closed! ' + err)
             })
@@ -72,11 +80,16 @@ const issueDetailsDialog = Object.create(page, {
     getNumberOfItems: {
         value: function () {
             let xpath = this.itemsTabBarItem + '/a';
-            return this.getText(xpath).then(result=> {
+            return this.getText(xpath).then(result => {
                 let startIndex = result.indexOf('(');
                 let endIndex = result.indexOf(')');
                 return result.substring(startIndex + 1, endIndex);
             })
+        }
+    },
+    isNoActionLabelPresent: {
+        value: function () {
+            return this.isVisible(`${xpath.noActionLabel}`);
         }
     },
     isDialogOpened: {
@@ -91,15 +104,28 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnCloseIssueButton: {
         value: function () {
-            return this.doClick(this.closeIssueButton).catch(err=> {
+            return this.doClick(this.closeIssueButton).catch(err => {
                 this.saveScreenshot('err_click_close_issue_button');
                 throw  new Error('Error when clicking on the `Close Issue`  ' + err);
             })
         }
     },
+    clickOnReopenIssueButton: {
+        value: function () {
+            return this.doClick(this.reopenIssueButton).catch(err => {
+                this.saveScreenshot('err_click_reopen_issue_button');
+                throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+            })
+        }
+    },
+    pressEscKey: {
+        value: function () {
+            return this.getBrowser().keys(['Escape']);
+        }
+    },
     isCloseIssueButtonDisplayed: {
         value: function () {
-            return this.isVisible(this.closeIssueButton).catch(err=> {
+            return this.isVisible(this.closeIssueButton).catch(err => {
                 this.saveScreenshot('err_visible_close_issue_button');
                 throw  new Error('Issue Details Dialog: ' + err);
             })
@@ -107,7 +133,7 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnAddCommentButton: {
         value: function () {
-            return this.doClick(this.addCommentButton).catch(err=> {
+            return this.doClick(this.addCommentButton).catch(err => {
                 this.saveScreenshot('err_click_add_comment_button');
                 throw  new Error('Error when clicking on the `Add Comment`  ' + err);
             })
@@ -115,53 +141,53 @@ const issueDetailsDialog = Object.create(page, {
     },
     isAddCommentButtonDisplayed: {
         value: function () {
-            return this.isVisible(this.addCommentButton).catch(err=> {
+            return this.isVisible(this.addCommentButton).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     isCommentTextAreaDisplayed: {
         value: function () {
-            return this.isVisible(this.issueCommentTextArea).catch(err=> {
+            return this.isVisible(this.issueCommentTextArea).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     isAddCommentButtonEnabled: {
         value: function () {
-            return this.isEnabled(this.addCommentButton).catch(err=> {
+            return this.isEnabled(this.addCommentButton).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     waitForAddCommentButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.addCommentButton).catch(err=> {
+            return this.waitForEnabled(this.addCommentButton).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     waitForAddCommentButtonDisabled: {
         value: function () {
-            return this.waitForDisabled(this.addCommentButton).catch(err=> {
+            return this.waitForDisabled(this.addCommentButton).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     isCommentsTabBarItemActive: {
         value: function () {
-            return this.getAttribute(this.commentsTabBarItem, 'class').then(result=> {
+            return this.getAttribute(this.commentsTabBarItem, 'class').then(result => {
                 return result.includes('active');
-            }).catch(err=> {
+            }).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
     },
     isItemsTabBarItemActive: {
         value: function () {
-            return this.getAttribute(this.itemsTabBarItem, 'class').then(result=> {
+            return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
                 return result.includes('active');
-            }).catch(err=> {
+            }).catch(err => {
                 throw  new Error('Issue Details Dialog  ' + err);
             })
         }
@@ -174,7 +200,7 @@ const issueDetailsDialog = Object.create(page, {
     },
     typeComment: {
         value: function (text) {
-            return this.typeTextInInput(this.issueCommentTextArea, text).catch(err=> {
+            return this.typeTextInInput(this.issueCommentTextArea, text).catch(err => {
                 this.saveScreenshot('err_type_text_in_area');
                 throw new Error('error type text in issue comment: ' + err)
             })
@@ -183,7 +209,7 @@ const issueDetailsDialog = Object.create(page, {
     isCommentPresent: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text);
-            return this.isVisible(selector).catch(err=> {
+            return this.isVisible(selector).catch(err => {
                 this.saveScreenshot('err_get_comment_issue');
                 throw new Error('error when get issue comment: ' + err)
             })
@@ -191,7 +217,7 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnItemsTabBarItem: {
         value: function (text) {
-            return this.doClick(this.itemsTabBarItem).pause(300).catch(err=> {
+            return this.doClick(this.itemsTabBarItem).pause(300).catch(err => {
                 this.saveScreenshot('err_click_on_items_tabbar_item');
                 throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
             })
@@ -200,12 +226,12 @@ const issueDetailsDialog = Object.create(page, {
     clickOnEditCommentMenuItem: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.doClick(selector).pause(500).then(()=> {
+            return this.doClick(selector).pause(500).then(() => {
                 let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
                 return this.getDisplayedElements(editMenuItem);
-            }).then((result)=> {
+            }).then((result) => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).pause(500).catch(err=> {
+            }).pause(500).catch(err => {
                 this.saveScreenshot('err_click_on_edit_comment_issue');
                 throw new Error('error when click on edit the issue comment: ' + err)
             })
@@ -214,12 +240,12 @@ const issueDetailsDialog = Object.create(page, {
     clickOnDeleteCommentMenuItem: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.doClick(selector).pause(500).then(()=> {
+            return this.doClick(selector).pause(500).then(() => {
                 let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
                 return this.getDisplayedElements(deleteMenuItem);
-            }).then((result)=> {
+            }).then((result) => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).pause(500).catch(err=> {
+            }).pause(500).catch(err => {
                 this.saveScreenshot('err_click_on_delete_comment');
                 throw new Error('error when click on delete the issue comment: ' + err)
             })
@@ -228,7 +254,7 @@ const issueDetailsDialog = Object.create(page, {
     updateComment: {
         value: function (comment, text) {
             let commentTextarea = xpath.issueCommentsListItemByText(comment) + `//textarea`;
-            return this.typeTextInInput(commentTextarea, text).catch(err=> {
+            return this.typeTextInInput(commentTextarea, text).catch(err => {
                 throw new Error('error type text in issue comment: ' + err)
             })
         }
@@ -236,18 +262,18 @@ const issueDetailsDialog = Object.create(page, {
     clickOnSaveCommentButton: {
         value: function (text) {
             let saveButton = xpath.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
-            return this.doClick(saveButton).pause(500).catch(err=> {
+            return this.doClick(saveButton).pause(500).catch(err => {
                 throw new Error('error when save the issue comment: ' + err)
             })
         }
     },
     getNumberOfItemsInTabMenuBar: {
         value: function () {
-            return this.getText(this.itemsTabBarItem).then(result=> {
+            return this.getText(this.itemsTabBarItem).then(result => {
                 let startIndex = result.indexOf('(');
                 let endIndex = result.indexOf(')');
                 return result.substring(startIndex + 1, endIndex);
-            }).catch(err=> {
+            }).catch(err => {
                 throw new Error('error when getting number from the Items(...) link ' + err);
             });
         }
