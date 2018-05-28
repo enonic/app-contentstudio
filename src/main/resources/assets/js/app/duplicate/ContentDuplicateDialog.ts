@@ -119,7 +119,9 @@ export class ContentDuplicateDialog
     }
 
     private doDuplicate(ignoreConfirmation: boolean = false) {
-        this.yesCallback();
+        if (this.yesCallback) {
+            this.yesCallback();
+        }
 
         this.lockControls();
 
