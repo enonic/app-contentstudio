@@ -38,7 +38,8 @@ import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
 import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './app/browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchPanelWithDependenciesEvent';
-import {DuplicateContentDialog} from './app/duplicate/DuplicateContentDialog';
+import {ContentDuplicateDialog} from './app/duplicate/ContentDuplicateDialog';
+import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -221,10 +222,16 @@ function startApplication() {
 
     api.util.AppHelper.preventDragRedirect();
 
-    // tslint:disable-next-line:no-unused-expression
-    new DuplicateContentDialog();
+    const contentDuplicateDialog = new ContentDuplicateDialog();
+    ContentDuplicatePromptEvent.on((event) => {
+        contentDuplicateDialog
+            .setContentToDuplicate(event.getModels())
+            .setYesCallback(event.getYesCallback())
+            .setNoCallback(event.getNoCallback())
+            .open();
+    });
 
-    let contentDeleteDialog = new ContentDeleteDialog();
+    const contentDeleteDialog = new ContentDeleteDialog();
     ContentDeletePromptEvent.on((event) => {
         contentDeleteDialog
             .setContentToDelete(event.getModels())
@@ -233,7 +240,7 @@ function startApplication() {
             .open();
     });
 
-    let contentPublishDialog = new ContentPublishDialog();
+    const contentPublishDialog = new ContentPublishDialog();
     ContentPublishPromptEvent.on((event) => {
         contentPublishDialog
             .setContentToPublish(event.getModels())

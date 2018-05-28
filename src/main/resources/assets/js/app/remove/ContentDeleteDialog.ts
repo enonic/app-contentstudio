@@ -226,10 +226,6 @@ export class ContentDeleteDialog
         return deleteRequest;
     }
 
-    protected updateButtonCount(actionString: string, count: number) {
-        super.updateButtonCount(actionString, count);
-    }
-
     private doAnyHaveChildren(items: ContentSummaryAndCompareStatus[]): boolean {
         return items.some((item: ContentSummaryAndCompareStatus) => {
             return item.getContentSummary().hasChildren();
