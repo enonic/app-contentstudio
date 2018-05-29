@@ -250,7 +250,7 @@ export class TextComponentViewCK
     }
 
     isActive(): boolean {
-        return this.hasClass('active');
+        return this.hasClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
     }
 
     setEditMode(flag: boolean) {
