@@ -82,7 +82,7 @@ export class XDataWizardStepForm
                     if (this.disabledData) {
                         this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
                     }
-                    this.doLayout(this.form, this.data);
+                    this.doLayout(this.form, this.data).then(() => this.validate());
                 }
             } else {
                 if (this.data) {
@@ -92,6 +92,9 @@ export class XDataWizardStepForm
 
                 if (this.formView) {
                     this.formView.remove();
+                    this.formView = new FormView(this.formContext, this.form, this.data.getRoot());
+
+                    this.resetValidation();
                 }
             }
         }

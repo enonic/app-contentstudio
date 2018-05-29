@@ -70,6 +70,11 @@ export class ContentWizardStepForm
         return this.formView.validate(silent);
     }
 
+    public resetValidation() {
+        this.previousValidation = new api.form.ValidationRecording();
+        this.notifyValidityChanged(new WizardStepValidityChangedEvent(true));
+    }
+
     public displayValidationErrors(display: boolean) {
         this.formView.displayValidationErrors(display);
     }
