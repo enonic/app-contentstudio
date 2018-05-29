@@ -17,6 +17,7 @@ import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {PageModel} from '../../page-editor/PageModel';
+import {XDataWizardStepForm} from './XDataWizardStepForm';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -57,6 +58,7 @@ import Mixin = api.schema.mixin.Mixin;
 import MixinName = api.schema.mixin.MixinName;
 import MixinNames = api.schema.mixin.MixinNames;
 import GetMixinByQualifiedNameRequest = api.schema.mixin.GetMixinByQualifiedNameRequest;
+import GetContentXDataRequest = api.schema.xdata.GetContentXDataRequest;
 
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentNamedEvent = api.content.event.ContentNamedEvent;
@@ -106,7 +108,7 @@ export class ContentWizardPanel
 
     private securityWizardStepForm: SecurityWizardStepForm;
 
-    private metadataStepFormByName: { [name: string]: ContentWizardStepForm; };
+    private xDataStepFormByName: { [name: string]: XDataWizardStepForm; };
 
     private displayNameScriptExecutor: DisplayNameScriptExecutor;
 
@@ -174,7 +176,7 @@ export class ContentWizardPanel
 
         this.displayNameScriptExecutor = new DisplayNameScriptExecutor();
 
-        this.metadataStepFormByName = {};
+        this.xDataStepFormByName = {};
 
         this.initListeners();
         this.listenToContentEvents();
@@ -549,62 +551,38 @@ export class ContentWizardPanel
         this.startRememberFocus();
     }
 
-    private createSteps(): wemQ.Promise<Mixin[]> {
-        this.contentWizardStepForm = new ContentWizardStepForm();
-        this.settingsWizardStepForm = new SettingsWizardStepForm();
-        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
-        this.securityWizardStepForm = new SecurityWizardStepForm();
-        this.missingOrStoppedAppKeys = [];
-
-        let applicationKeys = this.site ? this.site.getApplicationKeys() : [];
-        let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
-
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            this.checkSecurityWizardStepFormAllowed(loginResult);
-            return wemQ.all(applicationPromises);
-        }).then((applications: Application[]) => {
-            this.handleMissingApp();
-
-            let metadataMixinPromises: wemQ.Promise<Mixin>[] = [];
-            metadataMixinPromises = metadataMixinPromises.concat(
-                this.contentType.getMetadata().map((name: MixinName) => {
-                    return this.fetchMixin(name);
-                }));
-
-            applications.filter((app) => app != null).forEach((app: Application) => {
-                metadataMixinPromises = metadataMixinPromises.concat(
-                    app.getMetaSteps().map((name: MixinName) => {
-                        return this.fetchMixin(name);
-                    })
-                );
-            });
-
-            return wemQ.all(metadataMixinPromises);
-        }).then((mixins: Mixin[]) => {
-            let steps: WizardStep[] = [];
-
-            this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-            steps.push(this.contentWizardStep);
-
-            mixins.forEach((mixin: Mixin, index: number) => {
-                if (!this.metadataStepFormByName[mixin.getMixinName().toString()]) {
-                    let stepForm = new ContentWizardStepForm();
-                    this.metadataStepFormByName[mixin.getMixinName().toString()] = stepForm;
-                    steps.splice(index + 1, 0, new WizardStep(mixin.getDisplayName(), stepForm));
+    saveChanges(): wemQ.Promise<Content> {
+        let liveFormPanel = this.getLivePanel();
+        if (liveFormPanel) {
+            liveFormPanel.skipNextReloadConfirmation(true);
+        }
+        this.setRequireValid(false);
+        this.contentUpdateDisabled = true;
+        new BeforeContentSavedEvent().fire();
+        return super.saveChanges().then((content: Content) => {
+            if (liveFormPanel) {
+                this.liveEditModel.setContent(content);
+                if (this.reloadPageEditorOnSave) {
+                    this.updateLiveForm().then(() => {
+                        if (content.isSite()) {
+                            this.updateWizardStepForms(content, false);
+                        }
+                    });
                 }
-            });
-            this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
-            steps.push(this.settingsWizardStep);
+            }
 
-            this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
-            this.scheduleWizardStepIndex = steps.length;
-            steps.push(this.scheduleWizardStep);
+            if (content.getType().isImage()) {
+                this.updateWizard(content);
+            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
+                this.securityWizardStepForm.update(content);
+            }
 
-            steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm));
+            this.resetDisabledXDataForms();
 
-            this.setSteps(steps);
-
-            return mixins;
+            return content;
+        }).finally(() => {
+            this.contentUpdateDisabled = false;
+            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
         });
     }
 
@@ -614,17 +592,6 @@ export class ContentWizardPanel
             liveFormPanel.skipNextReloadConfirmation(true);
         }
         super.close(checkCanClose);
-    }
-
-    private fetchMixin(name: MixinName): wemQ.Promise<Mixin> {
-        let deferred = wemQ.defer<Mixin>();
-        new GetMixinByQualifiedNameRequest(name).sendAndParse().then((mixin) => {
-            deferred.resolve(mixin);
-        }).catch((reason) => {
-            const msg = i18n('notify.wizard.noMixin', name.toString());
-            deferred.reject(new api.Exception(msg, api.ExceptionType.WARNING));
-        }).done();
-        return deferred.promise;
     }
 
     private fetchApplication(key: ApplicationKey): wemQ.Promise<Application> {
@@ -655,37 +622,27 @@ export class ContentWizardPanel
         this.getContextWindowToggler().setVisible(this.renderable && !appsIsMissing);
     }
 
-    saveChanges(): wemQ.Promise<Content> {
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-            liveFormPanel.skipNextReloadConfirmation(true);
+    public checkContentCanBePublished(): boolean {
+        if (this.getContentWizardToolbarPublishControls().isPendingDelete()) {
+            // allow deleting published content without validity check
+            return true;
         }
-        this.setRequireValid(false);
-        this.contentUpdateDisabled = true;
-        new BeforeContentSavedEvent().fire();
-        return super.saveChanges().then((content: Content) => {
-            if (liveFormPanel) {
-                this.liveEditModel.setContent(content);
-                if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm().then(() => {
-                        if (content.isSite()) {
-                            this.updateWizardStepForms(content, false);
-                        }
-                    });
+
+        let allMetadataFormsValid = true;
+        let allMetadataFormsHaveValidUserInput = true;
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                let form = this.xDataStepFormByName[key];
+                if (!form.isValid()) {
+                    allMetadataFormsValid = false;
+                }
+                let formHasValidUserInput = form.getFormView().hasValidUserInput();
+                if (!formHasValidUserInput) {
+                    allMetadataFormsHaveValidUserInput = false;
                 }
             }
-
-            if (content.getType().isImage()) {
-                this.updateWizard(content);
-            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
-                this.securityWizardStepForm.update(content);
-            }
-
-            return content;
-        }).finally(() => {
-            this.contentUpdateDisabled = false;
-            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
-        });
+        }
+        return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
     private isCurrentContentId(id: api.content.ContentId): boolean {
@@ -706,6 +663,53 @@ export class ContentWizardPanel
         this.resetLastFocusedElement();
     }
 
+    private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
+        this.contentWizardStepForm = new ContentWizardStepForm();
+        this.settingsWizardStepForm = new SettingsWizardStepForm();
+        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
+        this.securityWizardStepForm = new SecurityWizardStepForm();
+        this.missingOrStoppedAppKeys = [];
+
+        let applicationKeys = this.site ? this.site.getApplicationKeys() : [];
+        let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+
+        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            this.checkSecurityWizardStepFormAllowed(loginResult);
+            return wemQ.all(applicationPromises);
+        }).then(() => {
+            this.handleMissingApp();
+
+            return new GetContentXDataRequest(contentId).sendAndParse().then(
+                (xDatas: Mixin[]) => {
+
+                    let steps: WizardStep[] = [];
+
+                    this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+                    steps.push(this.contentWizardStep);
+
+                    xDatas.forEach((xData: Mixin, index: number) => {
+                        if (!this.xDataStepFormByName[xData.getMixinName().toString()]) {
+                            let stepForm = new XDataWizardStepForm(xData.isExternal());
+                            this.xDataStepFormByName[xData.getMixinName().toString()] = stepForm;
+                            steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
+                        }
+                    });
+                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
+                    steps.push(this.settingsWizardStep);
+
+                    this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
+                    this.scheduleWizardStepIndex = steps.length;
+                    steps.push(this.scheduleWizardStep);
+
+                    steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm));
+
+                    this.setSteps(steps);
+
+                    return xDatas;
+                });
+        });
+    }
+
     private resetWizard() {
 
         this.getWizardHeader().resetBaseValues();
@@ -714,9 +718,9 @@ export class ContentWizardPanel
         this.settingsWizardStepForm.reset();
         this.scheduleWizardStepForm.reset();
 
-        for (let key in this.metadataStepFormByName) {
-            if (this.metadataStepFormByName.hasOwnProperty(key)) {
-                let form = this.metadataStepFormByName[key];
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                let form = this.xDataStepFormByName[key];
                 form.reset();
             }
         }
@@ -1193,80 +1197,15 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    // Remember that content has been cloned here and it is not the persistedItem any more
-    private doLayoutPersistedItem(content: Content): wemQ.Promise<void> {
-        if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.doLayoutPersistedItem at ' + new Date().toISOString());
+    private resetDisabledXDataForms() {
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                let form = this.xDataStepFormByName[key];
+                if (form.isExpandable() && !form.isEnabled()) {
+                    form.resetForm();
+                }
+            }
         }
-
-        this.toggleClass('rendered', false);
-
-        let formContext = this.getFormContext(content);
-
-        return this.updateButtonsState().then(() => {
-            return this.initLiveEditor(formContext, content).then(() => {
-
-                return this.createSteps().then((schemas: Mixin[]) => {
-
-                    let contentData = content.getContentData();
-
-                    contentData.onChanged(this.dataChangedHandler);
-
-                    let formViewLayoutPromises: wemQ.Promise<void>[] = [];
-                    formViewLayoutPromises.push(this.contentWizardStepForm.layout(formContext, contentData, this.contentType.getForm()));
-                    // Must pass FormView from contentWizardStepForm displayNameScriptExecutor,
-                    // since a new is created for each call to renderExisting
-                    this.displayNameScriptExecutor.setFormView(this.contentWizardStepForm.getFormView());
-                    this.settingsWizardStepForm.layout(content);
-                    this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-                    this.scheduleWizardStepForm.layout(content);
-                    this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-                    this.refreshScheduleWizardStep();
-                    this.securityWizardStepForm.layout(content);
-
-                    schemas.forEach((schema: Mixin, index: number) => {
-                        let extraData = content.getExtraData(schema.getMixinName());
-                        if (!extraData) {
-                            extraData = this.enrichWithExtraData(content, schema.getMixinName());
-                        }
-                        let metadataFormView = this.metadataStepFormByName[schema.getMixinName().toString()];
-                        let metadataForm = new api.form.FormBuilder().addFormItems(schema.getFormItems()).build();
-
-                        let data = extraData.getData();
-                        data.onChanged(this.dataChangedHandler);
-
-                        formViewLayoutPromises.push(metadataFormView.layout(formContext, data, metadataForm));
-
-                        this.synchPersistedItemWithMixinData(schema.getMixinName(), data);
-                    });
-
-                    return wemQ.all(formViewLayoutPromises).spread<void>(() => {
-
-                        this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
-                        if (this.formState.isNew()) {
-                            this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
-                        } else {
-                            this.displayValidationErrors(!this.isValid());
-                        }
-
-                        this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
-
-                        if (!this.siteModel && content.isSite()) {
-                            this.siteModel = new SiteModel(<Site>content);
-                            this.initSiteModelListeners();
-                        }
-
-                        this.wizardActions.setUnsavedChangesCallback(this.hasUnsavedChanges.bind(this));
-
-                        this.onLiveModelChanged(() => {
-                            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-                        });
-
-                        return wemQ(null);
-                    });
-                });
-            });
-        });
     }
 
     // synch persisted content extra data with data from mixins
@@ -1336,6 +1275,82 @@ export class ContentWizardPanel
         }
     }
 
+    // Remember that content has been cloned here and it is not the persistedItem any more
+    private doLayoutPersistedItem(content: Content): wemQ.Promise<void> {
+        if (ContentWizardPanel.debug) {
+            console.debug('ContentWizardPanel.doLayoutPersistedItem at ' + new Date().toISOString());
+        }
+
+        this.toggleClass('rendered', false);
+
+        let formContext = this.getFormContext(content);
+
+        return this.updateButtonsState().then(() => {
+            return this.initLiveEditor(formContext, content).then(() => {
+
+                return this.createSteps(content.getContentId()).then((schemas: Mixin[]) => {
+
+                    let contentData = content.getContentData();
+
+                    contentData.onChanged(this.dataChangedHandler);
+
+                    let formViewLayoutPromises: wemQ.Promise<void>[] = [];
+                    formViewLayoutPromises.push(this.contentWizardStepForm.layout(formContext, contentData, this.contentType.getForm()));
+                    // Must pass FormView from contentWizardStepForm displayNameScriptExecutor,
+                    // since a new is created for each call to renderExisting
+                    this.displayNameScriptExecutor.setFormView(this.contentWizardStepForm.getFormView());
+                    this.settingsWizardStepForm.layout(content);
+                    this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
+                    this.scheduleWizardStepForm.layout(content);
+                    this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
+                    this.refreshScheduleWizardStep();
+                    this.securityWizardStepForm.layout(content);
+
+                    schemas.forEach((schema: Mixin, index: number) => {
+                        let extraData = content.getExtraData(schema.getMixinName());
+                        if (!extraData) {
+                            extraData = this.enrichWithExtraData(content, schema.getMixinName());
+                        }
+                        let xDataFormView = this.xDataStepFormByName[schema.getMixinName().toString()];
+                        let xDataForm = new api.form.FormBuilder().addFormItems(schema.getFormItems()).build();
+
+                        let data = extraData.getData();
+                        data.onChanged(this.dataChangedHandler);
+
+                        formViewLayoutPromises.push(xDataFormView.layout(formContext, data, xDataForm));
+
+                        this.synchPersistedItemWithMixinData(schema.getMixinName(), data);
+                    });
+
+                    return wemQ.all(formViewLayoutPromises).spread<void>(() => {
+
+                        this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
+                        if (this.formState.isNew()) {
+                            this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
+                        } else {
+                            this.displayValidationErrors(!this.isValid());
+                        }
+
+                        this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
+
+                        if (!this.siteModel && content.isSite()) {
+                            this.siteModel = new SiteModel(<Site>content);
+                            this.initSiteModelListeners();
+                        }
+
+                        this.wizardActions.setUnsavedChangesCallback(this.hasUnsavedChanges.bind(this));
+
+                        this.onLiveModelChanged(() => {
+                            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
+                        });
+
+                        return wemQ(null);
+                    });
+                });
+            });
+        });
+    }
+
     private removeMetadataStepForms() {
         this.missingOrStoppedAppKeys = [];
         let applicationKeys = this.siteModel.getApplicationKeys();
@@ -1363,7 +1378,7 @@ export class ContentWizardPanel
 
             const panelNamesToRemoveBuilder = MixinNames.create();
 
-            const meta = this.metadataStepFormByName;
+            const meta = this.xDataStepFormByName;
             for (const name in meta) { // check all old mixin panels
                 if (meta.hasOwnProperty(name)) {
                     const mixinName = new MixinName(name);
@@ -1374,48 +1389,8 @@ export class ContentWizardPanel
             }
             const panelNamesToRemove = panelNamesToRemoveBuilder.build();
             panelNamesToRemove.forEach((panelName: MixinName) => {
-                this.removeStepWithForm(this.metadataStepFormByName[panelName.toString()]);
-                delete this.metadataStepFormByName[panelName.toString()];
-            });
-
-            return mixins;
-        }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
-        }).done();
-    }
-
-    private addMetadataStepForms(applicationKey: ApplicationKey) {
-        new api.application.GetApplicationRequest(applicationKey).sendAndParse().then((currentApplication: Application) => {
-
-            let mixinNames = currentApplication.getMetaSteps();
-
-            //remove already existing extraData
-            let mixinNamesToAdd = mixinNames.filter((mixinName: MixinName) => {
-                return !this.metadataStepFormByName[mixinName.toString()];
-            });
-
-            let getMixinPromises: wemQ.Promise<Mixin>[] = mixinNamesToAdd.map((name: MixinName) => {
-                return new GetMixinByQualifiedNameRequest(name).sendAndParse();
-            });
-            return wemQ.all(getMixinPromises);
-        }).then((mixins: Mixin[]) => {
-            const formContext = this.getFormContext(this.getPersistedItem());
-
-            mixins.forEach((mixin: Mixin) => {
-                if (!this.metadataStepFormByName[mixin.getMixinName().toString()]) {
-
-                    let stepForm = new ContentWizardStepForm();
-                    this.metadataStepFormByName[mixin.getMixinName().toString()] = stepForm;
-
-                    let wizardStep = new WizardStep(mixin.getDisplayName(), stepForm);
-                    this.insertStepBefore(wizardStep, this.settingsWizardStep);
-
-                    let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
-
-                    extraData.getData().onChanged(this.dataChangedHandler);
-
-                    stepForm.layout(formContext, extraData.getData(), mixin.toForm());
-                }
+                this.removeStepWithForm(this.xDataStepFormByName[panelName.toString()]);
+                delete this.xDataStepFormByName[panelName.toString()];
             });
 
             return mixins;
@@ -1572,36 +1547,44 @@ export class ContentWizardPanel
         }
     }
 
-    private assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
+    private addMetadataStepForms(applicationKey: ApplicationKey) {
+        new api.application.GetApplicationRequest(applicationKey).sendAndParse().then((currentApplication: Application) => {
 
-        viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
-        viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());
-        if (this.contentWizardStepForm) {
-            if (!cleanFormRedundantData) {
-                viewedContentBuilder.setData(this.contentWizardStepForm.getData());
-            } else {
-                let data: api.data.PropertyTree = new api.data.PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
-                viewedContentBuilder.setData(this.cleanFormRedundantData(data));
-            }
-        }
+            let mixinNames = currentApplication.getMetaSteps();
 
-        let extraData: ExtraData[] = [];
-        for (let key in this.metadataStepFormByName) {
-            if (this.metadataStepFormByName.hasOwnProperty(key)) {
-                extraData.push(new ExtraData(new MixinName(key), this.metadataStepFormByName[key].getData()));
-            }
-        }
+            //remove already existing extraData
+            let mixinNamesToAdd = mixinNames.filter((mixinName: MixinName) => {
+                return !this.xDataStepFormByName[mixinName.toString()];
+            });
 
-        viewedContentBuilder.setExtraData(extraData);
+            let getMixinPromises: wemQ.Promise<Mixin>[] = mixinNamesToAdd.map((name: MixinName) => {
+                return new GetMixinByQualifiedNameRequest(name).sendAndParse();
+            });
+            return wemQ.all(getMixinPromises);
+        }).then((mixins: Mixin[]) => {
+            const formContext = this.getFormContext(this.getPersistedItem());
 
-        this.settingsWizardStepForm.apply(viewedContentBuilder);
-        this.scheduleWizardStepForm.apply(viewedContentBuilder);
+            mixins.forEach((mixin: Mixin) => {
+                if (!this.xDataStepFormByName[mixin.getMixinName().toString()]) {
 
-        viewedContentBuilder.setPage(this.assembleViewedPage());
+                    let stepForm = new XDataWizardStepForm(mixin.isExternal());
+                    this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
 
-        this.securityWizardStepForm.apply(viewedContentBuilder);
+                    let wizardStep = new WizardStep(mixin.getDisplayName(), stepForm);
+                    this.insertStepBefore(wizardStep, this.settingsWizardStep);
 
-        return viewedContentBuilder;
+                    let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
+
+                    extraData.getData().onChanged(this.dataChangedHandler);
+
+                    stepForm.layout(formContext, extraData.getData(), mixin.toForm());
+                }
+            });
+
+            return mixins;
+        }).catch((reason: any) => {
+            api.DefaultErrorHandler.handle(reason);
+        }).done();
     }
 
     private cleanFormRedundantData(data: api.data.PropertyTree): api.data.PropertyTree {
@@ -1689,38 +1672,47 @@ export class ContentWizardPanel
         return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-live');
     }
 
+    private assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
+
+        viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
+        viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());
+        if (this.contentWizardStepForm) {
+            if (!cleanFormRedundantData) {
+                viewedContentBuilder.setData(this.contentWizardStepForm.getData());
+            } else {
+                let data: api.data.PropertyTree = new api.data.PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
+                viewedContentBuilder.setData(this.cleanFormRedundantData(data));
+            }
+        }
+
+        let extraData: ExtraData[] = [];
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                extraData.push(new ExtraData(new MixinName(key), this.xDataStepFormByName[key].getData()));
+            }
+        }
+
+        viewedContentBuilder.setExtraData(extraData);
+
+        this.settingsWizardStepForm.apply(viewedContentBuilder);
+        this.scheduleWizardStepForm.apply(viewedContentBuilder);
+
+        viewedContentBuilder.setPage(this.assembleViewedPage());
+
+        this.securityWizardStepForm.apply(viewedContentBuilder);
+
+        return viewedContentBuilder;
+    }
+
     private displayValidationErrors(value: boolean) {
         this.contentWizardStepForm.displayValidationErrors(value);
 
-        for (let key in this.metadataStepFormByName) {
-            if (this.metadataStepFormByName.hasOwnProperty(key)) {
-                let form = this.metadataStepFormByName[key];
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                let form = this.xDataStepFormByName[key];
                 form.displayValidationErrors(value);
             }
         }
-    }
-
-    public checkContentCanBePublished(): boolean {
-        if (this.getContentWizardToolbarPublishControls().isPendingDelete()) {
-            // allow deleting published content without validity check
-            return true;
-        }
-
-        let allMetadataFormsValid = true;
-        let allMetadataFormsHaveValidUserInput = true;
-        for (let key in this.metadataStepFormByName) {
-            if (this.metadataStepFormByName.hasOwnProperty(key)) {
-                let form = this.metadataStepFormByName[key];
-                if (!form.isValid()) {
-                    allMetadataFormsValid = false;
-                }
-                let formHasValidUserInput = form.getFormView().hasValidUserInput();
-                if (!formHasValidUserInput) {
-                    allMetadataFormsHaveValidUserInput = false;
-                }
-            }
-        }
-        return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
     getContextWindowToggler(): TogglerButton {
@@ -1800,8 +1792,8 @@ export class ContentWizardPanel
         let contentCopy = content.clone();
         this.getFormContext(contentCopy).updatePersistedContent(contentCopy);
 
-        for (let key in this.metadataStepFormByName) {
-            if (this.metadataStepFormByName.hasOwnProperty(key)) {
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
 
                 let mixinName = new MixinName(key);
                 let extraData = contentCopy.getExtraData(mixinName);
@@ -1809,7 +1801,7 @@ export class ContentWizardPanel
                     extraData = this.enrichWithExtraData(contentCopy, mixinName);
                 }
 
-                let form = this.metadataStepFormByName[key];
+                let form = this.xDataStepFormByName[key];
                 form.getData().unChanged(this.dataChangedHandler);
 
                 let data = extraData.getData();
