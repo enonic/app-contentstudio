@@ -15,6 +15,9 @@ const panel = {
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentPublishMenuButton')]`,
+    selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
+    selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
+    numberInToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -56,6 +59,21 @@ var contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}` + `${panel.showIssuesListButton}`;
         }
     },
+    selectionControllerCheckBox: {
+        get: function () {
+            return `${panel.treeGrid}${panel.selectionControllerCheckBox}`;
+        }
+    },
+    numberInToggler: {
+        get: function () {
+            return `${panel.treeGrid}${panel.numberInToggler}`;
+        }
+    },
+    selectionPanelToggler: {
+        get: function () {
+            return `${panel.treeGrid}${panel.selectionPanelToggler}`;
+        }
+    },
     newButton: {
         get: function () {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'New...')]]`
@@ -83,7 +101,26 @@ var contentBrowsePanel = Object.create(page, {
         }
     },
 
-
+    clickOnSelectionControllerCheckbox: {
+        value: function () {
+            return this.doClick(this.selectionControllerCheckBox).catch(() => {
+                this.saveScreenshot('err_click_on_selection_controller');
+                throw new Error(`Error when clicking on Selection controller`);
+            });
+        }
+    },
+    waitForSelectionTogglerVisible: {
+        value: function () {
+            return this.waitForVisible(this.selectionPanelToggler, appConst.TIMEOUT_2).then(() => {
+                return this.getAttribute(this.selectionPanelToggler, 'class');
+            }).then(result => {
+                return result.includes('any-selected');
+            }).catch(err => {
+                console.log(`error when check the 'Selection toggler'` + err);
+                return false;
+            });
+        }
+    },
     waitForPanelVisible: {
         value: function (ms) {
             return this.waitForVisible(`${panel.toolbar}`, ms).catch(err => {
