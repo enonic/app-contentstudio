@@ -11,6 +11,7 @@ module.exports = Object.freeze({
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
+    TEST_FOLDER_2_NAME: `selenium-tests-folder`,
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',

@@ -10,7 +10,7 @@ const xpath = {
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     publishAndCloseIssueButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish & Close Issue')]]`,
-    includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
+    includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'PublicStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
 
@@ -45,7 +45,7 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     },
     clickOnIncludeChildrenToggler: {
         value: function (displayName) {
-            let xpath = xpath.selectionItemByDisplayName(displayName) + `${xpath.includeChildrenToogler}`
+            let xpath = xpath.selectionItemByDisplayName(displayName) + `${xpath.includeChildrenToggler}`
             this.waitForVisible(xpath, appConst.TIMEOUT_1).then(()=> {
                 return this.doClick(xpath);
             }).catch(err=> {
@@ -82,7 +82,7 @@ const issueDetailsDialogItemsTab = Object.create(page, {
                 let endIndex = result.indexOf(')');
                 return result.substring(startIndex + 1, endIndex);
             }).catch(err => {
-                throw new Error('Items Tab:error when click on dropdown handle : ' + err)
+                throw new Error('Items Tab:error when getting number in the link : ' + err)
             })
         }
     },
