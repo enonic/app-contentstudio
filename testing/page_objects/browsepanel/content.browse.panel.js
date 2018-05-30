@@ -3,6 +3,7 @@
  */
 const page = require('../page');
 const saveBeforeCloseDialog = require('../save.before.close.dialog');
+const contentDuplicateDialog = require('../content.duplicate.dialog');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
@@ -18,6 +19,7 @@ const panel = {
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
+    duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -33,7 +35,7 @@ const panel = {
 
     expanderIconByName: function (name) {
         return elements.itemByName(name) +
-            `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
+               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
 
     },
 }
@@ -95,6 +97,11 @@ var contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
         }
     },
+    duplicateButton: {
+        get: function () {
+            return `${panel.toolbar}` + panel.duplicateButton;
+        }
+    },
     previewButton: {
         get: function () {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
@@ -132,6 +139,22 @@ var contentBrowsePanel = Object.create(page, {
         value: function () {
             return this.doClick(this.moveButton).catch(err => {
                 throw new Error('error when clicking on the Move button ' + err);
+            })
+        }
+    },
+    clickOnDuplicateButton: {
+        value: function () {
+            return this.doClick(this.duplicateButton).catch(err => {
+                throw new Error('error when clicking on the Duplicate button ' + err);
+            })
+        }
+    },
+    clickOnDuplicateButtonAndWait: {
+        value: function () {
+            return this.doClick(this.duplicateButton).then(() => {
+                return contentDuplicateDialog.waitForDialogVisible();
+            }).catch(err => {
+                throw new Error('error when clicking on the Duplicate button ' + err);
             })
         }
     },
@@ -452,7 +475,6 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
-
     hotKeyNew: {
         value: function () {
             return this.getBrowser().keys(['Alt', 'n']);

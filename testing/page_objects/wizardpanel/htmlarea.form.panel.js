@@ -26,7 +26,11 @@ const form = {
     numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
     sourceButton: `//a[contains(@class,'cke_button') and contains(@title,'Source')]`,
     tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+    strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
+    decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
+    insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
+
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`
@@ -233,10 +237,17 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
-    isWrapCodeButtonDisplayed: {
+    isIncreaseIndentDisplayed: {
         value: function () {
-            return this.waitForVisible(form.wrapCodeButton).catch(err => {
-                throw new Error('Wrap Code  button is not visible! ' + err);
+            return this.waitForVisible(form.increaseIndentButton).catch(err => {
+                throw new Error('Increase Indent  button is not visible! ' + err);
+            })
+        }
+    },
+    isDecreaseIndentDisplayed: {
+        value: function () {
+            return this.waitForVisible(form.decreaseIndentButton).catch(err => {
+                throw new Error('Increase Indent  button is not visible! ' + err);
             })
         }
     },

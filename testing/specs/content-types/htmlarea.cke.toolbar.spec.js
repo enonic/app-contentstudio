@@ -132,6 +132,10 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
                 return assert.eventually.isTrue(htmlAreaForm.isIncreaseIndentButtonDisplayed(), 'Increase Indent button should be present');
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isTableButtonDisplayed(), 'Table button should be present');
+            }).then(() => {
+                return assert.eventually.isTrue(htmlAreaForm.isIncreaseIndentButtonDisplayed(), 'Increase Indent button should be present');
+            }).then(() => {
+                return assert.eventually.isTrue(htmlAreaForm.isDecreaseIndentDisplayed(), 'Decrease Indent button should be present');
             });
         });
 
