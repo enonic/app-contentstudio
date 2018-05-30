@@ -49,4 +49,35 @@
     }
   }
 
+  .tree-grid-toolbar {
+    .show-issues-dialog-button {
+      position: absolute;
+      left: 40%;
+      padding: 0;
+      margin-left: 10px;
+
+      &:before {
+        font-size: 20px;
+      }
+
+      &.has-assigned-issues {
+        padding-right: 2px;
+
+        &:after {
+          content: "";
+          background: @admin-blue;
+          position: relative;
+          bottom: 16px;
+          right: 7px;
+          padding: 6px;
+          border-radius: 8px;
+          font-size: 0;
+          z-index: 1;
+        }
+      }
+
+      .icon-signup();
+    }
+  }
+
 }

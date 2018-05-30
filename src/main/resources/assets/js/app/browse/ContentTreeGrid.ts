@@ -3,6 +3,7 @@ import {SortContentEvent} from './SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
+import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import ElementHelper = api.dom.ElementHelper;
 
 import TreeGrid = api.ui.treegrid.TreeGrid;
@@ -117,6 +118,10 @@ export class ContentTreeGrid
         if (this.getDataId(node.getData())) { // default event
             new api.content.event.EditContentEvent([node.getData()]).fire();
         }
+    }
+
+    protected createTreeGridToolbar(): ContentTreeGridToolbar {
+        return new ContentTreeGridToolbar(this);
     }
 
     private initEventHandlers() {
