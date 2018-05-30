@@ -13,30 +13,63 @@ export class ShowIssuesDialogButton extends ActionButton {
 
         this.addClass('show-issues-dialog-button');
 
-        this.updateShowIssuesDialogButton();
+        this.getEl().setTitle(i18n('text.publishingissues'));
+
+        this.fetchIssuesAndCreateLink();
 
         this.initEventsListeners();
     }
 
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(() => {
-            this.updateShowIssuesDialogButton();
+            //this.updateShowIssuesDialogButton();
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
-            this.updateShowIssuesDialogButton();
+            //this.updateShowIssuesDialogButton();
         });
     }
 
-    private updateShowIssuesDialogButton() {
-        new ListIssuesRequest().setAssignedToMe(true).setIssueStatus(IssueStatus.OPEN).setSize(0).sendAndParse().then(
+    private resetIssueRequest(): ListIssuesRequest {
+        return new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
+    }
+
+    private fetchIssuesAndCreateLink() {
+        this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
+            .then(hits => {
+                this.setLabel(i18n('field.assignedToMe') + ` (${hits})`);
+                this.addClass('has-assigned-issues');
+                this.getEl().setTitle(i18n('text.youhaveissues'));
+            })
+            .fail(() =>
+                this.fetchIssueList(this.resetIssueRequest().setCreatedByMe(true))
+                    .then(hits => {
+                        this.setLabel(i18n('field.myIssues') + ` (${hits})`);
+                    })
+                    .fail(() =>
+                        this.fetchIssueList(this.resetIssueRequest())
+                            .then(hits => {
+                                this.setLabel(i18n('field.openIssues') + ` (${hits})`);
+                            })
+                            .fail(() => {
+                                console.log('Nothing found');
+                            })
+                    )
+            );
+    }
+
+    private fetchIssueList(listIssueRequest: ListIssuesRequest): wemQ.Promise<number> {
+        const deferred = wemQ.defer<number>();
+        listIssueRequest.sendAndParse().then(
             (response: IssueResponse) => {
-                this.toggleClass('has-assigned-issues', response.getMetadata().getTotalHits() > 0);
-                this.getEl().setTitle((response.getMetadata().getTotalHits() === 0) ?
-                                      i18n('text.publishingissues') :
-                                      i18n('text.youhaveissues'));
+                const hitsCount = response.getMetadata().getTotalHits();
+
+                (hitsCount > 0) ? deferred.resolve(hitsCount) : deferred.reject(0);
             }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
         });
+
+        return deferred.promise;
     }
+
 }
