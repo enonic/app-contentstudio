@@ -22,11 +22,11 @@ export class ShowIssuesDialogButton extends ActionButton {
 
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(() => {
-            //this.updateShowIssuesDialogButton();
+            this.fetchIssuesAndCreateLink();
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
-            //this.updateShowIssuesDialogButton();
+            this.fetchIssuesAndCreateLink();
         });
     }
 
@@ -35,6 +35,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private fetchIssuesAndCreateLink() {
+        this.getEl().setTitle('');
         this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
             .then(hits => {
                 this.setLabel(i18n('field.assignedToMe') + ` (${hits})`);
