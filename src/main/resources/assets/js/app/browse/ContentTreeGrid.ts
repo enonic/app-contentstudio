@@ -114,14 +114,14 @@ export class ContentTreeGrid
         this.initEventHandlers();
     }
 
+    protected createToolbar() {
+        return new ContentTreeGridToolbar(this);
+    }
+
     protected editItem(node: TreeNode<ContentSummaryAndCompareStatus>) {
         if (this.getDataId(node.getData())) { // default event
             new api.content.event.EditContentEvent([node.getData()]).fire();
         }
-    }
-
-    protected createTreeGridToolbar(): ContentTreeGridToolbar {
-        return new ContentTreeGridToolbar(this);
     }
 
     private initEventHandlers() {
