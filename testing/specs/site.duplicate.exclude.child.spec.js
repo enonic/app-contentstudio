@@ -20,7 +20,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
     webDriverHelper.setupBrowser();
 
     let SITE;
-    it.skip(`WHEN site with content types has been added THEN the site should be listed in the grid`,
+    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
             let displayName = contentBuilder.generateRandomName('duplicate-site');
@@ -35,8 +35,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
             });
         });
     // verifies app-contentstudio/issues/173
-    it.skip(
-        `GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be with '_templates' folder`,
+    it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be with '_templates' folder`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
