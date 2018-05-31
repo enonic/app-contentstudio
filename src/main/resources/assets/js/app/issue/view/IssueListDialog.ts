@@ -30,6 +30,8 @@ export class IssueListDialog
 
     private createAction: api.ui.Action;
 
+    private skipInitialLoad: boolean = false;
+
     private issueSelectedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
@@ -94,7 +96,9 @@ export class IssueListDialog
         api.dom.Body.get().appendChild(this);
         super.show();
         this.appendChildToContentPanel(this.loadMask);
-        this.reload();
+        if (!this.skipInitialLoad) {
+            this.reload();
+        }
     }
 
     close() {
@@ -102,6 +106,26 @@ export class IssueListDialog
         this.openIssuesPanel.resetFilters();
         this.closedIssuesPanel.resetFilters();
         this.remove();
+    }
+
+    open(assignedToMe: boolean = false, createdByMe: boolean = false) {
+
+        if (assignedToMe || createdByMe) {
+            this.skipInitialLoad = true;
+        }
+
+        super.open();
+
+        this.skipInitialLoad = false;
+        this.openIssuesPanel.resetFilters();
+        if (assignedToMe) {
+            this.openIssuesPanel.setAssignedToMe(true, true);
+            return;
+        }
+        if (createdByMe) {
+            this.openIssuesPanel.setCreatedByMe(true, true);
+            return;
+        }
     }
 
     private initDeboundcedReloadFunc() {

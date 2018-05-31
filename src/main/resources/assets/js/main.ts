@@ -257,7 +257,8 @@ function startApplication() {
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
-    ShowIssuesDialogEvent.on((event) => IssueDialogsManager.get().openListDialog());
+    ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
+        IssueDialogsManager.get().openListDialog(event.getAssignedToMe(), event.getCreatedByMe()));
 
     // tslint:disable-next-line:no-unused-expression
     new EditPermissionsDialog();

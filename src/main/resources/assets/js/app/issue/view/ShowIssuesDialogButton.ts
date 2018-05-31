@@ -20,6 +20,10 @@ export class ShowIssuesDialogButton extends ActionButton {
         this.initEventsListeners();
     }
 
+    getAction(): ShowIssuesDialogAction {
+        return <ShowIssuesDialogAction>super.getAction();
+    }
+
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(() => {
             this.fetchIssuesAndCreateLink();
@@ -34,18 +38,26 @@ export class ShowIssuesDialogButton extends ActionButton {
         return new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
     }
 
-    private fetchIssuesAndCreateLink() {
+    private resetButton() {
         this.getEl().setTitle('');
+        this.getAction().setAssignedToMe(false).setCreatedByMe(false);
+    }
+
+    private fetchIssuesAndCreateLink() {
+        this.resetButton();
+
         this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
             .then(hits => {
                 this.setLabel(i18n('field.assignedToMe') + ` (${hits})`);
                 this.addClass('has-assigned-issues');
                 this.getEl().setTitle(i18n('text.youhaveissues'));
+                this.getAction().setAssignedToMe(true);
             })
             .fail(() =>
                 this.fetchIssueList(this.resetIssueRequest().setCreatedByMe(true))
                     .then(hits => {
                         this.setLabel(i18n('field.myIssues') + ` (${hits})`);
+                        this.getAction().setCreatedByMe(true);
                     })
                     .fail(() =>
                         this.fetchIssueList(this.resetIssueRequest())
