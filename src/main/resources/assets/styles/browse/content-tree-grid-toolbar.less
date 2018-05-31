@@ -1,7 +1,10 @@
 .content-tree-grid-toolbar {
 
-  .left-wrapper, .right-wrapper {
+  .left-wrapper {
     min-width: 140px;
+  }
+  .right-wrapper {
+    min-width: 50px;
   }
 
   .show-issues-dialog-button {
@@ -56,6 +59,22 @@
 
       &.has-assigned-issues:after {
         display: block;
+      }
+    }
+  }
+}
+
+body {
+  &._0-240, &._240-360, &._360-540, &._540-720 {
+    .content-tree-grid-toolbar {
+      .left-wrapper {
+        order: 3;
+        flex: 0 0 auto;
+        min-width: 0;
+        flex-direction: row-reverse;
+      }
+      .center-wrapper {
+        padding-left: 17px;
       }
     }
   }
