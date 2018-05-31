@@ -241,8 +241,8 @@ module.exports = {
         })
     },
     findContentAndClickCheckBox: function (displayName) {
-        return this.typeNameInFilterPanel(name).then(() => {
-            return browsePanel.waitForRowByNameVisible(name);
+        return this.typeNameInFilterPanel(displayName).then(() => {
+            return browsePanel.clickOnRowByDisplayName(displayName);
         }).pause(400).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
         });
