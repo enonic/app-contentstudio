@@ -86,6 +86,11 @@ const contentDuplicateDialog = Object.create(page, {
             return this.doClick(this.includeChildToggler);
         }
     },
+    clickOnDuplicateButton: {
+        value: function () {
+            return this.doClick(this.duplicateButton);
+        }
+    },
     clickOnShowDependentItemLink: {
         value: function () {
             return this.doClick(this.showDependentItemsLink);
