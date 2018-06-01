@@ -58,7 +58,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     showIssuesListButton: {
         get: function () {
-            return `${panel.toolbar}` + `${panel.showIssuesListButton}`;
+            return `${panel.treeGrid}` + `${panel.showIssuesListButton}`;
         }
     },
     selectionControllerCheckBox: {
