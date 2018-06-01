@@ -12,7 +12,7 @@ const xpath = {
     publishAndCloseIssueButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish & Close Issue')]]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     selectionItemByDisplayName:
-        text => `//div[contains(@id,'PublicStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
+        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
 
 };
 const issueDetailsDialogItemsTab = Object.create(page, {
@@ -126,7 +126,7 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     },
     clickOnIncludeChildItems: {
         value: function (contentDisplayName) {
-            let includeIcon = xpath.selectionItemByDisplayName(contentDisplayName) + `${xpath.includeChildrenToogler}`;
+            let includeIcon = xpath.selectionItemByDisplayName(contentDisplayName) + `${xpath.includeChildrenToggler}`;
             return this.waitForVisible(includeIcon, appConst.TIMEOUT_2).then(()=> {
                 return this.doClick(includeIcon)
             }).pause(2000).catch(err=> {

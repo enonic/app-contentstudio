@@ -20,6 +20,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
     webDriverHelper.setupBrowser();
 
     let SITE;
+    let folder;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
@@ -34,13 +35,23 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
-    // verifies app-contentstudio/issues/173
-    it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be with '_templates' folder`,
+    it(`GIVEN existing site is selected WHEN child folder has been added THEN it should be present in the grid`,
+        () => {
+            let folderName = contentBuilder.generateRandomName('folder');
+            folder = contentBuilder.buildFolder(folderName);
+            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
+                return studioUtils.doAddFolder(folder);
+            }).then(() => {
+                return studioUtils.typeNameInFilterPanel(folder.displayName);
+            }).then(() => {
+                studioUtils.saveScreenshot("child_to_duplicate");
+                return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
+            })
+        });
+    it(`GIVEN existing site is selected AND 'Duplicate dialog' opened WHEN child items have not excluded AND 'Duplicate' clicked THEN the site should be copied with children`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            }).then(() => {
-                return contentDuplicateDialog.clickOnIncludeChildToggler();
             }).then(() => {
                 return contentDuplicateDialog.clickOnDuplicateButton();
             }).then(() => {
@@ -50,6 +61,28 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
                 return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy");
             }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed('_templates');
+            }).then(() => {
+                return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
+            })
+        });
+    // verifies app-contentstudio/issues/173
+    it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be only with '_templates' folder`,
+        () => {
+            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
+                return contentBrowsePanel.clickOnDuplicateButtonAndWait();
+            }).then(() => {
+                return contentDuplicateDialog.clickOnIncludeChildToggler();
+            }).then(() => {
+                return contentDuplicateDialog.clickOnDuplicateButton();
+            }).then(() => {
+                return studioUtils.findAndSelectItem(SITE.displayName + "-copy-2");
+            }).then(() => {
+                studioUtils.saveScreenshot("site_duplicated");
+                return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy-2");
+            }).then(() => {
+                return contentBrowsePanel.waitForContentDisplayed('_templates');
+            }).then(() => {
+                return contentBrowsePanel.waitForItemNotDisplayed(folder.displayName);
             })
         });
 
