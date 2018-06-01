@@ -46,6 +46,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
             }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName + "-copy");
             }).then(() => {
+                studioUtils.saveScreenshot("site_duplicated");
                 return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy");
             }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed('_templates');
