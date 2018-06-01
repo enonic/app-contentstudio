@@ -44,11 +44,13 @@ describe('content.duplicate.spec: Duplicate 2 folders specification', function (
             }).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
+                studioUtils.saveScreenshot("folders_to_duplicate");
                 return contentDuplicateDialog.clickOnDuplicateButton();
             }).then(() => {
                 return contentBrowsePanel.waitForNotificationMessage();
             }).then(result => {
-                assert.equal(result, 'Duplicated 2 items.');
+                studioUtils.saveScreenshot("folders_were_duplicated2");
+                assert.equal(result, 'Duplicated 2 items.', 'correct notification should be displayed');
             });
         });
 

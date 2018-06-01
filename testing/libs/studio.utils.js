@@ -241,12 +241,13 @@ module.exports = {
         })
     },
     findContentAndClickCheckBox: function (displayName) {
-        return this.typeNameInFilterPanel(displayName).then(() => {
-            return browsePanel.clickOnRowByDisplayName(displayName);
-        }).pause(400).then(() => {
+        return this.typeNameInFilterPanel(displayName).pause(400).then(() => {
+            return browsePanel.waitForContentByDisplayNameVisible(displayName);
+        }).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
-        });
-    },
+        }).pause(400);
+    }
+    ,
     selectSiteAndOpenNewWizard: function (siteName, contentType) {
         return this.findAndSelectItem(siteName).then(() => {
             return browsePanel.waitForNewButtonEnabled();
