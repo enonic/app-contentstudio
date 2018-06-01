@@ -694,12 +694,13 @@ export class ContentWizardPanel
                             steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
                         }
                     });
-                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
-                    steps.push(this.settingsWizardStep);
 
                     this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
                     this.scheduleWizardStepIndex = steps.length;
                     steps.push(this.scheduleWizardStep);
+
+                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
+                    steps.push(this.settingsWizardStep);
 
                     steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm));
 
