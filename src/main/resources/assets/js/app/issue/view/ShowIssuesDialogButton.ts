@@ -13,8 +13,6 @@ export class ShowIssuesDialogButton extends ActionButton {
 
         this.addClass('show-issues-dialog-button');
 
-        this.getEl().setTitle(i18n('text.publishingissues'));
-
         this.fetchIssuesAndCreateLink();
 
         this.initEventsListeners();
@@ -39,7 +37,8 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private resetButton() {
-        this.getEl().setTitle('');
+        this.getEl().setTitle(i18n('text.publishingissues'));
+        this.setLabel('');
         this.getAction().setAssignedToMe(false).setCreatedByMe(false);
     }
 
