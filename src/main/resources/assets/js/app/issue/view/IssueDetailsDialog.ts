@@ -342,6 +342,11 @@ export class IssueDetailsDialog
         }, 3000, true);
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
+
+            if (!this.issue) {
+                return;
+            }
+
             issues.some(issue => {
                 if (issue.getId() === this.issue.getId()) {
                     if (this.isVisible() && !this.skipNextServerUpdatedEvent) {

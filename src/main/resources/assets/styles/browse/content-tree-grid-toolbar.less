@@ -1,0 +1,81 @@
+.content-tree-grid-toolbar {
+
+  .left-wrapper {
+    min-width: 140px;
+  }
+  .right-wrapper {
+    min-width: 50px;
+  }
+
+  .show-issues-dialog-button {
+    padding: 0;
+    min-width: 20px;
+    position: relative;
+
+    span {
+      margin-left: 27px;
+    }
+
+    &:hover:not(:disabled) span {
+      color: @admin-button-blue3;
+    }
+
+    &:before {
+      font-size: 20px;
+      position: absolute;
+      top: 50%;
+      margin-top: -11px;
+    }
+
+    &.has-assigned-issues {
+      padding-right: 2px;
+
+      &:after {
+        display: none;
+        content: "";
+        background: @admin-blue;
+        position: absolute;
+        top: 7px;
+        right: -6px;
+        padding: 6px;
+        border-radius: 6px;
+        font-size: 0;
+        width: 0;
+        z-index: 1;
+      }
+    }
+
+    .icon-signup();
+  }
+}
+
+&._0-240, &._240-360 {
+  .content-tree-grid-toolbar {
+    .show-issues-dialog-button {
+
+      span {
+        display: none;
+      }
+
+      &.has-assigned-issues:after {
+        display: block;
+      }
+    }
+  }
+}
+
+body {
+  &._0-240, &._240-360, &._360-540, &._540-720 {
+    .content-tree-grid-toolbar {
+      .left-wrapper {
+        order: 3;
+        flex: 0 0 auto;
+        min-width: 0;
+        flex-direction: row-reverse;
+      }
+      .center-wrapper {
+        padding-left: 17px;
+      }
+    }
+  }
+}

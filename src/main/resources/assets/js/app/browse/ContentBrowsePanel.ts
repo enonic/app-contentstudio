@@ -20,7 +20,6 @@ import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedE
 import {ContentPublishMenuButton} from './ContentPublishMenuButton';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
-import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -158,8 +157,6 @@ export class ContentBrowsePanel
             detailsView.appendChild(nonMobileDetailsPanelsManager.getToggleButton());
 
             this.subscribeDetailsPanelsOnEvents(nonMobileDetailsPanelsManager, contentPublishMenuButton);
-
-            this.browseToolbar.appendChild(new ShowIssuesDialogButton());
 
             return rendered;
         }).catch((error) => {

@@ -67,19 +67,32 @@ export class IssuesPanel
         return this.issuesList.reload();
     }
 
+    public setAssignedToMe(checked: boolean, forceReload: boolean = false) {
+        this.assignedToMeCheckbox.setChecked(checked, true);
+        this.issuesList.setLoadAssignedToMe(checked);
+        if (forceReload) {
+            this.issuesList.reload();
+        }
+    }
+
+    public setCreatedByMe(checked: boolean, forceReload: boolean = false) {
+        this.myIssuesCheckbox.setChecked(checked, true);
+        this.issuesList.setLoadMyIssues(checked);
+        if (forceReload) {
+            this.issuesList.reload();
+        }
+    }
+
     public resetFilters() {
-        this.myIssuesCheckbox.setChecked(false, true);
-        this.issuesList.setLoadMyIssues(false);
-        this.assignedToMeCheckbox.setChecked(false, true);
-        this.issuesList.setLoadAssignedToMe(false);
+        this.setCreatedByMe(false);
+        this.setAssignedToMe(false);
     }
 
     private createAssignedToMeCheckbox(): Checkbox {
         const assignedToMeCheckbox: Checkbox = Checkbox.create().build();
         assignedToMeCheckbox.addClass('assigned-to-me-filter');
         assignedToMeCheckbox.onValueChanged(() => {
-            this.issuesList.setLoadAssignedToMe(assignedToMeCheckbox.isChecked());
-            this.issuesList.reload();
+            this.setAssignedToMe(assignedToMeCheckbox.isChecked(), true);
         });
         assignedToMeCheckbox.setLabel(i18n('field.assignedToMe'));
 
@@ -90,8 +103,7 @@ export class IssuesPanel
         const myIssuesCheckbox: Checkbox = Checkbox.create().build();
         myIssuesCheckbox.addClass('my-issues-filter');
         myIssuesCheckbox.onValueChanged(() => {
-            this.issuesList.setLoadMyIssues(myIssuesCheckbox.isChecked());
-            this.issuesList.reload();
+            this.setCreatedByMe(myIssuesCheckbox.isChecked(), true);
         });
         myIssuesCheckbox.setLabel(i18n('field.myIssues'));
 

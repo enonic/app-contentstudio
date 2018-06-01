@@ -94,8 +94,8 @@ export class IssueDialogsManager {
         this.detailsDialog.setIssue(issue).open();
     }
 
-    openListDialog() {
-        this.listDialog.open();
+    openListDialog(assignedToMe: boolean = false, createdByMe: boolean = false) {
+        this.listDialog.open(assignedToMe, createdByMe);
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {

@@ -13,30 +13,75 @@ export class ShowIssuesDialogButton extends ActionButton {
 
         this.addClass('show-issues-dialog-button');
 
-        this.updateShowIssuesDialogButton();
+        this.fetchIssuesAndCreateLink();
 
         this.initEventsListeners();
     }
 
+    getAction(): ShowIssuesDialogAction {
+        return <ShowIssuesDialogAction>super.getAction();
+    }
+
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(() => {
-            this.updateShowIssuesDialogButton();
+            this.fetchIssuesAndCreateLink();
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
-            this.updateShowIssuesDialogButton();
+            this.fetchIssuesAndCreateLink();
         });
     }
 
-    private updateShowIssuesDialogButton() {
-        new ListIssuesRequest().setAssignedToMe(true).setIssueStatus(IssueStatus.OPEN).setSize(0).sendAndParse().then(
+    private resetIssueRequest(): ListIssuesRequest {
+        return new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
+    }
+
+    private resetButton() {
+        this.getEl().setTitle(i18n('text.publishingissues'));
+        this.setLabel('');
+        this.getAction().setAssignedToMe(false).setCreatedByMe(false);
+    }
+
+    private fetchIssuesAndCreateLink() {
+        this.resetButton();
+
+        this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
+            .then(hits => {
+                this.setLabel(i18n('field.assignedToMe') + ` (${hits})`);
+                this.addClass('has-assigned-issues');
+                this.getEl().setTitle(i18n('text.youhaveissues'));
+                this.getAction().setAssignedToMe(true);
+            })
+            .fail(() =>
+                this.fetchIssueList(this.resetIssueRequest().setCreatedByMe(true))
+                    .then(hits => {
+                        this.setLabel(i18n('field.myIssues') + ` (${hits})`);
+                        this.getAction().setCreatedByMe(true);
+                    })
+                    .fail(() =>
+                        this.fetchIssueList(this.resetIssueRequest())
+                            .then(hits => {
+                                this.setLabel(i18n('field.openIssues') + ` (${hits})`);
+                            })
+                            .fail(() => {
+                                console.log('Nothing found');
+                            })
+                    )
+            );
+    }
+
+    private fetchIssueList(listIssueRequest: ListIssuesRequest): wemQ.Promise<number> {
+        const deferred = wemQ.defer<number>();
+        listIssueRequest.sendAndParse().then(
             (response: IssueResponse) => {
-                this.toggleClass('has-assigned-issues', response.getMetadata().getTotalHits() > 0);
-                this.getEl().setTitle((response.getMetadata().getTotalHits() === 0) ?
-                                      i18n('text.publishingissues') :
-                                      i18n('text.youhaveissues'));
+                const hitsCount = response.getMetadata().getTotalHits();
+
+                (hitsCount > 0) ? deferred.resolve(hitsCount) : deferred.reject(0);
             }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
         });
+
+        return deferred.promise;
     }
+
 }
