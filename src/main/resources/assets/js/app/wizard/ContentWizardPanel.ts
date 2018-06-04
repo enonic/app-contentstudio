@@ -695,14 +695,14 @@ export class ContentWizardPanel
                         }
                     });
 
-                    this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
+                    this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
                     this.scheduleWizardStepIndex = steps.length;
                     steps.push(this.scheduleWizardStep);
 
-                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
+                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
                     steps.push(this.settingsWizardStep);
 
-                    steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm));
+                    steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
 
                     this.setSteps(steps);
 
