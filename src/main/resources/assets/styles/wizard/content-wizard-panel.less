@@ -64,13 +64,18 @@
         .tab-bar-item.step-icon.x-data-anchor {
 
           .icon-small();
-          padding: 9px 0px 10px 25px;
+        }
+
+        &:not(.minimized) {
+          .tab-bar-item.step-icon.x-data-anchor {
+            padding: 9px 0px 10px 25px;
+          }
         }
 
         &.minimized {
 
           .tab-bar-item.step-icon.x-data-anchor {
-            padding-left: 3px;
+            padding-left: 4px;
 
             .label {
               display: inline-block;

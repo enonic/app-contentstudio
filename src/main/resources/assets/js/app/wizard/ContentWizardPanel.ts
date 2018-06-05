@@ -697,12 +697,14 @@ export class ContentWizardPanel
                 .setIconCls('icon-plus')
                 .build();
 
-        this.togglexDataAnchorVisibility();
         this.xDataAnchor.addClass('x-data-anchor');
         this.getStepNavigator().insertChild(this.xDataAnchor, xDataAnchorIndex);
     }
 
     private togglexDataAnchorVisibility() {
+        if (!this.xDataAnchor) {
+            return;
+        }
         this.xDataAnchor.setVisible(this.hasDisabledExternalMixin());
     }
 
@@ -1377,6 +1379,8 @@ export class ContentWizardPanel
                     });
 
                     return wemQ.all(formViewLayoutPromises).spread<void>(() => {
+
+                        this.togglexDataAnchorVisibility();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         if (this.formState.isNew()) {
