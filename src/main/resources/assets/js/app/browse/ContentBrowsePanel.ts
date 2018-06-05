@@ -151,7 +151,7 @@ export class ContentBrowsePanel
                 }
             });
 
-            let contentPublishMenuButton = new ContentPublishMenuButton(this.getBrowseActions());
+            let contentPublishMenuButton = new ContentPublishMenuButton(this.getBrowseActions(), this.treeGrid);
 
             this.browseToolbar.appendChild(contentPublishMenuButton);
             detailsView.appendChild(nonMobileDetailsPanelsManager.getToggleButton());
