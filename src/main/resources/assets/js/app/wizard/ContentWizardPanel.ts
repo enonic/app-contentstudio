@@ -648,6 +648,22 @@ export class ContentWizardPanel
         return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
+    private hasDisabledExternalMixin(): boolean {
+        let value = false;
+
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
+
+                if (form.isExternal() && !form.isEnabled()) {
+                    value = true;
+                }
+            }
+        }
+
+        return value;
+    }
+
     private isCurrentContentId(id: api.content.ContentId): boolean {
         return this.getPersistedItem() && id && this.getPersistedItem().getContentId().equals(id);
     }
@@ -674,13 +690,20 @@ export class ContentWizardPanel
                 .setLabel('X-data')
                 .setClickHandler(() => {
                     this.getStepNavigator().deselectNavigationItem();
-                    this.getWizardStepsPanel().showHeaderByIndex(xDataAnchorIndex);
+                    this.getWizardStepsPanel().setListenToScroll(false);
+                    this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex);
+                    this.getWizardStepsPanel().setListenToScroll(true);
                 })
                 .setIconCls('icon-plus')
                 .build();
 
+        this.togglexDataAnchorVisibility();
         this.xDataAnchor.addClass('x-data-anchor');
         this.getStepNavigator().insertChild(this.xDataAnchor, xDataAnchorIndex);
+    }
+
+    private togglexDataAnchorVisibility() {
+        this.xDataAnchor.setVisible(this.hasDisabledExternalMixin());
     }
 
     private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
@@ -715,6 +738,7 @@ export class ContentWizardPanel
                             if (!xDataAnchorIndex && xData.isExternal()) {
                                 xDataAnchorIndex = steps.length;
                             }
+                            stepForm.onEnableChanged(() => this.togglexDataAnchorVisibility());
 
                             steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
                         }

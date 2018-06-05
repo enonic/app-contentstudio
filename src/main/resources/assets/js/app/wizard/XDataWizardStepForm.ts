@@ -40,6 +40,10 @@ export class XDataWizardStepForm
         return this.enabled;
     }
 
+    isExternal(): boolean {
+        return this.external;
+    }
+
     resetForm() {
         this.data.getRoot().removeAllProperties();
         this.disabledData = null;

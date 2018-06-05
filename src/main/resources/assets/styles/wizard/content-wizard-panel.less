@@ -57,75 +57,101 @@
       }
     }
 
-    .live-form-panel {
-      //transition: 0.1s;
-    }
-
-    .form-panel.minimized {
-      .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
-        display: none;
-      }
+    .form-panel {
 
       .wizard-step-navigator-and-toolbar {
-        margin-top: 40px;
-        padding-left: 40px;
-        box-sizing: border-box;
-        overflow: initial;
-        .fold-button {
-          margin-left: -40px;
-          .fold-label {
-            position: absolute;
-            width: 120px;
-            padding: 0 20px;
-            box-sizing: border-box;
-            transform: rotate(90deg);
-            transform-origin: 15px 0;
-          }
-          .@{_COMMON_PREFIX}dropdown {
-            position: fixed;
-            top: 125px;
-            left: 35px;
-            margin: 0;
 
-            .wizard-step-navigator {
-              transform: initial;
+        .tab-bar-item.step-icon.x-data-anchor {
+
+          .icon-small();
+          padding: 9px 0px 10px 25px;
+        }
+
+        &.minimized {
+
+          .tab-bar-item.step-icon.x-data-anchor {
+            padding-left: 3px;
+
+            .label {
+              display: inline-block;
+              padding-left: 8px;
+            }
+
+            &:before {
+              display: inline-block;
+              font-size: 12px;
             }
           }
+        }
 
-          &:after {
-            margin: 80px 5px 0 0;
-            box-sizing: border-box;
-            border-top: none;
-            border-left: 6px solid @admin-dark-gray;
-            border-right: 6px solid transparent;
-            border-bottom: 4px solid transparent;
-            border-top: 4px solid transparent;
+      }
+
+      &.minimized {
+        .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
+          display: none;
+        }
+
+        .wizard-step-navigator-and-toolbar {
+          margin-top: 40px;
+          padding-left: 40px;
+          box-sizing: border-box;
+          overflow: initial;
+          .fold-button {
+            margin-left: -40px;
+            .fold-label {
+              position: absolute;
+              width: 120px;
+              padding: 0 20px;
+              box-sizing: border-box;
+              transform: rotate(90deg);
+              transform-origin: 15px 0;
+            }
+            .@{_COMMON_PREFIX}dropdown {
+              position: fixed;
+              top: 125px;
+              left: 35px;
+              margin: 0;
+
+              .wizard-step-navigator {
+                transform: initial;
+              }
+            }
+
+            &:after {
+              margin: 80px 5px 0 0;
+              box-sizing: border-box;
+              border-top: none;
+              border-left: 6px solid @admin-dark-gray;
+              border-right: 6px solid transparent;
+              border-bottom: 4px solid transparent;
+              border-top: 4px solid transparent;
+            }
+          }
+          &:before {
+            content: " ";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            margin: -40px 0 0 -40px;
+            background: @admin-bg-light-gray;
           }
         }
-        &:before {
-          content: " ";
-          position: absolute;
+
+        .wizard-step-navigator {
           width: 100%;
-          height: 100%;
-          margin: -40px 0 0 -40px;
-          background: @admin-bg-light-gray;
+          box-sizing: border-box;
+          transform: rotate(90deg);
+          transform-origin: 0 0;
         }
-      }
 
-      .wizard-step-navigator {
-        width: 100%;
-        box-sizing: border-box;
-        transform: rotate(90deg);
-        transform-origin: 0 0;
-      }
-
-      .minimize-edit {
-        .icon-arrow-right;
-        position: absolute;
-        left: 40px !important;
-        top: 0;
-        height: 35px;
-        font-weight: bold;
+        .minimize-edit {
+          .icon-arrow-right;
+          position: absolute;
+          left: 40px !important;
+          top: 0;
+          height: 35px;
+          font-weight: bold;
+        }
       }
     }
   }
