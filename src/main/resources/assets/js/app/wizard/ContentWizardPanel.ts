@@ -72,6 +72,7 @@ import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
 
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
+import TabBarItem = api.ui.tab.TabBarItem;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -154,6 +155,8 @@ export class ContentWizardPanel
     private renderable: boolean = false;
 
     private reloadPageEditorOnSave: boolean = true;
+
+    private xDataAnchor: TabBarItem;
 
     public static debug: boolean = false;
 
@@ -663,6 +666,23 @@ export class ContentWizardPanel
         this.resetLastFocusedElement();
     }
 
+    private createXDataAnchor(xDataAnchorIndex: number) {
+        this.xDataAnchor =
+            new api.ui.tab.TabBarItemBuilder()
+                .setAddLabelTitleAttribute(true)
+                .setFocusable(false)
+                .setLabel('X-data')
+                .setClickHandler(() => {
+                    this.getStepNavigator().deselectNavigationItem();
+                    this.getWizardStepsPanel().showHeaderByIndex(xDataAnchorIndex);
+                })
+                .setIconCls('icon-plus')
+                .build();
+
+        this.xDataAnchor.addClass('x-data-anchor');
+        this.getStepNavigator().insertChild(this.xDataAnchor, xDataAnchorIndex);
+    }
+
     private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
         this.contentWizardStepForm = new ContentWizardStepForm();
         this.settingsWizardStepForm = new SettingsWizardStepForm();
@@ -681,7 +701,7 @@ export class ContentWizardPanel
 
             return new GetContentXDataRequest(contentId).sendAndParse().then(
                 (xDatas: Mixin[]) => {
-
+                    let xDataAnchorIndex;
                     let steps: WizardStep[] = [];
 
                     this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
@@ -691,6 +711,11 @@ export class ContentWizardPanel
                         if (!this.xDataStepFormByName[xData.getMixinName().toString()]) {
                             let stepForm = new XDataWizardStepForm(xData.isExternal());
                             this.xDataStepFormByName[xData.getMixinName().toString()] = stepForm;
+
+                            if (!xDataAnchorIndex && xData.isExternal()) {
+                                xDataAnchorIndex = steps.length;
+                            }
+
                             steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
                         }
                     });
@@ -705,6 +730,10 @@ export class ContentWizardPanel
                     steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
 
                     this.setSteps(steps);
+
+                    if (xDataAnchorIndex) {
+                        this.createXDataAnchor(xDataAnchorIndex);
+                    }
 
                     return xDatas;
                 });
