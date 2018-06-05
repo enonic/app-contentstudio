@@ -17,6 +17,8 @@ export class DialogTogglableItemList
 
     private childrenListChangedListeners: { (): void }[] = [];
 
+    private listChangedListeners: { (): void }[] = [];
+
     protected debounceNotifyListChanged: Function;
 
     constructor(togglerEnabled?: boolean, className?: string) {
@@ -66,6 +68,8 @@ export class DialogTogglableItemList
 
         this.updateRemovableState(itemView);
 
+        this.initListItemListeners(item, itemView);
+
         return itemView;
     }
 
@@ -92,6 +96,11 @@ export class DialogTogglableItemList
         );
     }
 
+    public refreshList() {
+        super.refreshList();
+        this.debounceNotifyListChanged();
+    }
+
     public setReadOnly(value: boolean) {
         this.toggleClass('readonly', value);
         this.getItemViews().forEach((item) => {
@@ -109,6 +118,10 @@ export class DialogTogglableItemList
                 return view;
             }
         }
+    }
+
+    public onListItemsDataChanged(listener: () => void) {
+        this.listChangedListeners.push(listener);
     }
 
     private updateRemovableState(view: TogglableStatusSelectionItem) {
@@ -143,6 +156,40 @@ export class DialogTogglableItemList
 
     private notifyChildrenListChanged() {
         this.childrenListChangedListeners.forEach((listener) => {
+            listener();
+        });
+    }
+
+    public unListItemsDataChanged(listener: () => void) {
+        this.listChangedListeners = this.listChangedListeners.filter((curr) => {
+            return curr !== listener;
+        });
+    }
+
+    private initListItemListeners(item: ContentSummaryAndCompareStatus, view: StatusSelectionItem) {
+        const serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
+                this.notifyListItemsDataChanged();
+            }
+        };
+        const deletedHandler = (changedItems: api.content.event.ContentServerChangeItem[], pending?: boolean) => {
+            if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
+                this.notifyListItemsDataChanged();
+            }
+        };
+        serverEvents.onContentUpdated(updatedHandler);
+        serverEvents.onContentDeleted(deletedHandler);
+
+        view.onRemoved(() => {
+            serverEvents.unContentUpdated(updatedHandler);
+            serverEvents.unContentDeleted(deletedHandler);
+        });
+    }
+
+    private notifyListItemsDataChanged() {
+        this.listChangedListeners.forEach(listener => {
             listener();
         });
     }
