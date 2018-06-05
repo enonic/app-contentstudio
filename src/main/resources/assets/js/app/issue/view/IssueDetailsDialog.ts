@@ -314,7 +314,7 @@ export class IssueDetailsDialog
             this.ignoreNextExcludeChildrenEvent = false;
         });
 
-        itemList.onListItemsDataChanged(this.reloadItemList);
+        itemList.onListItemsDataChanged(this.reloadItemList.bind(this));
 
         this.getDependantList().onItemRemoveClicked(handleRemoveItemClicked);
 
