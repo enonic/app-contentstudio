@@ -1933,14 +1933,10 @@ export class ContentWizardPanel
     }
 
     private refreshScheduleWizardStep() {
-        let show = !this.currentContent.isNew();
+        const contentWasPublished = this.getCompareStatus() != null && !this.currentContent.isNew();
 
-        this.scheduleWizardStep.show(show);
-        if (show) {
-            this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).show();
-        } else {
-            this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).hide();
-        }
+        this.scheduleWizardStep.show(contentWasPublished);
+        this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).setVisible(contentWasPublished);
     }
 
     getLiveMask(): api.ui.mask.LoadMask {
