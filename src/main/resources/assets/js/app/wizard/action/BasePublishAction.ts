@@ -16,7 +16,7 @@ export abstract class BasePublishAction extends api.ui.Action {
     private config: BasePublishActionConfig;
 
     constructor(config: BasePublishActionConfig) {
-        super(config.label, config.shortcut);
+        super(config.label, config.shortcut, true);
 
         this.config = config;
         this.setEnabled(false);
