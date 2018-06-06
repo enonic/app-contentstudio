@@ -272,6 +272,18 @@ export class IssueDetailsDialog
         this.setSubTitleEl(this.detailsSubTitle);
     }
 
+    public reloadItemList() {
+        api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
+            this.getItemList().replaceItems(items);
+            this.getItemList().refreshList();
+
+            this.initItemListTogglers(this.getItemList());
+
+            this.updateItemsCountAndButtons();
+            this.updateShowScheduleDialogButton();
+        });
+    }
+
     private initElementListeners() {
         const handleRemoveItemClicked = (item) => {
             this.saveOnLoaded = true;
@@ -301,6 +313,8 @@ export class IssueDetailsDialog
             }
             this.ignoreNextExcludeChildrenEvent = false;
         });
+
+        itemList.onListItemsDataChanged(this.reloadItemList.bind(this));
 
         this.getDependantList().onItemRemoveClicked(handleRemoveItemClicked);
 
