@@ -59,29 +59,12 @@
 
   .menu-button {
 
-    .action-button {
-      margin-left: 0;
-      margin-right: 40px;
-      border-left: 0 none;
-      padding-right: 0;
-      padding-left: 14px;
-      min-width: auto;
+    > .action-button {
 
-      &[disabled] {
-        display: none;
-      }
-    }
-
-    .@{_COMMON_PREFIX}dropdown-handle {
-      right: 0;
-      left: auto;
-
-      &[disabled] {
-        display: none;
-
-        + .action-button {
-          margin-right: 0;
-        }
+      span {
+        text-transform: uppercase;
+        color: @admin-green;
+        font-weight: bold;
       }
     }
   }
