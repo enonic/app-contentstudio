@@ -120,6 +120,7 @@ export class MobileContentItemStatisticsPanel extends api.app.view.ItemStatistic
     setItem(item: ViewItem<ContentSummaryAndCompareStatus>) {
         if (!this.getItem() || !this.getItem().equals(item)) {
             super.setItem(item);
+            this.toggleClass("invalid", !item.getModel().getContentSummary().isValid());
             this.foldButton.collapse();
             this.detailsPanel.setItem(!!item ? item.getModel() : null);
             if (item) {
