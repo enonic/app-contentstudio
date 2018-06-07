@@ -10,6 +10,7 @@ import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublish
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
+import {ContentWizardStep} from './ContentWizardStep';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -657,6 +658,24 @@ export class ContentWizardPanel
 
                 if (form.isExternal() && !form.isEnabled()) {
                     value = true;
+                    break;
+                }
+            }
+        }
+
+        return value;
+    }
+
+    private areAllExternalMixinsCollapsed(): boolean {
+        let value = true;
+
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
+
+                if (form.isExternal() && form.isEnabled()) {
+                    value = false;
+                    break;
                 }
             }
         }
@@ -705,7 +724,8 @@ export class ContentWizardPanel
         if (!this.xDataAnchor) {
             return;
         }
-        this.xDataAnchor.setVisible(this.hasDisabledExternalMixin());
+        this.xDataAnchor.toggleClass('hidden', !this.hasDisabledExternalMixin());
+        this.xDataAnchor.toggleClass('all-collapsed', this.areAllExternalMixinsCollapsed());
     }
 
     private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
@@ -729,7 +749,7 @@ export class ContentWizardPanel
                     let xDataAnchorIndex;
                     let steps: WizardStep[] = [];
 
-                    this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+                    this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
                     steps.push(this.contentWizardStep);
 
                     xDatas.forEach((xData: Mixin, index: number) => {
@@ -740,20 +760,23 @@ export class ContentWizardPanel
                             if (!xDataAnchorIndex && xData.isExternal()) {
                                 xDataAnchorIndex = steps.length;
                             }
-                            stepForm.onEnableChanged(() => this.togglexDataAnchorVisibility());
+                            stepForm.onEnableChanged(() => {
+                                this.togglexDataAnchorVisibility();
+                                this.getStepNavigatorContainer().checkAndMinimize();
+                            });
 
-                            steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
+                            steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
                         }
                     });
 
-                    this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
+                    this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
                     this.scheduleWizardStepIndex = steps.length;
                     steps.push(this.scheduleWizardStep);
 
-                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
+                    this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
                     steps.push(this.settingsWizardStep);
 
-                    steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
+                    steps.push(new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
 
                     this.setSteps(steps);
 

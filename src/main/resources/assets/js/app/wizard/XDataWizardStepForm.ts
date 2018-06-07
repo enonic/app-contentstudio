@@ -74,33 +74,35 @@ export class XDataWizardStepForm
         }
         this.enabled = value;
 
-        if (changed && !silent) {
-            this.notifyEnableChanged(value);
-        }
-
         this.enabled ? this.show() : this.hide();
 
-        if (changed) {
-            if (this.enabled) {
-                if (this.form && this.data) {
-                    if (this.disabledData) {
-                        this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
-                    }
-                    this.doLayout(this.form, this.data).then(() => this.validate());
-                }
-            } else {
-                if (this.data) {
-                    this.disabledData = this.data.copy();
-                    this.data.getRoot().removeAllProperties();
-                }
+        if (!changed) {
+            return;
+        }
 
-                if (this.formView) {
-                    this.formView.remove();
-                    this.formView = new FormView(this.formContext, this.form, this.data.getRoot());
-
-                    this.resetValidation();
+        if (this.enabled) {
+            if (this.form && this.data) {
+                if (this.disabledData) {
+                    this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
                 }
+                this.doLayout(this.form, this.data).then(() => this.validate());
             }
+        } else {
+            if (this.data) {
+                this.disabledData = this.data.copy();
+                this.data.getRoot().removeAllProperties();
+            }
+
+            if (this.formView) {
+                this.formView.remove();
+                this.formView = new FormView(this.formContext, this.form, this.data.getRoot());
+
+                this.resetValidation();
+            }
+        }
+
+        if (!silent) {
+            this.notifyEnableChanged(value);
         }
     }
 
