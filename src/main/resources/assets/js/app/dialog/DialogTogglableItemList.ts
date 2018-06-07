@@ -285,7 +285,7 @@ class IncludeChildrenToggler
         super('icon icon-tree');
         this.addClass('include-children-toggler');
 
-        this.tooltip = new Tooltip(this, i18n('dialog.showChildren'), 1000);
+        this.tooltip = new Tooltip(this, i18n('dialog.includeChildren'), 1000);
 
         this.onClicked(() => {
             this.toggle();
