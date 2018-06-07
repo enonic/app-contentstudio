@@ -22,36 +22,22 @@
   & > * {
     flex: 0 0 auto;
   }
+
+  .menu-button {
+
+    > .action-button {
+
+      span {
+        text-transform: uppercase;
+        color: @admin-green;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 .split-panel {
   &.details-panel-expanded .content-browse-toolbar {
     padding-right: 0;
-  }
-}
-
-.browse-toolbar {
-
-  .icon-search.filtered {
-    border-radius: 17px;
-    background-color: @admin-input-blue;
-    padding: 3px 8px;
-    margin-top: 3px;
-    margin-left: 5px;
-    height: 34px;
-    line-height: 24px;
-
-    &:before, span {
-      color: @admin-white;
-    }
-
-    &:hover:not(:disabled) {
-      background-color: @admin-input-blue;
-
-      &:before, span {
-        color: @admin-white;
-        font-weight: bold;
-      }
-    }
   }
 }

@@ -17,6 +17,7 @@
   .content-status-wrapper {
     .content-status-mixin();
     display: inline-block;
+    float: right;
 
     .invalid-mark {
       width: 44px;
@@ -51,7 +52,37 @@
 
     .author {
       margin-left: 5px;
+      margin-right: 14px;
       color: @admin-font-gray1;
+    }
+  }
+
+  .menu-button {
+
+    .action-button {
+      margin-left: 0;
+      margin-right: 40px;
+      border-left: 0 none;
+      padding-right: 0;
+      padding-left: 14px;
+      min-width: auto;
+
+      &[disabled] {
+        display: none;
+      }
+    }
+
+    .@{_COMMON_PREFIX}dropdown-handle {
+      right: 0;
+      left: auto;
+
+      &[disabled] {
+        display: none;
+
+        + .action-button {
+          margin-right: 0;
+        }
+      }
     }
   }
 
