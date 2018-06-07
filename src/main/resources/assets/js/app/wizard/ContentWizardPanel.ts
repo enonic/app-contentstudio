@@ -710,8 +710,9 @@ export class ContentWizardPanel
                 .setClickHandler(() => {
                     this.getStepNavigator().deselectNavigationItem();
                     this.getWizardStepsPanel().setListenToScroll(false);
-                    this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex);
-                    this.getWizardStepsPanel().setListenToScroll(true);
+                    this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex).then(() => {
+                        this.getWizardStepsPanel().setListenToScroll(true);
+                    });
                 })
                 .setIconCls('icon-plus')
                 .build();
