@@ -207,28 +207,6 @@
         display: inherit;
         height: 100%;
 
-        .@{_COMMON_PREFIX}button.content-wizard-toolbar-publish-button {
-          .button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 30%), false);
-          &:disabled {
-            background-color: @admin-font-gray1;
-          }
-          border: none;
-          height: 100%;
-          box-sizing: content-box;
-          padding: 1px 39px 0 39px;
-          position: relative;
-        }
-
-        span.content-status {
-          margin-right: 14px;
-          color: @admin-font-gray2;
-
-          .content-status-mixin();
-
-          span {
-            color: @admin-black;
-          }
-        }
       }
     }
   }
@@ -262,11 +240,10 @@ html[style*="z-index: 9995"] { // ckeditor fullscreen mode
     pointer-events: none;
 
     .xp-admin-common-dropdown-handle {
-      background-color: @form-button-bg-disabled;
+      opacity: 0.5;
     }
 
     .action-button {
-      background-color: @form-button-bg;
       opacity: 0.5;
     }
   }

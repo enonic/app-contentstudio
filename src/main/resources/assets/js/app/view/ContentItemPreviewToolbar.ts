@@ -41,6 +41,7 @@ export class ContentItemPreviewToolbar
                 }
             });
             this.issueButton = new MenuButton(this.mainAction);
+            this.issueButton.addClass('transparent');
             this.addElement(this.issueButton);
             return true;
         });

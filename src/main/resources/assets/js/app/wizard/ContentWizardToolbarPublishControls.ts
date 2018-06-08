@@ -1,7 +1,7 @@
 import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
+import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import Action = api.ui.Action;
-import MenuButton = api.ui.button.MenuButton;
 import ActionButton = api.ui.button.ActionButton;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
@@ -9,7 +9,7 @@ import i18n = api.util.i18n;
 export class ContentWizardToolbarPublishControls
     extends api.dom.DivEl {
 
-    private publishButton: MenuButton;
+    private publishButton: ContentPublishMenuButton;
     private publishAction: Action;
     private publishTreeAction: Action;
     private createIssueAction: Action;
@@ -31,7 +31,12 @@ export class ContentWizardToolbarPublishControls
         this.unpublishAction = actions.getUnpublishAction();
         this.publishMobileAction = actions.getPublishMobileAction();
 
-        this.publishButton = new MenuButton(this.publishAction, [this.publishTreeAction, this.unpublishAction, this.createIssueAction]);
+        this.publishButton = new ContentPublishMenuButton({
+            publishAction: this.publishAction,
+            publishTreeAction: this.publishTreeAction,
+            unpublishAction: this.unpublishAction,
+            createIssueAction: this.createIssueAction
+        });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
         this.publishButtonForMobile = new ActionButton(this.publishMobileAction);
@@ -43,6 +48,7 @@ export class ContentWizardToolbarPublishControls
 
     public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
         this.content = content;
+        this.publishButton.setItem(content);
         if (refresh) {
             this.refreshState();
         }
