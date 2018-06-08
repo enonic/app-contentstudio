@@ -15,6 +15,7 @@ export class ContentPublishMenuButton
     extends MenuButton {
 
     private issueActionsList: Action[];
+    private issuesRequest: wemQ.Promise<void>;
 
     constructor(actions: ContentTreeGridActions, grid: ContentTreeGrid) {
         super(actions.getPublishAction(), [actions.getPublishTreeAction(), actions.getUnpublishAction(), actions.getCreateIssueAction()]);
@@ -53,21 +54,26 @@ export class ContentPublishMenuButton
             this.issueActionsList.length = 0;
             this.removeMenuSeparator();
         }
-        if (highlightedOrSelected) {
+        if (!this.issuesRequest && highlightedOrSelected) {
             const id = highlightedOrSelected.getData().getContentSummary().getContentId();
-            new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-                this.issueActionsList = issues.map((issue: Issue) => {
-                    const action = new Action(issue.getTitleWithId());
-                    action.onExecuted((a) => {
-                        IssueDialogsManager.get().openDetailsDialog(issue);
+            this.issuesRequest =
+                new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
+                    this.issueActionsList = issues.map((issue: Issue) => {
+                        const action = new Action(issue.getTitleWithId());
+                        action.onExecuted((a) => {
+                            IssueDialogsManager.get().openDetailsDialog(issue);
+                        });
+                        return action;
                     });
-                    return action;
-                });
-                if (this.issueActionsList.length > 0) {
-                    this.addMenuSeparator();
-                    this.addMenuActions(this.issueActionsList);
-                }
-            }).catch(api.DefaultErrorHandler.handle);
+                    if (this.issueActionsList.length > 0) {
+                        this.addMenuSeparator();
+                        this.addMenuActions(this.issueActionsList);
+                    }
+                })
+                    .catch(api.DefaultErrorHandler.handle)
+                    .finally(() => {
+                        this.issuesRequest = undefined;
+                    });
         }
     };
 }
