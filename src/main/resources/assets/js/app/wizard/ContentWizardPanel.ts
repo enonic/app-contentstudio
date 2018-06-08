@@ -764,6 +764,7 @@ export class ContentWizardPanel
                             stepForm.onEnableChanged(() => {
                                 this.togglexDataAnchorVisibility();
                                 this.getStepNavigatorContainer().checkAndMinimize();
+                                this.getStepNavigatorContainer().renumerateSteps();
                             });
 
                             steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));

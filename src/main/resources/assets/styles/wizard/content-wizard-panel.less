@@ -66,15 +66,16 @@
           &.x-data-anchor {
             .icon-medium();
 
+            ~.x-data {
+              .label:before {
+                display: none;
+                content: '+';
+                padding-right: 5px;
+              }
+            }
+
             &.hidden {
               display: none;
-
-              ~.x-data {
-                .label:before {
-                  content: '+';
-                  padding-right: 5px;
-                }
-              }
             }
 
           }
@@ -94,6 +95,14 @@
               &:not(.all-collapsed) {
                 padding-left: 20px;
                 padding-right: 0;
+              }
+
+              &.hidden {
+                ~.x-data {
+                  .label:before {
+                    display: inline-block;
+                  }
+                }
               }
             }
           }
@@ -115,6 +124,12 @@
                 display: inline-block;
                 font-size: 15px;
                 font-weight: bold;
+              }
+
+              ~.x-data {
+                .label:before {
+                  display: inline-block;
+                }
               }
             }
           }
