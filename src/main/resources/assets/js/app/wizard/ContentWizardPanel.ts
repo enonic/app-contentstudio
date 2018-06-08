@@ -1933,7 +1933,7 @@ export class ContentWizardPanel
     }
 
     private refreshScheduleWizardStep() {
-        const contentWasPublished = this.getCompareStatus() != null && !this.currentContent.isNew();
+        const contentWasPublished = !!this.getContent() && this.getContent().isPublished();
 
         this.scheduleWizardStep.show(contentWasPublished);
         this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).setVisible(contentWasPublished);
