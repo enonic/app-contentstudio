@@ -19,6 +19,17 @@ export class ContentItemPreviewToolbar
 
     constructor() {
         super('content-item-preview-toolbar');
+
+        IssueDialogsManager.get().onIssueCreated((issue: Issue) => {
+            const item = this.getItem();
+            if (item) {
+                const itemId = item.getContentSummary().getContentId();
+                const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(itemId));
+                if (issueHasSelectedContent) {
+                    this.fetchIssues(itemId);
+                }
+            }
+        });
     }
 
     doRender(): wemQ.Promise<boolean> {
