@@ -1,6 +1,7 @@
 .mobile-content-item-statistics-panel {
 
-  @app-header-height: 36px;
+  @app-header-height: 44px;
+  @mark-size: 20px;
 
   display: none;
   height: 100%;
@@ -23,13 +24,37 @@
     overflow: initial;
   }
 
+  &.invalid {
+    .mobile-header-title {
+      padding-left: 26px;
+
+      &:before {
+        position: absolute;
+        top: 50%;
+        left: @mark-size/2;
+        margin-top: -@mark-size/2;
+        margin-left: -@mark-size/2;
+        width: @mark-size;
+        height: @mark-size;
+        line-height: @mark-size;
+        border-radius: @mark-size/2;
+        font-size: 14px;
+        z-index: 1;
+        text-align: center;
+        content: "!";
+        background: @admin-red;
+        color: @admin-white;
+      }
+    }
+  }
+
   .mobile-content-item-statistics-header {
     box-sizing: border-box;
     height: @app-header-height;
     z-index: 2;
     width: 100%;
     position: absolute;
-    padding: 6px @app-header-height 6px @app-header-height;
+    padding: 0 @app-header-height 0;
     display: block;
     background-color: @admin-black;
     text-align: center;
@@ -38,19 +63,20 @@
     .mobile-header-title {
       cursor: pointer;
       display: inline-block;
-      max-width: calc(~'100% - 36px');
+      max-width: calc(~'100% - 56px');
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       font-weight: bold;
-      line-height: 24px;
+      line-height: @app-header-height;
       padding-right: 10px;
+      position: relative;
       .ellipsis();
     }
 
     i.icon-more_vert {
       display: inline-block;
       vertical-align: top;
-      line-height: 24px;
+      line-height: @app-header-height;
       color: @admin-white;
       font-weight: 100;
       font-size: 16px;

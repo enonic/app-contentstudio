@@ -811,6 +811,7 @@ export class ContentWizardPanel
     private setContent(compareStatus: CompareStatus) {
         this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
+        this.getMainToolbar().setItem(this.currentContent);
 
         this.wizardActions.refreshPendingDeleteDecorations();
     }
@@ -903,6 +904,7 @@ export class ContentWizardPanel
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
                     this.getContentWizardToolbarPublishControls().setContent(content);
+                    this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().disableNameGeneration(content.getCompareStatus() === CompareStatus.EQUAL);
@@ -1212,7 +1214,7 @@ export class ContentWizardPanel
             this.persistedContent = this.currentContent = summaryAndStatus;
 
             this.getWizardHeader().disableNameGeneration(this.currentContent.getCompareStatus() !== CompareStatus.NEW);
-
+            this.getMainToolbar().setItem(this.currentContent);
             this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
                 !this.getPersistedItem().hasChildren());
         });
@@ -2012,6 +2014,7 @@ export class ContentWizardPanel
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             publishControls.setContent(this.currentContent);
+            this.getMainToolbar().setItem(this.currentContent);
         }
     }
 

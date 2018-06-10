@@ -1,0 +1,34 @@
+.content-item-preview-toolbar {
+
+  .menu-button {
+
+    .action-button {
+      margin-left: 0;
+      margin-right: 40px;
+      border-left: 0 none;
+      padding-right: 0;
+      padding-left: 14px;
+      min-width: auto;
+      max-width: 200px;
+      .ellipsis();
+
+      &[disabled] {
+        display: none;
+      }
+    }
+
+    .@{_COMMON_PREFIX}dropdown-handle {
+      right: 0;
+      left: auto;
+
+      &[disabled] {
+        display: none;
+
+        + .action-button {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+}

@@ -14,6 +14,8 @@ export class IssueDialogsManager {
     private listDialog: IssueListDialog;
     private createDialog: CreateIssueDialog;
 
+    private issueCreatedListeners: { (issue: Issue): void }[] = [];
+
     private constructor() {
         this.detailsDialog = IssueDetailsDialog.get();
         this.listDialog = IssueListDialog.get();
@@ -36,6 +38,7 @@ export class IssueDialogsManager {
         let ignoreNextClosedEvent = false;
         dialog.onIssueCreated(issue => {
             ignoreNextClosedEvent = true;
+            this.notifyIssueCreated(issue);
             this.openDetailsDialog(issue);
             dialog.close();
         });
@@ -108,6 +111,18 @@ export class IssueDialogsManager {
         this.createDialog
             .forceResetOnClose(true)
             .open();
+    }
+
+    private notifyIssueCreated(issue: Issue) {
+        this.issueCreatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onIssueCreated(listener: (issue: Issue) => void) {
+        this.issueCreatedListeners.push(listener);
+    }
+
+    public unIssueCreated(listener: (issue: Issue) => void) {
+        this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
     }
 
 }
