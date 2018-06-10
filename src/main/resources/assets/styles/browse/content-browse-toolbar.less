@@ -23,7 +23,7 @@
     flex: 0 0 auto;
   }
 
-  .menu-button {
+  .content-publish-menu.transparent {
 
     > .action-button {
 
@@ -31,6 +31,12 @@
         text-transform: uppercase;
         color: @admin-green;
         font-weight: bold;
+      }
+
+      &:not([disabled]):hover {
+        span {
+          color: lighten(@admin-green, 10%);
+        }
       }
     }
   }
