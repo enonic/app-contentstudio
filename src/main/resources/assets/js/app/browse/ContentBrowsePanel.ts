@@ -163,7 +163,7 @@ export class ContentBrowsePanel
             this.treeGrid.onSelectionChanged(
                 (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
                  highlighted: boolean) => {
-                    return contentPublishMenuButton.setItem(fullSel.length == 1 ? fullSel[0].getData() : null);
+                    return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
                 });
 
             this.treeGrid.onHighlightingChanged(

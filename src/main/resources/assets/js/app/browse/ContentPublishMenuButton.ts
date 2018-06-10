@@ -9,10 +9,10 @@ import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export interface ContentPublishMenuButtonConfig {
-    publishAction: Action,
-    publishTreeAction: Action,
-    unpublishAction: Action,
-    createIssueAction: Action
+    publishAction: Action;
+    publishTreeAction: Action;
+    unpublishAction: Action;
+    createIssueAction: Action;
 }
 
 export class ContentPublishMenuButton
@@ -75,5 +75,5 @@ export class ContentPublishMenuButton
                         this.issuesRequest = undefined;
                     });
         }
-    };
+    }
 }

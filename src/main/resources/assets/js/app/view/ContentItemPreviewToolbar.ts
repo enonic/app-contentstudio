@@ -49,7 +49,7 @@ export class ContentItemPreviewToolbar
 
 
     setItem(item: ContentSummaryAndCompareStatus): void {
-        if (this.getItem() != item) {
+        if (this.getItem() !== item) {
             this.fetchIssues(item.getContentSummary().getContentId());
         }
         super.setItem(item);
