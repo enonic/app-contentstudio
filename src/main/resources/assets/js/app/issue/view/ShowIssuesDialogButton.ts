@@ -64,7 +64,7 @@ export class ShowIssuesDialogButton extends ActionButton {
                                 this.setLabel(i18n('field.openIssues') + ` (${hits})`);
                             })
                             .fail(() => {
-                                console.log('Nothing found');
+                                this.setLabel(i18n('field.noOpenIssues'));
                             })
                     )
             );

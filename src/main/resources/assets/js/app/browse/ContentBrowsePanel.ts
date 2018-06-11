@@ -76,6 +76,7 @@ export class ContentBrowsePanel
     getNonToolbarActions(): api.ui.Action[] {
         return this.getBrowseActions().getPublishActions();
     }
+
     protected createToolbar(): ContentBrowseToolbar {
         return new ContentBrowseToolbar(this.getBrowseActions());
     }
@@ -151,7 +152,22 @@ export class ContentBrowsePanel
                 }
             });
 
-            let contentPublishMenuButton = new ContentPublishMenuButton(this.getBrowseActions());
+            const browseActions = this.getBrowseActions();
+            let contentPublishMenuButton = new ContentPublishMenuButton({
+                publishAction: browseActions.getPublishAction(),
+                publishTreeAction: browseActions.getPublishTreeAction(),
+                unpublishAction: browseActions.getUnpublishAction(),
+                createIssueAction: browseActions.getCreateIssueAction()
+            });
+
+            this.treeGrid.onSelectionChanged(
+                (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
+                 highlighted: boolean) => {
+                    return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
+                });
+
+            this.treeGrid.onHighlightingChanged(
+                (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));
 
             this.browseToolbar.appendChild(contentPublishMenuButton);
             detailsView.appendChild(nonMobileDetailsPanelsManager.getToggleButton());

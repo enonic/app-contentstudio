@@ -5,6 +5,23 @@
     display: inline-block !important;
   }
 
+  &.transparent {
+
+    .action-button {
+      span {
+        text-transform: uppercase;
+        color: @admin-green;
+        font-weight: bold;
+      }
+
+      &:not([disabled]):hover {
+        span {
+          color: lighten(@admin-green, 10%);
+        }
+      }
+    }
+  }
+
   .progress-bar {
     display: none;
   }

@@ -58,7 +58,7 @@ export class IssueSummary {
     }
 
     getTitleWithId(): string {
-        return `${this.title} (#${this.index})`;
+        return `#${this.index} ${this.title}`;
     }
 
     getCreator(): string {

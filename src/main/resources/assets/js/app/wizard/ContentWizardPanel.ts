@@ -10,6 +10,8 @@ import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublish
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
+import {ContentWizardStep} from './ContentWizardStep';
+import {ContentTabBarItemBuilder, ContentTabBarItem} from './ContentTabBarItem';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -47,7 +49,6 @@ import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import TogglerButton = api.ui.button.TogglerButton;
 import WizardHeaderWithDisplayNameAndName = api.app.wizard.WizardHeaderWithDisplayNameAndName;
 import WizardHeaderWithDisplayNameAndNameBuilder = api.app.wizard.WizardHeaderWithDisplayNameAndNameBuilder;
-import WizardStep = api.app.wizard.WizardStep;
 import ContentRequiresSaveEvent = api.content.event.ContentRequiresSaveEvent;
 import ImageErrorEvent = api.content.image.ImageErrorEvent;
 
@@ -70,6 +71,7 @@ import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
 
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
+import NavigatorEvent = api.ui.NavigatorEvent;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -90,17 +92,17 @@ export class ContentWizardPanel
 
     private liveEditModel: LiveEditModel;
 
-    private contentWizardStep: WizardStep;
+    private contentWizardStep: ContentWizardStep;
 
     private contentWizardStepForm: ContentWizardStepForm;
 
     private settingsWizardStepForm: SettingsWizardStepForm;
 
-    private settingsWizardStep: WizardStep;
+    private settingsWizardStep: ContentWizardStep;
 
     private scheduleWizardStepForm: ScheduleWizardStepForm;
 
-    private scheduleWizardStep: WizardStep;
+    private scheduleWizardStep: ContentWizardStep;
 
     private scheduleWizardStepIndex: number;
 
@@ -152,6 +154,8 @@ export class ContentWizardPanel
     private renderable: boolean = false;
 
     private reloadPageEditorOnSave: boolean = true;
+
+    private xDataAnchor: ContentTabBarItem;
 
     public static debug: boolean = false;
 
@@ -643,6 +647,40 @@ export class ContentWizardPanel
         return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
+    private hasDisabledExternalMixin(): boolean {
+        let value = false;
+
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
+
+                if (form.isExternal() && !form.isEnabled()) {
+                    value = true;
+                    break;
+                }
+            }
+        }
+
+        return value;
+    }
+
+    private areAllExternalMixinsCollapsed(): boolean {
+        let value = true;
+
+        for (let key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
+
+                if (form.isExternal() && form.isEnabled()) {
+                    value = false;
+                    break;
+                }
+            }
+        }
+
+        return value;
+    }
+
     private isCurrentContentId(id: api.content.ContentId): boolean {
         return this.getPersistedItem() && id && this.getPersistedItem().getContentId().equals(id);
     }
@@ -659,6 +697,32 @@ export class ContentWizardPanel
         this.updateWizardStepForms(content, unchangedOnly);
         this.updateMetadataAndMetadataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
+    }
+
+    private createXDataAnchor(xDataAnchorIndex: number) {
+        this.xDataAnchor =
+            (<ContentTabBarItemBuilder>new ContentTabBarItemBuilder()
+                .setLabel('X-data')
+                .setClickHandler(() => {
+                    this.getStepNavigator().deselectNavigationItem();
+                    this.getWizardStepsPanel().setListenToScroll(false);
+                    this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex).then(() => {
+                        this.getWizardStepsPanel().setListenToScroll(true);
+                    });
+                }))
+                .setIconCls('icon-plus')
+                .build();
+
+        this.xDataAnchor.addClass('x-data-anchor');
+        this.getStepNavigator().insertChild(this.xDataAnchor, xDataAnchorIndex);
+    }
+
+    private togglexDataAnchorVisibility() {
+        if (!this.xDataAnchor) {
+            return;
+        }
+        this.xDataAnchor.toggleClass('hidden', !this.hasDisabledExternalMixin());
+        this.xDataAnchor.toggleClass('all-collapsed', this.areAllExternalMixinsCollapsed());
     }
 
     private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
@@ -679,29 +743,52 @@ export class ContentWizardPanel
 
             return new GetContentXDataRequest(contentId).sendAndParse().then(
                 (xDatas: Mixin[]) => {
+                    let xDataAnchorIndex;
+                    let steps: ContentWizardStep[] = [];
 
-                    let steps: WizardStep[] = [];
-
-                    this.contentWizardStep = new WizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+                    this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
                     steps.push(this.contentWizardStep);
 
                     xDatas.forEach((xData: Mixin, index: number) => {
                         if (!this.xDataStepFormByName[xData.getMixinName().toString()]) {
                             let stepForm = new XDataWizardStepForm(xData.isExternal());
                             this.xDataStepFormByName[xData.getMixinName().toString()] = stepForm;
-                            steps.splice(index + 1, 0, new WizardStep(xData.getDisplayName(), stepForm));
+
+                            if (!xDataAnchorIndex && xData.isExternal()) {
+                                xDataAnchorIndex = steps.length;
+                            }
+                            stepForm.onEnableChanged(() => {
+                                this.togglexDataAnchorVisibility();
+                                this.getStepNavigatorContainer().checkAndMinimize();
+                                this.getStepNavigatorContainer().renumerateSteps();
+                            });
+
+                            steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
                         }
                     });
-                    this.settingsWizardStep = new WizardStep(i18n('field.settings'), this.settingsWizardStepForm);
-                    steps.push(this.settingsWizardStep);
 
-                    this.scheduleWizardStep = new WizardStep(i18n('field.schedule'), this.scheduleWizardStepForm);
+                    this.getStepNavigator().onNavigationItemAdded((event: NavigatorEvent) => {
+                        const item = <ContentTabBarItem>event.getItem();
+                        if (item.getIconCls()) {
+                            this.getHeader(item.getIndex()).addClass('step-icon ' + item.getIconCls());
+                        }
+
+                    });
+
+                    this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
                     this.scheduleWizardStepIndex = steps.length;
                     steps.push(this.scheduleWizardStep);
 
-                    steps.push(new WizardStep(i18n('field.access'), this.securityWizardStepForm));
+                    this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
+                    steps.push(this.settingsWizardStep);
+
+                    steps.push(new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
 
                     this.setSteps(steps);
+
+                    if (xDataAnchorIndex) {
+                        this.createXDataAnchor(xDataAnchorIndex);
+                    }
 
                     return xDatas;
                 });
@@ -728,6 +815,7 @@ export class ContentWizardPanel
     private setContent(compareStatus: CompareStatus) {
         this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
+        this.getMainToolbar().setItem(this.currentContent);
 
         this.wizardActions.refreshPendingDeleteDecorations();
     }
@@ -820,6 +908,7 @@ export class ContentWizardPanel
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
                     this.getContentWizardToolbarPublishControls().setContent(content);
+                    this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().disableNameGeneration(content.getCompareStatus() === CompareStatus.EQUAL);
@@ -1129,7 +1218,7 @@ export class ContentWizardPanel
             this.persistedContent = this.currentContent = summaryAndStatus;
 
             this.getWizardHeader().disableNameGeneration(this.currentContent.getCompareStatus() !== CompareStatus.NEW);
-
+            this.getMainToolbar().setItem(this.currentContent);
             this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
                 !this.getPersistedItem().hasChildren());
         });
@@ -1321,6 +1410,8 @@ export class ContentWizardPanel
                     });
 
                     return wemQ.all(formViewLayoutPromises).spread<void>(() => {
+
+                        this.togglexDataAnchorVisibility();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         if (this.formState.isNew()) {
@@ -1528,7 +1619,7 @@ export class ContentWizardPanel
                         let stepForm = new XDataWizardStepForm(mixin.isExternal());
                         this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
 
-                        let wizardStep = new WizardStep(mixin.getDisplayName(), stepForm);
+                        let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
                         this.insertStepBefore(wizardStep, this.settingsWizardStep);
 
                         let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
@@ -1885,18 +1976,15 @@ export class ContentWizardPanel
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             publishControls.setContent(this.currentContent);
+            this.getMainToolbar().setItem(this.currentContent);
         }
     }
 
     private refreshScheduleWizardStep() {
-        let show = !this.currentContent.isNew();
+        const contentWasPublished = !!this.getContent() && this.getContent().isPublished();
 
-        this.scheduleWizardStep.show(show);
-        if (show) {
-            this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).show();
-        } else {
-            this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).hide();
-        }
+        this.scheduleWizardStep.show(contentWasPublished);
+        this.getWizardStepsPanel().getHeader(this.scheduleWizardStepIndex).setVisible(contentWasPublished);
     }
 
     getLiveMask(): api.ui.mask.LoadMask {

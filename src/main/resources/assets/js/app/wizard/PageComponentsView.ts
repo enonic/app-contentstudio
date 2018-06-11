@@ -102,7 +102,7 @@ export class PageComponentsView
             }
         });
 
-        this.onAdded(this.initLiveEditEvents.bind(this));
+        this.onAdded(() => this.initLiveEditEvents());
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(api.dom.Body.get(), (item: ResponsiveItem) => {
             let smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
@@ -115,6 +115,8 @@ export class PageComponentsView
         });
 
         this.initKeyBoardBindings();
+
+        this.bindMouseListeners();
     }
 
     show() {
@@ -159,12 +161,15 @@ export class PageComponentsView
     }
 
     private initLock() {
+        this.unContextMenu(this.lockedViewClickHandler);
+        this.unClicked(this.lockedViewClickHandler);
+
         if (this.pageView.isLocked()) {
             this.addClass('locked');
         }
 
-        this.onContextMenu((event: MouseEvent) => this.lockedViewClickHandler(event));
-        this.onClicked((event: MouseEvent) => this.lockedViewClickHandler(event));
+        this.onContextMenu(this.lockedViewClickHandler);
+        this.onClicked(this.lockedViewClickHandler);
     }
 
     setContent(content: Content) {
@@ -482,6 +487,10 @@ export class PageComponentsView
             new KeyBinding('backspace', removeHandler)
         ];
 
+    }
+
+    private bindMouseListeners() {
+        this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
     }
 
     private selectItem(treeNode: TreeNode<ItemView>) {

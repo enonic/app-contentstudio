@@ -14,10 +14,9 @@ export class ContentStatusToolbar
         const statusWrapper = new api.dom.DivEl('content-status-wrapper');
         this.addElement(statusWrapper);
 
-        const invalidMark = new api.dom.DivEl('invalid-mark');
         this.status = new api.dom.SpanEl('status');
         this.author = new api.dom.SpanEl('author');
-        statusWrapper.appendChildren(invalidMark, this.status, this.author);
+        statusWrapper.appendChildren(this.status, this.author);
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {

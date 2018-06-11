@@ -1,8 +1,7 @@
 import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
+import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import Action = api.ui.Action;
-import SpanEl = api.dom.SpanEl;
-import MenuButton = api.ui.button.MenuButton;
 import ActionButton = api.ui.button.ActionButton;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
@@ -10,13 +9,12 @@ import i18n = api.util.i18n;
 export class ContentWizardToolbarPublishControls
     extends api.dom.DivEl {
 
-    private publishButton: MenuButton;
+    private publishButton: ContentPublishMenuButton;
     private publishAction: Action;
     private publishTreeAction: Action;
     private createIssueAction: Action;
     private unpublishAction: Action;
     private publishMobileAction: Action;
-    private contentStateSpan: SpanEl;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
     private leafContent: boolean = true;
@@ -33,20 +31,24 @@ export class ContentWizardToolbarPublishControls
         this.unpublishAction = actions.getUnpublishAction();
         this.publishMobileAction = actions.getPublishMobileAction();
 
-        this.publishButton = new MenuButton(this.publishAction, [this.publishTreeAction, this.unpublishAction, this.createIssueAction]);
+        this.publishButton = new ContentPublishMenuButton({
+            publishAction: this.publishAction,
+            publishTreeAction: this.publishTreeAction,
+            unpublishAction: this.unpublishAction,
+            createIssueAction: this.createIssueAction
+        });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
-
-        this.contentStateSpan = new SpanEl('content-status');
 
         this.publishButtonForMobile = new ActionButton(this.publishMobileAction);
         this.publishButtonForMobile.addClass('mobile-edit-publish-button');
         this.publishButtonForMobile.setVisible(false);
 
-        this.appendChildren(this.contentStateSpan, this.publishButton);
+        this.appendChild(this.publishButton);
     }
 
     public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
         this.content = content;
+        this.publishButton.setItem(content);
         if (refresh) {
             this.refreshState();
         }
@@ -94,7 +96,6 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction.setEnabled(canBePublished);
         this.publishMobileAction.setVisible(canBePublished);
 
-        this.contentStateSpan.setHtml(this.getContentStateValueForSpan(this.content), false);
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', api.content.CompareStatusFormatter.formatStatusTextFromContent(this.content)));
     }
@@ -113,19 +114,6 @@ export class ContentWizardToolbarPublishControls
                 loginResult, existing.getPermissions());
             this.setUserCanPublish(hasPublishPermission);
         });
-    }
-
-    private getContentStateValueForSpan(content: ContentSummaryAndCompareStatus): string {
-
-        let status = new api.dom.SpanEl();
-        if (this.isOnline()) {
-            status.addClass('online');
-        }
-
-        status.addClass(content.getStatusClass());
-        status.setHtml(content.getStatusText());
-
-        return i18n('field.publish.status', status.toString());
     }
 
     public getPublishButtonForMobile(): ActionButton {
