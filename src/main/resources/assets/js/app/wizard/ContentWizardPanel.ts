@@ -11,6 +11,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardStep} from './ContentWizardStep';
+import {ContentTabBarItemBuilder, ContentTabBarItem} from './ContentTabBarItem';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -48,7 +49,6 @@ import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import TogglerButton = api.ui.button.TogglerButton;
 import WizardHeaderWithDisplayNameAndName = api.app.wizard.WizardHeaderWithDisplayNameAndName;
 import WizardHeaderWithDisplayNameAndNameBuilder = api.app.wizard.WizardHeaderWithDisplayNameAndNameBuilder;
-import WizardStep = api.app.wizard.WizardStep;
 import ContentRequiresSaveEvent = api.content.event.ContentRequiresSaveEvent;
 import ImageErrorEvent = api.content.image.ImageErrorEvent;
 
@@ -73,7 +73,7 @@ import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
 
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
-import TabBarItem = api.ui.tab.TabBarItem;
+import NavigatorEvent = api.ui.NavigatorEvent;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -94,17 +94,17 @@ export class ContentWizardPanel
 
     private liveEditModel: LiveEditModel;
 
-    private contentWizardStep: WizardStep;
+    private contentWizardStep: ContentWizardStep;
 
     private contentWizardStepForm: ContentWizardStepForm;
 
     private settingsWizardStepForm: SettingsWizardStepForm;
 
-    private settingsWizardStep: WizardStep;
+    private settingsWizardStep: ContentWizardStep;
 
     private scheduleWizardStepForm: ScheduleWizardStepForm;
 
-    private scheduleWizardStep: WizardStep;
+    private scheduleWizardStep: ContentWizardStep;
 
     private scheduleWizardStepIndex: number;
 
@@ -157,7 +157,7 @@ export class ContentWizardPanel
 
     private reloadPageEditorOnSave: boolean = true;
 
-    private xDataAnchor: TabBarItem;
+    private xDataAnchor: ContentTabBarItem;
 
     public static debug: boolean = false;
 
@@ -703,9 +703,7 @@ export class ContentWizardPanel
 
     private createXDataAnchor(xDataAnchorIndex: number) {
         this.xDataAnchor =
-            new api.ui.tab.TabBarItemBuilder()
-                .setAddLabelTitleAttribute(true)
-                .setFocusable(false)
+            (<ContentTabBarItemBuilder>new ContentTabBarItemBuilder()
                 .setLabel('X-data')
                 .setClickHandler(() => {
                     this.getStepNavigator().deselectNavigationItem();
@@ -713,7 +711,7 @@ export class ContentWizardPanel
                     this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex).then(() => {
                         this.getWizardStepsPanel().setListenToScroll(true);
                     });
-                })
+                }))
                 .setIconCls('icon-plus')
                 .build();
 
@@ -748,7 +746,7 @@ export class ContentWizardPanel
             return new GetContentXDataRequest(contentId).sendAndParse().then(
                 (xDatas: Mixin[]) => {
                     let xDataAnchorIndex;
-                    let steps: WizardStep[] = [];
+                    let steps: ContentWizardStep[] = [];
 
                     this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
                     steps.push(this.contentWizardStep);
@@ -769,6 +767,14 @@ export class ContentWizardPanel
 
                             steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
                         }
+                    });
+
+                    this.getStepNavigator().onNavigationItemAdded((event: NavigatorEvent) => {
+                        const item = <ContentTabBarItem>event.getItem();
+                        if (item.getIconCls()) {
+                            this.getHeader(item.getIndex()).addClass('step-icon ' + item.getIconCls());
+                        }
+
                     });
 
                     this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
@@ -1655,7 +1661,7 @@ export class ContentWizardPanel
                     let stepForm = new XDataWizardStepForm(mixin.isExternal());
                     this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
 
-                    let wizardStep = new WizardStep(mixin.getDisplayName(), stepForm);
+                    let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
                     this.insertStepBefore(wizardStep, this.settingsWizardStep);
 
                     let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
