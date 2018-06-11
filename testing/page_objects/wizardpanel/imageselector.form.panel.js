@@ -3,6 +3,7 @@
  */
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
 var form = {
     wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
@@ -41,7 +42,7 @@ var imageSelectorForm = Object.create(page, {
 
     clickOnDropdownHandle: {
         value: function (contentData) {
-            return this.doClick(this.imageComboBoxDrppdownHandle).pause(700).catch(err=> {
+            return this.doClick(this.imageComboBoxDrppdownHandle).pause(700).catch(err => {
                 this.saveScreenshot('err_img_sel_dropdown_handle');
                 throw  new Error('image combobox dropdown handle not found ' + err);
             });
@@ -49,7 +50,7 @@ var imageSelectorForm = Object.create(page, {
     },
     clickOnModeTogglerButton: {
         value: function () {
-            return this.doClick(this.modeTogglerButton).catch(err=> {
+            return this.doClick(this.modeTogglerButton).catch(err => {
                 this.saveScreenshot('err_img_sel_toggler');
                 throw  new Error('mode toggler not found ' + err);
             }).pause(1000);
@@ -65,16 +66,18 @@ var imageSelectorForm = Object.create(page, {
         value: function () {
             let titles = [];
             let imgSelector = `${form.flatOptionView}`;
-            return this.getBrowser().elements(imgSelector).then(result=> {
-                result.value.forEach((val)=> {
+            return this.waitForVisible(imgSelector, appConst.TIMEOUT_2).then(() => {
+                return this.getBrowser().elements(imgSelector);
+            }).then(result => {
+                result.value.forEach(val => {
                     titles.push(this.getBrowser().elementIdAttribute(val.ELEMENT, 'title'));
                 });
-                return Promise.all(titles).then((p)=> {
+                return Promise.all(titles).then(p => {
                     return p;
                 });
-            }).then(responses=> {
+            }).then(responses => {
                 let imageNames = [];
-                responses.forEach((atrribute)=> {
+                responses.forEach(atrribute => {
                     return imageNames.push(atrribute.value);
                 });
                 return imageNames;
@@ -85,7 +88,7 @@ var imageSelectorForm = Object.create(page, {
     selectImages: {
         value: function (imgNames) {
             let result = Promise.resolve();
-            imgNames.forEach((name)=> {
+            imgNames.forEach(name => {
                 result = result.then(() => this.filterOptionsAndSelectImage(name));
             });
             return result;
@@ -93,7 +96,7 @@ var imageSelectorForm = Object.create(page, {
     },
     filterOptionsAndSelectImage: {
         value: function (displayName) {
-            return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(()=> {
+            return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {
                 return loaderComboBox.selectOption(displayName);
             });
         }
@@ -101,5 +104,3 @@ var imageSelectorForm = Object.create(page, {
 
 });
 module.exports = imageSelectorForm;
-
-
