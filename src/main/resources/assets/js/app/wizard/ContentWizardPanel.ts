@@ -501,15 +501,42 @@ export class ContentWizardPanel
         }
     }
 
-    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
-        let newPersistedContent: Content = event.getUploadItem().getModel();
-        this.setPersistedItem(newPersistedContent);
-        this.updateMetadataAndMetadataStepForms(newPersistedContent);
-        this.updateThumbnailWithContent(newPersistedContent);
-        let contentToDisplay = (newPersistedContent.getDisplayName() && newPersistedContent.getDisplayName().length > 0)
-            ? newPersistedContent.getDisplayName()
-            : i18n('field.content');
-        api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+    saveChanges(): wemQ.Promise<Content> {
+        let liveFormPanel = this.getLivePanel();
+        if (liveFormPanel) {
+            liveFormPanel.skipNextReloadConfirmation(true);
+        }
+        this.setRequireValid(false);
+        this.contentUpdateDisabled = true;
+        new BeforeContentSavedEvent().fire();
+        return super.saveChanges().then((content: Content) => {
+
+            const persistedItem = content.clone();
+
+            if (liveFormPanel) {
+                this.liveEditModel.setContent(persistedItem);
+                if (this.reloadPageEditorOnSave) {
+                    this.updateLiveForm(persistedItem).then(() => {
+                        if (persistedItem.isSite()) {
+                            this.updateWizardStepForms(persistedItem, false);
+                        }
+                    });
+                }
+            }
+
+            if (persistedItem.getType().isImage()) {
+                this.updateWizard(persistedItem);
+            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
+                this.securityWizardStepForm.update(persistedItem);
+            }
+
+            this.resetDisabledXDataForms();
+
+            return persistedItem;
+        }).finally(() => {
+            this.contentUpdateDisabled = false;
+            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
+        });
     }
 
     private handleSiteConfigApply() {
@@ -555,39 +582,15 @@ export class ContentWizardPanel
         this.startRememberFocus();
     }
 
-    saveChanges(): wemQ.Promise<Content> {
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-            liveFormPanel.skipNextReloadConfirmation(true);
-        }
-        this.setRequireValid(false);
-        this.contentUpdateDisabled = true;
-        new BeforeContentSavedEvent().fire();
-        return super.saveChanges().then((content: Content) => {
-            if (liveFormPanel) {
-                this.liveEditModel.setContent(content);
-                if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm().then(() => {
-                        if (content.isSite()) {
-                            this.updateWizardStepForms(content, false);
-                        }
-                    });
-                }
-            }
-
-            if (content.getType().isImage()) {
-                this.updateWizard(content);
-            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
-                this.securityWizardStepForm.update(content);
-            }
-
-            this.resetDisabledXDataForms();
-
-            return content;
-        }).finally(() => {
-            this.contentUpdateDisabled = false;
-            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
-        });
+    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
+        let newPersistedContent: Content = event.getUploadItem().getModel();
+        this.setPersistedItem(newPersistedContent.clone());
+        this.updateMetadataAndMetadataStepForms(newPersistedContent);
+        this.updateThumbnailWithContent(newPersistedContent);
+        let contentToDisplay = (newPersistedContent.getDisplayName() && newPersistedContent.getDisplayName().length > 0)
+            ? newPersistedContent.getDisplayName()
+            : i18n('field.content');
+        api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
     }
 
     close(checkCanClose: boolean = false) {
@@ -928,12 +931,12 @@ export class ContentWizardPanel
                     let isAlreadyUpdated = content.equals(this.getPersistedItem());
 
                     if (!isAlreadyUpdated) {
-                        this.setPersistedItem(content);
+                        this.setPersistedItem(content.clone());
                         this.updateWizard(content, true);
 
                         if (this.isEditorEnabled()) {
                             // also update live form panel for renderable content without asking
-                            this.updateLiveForm();
+                            this.updateLiveForm(content);
                         }
                         if (!this.isDisplayNameUpdated()) {
                             this.getWizardHeader().resetBaseValues();
@@ -1047,8 +1050,7 @@ export class ContentWizardPanel
         return new GetContentByIdRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
-    private updateLiveForm(): wemQ.Promise<any> {
-        let content = this.getPersistedItem();
+    private updateLiveForm(content: Content): wemQ.Promise<any> {
         let formContext = this.getFormContext(content);
 
         if (this.siteModel) {
