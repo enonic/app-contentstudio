@@ -293,6 +293,19 @@
       }
     }
   }
+
+  &.no-write-permissions {
+    .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
+      * {
+        pointer-events: none;
+      }
+      .@{_COMMON_PREFIX}text-input,
+      .text-area,
+      .help-text-toggler {
+        pointer-events: all;
+      }
+    }
+  }
 }
 
 ._0-240, ._240-360, ._360-540, ._540-720, ._720-960, .mce-fullscreen {

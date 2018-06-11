@@ -11,7 +11,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardStep} from './ContentWizardStep';
-import {ContentTabBarItemBuilder, ContentTabBarItem} from './ContentTabBarItem';
+import {ContentTabBarItem, ContentTabBarItemBuilder} from './ContentTabBarItem';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -158,6 +158,8 @@ export class ContentWizardPanel
     private reloadPageEditorOnSave: boolean = true;
 
     private xDataAnchor: ContentTabBarItem;
+
+    private writePermissions: boolean = false;
 
     public static debug: boolean = false;
 
@@ -428,12 +430,14 @@ export class ContentWizardPanel
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
 
-        return super.doRenderOnDataLoaded(rendered).then((renderedAfter: boolean) => {
+        return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
                 console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
             }
 
             this.appendChild(this.getContentWizardToolbarPublishControls().getPublishButtonForMobile());
+
+            this.getLivePanel().updateWritePermissions(this.writePermissions);
 
             if (this.contentType.hasContentDisplayNameScript()) {
                 this.displayNameScriptExecutor.setScript(this.contentType.getContentDisplayNameScript());
@@ -445,7 +449,7 @@ export class ContentWizardPanel
 
             ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
 
-            this.onRemoved((event) => {
+            this.onRemoved(() => {
                 ResponsiveManager.unAvailableSizeChanged(this);
             });
 
@@ -738,7 +742,7 @@ export class ContentWizardPanel
         let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
 
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            this.checkSecurityWizardStepFormAllowed(loginResult);
+            this.checkPermissions(loginResult);
             return wemQ.all(applicationPromises);
         }).then(() => {
             this.handleMissingApp();
@@ -1498,9 +1502,7 @@ export class ContentWizardPanel
             .setSiteModel(siteModel)
             .build();
 
-        return this.initPageModel(liveEditModel, this.defaultModels).then(pageModel => {
-            return liveEditModel;
-        });
+        return this.initPageModel(liveEditModel, this.defaultModels).then(() => liveEditModel);
     }
 
     private initPageModel(liveEditModel: LiveEditModel, defaultModels: DefaultModels): wemQ.Promise<PageModel> {
@@ -1869,9 +1871,16 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private checkSecurityWizardStepFormAllowed(loginResult: api.security.auth.LoginResult) {
-        const noWritePermission = !this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
-        this.securityWizardStepForm.toggleClass('no-write-permissions', noWritePermission);
+    private checkPermissions(loginResult: api.security.auth.LoginResult) {
+        this.writePermissions = this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
+        this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
+        if (this.getLivePanel()) {
+            this.getLivePanel().updateWritePermissions(this.writePermissions);
+        }
+    }
+
+    hasWritePermissions(): boolean {
+        return this.writePermissions;
     }
 
     /**

@@ -53,6 +53,8 @@ export class PageViewBuilder {
 
     element: api.dom.Body;
 
+    writePermissions: boolean = false;
+
     setLiveEditModel(value: LiveEditModel): PageViewBuilder {
         this.liveEditModel = value;
         return this;
@@ -70,6 +72,11 @@ export class PageViewBuilder {
 
     setElement(value: api.dom.Body): PageViewBuilder {
         this.element = value;
+        return this;
+    }
+
+    setWritePermissions(writePermissions: boolean): PageViewBuilder {
+        this.writePermissions = writePermissions;
         return this;
     }
 
@@ -123,6 +130,8 @@ export class PageView
 
     private isCKEditor: boolean;
 
+    private writePermissions: boolean;
+
     constructor(builder: PageViewBuilder) {
 
         super(new ItemViewBuilder()
@@ -135,6 +144,8 @@ export class PageView
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditModel.getContent())));
 
         this.isCKEditor = CONFIG.isCkeUsed;
+
+        this.writePermissions = builder.writePermissions;
 
         this.setPlaceholder(new PagePlaceholder(this));
 
@@ -166,10 +177,10 @@ export class PageView
         // lock page by default for every content that has not been modified except for page template
         let isCustomized = this.liveEditModel.getPageModel().isCustomized();
         let isFragment = !!this.fragmentView;
-        if (!this.pageModel.isPageTemplate() && !isCustomized && !isFragment) {
+        const lockable = !this.pageModel.isPageTemplate() && !isCustomized && !isFragment;
+        if (lockable || !this.writePermissions) {
             this.setLocked(true);
         }
-
     }
 
     private registerPageViewController() {
@@ -439,7 +450,7 @@ export class PageView
         let unlockAction = new api.ui.Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
-            this.setLocked(false);
+            this.setLocked(false); //
         });
 
         return [unlockAction];
@@ -461,7 +472,7 @@ export class PageView
     }
 
     handleShaderClick(event: MouseEvent) {
-        if (this.isLocked()) {
+        if (this.isLocked() && this.writePermissions) {
             if (!this.lockedContextMenu) {
                 this.lockedContextMenu = this.createLockedContextMenu();
             }
@@ -526,7 +537,7 @@ export class PageView
         this.toggleClass('force-locked', visible);
     }
 
-    setLocked(locked: boolean) {
+    setLocked(locked: boolean) { //
         this.toggleClass('locked', locked);
 
         this.hideContextMenu();

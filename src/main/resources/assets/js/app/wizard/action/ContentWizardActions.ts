@@ -260,6 +260,8 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
             let hasPublishPermission = api.security.acl.PermissionHelper.hasPermission(api.security.acl.Permission.PUBLISH,
                 loginResult, existing.getPermissions());
 
+            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.hasModifyPermission);
+
             if (!this.hasModifyPermission) {
                 this.enableActions({SAVE: false, SAVE_AND_CLOSE: false});
             }

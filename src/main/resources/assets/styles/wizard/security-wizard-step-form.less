@@ -1,11 +1,4 @@
 .security-wizard-step-form {
-
-  &.no-write-permissions {
-    .edit-permissions {
-      display: none;
-    }
-  }
-
   .edit-permissions {
     .button(@form-button-font, @form-button-bg);
     display: inline-block;
@@ -42,5 +35,12 @@
     }
 
   }
+}
 
+.no-write-permissions {
+  .security-wizard-step-form {
+    .edit-permissions {
+      display: none;
+    }
+  }
 }
