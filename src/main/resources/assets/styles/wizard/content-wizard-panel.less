@@ -61,9 +61,9 @@
 
       .wizard-step-navigator-and-toolbar {
 
-        .tab-bar-item.step-icon {
+        .tab-bar-item {
 
-          &.x-data-anchor {
+          &.step-icon.x-data-anchor {
 
             // Remove the line below to enable "X" anchor in the toolbar
             // that will scroll to the first X-data step in the Wizard
@@ -71,18 +71,19 @@
 
             .icon-medium();
 
-            ~.x-data {
-              .label:before {
-                display: inline-block;
-                content: '+';
-                padding-right: 5px;
-              }
-            }
-
             &.hidden {
               display: none;
             }
 
+          }
+
+
+          &.x-data {
+            .label:before {
+              display: inline-block;
+              content: '+';
+              padding-right: 5px;
+            }
           }
 
         }
