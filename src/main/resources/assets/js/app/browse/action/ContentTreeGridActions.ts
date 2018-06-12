@@ -254,6 +254,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         let anyIsPendingDelete = false;
         let someArePublished = false;
         let allAreReadonly = contentBrowseItems.length > 0;
+        const isMultipleOrValid = contentSummaries.length > 1 || (contentSummaries.length === 1 && contentSummaries[0].isValid());
 
         contentBrowseItems.forEach((browseItem) => {
             let content = browseItem.getModel();
@@ -275,7 +276,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             }
         });
 
-        const publishEnabled = !allAreOnline && noManagedActionExecuting;
+        const publishEnabled = !allAreOnline && noManagedActionExecuting && isMultipleOrValid;
         if (this.isEveryLeaf(contentSummaries)) {
             treePublishEnabled = false;
             unpublishEnabled = someArePublished;
@@ -454,9 +455,9 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
-    private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary) {
+    private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
         // Need to check if parent allows content creation
-        new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) => {
+        return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
             new api.content.resource.GetPermittedActionsRequest()
                 .addContentIds(content.getContentId())
                 .addPermissionsToBeChecked(Permission.CREATE)
@@ -464,8 +465,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                 const canDuplicate = allowedPermissions.indexOf(Permission.CREATE) > -1 &&
                                      !ManagedActionManager.instance().isExecuting();
                 this.enableActions({DUPLICATE: canDuplicate});
-            });
-        });
+            }));
     }
 
     private isAllItemsSelected(items: number): boolean {
