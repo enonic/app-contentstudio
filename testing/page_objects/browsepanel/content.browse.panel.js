@@ -410,6 +410,15 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
+    isExpanderIconPresent: {
+        value: function (name) {
+            var expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
+            return this.waitForVisible(expanderIcon).catch(err => {
+                this.saveScreenshot('expander_not_exists ' + name);
+                return false;
+            })
+        }
+    },
     // this method does not wait, it just checks the attribute
     isRedIconDisplayed: {
         value: function (contentName) {
