@@ -297,7 +297,7 @@ export class IssueDetailsDialog
         };
         const itemList = this.getItemList();
         itemList.onItemsAdded(items => {
-            this.initItemListTogglers(itemList);
+            this.ignoreNextExcludeChildrenEvent = this.initItemListTogglers(itemList);
             this.updateItemsCountAndButtons();
             this.updateShowScheduleDialogButton();
         });
@@ -428,7 +428,6 @@ export class IssueDetailsDialog
             const toggler = itemView.getIncludeChildrenToggler();
             return (!!toggler && toggler.toggle(this.areChildrenIncludedInIssue(itemView.getContentId()))) || alreadyMade;
         }, false);
-        this.ignoreNextExcludeChildrenEvent = changesMade;
         return changesMade;
     }
 
@@ -517,6 +516,7 @@ export class IssueDetailsDialog
         return this.createPublishContentRequest(scheduled).sendAndParse()
             .then((taskId: api.task.TaskId) => {
                 const issue = this.issue;
+                this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
                         new UpdateIssueRequest(issue.getId())
