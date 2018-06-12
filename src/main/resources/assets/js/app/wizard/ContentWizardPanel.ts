@@ -11,7 +11,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardStep} from './ContentWizardStep';
-import {ContentTabBarItemBuilder, ContentTabBarItem} from './ContentTabBarItem';
+import {ContentTabBarItem, ContentTabBarItemBuilder} from './ContentTabBarItem';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -814,7 +814,7 @@ export class ContentWizardPanel
 
     }
 
-    private setContent(compareStatus: CompareStatus) {
+    private updateContent(compareStatus: CompareStatus) {
         this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(this.currentContent);
@@ -874,7 +874,7 @@ export class ContentWizardPanel
             }).some((deletedItem) => {
                 if (deletedItem.isPending()) {
                     this.getContentWizardToolbarPublishControls().setContentCanBePublished(true, false);
-                    this.setContent(deletedItem.getCompareStatus());
+                    this.updateContent(deletedItem.getCompareStatus());
                 } else {
                     this.contentDeleted = true;
                     this.close();
@@ -886,19 +886,18 @@ export class ContentWizardPanel
             event.getUndeletedItems().filter((undeletedItem) => {
                 return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
             }).some((undeletedItem) => {
-                this.setContent(undeletedItem.getCompareStatus());
+                this.updateContent(undeletedItem.getCompareStatus());
 
                 return true;
             });
 
             [].concat(event.getDeletedItems(), event.getUndeletedItems()).some(deletedItem => {
-                const defaultTemplate = this.defaultModels.getPageTemplate();
-                const pageTemplate = this.liveEditModel.getPageModel().getTemplate();
-                if (defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey())
-                    || pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey())) {
-
+                const defaultTemplate = this.defaultModels ? this.defaultModels.getPageTemplate() : null;
+                const pageTemplate = this.liveEditModel ? this.liveEditModel.getPageModel().getTemplate() : null;
+                const isDefaultTemplate = defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey());
+                const isPageTemplate = pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey());
+                if (isDefaultTemplate || isPageTemplate) {
                     loadDefaultModelsAndUpdatePageModel().done();
-
                     return true;
                 }
             });

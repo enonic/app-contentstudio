@@ -20,11 +20,12 @@ export class ContentStatusToolbar
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
-        if (this.getItem() !== item) {
-            super.setItem(item);
-            this.toggleValid(item.getContentSummary() && item.getContentSummary().isValid());
-            this.updateStatus(item);
-            this.updateAuthor(item);
+        if (item && !item.equals(this.getItem())) {
+            const content = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus());
+            super.setItem(content);
+            this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
+            this.updateStatus(content);
+            this.updateAuthor(content);
         }
     }
 
