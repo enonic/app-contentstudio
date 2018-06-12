@@ -73,7 +73,7 @@
 
             ~.x-data {
               .label:before {
-                display: none;
+                display: inline-block;
                 content: '+';
                 padding-right: 5px;
               }
@@ -101,14 +101,6 @@
                 padding-left: 20px;
                 padding-right: 0;
               }
-
-              &.hidden {
-                ~.x-data {
-                  .label:before {
-                    display: inline-block;
-                  }
-                }
-              }
             }
           }
         }
@@ -129,12 +121,6 @@
                 display: inline-block;
                 font-size: 15px;
                 font-weight: bold;
-              }
-
-              ~.x-data {
-                .label:before {
-                  display: inline-block;
-                }
               }
             }
           }
