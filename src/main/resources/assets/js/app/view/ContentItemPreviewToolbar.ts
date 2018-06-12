@@ -55,6 +55,11 @@ export class ContentItemPreviewToolbar
         super.setItem(item);
     }
 
+    protected foldOrExpand() {
+        // Disable fold in the Content preview toolbar
+        return false;
+    }
+
     private fetchIssues(id: ContentId) {
         if (this.issueActionsList && this.issueActionsList.length > 0) {
             this.issueButton.removeMenuActions(this.issueActionsList);
