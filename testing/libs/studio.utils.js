@@ -38,6 +38,13 @@ module.exports = {
             console.log('Error, when checking the element ' + selector + '  ' + err);
         })
     },
+    switchToFrameBySrc: function (src) {
+        let selector = `//iframe[contains(@src,'${src}')]`;
+        return webDriverHelper.browser.element(selector).then(result => {
+            console.log('############## ' + result.value);
+            return webDriverHelper.browser.frame(result.value);
+        });
+    },
     getTitle: function () {
         return webDriverHelper.browser.getTitle();
     },
