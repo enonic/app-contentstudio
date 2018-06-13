@@ -111,7 +111,8 @@ function initToolTip() {
             position: 'absolute', top, left
         }).appendTo('body').show();
     };
-    wemjq(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', function (e: any) {
+
+    const addTooltip = (e: JQueryEventObject) => {
         wemjq(e.target).data(DATA, wemjq(e.target).attr('title'));
         wemjq(e.target).removeAttr('title').addClass(CLS_ON);
         if (e.pageX) {
@@ -121,15 +122,43 @@ function initToolTip() {
             pageY = e.pageY;
         }
         showAt(e);
-    });
-    wemjq(document).on('mouseleave click', '.' + CLS_ON, function (e: any) {
+        onRemovedOrHidden(e.target);
+    };
+
+    const removeTooltip = (e: { target: Element }) => {
         if (wemjq(e.target).data(DATA)) {
             wemjq(e.target).attr('title', wemjq(e.target).data(DATA));
         }
         wemjq(e.target).removeClass(CLS_ON);
         wemjq('#' + ID).remove();
-    });
-    if (FOLLOW) { wemjq(document).on('mousemove', '.' + CLS_ON, showAt); }
+        unRemovedOrHidden();
+    };
+
+    wemjq(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
+    wemjq(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
+    if (FOLLOW) {
+        wemjq(document).on('mousemove', `.${CLS_ON}`, showAt);
+    }
+
+    let element: api.dom.Element;
+    const removeHandler = (event: api.dom.ElementRemovedEvent) => {
+        const target = event.getElement().getHTMLElement();
+        removeTooltip({target});
+    };
+
+    const onRemovedOrHidden = (target: Element) => {
+        element = api.dom.ElementRegistry.getElementById(target.id);
+        if (element) {
+            element.onRemoved(removeHandler);
+            element.onHidden(removeHandler);
+        }
+    };
+    const unRemovedOrHidden = () => {
+        if (element) {
+            element.unRemoved(removeHandler);
+            element.unHidden(removeHandler);
+        }
+    };
 }
 
 function updateTabTitle(title: string) {
