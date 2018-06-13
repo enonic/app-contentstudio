@@ -227,8 +227,8 @@ export class IssueDetailsDialog
 
     private setActionsEnabled(flag: boolean) {
         this.getButtonRow().getActions().forEach(action => {
-            if (action == this.commentAction) {
-                action.setEnabled(flag && this.commentTextArea.getValue().length > 0)
+            if (action === this.commentAction) {
+                action.setEnabled(flag && this.commentTextArea.getValue().length > 0);
             } else {
                 action.setEnabled(flag);
             }
