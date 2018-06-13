@@ -32,6 +32,8 @@ export class FragmentInspectionPanel
 
     private fragmentForm: FragmentSelectorForm;
 
+    private editFragmentButton: Button;
+
     private handleSelectorEvents: boolean = true;
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
@@ -80,10 +82,10 @@ export class FragmentInspectionPanel
     }
 
     private appendEditTemplateButton() {
-        const saveAsTemplateButton = new Button(i18n('action.editFragment'));
-        saveAsTemplateButton.addClass('blue large');
+        this.editFragmentButton = new Button(i18n('action.editFragment'));
+        this.editFragmentButton.addClass('blue large');
 
-        saveAsTemplateButton.onClicked(() => {
+        this.editFragmentButton.onClicked(() => {
             const fragmentId: ContentId = this.fragmentComponent.getFragment();
             if (fragmentId) {
                 const fragment: ContentSummary = this.fragmentSelector.getSelection(fragmentId);
@@ -93,7 +95,7 @@ export class FragmentInspectionPanel
             }
         });
 
-        this.fragmentForm.appendChild(saveAsTemplateButton);
+        this.fragmentForm.appendChild(this.editFragmentButton);
     }
 
     private handleContentUpdatedEvent() {
@@ -161,6 +163,7 @@ export class FragmentInspectionPanel
             }
         }
         this.fragmentSelector.setSelection(fragment);
+        this.editFragmentButton.setEnabled(!!fragment);
         this.handleSelectorEvents = true;
     }
 
