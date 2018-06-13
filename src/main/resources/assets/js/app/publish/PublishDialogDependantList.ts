@@ -55,10 +55,6 @@ export class PublishDialogDependantList
         this.requiredIds = ContentIds.from(value);
     }
 
-    public setReadOnly(value: boolean) {
-        this.toggleClass('readonly', value);
-    }
-
     private initListItemListeners(item: ContentSummaryAndCompareStatus, view: api.dom.Element) {
         view.onClicked((event) => {
             if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {

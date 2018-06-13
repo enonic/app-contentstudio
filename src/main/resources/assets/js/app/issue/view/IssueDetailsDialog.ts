@@ -381,6 +381,7 @@ export class IssueDetailsDialog
     setReadOnly(value: boolean) {
         this.getItemList().setReadOnly(value);
         this.getDependantList().setReadOnly(value);
+        this.commentsList.setReadOnly(value);
         this.itemSelector.setReadOnly(value);
         this.assigneesCombobox.setReadOnly(value);
         (<IssueDetailsDialogHeader>this.header).setReadOnly(value);
