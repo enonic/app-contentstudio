@@ -21,7 +21,9 @@ export class ContentStatusToolbar
 
     setItem(item: ContentSummaryAndCompareStatus) {
         if (item && !item.equals(this.getItem())) {
-            const content = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus());
+            const content = ContentSummaryAndCompareStatus
+                .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
+                .setPublishStatus(item.getPublishStatus());
             super.setItem(content);
             this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
             this.updateStatus(content);
