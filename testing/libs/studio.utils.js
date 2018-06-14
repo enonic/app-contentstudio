@@ -70,6 +70,15 @@ module.exports = {
         }).pause(700);
 
     },
+    insertEmailLinkInCke: function (text, email) {
+        return insertLinkDialog.typeText(text).then(() => {
+            return insertLinkDialog.fillEmailForm(email);
+        }).then(() => {
+            this.saveScreenshot('email_link_dialog');
+            return insertLinkDialog.clickOnInsertButton();
+        }).pause(700);
+    },
+
     insertContentLinkInCke: function (text, contentDisplayName) {
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.selectTargetInContentTab(contentDisplayName);

@@ -9,6 +9,7 @@ const dialog = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     textInput: `//div[contains(@id,'FormItem') and child::label[text()='Text']]//input[@type='text']`,
     urlInput: `//div[contains(@id,'FormItem') and child::label[text()='Url']]//input[@type='text']`,
+    emailInput: `//div[contains(@id,'FormItem') and child::label[text()='Email']]//input[@type='text']`,
 };
 
 var insertLinkDialog = Object.create(page, {
@@ -21,6 +22,11 @@ var insertLinkDialog = Object.create(page, {
     urlInput: {
         get: function () {
             return `${dialog.container}` + `${dialog.urlInput}`;
+        }
+    },
+    emailInput: {
+        get: function () {
+            return `${dialog.container}` + `${dialog.emailInput}`;
         }
     },
     cancelButton: {
@@ -62,6 +68,19 @@ var insertLinkDialog = Object.create(page, {
             }).then(() => {
                 return loaderComboBox.typeTextAndSelectOption(targetDisplayName);
             })
+        }
+    },
+    fillEmailForm: {
+        value: function (email) {
+            let selector = dialog.container + elements.tabBarItemByName('Email');
+            return this.doClick(selector).then(() => {
+                return this.waitForVisible(this.emailInput, appConst.TIMEOUT_2);
+            }).then(() => {
+                return this.typeTextInInput(this.emailInput, email);
+            }).catch(err => {
+                this.saveScreenshot('err_type_email');
+                throw new Error('error when type email in Insert Link modal dialog ' + err);
+            });
         }
     },
     selectTargetInContentTab: {
