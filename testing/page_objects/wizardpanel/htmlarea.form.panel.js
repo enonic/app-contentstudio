@@ -108,7 +108,7 @@ const htmlAreaForm = Object.create(page, {
     },
     showToolbarAndClickOnInsertImageButton: {
         value: function () {
-            return this.waitForVisible(form.ckeTextArea).then(() => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(form.ckeTextArea);
             }).then(() => {
                 return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Image']`);
