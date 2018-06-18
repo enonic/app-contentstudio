@@ -25,7 +25,7 @@ describe('Text Component with CKE - insert email link  specification', function 
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
