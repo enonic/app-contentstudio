@@ -114,7 +114,7 @@ export class IssueDetailsDialog
         this.loadCurrentUser().done(currentUser => {
             this.commentTextArea.setUser(currentUser);
         });
-        this.initRouting();
+
         this.handleIssueGlobalEvents();
         this.initActions();
     }
@@ -266,6 +266,8 @@ export class IssueDetailsDialog
         if (this.isRendered()) {
             this.tabPanel.selectPanelByIndex(0);
         }
+
+        Router.setHash('issue/' + this.issue.getId());
     }
 
     private createSubTitle() {
@@ -346,14 +348,6 @@ export class IssueDetailsDialog
             this.currentUser = loginResult.getUser();
             return this.currentUser;
         });
-    }
-
-    private initRouting() {
-        this.onShown(() => {
-            Router.setHash('issue/' + this.issue.getId());
-        });
-
-        this.onClosed(Router.back);
     }
 
     private handleIssueGlobalEvents() {
@@ -654,6 +648,7 @@ export class IssueDetailsDialog
     close() {
         this.getItemList().clearExcludeChildrenIds();
         super.close(false);
+        Router.back();
     }
 
     private areSomeItemsOffline(): boolean {
