@@ -913,7 +913,7 @@ export class ContentWizardPanel
                     this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
-                    this.getWizardHeader().disableNameGeneration(content.getCompareStatus() === CompareStatus.EQUAL);
+                    this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
         };
@@ -1218,7 +1218,7 @@ export class ContentWizardPanel
         return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.persistedContent = this.currentContent = summaryAndStatus;
 
-            this.getWizardHeader().disableNameGeneration(this.currentContent.getCompareStatus() !== CompareStatus.NEW);
+            this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
             this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
                 !this.getPersistedItem().hasChildren());
