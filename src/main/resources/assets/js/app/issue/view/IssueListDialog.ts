@@ -116,6 +116,7 @@ export class IssueListDialog
 
         this.skipInitialLoad = false;
         this.openIssuesPanel.resetFilters();
+        this.closedIssuesPanel.resetFilters();
         if (assignedToMe) {
             this.openIssuesPanel.setAssignedToMe(true, true);
             this.closedIssuesPanel.setAssignedToMe(true, true);
