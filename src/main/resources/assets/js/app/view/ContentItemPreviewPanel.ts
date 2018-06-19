@@ -82,7 +82,7 @@ export class ContentItemPreviewPanel
                 let contentPreviewPath = UriHelper.trimUrlParams(
                     UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
                     frameWindow)));
-                if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow)) {
+                if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
                     event.preventDefault();
                     let clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
                     this.skipNextSetItemCall = true;
@@ -122,6 +122,10 @@ export class ContentItemPreviewPanel
     private isNavigatingWithinSamePage(contentPreviewPath: string, frameWindow: Window): boolean {
         let href = frameWindow.location.href;
         return contentPreviewPath === UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(href, frameWindow));
+    }
+
+    private isDownloadLink(contentPreviewPath: string): boolean {
+        return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
     private centerImage(imgWidth: number, imgHeight: number, myWidth: number, myHeight: number) {

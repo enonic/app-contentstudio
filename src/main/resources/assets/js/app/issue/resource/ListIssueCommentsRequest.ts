@@ -9,7 +9,7 @@ import Path = api.rest.Path;
 export class ListIssueCommentsRequest
     extends IssueResourceRequest<ListIssueCommentsResult, ListIssueCommentsResponse> {
 
-    private static DEFAULT_FETCH_SIZE: number = 10;
+    private static DEFAULT_FETCH_SIZE: number = 150;
 
     private creator: PrincipalKey;
 
