@@ -1033,23 +1033,14 @@ export class ContentWizardPanel
 
         const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
 
-        const updatePublishControls = (childUpdated: boolean) => {
+        const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
+            const childUpdated = data.some(item => isChild(item.getPath()));
             if (childUpdated) {
                 this.fetchPersistedContent().then((content: Content) => {
                     const isLeaf = !content.hasChildren();
                     this.getContentWizardToolbarPublishControls().setLeafContent(isLeaf);
                 }).catch(api.DefaultErrorHandler.handle).done();
             }
-        };
-
-        const childrenAddedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            const childUpdated = data.some(child => isChild(child.getPath()));
-            updatePublishControls(childUpdated);
-        };
-
-        const childrenRemovedHandler = (changedItems: ContentServerChangeItem[]) => {
-            const childUpdated = changedItems.some(item => isChild(item.getPath()));
-            updatePublishControls(childUpdated);
         };
 
         ContentDeletedEvent.on(deleteHandler);
@@ -1060,8 +1051,8 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
-        serverEvents.onContentCreated(childrenAddedHandler);
-        serverEvents.onContentDeleted(childrenRemovedHandler);
+        serverEvents.onContentCreated(childrenModifiedHandler);
+        serverEvents.onContentDeleted(childrenModifiedHandler);
 
         this.onClosed(() => {
             ContentDeletedEvent.un(deleteHandler);
@@ -1072,8 +1063,8 @@ export class ContentWizardPanel
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
 
-            serverEvents.unContentCreated(childrenAddedHandler);
-            serverEvents.unContentDeleted(childrenRemovedHandler);
+            serverEvents.unContentCreated(childrenModifiedHandler);
+            serverEvents.unContentDeleted(childrenModifiedHandler);
         });
     }
 
