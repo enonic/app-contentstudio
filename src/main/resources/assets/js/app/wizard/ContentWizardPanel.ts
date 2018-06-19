@@ -847,7 +847,7 @@ export class ContentWizardPanel
         return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
             return nearestSiteChanged || outboundDependencyUpdated;
 
-        })
+        });
     }
 
     private listenToContentEvents() {
