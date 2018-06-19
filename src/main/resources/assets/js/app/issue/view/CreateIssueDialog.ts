@@ -127,12 +127,18 @@ export class CreateIssueDialog
 
     public enableBackButton() {
         this.backButton.show();
-        this.getCancelButton().hide();
+        const cancelButton = this.getCancelButton();
+        if (cancelButton) {
+            cancelButton.hide();
+        }
     }
 
     private disableBackButton() {
         this.backButton.hide();
-        this.getCancelButton().show();
+        const cancelButton = this.getCancelButton();
+        if (cancelButton) {
+            cancelButton.show();
+        }
     }
 
     private createBackButton(): AEl {

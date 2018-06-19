@@ -1,30 +1,19 @@
 import '../../api.ts';
-
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import BrowseItem = api.app.browse.BrowseItem;
 import Tooltip = api.ui.Tooltip;
 import i18n = api.util.i18n;
 
-export class StatusSelectionItem extends api.app.browse.SelectionItem<ContentSummaryAndCompareStatus> {
+export class StatusSelectionItem
+    extends api.app.browse.SelectionItem<ContentSummaryAndCompareStatus> {
 
     private removeHandlerFn: () => void;
     private isRemovableFn: () => boolean;
+    private clickTooltip: Tooltip;
+    private removeClickTooltip: string = i18n('tooltip.list.itemRequired');
 
     constructor(viewer: api.ui.Viewer<ContentSummaryAndCompareStatus>, item: BrowseItem<ContentSummaryAndCompareStatus>) {
         super(viewer, item);
-
-        let onRemoveClicked = api.util.AppHelper.debounce(() => {
-            Tooltip.hideOtherInstances();
-            if (this.isRemovable()) {
-                this.removeHandlerFn();
-            } else {
-                let tooltip = new Tooltip(this.getRemoveButton(), i18n('dialog.publish.itemRequired'));
-                tooltip.setTrigger(Tooltip.TRIGGER_NONE);
-                tooltip.showFor(1500);
-            }
-        }, 1000, true);
-
-        this.onRemoveClicked(onRemoveClicked);
     }
 
     public isRemovable(): boolean {
@@ -43,15 +32,35 @@ export class StatusSelectionItem extends api.app.browse.SelectionItem<ContentSum
         this.removeHandlerFn = fn;
     }
 
-    setRemoveButtonTooltip(tooltipText: string) {
-        this.removeEl.getEl().setTitle(tooltipText);
-        this.removeEl.onMouseMove(e => { // stop propagating move event to parents, otherwise parent's tooltip shown
-            e.stopPropagation();
-        });
+    setRemoveButtonClickTooltip(text: string) {
+        if (this.isRendered()) {
+            this.clickTooltip.setText(text);
+        } else {
+            this.removeClickTooltip = text;
+        }
     }
 
     doRender(): wemQ.Promise<boolean> {
         return super.doRender().then((rendered) => {
+
+            const removeButton = this.getRemoveButton();
+            this.clickTooltip = new Tooltip(removeButton, this.removeClickTooltip);
+            this.clickTooltip.setTrigger(Tooltip.TRIGGER_NONE);
+
+            let onRemoveClicked = api.util.AppHelper.debounce(() => {
+                Tooltip.hideOtherInstances();
+                if (this.isRemovable()) {
+                    this.removeHandlerFn();
+                } else {
+                    this.clickTooltip.showFor(1500);
+                }
+            }, 1000, true);
+
+            this.onRemoveClicked(onRemoveClicked);
+
+            removeButton.onMouseMove(e => { // stop propagating move event to parents, otherwise parent's tooltip shown
+                e.stopPropagation();
+            });
 
             let statusDiv = this.initStatusDiv(this.item.getModel());
             this.appendChild(statusDiv);
@@ -60,7 +69,7 @@ export class StatusSelectionItem extends api.app.browse.SelectionItem<ContentSum
         });
     }
 
-    private initStatusDiv(content:ContentSummaryAndCompareStatus) {
+    private initStatusDiv(content: ContentSummaryAndCompareStatus) {
 
         let statusDiv = new api.dom.DivEl('status');
 
