@@ -991,20 +991,6 @@ export class ContentWizardPanel
                         }
                     });
                 });
-
-                /*if (this.isUpdateOfPageModelRequired(updatedContent)) {
-                    templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
-                } else {
-                    templateUpdatedPromise = wemQ(false);
-                }
-
-                wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
-                    if (containsId || templateUpdated) {
-                        const livePanel = this.getLivePanel();
-                        livePanel.skipNextReloadConfirmation(true);
-                        livePanel.loadPage(false);
-                    }
-                });*/
             }
 
             // checks if parent site has been modified
