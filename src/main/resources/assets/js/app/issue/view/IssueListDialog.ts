@@ -224,6 +224,7 @@ export class IssueListDialog
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));
+        issuePanel.getIssueList().onIssuesLoaded(() => this.notifyResize());
 
         return issuePanel;
     }
