@@ -11,7 +11,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const confirmationDialog = require('../../page_objects/confirmation.dialog');
 
 
 describe('issue.no.items.spec: create issue without items, close the issue and reopen the issue again', function () {
