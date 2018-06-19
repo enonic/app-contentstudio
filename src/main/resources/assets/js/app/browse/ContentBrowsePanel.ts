@@ -37,6 +37,7 @@ import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import RepositoryEvent = api.content.event.RepositoryEvent;
+import ContentQueryRequestHelper = api.content.resource.ContentQueryRequestHelper;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -687,6 +688,17 @@ export class ContentBrowsePanel
 
                 return previewRefreshed;
             });
+        }).then(() => {
+            if (!previewRefreshed) {
+
+                ContentQueryRequestHelper.anyIsOutboundDependency(previewItem.getModel().getContentId(),
+                    updatedContents.map(updatedContent => updatedContent.getContentId())).then(outboundDependencyUpdated => {
+                    if (outboundDependencyUpdated) {
+                        this.forcePreviewRerender();
+                        previewRefreshed = true;
+                    }
+                });
+            }
         });
     }
 
