@@ -21,7 +21,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
     let folder;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('duplicate-site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
