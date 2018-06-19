@@ -23,7 +23,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
     let SITE;
     it(`GIVEN existing site is opened WHEN 'edit' button on the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
             return studioUtils.doAddSite(SITE).then(()=> {

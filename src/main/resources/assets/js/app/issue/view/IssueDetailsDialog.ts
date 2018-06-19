@@ -189,14 +189,18 @@ export class IssueDetailsDialog
             [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
         this.assigneesCombobox = new PrincipalComboBoxBuilder().setLoader(userLoader).build();
         const updateTabCount = (save) => {
-            const val = this.assigneesCombobox.getValue();
-            const num = !api.util.StringHelper.isBlank(val) ? val.split(ComboBox.VALUE_SEPARATOR).length : 0;
+            let num = 0;
+            const loader = this.assigneesCombobox.getLoader();
+            if (loader.isPreLoaded() || loader.isLoaded()) {
+                num = this.assigneesCombobox.getSelectedValues().length;
+            }
             this.assigneesTab.setHtml(i18n('field.assignees') + (num > 0 ? ` (${num})` : ''));
             if (save) {
                 this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
             }
         };
-        this.assigneesCombobox.onValueChanged(event => updateTabCount(false));
+
+        this.assigneesCombobox.onValueLoaded(options => updateTabCount(false));
         this.assigneesCombobox.onOptionSelected(option => updateTabCount(true));
         this.assigneesCombobox.onOptionDeselected(option => updateTabCount(true));
         assigneesPanel.appendChild(this.assigneesCombobox);
@@ -410,7 +414,9 @@ export class IssueDetailsDialog
 
             this.commentsList.setParentIssue(issue);
 
-            this.assigneesCombobox.setValue(issue.getApprovers().join(ComboBox.VALUE_SEPARATOR));
+            const newAssignees = issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
+            this.assigneesCombobox.setValue(newAssignees, false, true); // force reload value in case some users have been deleted
+
             this.commentTextArea.setValue('', true);
             this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         }

@@ -1,5 +1,4 @@
 import '../../api.ts';
-
 import Action = api.ui.Action;
 import RenderingMode = api.rendering.RenderingMode;
 import i18n = api.util.i18n;
@@ -13,8 +12,8 @@ export class BasePreviewAction extends Action {
 
     private notifyBlocked: () => void;
 
-    constructor(label: string, shortcut?: string, global?: boolean) {
-        super(label, shortcut, global);
+    constructor(label: string) {
+        super(label, api.BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         // Notification is shown not less than once in a minute, if triggered
         this.notifyBlocked = api.util.AppHelper.debounce(() => {
             api.notify.showWarning(i18n('notify.popupBlocker.sites'), false);

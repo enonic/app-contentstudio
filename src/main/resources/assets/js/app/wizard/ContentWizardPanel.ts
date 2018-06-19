@@ -62,6 +62,7 @@ import GetContentXDataRequest = api.schema.xdata.GetContentXDataRequest;
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentNamedEvent = api.content.event.ContentNamedEvent;
 import BeforeContentSavedEvent = api.content.event.BeforeContentSavedEvent;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
@@ -865,7 +866,7 @@ export class ContentWizardPanel
                 });
         };
 
-        let deleteHandler = (event: api.content.event.ContentDeletedEvent) => {
+        const deleteHandler = (event: api.content.event.ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
                 return;
             }
@@ -905,7 +906,7 @@ export class ContentWizardPanel
 
         };
 
-        let publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+        const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
@@ -913,12 +914,12 @@ export class ContentWizardPanel
                     this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
-                    this.getWizardHeader().disableNameGeneration(content.getCompareStatus() === CompareStatus.EQUAL);
+                    this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
         };
 
-        let updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
+        const updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
             const contentId: ContentId = updatedContent.getContentId();
 
             if (this.isCurrentContentId(contentId)) {
@@ -989,7 +990,7 @@ export class ContentWizardPanel
             }
         };
 
-        let sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             let indexOfCurrentContent;
             let wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
                 indexOfCurrentContent = index;
@@ -1012,7 +1013,7 @@ export class ContentWizardPanel
             }
         };
 
-        let movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+        const movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             let wasMoved = oldPaths.some((oldPath: ContentPath) => {
                 return this.persistedItemPathIsDescendantOrEqual(oldPath);
             });
@@ -1022,11 +1023,23 @@ export class ContentWizardPanel
             }
         };
 
-        let contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (!this.contentUpdateDisabled) {
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updateHandler(updated);
                 });
+            }
+        };
+
+        const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
+
+        const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
+            const childUpdated = data.some(item => isChild(item.getPath()));
+            if (childUpdated) {
+                this.fetchPersistedContent().then((content: Content) => {
+                    const isLeaf = !content.hasChildren();
+                    this.getContentWizardToolbarPublishControls().setLeafContent(isLeaf);
+                }).catch(api.DefaultErrorHandler.handle).done();
             }
         };
 
@@ -1038,6 +1051,9 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
+        serverEvents.onContentCreated(childrenModifiedHandler);
+        serverEvents.onContentDeleted(childrenModifiedHandler);
+
         this.onClosed(() => {
             ContentDeletedEvent.un(deleteHandler);
 
@@ -1046,6 +1062,9 @@ export class ContentWizardPanel
             serverEvents.unContentUpdated(contentUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
+
+            serverEvents.unContentCreated(childrenModifiedHandler);
+            serverEvents.unContentDeleted(childrenModifiedHandler);
         });
     }
 
@@ -1218,7 +1237,7 @@ export class ContentWizardPanel
         return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.persistedContent = this.currentContent = summaryAndStatus;
 
-            this.getWizardHeader().disableNameGeneration(this.currentContent.getCompareStatus() !== CompareStatus.NEW);
+            this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
             this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
                 !this.getPersistedItem().hasChildren());
