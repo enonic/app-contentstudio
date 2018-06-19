@@ -46,31 +46,39 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     clickOnIncludeChildrenToggler: {
         value: function (displayName) {
             let xpath = xpath.selectionItemByDisplayName(displayName) + `${xpath.includeChildrenToggler}`
-            this.waitForVisible(xpath, appConst.TIMEOUT_1).then(()=> {
+            return this.waitForVisible(xpath, appConst.TIMEOUT_1).then(() => {
                 return this.doClick(xpath);
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_dependent');
                 throw new Error('Error when clicking on dependant ' + displayName + ' ' + err);
             })
         }
     },
+    clickOnPublishAndCloseIssueButton: {
+        value: function () {
+            return this.doClick(this.publishAndCloseIssueButton).catch(err => {
+                this.saveScreenshot('err_click_on_publish_and_close');
+                throw new Error('Error when clicking on Publish and close ' + err);
+            })
+        }
+    },
     isPublishAndCloseIssueButtonPresent: {
         value: function () {
-            return this.isVisible(this.publishAndCloseIssueButton).catch(err=> {
+            return this.isVisible(this.publishAndCloseIssueButton).catch(err => {
                 throw new Error('Error when checking the `Publish & Close Issue` button ' + err)
             })
         }
     },
     isContentOptionsFilterInputPresent: {
         value: function () {
-            return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err=> {
+            return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
                 throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
             })
         }
     },
     clickAndShowScheduleMenuItem: {
         value: function () {
-            return this.doClick(this.menuScheduleDropDownHandle).pause(500).catch(err=> {
+            return this.doClick(this.menuScheduleDropDownHandle).pause(500).catch(err => {
                 throw new Error('Items Tab:error when click on dropdown handle : ' + err)
             })
         }
@@ -90,16 +98,16 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     //Show dependent items
     clickOnShowDependentItems: {
         value: function (text) {
-            return this.waitForVisible(this.showDependentItemsLink, appConst.TIMEOUT_1).then(()=> {
+            return this.waitForVisible(this.showDependentItemsLink, appConst.TIMEOUT_1).then(() => {
                 return this.doClick(this.showDependentItemsLink);
-            }).pause(300).catch(err=> {
+            }).pause(300).catch(err => {
                 throw new Error('error when clicking on `Show dependent items`: ' + err)
             })
         }
     },
     isShowDependentItemsLinkDisplayed: {
         value: function () {
-            return this.waitForVisible(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err=> {
+            return this.waitForVisible(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
                 console.log(err);
                 return false;
             })
@@ -109,16 +117,16 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     //Hide dependent items
     clickOnHideDependentItems: {
         value: function () {
-            return this.waitForVisible(this.hideDependentItemsLink, appConst.TIMEOUT_2).then(()=> {
+            return this.waitForVisible(this.hideDependentItemsLink, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(this.hideDependentItemsLink);
-            }).pause(300).catch(err=> {
+            }).pause(300).catch(err => {
                 throw new Error('error when clicking on `Hide dependent items`: ' + err)
             })
         }
     },
     isHideDependentItemsLinkDisplayed: {
         value: function () {
-            return this.waitForVisible(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err=> {
+            return this.waitForVisible(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
                 console.log(err);
                 return false;
             })
@@ -127,9 +135,9 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     clickOnIncludeChildItems: {
         value: function (contentDisplayName) {
             let includeIcon = xpath.selectionItemByDisplayName(contentDisplayName) + `${xpath.includeChildrenToggler}`;
-            return this.waitForVisible(includeIcon, appConst.TIMEOUT_2).then(()=> {
+            return this.waitForVisible(includeIcon, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(includeIcon)
-            }).pause(2000).catch(err=> {
+            }).pause(2000).catch(err => {
                 throw new Error('error when clicking on `Include Child items`: ' + err)
             })
         }
