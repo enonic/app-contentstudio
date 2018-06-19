@@ -8,6 +8,12 @@ module.exports = Object.freeze({
     itemSavedNotificationMessage: function (name) {
         return `\"${name}\" saved`
     },
+    itemPublishedNotificationMessage: function (name) {
+        return `Item \"${name}\" was published.`
+    },
+    issueClosedNotificationMessage: function (name) {
+        return `Issue \"${name}\" is closed.`
+    },
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
