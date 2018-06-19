@@ -36,6 +36,7 @@ export class CreateIssueDialog
     }
 
     private initElements() {
+        this.addCancelButtonToBottom();
         this.itemsLabel = new LabelEl(i18n('field.items'), this.getItemList());
         this.backButton = this.createBackButton();
     }
