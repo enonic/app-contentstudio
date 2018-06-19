@@ -31,12 +31,13 @@ export class PublishDialogDependantList
             view.addClass('removable');
         }
 
-        (<StatusSelectionItem>view).setIsRemovableFn(() => !this.requiredIds.contains(item.getContentId()) && !isPendingDelete);
-        (<StatusSelectionItem>view).setRemoveHandlerFn(() => this.notifyItemRemoveClicked(item));
+        const statusView = <StatusSelectionItem> view;
 
-        view.onRendered(() => {
-            (<StatusSelectionItem>view).setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
-        });
+        statusView.setIsRemovableFn(() => !this.requiredIds.contains(item.getContentId()) && !isPendingDelete);
+        statusView.setRemoveHandlerFn(() => this.notifyItemRemoveClicked(item));
+
+        statusView.setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
+        statusView.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
 
         if (!isContentSummaryValid(item)) {
             view.addClass('invalid');
@@ -60,10 +61,6 @@ export class PublishDialogDependantList
             if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
                 this.notifyItemClicked(item);
             }
-        });
-
-        view.onRendered(() => {
-            (<StatusSelectionItem>view).setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
         });
 
         const serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
