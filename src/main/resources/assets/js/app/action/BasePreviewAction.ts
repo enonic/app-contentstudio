@@ -13,7 +13,7 @@ export class BasePreviewAction extends Action {
     private notifyBlocked: () => void;
 
     constructor(label: string) {
-        super(label, 'mod+alt+space', true);
+        super(label, api.BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         // Notification is shown not less than once in a minute, if triggered
         this.notifyBlocked = api.util.AppHelper.debounce(() => {
             api.notify.showWarning(i18n('notify.popupBlocker.sites'), false);
