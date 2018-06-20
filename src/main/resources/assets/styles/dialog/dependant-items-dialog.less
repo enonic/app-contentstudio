@@ -38,12 +38,15 @@
 
     &.contains-toggleable {
       .browse-selection-item:not(.toggleable) {
-        .include-children-toggler {
-          display: block;
-          visibility: hidden;
-        }
         .viewer {
           margin-left: 35px;
+        }
+        .include-children-toggler {
+          & + .viewer {
+            margin-left: 0;
+          }
+          display: block;
+          visibility: hidden;
         }
       }
     }
