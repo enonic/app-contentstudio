@@ -96,6 +96,8 @@ export class IssueListDialog
         this.appendChildToContentPanel(this.loadMask);
         if (!this.skipInitialLoad) {
             this.reload();
+        } else {
+            this.updateTabAndFiltersLabels();
         }
     }
 
