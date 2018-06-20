@@ -1,7 +1,7 @@
 .show-issues-dialog-button {
   background-color: transparent;
   display: flex;
-  z-index: @z-index-launcher-panel - 1;
+  z-index: 1;
   height: @app-header-height;
   line-height: @app-header-height;
   color: @admin-white;
@@ -32,13 +32,14 @@
   }
 
   &.has-assigned-issues {
+    position: relative;
 
     &:after {
       content: "";
-      background: @admin-blue;
+      background: @admin-red;
       position: absolute;
-      top: 8px;
-      right: -4px;
+      top: 10px;
+      left: 28px;
       padding: 6px;
       border-radius: 6px;
       font-size: 0;
