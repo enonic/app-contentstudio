@@ -1,0 +1,72 @@
+.show-issues-dialog-button {
+  background-color: transparent;
+  display: flex;
+  z-index: @z-index-launcher-panel - 1;
+  height: @app-header-height;
+  line-height: @app-header-height;
+  color: @admin-white;
+  padding-right: 35px;
+
+  span {
+    margin-left: 6px;
+    font-size: 13px;
+    line-height: @app-header-height;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  &:before {
+    font-size: 16px;
+    line-height: @app-header-height - 1;
+  }
+
+  &:hover {
+
+    &:not(:disabled) {
+      background-color: transparent;
+    }
+    span, &:before {
+      color: darken(@admin-white, 10%) !important;
+    }
+  }
+
+  &.has-assigned-issues {
+
+    &:after {
+      content: "";
+      background: @admin-blue;
+      position: absolute;
+      top: 8px;
+      right: -4px;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 0;
+      width: 0;
+      z-index: 1;
+    }
+  }
+
+  .icon-signup();
+
+}
+
+
+/*
+body {
+  &._0-240, &._240-360, &._360-540 {
+    .content-tree-grid-toolbar {
+      .show-issues-dialog-button {
+
+        span {
+          display: none;
+        }
+
+        &.has-assigned-issues:after {
+          display: block;
+        }
+      }
+    }
+  }
+}
+*/
