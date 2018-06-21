@@ -73,8 +73,6 @@ import i18n = api.util.i18n;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import NavigatorEvent = api.ui.NavigatorEvent;
 
-import ContentQueryRequestHelper = api.content.resource.ContentQueryRequestHelper;
-
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
 
@@ -826,7 +824,7 @@ export class ContentWizardPanel
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
-        return ContentQueryRequestHelper.anyIsOutboundDependency(this.persistedContent.getContentId(), [content.getContentId()]);
+        return this.persistedContent.isReferencedBy([content.getContentId()]);
     }
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -842,6 +840,10 @@ export class ContentWizardPanel
         // 1. template of the nearest site was updated
         // 2. nearest site was updated (app may have been added)
         const nearestSiteChanged = (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
+
+        if (nearestSiteChanged) {
+            return wemQ(true);
+        }
 
         // 3. outbound dependency content has changed
         return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {

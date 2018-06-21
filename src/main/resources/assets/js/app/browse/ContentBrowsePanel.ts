@@ -37,7 +37,6 @@ import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import RepositoryEvent = api.content.event.RepositoryEvent;
-import ContentQueryRequestHelper = api.content.resource.ContentQueryRequestHelper;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -469,7 +468,11 @@ export class ContentBrowsePanel
         }
 
         return this.doHandleContentUpdate(data).then((changed) => {
-            this.updatePreviewPanel(data);
+            this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
+                if (previewUpdateRequired) {
+                    this.forcePreviewRerender();
+                }
+            });
 
             return this.treeGrid.placeContentNodes(changed);
         });
@@ -655,49 +658,47 @@ export class ContentBrowsePanel
         });
     }
 
-    private updatePreviewPanel(updatedContents: ContentSummaryAndCompareStatus[]) {
+    private checkIfPreviewUpdateRequired(updatedContents: ContentSummaryAndCompareStatus[]): wemQ.Promise<boolean> {
         let previewItem = this.getBrowseItemPanel().getStatisticsItem();
-        let previewRefreshed = false;
+        let previewRefreshRequired = false;
 
         if (!previewItem) {
             return;
         }
 
-        new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
+        return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
+
+            let promises: wemQ.Promise<void>[] = [];
+
             updatedContents.some((content: ContentSummaryAndCompareStatus) => {
                 if (content.getPath().equals(previewItem.getModel().getPath())) {
                     new api.content.page.IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
                         this.getBrowseItemPanel().setStatisticsItem(this.toBrowseItem(content, renderable));
                     });
-                    return true;
+                    previewRefreshRequired = true;
                 }
 
                 if (content.getContentSummary().isPageTemplate()) {
-                    this.forcePreviewRerender();
-                    return true;
+                    previewRefreshRequired = true;
                 }
 
-                if (!previewRefreshed) {
-                    previewItemContent.containsChildContentId(content.getContentId()).then((containsId: boolean) => {
+                if (!previewRefreshRequired) {
+                    promises.push(previewItemContent.containsChildContentId(content.getContentId()).then((containsId: boolean) => {
                         if (containsId) {
-                            this.forcePreviewRerender();
-                            previewRefreshed = true;
+                            previewRefreshRequired = true;
                         }
-                    });
+                    }));
                 }
-
-                return previewRefreshed;
+                return previewRefreshRequired;
             });
-        }).then(() => {
-            if (!previewRefreshed) {
 
-                ContentQueryRequestHelper.anyIsOutboundDependency(previewItem.getModel().getContentId(),
-                    updatedContents.map(updatedContent => updatedContent.getContentId())).then(outboundDependencyUpdated => {
-                    if (outboundDependencyUpdated) {
-                        this.forcePreviewRerender();
-                        previewRefreshed = true;
-                    }
-                });
+            return wemQ.all(promises);
+
+        }).then(() => {
+            if (!previewRefreshRequired) {
+                return previewItem.getModel().isReferencedBy(updatedContents.map(updatedContent => updatedContent.getContentId()));
+            } else {
+                return wemQ(previewRefreshRequired);
             }
         });
     }
