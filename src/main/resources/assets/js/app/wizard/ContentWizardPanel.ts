@@ -846,10 +846,7 @@ export class ContentWizardPanel
         }
 
         // 3. outbound dependency content has changed
-        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
-            return nearestSiteChanged || outboundDependencyUpdated;
-
-        });
+        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => outboundDependencyUpdated);
     }
 
     private listenToContentEvents() {
