@@ -225,7 +225,7 @@ module.exports = {
     findAndSelectItem: function (name) {
         return this.typeNameInFilterPanel(name).then(() => {
             return browsePanel.waitForRowByNameVisible(name);
-        }).pause(400).then(() => {
+        }).pause(500).then(() => {
             return browsePanel.clickOnRowByName(name);
         });
     },
