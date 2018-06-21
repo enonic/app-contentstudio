@@ -1,15 +1,18 @@
 .show-issues-dialog-button {
+  position: relative;
   background-color: transparent;
   display: flex;
+  margin: 0 auto;
+  justify-content: center;
   z-index: 1;
   height: @app-header-height;
   line-height: @app-header-height;
   color: @admin-white;
   padding-right: 35px;
 
-  span {
+  span:first-child {
     margin-left: 6px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: @app-header-height;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -17,7 +20,7 @@
   }
 
   &:before {
-    font-size: 16px;
+    font-size: 20px;
     line-height: @app-header-height - 1;
   }
 
@@ -31,21 +34,34 @@
     }
   }
 
-  &.has-assigned-issues {
-    position: relative;
+  .issue-count {
+    display: none;
+    position: absolute;
+    text-align: center;
+    color: @admin-white;
+    top: 8px;
+    left: 30px;
+    width: 12px;
+    height: 12px;
+    padding: 2px;
+    line-height: 12px;
+    border-radius: 14px;
+    font-size: 11px;
+    z-index: 1;
+  }
 
-    &:after {
-      content: "";
-      background: @admin-red;
-      position: absolute;
-      top: 10px;
-      left: 28px;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 0;
-      width: 0;
-      z-index: 1;
+  &.has-assigned-issues, &.has-issues {
+    .issue-count {
+      display: inline-block;
     }
+  }
+
+  &.has-assigned-issues .issue-count {
+    background: @admin-red;
+  }
+
+  &.has-issues .issue-count {
+    background: @admin-blue;
   }
 
   .icon-signup();
@@ -53,21 +69,14 @@
 }
 
 
-/*
 body {
   &._0-240, &._240-360, &._360-540 {
-    .content-tree-grid-toolbar {
-      .show-issues-dialog-button {
 
-        span {
-          display: none;
-        }
+    .show-issues-dialog-button {
 
-        &.has-assigned-issues:after {
-          display: block;
-        }
+      span:first-child {
+        display: none;
       }
     }
   }
 }
-*/

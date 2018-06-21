@@ -8,6 +8,8 @@ import i18n = api.util.i18n;
 
 export class ShowIssuesDialogButton extends ActionButton {
 
+    private countSpan: api.dom.SpanEl;
+
     constructor() {
         super(new ShowIssuesDialogAction());
 
@@ -32,12 +34,23 @@ export class ShowIssuesDialogButton extends ActionButton {
         });
     }
 
+    private setIssueCount(count: number) {
+
+        if (!this.countSpan) {
+            this.countSpan = new api.dom.SpanEl('issue-count');
+            this.appendChild(this.countSpan);
+        }
+
+        this.countSpan.setHtml('' + count);
+    }
+
     private resetIssueRequest(): ListIssuesRequest {
         return new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
     }
 
     private resetButton() {
         this.getEl().setTitle(i18n('text.publishingissues'));
+        this.removeClass('has-assigned-issues has-issues');
         this.setLabel('');
         this.getAction().setAssignedToMe(false).setCreatedByMe(false);
     }
@@ -47,15 +60,18 @@ export class ShowIssuesDialogButton extends ActionButton {
 
         this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
             .then(hits => {
-                this.setLabel(i18n('field.assignedToMe') + ` (${hits})`);
+                this.setLabel(i18n('field.assignedToMe'));
                 this.addClass('has-assigned-issues');
                 this.getEl().setTitle(i18n('text.youhaveissues'));
+                this.setIssueCount(hits);
                 this.getAction().setAssignedToMe(true);
             })
             .fail(() =>
                 this.fetchIssueList(this.resetIssueRequest().setCreatedByMe(true))
                     .then(hits => {
-                        this.setLabel(i18n('field.myIssues') + ` (${hits})`);
+                        this.setLabel(i18n('field.myIssues'));
+                        this.addClass('has-issues');
+                        this.setIssueCount(hits);
                         this.getAction().setCreatedByMe(true);
                     })
                     .fail(() =>

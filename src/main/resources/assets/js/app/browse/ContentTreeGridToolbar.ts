@@ -1,4 +1,3 @@
-import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {ContentTreeGrid} from './ContentTreeGrid';
 
 export class ContentTreeGridToolbar
