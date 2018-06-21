@@ -663,7 +663,7 @@ export class ContentBrowsePanel
         let previewRefreshRequired = false;
 
         if (!previewItem) {
-            return;
+            return wemQ(false);
         }
 
         return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
