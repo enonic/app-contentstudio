@@ -8,7 +8,6 @@
   height: @app-header-height;
   line-height: @app-header-height;
   color: @admin-white;
-  padding-right: 35px;
 
   span:first-child {
     margin-left: 6px;
@@ -69,14 +68,19 @@
 }
 
 
-body {
-  &._0-240, &._240-360, &._360-540 {
+._0-240, &._240-360, &._360-540 {
 
-    .show-issues-dialog-button {
+  .home-button {
+    width: 100%;
+  }
 
-      span:first-child {
-        display: none;
-      }
+  .show-issues-dialog-button {
+
+    margin: 0;
+    margin-right: 35px;
+
+    span:first-child {
+      display: none;
     }
   }
 }
