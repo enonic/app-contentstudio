@@ -40,6 +40,7 @@ import {ToggleSearchPanelWithDependenciesGlobalEvent} from './app/browse/ToggleS
 import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchPanelWithDependenciesEvent';
 import {ContentDuplicateDialog} from './app/duplicate/ContentDuplicateDialog';
 import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
+import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -346,18 +347,21 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
 }
 
 function startContentApplication(application: api.app.Application) {
-    let appBar = new api.app.bar.AppBar(application);
-    let appPanel = new ContentAppPanel(application.getPath());
+    const appBar = new api.app.bar.AppBar(application);
+    const appPanel = new ContentAppPanel(application.getPath());
+
+    appBar.appendChild(new ShowIssuesDialogButton());
 
     initSearchPanelListener(appPanel);
 
-    let clientEventsListener = new ContentEventsListener();
+    const clientEventsListener = new ContentEventsListener();
     clientEventsListener.start();
 
     body.appendChild(appBar);
     body.appendChild(appPanel);
 
-    let newContentDialog = new NewContentDialog();
+
+    const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
 
         let parentContent: api.content.ContentSummary = event.getParentContent()
