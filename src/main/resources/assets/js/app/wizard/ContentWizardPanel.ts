@@ -846,7 +846,14 @@ export class ContentWizardPanel
         }
 
         // 3. outbound dependency content has changed
-        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => outboundDependencyUpdated);
+        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
+            const persistedContent: Content = this.getPersistedItem();
+            const viewedPage = this.assembleViewedPage();
+
+            const pageChanged = !api.ObjectHelper.equals(persistedContent.getPage(), viewedPage);
+            return outboundDependencyUpdated && !pageChanged;
+
+        });
     }
 
     private listenToContentEvents() {
