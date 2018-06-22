@@ -9,7 +9,7 @@
   ],
   "include": [
     "src/**/*",
-    "../lib-admin-ui/src/**/*"
+    "../lib-admin-ui/src/main/resources/assets/admin/common/js/_module.ts"
   ],
   "exclude": [
     "build/**/*",
