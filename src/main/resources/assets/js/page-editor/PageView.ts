@@ -663,8 +663,12 @@ export class PageView
     }
 
     isEmpty(): boolean {
-        return !this.pageModel || this.pageModel.getMode() === PageMode.NO_CONTROLLER ||
-               this.isEmptyPageTemplate() || (this.isRenderable === false);
+
+        if (this.isRenderable) {
+            return false;
+        }
+
+        return !this.pageModel || this.pageModel.getMode() === PageMode.NO_CONTROLLER || this.isEmptyPageTemplate();
     }
 
     private isEmptyPageTemplate(): boolean {
