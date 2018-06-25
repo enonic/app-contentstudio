@@ -17,7 +17,7 @@ const createIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const deleteContentDialog = require('../page_objects/delete.content.dialog');
 const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
-
+const contentPublishDialog = require('../page_objects/content.publish.dialog');
 
 module.exports = {
     xpTabs: {},
@@ -208,7 +208,16 @@ module.exports = {
             return this.doSwitchToContentBrowsePanel();
         }).pause(2000);
     },
-
+    doPublish: function () {
+        return browsePanel.clickOnPublishButton().then(() => {
+            return contentPublishDialog.waitForDialogVisible();
+        }).then(() => {
+            return contentPublishDialog.clickOnPublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    }
+    ,
     doAddArticleContent: function (siteName, article) {
         return this.findAndSelectItem(siteName).then(() => {
             return this.openContentWizard(article.contentType);
