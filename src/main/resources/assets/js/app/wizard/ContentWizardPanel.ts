@@ -586,10 +586,8 @@ export class ContentWizardPanel
         this.setPersistedItem(newPersistedContent.clone());
         this.updateMetadataAndMetadataStepForms(newPersistedContent);
         this.updateThumbnailWithContent(newPersistedContent);
-        let contentToDisplay = (newPersistedContent.getDisplayName() && newPersistedContent.getDisplayName().length > 0)
-            ? newPersistedContent.getDisplayName()
-            : i18n('field.content');
-        api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+
+        this.showFeedbackContentSaved(newPersistedContent);
     }
 
     close(checkCanClose: boolean = false) {
@@ -1580,14 +1578,24 @@ export class ContentWizardPanel
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
-            let contentToDisplay = (content.getDisplayName() && content.getDisplayName().length > 0)
-                ? content.getDisplayName()
-                : i18n('field.content');
-            api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+
+            this.showFeedbackContentSaved(content);
+
             this.getWizardHeader().resetBaseValues();
 
             return content;
         });
+    }
+
+    private showFeedbackContentSaved(content: Content) {
+        const name = content.getName();
+        let message;
+        if (name.isUnnamed()) {
+            message = i18n('notify.item.savedUnnamed');
+        } else {
+            message = i18n('notify.item.saved', name);
+        }
+        api.notify.showFeedback(message);
     }
 
     private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {
