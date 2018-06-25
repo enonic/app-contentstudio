@@ -140,6 +140,7 @@ export class MoveContentDialog
 
         return this.getTargetContentSite(targetContent).then((targetContentSite) => {
             const contentParentSitePromises: wemQ.Promise<ContentSummary>[] = [];
+            const targetContentSiteId: string = !!targetContentSite ? targetContentSite.getId() : null;
 
             for (let i = 0; i < this.movedContentSummaries.length; i++) {
                 contentParentSitePromises.push(this.getContentParentSite(this.movedContentSummaries[i]));
@@ -147,7 +148,7 @@ export class MoveContentDialog
 
             return wemQ.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {
                 return parentSites.filter((parentSite: ContentSummary) => !!parentSite).some((parentSite: ContentSummary) => {
-                    return !targetContent || (parentSite.getId() !== targetContentSite.getId());
+                    return !targetContent || (parentSite.getId() !== targetContentSiteId);
                 });
             });
         });
