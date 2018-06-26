@@ -50,7 +50,7 @@ describe('content.duplicate.spec: Duplicate 2 folders specification', function (
                 return contentBrowsePanel.waitForNotificationMessage();
             }).then(result => {
                 studioUtils.saveScreenshot("folders_were_duplicated2");
-                assert.equal(result, 'Duplicated 2 items.', 'correct notification should be displayed');
+                assert.equal(result, '2 items are duplicated.', 'correct notification should be displayed');
             });
         });
 

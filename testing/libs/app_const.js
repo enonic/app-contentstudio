@@ -9,7 +9,7 @@ module.exports = Object.freeze({
         return `\"${name}\" saved`
     },
     itemPublishedNotificationMessage: function (name) {
-        return `Item \"${name}\" was published.`
+        return `Item \"${name}\" is published.`
     },
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
