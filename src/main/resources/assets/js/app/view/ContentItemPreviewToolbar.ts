@@ -67,6 +67,7 @@ export class ContentItemPreviewToolbar
             this.mainAction.setLabel('');
         }
         return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
+            this.toggleClass('has-issues', issues.length > 0);
             this.issueButton.getActionButton().setEnabled(issues.length > 0);
             this.issueActionsList = issues.map((issue: Issue) => {
                 const action = new Action(`#${issue.getIndex()} <i>${issue.getTitle()}</i>`);
