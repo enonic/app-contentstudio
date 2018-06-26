@@ -6,10 +6,10 @@ module.exports = Object.freeze({
         return part + Math.round(Math.random() * 1000000);
     },
     itemSavedNotificationMessage: function (name) {
-        return `\"${name}\" saved`
+        return `\"${name}\" is saved`
     },
     itemPublishedNotificationMessage: function (name) {
-        return `Item \"${name}\" was published.`
+        return `Item \"${name}\" is published.`
     },
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`

@@ -56,7 +56,7 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
             }).then(messages => {
                 let expected1 = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
                 let expected2 = appConstant.issueClosedNotificationMessage(issueTitle);
-                assert.isTrue(messages.includes(expected1), '`Item was published` message should be displayed');
+                assert.isTrue(messages.includes(expected1), '`Item is published` message should be displayed');
                 assert.isTrue(messages.includes(expected2), '`Issue is closed` message should be displayed');
             }).then(() => {
                 return assert.eventually.isTrue(issueListDialog.waitForDialogVisible(), 'Issue List Dialog should be loaded');
