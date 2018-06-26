@@ -14,6 +14,7 @@ import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import SpanEl = api.dom.SpanEl;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
+import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
 
 export class MoveContentDialog
     extends api.ui.dialog.ModalDialog
@@ -102,11 +103,16 @@ export class MoveContentDialog
         this.addClickIgnoredElement(this.moveConfirmationDialog);
         this.moveAction = new Action(i18n('action.move'), '')
             .onExecuted(() => {
-                if (this.checkContentWillMoveOutOfSite()) {
-                    this.showConfirmationDialog();
-                } else {
-                    this.doMove();
-                }
+                this.checkContentWillMoveOutOfSite().then((isContentToBeMovedOutOfSite: boolean) => {
+                    if (isContentToBeMovedOutOfSite) {
+                        this.showConfirmationDialog();
+                    } else {
+                        this.doMove();
+                    }
+                }).catch((reason) => {
+                    api.DefaultErrorHandler.handle(reason);
+                }).done();
+
             });
         this.addAction(this.moveAction);
     }
@@ -129,39 +135,60 @@ export class MoveContentDialog
         this.moveConfirmationDialog.open();
     }
 
-    private checkContentWillMoveOutOfSite(): boolean {
-        let result = false;
+    private checkContentWillMoveOutOfSite(): wemQ.Promise<boolean> {
         const targetContent: ContentTreeSelectorItem = this.getParentContentItem();
-        const targetContentSite: ContentSummary = targetContent
-            ? (targetContent.isSite() ? targetContent.getContent() : this.getParentSite(targetContent.getContent()))
-            : null;
-        for (let i = 0; i < this.movedContentSummaries.length; i++) {
-            let content = this.movedContentSummaries[i];
-            let contentParentSite = content.isSite() ? null : this.getParentSite(content);
-            if (contentParentSite && (!targetContent || (!contentParentSite.equals(targetContentSite)))) {
-                result = true;
-                break;
-            }
-        }
 
-        return result;
+        return this.getTargetContentSite(targetContent).then((targetContentSite) => {
+            const contentParentSitePromises: wemQ.Promise<ContentSummary>[] = [];
+            const targetContentSiteId: string = !!targetContentSite ? targetContentSite.getId() : null;
+
+            for (let i = 0; i < this.movedContentSummaries.length; i++) {
+                contentParentSitePromises.push(this.getContentParentSite(this.movedContentSummaries[i]));
+            }
+
+            return wemQ.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {
+                return parentSites.filter((parentSite: ContentSummary) => !!parentSite).some((parentSite: ContentSummary) => {
+                    return !targetContent || (parentSite.getId() !== targetContentSiteId);
+                });
+            });
+        });
     }
 
-    private getParentSite(content: ContentSummary): ContentSummary {
+    private getTargetContentSite(targetContent: ContentTreeSelectorItem): wemQ.Promise<ContentSummary> {
+        if (!targetContent) {
+            return wemQ(null);
+        }
+
+        if (targetContent.isSite()) {
+            return wemQ(targetContent.getContent());
+        }
+
+        return this.getParentSite(targetContent.getContent());
+    }
+
+    private getContentParentSite(content: ContentSummary): wemQ.Promise<ContentSummary> {
+        if (content.isSite()) {
+            return wemQ(null);
+        }
+
+        return this.getParentSite(content);
+    }
+
+    private getParentSite(content: ContentSummary): wemQ.Promise<ContentSummary> {
         const node = this.rootNode.findNode(content.getId());
         if (!node) {
-            return null;
+            return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
         }
 
         let nodeParent = node.getParent();
         while (nodeParent) {
             if (nodeParent.getData() && nodeParent.getData().getContentSummary().isSite()) {
-                return nodeParent.getData().getContentSummary();
+                return wemQ(nodeParent.getData().getContentSummary());
             }
             nodeParent = nodeParent.getParent();
         }
 
-        return null;
+        return wemQ(null);
     }
 
     private doMove() {
