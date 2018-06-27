@@ -586,10 +586,8 @@ export class ContentWizardPanel
         this.setPersistedItem(newPersistedContent.clone());
         this.updateMetadataAndMetadataStepForms(newPersistedContent);
         this.updateThumbnailWithContent(newPersistedContent);
-        let contentToDisplay = (newPersistedContent.getDisplayName() && newPersistedContent.getDisplayName().length > 0)
-            ? newPersistedContent.getDisplayName()
-            : i18n('field.content');
-        api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+
+        this.showFeedbackContentSaved(newPersistedContent);
     }
 
     close(checkCanClose: boolean = false) {
@@ -824,7 +822,11 @@ export class ContentWizardPanel
         this.wizardActions.refreshPendingDeleteDecorations();
     }
 
-    private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus) {
+    private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+        return this.persistedContent.isReferencedBy([content.getContentId()]);
+    }
+
+    private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
 
         const item = this.getPersistedItem();
         const isSiteUpdated = content.getType().isSite();
@@ -836,8 +838,21 @@ export class ContentWizardPanel
 
         // 1. template of the nearest site was updated
         // 2. nearest site was updated (app may have been added)
+        const nearestSiteChanged = (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
 
-        return (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
+        if (nearestSiteChanged) {
+            return wemQ(true);
+        }
+
+        // 3. outbound dependency content has changed
+        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
+            const persistedContent: Content = this.getPersistedItem();
+            const viewedPage = this.assembleViewedPage();
+
+            const pageChanged = !api.ObjectHelper.equals(persistedContent.getPage(), viewedPage);
+            return outboundDependencyUpdated && !pageChanged;
+
+        });
     }
 
     private listenToContentEvents() {
@@ -966,18 +981,20 @@ export class ContentWizardPanel
 
                 let templateUpdatedPromise: wemQ.Promise<boolean>;
 
-                if (this.isUpdateOfPageModelRequired(updatedContent)) {
-                    templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
-                } else {
-                    templateUpdatedPromise = wemQ(false);
-                }
-
-                wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
-                    if (containsId || templateUpdated) {
-                        const livePanel = this.getLivePanel();
-                        livePanel.skipNextReloadConfirmation(true);
-                        livePanel.loadPage(false);
+                this.isUpdateOfPageModelRequired(updatedContent).then(value => {
+                    if (value) {
+                        templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
+                    } else {
+                        templateUpdatedPromise = wemQ(false);
                     }
+
+                    wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
+                        if (containsId || templateUpdated) {
+                            const livePanel = this.getLivePanel();
+                            livePanel.skipNextReloadConfirmation(true);
+                            livePanel.loadPage(false);
+                        }
+                    });
                 });
             }
 
@@ -1561,14 +1578,24 @@ export class ContentWizardPanel
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
-            let contentToDisplay = (content.getDisplayName() && content.getDisplayName().length > 0)
-                ? content.getDisplayName()
-                : i18n('field.content');
-            api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+
+            this.showFeedbackContentSaved(content);
+
             this.getWizardHeader().resetBaseValues();
 
             return content;
         });
+    }
+
+    private showFeedbackContentSaved(content: Content) {
+        const name = content.getName();
+        let message;
+        if (name.isUnnamed()) {
+            message = i18n('notify.item.savedUnnamed');
+        } else {
+            message = i18n('notify.item.saved', name);
+        }
+        api.notify.showFeedback(message);
     }
 
     private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {

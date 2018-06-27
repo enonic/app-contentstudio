@@ -53,6 +53,8 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
             }).then(() => {
                 return contentDuplicateDialog.clickOnDuplicateButton();
             }).then(() => {
+                contentDuplicateDialog.waitForDialogClosed();
+            }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName + "-copy");
             }).then(() => {
                 studioUtils.saveScreenshot("site_duplicated");
@@ -72,6 +74,8 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
                 return contentDuplicateDialog.clickOnIncludeChildToggler();
             }).then(() => {
                 return contentDuplicateDialog.clickOnDuplicateButton();
+            }).then(() => {
+                return contentDuplicateDialog.waitForDialogClosed();
             }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName + "-copy-2");
             }).then(() => {

@@ -55,8 +55,6 @@ export class Highlighter
         let dimensions = itemView.getEl().getDimensions();
         let style = itemView.getType().getConfig().getHighlighterStyle();
 
-        dimensions.top -= PageViewController.get().getEditorToolbarHeight();
-
         this.resize(dimensions, this.preProcessStyle(style, itemView.isEmpty()));
         this.show();
 

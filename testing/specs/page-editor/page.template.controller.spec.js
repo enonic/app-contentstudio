@@ -95,10 +95,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(()=> {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot("template_support_removed");
                 assert.isTrue(result, 'Options filter input must be visible, because the `support` option has been removed');
-
             });
         });
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
@@ -120,7 +119,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(()=> {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot("template_removed");
                 assert.isTrue(result, 'Options filter input must be visible, because the template has been deleted');
 

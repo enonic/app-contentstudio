@@ -9,7 +9,9 @@ const appConst = require('../../libs/app_const');
 
 const panel = {
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
+    treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
+    appBar: `//div[contains(@id,'AppBar')]`,
     selectedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and contains(@class,'selected')]`,
     checkedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
@@ -58,22 +60,22 @@ var contentBrowsePanel = Object.create(page, {
     },
     showIssuesListButton: {
         get: function () {
-            return `${panel.treeGrid}` + `${panel.showIssuesListButton}`;
+            return `${panel.appBar}` + `${panel.showIssuesListButton}`;
         }
     },
     selectionControllerCheckBox: {
         get: function () {
-            return `${panel.treeGrid}${panel.selectionControllerCheckBox}`;
+            return `${panel.treeGridToolbar}${panel.selectionControllerCheckBox}`;
         }
     },
     numberInToggler: {
         get: function () {
-            return `${panel.treeGrid}${panel.numberInToggler}`;
+            return `${panel.treeGridToolbar}${panel.numberInToggler}`;
         }
     },
     selectionPanelToggler: {
         get: function () {
-            return `${panel.treeGrid}${panel.selectionPanelToggler}`;
+            return `${panel.treeGridToolbar}${panel.selectionPanelToggler}`;
         }
     },
     newButton: {
@@ -105,6 +107,11 @@ var contentBrowsePanel = Object.create(page, {
     previewButton: {
         get: function () {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
+        }
+    },
+    publishButton: {
+        get: function () {
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
         }
     },
 
@@ -142,6 +149,14 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
+    clickOnPublishButton: {
+        value: function () {
+            return this.doClick(this.publishButton).catch(err => {
+                throw new Error('error when clicking on the Publish button ' + err);
+            })
+        }
+    },
+
     clickOnDuplicateButton: {
         value: function () {
             return this.doClick(this.duplicateButton).catch(err => {
@@ -355,17 +370,17 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
-    clickOnRowByDisplayName: {
-        value: function (name) {
-            var nameXpath = panel.rowByDisplayName(name);
-            return this.waitForVisible(nameXpath, 3000).then(() => {
-                return this.doClick(nameXpath);
-            }).pause(400).catch((err) => {
-                this.saveScreenshot('err_find_' + name);
-                throw Error('Row with the name ' + name + ' was not found')
-            })
-        }
-    },
+    // clickOnRowByDisplayName: {
+    //     value: function (name) {
+    //         var nameXpath = panel.rowByDisplayName(name);
+    //         return this.waitForVisible(nameXpath, 3000).then(() => {
+    //             return this.doClick(nameXpath);
+    //         }).pause(400).catch((err) => {
+    //             this.saveScreenshot('err_find_' + name);
+    //             throw Error('Row with the name ' + name + ' was not found')
+    //         })
+    //     }
+    // },
     getNumberOfSelectedRows: {
         value: function () {
             return this.elements(panel.selectedRows).then(result => {

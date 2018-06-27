@@ -6,56 +6,6 @@
   .right-wrapper {
     min-width: 50px;
   }
-
-  .show-issues-dialog-button {
-    padding: 0;
-    min-width: 20px;
-    position: fixed;
-    top: 0;
-    right: 50px;
-    z-index: @z-index-launcher-panel - 1;
-    height: @app-header-height;
-
-    span {
-      margin-left: 27px;
-      color: @admin-white;
-    }
-
-    &:before {
-      font-size: 20px;
-      position: absolute;
-      top: 50%;
-      margin-top: -11px;
-      color: @admin-white;
-    }
-
-    &:hover {
-      span, &:before {
-        color: darken(@admin-white, 10%) !important;
-      }
-    }
-
-    &.has-assigned-issues {
-      padding-right: 2px;
-
-      &:after {
-        display: none;
-        content: "";
-        background: @admin-blue;
-        position: absolute;
-        top: 8px;
-        right: -4px;
-        padding: 6px;
-        border-radius: 6px;
-        font-size: 0;
-        width: 0;
-        z-index: 1;
-      }
-    }
-
-    .icon-signup();
-
-  }
 }
 
 
@@ -70,21 +20,6 @@ body {
       }
       .center-wrapper {
         padding-left: 17px;
-      }
-    }
-  }
-
-  &._0-240, &._240-360, &._360-540 {
-    .content-tree-grid-toolbar {
-      .show-issues-dialog-button {
-
-        span {
-          display: none;
-        }
-
-        &.has-assigned-issues:after {
-          display: block;
-        }
       }
     }
   }

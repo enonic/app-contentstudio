@@ -195,7 +195,11 @@ const issueDetailsDialog = Object.create(page, {
 
     getIssueName: {
         value: function () {
-            return `${xpath.issueNameInPlaceInput}//h2`;
+            return this.getText(`${xpath.issueNameInPlaceInput}/h2`).then(result => {
+                let endIndex = result.indexOf('#');
+                return result.substring(0, endIndex).trim();
+
+            })
         }
     },
     typeComment: {
