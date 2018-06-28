@@ -6,9 +6,9 @@
     "build": "webpack --hide-modules",
     "lint": "run-p -c --aggregate-output lint:*",
     "fix": "run-p -c --aggregate-output fix:*",
-    "lint:ts": "tslint -p . -c tslint.json",
+    "lint:ts": "tslint -p tsconfig.build.json -c tslint.json",
     "lint:js": "eslint .",
-    "fix:ts": "tslint -p . -c tslint.json --fix",
+    "fix:ts": "tslint -p tsconfig.build.json -c tslint.json --fix",
     "fix:js": "eslint . --fix"
   },
   "devDependencies": {
