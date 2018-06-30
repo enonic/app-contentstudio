@@ -28,7 +28,7 @@ export class ContentPublishMenuButton
         this.addClass('content-publish-menu transparent');
         this.appendChild(MenuButtonProgressBarManager.getProgressBar());
 
-        IssueDialogsManager.get().onIssueCreated((issue: Issue) => {
+        const reloadList = (issue: Issue) => {
             if (this.item) {
                 const nodeId = this.item.getContentSummary().getContentId();
                 const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(nodeId));
@@ -36,7 +36,10 @@ export class ContentPublishMenuButton
                     this.fetchIssues(this.item);
                 }
             }
-        });
+        };
+
+        IssueDialogsManager.get().onIssueCreated(reloadList);
+        IssueDialogsManager.get().onIssueUpdated(reloadList);
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -58,13 +61,7 @@ export class ContentPublishMenuButton
             const id = highlightedOrSelected.getContentSummary().getContentId();
             this.issuesRequest =
                 new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-                    this.issueActionsList = issues.map((issue: Issue) => {
-                        const action = new Action(issue.getTitleWithId());
-                        action.onExecuted((a) => {
-                            IssueDialogsManager.get().openDetailsDialog(issue);
-                        });
-                        return action;
-                    });
+                    this.issueActionsList = issues.map(this.createIssueAction);
                     if (this.issueActionsList.length > 0) {
                         this.addMenuSeparator();
                         this.addMenuActions(this.issueActionsList);
@@ -75,5 +72,13 @@ export class ContentPublishMenuButton
                         this.issuesRequest = undefined;
                     });
         }
+    }
+
+    private createIssueAction(issue: Issue): Action {
+        const action = new Action(issue.getTitleWithId());
+        action.onExecuted((a) => {
+            IssueDialogsManager.get().openDetailsDialog(issue);
+        });
+        return action;
     }
 }
