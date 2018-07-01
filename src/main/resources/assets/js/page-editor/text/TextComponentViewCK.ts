@@ -101,7 +101,6 @@ export class TextComponentViewCK
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
     }
 
-
     private bindWindowFocusEvents() {
         const win = api.dom.WindowDOM.get();
 
