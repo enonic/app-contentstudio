@@ -106,16 +106,16 @@ export class TextComponentViewCK
         const win = api.dom.WindowDOM.get();
 
         win.onBlur((e: FocusEvent) => {
-            if (e.target == win.getHTMLElement()) {
+            if (e.target === win.getHTMLElement()) {
                 this.winBlurred = true;
             }
         });
 
         win.onFocus((e: FocusEvent) => {
-            if (e.target == win.getHTMLElement()) {
+            if (e.target === win.getHTMLElement()) {
                 this.winBlurred = false;
             }
-        })
+        });
     }
 
     private initialize() {
