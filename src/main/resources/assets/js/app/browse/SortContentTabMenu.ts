@@ -147,6 +147,13 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
     }
 
     selectNavigationItemByOrder(order: ChildOrder) {
+
+        if (order.isManual()) {
+            this.selectNavigationItem(this.navigationItems.getManualItemIndex());
+
+            return;
+        }
+
         const items = this.navigationItems.getAllItems();
 
         items.some((item, index) => {
