@@ -1,5 +1,6 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
@@ -107,6 +108,11 @@ const issueDetailsDialog = Object.create(page, {
             return this.doClick(this.closeIssueButton).catch(err => {
                 this.saveScreenshot('err_click_close_issue_button');
                 throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+            }).then(() => {
+                return this.waitForVisible(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
+                    this.saveScreenshot('err_issue_closed');
+                    throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
+                })
             })
         }
     },
