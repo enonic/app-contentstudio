@@ -200,7 +200,7 @@ var contentBrowsePanel = Object.create(page, {
     waitForGridLoaded: {
         value: function (ms) {
             return this.waitForVisible(`${elements.GRID_CANVAS}`, ms).then(() => {
-                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             }).then(() => {
                 return console.log('content browse panel is loaded')
             }).catch(err => {

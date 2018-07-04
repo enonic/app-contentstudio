@@ -456,7 +456,7 @@ module.exports = {
             });
             return prevPromise;
         }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_3);
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
         });
     },
     switchToContentTabWindow: function (contentDisplayName) {
