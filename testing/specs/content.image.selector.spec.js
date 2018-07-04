@@ -67,7 +67,7 @@ describe('content.image.selector: Image content specification', function () {
         });
 
     //verifies https://github.com/enonic/lib-admin-ui/issues/628
-    it(`GIVEN wizard for image-selector is opened WHEN select the folder folder with several contents and one of them is image  THEN one option should be present in the dropdown list`,
+    it(`GIVEN wizard for image-selector is opened WHEN filter a folder with multiple contents and one content is image THEN one option should be present in the dropdown list`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_1_1).then(() => {
                 return imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
