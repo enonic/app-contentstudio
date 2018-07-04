@@ -34,6 +34,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(() => {
                 return expect(contentItemPreviewPanel.getContentStatus()).to.eventually.equal('New');
             }).then(() => {
+                studioUtils.saveScreenshot("content_item_toolbar");
                 return expect(contentItemPreviewPanel.getContentAuthor()).to.eventually.equal('by su');
             });
         });
