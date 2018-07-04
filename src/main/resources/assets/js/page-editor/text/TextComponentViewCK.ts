@@ -314,6 +314,13 @@ export class TextComponentViewCK
         }
     }
 
+    private onMouseLeftHandler(e: MouseEvent, mousePressed?: boolean) {
+        if (mousePressed) {
+            // don't consider mouse up as a click if mouse down was performed in editor
+            PageViewController.get().setNextClickDisabled(true);
+        }
+    }
+
     private onFocusHandler(e: FocusEvent) {
         this.addClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
     }
@@ -400,6 +407,7 @@ export class TextComponentViewCK
             })
             .setFocusHandler(this.onFocusHandler.bind(this))
             .setBlurHandler(this.onBlurHandler.bind(this))
+            .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
             .setKeydownHandler(keydownHandler)
             .setNodeChangeHandler(this.processEditorValue.bind(this))
             .setFixedToolbarContainer(this.getPageView().getEditorToolbarContainerId())
