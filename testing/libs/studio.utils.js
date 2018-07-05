@@ -18,6 +18,7 @@ const deleteContentDialog = require('../page_objects/delete.content.dialog');
 const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const contentPublishDialog = require('../page_objects/content.publish.dialog');
+const contentDetailsPanel = require('../page_objects/browsepanel/detailspanel/details.panel');
 
 module.exports = {
     xpTabs: {},
@@ -114,6 +115,16 @@ module.exports = {
             return createIssueDialog.waitForDialogLoaded();
         })
     },
+    openDetailsPanel: function () {
+        return contentDetailsPanel.isPanelVisible().then(result => {
+            if (!result) {
+                return browsePanel.clickOnDetailsPanelToggleButton();
+            }
+        }).then(() => {
+            return contentDetailsPanel.waitForDetailsPanelLoaded();
+        })
+    },
+
     openContentWizard: function (contentType) {
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
             return browsePanel.clickOnNewButton();
@@ -344,7 +355,6 @@ module.exports = {
             return browsePanel.waitForSpinnerNotVisible();
         });
     },
-
     navigateToContentStudioApp: function () {
         return launcherPanel.waitForPanelVisible(appConst.TIMEOUT_3).then((result) => {
             if (result) {
@@ -373,7 +383,6 @@ module.exports = {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
         })
     },
-
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Studio app...');
         return webDriverHelper.browser.getTitle().then(title => {
@@ -382,7 +391,6 @@ module.exports = {
             }
         })
     },
-
     doSwitchToHome: function () {
         console.log('testUtils:switching to Home page...');
         return webDriverHelper.browser.getTabIds().then(tabs => {
