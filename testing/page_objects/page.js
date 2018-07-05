@@ -92,10 +92,6 @@ Page.prototype.waitForDisabled = function (selector, ms) {
     return this.getBrowser().waitForEnabled(selector, ms, true);
 };
 
-Page.prototype.getText = function (selector) {
-    return this.getBrowser().getText(selector);
-};
-
 Page.prototype.getElementId = function (ele) {
     return ele.value.ELEMENT;
 };
