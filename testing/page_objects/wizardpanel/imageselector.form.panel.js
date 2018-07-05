@@ -15,6 +15,11 @@ var form = {
     selectedImageByName: function (imageName) {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageName}']]`
     },
+    expanderIconByName: function (name) {
+        return elements.itemByName(name) +
+               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
+
+    },
 }
 var imageSelectorForm = Object.create(page, {
 
@@ -99,6 +104,29 @@ var imageSelectorForm = Object.create(page, {
             return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {
                 return loaderComboBox.selectOption(displayName);
             });
+        }
+    },
+    doFilterOptions: {
+        value: function (displayName) {
+            return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).pause(500);
+        }
+    },
+    waitForEmptyOptionsMessage: {
+        value: function (displayName) {
+            return this.waitForVisible(`//div[contains(@class,'empty-options') and text()='No matching items']`, appConst.TIMEOUT_2).catch(
+                err => {
+                    return false;
+                });
+        }
+    },
+
+    clickOnExpanderIconInOptions: {
+        value: function (name) {
+            var expanderIcon = form.imageContentComboBox + form.expanderIconByName(name);
+            return this.doClick(expanderIcon).pause(700).catch(err => {
+                this.saveScreenshot('err_click_on_expander ' + name);
+                throw new Error('error when click on expander-icon ' + err);
+            })
         }
     },
 

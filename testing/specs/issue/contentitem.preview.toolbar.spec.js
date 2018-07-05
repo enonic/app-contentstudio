@@ -1,6 +1,8 @@
 /**
  * Created on 21.06.2018.
+ * verifies https://github.com/enonic/app-contentstudio/issues/261
  *
+ * ContentItemPreviewToolbar - issues are not refreshed on the toolbar, when an issue has been closed or reopened or updated
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -19,7 +21,7 @@ const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentI
 describe('contentItem.preview.toolbar.spec: create an issue and check the toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-    let issueTitle = appConstant.generateRandomName('issue');
+    let firstIssueTitle = appConstant.generateRandomName('issue');
     let secondIssueTitle = appConstant.generateRandomName('issue');
 
     let TEST_FOLDER;
@@ -32,7 +34,8 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(() => {
                 return expect(contentItemPreviewPanel.getContentStatus()).to.eventually.equal('New');
             }).then(() => {
-                return expect(contentItemPreviewPanel.getContentAuthor()).to.eventually.equal('by su');
+                studioUtils.saveScreenshot("content_item_toolbar");
+                return expect(contentItemPreviewPanel.getContentAuthor()).to.eventually.equal('by Super User');
             });
         });
 
@@ -50,7 +53,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return studioUtils.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
-                return createIssueDialog.typeTitle(issueTitle);
+                return createIssueDialog.typeTitle(firstIssueTitle);
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
@@ -58,7 +61,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(() => {
                 return contentItemPreviewPanel.getIssueNameOnMenuButton();
             }).then(result => {
-                assert.isTrue(result == issueTitle);
+                assert.isTrue(result == firstIssueTitle);
             })
         });
 
@@ -90,6 +93,26 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_clicked");
                 assert.isTrue(result == secondIssueTitle);
+            })
+        });
+//verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
+    it.skip(
+        `GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
+        () => {
+            return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
+                return contentItemPreviewPanel.clickOnIssueMenuButton();
+            }).then(() => {
+                return issueDetailsDialog.waitForDialogLoaded();
+            }).then(() => {
+                return issueDetailsDialog.clickOnCloseIssueButton();
+            }).then(() => {
+                //dialog is closing.
+                return issueDetailsDialog.clickOnCancelTopButton();
+            }).then(result => {
+                return contentItemPreviewPanel.getIssueNameOnMenuButton();
+            }).then(result => {
+                studioUtils.saveScreenshot("issue_menu_button_updated");
+                assert.isTrue(result == firstIssueTitle);
             })
         });
 

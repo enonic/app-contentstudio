@@ -20,7 +20,7 @@ export class ContentItemPreviewToolbar
     constructor() {
         super('content-item-preview-toolbar');
 
-        IssueDialogsManager.get().onIssueCreated((issue: Issue) => {
+        const reloadList = (issue: Issue) => {
             const item = this.getItem();
             if (item) {
                 const itemId = item.getContentSummary().getContentId();
@@ -29,7 +29,10 @@ export class ContentItemPreviewToolbar
                     this.fetchIssues(itemId);
                 }
             }
-        });
+        };
+
+        IssueDialogsManager.get().onIssueCreated(reloadList);
+        IssueDialogsManager.get().onIssueUpdated(reloadList);
     }
 
     doRender(): wemQ.Promise<boolean> {
@@ -69,13 +72,7 @@ export class ContentItemPreviewToolbar
         return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
             this.toggleClass('has-issues', issues.length > 0);
             this.issueButton.getActionButton().setEnabled(issues.length > 0);
-            this.issueActionsList = issues.map((issue: Issue) => {
-                const action = new Action(`#${issue.getIndex()} <i>${issue.getTitle()}</i>`);
-                action.onExecuted((a) => {
-                    IssueDialogsManager.get().openDetailsDialog(issue);
-                });
-                return action;
-            });
+            this.issueActionsList = issues.map(this.createIssueAction);
 
             const latestAction = this.issueActionsList.shift();
             if (latestAction) {
@@ -87,5 +84,13 @@ export class ContentItemPreviewToolbar
                 }
             }
         }).catch(api.DefaultErrorHandler.handle);
+    }
+
+    private createIssueAction(issue: Issue) {
+        const action = new Action(`#${issue.getIndex()} <i>${issue.getTitle()}</i>`);
+        action.onExecuted((a) => {
+            IssueDialogsManager.get().openDetailsDialog(issue);
+        });
+        return action;
     }
 }

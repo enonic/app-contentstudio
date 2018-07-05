@@ -66,4 +66,7 @@ export class SortContentTabMenuItems {
         return this.items.slice();
     }
 
+    getManualItemIndex(): number {
+        return this.items.indexOf(this.SORT_MANUAL_ITEM);
+    }
 }

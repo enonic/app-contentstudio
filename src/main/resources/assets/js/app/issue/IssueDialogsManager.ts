@@ -15,6 +15,7 @@ export class IssueDialogsManager {
     private createDialog: CreateIssueDialog;
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
+    private issueUpdatedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
         this.detailsDialog = IssueDetailsDialog.get();
@@ -72,6 +73,7 @@ export class IssueDialogsManager {
 
     private listenDetailsDialog(dialog: IssueDetailsDialog) {
         // Details dialog
+        dialog.onIssueUpdated(this.notifyIssueUpdated.bind(this));
         dialog.onCloseButtonClicked((e: MouseEvent) => this.closeDialog(this.listDialog));
         dialog.onClosed(() => this.revealDialog(this.listDialog));
     }
@@ -123,6 +125,18 @@ export class IssueDialogsManager {
 
     public unIssueCreated(listener: (issue: Issue) => void) {
         this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyIssueUpdated(issue: Issue) {
+        this.issueUpdatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onIssueUpdated(listener: (issue: Issue) => void) {
+        this.issueUpdatedListeners.push(listener);
+    }
+
+    public unIssueUpdated(listener: (issue: Issue) => void) {
+        this.issueUpdatedListeners = this.issueUpdatedListeners.filter(curr => curr !== listener);
     }
 
 }

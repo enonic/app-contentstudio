@@ -349,8 +349,10 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
 function startContentApplication(application: api.app.Application) {
     const appBar = new api.app.bar.AppBar(application);
     const appPanel = new ContentAppPanel(application.getPath());
+    const buttonWrapper = new api.dom.DivEl('show-issues-button-wrapper');
 
-    appBar.appendChild(new ShowIssuesDialogButton());
+    buttonWrapper.appendChild(new ShowIssuesDialogButton());
+    appBar.appendChild(buttonWrapper);
 
     initSearchPanelListener(appPanel);
 
