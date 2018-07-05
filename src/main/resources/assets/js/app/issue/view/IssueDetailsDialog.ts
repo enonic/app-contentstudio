@@ -72,6 +72,7 @@ export class IssueDetailsDialog
     private commentsList: IssueCommentsList;
     private commentTextArea: IssueCommentTextArea;
     private assigneesCombobox: api.ui.security.PrincipalComboBox;
+    private updatedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
@@ -574,13 +575,14 @@ export class IssueDetailsDialog
             .setAutoSave(autoSave)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
             .setPublishRequest(publishRequest)
-            .sendAndParse().then(() => {
+            .sendAndParse().then((updatedIssue: Issue) => {
                 if (statusChanged) {
                     api.notify.showFeedback(i18n('notify.issue.status', IssueStatusFormatter.formatStatus(newStatus)));
                     this.toggleControlsAccordingToStatus(newStatus);
                 } else {
                     api.notify.showFeedback(i18n('notify.issue.updated'));
                 }
+                this.notifyIssueUpdated(updatedIssue);
                 this.skipNextServerUpdatedEvent = true;
             })
             .catch((reason: any) => api.DefaultErrorHandler.handle(reason));
@@ -684,5 +686,17 @@ export class IssueDetailsDialog
 
     protected hasSubDialog(): boolean {
         return true;
+    }
+
+    public onIssueUpdated(listener: (issue: Issue) => void) {
+        this.updatedListeners.push(listener);
+    }
+
+    public unIssueUpdated(listener: (issue: Issue) => void) {
+        this.updatedListeners = this.updatedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyIssueUpdated(issue: Issue) {
+        this.updatedListeners.forEach(listener => listener(issue));
     }
 }
