@@ -54,7 +54,7 @@ module.exports = {
             contentType: appConst.contentTypes.FOLDER,
             displayName: displayName,
 
-            data: {
+            settings: {
                 owner: owner,
                 language: language
             },
@@ -81,5 +81,4 @@ module.exports = {
             },
         };
     },
-
 };

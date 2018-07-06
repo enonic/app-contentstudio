@@ -8,6 +8,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const panel = {
+    container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
     treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
@@ -20,8 +21,9 @@ const panel = {
     contentPublishMenuButton: `//div[contains(@id,'ContentPublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
-    numberInToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
+    numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -41,11 +43,16 @@ const panel = {
 
     },
 }
-var contentBrowsePanel = Object.create(page, {
+const contentBrowsePanel = Object.create(page, {
 
     searchButton: {
         get: function () {
             return `${panel.toolbar}` + `${panel.searchButton}`;
+        }
+    },
+    detailsPanelToggleButton: {
+        get: function () {
+            return `${panel.container}` + `${panel.detailsPanelToggleButton}`;
         }
     },
     showPublishMenuButton: {
@@ -70,7 +77,7 @@ var contentBrowsePanel = Object.create(page, {
     },
     numberInToggler: {
         get: function () {
-            return `${panel.treeGridToolbar}${panel.numberInToggler}`;
+            return `${panel.treeGridToolbar}${panel.numberInSelectionToggler}`;
         }
     },
     selectionPanelToggler: {
@@ -115,6 +122,14 @@ var contentBrowsePanel = Object.create(page, {
         }
     },
 
+    clickOnDetailsPanelToggleButton: {
+        value: function () {
+            return this.doClick(this.detailsPanelToggleButton).catch(err => {
+                this.saveScreenshot('err_click_on_details_panel_toggle');
+                throw new Error(`Error when clicking on Details Panel toggler` + err);
+            });
+        }
+    },
     clickOnSelectionControllerCheckbox: {
         value: function () {
             return this.doClick(this.selectionControllerCheckBox).catch(() => {

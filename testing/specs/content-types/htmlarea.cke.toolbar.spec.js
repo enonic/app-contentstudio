@@ -102,7 +102,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
                 assert.isTrue(result, 'Insert Link Dialog should appear');
             });
         });
-    it(`WHEN 'htmlArea' content is opened THEN bold, italic, Underline, Subcript, superscript, wrap code, Block Quote button should be present on the toolbar`,
+    it(`WHEN 'htmlArea' content is opened THEN bold, italic, Underline,  buttons should be present on the toolbar`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbar();
@@ -113,11 +113,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isUnderlineButtonDisplayed(), 'Underline button should be present');
             }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isSuperscriptButtonDisplayed(), 'Superscript button should be present');
-            }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isBulletedListButtonDisplayed(), 'Bulleted List button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isSubscriptButtonDisplayed(), 'Subscript button should be present');
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isAlignLeftButtonDisplayed(), 'Align Left button should be present');
             }).then(() => {
@@ -126,8 +122,6 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
                 return assert.eventually.isTrue(htmlAreaForm.isAlignRightButtonDisplayed(), 'Align Right button should be present');
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isCenterButtonDisplayed(), 'Center button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isBlockQuoteButtonDisplayed(), 'Wrap Code button should be present');
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isIncreaseIndentButtonDisplayed(), 'Increase Indent button should be present');
             }).then(() => {
