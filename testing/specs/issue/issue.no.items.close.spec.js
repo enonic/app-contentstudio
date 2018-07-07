@@ -44,7 +44,7 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             }).then(() => {
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {
-                return createIssueDialog.waitForExpectedNotificationMessage('The issue is Closed.');
+                return createIssueDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
             }).then(result => {
                 studioUtils.saveScreenshot("empty_issue_closed");
                 return assert.isTrue(result, 'Correct notification should appear');

@@ -14,6 +14,7 @@ module.exports = Object.freeze({
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
     },
+    ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,

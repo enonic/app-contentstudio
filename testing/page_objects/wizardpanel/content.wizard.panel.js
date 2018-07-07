@@ -182,12 +182,14 @@ const contentWizardPanel = Object.create(page, {
                 } else {
                     throw new Error('Save button is disabled');
                 }
-
             }).catch(err => {
                 this.saveScreenshot('err_click_on_save');
                 throw new Error(`Error when click on Save button!` + err);
             }).then(() => {
                 return this.waitForNotificationMessage();
+            }).catch(err => {
+                this.saveScreenshot('err_waiting_message');
+                console.log('notification message: ' + err);
             })
         }
     },
