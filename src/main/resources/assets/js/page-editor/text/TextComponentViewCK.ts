@@ -480,7 +480,11 @@ export class TextComponentViewCK
     private destroyEditor(): void {
         const editor = this.htmlAreaEditor;
         if (editor) {
-            editor.destroy(false);
+            try {
+                editor.destroy(false);
+            } catch (e) {
+                // error might be thrown when invoked after editor's iframe unloaded
+            }
         }
         this.htmlAreaEditor = null;
     }
