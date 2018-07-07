@@ -29,15 +29,15 @@ var pageTemplateForm = Object.create(page, {
     },
     filterOptionsAndSelectSupport: {
         value: function (contentTypeDisplayName) {
-            return this.typeTextInInput(this.supportOptionsFilterInput, contentTypeDisplayName).then(()=> {
+            return this.typeTextInInput(this.supportOptionsFilterInput, contentTypeDisplayName).then(() => {
                 return loaderComboBox.selectOption(contentTypeDisplayName);
-            });
+            }).pause(500);
         }
     },
     clickOnRemoveSupportIcon: {
         value: function () {
             let selector = form.contentTypeSelectedOptionsView + elements.REMOVE_ICON;
-            return this.doClick(selector).catch(err=> {
+            return this.doClick(selector).catch(err => {
                 this.saveScreenshot('err_remove_support');
                 throw new Error('error when clicking on remove-support icon ' + err);
             }).pause(1000);
