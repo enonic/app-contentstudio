@@ -100,7 +100,8 @@ const issuesListDialog = Object.create(page, {
     clickOnShowClosedIssuesLink: {
         value: function () {
             return this.doClick(this.showClosedIssuesLink).pause(400).catch(err => {
-                this.doCatch('err_issue_list_show_closed', err)
+                this.saveScreenshot('err_issue_list_click_show_closed_issues');
+                throw new Error('Error when clicking on `Show closed issues` ' + err)
             })
         }
     },

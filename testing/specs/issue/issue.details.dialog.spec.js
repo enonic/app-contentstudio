@@ -23,7 +23,6 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`WHEN new issue has been created THEN correct notification should be displayed`,
         () => {
-            //this.bail(1);
             return studioUtils.openCreateIssueDialog().then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {

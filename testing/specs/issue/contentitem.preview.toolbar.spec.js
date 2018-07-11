@@ -89,15 +89,14 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(() => {
                 return issueDetailsDialog.waitForDialogLoaded();
             }).then(() => {
-                return issueDetailsDialog.getIssueName();
+                return issueDetailsDialog.getIssueTitle();
             }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_clicked");
                 assert.isTrue(result == secondIssueTitle);
             })
         });
 //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
-    it.skip(
-        `GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
+    it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return contentItemPreviewPanel.clickOnIssueMenuButton();

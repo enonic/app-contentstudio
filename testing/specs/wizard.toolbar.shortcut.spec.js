@@ -42,7 +42,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
         })
     });
 //verifies:https://github.com/enonic/app-contentstudio/issues/127
-    it.skip(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, () => {
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, () => {
         return studioUtils.openContentInWizard(displayName).then(() => {
         }).then(() => {
             return contentWizard.hotKeyPublish();

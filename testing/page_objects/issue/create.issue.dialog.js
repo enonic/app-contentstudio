@@ -6,7 +6,7 @@ const appConst = require('../../libs/app_const');
 const elements = require('../../libs/elements');
 const dialog = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
-    createIssueButton: `//button[contains(@class,'dialog-button') and child::span[text()='Create Issue']]`,
+    createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
     cancelButton: `//button[contains(@class,'button-bottom')]`,
     titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
     addItemsButton: "//button[contains(@id,'button') and child::span[text()='Add items']]",
