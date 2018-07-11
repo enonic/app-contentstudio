@@ -83,9 +83,9 @@ export class EditPermissionsDialog
 
             this.comboBox.toggleClass('disabled', this.inheritPermissions);
             if (this.inheritPermissions) {
-                this.layoutInheritedPermissions()
+                this.layoutInheritedPermissions();
             } else {
-                this.layoutOriginalPermissions()
+                this.layoutOriginalPermissions();
             }
 
             this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
