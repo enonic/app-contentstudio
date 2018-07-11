@@ -76,6 +76,7 @@ export class EditPermissionsDialog
             const isNotEmpty: boolean = currentEntries && currentEntries.length > 0;
 
             this.applyAction.setEnabled((permissionsModified || inheritCheckModified || overwriteModified) && isNotEmpty);
+            this.notifyResize();
         };
 
         let changeListener = () => {
