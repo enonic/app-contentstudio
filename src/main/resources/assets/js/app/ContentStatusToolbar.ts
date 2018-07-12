@@ -58,7 +58,6 @@ export class ContentStatusToolbar
                     this.author.setHtml(i18n('field.preview.toolbar.status', user.getDisplayName()));
                 })
                 .catch(reason => {
-                    api.DefaultErrorHandler.handle(reason);
                     this.author.setHtml(name);
                 });
         } else {
