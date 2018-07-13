@@ -68,6 +68,14 @@ var contentItemPreviewPanel = Object.create(page, {
             });
         }
     },
+    waitForIssueMenuButtonNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(`${xpath.toolbar}${xpath.issueMenuButton}`, appConst.TIMEOUT_3).catch(err => {
+                console.log('issue menu button still visible in !  ' + appConst.TIMEOUT_3);
+                return false;
+            });
+        }
+    },
     clickOnIssueMenuButton: {
         value: function () {
             return this.waitForVisible(`${xpath.toolbar}${xpath.issueMenuButton}`, appConst.TIMEOUT_3).catch(err => {
