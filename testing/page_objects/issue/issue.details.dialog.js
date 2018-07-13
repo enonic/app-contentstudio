@@ -123,7 +123,7 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnCancelTopButton: {
         value: function () {
-            return this.doClick(this.cancelTopButton);
+            return this.doClick(this.cancelTopButton).pause(500);
         }
     },
     clickOnIssueStatusSelector: {

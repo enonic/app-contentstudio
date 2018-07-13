@@ -519,6 +519,12 @@ const contentBrowsePanel = Object.create(page, {
             return this.getBrowser().keys(['Alt', 'n']);
         }
     },
+    getContentStatus: {
+        value: function (name) {
+            let selector =  elements.slickRowByDisplayName(panel.treeGrid,name) + "//div[contains(@class,'r3')]";
+            return this.getText(selector);
+        }
+    },
 });
 module.exports = contentBrowsePanel;
 
