@@ -11,8 +11,12 @@ const xpath = {
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     publishAndCloseIssueButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish & Close Issue')]]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
+    itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
+
+    selectionItemStatusByDisplayName:
+        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 
 };
 const issueDetailsDialogItemsTab = Object.create(page, {
@@ -25,6 +29,11 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     publishAndCloseIssueButton: {
         get: function () {
             return `${xpath.buttonRow}` + `${xpath.publishAndCloseIssueButton}`;
+        }
+    },
+    itemNamesToPublish: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.itemsToPublish}` + elements.H6_DISPLAY_NAME;
         }
     },
     hideDependentItemsLink: {
@@ -94,7 +103,27 @@ const issueDetailsDialogItemsTab = Object.create(page, {
             })
         }
     },
+    getItemDisplayNames: {
+        value: function () {
+            return this.getText(this.itemNamesToPublish).catch(err => {
+                throw new Error('Items Tab:error when getting display names of items: ' + err)
+            })
+        }
+    },
 
+    getContentStatus: {
+        value: function (displayName) {
+            let selector = xpath.selectionItemByDisplayName(displayName)+`//div[contains(@class,'status')][last()]`;
+            return this.getDisplayedElements(selector).then(result => {
+                return this.getBrowser().elementIdText(result[0].ELEMENT);
+            }).then(result => {
+                return result.value;
+            }).catch(err => {
+                this.saveScreenshot('err_items_tab_getting_status');
+                throw Error('Error when getting of content status. items tab, issue details dialog ');
+            })
+        }
+    },
     //Show dependent items
     clickOnShowDependentItems: {
         value: function (text) {

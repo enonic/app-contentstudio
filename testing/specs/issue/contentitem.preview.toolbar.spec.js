@@ -57,6 +57,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
+                //close the modal dialog
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
                 return contentItemPreviewPanel.getIssueNameOnMenuButton();
@@ -74,6 +75,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
+                //close the modal dialog
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
                 return contentItemPreviewPanel.getIssueNameOnMenuButton();
