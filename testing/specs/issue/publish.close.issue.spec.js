@@ -16,6 +16,7 @@ const createIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 const contentBuilder = require("../../libs/content.builder");
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('publish.close.issue.spec: publish a content and close issue spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -66,17 +67,26 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
     it(`GIVEN just closed issue WHEN issue list dialog opened THEN the issue should be present in 'closed' issues`,
         () => {
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.isShowClosedIssuesLinkVisible()
-            }).then(result => {
+            }).then(() => {
                 studioUtils.saveScreenshot("verify_issue_246");
-                if (result) {
-                    return issueListDialog.clickOnShowClosedIssuesLink();
-                }
+                return issueListDialog.clickOnShowClosedIssuesLink();
             }).then(() => {
                 studioUtils.saveScreenshot('closed_issue');
                 return issueListDialog.isIssuePresent(issueTitle);
             }).then(result => {
                 assert.isTrue(result, 'required issue should be present in `closed issues`');
+            });
+        });
+
+    it(`GIVEN issue is published and closed WHEN when an item from the issue is selected in the grid THEN Published status should be displayed in the content-grid`,
+        () => {
+            return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
+            }).then(() => {
+                studioUtils.saveScreenshot("issue_published_content_is_published");
+                return contentBrowsePanel.getContentStatus(TEST_FOLDER.displayName);
+            }).then(result => {
+                studioUtils.saveScreenshot('content_should_be_published');
+                assert.isTrue(result == 'Published', 'Content should be published, because the issue has been published`');
             });
         });
 
