@@ -10,7 +10,11 @@ const insertLinkDialog = require('./insert.link.modal.dialog.cke');
 const form = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
     ckeTextArea: `//div[contains(@id,'cke_api.ui.text.TextArea')]`,
+    insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
+    insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
+    insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
     insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+    insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
     boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
     italicButton: `//a[contains(@class,'cke_button') and contains(@title,'Italic')]`,
     underlineButton: `//a[contains(@class,'cke_button') and contains(@title,'Underline')]`,
@@ -102,34 +106,36 @@ const htmlAreaForm = Object.create(page, {
     showToolbar: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Image']`);
+                return this.waitForVisible(`//a[contains(@class,'cke_button')]`, appConst.TIMEOUT_3).catch(err => {
+                    throw new Error('CKE toolbar was not shown in ' + appConst.TIMEOUT_3 + ' ' + err);
+                })
             });
         }
     },
     showToolbarAndClickOnInsertImageButton: {
         value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_2).then(() => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
                 return this.doClick(form.ckeTextArea);
             }).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Image']`);
+                return this.waitForVisible(form.insertImageButton, appConst.TIMEOUT_3);
             }).then(result => {
-                return this.doClick(`//a[contains(@class,'cke_button') and @title='Image']`)
+                return this.doClick(form.insertImageButton);
             })
         }
     },
     showToolbarAndClickOnInsertAnchorButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Anchor']`);
+                return this.waitForVisible(form.insertAnchorButton, appConst.TIMEOUT_3);
             }).then(result => {
-                return this.doClick(`//a[contains(@class,'cke_button') and @title='Anchor']`)
+                return this.doClick(form.insertAnchorButton);
             })
         }
     },
     showToolbarAndClickOnInsertSpecialCharactersButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`);
+                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`, appConst.TIMEOUT_3);
             }).then(result => {
                 return this.doClick(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`)
             })
@@ -138,18 +144,18 @@ const htmlAreaForm = Object.create(page, {
     showToolbarAndClickOnInsertMacroButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Insert macro']`);
+                return this.waitForVisible(form.insertMacroButton, appConst.TIMEOUT_3);
             }).then(result => {
-                return this.doClick(`//a[contains(@class,'cke_button') and @title='Insert macro']`)
+                return this.doClick(form.insertMacroButton);
             })
         }
     },
     showToolbarAndClickOnInsertLinkButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and contains(@title,'Link')]`);
+                return this.waitForVisible(form.insertLinkButton, appConst.TIMEOUT_3);
             }).then(result => {
-                return this.doClick(`//a[contains(@class,'cke_button') and contains(@title,'Link')]`)
+                return this.doClick(form.insertLinkButton);
             }).then(() => {
                 return insertLinkDialog.waitForDialogLoaded();
             })
@@ -157,126 +163,141 @@ const htmlAreaForm = Object.create(page, {
     },
     clickOnSourceButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton).then(result => {
+            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(form.sourceButton);
             })
         }
     },
     clickOnMaximizeButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton).then(result => {
+            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(form.sourceButton);
             })
         }
     },
     isBoldButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.boldButton).catch(err => {
-                throw new Error('Bold button is not visible! ' + err);
+            return this.waitForVisible(form.boldButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Bold button is not visible! ' + err);
+                return false;
             })
         }
     },
     isItalicButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.italicButton).catch(err => {
-                throw new Error('Italic button is not visible! ' + err);
+            return this.waitForVisible(form.italicButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Italic button is not visible! ' + err);
+                return false;
             })
         }
     },
     isUnderlineButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.underlineButton).catch(err => {
-                throw new Error('Underline button is not visible! ' + err);
+            return this.waitForVisible(form.underlineButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Underline button is not visible! ' + err);
+                return false;
             })
         }
     },
     isSuperscriptButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.superScriptButton).catch(err => {
-                throw new Error('Superscript button is not visible! ' + err);
+            return this.waitForVisible(form.superScriptButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Superscript button is not visible! ' + err);
+                return false;
             })
         }
     },
     isSubscriptButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.subscriptButton).catch(err => {
-                throw new Error('Subscript button is not visible! ' + err);
+            return this.waitForVisible(form.subscriptButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Subscript button is not visible! ' + err);
+                return false;
             })
         }
     },
     isBulletedListButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.bulletedButton).catch(err => {
-                throw new Error('Bulleted List button is not visible! ' + err);
+            return this.waitForVisible(form.bulletedButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Bulleted List button is not visible! ' + err);
+                return false;
             })
         }
     },
     isNumberedListButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.numberedButton).catch(err => {
-                throw new Error('Numbered List button is not visible! ' + err);
+            return this.waitForVisible(form.numberedButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Numbered List button is not visible! ' + err);
+                return false;
             })
         }
     },
     isAlignLeftButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.alignLeftButton).catch(err => {
-                throw new Error('Align Left  button is not visible! ' + err);
+            return this.waitForVisible(form.alignLeftButton, appConst.TIMEOUT_2).catch(err => {
+                console.log('Align Left  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isAlignRightButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.alignRightButton).catch(err => {
-                throw new Error('Align Right  button is not visible! ' + err);
+            return this.waitForVisible(form.alignRightButton, appConst.TIMEOUT_2).catch(err => {
+                console.log('Align Right  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isCenterButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.centerButton).catch(err => {
-                throw new Error('Center  button is not visible! ' + err);
+            return this.waitForVisible(form.centerButton, appConst.TIMEOUT_2).catch(err => {
+                console.log('Center  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isIncreaseIndentDisplayed: {
         value: function () {
             return this.waitForVisible(form.increaseIndentButton).catch(err => {
-                throw new Error('Increase Indent  button is not visible! ' + err);
+                console.log('Increase Indent  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isDecreaseIndentDisplayed: {
         value: function () {
-            return this.waitForVisible(form.decreaseIndentButton).catch(err => {
-                throw new Error('Increase Indent  button is not visible! ' + err);
+            return this.waitForVisible(form.decreaseIndentButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Increase Indent  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isBlockQuoteButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.blockQuoteButton).catch(err => {
-                throw new Error('Block Quote  button is not visible! ' + err);
+            return this.waitForVisible(form.blockQuoteButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Block Quote  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isTableButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.tableButton).catch(err => {
-                throw new Error('Table  button is not visible! ' + err);
+            return this.waitForVisible(form.tableButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Table  button is not visible! ' + err);
+                return false;
             })
         }
     },
     isIncreaseIndentButtonDisplayed: {
         value: function () {
-            return this.waitForVisible(form.increaseIndentButton).catch(err => {
-                throw new Error('Increase Indent  button is not visible! ' + err);
+            return this.waitForVisible(form.increaseIndentButton, appConst.TIMEOUT_3).catch(err => {
+                console.log('Increase Indent  button is not visible! ' + err);
+                return false;
             })
         }
     },
     waitForValidationRecording: {
-        value: function (ms) {
-            return this.waitForVisible(this.validationRecord, ms);
+        value: function () {
+            return this.waitForVisible(this.validationRecord, appConst.TIMEOUT_2);
         }
     },
     isValidationRecordingVisible: {

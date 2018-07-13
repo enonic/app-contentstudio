@@ -4,6 +4,7 @@
 
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const form = {
     textArea: `//div[contains(@id,'inputtype.text.TextArea')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
@@ -31,8 +32,8 @@ const textAreaForm = Object.create(page, {
         }
     },
     waitForValidationRecording: {
-        value: function (ms) {
-            return this.waitForVisible(this.validationRecord, ms);
+        value: function () {
+            return this.waitForVisible(this.validationRecord, appConst.TIMEOUT_2);
         }
     },
     isValidationRecordingVisible: {

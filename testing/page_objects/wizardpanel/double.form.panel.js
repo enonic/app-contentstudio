@@ -4,9 +4,10 @@
 
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const form = {
     doubleInput: `//div[contains(@id,'inputtype.number.double.Double')]`,
-    validationRecording:`//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
 const doubleForm = Object.create(page, {
@@ -18,7 +19,7 @@ const doubleForm = Object.create(page, {
     },
     validationRecord: {
         get: function () {
-            return `${elements.FORM_VIEW}`+`${form.validationRecording}`;
+            return `${elements.FORM_VIEW}` + `${form.validationRecording}`;
         }
     },
     type: {
@@ -26,14 +27,14 @@ const doubleForm = Object.create(page, {
             return this.typeLong(doubleData.doubleValue);
         }
     },
-    typeDouble:{
-        value:function(value){
+    typeDouble: {
+        value: function (value) {
             return this.typeTextInInput(this.doubleInput, value);
         }
     },
     waitForValidationRecording: {
-        value: function (ms) {
-            return this.waitForVisible(this.validationRecord, ms);
+        value: function () {
+            return this.waitForVisible(this.validationRecord, appConst.TIMEOUT_2);
         }
     },
     isValidationRecordingVisible: {
@@ -43,7 +44,7 @@ const doubleForm = Object.create(page, {
     },
     getValidationRecord: {
         value: function () {
-            return this.getText(this.validationRecord).catch(err=> {
+            return this.getText(this.validationRecord).catch(err => {
                 this.saveScreenshot('err_double_validation_record');
                 throw new Error('getting Validation text: ' + err);
             })
