@@ -5,14 +5,14 @@ import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedE
 import {NewMediaUploadEvent} from './NewMediaUploadEvent';
 import {NewContentEvent} from './NewContentEvent';
 import {FilterableItemsList} from './FilterableItemsList';
+import {AggregateContentTypesResult} from './AggregateContentTypesResult';
+import {AggregateContentTypesByPathRequest} from './AggregateContentTypesByPathRequest';
 import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
 import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
 import Content = api.content.Content;
 import ContentPath = api.content.ContentPath;
 import Site = api.content.site.Site;
 import FileUploadStartedEvent = api.ui.uploader.FileUploadStartedEvent;
-import AggregateContentTypesByPathRequest = api.content.resource.AggregateContentTypesByPathRequest;
-import AggregateContentTypesResult = api.content.resource.result.AggregateContentTypesResult;
 import LoadMask = api.ui.mask.LoadMask;
 import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
