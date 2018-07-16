@@ -88,14 +88,14 @@ const issueDetailsDialog = Object.create(page, {
 
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, 1000).catch(err => {
+            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, appConst.TIMEOUT_2).catch(err => {
                 throw new Error('Issue Details dialog is not loaded ' + err)
             });
         }
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, 1000).catch(err => {
+            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_close_is_det_dialog');
                 throw new Error('Issue Details Dialog should be closed! ' + err)
             })
