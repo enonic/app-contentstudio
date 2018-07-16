@@ -20,6 +20,9 @@ import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {PageModel} from '../../page-editor/PageModel';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
+import {SiteModel} from '../site/SiteModel';
+import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
+import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -38,7 +41,6 @@ import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ExtraData = api.content.ExtraData;
 import Page = api.content.page.Page;
 import Site = api.content.site.Site;
-import SiteModel = api.content.site.SiteModel;
 import ContentType = api.schema.content.ContentType;
 import ContentTypeName = api.schema.content.ContentTypeName;
 
@@ -131,9 +133,9 @@ export class ContentWizardPanel
 
     private dataChangedListeners: { (): void } [];
 
-    private applicationAddedListener: (event: api.content.site.ApplicationAddedEvent) => void;
+    private applicationAddedListener: (event: ApplicationAddedEvent) => void;
 
-    private applicationRemovedListener: (event: api.content.site.ApplicationRemovedEvent) => void;
+    private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
 
     private applicationUnavailableListener: (event: ApplicationEvent) => void;
 
@@ -261,11 +263,11 @@ export class ContentWizardPanel
             this.notifyDataChanged();
         };
 
-        this.applicationAddedListener = (event: api.content.site.ApplicationAddedEvent) => {
+        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addMetadataStepForms(event.getApplicationKey());
         };
 
-        this.applicationRemovedListener = (event: api.content.site.ApplicationRemovedEvent) => {
+        this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeMetadataStepForms(event.getApplicationKey());
         };
 

@@ -1,5 +1,6 @@
 import './../api.ts';
 import {PageModel, SetController, SetTemplate} from './PageModel';
+import {SiteModel} from '../app/site/SiteModel';
 import PropertyTree = api.data.PropertyTree;
 import Page = api.content.page.Page;
 import Content = api.content.Content;
@@ -11,7 +12,6 @@ import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import GetPageTemplateByKeyRequest = api.content.page.GetPageTemplateByKeyRequest;
-import SiteModel = api.content.site.SiteModel;
 import ContentFormContext = api.content.form.ContentFormContext;
 import i18n = api.util.i18n;
 

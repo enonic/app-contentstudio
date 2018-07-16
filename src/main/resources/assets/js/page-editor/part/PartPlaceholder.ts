@@ -1,8 +1,8 @@
 import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {PartComponentView} from './PartComponentView';
+import {SiteModel} from '../../app/site/SiteModel';
 import Descriptor = api.content.page.Descriptor;
-import SiteModel = api.content.site.SiteModel;
 import PartDescriptor = api.content.page.region.PartDescriptor;
 import PartDescriptorComboBox = api.content.page.region.PartDescriptorComboBox;
 

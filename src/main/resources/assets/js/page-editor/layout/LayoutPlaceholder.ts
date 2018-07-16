@@ -1,8 +1,8 @@
 import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {LayoutComponentView} from './LayoutComponentView';
+import {SiteModel} from '../../app/site/SiteModel';
 import LayoutComponent = api.content.page.region.LayoutComponent;
-import SiteModel = api.content.site.SiteModel;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import LayoutDescriptorComboBox = api.content.page.region.LayoutDescriptorComboBox;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
