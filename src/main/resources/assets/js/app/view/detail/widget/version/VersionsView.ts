@@ -1,5 +1,6 @@
 import '../../../../../api.ts';
 import {ContentVersionViewer} from './ContentVersionViewer';
+import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import ContentVersion = api.content.ContentVersion;
 import ContentId = api.content.ContentId;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -165,7 +166,7 @@ export class VersionsView
                         new api.content.resource.SetActiveContentVersionRequest(item.id, this.getContentId()).sendAndParse().then(
                             (contentId: ContentId) => {
                                 api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
-                                new api.content.event.ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
+                                new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
                             });
                     }
                 }), false);

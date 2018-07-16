@@ -9,12 +9,11 @@ import {AttachmentsWidgetItemView} from './widget/info/AttachmentsWidgetItemView
 import {UserAccessWidgetItemView} from './widget/info/UserAccessWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/info/PageTemplateWidgetItemView';
 import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
-
+import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 
-import ContentVersionSetEvent = api.content.event.ActiveContentVersionSetEvent;
 import GetWidgetsByInterfaceRequest = api.content.resource.GetWidgetsByInterfaceRequest;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -70,7 +69,7 @@ export class DetailsView extends api.dom.DivEl {
     }
 
     private subscribeOnEvents() {
-        ContentVersionSetEvent.on((event: ContentVersionSetEvent) => {
+        ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
             if (ActiveDetailsPanelManager.getActiveDetailsPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
                 this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
                 this.updateActiveWidget();
