@@ -7,7 +7,7 @@ export class ActiveDetailsPanelManager {
 
     private static debouncedSetActiveDetailsPanel: (detailsPanel: DetailsPanel) => void = api.util.AppHelper.debounce(
         ActiveDetailsPanelManager.doSetActiveDetailsPanel,
-        300, false);
+        300, true);
 
     static setActiveDetailsPanel(detailsPanelToMakeActive: DetailsPanel) {
         ActiveDetailsPanelManager.debouncedSetActiveDetailsPanel(detailsPanelToMakeActive);

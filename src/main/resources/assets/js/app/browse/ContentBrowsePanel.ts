@@ -5,11 +5,6 @@ import {ContentTreeGrid} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
-import {MobileContentItemStatisticsPanel} from '../view/MobileContentItemStatisticsPanel';
-import {FloatingDetailsPanel} from '../view/detail/FloatingDetailsPanel';
-import {DockedDetailsPanel} from '../view/detail/DockedDetailsPanel';
-import {DetailsView} from '../view/detail/DetailsView';
-import {NonMobileDetailsPanelsManager, NonMobileDetailsPanelsManagerBuilder} from '../view/detail/NonMobileDetailsPanelsManager';
 import {Router} from '../Router';
 import {ActiveDetailsPanelManager} from '../view/detail/ActiveDetailsPanelManager';
 import {ContentBrowseItem} from './ContentBrowseItem';
@@ -20,6 +15,7 @@ import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedE
 import {ContentPublishMenuButton} from './ContentPublishMenuButton';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
+import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -35,7 +31,6 @@ import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSumma
 import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 
 export class ContentBrowsePanel
@@ -44,8 +39,7 @@ export class ContentBrowsePanel
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
-
-    private mobileContentItemStatisticsPanel: MobileContentItemStatisticsPanel;
+    private detailsSplitPanel: DetailsSplitPanel;
 
     constructor() {
 
@@ -131,48 +125,23 @@ export class ContentBrowsePanel
     doRender(): wemQ.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
-            let detailsView = new DetailsView();
-
-            let nonMobileDetailsPanelsManagerBuilder = NonMobileDetailsPanelsManager.create();
-            this.initSplitPanelWithDockedDetails(nonMobileDetailsPanelsManagerBuilder, detailsView);
-            this.initFloatingDetailsPanel(nonMobileDetailsPanelsManagerBuilder, detailsView);
-            this.initItemStatisticsPanelForMobile(detailsView);
-
-            let nonMobileDetailsPanelsManager = nonMobileDetailsPanelsManagerBuilder.build();
-            if (nonMobileDetailsPanelsManager.requiresCollapsedDetailsPanel()) {
-                nonMobileDetailsPanelsManager.hideDockedDetailsPanel();
-            }
-            nonMobileDetailsPanelsManager.ensureButtonHasCorrectState();
-
-            this.setActiveDetailsPanel(nonMobileDetailsPanelsManager);
-
-            this.onShown(() => {
-                if (!!nonMobileDetailsPanelsManager.getActivePanel().getActiveWidget()) {
-                    nonMobileDetailsPanelsManager.getActivePanel().getActiveWidget().slideIn();
-                }
-            });
-
             const browseActions = this.getBrowseActions();
-            let contentPublishMenuButton = new ContentPublishMenuButton({
-                publishAction: browseActions.getPublishAction(),
-                publishTreeAction: browseActions.getPublishTreeAction(),
-                unpublishAction: browseActions.getUnpublishAction(),
-                createIssueAction: browseActions.getCreateIssueAction()
-            });
+            const mobileActions = [
+                browseActions.getUnpublishAction(),
+                browseActions.getPublishAction(),
+                browseActions.getMoveAction(),
+                browseActions.getSortAction(),
+                browseActions.getDeleteAction(),
+                browseActions.getDuplicateAction(),
+                browseActions.getEditAction(),
+                browseActions.getShowNewDialogAction()
+            ];
+            this.detailsSplitPanel = new DetailsSplitPanel(this.getFilterAndGridSplitPanel(), mobileActions);
+            this.appendChild(this.detailsSplitPanel);
 
-            this.treeGrid.onSelectionChanged(
-                (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
-                 highlighted: boolean) => {
-                    return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
-                });
-
-            this.treeGrid.onHighlightingChanged(
-                (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));
-
-            this.browseToolbar.appendChild(contentPublishMenuButton);
-            detailsView.appendChild(nonMobileDetailsPanelsManager.getToggleButton());
-
-            this.subscribeDetailsPanelsOnEvents(nonMobileDetailsPanelsManager, contentPublishMenuButton);
+            this.subscribeMobilePanelOnEvents();
+            this.subscribeDetailsPanelsOnEvents();
+            this.createContentPublishMenuButton();
 
             return rendered;
         }).catch((error) => {
@@ -186,8 +155,7 @@ export class ContentBrowsePanel
         this.doUpdateDetailsPanel(item ? item.getModel() : null);
     }
 
-    private subscribeDetailsPanelsOnEvents(nonMobileDetailsPanelsManager: NonMobileDetailsPanelsManager,
-                                           contentPublishMenuButton: ContentPublishMenuButton) {
+    private subscribeDetailsPanelsOnEvents() {
 
         this.getTreeGrid().onSelectionChanged((currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
                                                fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]) => {
@@ -197,103 +165,24 @@ export class ContentBrowsePanel
         this.getTreeGrid().onHighlightingChanged(() => {
             this.updateDetailsPanelOnItemChange();
         });
-
-        ResponsiveManager.onAvailableSizeChanged(this.getFilterAndGridSplitPanel(), () => {
-            nonMobileDetailsPanelsManager.handleResizeEvent();
-        });
-
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
-                contentPublishMenuButton.maximize();
-                if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
-                    ActiveDetailsPanelManager.setActiveDetailsPanel(this.mobileContentItemStatisticsPanel.getDetailsPanel());
-                    nonMobileDetailsPanelsManager.hideActivePanel(true);
-                } else {
-                    nonMobileDetailsPanelsManager.setActivePanel();
-                    this.mobileContentItemStatisticsPanel.slideAllOut(true);
-                }
-            } else {
-                contentPublishMenuButton.minimize();
-                ActiveDetailsPanelManager.setActiveDetailsPanel(this.mobileContentItemStatisticsPanel.getDetailsPanel());
-            }
-        });
     }
 
-    private initSplitPanelWithDockedDetails(nonMobileDetailsPanelsManagerBuilder: NonMobileDetailsPanelsManagerBuilder,
-                                            detailsPanelView: DetailsView) {
-
-        let dockedDetailsPanel = new DockedDetailsPanel(detailsPanelView);
-
-        let contentPanelsAndDetailPanel: api.ui.panel.SplitPanel =
-            new api.ui.panel.SplitPanelBuilder(this.getFilterAndGridSplitPanel(), dockedDetailsPanel)
-                .setAlignment(api.ui.panel.SplitPanelAlignment.VERTICAL)
-                .setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
-                .setSecondPanelMinSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
-                .setAnimationDelay(600)
-                .setSecondPanelShouldSlideRight(true).build();
-
-        contentPanelsAndDetailPanel.addClass('split-panel-with-details');
-        contentPanelsAndDetailPanel.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
-
-        nonMobileDetailsPanelsManagerBuilder.setSplitPanelWithGridAndDetails(contentPanelsAndDetailPanel);
-        nonMobileDetailsPanelsManagerBuilder.setDefaultDetailsPanel(dockedDetailsPanel);
-
-        this.appendChild(contentPanelsAndDetailPanel);
-    }
-
-    private initFloatingDetailsPanel(nonMobileDetailsPanelsManagerBuilder: NonMobileDetailsPanelsManagerBuilder, detailsView: DetailsView) {
-
-        let floatingDetailsPanel = new FloatingDetailsPanel(detailsView);
-
-        nonMobileDetailsPanelsManagerBuilder.setFloatingDetailsPanel(floatingDetailsPanel);
-
-        this.appendChild(floatingDetailsPanel);
-    }
-
-    private initItemStatisticsPanelForMobile(detailsView: DetailsView) {
-        this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.getBrowseActions(), detailsView);
+    private subscribeMobilePanelOnEvents() {
 
         // selection opens detail panel in mobile mode, so deselect it when returning back to grid
-        this.mobileContentItemStatisticsPanel.onSlideOut(() => {
-            this.treeGrid.deselectAll();
-            this.getBrowseActions().updateActionsEnabledState([]);
-        });
-
-        const updateMobilePanel = (content: ContentSummaryAndCompareStatus, changed: boolean) => {
-            if (changed) {
-                const item = this.toBrowseItem(content, null);
-
-                this.mobileContentItemStatisticsPanel.getPreviewPanel().showMask();
-                this.mobileContentItemStatisticsPanel.setItem(item);
-
-                setTimeout(() => {
-                    this.mobileContentItemStatisticsPanel.getPreviewPanel().setBlankFrame();
-                    this.mobileContentItemStatisticsPanel.getPreviewPanel().showMask();
-                    new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-                        item.setRenderable(renderable);
-                        this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(item);
-                    });
-                }, 300);
+        this.detailsSplitPanel.onMobilePanelSlide((out: boolean) => {
+            if (out) {
+                this.treeGrid.deselectAll();
+                this.getBrowseActions().updateActionsEnabledState([]);
             }
-        };
+        });
 
         TreeGridItemClickedEvent.on((event: TreeGridItemClickedEvent) => {
-            if (this.isMobileMode()) {
-                const summary = event.getTreeNode().getData();
-
-                const prevItem = this.mobileContentItemStatisticsPanel.getPreviewPanel().getItem();
-                const currItem = event.getTreeNode().getData();
-                const changed = !prevItem || !prevItem.getModel() || prevItem.getModel().getId() !== currItem.getId();
-
-                if (changed) {
-                    this.mobileContentItemStatisticsPanel.getPreviewPanel().setBlank();
-                }
-                this.mobileContentItemStatisticsPanel.slideIn();
-                updateMobilePanel(summary, changed);
+            if (this.detailsSplitPanel.isMobileMode()) {
+                this.detailsSplitPanel.setContent(event.getTreeNode().getData());
+                this.detailsSplitPanel.showMobilePanel();
             }
         });
-
-        this.appendChild(this.mobileContentItemStatisticsPanel);
     }
 
     // tslint:disable-next-line:max-line-length
@@ -312,18 +201,6 @@ export class ContentBrowsePanel
         }
 
         return this.treeNodeToBrowseItem(nodes[0]);
-    }
-
-    private isMobileMode(): boolean {
-        return this.mobileContentItemStatisticsPanel.isVisible();
-    }
-
-    private setActiveDetailsPanel(nonMobileDetailsPanelsManager: NonMobileDetailsPanelsManager) {
-        if (this.mobileContentItemStatisticsPanel.isVisible()) {
-            ActiveDetailsPanelManager.setActiveDetailsPanel(this.mobileContentItemStatisticsPanel.getDetailsPanel());
-        } else {
-            ActiveDetailsPanelManager.setActiveDetailsPanel(nonMobileDetailsPanelsManager.getActivePanel());
-        }
     }
 
     treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
@@ -714,7 +591,8 @@ export class ContentBrowsePanel
     private forcePreviewRerender() {
         let previewItem = this.getBrowseItemPanel().getStatisticsItem();
         (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
-        this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(previewItem, true);
+
+        this.detailsSplitPanel.setMobilePreviewItem(previewItem, true);
     }
 
     private updateDetailsPanel(data: ContentSummaryAndCompareStatus[]) {
@@ -747,5 +625,34 @@ export class ContentBrowsePanel
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
         return <ContentBrowseItemPanel>super.getBrowseItemPanel();
+    }
+
+    private createContentPublishMenuButton() {
+        const browseActions = this.getBrowseActions();
+        let contentPublishMenuButton = new ContentPublishMenuButton({
+            publishAction: browseActions.getPublishAction(),
+            publishTreeAction: browseActions.getPublishTreeAction(),
+            unpublishAction: browseActions.getUnpublishAction(),
+            createIssueAction: browseActions.getCreateIssueAction()
+        });
+
+        this.detailsSplitPanel.onMobileModeChanged((isDocked: boolean) => {
+            if (isDocked) {
+                contentPublishMenuButton.maximize();
+            } else {
+                contentPublishMenuButton.minimize();
+            }
+        });
+
+        this.treeGrid.onSelectionChanged(
+            (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
+             highlighted: boolean) => {
+                return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
+            });
+
+        this.treeGrid.onHighlightingChanged(
+            (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));
+
+        this.browseToolbar.appendChild(contentPublishMenuButton);
     }
 }

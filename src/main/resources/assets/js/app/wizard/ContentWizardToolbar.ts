@@ -9,6 +9,7 @@ import AppIcon = api.app.bar.AppIcon;
 import Application = api.app.Application;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
+import Button = api.ui.button.Button;
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
@@ -17,6 +18,7 @@ export class ContentWizardToolbar
     private componentsViewToggler: TogglerButton;
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
+    private mobileItemStatisticsButton: Button;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -25,6 +27,7 @@ export class ContentWizardToolbar
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
         this.addTogglerButtons(actions);
+        this.addMobileItemStatisticsButton();
 
         if (item) {
             this.setItem(item);
@@ -89,4 +92,13 @@ export class ContentWizardToolbar
         return this.contentWizardToolbarPublishControls;
     }
 
+    getMobileItemStatisticsButton(): Button {
+        return this.mobileItemStatisticsButton;
+    }
+
+    private addMobileItemStatisticsButton() {
+        this.mobileItemStatisticsButton = new api.ui.button.Button();
+        this.mobileItemStatisticsButton.addClass('mobile-content-item-statistics-button');
+        super.addElement(this.mobileItemStatisticsButton);
+    }
 }

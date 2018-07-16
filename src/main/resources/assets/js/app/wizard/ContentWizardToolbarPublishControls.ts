@@ -119,4 +119,8 @@ export class ContentWizardToolbarPublishControls
     public getPublishButtonForMobile(): ActionButton {
         return this.publishButtonForMobile;
     }
+
+    public getPublishButton(): ContentPublishMenuButton {
+        return this.publishButton;
+    }
 }

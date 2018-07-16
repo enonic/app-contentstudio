@@ -20,6 +20,7 @@ import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {PageModel} from '../../page-editor/PageModel';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
+import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -76,6 +77,8 @@ import NavigatorEvent = api.ui.NavigatorEvent;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
+
+    private detailsSplitPanel: DetailsSplitPanel;
 
     protected wizardActions: ContentWizardActions;
 
@@ -421,8 +424,44 @@ export class ContentWizardPanel
         return liveFormPanel;
     }
 
+    protected createWizardAndDetailsSplitPanel(leftPanel: api.ui.panel.Panel): api.ui.panel.SplitPanel {
+        const wizardActions = this.getWizardActions();
+        const detailsActions = [
+            wizardActions.getUnpublishAction(),
+            wizardActions.getPublishAction(),
+            wizardActions.getDeleteAction(),
+            wizardActions.getDuplicateAction()
+        ];
+        this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions);
+
+        this.onRendered(() => {
+            const mainToolbar = this.getMainToolbar();
+            const contentPublishMenuButton = mainToolbar.getContentWizardToolbarPublishControls().getPublishButton();
+            this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+                if (!isMobile) {
+                    contentPublishMenuButton.maximize();
+                } else {
+                    contentPublishMenuButton.minimize();
+                }
+            });
+
+            mainToolbar.getMobileItemStatisticsButton().onClicked(() => {
+                if (this.detailsSplitPanel.isMobileMode()) {
+                    this.detailsSplitPanel.setContent(this.persistedContent);
+                    this.detailsSplitPanel.showMobilePanel();
+                }
+            });
+        });
+
+        return this.detailsSplitPanel;
+    }
+
     public getLivePanel(): LiveFormPanel {
         return <LiveFormPanel> super.getLivePanel();
+    }
+
+    getWizardActions(): ContentWizardActions {
+        return <ContentWizardActions> super.getWizardActions();
     }
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
@@ -472,6 +511,8 @@ export class ContentWizardPanel
                 thumbnailUploader.setEnabled(!this.contentType.isImage());
                 thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
             }
+
+            this.detailsSplitPanel.onRendered(() => this.detailsSplitPanel.setContent(this.persistedContent));
 
             return rendered;
         });
