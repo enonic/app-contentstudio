@@ -1,5 +1,6 @@
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
+import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
 import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
@@ -94,7 +95,7 @@ export class PublishProcessor {
                 .build();
             resolveDependenciesRequest = wemQ(result);
         } else {
-            resolveDependenciesRequest = api.content.resource.ResolvePublishDependenciesRequest.create()
+            resolveDependenciesRequest = ResolvePublishDependenciesRequest.create()
                 .setIds(ids)
                 .setExcludedIds(this.excludedIds)
                 .setExcludeChildrenIds(this.itemList.getExcludeChildrenIds())
