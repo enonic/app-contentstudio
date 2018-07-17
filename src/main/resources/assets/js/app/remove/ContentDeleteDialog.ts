@@ -5,6 +5,8 @@ import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
 import {DeleteItemViewer} from './DeleteItemViewer';
+import {ResolveDependenciesRequest} from '../resource/ResolveDependenciesRequest';
+import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import CompareStatus = api.content.CompareStatus;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
@@ -72,8 +74,8 @@ export class ContentDeleteDialog
     }
 
     protected manageInboundDependencies(contents: ContentSummaryAndCompareStatus[]) {
-        new api.content.resource.ResolveDependenciesRequest(contents.map(content => content.getContentId())).sendAndParse().then(
-            (result: api.content.resource.ResolveDependenciesResult) => {
+        new ResolveDependenciesRequest(contents.map(content => content.getContentId())).sendAndParse().then(
+            (result: ResolveDependenciesResult) => {
 
                 const dependencyCount = result.getIncomingDependenciesCount();
 

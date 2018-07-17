@@ -2,8 +2,11 @@ import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup, DependencyType} from './DependencyGroup';
 import {ToggleSearchPanelWithDependenciesEvent} from '../../../../browse/ToggleSearchPanelWithDependenciesEvent';
+import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
+import {ContentDependencyJson} from '../../../../resource/ContentDependencyJson';
+import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
+import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import ContentDependencyJson = api.content.json.ContentDependencyJson;
 import ActionButton = api.ui.button.ActionButton;
 import Action = api.ui.Action;
 import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
@@ -152,10 +155,10 @@ export class DependenciesWidgetItemView
      */
     private resolveDependencies(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
 
-        let resolveDependenciesRequest = new api.content.resource.ResolveDependenciesRequest([item.getContentId()]);
+        let resolveDependenciesRequest = new ResolveDependenciesRequest([item.getContentId()]);
 
-        return resolveDependenciesRequest.sendAndParse().then((result: api.content.resource.ResolveDependenciesResult) => {
-            const dependencyEntry: api.content.resource.ResolveDependencyResult = result.getDependencies()[0];
+        return resolveDependenciesRequest.sendAndParse().then((result: ResolveDependenciesResult) => {
+            const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
             if (dependencyEntry) {
                 this.initResolvedDependenciesItems(dependencyEntry.getDependency());
                 this.renderContent(item);
