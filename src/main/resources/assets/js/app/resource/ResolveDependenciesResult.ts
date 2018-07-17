@@ -1,5 +1,5 @@
 import {ResolveDependencyResult} from './ResolveDependencyResult';
-import {ContentDependencyJson} from './ContentDependencyJson';
+import {ContentDependencyJson} from './json/ContentDependencyJson';
 
 export interface ResolveDependenciesResultJson {
     dependencies: { key: string, value: ContentDependencyJson };

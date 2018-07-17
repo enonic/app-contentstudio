@@ -3,7 +3,7 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup, DependencyType} from './DependencyGroup';
 import {ToggleSearchPanelWithDependenciesEvent} from '../../../../browse/ToggleSearchPanelWithDependenciesEvent';
 import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
-import {ContentDependencyJson} from '../../../../resource/ContentDependencyJson';
+import {ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
 import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
 import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;

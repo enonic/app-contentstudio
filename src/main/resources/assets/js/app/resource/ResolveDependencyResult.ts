@@ -1,5 +1,5 @@
 import ContentId = api.content.ContentId;
-import {ContentDependencyJson} from './ContentDependencyJson';
+import {ContentDependencyJson} from './json/ContentDependencyJson';
 
 export interface ResolveDependencyResultJson {
 
