@@ -1,7 +1,9 @@
 import '../../../../../api.ts';
 import {ContentVersionViewer} from './ContentVersionViewer';
+import {ContentVersion} from '../../../../ContentVersion';
+import {ContentVersions} from '../../../../ContentVersions';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
-import ContentVersion = api.content.ContentVersion;
+import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
 import ContentId = api.content.ContentId;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
@@ -71,8 +73,8 @@ export class VersionsView
 
     private loadData(): wemQ.Promise<ContentVersion[]> {
         if (this.getContentId()) {
-            return new api.content.resource.GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then(
-                (contentVersions: api.content.ContentVersions) => {
+            return new GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then(
+                (contentVersions: ContentVersions) => {
                     this.activeVersion = contentVersions.getActiveVersion();
                     return contentVersions.getContentVersions();
                 });
