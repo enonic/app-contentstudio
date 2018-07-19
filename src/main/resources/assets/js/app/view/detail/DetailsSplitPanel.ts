@@ -36,21 +36,9 @@ export class DetailsSplitPanel
             .setAnimationDelay(600)
             .setSecondPanelShouldSlideRight(true);
 
-        dockedDetails.onRendered(() => {
-            console.log(`${new Date().toISOString()} DockedDetailsPanel.onRendered`);
-        });
-
-        leftPanel.onRendered(() => {
-            console.log(`${new Date().toISOString()} ContentWizardPanel.onRendered`);
-        });
-
         super(builder);
         this.addClass('details-split-panel');
         this.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
-
-        this.onRendered(() => {
-            console.log(`${new Date().toISOString()} DetailsSplitPanel.onRendered`);
-        });
 
         this.leftPanel = leftPanel;
         this.detailsView = detailsView;
@@ -62,7 +50,6 @@ export class DetailsSplitPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            console.log(`${new Date().toISOString()} DetailsSplitPanel.doRender`);
             const nonMobileDetailsManagerBuilder = NonMobileDetailsPanelsManager.create();
             this.initSplitPanelWithDockedDetails(nonMobileDetailsManagerBuilder);
             this.initFloatingDetailsPanel(nonMobileDetailsManagerBuilder);
