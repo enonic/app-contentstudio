@@ -33,13 +33,18 @@ configurations {
 apply plugin: 'com.enonic.defaults'
 apply plugin: 'com.moowork.node'
 apply plugin: 'com.moowork.gulp'
+ext.extProgram = new Properties()
+extProgram.load(new FileInputStream("../gradle.properties"))
+extProgram['xpVersion']
+
 
 enonic {
     publishRepo = 'inhouse'
 }
 
 ext {
-    xpVersion = '7.0.0-SNAPSHOT'
+    //xpVersion = '7.0.0-SNAPSHOT'
+    xpVersion = extProgram['xpVersion']
     unpackDir = "$buildDir${File.separator}install"
     screenshotsDir = "$buildDir${File.separator}screenshots"
     reportsDir = "$buildDir${File.separator}reports"
