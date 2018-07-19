@@ -23,6 +23,7 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {SiteModel} from '../site/SiteModel';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
+import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -62,7 +63,6 @@ import MixinName = api.schema.mixin.MixinName;
 import GetContentXDataRequest = api.schema.xdata.GetContentXDataRequest;
 
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentNamedEvent = api.content.event.ContentNamedEvent;
 import BeforeContentSavedEvent = api.content.event.BeforeContentSavedEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
