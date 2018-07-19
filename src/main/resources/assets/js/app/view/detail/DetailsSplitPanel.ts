@@ -102,7 +102,6 @@ export class DetailsSplitPanel
         this.floatingDetailsPanel.insertAfterEl(this);
     }
 
-
     private initMobileItemStatisticsPanel() {
         this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.detailsView);
         this.mobileContentItemStatisticsPanel.insertAfterEl(this);
