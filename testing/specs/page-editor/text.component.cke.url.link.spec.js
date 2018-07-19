@@ -22,11 +22,11 @@ describe('Text Component with CKE - insert link and table  specification', funct
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
+    let EXPECTED_URL = '<p><a href="http://enonic.com">test</a></p>';
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -40,8 +40,8 @@ describe('Text Component with CKE - insert link and table  specification', funct
             });
         });
 
-    //https://github.com/enonic/lib-admin-ui/issues/485   impossible to insert a table into Text Editor(CKE)
-    it.skip(`GIVEN Text component has been inserted AND 'Insert table' button has been clicked WHEN table has been inserted THEN the modal dialog should be closed`,
+    it.skip(
+        `GIVEN Text component has been inserted AND 'Insert table' button has been clicked WHEN table has been inserted THEN the modal dialog should be closed`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
@@ -53,10 +53,10 @@ describe('Text Component with CKE - insert link and table  specification', funct
                 return textComponentCke.switchToLiveEditFrame();
             }).then(() => {
                 return textComponentCke.clickOnInsertTableButton();
-            }).then(() => {
-                //TODO finish it when bug will be fixed :lib-admin-ui/issues/485
-            }).then(() => {
-                //TODO finish it when bug will be fixed :lib-admin-ui/issues/485
+            }).pause(3000).then(() => {
+                return textComponentCke.switchToCKETableFrameAndInsertTable();
+            }).then((result) => {
+                assert.isTrue(result, '');
             })
         });
 
@@ -73,7 +73,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             }).then(() => {
                 return textComponentCke.clickOnInsertLinkButton();
             }).then(() => {
-                return studioUtils.insertUrlLinkInCke("test", 'http://google.com');
+                return studioUtils.insertUrlLinkInCke("test", 'http://enonic.com');
             }).pause(1000).then(() => {
                 return textComponentCke.switchToLiveEditFrame();
             }).then(() => {
@@ -88,7 +88,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             })
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Google'site should be loaded in the page`,
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();
@@ -99,8 +99,23 @@ describe('Text Component with CKE - insert link and table  specification', funct
             }).pause(2000).then(() => {
                 return studioUtils.getTitle();
             }).then(result => {
-                studioUtils.saveScreenshot('link_clicked_in_preview');
-                assert.equal(result, 'Google', 'correct title should be loaded');
+                studioUtils.saveScreenshot('link_clicked_in_preview_panel');
+                assert.equal(result, 'Accelerate your digital projects with the Enonic Platform', 'correct title should be loaded');
+            })
+        });
+
+    it(`GIVEN site is selected WHEN link in Preview Panel has been pressed THEN Enonic site should be loaded in the Preview Panel`,
+        () => {
+            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
+                return studioUtils.switchToFrameBySrc(SITE.displayName);
+            }).then(() => {
+                return studioUtils.clickOnElement(`a=test`);
+            }).pause(1000).then(() => {
+                return webDriverHelper.browser.getText("//div[@class='frontpage-get-started__container']//h3")
+            }).then(result => {
+                studioUtils.saveScreenshot('enonic_loaded_in_preview_panel');
+                assert.equal(result, 'CREATE PROGRESSIVE WEBSITES AND APPLICATIONS FASTER WITH THE ENONIC PLATFORM',
+                    'expected text should be loaded');
             })
         });
 

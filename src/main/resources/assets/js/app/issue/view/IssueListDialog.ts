@@ -84,12 +84,10 @@ export class IssueListDialog
     }
 
     private reloadDockPanel(): wemQ.Promise<any> {
-        let promises: wemQ.Promise<any>[] = [
+        return wemQ.all([
             this.openIssuesPanel.reload(),
             this.closedIssuesPanel.reload()
-        ];
-
-        return wemQ.all(promises);
+        ]);
     }
 
     show() {
@@ -98,6 +96,8 @@ export class IssueListDialog
         this.appendChildToContentPanel(this.loadMask);
         if (!this.skipInitialLoad) {
             this.reload();
+        } else {
+            this.updateTabAndFiltersLabels();
         }
     }
 
@@ -118,12 +118,15 @@ export class IssueListDialog
 
         this.skipInitialLoad = false;
         this.openIssuesPanel.resetFilters();
+        this.closedIssuesPanel.resetFilters();
         if (assignedToMe) {
             this.openIssuesPanel.setAssignedToMe(true, true);
+            this.closedIssuesPanel.setAssignedToMe(true, true);
             return;
         }
         if (createdByMe) {
             this.openIssuesPanel.setCreatedByMe(true, true);
+            this.closedIssuesPanel.setCreatedByMe(true, true);
             return;
         }
     }
@@ -136,7 +139,7 @@ export class IssueListDialog
 
     private doReload(updatedIssues?: Issue[]) {
         this.loadMask.show();
-        wemQ.all([this.openIssuesPanel.reload(), this.closedIssuesPanel.reload()])
+        this.reloadDockPanel()
             .then(() => {
                 this.notifyResize();
                 this.updateTabAndFiltersLabels();
@@ -223,6 +226,8 @@ export class IssueListDialog
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));
+        issuePanel.getIssueList().onIssuesLoaded(() => this.notifyResize());
+        issuePanel.onShown(() => this.notifyResize());
 
         return issuePanel;
     }

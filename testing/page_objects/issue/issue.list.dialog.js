@@ -1,5 +1,6 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
     newIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Issue...']]`,
@@ -44,13 +45,13 @@ const issuesListDialog = Object.create(page, {
     },
 
     waitForDialogVisible: {
-        value: function (ms) {
-            return this.waitForVisible(this.newIssueButton, ms);
+        value: function () {
+            return this.waitForVisible(this.newIssueButton, appConst.TIMEOUT_2);
         }
     },
     waitForDialogClosed: {
-        value: function (ms) {
-            return this.waitForNotVisible(`${xpath.container}`, ms);
+        value: function () {
+            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_2);
         }
     },
     isDialogPresent: {
@@ -65,7 +66,7 @@ const issuesListDialog = Object.create(page, {
     },
     clickOnNewIssueButton: {
         value: function () {
-            return this.doClick(this.newIssueButton).catch(err=> {
+            return this.doClick(this.newIssueButton).catch(err => {
                 this.saveScreenshot('err_click_issue_list_new');
                 throw  new Error('Error when click on the `New Issue`  ' + err);
             })
@@ -98,15 +99,41 @@ const issuesListDialog = Object.create(page, {
     },
     clickOnShowClosedIssuesLink: {
         value: function () {
-            return this.doClick(this.showClosedIssuesLink).catch(err=> {
-                this.doCatch('err_issue_list_show_closed', err)
+            return this.doClick(this.showClosedIssuesLink).pause(400).catch(err => {
+                this.saveScreenshot('err_issue_list_click_show_closed_issues');
+                throw new Error('Error when clicking on `Show closed issues` ' + err)
             })
+        }
+    },
+    isIssuePresent: {
+        value: function (issueName) {
+            let issueXpath = xpath.issueByName(issueName);
+            return this.waitForVisible(issueXpath).catch(err => {
+                this.saveScreenshot("issue_not_present_" + issueName);
+                return false;
+            })
+        }
+    },
+    scrollToIssue: {
+        value: function (issueName) {
+            let issueXpath = xpath.issueByName(issueName);
+            //TODO implement it.
+            //return this.element(issueXpath).then(elem => {
+            //     return elem.scroll();
+            //})
         }
     },
     clickOnIssue: {
         value: function (issueName) {
             let issueXpath = xpath.issueByName(issueName);
-            return this.doClick(issueXpath).catch(err=> {
+            return this.isVisible(issueXpath).then(result => {
+                let selector = `div[@class='modal-dialog-body mask-wrapper']`;
+                if (!result) {
+                    return this.scrollToIssue(issueXpath);
+                }
+            }).then(() => {
+                return this.doClick(issueXpath);
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_issue');
                 throw new Error('error when clicked on issue' + err)
             })

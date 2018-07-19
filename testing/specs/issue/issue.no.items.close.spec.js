@@ -11,17 +11,16 @@ const studioUtils = require('../../libs/studio.utils.js');
 const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const confirmationDialog = require('../../page_objects/confirmation.dialog');
 
 
-describe('issue.no.items.spec: create issue without items, close the issue and reopen', function () {
+describe('issue.no.items.spec: create issue without items, close the issue and reopen the issue again', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let issueTitle = appConstant.generateRandomName('issue');
 
     it(`WHEN new issue without items has been created THEN 'No items to publish' should be displayed in the Items-tab`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             return studioUtils.openCreateIssueDialog().then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(() => {
@@ -31,7 +30,8 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(result => {
-                return assert.eventually.isTrue(issueDetailsDialog.isNoActionLabelPresent(), '`No items to publish` should be displayed, because items were not selected');
+                return assert.eventually.isTrue(issueDetailsDialog.isNoActionLabelPresent(),
+                    '`No items to publish` should be displayed, because items were not selected');
             });
         });
 
@@ -44,7 +44,7 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             }).then(() => {
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {
-                return createIssueDialog.waitForExpectedNotificationMessage('The issue is Closed.');
+                return createIssueDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
             }).then(result => {
                 studioUtils.saveScreenshot("empty_issue_closed");
                 return assert.isTrue(result, 'Correct notification should appear');
@@ -66,6 +66,9 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             }).then(result => {
                 studioUtils.saveScreenshot("empty_issue_reopened");
                 return assert.isTrue(result, 'Correct notification should appear');
+            }).then(() => {
+                return assert.eventually.isTrue(issueDetailsDialog.isCloseIssueButtonDisplayed(),
+                    '`Close Issue` button should be displayed, because the issue is reopened');
             });
         });
 

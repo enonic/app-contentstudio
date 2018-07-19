@@ -1,7 +1,5 @@
 /**
  * Created on 31.05.2018.
- * Verifies: https://github.com/enonic/app-contentstudio/issues/173
- * Templates folder should be created automatically, when a site was duplicated
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -23,7 +21,7 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
     let folder;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('duplicate-site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -55,6 +53,8 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
             }).then(() => {
                 return contentDuplicateDialog.clickOnDuplicateButton();
             }).then(() => {
+                contentDuplicateDialog.waitForDialogClosed();
+            }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName + "-copy");
             }).then(() => {
                 studioUtils.saveScreenshot("site_duplicated");
@@ -65,8 +65,8 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
                 return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
             })
         });
-    // verifies app-contentstudio/issues/173
-    it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be only with '_templates' folder`,
+
+    it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be displayed without expander`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
@@ -75,14 +75,14 @@ describe('site.duplicate.exclude.child.spec: Duplicate a site and exclude child 
             }).then(() => {
                 return contentDuplicateDialog.clickOnDuplicateButton();
             }).then(() => {
+                return contentDuplicateDialog.waitForDialogClosed();
+            }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName + "-copy-2");
             }).then(() => {
-                studioUtils.saveScreenshot("site_duplicated");
-                return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy-2");
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed('_templates');
-            }).then(() => {
-                return contentBrowsePanel.waitForItemNotDisplayed(folder.displayName);
+                studioUtils.saveScreenshot("site_duplicated_no_child");
+                return contentBrowsePanel.isExpanderIconPresent(SITE.displayName + "-copy-2");
+            }).then((result) => {
+                assert.isFalse(result, 'Site should be displayed without a expander, because the site has no children')
             })
         });
 

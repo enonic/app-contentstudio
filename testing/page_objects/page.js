@@ -91,9 +91,8 @@ Page.prototype.waitForEnabled = function (selector, ms) {
 Page.prototype.waitForDisabled = function (selector, ms) {
     return this.getBrowser().waitForEnabled(selector, ms, true);
 };
-
-Page.prototype.getText = function (selector) {
-    return this.getBrowser().getText(selector);
+Page.prototype.isSelected = function (selector) {
+    return this.getBrowser().isSelected(selector);
 };
 
 Page.prototype.getElementId = function (ele) {
@@ -172,7 +171,7 @@ Page.prototype.frame = function (id) {
 };
 
 Page.prototype.waitForNotificationMessage = function () {
-    return this.getBrowser().waitForVisible(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).then(() => {
+    return this.getBrowser().waitForVisible(`//div[@class='notification-content']/span`, appConst.TIMEOUT_5).then(() => {
         return this.getBrowser().getText(`//div[@class='notification-content']/span`);
     })
 };

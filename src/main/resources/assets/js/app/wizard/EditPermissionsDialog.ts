@@ -76,17 +76,21 @@ export class EditPermissionsDialog
             const isNotEmpty: boolean = currentEntries && currentEntries.length > 0;
 
             this.applyAction.setEnabled((permissionsModified || inheritCheckModified || overwriteModified) && isNotEmpty);
+            this.notifyResize();
         };
 
         let changeListener = () => {
-            const inheritPermissions = this.inheritPermissionsCheck.isChecked();
+            this.inheritPermissions = this.inheritPermissionsCheck.isChecked();
 
-            this.comboBox.toggleClass('disabled', inheritPermissions);
+            this.comboBox.toggleClass('disabled', this.inheritPermissions);
+            if (this.inheritPermissions) {
+                this.layoutInheritedPermissions();
+            } else {
+                this.layoutOriginalPermissions();
+            }
 
-            inheritPermissions ? this.layoutInheritedPermissions() : this.layoutOriginalPermissions();
-
-            this.comboBox.getComboBox().setVisible(!inheritPermissions);
-            this.comboBox.setReadOnly(inheritPermissions);
+            this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
+            this.comboBox.setReadOnly(this.inheritPermissions);
 
             comboBoxChangeListener();
         };
@@ -122,13 +126,13 @@ export class EditPermissionsDialog
             this.getParentPermissions().then((parentPermissions: AccessControlList) => {
                 this.parentPermissions = parentPermissions.getEntries();
 
+                this.open();
+
                 this.setUpDialog();
 
                 this.overwriteChildPermissionsCheck.setChecked(this.overwritePermissions, true);
 
                 changeListener();
-
-                this.open();
 
             }).catch(() => {
                 api.notify.showWarning(i18n('notify.permissions.inheritError', this.displayName));

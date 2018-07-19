@@ -49,7 +49,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
                 return textLine.typeText('123456789123');
             }).then(()=> {
                 return textLine.waitForValidationRecording();
-            }).then((result)=> {
+            }).then(result=> {
                 studioUtils.saveScreenshot('textline_max_length_2');
                 assert.isTrue(result, 'Validation recording should appear');
             });

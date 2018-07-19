@@ -6,6 +6,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const contentBuilder = require('../../libs/content.builder');
 const contentStepForm = require('./content.wizard.step.form');
+const contentSettingsForm = require('./settings.wizard.step.form');
 const contextWindow = require('./liveform/liveform.context.window');
 const wizard = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -108,8 +109,19 @@ const contentWizardPanel = Object.create(page, {
                 if (content.data != null) {
                     return contentStepForm.type(content.data, content.contentType);
                 }
+            }).then(() => {
+                if (content.settings == null) {
+                    return Promise.resolve();
+                } else {
+                    return this.typeSettings(content.settings);
+                }
             })
         }
+    },
+    typeSettings: {
+        value: function (settings) {
+            return contentSettingsForm.filterOptionsAndSelectLanguage(settings.language);
+        },
     },
     waitForOpened: {
         value: function () {
@@ -170,12 +182,14 @@ const contentWizardPanel = Object.create(page, {
                 } else {
                     throw new Error('Save button is disabled');
                 }
-
             }).catch(err => {
                 this.saveScreenshot('err_click_on_save');
                 throw new Error(`Error when click on Save button!` + err);
             }).then(() => {
                 return this.waitForNotificationMessage();
+            }).catch(err => {
+                this.saveScreenshot('err_waiting_message');
+                console.log('notification message: ' + err);
             })
         }
     },

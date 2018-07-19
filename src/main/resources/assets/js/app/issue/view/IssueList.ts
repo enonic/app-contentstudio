@@ -32,6 +32,8 @@ export class IssueList
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
+    private issuesLoadedListeners: { (): void }[] = [];
+
     constructor(issueStatus: IssueStatus) {
         super('issue-list');
         this.issueStatus = issueStatus;
@@ -87,6 +89,7 @@ export class IssueList
             })
             .catch(api.DefaultErrorHandler.handle)
             .finally(() => {
+                this.notifyIssuesLoaded();
                 if (this.loadMask) {
                     this.loadMask.hide();
                 }
@@ -140,6 +143,14 @@ export class IssueList
 
     public unIssueSelected(listener: (issue: IssueWithAssignees) => void) {
         this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyIssuesLoaded() {
+        this.issuesLoadedListeners.forEach(listener => listener());
+    }
+
+    public onIssuesLoaded(listener: () => void) {
+        this.issuesLoadedListeners.push(listener);
     }
 
     private isScrolledToBottom(): boolean {

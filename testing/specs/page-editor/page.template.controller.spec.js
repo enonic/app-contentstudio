@@ -29,17 +29,17 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     it(`WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 studioUtils.saveScreenshot(displayName + '_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
 
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
@@ -48,13 +48,13 @@ describe('page.template.controller: select a controller in a template-wizard', f
         () => {
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-            return studioUtils.doOpenPageTemplateWizard(SITE.displayName).then(()=> {
+            return studioUtils.doOpenPageTemplateWizard(SITE.displayName).then(() => {
                 return contentWizard.typeDisplayName(TEMPLATE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            }).then(()=> {
+            }).then(() => {
                 return liveContextWindow.waitForOpened();
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 studioUtils.saveScreenshot('template_context_window_should_be_loaded');
                 assert.isTrue(isDisplayed, 'Context Window should be loaded automatically');
             });
@@ -62,20 +62,20 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=> {
+            }).then(() => {
                 studioUtils.saveScreenshot("support_selected_in_template");
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputNotVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot("template_applied");
                 assert.isTrue(result, 'Options filter input must not be visible, because the template has been applied to site');
             });
@@ -83,54 +83,51 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN 'support' has been removed (in template) THEN controller-selector must appear on the site-wizard`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return pageTemplateForm.clickOnRemoveSupportIcon();
-            }).pause(1500).then(()=> {
+            }).pause(1500).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot("template_support_removed");
                 assert.isTrue(result, 'Options filter input must be visible, because the `support` option has been removed');
-
             });
         });
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened  WHEN template has been deleted THEN Options filter input must be visible in the site-wizard`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName).then(() => {
                 return pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.doDeleteContent(TEMPLATE.displayName);
-            }).pause(1000).then(()=> {
+            }).pause(1000).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot("template_removed");
                 assert.isTrue(result, 'Options filter input must be visible, because the template has been deleted');
-
             });
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification starting: ' + this.title);
     });
 });

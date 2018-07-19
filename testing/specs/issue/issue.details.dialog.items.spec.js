@@ -21,7 +21,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '1' number should be in 'Items' on IssueDetailsDialog`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return studioUtils.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
@@ -51,7 +51,8 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isContentOptionsFilterInputPresent(),
                     'Content option filter input should be present');
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishAndCloseIssueButtonPresent(), '`Publish & Close Issue` should be present');
+                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishAndCloseIssueButtonPresent(),
+                    '`Publish & Close Issue` should be present');
             });
         });
 
@@ -86,7 +87,8 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isShowDependentItemsLinkDisplayed(), '`Show dependent items` link should be present');
+                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isShowDependentItemsLinkDisplayed(),
+                    '`Show dependent items` link should be present');
             }).then(() => {
                 return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
             }).then(result => {
@@ -105,7 +107,8 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialogItemsTab.clickOnShowDependentItems();
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isHideDependentItemsLinkDisplayed(), 'Hide dependent items link should appears')
+                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isHideDependentItemsLinkDisplayed(),
+                    'Hide dependent items link should appears')
             })
         });
 

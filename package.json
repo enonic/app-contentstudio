@@ -6,9 +6,9 @@
     "build": "webpack --hide-modules",
     "lint": "run-p -c --aggregate-output lint:*",
     "fix": "run-p -c --aggregate-output fix:*",
-    "lint:ts": "tslint -p . -c tslint.json",
+    "lint:ts": "tslint -p tsconfig.build.json -c tslint.json",
     "lint:js": "eslint .",
-    "fix:ts": "tslint -p . -c tslint.json --fix",
+    "fix:ts": "tslint -p tsconfig.build.json -c tslint.json --fix",
     "fix:js": "eslint . --fix"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "css-loader": "^0.28.10",
     "css-mqpacker": "^6.0.2",
     "cssnano": "^4.0.0-rc.2",
-    "enonic-admin-artifacts": "^1.4.0",
+    "enonic-admin-artifacts": "^1.5.2",
     "error-logger-webpack-plugin": "^1.0.1",
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^12.1.0",

@@ -6,9 +6,17 @@ module.exports = Object.freeze({
         return part + Math.round(Math.random() * 1000000);
     },
     itemSavedNotificationMessage: function (name) {
-        return `\"${name}\" saved`
+        return `\"${name}\" is saved`
     },
+    itemPublishedNotificationMessage: function (name) {
+        return `Item \"${name}\" is published.`
+    },
+    issueClosedNotificationMessage: function (name) {
+        return `Issue \"${name}\" is closed.`
+    },
+    ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
+    TWO_ITEMS_PUBLISHED:`2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
     TEST_FOLDER_2_NAME: `selenium-tests-folder`,
@@ -50,7 +58,7 @@ module.exports = Object.freeze({
         HTML_AREA_0_1: `:htmlarea0_1`,
         HTML_AREA_2_4: `:htmlarea2_4`,
         IMG_SELECTOR_0_0: 'contenttypes:imageselector0_0',
-        IMG_SELECTOR_1_1: 'contenttypes:imageselector1_1',
+        IMG_SELECTOR_1_1: ':imageselector1_1',
         IMG_SELECTOR_2_4: ':imageselector2_4',
         ARTICLE: `:article`,
         CUSTOM_RELATIONSHIP: ':custom-relationship2_4',

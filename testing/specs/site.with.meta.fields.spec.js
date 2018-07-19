@@ -25,7 +25,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
     let SITE;
     it(`GIVEN site with application-metadata is saved WHEN required input for metadata is empty THEN red icon should be displayed in the grid near the content`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site-meta');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
             return studioUtils.doAddSite(SITE).then(()=> {

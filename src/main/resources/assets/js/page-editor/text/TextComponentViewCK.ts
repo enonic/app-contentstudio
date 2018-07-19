@@ -57,6 +57,7 @@ export class TextComponentViewCK
 
     private authRequest: Promise<void>;
     private editableSourceCode: boolean;
+    private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
         super(builder.setPlaceholder(new TextPlaceholder()).setViewer(new TextComponentViewer()).setComponent(builder.component));
@@ -95,7 +96,25 @@ export class TextComponentViewCK
             }
         };
 
+        this.bindWindowFocusEvents();
+
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
+    }
+
+    private bindWindowFocusEvents() {
+        const win = api.dom.WindowDOM.get();
+
+        win.onBlur((e: FocusEvent) => {
+            if (e.target === win.getHTMLElement()) {
+                this.winBlurred = true;
+            }
+        });
+
+        win.onFocus((e: FocusEvent) => {
+            if (e.target === win.getHTMLElement()) {
+                this.winBlurred = false;
+            }
+        });
     }
 
     private initialize() {
@@ -295,11 +314,23 @@ export class TextComponentViewCK
         }
     }
 
+    private onMouseLeftHandler(e: MouseEvent, mousePressed?: boolean) {
+        if (mousePressed) {
+            // don't consider mouse up as a click if mouse down was performed in editor
+            PageViewController.get().setNextClickDisabled(true);
+        }
+    }
+
     private onFocusHandler(e: FocusEvent) {
         this.addClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
     }
 
     private onBlurHandler(e: FocusEvent) {
+        if (this.winBlurred) {
+            // don't turn off edit mode if whole window has lost focus
+            return;
+        }
+
         this.removeClass(TextComponentViewCK.EDITOR_FOCUSED_CLASS);
 
         setTimeout(() => {
@@ -367,7 +398,7 @@ export class TextComponentViewCK
             this.onKeydownHandler(e);
         };
 
-       const editor: CKEDITOR.editor = new HTMLAreaBuilderCKE()
+        const editor: CKEDITOR.editor = new HTMLAreaBuilderCKE()
             .setEditorContainerId(this.getId() + '_editor')
             .setAssetsUri(assetsUri)
             .setInline(true)
@@ -376,6 +407,7 @@ export class TextComponentViewCK
             })
             .setFocusHandler(this.onFocusHandler.bind(this))
             .setBlurHandler(this.onBlurHandler.bind(this))
+            .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
             .setKeydownHandler(keydownHandler)
             .setNodeChangeHandler(this.processEditorValue.bind(this))
             .setFixedToolbarContainer(this.getPageView().getEditorToolbarContainerId())
@@ -436,7 +468,7 @@ export class TextComponentViewCK
             // copy editor raw content (without any processing!) over to the root html element
             this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getSnapshot();
             // but save processed text to the component
-            this.component.setText(HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.htmlAreaEditor.getSnapshot()));
+            this.component.setText(HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.htmlAreaEditor.getData()));
         }
     }
 
@@ -448,7 +480,11 @@ export class TextComponentViewCK
     private destroyEditor(): void {
         const editor = this.htmlAreaEditor;
         if (editor) {
-            editor.destroy(false);
+            try {
+                editor.destroy(false);
+            } catch (e) {
+                // error might be thrown when invoked after editor's iframe unloaded
+            }
         }
         this.htmlAreaEditor = null;
     }

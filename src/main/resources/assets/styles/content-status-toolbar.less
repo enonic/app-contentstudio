@@ -6,7 +6,7 @@
   .content-status-wrapper {
     .content-status-mixin();
     display: inline-block;
-    float: right;
+    padding-left: 15px;
 
     .author {
       margin-left: 5px;
@@ -34,14 +34,16 @@
 
     .content-status-wrapper {
 
-      .status {
-        margin-right: 10px;
-      }
+      padding-left: 10px;
 
-      .author {
+    }
+
+    &.has-issues {
+      .content-status-wrapper .author{
         display: none;
       }
     }
+
   }
 }
 

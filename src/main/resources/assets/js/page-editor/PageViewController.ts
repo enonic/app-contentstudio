@@ -28,10 +28,6 @@ export class PageViewController {
         this.editorToolbar = value;
     }
 
-    getEditorToolbarHeight(): number {
-        return !!this.editorToolbar ? this.editorToolbar.getEl().getHeightWithMargin() : 0;
-    }
-
     setTextEditMode(value: boolean) {
         this.textEditMode = value;
         this.notifyTextEditModeChanged(value);

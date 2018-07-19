@@ -1,8 +1,11 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
+    toIssueList: `//a[@title='To Issue List']`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
+    issueTitleInputToggle: `//button[@class='inplace-toggle']`,
     closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     addCommentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Add Comment']]`,
@@ -15,14 +18,35 @@ const xpath = {
     noActionLabel: `//div[@class='no-action-message']`,
     issueCommentsListItemByText:
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
+    issueStatusMenuItem:
+        menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 
 };
 const issueDetailsDialog = Object.create(page, {
 
-
     closeIssueButton: {
         get: function () {
             return `${xpath.container}` + `${xpath.closeIssueButton}`;
+        }
+    },
+    backButton: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.toIssueList}`;
+        }
+    },
+    titleInput: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.issueNameInPlaceInput}` + '//input';
+        }
+    },
+    issueTitleInputToggle: {
+        get: function () {
+            return `${xpath.issueNameInPlaceInput}` + `${xpath.issueTitleInputToggle}`;
+        }
+    },
+    issueStatusSelector: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.issueStatusSelector}`;
         }
     },
     reopenIssueButton: {
@@ -64,14 +88,14 @@ const issueDetailsDialog = Object.create(page, {
 
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, 1000).catch(err => {
+            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, appConst.TIMEOUT_2).catch(err => {
                 throw new Error('Issue Details dialog is not loaded ' + err)
             });
         }
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, 1000).catch(err => {
+            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_close_is_det_dialog');
                 throw new Error('Issue Details Dialog should be closed! ' + err)
             })
@@ -99,7 +123,78 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnCancelTopButton: {
         value: function () {
-            return this.doClick(this.cancelTopButton);
+            return this.doClick(this.cancelTopButton).pause(500);
+        }
+    },
+    clickOnIssueStatusSelector: {
+        value: function () {
+            return this.doClick(this.issueStatusSelector);
+        }
+    },
+    clickOnBackButton: {
+        value: function () {
+            return this.doClick(this.backButton);
+        }
+    },
+    clickOnIssueTitleInputToggle: {
+        value: function () {
+            return this.doClick(this.issueTitleInputToggle).pause(500);
+        }
+    },
+    typeTitle: {
+        value: function (title) {
+            return this.typeTextInInput(this.titleInput, title).catch(err => {
+                this.saveScreenshot("err_type_issue_title");
+                throw new Error('error when type issue-title ' + err);
+            })
+        }
+    },
+    waitForIssueTitleInputToggleLoaded: {
+        value: function () {
+            return this.waitForVisible(`${xpath.issueTitleInputToggle}`, appConst.TIMEOUT_5).catch(err => {
+                throw new Error('Issue Details dialog- `Title Input toggler` should be loaded! ' + err)
+            });
+        }
+    },
+    waitForIssueTitleInputToggleNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(`${xpath.issueTitleInputToggle}`, appConst.TIMEOUT_5).catch(err => {
+                throw new Error('Issue Details dialog- `Title Input toggler` should be not visible! ' + err)
+            });
+        }
+    },
+    clickOnIssueStatusSelectorAndCloseIssue: {
+        value: function () {
+            let menuItemSelector = xpath.issueStatusMenuItem('Closed');
+            return this.doClick(this.issueStatusSelector).then(() => {
+                return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
+            }).then(() => {
+                return this.doClick(menuItemSelector);
+            })
+        }
+    },
+    clickOnIssueStatusSelectorAndOpenIssue: {
+        value: function () {
+            let menuItemSelector = xpath.issueStatusMenuItem('Open');
+            return this.doClick(this.issueStatusSelector).then(() => {
+                return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
+            }).then(() => {
+                return this.doClick(menuItemSelector);
+            })
+        }
+    },
+    waitForReopenButtonLoaded: {
+        value: function () {
+            return this.waitForVisible(`${xpath.reopenIssueButton}`, appConst.TIMEOUT_2).catch(err => {
+                throw new Error('Issue Details dialog `Reopen button` is not loaded ' + err)
+            });
+        }
+    },
+    waitForCloseButtonLoaded: {
+        value: function () {
+            return this.waitForVisible(`${xpath.closeIssueButton}`, appConst.TIMEOUT_2).catch(err => {
+                throw new Error('Issue Details dialog `Close button` is not loaded ' + err)
+            });
         }
     },
     clickOnCloseIssueButton: {
@@ -107,6 +202,11 @@ const issueDetailsDialog = Object.create(page, {
             return this.doClick(this.closeIssueButton).catch(err => {
                 this.saveScreenshot('err_click_close_issue_button');
                 throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+            }).then(() => {
+                return this.waitForVisible(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
+                    this.saveScreenshot('err_issue_closed');
+                    throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
+                })
             })
         }
     },
@@ -193,9 +293,13 @@ const issueDetailsDialog = Object.create(page, {
         }
     },
 
-    getIssueName: {
+    getIssueTitle: {
         value: function () {
-            return `${xpath.issueNameInPlaceInput}//h2`;
+            return this.getText(`${xpath.issueNameInPlaceInput}/h2`).then(result => {
+                let endIndex = result.indexOf('#');
+                return result.substring(0, endIndex).trim();
+
+            })
         }
     },
     typeComment: {
@@ -217,7 +321,7 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnItemsTabBarItem: {
         value: function (text) {
-            return this.doClick(this.itemsTabBarItem).pause(300).catch(err => {
+            return this.doClick(this.itemsTabBarItem).pause(500).catch(err => {
                 this.saveScreenshot('err_click_on_items_tabbar_item');
                 throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
             })

@@ -40,6 +40,15 @@ const contentPublishDialog = Object.create(page, {
             })
         }
     },
+    clickOnPublishButton: {
+        value: function () {
+            return this.doClick(this.publishButton).catch(err => {
+                this.saveScreenshot('err_click_on_publish_button_publish_dialog');
+                throw new Error('Error when clicking Publish dialog must be closed ' + err);
+            })
+        }
+    },
+
 });
 module.exports = contentPublishDialog;
 

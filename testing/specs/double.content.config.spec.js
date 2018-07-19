@@ -50,7 +50,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
                 return doubleForm.typeDouble('-1.1');
             }).then(()=> {
                 return doubleForm.waitForValidationRecording();
-            }).then((result)=> {
+            }).then(result=> {
                 studioUtils.saveScreenshot('double_min_max_2');
                 assert.isTrue(result, 'Validation recording should appear');
             });

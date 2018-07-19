@@ -102,7 +102,7 @@ export class DialogTogglableItemList
     }
 
     public setReadOnly(value: boolean) {
-        this.toggleClass('readonly', value);
+        super.setReadOnly(value);
         this.getItemViews().forEach((item) => {
             item.setReadOnly(value);
         });

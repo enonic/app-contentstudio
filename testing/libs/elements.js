@@ -24,7 +24,8 @@ module.exports = Object.freeze({
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
     slickRowByDisplayName: function (container, displayName) {
-        return container + `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+        return container +
+               `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
     itemByDisplayName: function (displayName) {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
@@ -33,10 +34,8 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
     },
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
-
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
-
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'security.PrincipalSelectedOptionView')]`,
-
     REMOVE_ICON: `//a[@class='remove']`,
+    INCLUDE_CHILDREN_TOGGLER: `//div[contains(@id,'IncludeChildrenToggler')]`,
 });

@@ -20,11 +20,14 @@ export class ContentStatusToolbar
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
-        if (this.getItem() !== item) {
-            super.setItem(item);
-            this.toggleValid(item.getContentSummary() && item.getContentSummary().isValid());
-            this.updateStatus(item);
-            this.updateAuthor(item);
+        if (item && !item.equals(this.getItem())) {
+            const content = ContentSummaryAndCompareStatus
+                .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
+                .setPublishStatus(item.getPublishStatus());
+            super.setItem(content);
+            this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
+            this.updateStatus(content);
+            this.updateAuthor(content);
         }
     }
 
@@ -48,11 +51,17 @@ export class ContentStatusToolbar
     }
 
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
-        let text = '';
         if (content && content.getContentSummary()) {
             const name = content.getContentSummary().getModifier();
-            text = i18n('field.preview.toolbar.status', api.security.PrincipalKey.fromString(name).getId());
+            new api.security.GetPrincipalByKeyRequest(api.security.PrincipalKey.fromString(name)).sendAndParse()
+                .then((user: api.security.Principal) => {
+                    this.author.setHtml(i18n('field.preview.toolbar.status', user.getDisplayName()));
+                })
+                .catch(reason => {
+                    this.author.setHtml(name);
+                });
+        } else {
+            this.author.setHtml('');
         }
-        this.author.setHtml(text);
     }
 }

@@ -18,7 +18,7 @@ describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
 
     let folder1;
     let folder2;
-    it(`WHEN two folders has been added THEN folders should be present in the grid`,
+    it(`Precondition: WHEN two folders has been added THEN folders should be present in the grid`,
         () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');

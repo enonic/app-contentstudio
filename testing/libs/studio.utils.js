@@ -17,7 +17,8 @@ const createIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const deleteContentDialog = require('../page_objects/delete.content.dialog');
 const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
-
+const contentPublishDialog = require('../page_objects/content.publish.dialog');
+const contentDetailsPanel = require('../page_objects/browsepanel/detailspanel/details.panel');
 
 module.exports = {
     xpTabs: {},
@@ -37,6 +38,13 @@ module.exports = {
         return webDriverHelper.browser.isVisible(selector).catch((err) => {
             console.log('Error, when checking the element ' + selector + '  ' + err);
         })
+    },
+    switchToFrameBySrc: function (src) {
+        let selector = `//iframe[contains(@src,'${src}')]`;
+        return webDriverHelper.browser.element(selector).then(result => {
+            console.log('############## ' + result.value);
+            return webDriverHelper.browser.frame(result.value);
+        });
     },
     getTitle: function () {
         return webDriverHelper.browser.getTitle();
@@ -63,6 +71,15 @@ module.exports = {
         }).pause(700);
 
     },
+    insertEmailLinkInCke: function (text, email) {
+        return insertLinkDialog.typeText(text).then(() => {
+            return insertLinkDialog.fillEmailForm(email);
+        }).then(() => {
+            this.saveScreenshot('email_link_dialog');
+            return insertLinkDialog.clickOnInsertButton();
+        }).pause(700);
+    },
+
     insertContentLinkInCke: function (text, contentDisplayName) {
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.selectTargetInContentTab(contentDisplayName);
@@ -98,6 +115,16 @@ module.exports = {
             return createIssueDialog.waitForDialogLoaded();
         })
     },
+    openDetailsPanel: function () {
+        return contentDetailsPanel.isPanelVisible().then(result => {
+            if (!result) {
+                return browsePanel.clickOnDetailsPanelToggleButton();
+            }
+        }).then(() => {
+            return contentDetailsPanel.waitForDetailsPanelLoaded();
+        })
+    },
+
     openContentWizard: function (contentType) {
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
             return browsePanel.clickOnNewButton();
@@ -192,7 +219,16 @@ module.exports = {
             return this.doSwitchToContentBrowsePanel();
         }).pause(2000);
     },
-
+    doPublish: function () {
+        return browsePanel.clickOnPublishButton().then(() => {
+            return contentPublishDialog.waitForDialogVisible();
+        }).then(() => {
+            return contentPublishDialog.clickOnPublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    }
+    ,
     doAddArticleContent: function (siteName, article) {
         return this.findAndSelectItem(siteName).then(() => {
             return this.openContentWizard(article.contentType);
@@ -209,7 +245,7 @@ module.exports = {
     findAndSelectItem: function (name) {
         return this.typeNameInFilterPanel(name).then(() => {
             return browsePanel.waitForRowByNameVisible(name);
-        }).pause(400).then(() => {
+        }).pause(500).then(() => {
             return browsePanel.clickOnRowByName(name);
         });
     },
@@ -294,12 +330,12 @@ module.exports = {
             throw new Error(err);
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-        });
+        }).pause(300);
     },
     selectAndDeleteItem: function (name) {
         return this.findAndSelectItem(name).pause(500).then(() => {
             return browsePanel.waitForDeleteButtonEnabled();
-        }).then((result) => {
+        }).then(result => {
             return browsePanel.clickOnDeleteButton();
         }).then(() => {
             return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3);
@@ -319,7 +355,6 @@ module.exports = {
             return browsePanel.waitForSpinnerNotVisible();
         });
     },
-
     navigateToContentStudioApp: function () {
         return launcherPanel.waitForPanelVisible(appConst.TIMEOUT_3).then((result) => {
             if (result) {
@@ -331,7 +366,7 @@ module.exports = {
             }
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).catch((err) => {
+        }).catch(err => {
             console.log('tried to navigate to Content Studio app, but: ' + err);
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigated to studio ' + err);
@@ -340,7 +375,7 @@ module.exports = {
     doLoginAndClickOnContentStudio: function () {
         return loginPage.doLogin().pause(900).then(() => {
             return homePage.waitForXpTourVisible(appConst.TIMEOUT_2);
-        }).then((result) => {
+        }).then(result => {
             if (result) {
                 return homePage.doCloseXpTourDialog();
             }
@@ -348,7 +383,6 @@ module.exports = {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
         })
     },
-
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Studio app...');
         return webDriverHelper.browser.getTitle().then(title => {
@@ -357,12 +391,11 @@ module.exports = {
             }
         })
     },
-
     doSwitchToHome: function () {
         console.log('testUtils:switching to Home page...');
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId) => {
+            tabs.some(tabId => {
                 prevPromise = prevPromise.then((isHome) => {
                     if (!isHome) {
                         return this.switchAndCheckTitle(tabId, "Enonic XP Home");
@@ -395,7 +428,7 @@ module.exports = {
     doLoginAndSwitchToContentStudio: function () {
         return loginPage.doLogin().pause(1000).then(() => {
             return homePage.waitForXpTourVisible(appConst.TIMEOUT_3);
-        }).then((result) => {
+        }).then(result => {
             if (result) {
                 return homePage.doCloseXpTourDialog();
             }
@@ -421,7 +454,7 @@ module.exports = {
     switchToStudioTabWindow: function () {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId) => {
+            tabs.some(tabId => {
                 prevPromise = prevPromise.then((isStudio) => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, "Content Studio - Enonic XP Admin");
@@ -431,13 +464,13 @@ module.exports = {
             });
             return prevPromise;
         }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_3);
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
         });
     },
     switchToContentTabWindow: function (contentDisplayName) {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
-            tabs.some((tabId) => {
+            tabs.some(tabId => {
                 prevPromise = prevPromise.then((isStudio) => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, contentDisplayName);
@@ -454,7 +487,7 @@ module.exports = {
     doCloseAllWindowTabsAndSwitchToHome: function () {
         return webDriverHelper.browser.getTabIds().then(tabIds => {
             let result = Promise.resolve();
-            tabIds.forEach((tabId) => {
+            tabIds.forEach(tabId => {
                 result = result.then(() => {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
                 }).then(result => {

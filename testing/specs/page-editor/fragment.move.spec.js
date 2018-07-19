@@ -15,6 +15,7 @@ const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const moveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
+const confirmationDialog = require('../../page_objects/confirmation.dialog');
 
 
 describe('Move Fragment` specification', function () {
@@ -25,7 +26,7 @@ describe('Move Fragment` specification', function () {
     let CONTROLLER_NAME = 'main region';
     it(`WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -69,12 +70,17 @@ describe('Move Fragment` specification', function () {
             }).then(() => {
                 return moveContentDialog.clickOnMoveButton();
             }).pause(2000).then(() => {
-                //TODO add confirm content moving(when bug will be fixed: app-contentstudio#22)
+                return confirmationDialog.waitForDialogVisible();
+            }).then(result => {
+                return assert.isTrue(result, 'confirmation dialog should be loaded!');
+            }).then(() => {
+                return confirmationDialog.clickOnYesButton();
+                //You are about to move content out of its site which might make it unreachable. Are you sure?
             }).then(() => {
                 studioUtils.saveScreenshot('fragment_is_moved');
                 return contentBrowsePanel.waitForNotificationMessage();
             }).then(result => {
-                return assert.isTrue(result == `Item \"text_component_1\" was moved.`,
+                return assert.isTrue(result == `Item \"text_component_1\" is moved.`,
                     'correct notification message should appear');
             })
         });

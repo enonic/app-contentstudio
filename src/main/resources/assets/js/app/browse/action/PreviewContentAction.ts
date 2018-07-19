@@ -11,7 +11,7 @@ export class PreviewContentAction
     private previewContentHandler: PreviewContentHandler;
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.preview'), '');
+        super(i18n('action.preview'));
         this.setEnabled(false);
 
         this.previewContentHandler = new PreviewContentHandler();

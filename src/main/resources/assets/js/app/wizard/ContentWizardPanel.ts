@@ -57,13 +57,12 @@ import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
 import Mixin = api.schema.mixin.Mixin;
 import MixinName = api.schema.mixin.MixinName;
-import MixinNames = api.schema.mixin.MixinNames;
-import GetMixinByQualifiedNameRequest = api.schema.mixin.GetMixinByQualifiedNameRequest;
 import GetContentXDataRequest = api.schema.xdata.GetContentXDataRequest;
 
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentNamedEvent = api.content.event.ContentNamedEvent;
 import BeforeContentSavedEvent = api.content.event.BeforeContentSavedEvent;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
@@ -267,7 +266,7 @@ export class ContentWizardPanel
         };
 
         this.applicationRemovedListener = (event: api.content.site.ApplicationRemovedEvent) => {
-            this.removeMetadataStepForms();
+            this.removeMetadataStepForms(event.getApplicationKey());
         };
 
         this.applicationUnavailableListener = (event: ApplicationEvent) => {
@@ -505,15 +504,42 @@ export class ContentWizardPanel
         }
     }
 
-    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
-        let newPersistedContent: Content = event.getUploadItem().getModel();
-        this.setPersistedItem(newPersistedContent);
-        this.updateMetadataAndMetadataStepForms(newPersistedContent);
-        this.updateThumbnailWithContent(newPersistedContent);
-        let contentToDisplay = (newPersistedContent.getDisplayName() && newPersistedContent.getDisplayName().length > 0)
-            ? newPersistedContent.getDisplayName()
-            : i18n('field.content');
-        api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+    saveChanges(): wemQ.Promise<Content> {
+        let liveFormPanel = this.getLivePanel();
+        if (liveFormPanel) {
+            liveFormPanel.skipNextReloadConfirmation(true);
+        }
+        this.setRequireValid(false);
+        this.contentUpdateDisabled = true;
+        new BeforeContentSavedEvent().fire();
+        return super.saveChanges().then((content: Content) => {
+
+            const persistedItem = content.clone();
+
+            if (liveFormPanel) {
+                this.liveEditModel.setContent(persistedItem);
+                if (this.reloadPageEditorOnSave) {
+                    this.updateLiveForm(persistedItem).then(() => {
+                        if (persistedItem.isSite()) {
+                            this.updateWizardStepForms(persistedItem, false);
+                        }
+                    });
+                }
+            }
+
+            if (persistedItem.getType().isImage()) {
+                this.updateWizard(persistedItem);
+            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
+                this.securityWizardStepForm.update(persistedItem);
+            }
+
+            this.resetDisabledXDataForms();
+
+            return persistedItem;
+        }).finally(() => {
+            this.contentUpdateDisabled = false;
+            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
+        });
     }
 
     private handleSiteConfigApply() {
@@ -559,39 +585,13 @@ export class ContentWizardPanel
         this.startRememberFocus();
     }
 
-    saveChanges(): wemQ.Promise<Content> {
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-            liveFormPanel.skipNextReloadConfirmation(true);
-        }
-        this.setRequireValid(false);
-        this.contentUpdateDisabled = true;
-        new BeforeContentSavedEvent().fire();
-        return super.saveChanges().then((content: Content) => {
-            if (liveFormPanel) {
-                this.liveEditModel.setContent(content);
-                if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm().then(() => {
-                        if (content.isSite()) {
-                            this.updateWizardStepForms(content, false);
-                        }
-                    });
-                }
-            }
+    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
+        let newPersistedContent: Content = event.getUploadItem().getModel();
+        this.setPersistedItem(newPersistedContent.clone());
+        this.updateMetadataAndMetadataStepForms(newPersistedContent);
+        this.updateThumbnailWithContent(newPersistedContent);
 
-            if (content.getType().isImage()) {
-                this.updateWizard(content);
-            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
-                this.securityWizardStepForm.update(content);
-            }
-
-            this.resetDisabledXDataForms();
-
-            return content;
-        }).finally(() => {
-            this.contentUpdateDisabled = false;
-            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
-        });
+        this.showFeedbackContentSaved(newPersistedContent);
     }
 
     close(checkCanClose: boolean = false) {
@@ -818,7 +818,7 @@ export class ContentWizardPanel
 
     }
 
-    private setContent(compareStatus: CompareStatus) {
+    private updateContent(compareStatus: CompareStatus) {
         this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(this.currentContent);
@@ -826,7 +826,11 @@ export class ContentWizardPanel
         this.wizardActions.refreshPendingDeleteDecorations();
     }
 
-    private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus) {
+    private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+        return this.persistedContent.isReferencedBy([content.getContentId()]);
+    }
+
+    private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
 
         const item = this.getPersistedItem();
         const isSiteUpdated = content.getType().isSite();
@@ -838,8 +842,21 @@ export class ContentWizardPanel
 
         // 1. template of the nearest site was updated
         // 2. nearest site was updated (app may have been added)
+        const nearestSiteChanged = (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
 
-        return (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
+        if (nearestSiteChanged) {
+            return wemQ(true);
+        }
+
+        // 3. outbound dependency content has changed
+        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
+            const persistedContent: Content = this.getPersistedItem();
+            const viewedPage = this.assembleViewedPage();
+
+            const pageChanged = !api.ObjectHelper.equals(persistedContent.getPage(), viewedPage);
+            return outboundDependencyUpdated && !pageChanged;
+
+        });
     }
 
     private listenToContentEvents() {
@@ -868,7 +885,7 @@ export class ContentWizardPanel
                 });
         };
 
-        let deleteHandler = (event: api.content.event.ContentDeletedEvent) => {
+        const deleteHandler = (event: api.content.event.ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
                 return;
             }
@@ -878,7 +895,7 @@ export class ContentWizardPanel
             }).some((deletedItem) => {
                 if (deletedItem.isPending()) {
                     this.getContentWizardToolbarPublishControls().setContentCanBePublished(true, false);
-                    this.setContent(deletedItem.getCompareStatus());
+                    this.updateContent(deletedItem.getCompareStatus());
                 } else {
                     this.contentDeleted = true;
                     this.close();
@@ -890,26 +907,25 @@ export class ContentWizardPanel
             event.getUndeletedItems().filter((undeletedItem) => {
                 return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
             }).some((undeletedItem) => {
-                this.setContent(undeletedItem.getCompareStatus());
+                this.updateContent(undeletedItem.getCompareStatus());
 
                 return true;
             });
 
             [].concat(event.getDeletedItems(), event.getUndeletedItems()).some(deletedItem => {
-                const defaultTemplate = this.defaultModels.getPageTemplate();
-                const pageTemplate = this.liveEditModel.getPageModel().getTemplate();
-                if (defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey())
-                    || pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey())) {
-
+                const defaultTemplate = this.defaultModels ? this.defaultModels.getPageTemplate() : null;
+                const pageTemplate = this.liveEditModel ? this.liveEditModel.getPageModel().getTemplate() : null;
+                const isDefaultTemplate = defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey());
+                const isPageTemplate = pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey());
+                if (isDefaultTemplate || isPageTemplate) {
                     loadDefaultModelsAndUpdatePageModel().done();
-
                     return true;
                 }
             });
 
         };
 
-        let publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+        const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
@@ -917,12 +933,12 @@ export class ContentWizardPanel
                     this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
-                    this.getWizardHeader().disableNameGeneration(content.getCompareStatus() === CompareStatus.EQUAL);
+                    this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
         };
 
-        let updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
+        const updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
             const contentId: ContentId = updatedContent.getContentId();
 
             if (this.isCurrentContentId(contentId)) {
@@ -938,12 +954,12 @@ export class ContentWizardPanel
                     let isAlreadyUpdated = content.equals(this.getPersistedItem());
 
                     if (!isAlreadyUpdated) {
-                        this.setPersistedItem(content);
+                        this.setPersistedItem(content.clone());
                         this.updateWizard(content, true);
 
                         if (this.isEditorEnabled()) {
                             // also update live form panel for renderable content without asking
-                            this.updateLiveForm();
+                            this.updateLiveForm(content);
                         }
                         if (!this.isDisplayNameUpdated()) {
                             this.getWizardHeader().resetBaseValues();
@@ -969,18 +985,20 @@ export class ContentWizardPanel
 
                 let templateUpdatedPromise: wemQ.Promise<boolean>;
 
-                if (this.isUpdateOfPageModelRequired(updatedContent)) {
-                    templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
-                } else {
-                    templateUpdatedPromise = wemQ(false);
-                }
-
-                wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
-                    if (containsId || templateUpdated) {
-                        const livePanel = this.getLivePanel();
-                        livePanel.skipNextReloadConfirmation(true);
-                        livePanel.loadPage(false);
+                this.isUpdateOfPageModelRequired(updatedContent).then(value => {
+                    if (value) {
+                        templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
+                    } else {
+                        templateUpdatedPromise = wemQ(false);
                     }
+
+                    wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
+                        if (containsId || templateUpdated) {
+                            const livePanel = this.getLivePanel();
+                            livePanel.skipNextReloadConfirmation(true);
+                            livePanel.loadPage(false);
+                        }
+                    });
                 });
             }
 
@@ -993,7 +1011,7 @@ export class ContentWizardPanel
             }
         };
 
-        let sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             let indexOfCurrentContent;
             let wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
                 indexOfCurrentContent = index;
@@ -1016,7 +1034,7 @@ export class ContentWizardPanel
             }
         };
 
-        let movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+        const movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             let wasMoved = oldPaths.some((oldPath: ContentPath) => {
                 return this.persistedItemPathIsDescendantOrEqual(oldPath);
             });
@@ -1026,11 +1044,23 @@ export class ContentWizardPanel
             }
         };
 
-        let contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (!this.contentUpdateDisabled) {
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updateHandler(updated);
                 });
+            }
+        };
+
+        const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
+
+        const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
+            const childUpdated = data.some(item => isChild(item.getPath()));
+            if (childUpdated) {
+                this.fetchPersistedContent().then((content: Content) => {
+                    const isLeaf = !content.hasChildren();
+                    this.getContentWizardToolbarPublishControls().setLeafContent(isLeaf);
+                }).catch(api.DefaultErrorHandler.handle).done();
             }
         };
 
@@ -1042,6 +1072,9 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
+        serverEvents.onContentCreated(childrenModifiedHandler);
+        serverEvents.onContentDeleted(childrenModifiedHandler);
+
         this.onClosed(() => {
             ContentDeletedEvent.un(deleteHandler);
 
@@ -1050,6 +1083,9 @@ export class ContentWizardPanel
             serverEvents.unContentUpdated(contentUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
+
+            serverEvents.unContentCreated(childrenModifiedHandler);
+            serverEvents.unContentDeleted(childrenModifiedHandler);
         });
     }
 
@@ -1057,8 +1093,7 @@ export class ContentWizardPanel
         return new GetContentByIdRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
-    private updateLiveForm(): wemQ.Promise<any> {
-        let content = this.getPersistedItem();
+    private updateLiveForm(content: Content): wemQ.Promise<any> {
         let formContext = this.getFormContext(content);
 
         if (this.siteModel) {
@@ -1223,7 +1258,7 @@ export class ContentWizardPanel
         return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.persistedContent = this.currentContent = summaryAndStatus;
 
-            this.getWizardHeader().disableNameGeneration(this.currentContent.getCompareStatus() !== CompareStatus.NEW);
+            this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
             this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
                 !this.getPersistedItem().hasChildren());
@@ -1446,52 +1481,20 @@ export class ContentWizardPanel
         });
     }
 
-    private removeMetadataStepForms() {
+    private removeMetadataStepForms(applicationKey: ApplicationKey) {
         this.missingOrStoppedAppKeys = [];
-        let applicationKeys = this.siteModel.getApplicationKeys();
-        let applicationPromises = applicationKeys.map(
-            (key: ApplicationKey) => this.fetchApplication(key));
 
-        return wemQ.all(applicationPromises).then((applications: Application[]) => {
-            let metadataMixinPromises: wemQ.Promise<Mixin>[] = [];
+        new api.schema.xdata.GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+            (mixinsToRemove: Mixin[]) => {
+                this.handleMissingApp();
 
-            applications.forEach((app: Application) => {
-                if (app && app.getState() !== Application.STATE_STOPPED) {
-                    metadataMixinPromises = metadataMixinPromises.concat(
-                        app.getMetaSteps().map((name: MixinName) => {
-                            return new GetMixinByQualifiedNameRequest(name).sendAndParse();
-                        })
-                    );
-                }
-            });
-
-            this.handleMissingApp();
-
-            return wemQ.all(metadataMixinPromises);
-        }).then((mixins: Mixin[]) => {
-            const activeMixinsNames = api.schema.mixin.MixinNames.create().fromMixins(mixins).build();
-
-            const panelNamesToRemoveBuilder = MixinNames.create();
-
-            const meta = this.xDataStepFormByName;
-            for (const name in meta) { // check all old mixin panels
-                if (meta.hasOwnProperty(name)) {
-                    const mixinName = new MixinName(name);
-                    if (!activeMixinsNames.contains(mixinName)) {
-                        panelNamesToRemoveBuilder.addMixinName(mixinName);
+                for (const i in mixinsToRemove) {
+                    if (mixinsToRemove.hasOwnProperty(i)) {
+                        this.removeStepWithForm(this.xDataStepFormByName[mixinsToRemove[i].getName()]);
+                        delete this.xDataStepFormByName[mixinsToRemove[i].getName()];
                     }
                 }
-            }
-            const panelNamesToRemove = panelNamesToRemoveBuilder.build();
-            panelNamesToRemove.forEach((panelName: MixinName) => {
-                this.removeStepWithForm(this.xDataStepFormByName[panelName.toString()]);
-                delete this.xDataStepFormByName[panelName.toString()];
-            });
-
-            return mixins;
-        }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
-        }).done();
+            }).done();
     }
 
     private initLiveEditModel(content: Content, siteModel: SiteModel, formContext: ContentFormContext): wemQ.Promise<LiveEditModel> {
@@ -1577,14 +1580,24 @@ export class ContentWizardPanel
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
-            let contentToDisplay = (content.getDisplayName() && content.getDisplayName().length > 0)
-                ? content.getDisplayName()
-                : i18n('field.content');
-            api.notify.showFeedback(i18n('notify.item.saved', contentToDisplay));
+
+            this.showFeedbackContentSaved(content);
+
             this.getWizardHeader().resetBaseValues();
 
             return content;
         });
+    }
+
+    private showFeedbackContentSaved(content: Content) {
+        const name = content.getName();
+        let message;
+        if (name.isUnnamed()) {
+            message = i18n('notify.item.savedUnnamed');
+        } else {
+            message = i18n('notify.item.saved', name);
+        }
+        api.notify.showFeedback(message);
     }
 
     private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {
@@ -1641,41 +1654,31 @@ export class ContentWizardPanel
     }
 
     private addMetadataStepForms(applicationKey: ApplicationKey) {
-        new api.application.GetApplicationRequest(applicationKey).sendAndParse().then((currentApplication: Application) => {
+        new api.schema.xdata.GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+            (xDatas: Mixin[]) => {
+                const xDatasToAdd = xDatas.filter(xData =>
+                    !this.xDataStepFormByName[xData.getName()]
+                );
 
-            let mixinNames = currentApplication.getMetaSteps();
+                const formContext = this.getFormContext(this.getPersistedItem());
 
-            //remove already existing extraData
-            let mixinNamesToAdd = mixinNames.filter((mixinName: MixinName) => {
-                return !this.xDataStepFormByName[mixinName.toString()];
-            });
+                xDatasToAdd.forEach((mixin: Mixin) => {
+                    if (!this.xDataStepFormByName[mixin.getMixinName().toString()]) {
 
-            let getMixinPromises: wemQ.Promise<Mixin>[] = mixinNamesToAdd.map((name: MixinName) => {
-                return new GetMixinByQualifiedNameRequest(name).sendAndParse();
-            });
-            return wemQ.all(getMixinPromises);
-        }).then((mixins: Mixin[]) => {
-            const formContext = this.getFormContext(this.getPersistedItem());
+                        let stepForm = new XDataWizardStepForm(mixin.isExternal());
+                        this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
 
-            mixins.forEach((mixin: Mixin) => {
-                if (!this.xDataStepFormByName[mixin.getMixinName().toString()]) {
+                        let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
+                        this.insertStepBefore(wizardStep, this.settingsWizardStep);
 
-                    let stepForm = new XDataWizardStepForm(mixin.isExternal());
-                    this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
+                        let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
 
-                    let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
-                    this.insertStepBefore(wizardStep, this.settingsWizardStep);
+                        extraData.getData().onChanged(this.dataChangedHandler);
 
-                    let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
-
-                    extraData.getData().onChanged(this.dataChangedHandler);
-
-                    stepForm.layout(formContext, extraData.getData(), mixin.toForm());
-                }
-            });
-
-            return mixins;
-        }).catch((reason: any) => {
+                        stepForm.layout(formContext, extraData.getData(), mixin.toForm());
+                    }
+                });
+            }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
         }).done();
     }

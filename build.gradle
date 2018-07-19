@@ -6,12 +6,9 @@ plugins {
     id "com.moowork.node" version '1.1.1'
 }
 
-group = 'com.enonic.xp'
-version = '6.15.0-SNAPSHOT'
-libAdminUiVersion = '1.3.0-SNAPSHOT'
-
 app {
     name = 'com.enonic.xp.app.contentstudio'
+    group = 'com.enonic.xp'
     displayName = 'Content Studio'
     systemApp = true
     systemVersion = "${version}"
@@ -19,10 +16,10 @@ app {
 }
 
 dependencies {
-    compile "${group}:portal-api:${version}"
-    include "${group}:lib-admin:${version}"
-    include "${group}:lib-mustache:${version}"
-    include "${group}:lib-portal:${version}"
+    compile "${group}:portal-api:${xpVersion}"
+    include "${group}:lib-admin:${xpVersion}"
+    include "${group}:lib-mustache:${xpVersion}"
+    include "${group}:lib-portal:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'

@@ -24,7 +24,7 @@ describe('site.controller.spec: verifies the wizard-validation when the dialog c
     let SITE;
     it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN  required options should be present in the Inspection Panel`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doOpenSiteWizard().then(()=> {

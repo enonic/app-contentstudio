@@ -4,7 +4,6 @@ import {PublishRequest} from '../PublishRequest';
 import {Issue} from '../Issue';
 import LabelEl = api.dom.LabelEl;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import DialogButton = api.ui.dialog.DialogButton;
 import AEl = api.dom.AEl;
 import i18n = api.util.i18n;
 import PrincipalKey = api.security.PrincipalKey;
@@ -15,8 +14,6 @@ export class CreateIssueDialog
     private static INSTANCE: CreateIssueDialog;
 
     private itemsLabel: LabelEl;
-
-    private cancelButton: DialogButton;
 
     private backButton: AEl;
 
@@ -39,7 +36,7 @@ export class CreateIssueDialog
     }
 
     private initElements() {
-        this.cancelButton = this.addCancelButtonToBottom();
+        this.addCancelButtonToBottom();
         this.itemsLabel = new LabelEl(i18n('field.items'), this.getItemList());
         this.backButton = this.createBackButton();
     }
@@ -131,12 +128,18 @@ export class CreateIssueDialog
 
     public enableBackButton() {
         this.backButton.show();
-        this.cancelButton.hide();
+        const cancelButton = this.getCancelButton();
+        if (cancelButton) {
+            cancelButton.hide();
+        }
     }
 
     private disableBackButton() {
         this.backButton.hide();
-        this.cancelButton.show();
+        const cancelButton = this.getCancelButton();
+        if (cancelButton) {
+            cancelButton.show();
+        }
     }
 
     private createBackButton(): AEl {

@@ -68,6 +68,20 @@ const textComponent = Object.create(page, {
             });
         }
     },
+    switchToCKETableFrameAndInsertTable: {
+        value: function () {
+            return this.getBrowser().frameParent().then(() => {
+                return this.getDisplayedElements("//iframe[contains(@class,'cke_panel_frame')]");
+            }).then(result => {
+                return this.frame(result.value);
+
+            }).pause(5000).then(() => {
+                return this.doClick("//div[contains(@class,'cke_panel_block')]");
+            }).pause(5000).then(() => {
+                return this.getBrowser().frameParent();
+            })
+        }
+    },
     switchToParentFrame: {
         value: function () {
             return this.getBrowser().frameParent();

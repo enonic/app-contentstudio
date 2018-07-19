@@ -61,18 +61,15 @@
 
       .wizard-step-navigator-and-toolbar {
 
-        .tab-bar-item.step-icon {
+        .tab-bar-item {
 
-          &.x-data-anchor {
+          &.step-icon.x-data-anchor {
+
+            // Remove the line below to enable "X" anchor in the toolbar
+            // that will scroll to the first X-data step in the Wizard
+            display: none !important;
+
             .icon-medium();
-
-            ~.x-data {
-              .label:before {
-                display: none;
-                content: '+';
-                padding-right: 5px;
-              }
-            }
 
             &.hidden {
               display: none;
@@ -80,9 +77,18 @@
 
           }
 
+
+          &.x-data {
+            .label:before {
+              display: inline-block;
+              content: '+';
+              padding-right: 5px;
+            }
+          }
+
         }
 
-        &:not(.minimized) {
+        &:not(.folded) {
           .tab-bar-item.step-icon {
 
             &.icon-masks:before {
@@ -96,19 +102,11 @@
                 padding-left: 20px;
                 padding-right: 0;
               }
-
-              &.hidden {
-                ~.x-data {
-                  .label:before {
-                    display: inline-block;
-                  }
-                }
-              }
             }
           }
         }
 
-        &.minimized {
+        &.folded {
 
           .tab-bar-item.step-icon {
 
@@ -124,12 +122,6 @@
                 display: inline-block;
                 font-size: 15px;
                 font-weight: bold;
-              }
-
-              ~.x-data {
-                .label:before {
-                  display: inline-block;
-                }
               }
             }
           }
@@ -279,7 +271,11 @@
       display: none !important;
     }
 
-    .toolbar {
+    .content-wizard-toolbar {
+
+      .content-status-wrapper {
+        display: inline-block;
+      }
 
       .unpublish-action {
         display: none !important;

@@ -1,5 +1,8 @@
 /**
  * Created on 15.12.2017.
+ *
+ * ImageSelector content - options in dropdown list should be correctly filtered #628
+ *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -20,29 +23,30 @@ describe('content.image.selector: Image content specification', function () {
 
     let SITE;
     let imageSelectorContent;
+    let FOLDER_WITH_FILES = 'selenium-tests-folder';
     it(`Precondition: WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
             this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 studioUtils.saveScreenshot('site_should_be_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'mode toggler' button has been pressed THEN mode should be switched to 'Tree' and expected folder with images should be present in the options`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
                 return imageSelectorForm.clickOnModeTogglerButton();
-            }).then(()=> {
+            }).then(() => {
                 return imageSelectorForm.getTreeModeOptionDisplayNames();
-            }).then(options=> {
+            }).then(options => {
                 studioUtils.saveScreenshot('img_sel_tree_mode');
                 assert.strictEqual(options[0], appConstant.TEST_FOLDER_WITH_IMAGES);
             });
@@ -50,15 +54,30 @@ describe('content.image.selector: Image content specification', function () {
 
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
                 return imageSelectorForm.clickOnDropdownHandle();
-            }).then(()=> {
+            }).then(() => {
                 return imageSelectorForm.getFlatModeOptionImageNames();
-            }).then(imagesNames=> {
+            }).then(imagesNames => {
                 studioUtils.saveScreenshot('img_sel_flat_mode');
                 assert.isTrue(imagesNames.length > 0, 'images should be present in the dropdown list');
                 assert.isTrue(imagesNames[0].includes('.png') || imagesNames[0].includes('.jpg') || imagesNames[0].includes('.svg'),
                     'correct extension should be in the name');
+            });
+        });
+
+    //verifies https://github.com/enonic/lib-admin-ui/issues/628
+    it(`GIVEN wizard for image-selector is opened WHEN filter a folder with multiple contents and one content is image THEN one option should be present in the dropdown list`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_1_1).then(() => {
+                return imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
+            }).then(() => {
+                return imageSelectorForm.getFlatModeOptionImageNames();
+            }).then(imagesNames => {
+                studioUtils.saveScreenshot('img_sel_filtered');
+                assert.isTrue(imagesNames.length == 1,
+                    'only one option should be present in options, because text files should be filtered');
+                assert.isTrue(imagesNames[0].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
             });
         });
 
@@ -68,17 +87,17 @@ describe('content.image.selector: Image content specification', function () {
             let displayName = contentBuilder.generateRandomName('imgselector');
             imageSelectorContent =
                 contentBuilder.buildContentWithImageSelector(displayName, appConstant.contentTypes.IMG_SELECTOR_2_4, images);
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, imageSelectorContent.contentType).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, imageSelectorContent.contentType).then(() => {
                 return contentWizard.typeData(imageSelectorContent);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.doCloseWizardAndSwitchToGrid();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.typeNameInFilterPanel(imageSelectorContent.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(imageSelectorContent.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 studioUtils.saveScreenshot('img_sel_content_added');
                 assert.isTrue(isDisplayed, 'the content should be listed in the grid');
             });
@@ -86,7 +105,7 @@ describe('content.image.selector: Image content specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification starting: ' + this.title);
     });
 });

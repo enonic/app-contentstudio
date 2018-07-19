@@ -39,7 +39,7 @@ enonic {
 }
 
 ext {
-    xpVersion = '6.15.0-SNAPSHOT'
+    xpVersion = '7.0.0-SNAPSHOT'
     unpackDir = "$buildDir${File.separator}install"
     screenshotsDir = "$buildDir${File.separator}screenshots"
     reportsDir = "$buildDir${File.separator}reports"

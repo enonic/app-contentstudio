@@ -69,7 +69,7 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
-                let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' saved';
+                let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' is saved';
                 return contentWizard.waitForExpectedNotificationMessage(expectedMessage);
             }).then(result => {
                 studioUtils.saveScreenshot('content_htmlarea_0_1');

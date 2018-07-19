@@ -23,7 +23,6 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`WHEN new issue has been created THEN correct notification should be displayed`,
         () => {
-            this.bail(1);
             return studioUtils.openCreateIssueDialog().then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {
@@ -52,7 +51,8 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             }).then(() => {
                 return assert.eventually.isFalse(issueDetailsDialog.isAddCommentButtonEnabled(), 'Add Comment button should be disabled');
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialog.isCommentTextAreaDisplayed(), 'Text area for comments should be displayed');
+                return assert.eventually.isTrue(issueDetailsDialog.isCommentTextAreaDisplayed(),
+                    'Text area for comments should be displayed');
             })
         });
 
@@ -66,7 +66,8 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
                 return issueDetailsDialog.typeComment(MY_COMMENT);
             }).then(() => {
                 studioUtils.saveScreenshot("issue_comment_typed");
-                return assert.eventually.isTrue(issueDetailsDialog.waitForAddCommentButtonEnabled(), 'Add Comment button is getting enabled');
+                return assert.eventually.isTrue(issueDetailsDialog.waitForAddCommentButtonEnabled(),
+                    'Add Comment button is getting enabled');
             });
         });
 
@@ -84,10 +85,12 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
                 return issueDetailsDialog.waitForNotificationMessage();
             }).then((message) => {
                 studioUtils.saveScreenshot("issue_comment_added");
-                assert.isTrue(message == 'Your comment is added to issue', 'Correct notification message should be shown when the comment has been added');
+                assert.isTrue(message == 'Your comment is added to issue',
+                    'Correct notification message should be shown when the comment has been added');
             }).then(() => {
                 studioUtils.saveScreenshot("issue_comment_button_disabled");
-                return assert.eventually.isTrue(issueDetailsDialog.waitForAddCommentButtonDisabled(), 'Add Comment button is getting disabled');
+                return assert.eventually.isTrue(issueDetailsDialog.waitForAddCommentButtonDisabled(),
+                    'Add Comment button is getting disabled');
             });
         });
 
@@ -134,7 +137,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             }).then(() => {
                 return issueDetailsDialog.clickOnDeleteCommentMenuItem(newText);
             }).then(() => {
-                return confirmationDialog.waitForDialogVisible(1000);
+                return confirmationDialog.waitForDialogVisible();
             }).then(() => {
                 return confirmationDialog.clickOnYesButton();
             }).then(() => {

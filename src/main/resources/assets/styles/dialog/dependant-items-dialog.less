@@ -34,16 +34,19 @@
   }
 
   .dialog-togglable-item-list {
-    padding: 5px;
+    padding: 5px 0;
 
     &.contains-toggleable {
       .browse-selection-item:not(.toggleable) {
-        .include-children-toggler {
-          display: block;
-          visibility: hidden;
-        }
         .viewer {
           margin-left: 35px;
+        }
+        .include-children-toggler {
+          & + .viewer {
+            margin-left: 0;
+          }
+          display: block;
+          visibility: hidden;
         }
       }
     }
@@ -61,7 +64,7 @@
       .browse-selection-item {
         .remove {
           display: block;
-          margin-top: 11px;
+          margin-top: 6px;
         }
       }
     }
@@ -88,7 +91,7 @@
       }
 
       .status {
-        line-height: 32px;
+        line-height: 33px;
         white-space: nowrap;
       }
 

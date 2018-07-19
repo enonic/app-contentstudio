@@ -8,8 +8,11 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const panel = {
+    container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
+    treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
+    appBar: `//div[contains(@id,'AppBar')]`,
     selectedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and contains(@class,'selected')]`,
     checkedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
@@ -18,8 +21,9 @@ const panel = {
     contentPublishMenuButton: `//div[contains(@id,'ContentPublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
-    numberInToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
+    numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -39,11 +43,16 @@ const panel = {
 
     },
 }
-var contentBrowsePanel = Object.create(page, {
+const contentBrowsePanel = Object.create(page, {
 
     searchButton: {
         get: function () {
             return `${panel.toolbar}` + `${panel.searchButton}`;
+        }
+    },
+    detailsPanelToggleButton: {
+        get: function () {
+            return `${panel.container}` + `${panel.detailsPanelToggleButton}`;
         }
     },
     showPublishMenuButton: {
@@ -58,22 +67,22 @@ var contentBrowsePanel = Object.create(page, {
     },
     showIssuesListButton: {
         get: function () {
-            return `${panel.treeGrid}` + `${panel.showIssuesListButton}`;
+            return `${panel.appBar}` + `${panel.showIssuesListButton}`;
         }
     },
     selectionControllerCheckBox: {
         get: function () {
-            return `${panel.treeGrid}${panel.selectionControllerCheckBox}`;
+            return `${panel.treeGridToolbar}${panel.selectionControllerCheckBox}`;
         }
     },
     numberInToggler: {
         get: function () {
-            return `${panel.treeGrid}${panel.numberInToggler}`;
+            return `${panel.treeGridToolbar}${panel.numberInSelectionToggler}`;
         }
     },
     selectionPanelToggler: {
         get: function () {
-            return `${panel.treeGrid}${panel.selectionPanelToggler}`;
+            return `${panel.treeGridToolbar}${panel.selectionPanelToggler}`;
         }
     },
     newButton: {
@@ -107,7 +116,20 @@ var contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
         }
     },
+    publishButton: {
+        get: function () {
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
+        }
+    },
 
+    clickOnDetailsPanelToggleButton: {
+        value: function () {
+            return this.doClick(this.detailsPanelToggleButton).catch(err => {
+                this.saveScreenshot('err_click_on_details_panel_toggle');
+                throw new Error(`Error when clicking on Details Panel toggler` + err);
+            });
+        }
+    },
     clickOnSelectionControllerCheckbox: {
         value: function () {
             return this.doClick(this.selectionControllerCheckBox).catch(() => {
@@ -142,6 +164,14 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
+    clickOnPublishButton: {
+        value: function () {
+            return this.doClick(this.publishButton).catch(err => {
+                throw new Error('error when clicking on the Publish button ' + err);
+            })
+        }
+    },
+
     clickOnDuplicateButton: {
         value: function () {
             return this.doClick(this.duplicateButton).catch(err => {
@@ -185,7 +215,7 @@ var contentBrowsePanel = Object.create(page, {
     waitForGridLoaded: {
         value: function (ms) {
             return this.waitForVisible(`${elements.GRID_CANVAS}`, ms).then(() => {
-                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             }).then(() => {
                 return console.log('content browse panel is loaded')
             }).catch(err => {
@@ -355,17 +385,17 @@ var contentBrowsePanel = Object.create(page, {
             })
         }
     },
-    clickOnRowByDisplayName: {
-        value: function (name) {
-            var nameXpath = panel.rowByDisplayName(name);
-            return this.waitForVisible(nameXpath, 3000).then(() => {
-                return this.doClick(nameXpath);
-            }).pause(400).catch((err) => {
-                this.saveScreenshot('err_find_' + name);
-                throw Error('Row with the name ' + name + ' was not found')
-            })
-        }
-    },
+    // clickOnRowByDisplayName: {
+    //     value: function (name) {
+    //         var nameXpath = panel.rowByDisplayName(name);
+    //         return this.waitForVisible(nameXpath, 3000).then(() => {
+    //             return this.doClick(nameXpath);
+    //         }).pause(400).catch((err) => {
+    //             this.saveScreenshot('err_find_' + name);
+    //             throw Error('Row with the name ' + name + ' was not found')
+    //         })
+    //     }
+    // },
     getNumberOfSelectedRows: {
         value: function () {
             return this.elements(panel.selectedRows).then(result => {
@@ -407,6 +437,15 @@ var contentBrowsePanel = Object.create(page, {
             return this.doClick(expanderIcon).pause(700).catch(err => {
                 this.saveScreenshot('err_click_on_expander ' + name);
                 throw new Error('error when click on expander-icon ' + err);
+            })
+        }
+    },
+    isExpanderIconPresent: {
+        value: function (name) {
+            var expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
+            return this.waitForVisible(expanderIcon).catch(err => {
+                this.saveScreenshot('expander_not_exists ' + name);
+                return false;
             })
         }
     },
@@ -478,6 +517,12 @@ var contentBrowsePanel = Object.create(page, {
     hotKeyNew: {
         value: function () {
             return this.getBrowser().keys(['Alt', 'n']);
+        }
+    },
+    getContentStatus: {
+        value: function (name) {
+            let selector =  elements.slickRowByDisplayName(panel.treeGrid,name) + "//div[contains(@class,'r3')]";
+            return this.getText(selector);
         }
     },
 });

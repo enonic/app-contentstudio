@@ -83,12 +83,12 @@ const contentDuplicateDialog = Object.create(page, {
     },
     clickOnIncludeChildToggler: {
         value: function () {
-            return this.doClick(this.includeChildToggler);
+            return this.doClick(this.includeChildToggler).pause(1000);
         }
     },
     clickOnDuplicateButton: {
         value: function () {
-            return this.doClick(this.duplicateButton);
+            return this.doClick(this.duplicateButton).pause(500);
         }
     },
     clickOnShowDependentItemLink: {
@@ -106,7 +106,7 @@ const contentDuplicateDialog = Object.create(page, {
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
+            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_10).catch(err => {
                 this.saveScreenshot('err_close_duplicate_dialog');
                 throw new Error('Content Duplicate dialog must be closed ' + err);
             })
