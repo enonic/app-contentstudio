@@ -805,4 +805,17 @@ export class LiveFormPanel
             listener(pageView);
         });
     }
+
+    updateWritePermissions(writePermissions: boolean): boolean {
+        let result = null;
+        if (this.insertablesPanel) {
+            const insertablesResult = this.insertablesPanel.setWritePermissions(writePermissions);
+            result = result && insertablesResult;
+        }
+        if (this.liveEditPageProxy) {
+            const liveEditResult = this.liveEditPageProxy.setWritePermissions(writePermissions);
+            result = result && liveEditResult;
+        }
+        return result;
+    }
 }

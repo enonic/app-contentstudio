@@ -1,0 +1,25 @@
+.emulator-panel {
+  p {
+    font-size: 12px;
+    padding: 10px 15px;
+  }
+  .grid-row {
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &.active {
+      background-color: @admin-bg-light-gray;
+
+      h5, h6 {
+        color: @admin-black;
+      }
+
+      .@{_CLS_PREFIX}font-icon:before {
+        color: @admin-button-blue1;
+      }
+    }
+  }
+
+}

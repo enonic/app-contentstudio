@@ -72,12 +72,6 @@
       height: auto;
     }
 
-    .insertables-panel &:hover {
-      cursor: -moz-grab;
-      cursor: -webkit-grab;
-      cursor: grab;
-    }
-
     h5 {
       margin: 0;
       padding: 0;
@@ -121,49 +115,6 @@
         display: block;
       }
     }
-  }
-
-  .insertables-panel {
-    p {
-      font-size: 12px;
-      padding: 10px 15px;
-    }
-
-    & > .button-bar {
-      left: 5px;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      padding: 6px;
-      text-align: center;
-      background-color: white;
-    }
-  }
-
-  .emulator-panel {
-    p {
-      font-size: 12px;
-      padding: 10px 15px;
-    }
-    .grid-row {
-
-      &:hover {
-        cursor: pointer;
-      }
-
-      &.active {
-        background-color: @admin-bg-light-gray;
-
-        h5, h6 {
-          color: @admin-black;
-        }
-
-        .@{_CLS_PREFIX}font-icon:before {
-          color: @admin-button-blue1;
-        }
-      }
-    }
-
   }
 
   .inspection-panel {

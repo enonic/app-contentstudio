@@ -65,7 +65,8 @@ export class LiveEditPage {
 
         api.util.i18nInit(CONFIG.messages);
 
-        let liveEditModel = event.getLiveEditModel();
+        const liveEditModel = event.getLiveEditModel();
+        const writePermissions = event.hasWritePermissions();
 
         let body = api.dom.Body.get().loadExistingChildren();
         try {
@@ -73,6 +74,7 @@ export class LiveEditPage {
                 .setItemViewIdProducer(new ItemViewIdProducer())
                 .setItemViewFactory(new DefaultItemViewFactory())
                 .setLiveEditModel(liveEditModel)
+                .setWritePermissions(writePermissions)
                 .setElement(body).build();
         } catch (error) {
             if (LiveEditPage.debug) {

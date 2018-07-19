@@ -330,7 +330,7 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
         if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
             return;
         }
-        if (wizard.hasUnsavedChanges()) {
+        if (wizard.hasUnsavedChanges() && wizard.hasWritePermissions()) {
             let message = i18n('dialog.wizard.unsavedChanges');
             // Hack for IE. returnValue is boolean
             const e: any = event || window.event || {returnValue: ''};

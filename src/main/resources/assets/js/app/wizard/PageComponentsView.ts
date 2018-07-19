@@ -69,6 +69,8 @@ export class PageComponentsView
 
     private textComponentsKeyupHandlers: any = {};
 
+    private writePermissions: boolean = false;
+
     constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
         super('page-components-view');
 
@@ -177,6 +179,11 @@ export class PageComponentsView
         if (!this.tree && this.content && this.pageView) {
             this.createTree(this.content, this.pageView);
         }
+    }
+
+    setWritePermissions(writePermissions: boolean): boolean {
+        this.writePermissions = writePermissions;
+        return this.writePermissions;
     }
 
     private initLiveEditEvents() {
@@ -651,7 +658,9 @@ export class PageComponentsView
         event.stopPropagation();
         event.preventDefault();
 
-        if (!this.pageView.isLocked()) {
+        const isUnlocked = !(this.pageView.isLocked() && this.writePermissions);
+
+        if (isUnlocked) {
             return;
         }
 
