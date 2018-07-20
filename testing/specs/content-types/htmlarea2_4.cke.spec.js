@@ -29,39 +29,37 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
 
-
-    it(
-        `GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
+    it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(() => {
                 return contentWizard.typeDisplayName('test_area2_4');
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1000).then(()=> {
+            }).pause(1000).then(() => {
                 return contentWizard.isContentInvalid();
-            }).then(result=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
                 assert.isTrue(result, EXPECTED_TEXT_TEXT1, 'the content should be invalid, because the input is required');
             });
         });
-    it(
-        `GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area `,
+
+    it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area `,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(() => {
                 return htmlAreaForm.typeTextInHtmlArea("test text")
-            }).pause(1000).then(()=> {
+            }).pause(1000).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('cke_html_area2');
                 assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
                 assert.equal(result[1], '', 'the second area should be empty');
@@ -72,13 +70,13 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
         () => {
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea2_4', TEXT_1, TEXT_2);
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').pause(1000).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').pause(1000).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=> {
+            }).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('cke_html_area2');
                 assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
                 assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equals');
@@ -87,9 +85,9 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN existing 'htmlArea 2:4' WHEN it has been opened THEN expected text should be displayed in the area`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('htmlarea_2_4_check_value');
                 assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
                 assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equals');
@@ -99,15 +97,15 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     //verifies https://github.com/enonic/lib-admin-ui/issues/461
     it(`GIVEN existing 'htmlArea 2:4' WHEN the first area has been cleared THEN red icon should appears in the wizard`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
                 return htmlAreaForm.clearHtmlArea(0);
-            }).then(()=> {
+            }).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('htmlarea_2_4_cleared');
                 assert.equal(result[0], '', 'the first area should be empty');
                 assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'text should be in the second area');
-            }).then(()=> {
+            }).then(() => {
                 return assert.eventually.isTrue(contentWizard.isContentInvalid(),
                     "Red icon should appear in the wizard, because both inputs are required");
             });

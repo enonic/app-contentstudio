@@ -21,11 +21,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_DATA_CKE = '<p><a id="test anchor" name="test anchor"></a></p>'
+    let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>'
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -52,10 +51,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             }).then(() => {
                 return textComponentCke.clickOnInsertAnchorButton();
             }).then(() => {
-                return insertAnchorDialog.typeInTextInput('test anchor');
+                return insertAnchorDialog.typeInTextInput('test_anchor');
             }).then(() => {
                 studioUtils.saveScreenshot('anchor_text_typed');
-                return insertAnchorDialog.clickOnInsertButton();
+                return insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
             }).then(() => {
                 return contentWizard.switchToLiveEditFrame();
             }).then(() => {

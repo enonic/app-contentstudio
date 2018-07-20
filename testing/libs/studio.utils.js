@@ -421,6 +421,8 @@ module.exports = {
         return webDriverHelper.browser.switchTab(tabId).then(() => {
             return webDriverHelper.browser.getTitle().then(title => {
                 return title.includes(reqTitle);
+            }).catch(err => {
+                console.log("Error when getting Title" + err);
             })
         });
     },
@@ -436,7 +438,7 @@ module.exports = {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).catch((err) => {
+        }).catch(err => {
             throw new Error(err);
         })
     },
@@ -494,6 +496,8 @@ module.exports = {
                     if (!result) {
                         return webDriverHelper.browser.close().then(() => {
                             console.log(tabId + ' was closed');
+                        }).catch(err => {
+                            console.log(tabId + ' was not closed ' + err);
                         });
                     }
                 });
