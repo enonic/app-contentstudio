@@ -1,4 +1,5 @@
 import '../../api.ts';
+import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import i18n = api.util.i18n;
 
 export class DeleteAction extends api.ui.Action {
@@ -13,7 +14,7 @@ export class DeleteAction extends api.ui.Action {
             .setNoCallback(null)
             .setYesCallback(() => {
                 itemViewPanel.close();
-                new api.content.resource.DeleteContentRequest()
+                new DeleteContentRequest()
                     .addContentPath(contentToDelete.getPath())
                     .sendAndParseWithPolling()
                     .then((message: string) => {

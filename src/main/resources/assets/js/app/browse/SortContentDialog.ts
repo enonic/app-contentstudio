@@ -11,6 +11,7 @@ import ChildOrder = api.content.order.ChildOrder;
 import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
 import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
+import {OrderContentRequest} from '../resource/OrderContentRequest';
 
 export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
@@ -214,7 +215,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     private setContentChildOrder(order: ChildOrder, silent: boolean = false): wemQ.Promise<api.content.Content> {
 
-        return new api.content.resource.OrderContentRequest()
+        return new OrderContentRequest()
             .setSilent(silent)
             .setContentId(this.parentContent.getContentId())
             .setChildOrder(order)

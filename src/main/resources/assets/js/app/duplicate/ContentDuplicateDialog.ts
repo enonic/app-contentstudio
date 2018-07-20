@@ -3,9 +3,8 @@ import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
+import {DuplicatableId, DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import DuplicateContentRequest = api.content.resource.DuplicateContentRequest;
-import DuplicatableId = api.content.resource.DuplicatableId;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ListBox = api.ui.selector.list.ListBox;
 import i18n = api.util.i18n;

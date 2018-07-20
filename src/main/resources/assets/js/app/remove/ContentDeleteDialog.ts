@@ -7,6 +7,7 @@ import {DeleteDialogItemList} from './DeleteDialogItemList';
 import {DeleteItemViewer} from './DeleteItemViewer';
 import {ResolveDependenciesRequest} from '../resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
+import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import CompareStatus = api.content.CompareStatus;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
@@ -217,8 +218,8 @@ export class ContentDeleteDialog
         this.updateButtonCount(i18n('action.delete'), this.totalItemsToDelete);
     }
 
-    private createDeleteRequest(): api.content.resource.DeleteContentRequest {
-        let deleteRequest = new api.content.resource.DeleteContentRequest();
+    private createDeleteRequest(): DeleteContentRequest {
+        let deleteRequest = new DeleteContentRequest();
 
         this.getItemList().getItems().forEach((item) => {
             deleteRequest.addContentPath(item.getContentSummary().getPath());
