@@ -10,11 +10,11 @@ import {UserAccessWidgetItemView} from './widget/info/UserAccessWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/info/PageTemplateWidgetItemView';
 import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
 import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
+import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 
-import GetWidgetsByInterfaceRequest = api.content.resource.GetWidgetsByInterfaceRequest;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;

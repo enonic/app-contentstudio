@@ -9,18 +9,18 @@ import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler'
 import {Issue} from '../issue/Issue';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {PublishContentRequest} from '../resource/PublishContentRequest';
+import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
 import ContentId = api.content.ContentId;
 import ListBox = api.ui.selector.list.ListBox;
-import HasUnpublishedChildrenRequest = api.content.resource.HasUnpublishedChildrenRequest;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import User = api.security.User;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
-import {PublishContentRequest} from '../resource/PublishContentRequest';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.

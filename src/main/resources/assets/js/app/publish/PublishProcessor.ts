@@ -1,10 +1,10 @@
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
+import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
-import GetDescendantsOfContentsRequest = api.content.resource.GetDescendantsOfContentsRequest;
 
 export class PublishProcessor {
 

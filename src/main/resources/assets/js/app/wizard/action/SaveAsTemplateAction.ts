@@ -1,5 +1,6 @@
 import '../../../api.ts';
 import {PageModel} from '../../../page-editor/PageModel';
+import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import i18n = api.util.i18n;
 import CreatePageTemplateRequest = api.content.page.CreatePageTemplateRequest;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -42,7 +43,7 @@ export class SaveAsTemplateAction
     updateVisibility() {
         if (this.pageModel.getController() && !this.contentSummary.isPageTemplate()) {
             if (this.userHasCreateRights === undefined) {
-                new api.content.resource.GetPermittedActionsRequest()
+                new GetPermittedActionsRequest()
                     .addContentIds(this.contentSummary.getContentId())
                     .addPermissionsToBeChecked(Permission.CREATE)
                     .sendAndParse().then((allowedPermissions: Permission[]) => {

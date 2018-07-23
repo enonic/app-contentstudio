@@ -4,6 +4,7 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
+import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
 import ContentId = api.content.ContentId;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
@@ -165,7 +166,7 @@ export class VersionsView
             new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.restore'))
                 .onExecuted((action: api.ui.Action) => {
                     if (!isActive) {
-                        new api.content.resource.SetActiveContentVersionRequest(item.id, this.getContentId()).sendAndParse().then(
+                        new SetActiveContentVersionRequest(item.id, this.getContentId()).sendAndParse().then(
                             (contentId: ContentId) => {
                                 api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
                                 new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
