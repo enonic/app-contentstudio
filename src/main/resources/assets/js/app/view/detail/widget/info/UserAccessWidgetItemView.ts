@@ -1,5 +1,6 @@
 import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
+import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectivePermissionsRequest';
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
@@ -104,7 +105,7 @@ export class UserAccessWidgetItemView
 
         let deferred = wemQ.defer<boolean>();
 
-        let request = new api.content.resource.GetEffectivePermissionsRequest(content.getContentId());
+        let request = new GetEffectivePermissionsRequest(content.getContentId());
 
         request.sendAndParse().then((results: api.ui.security.acl.EffectivePermission[]) => {
 

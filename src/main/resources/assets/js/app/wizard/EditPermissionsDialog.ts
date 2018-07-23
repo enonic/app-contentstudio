@@ -1,5 +1,7 @@
 import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
+import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
+import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
 import Content = api.content.Content;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import AccessControlComboBox = api.ui.security.acl.AccessControlComboBox;
@@ -154,7 +156,7 @@ export class EditPermissionsDialog
         let permissions = new AccessControlList(this.getEntries());
 
         if (this.immediateApply) {
-            let req = new api.content.resource.ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
+            let req = new ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
                 this.inheritPermissionsCheck.isChecked()).setPermissions(permissions).setOverwriteChildPermissions(
                 this.overwriteChildPermissionsCheck.isChecked());
             let res = req.sendAndParse();
@@ -220,7 +222,7 @@ export class EditPermissionsDialog
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
             }).done();
         } else {
-            new api.content.resource.GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
+            new GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
                 deferred.resolve(rootPermissions);
             }).catch((reason: any) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
