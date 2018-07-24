@@ -20,6 +20,15 @@ export class ContentItemPreviewToolbar
     constructor() {
         super('content-item-preview-toolbar');
 
+        this.mainAction = new Action();
+        this.mainAction.onExecuted(a => {
+            if (this.mainIssue) {
+                IssueDialogsManager.get().openDetailsDialog(this.mainIssue);
+            }
+        });
+        this.issueButton = new MenuButton(this.mainAction);
+        this.issueButton.addClass('transparent');
+
         const reloadList = (issue: Issue) => {
             const item = this.getItem();
             if (item) {
@@ -37,14 +46,6 @@ export class ContentItemPreviewToolbar
 
     doRender(): wemQ.Promise<boolean> {
         return super.doRender().then(rendered => {
-            this.mainAction = new Action();
-            this.mainAction.onExecuted(a => {
-                if (this.mainIssue) {
-                    IssueDialogsManager.get().openDetailsDialog(this.mainIssue);
-                }
-            });
-            this.issueButton = new MenuButton(this.mainAction);
-            this.issueButton.addClass('transparent');
             this.addElement(this.issueButton);
             return true;
         });

@@ -243,7 +243,26 @@
 
     .non-mobile-details-panel-toggle-button:not(.expanded) {
       top: 0;
-      height: 43px;
+      height: 40px;
+    }
+  }
+
+  .mobile-content-item-statistics-panel {
+
+    .mobile-content-item-statistics-header {
+      height: 40px;
+
+      > * {
+        line-height: 40px !important;
+      }
+
+      .mobile-details-panel-toggle-button {
+        display: none;
+      }
+    }
+
+    .content-item-preview-panel {
+      display: none;
     }
   }
 

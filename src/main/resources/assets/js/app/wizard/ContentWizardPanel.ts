@@ -433,6 +433,7 @@ export class ContentWizardPanel
             wizardActions.getDuplicateAction()
         ];
         this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions);
+        this.detailsSplitPanel.setDetailsPanelShownByDefault(true);
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();

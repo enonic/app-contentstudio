@@ -1,3 +1,5 @@
+@toolbar-height: 40px;
+
 .content-wizard-toolbar {
   display: flex;
   flex-direction: row;
@@ -7,15 +9,15 @@
   align-content: stretch;
   padding-right: 1px;
   padding-left: 15px;
-  height: @app-header-height;
-  line-height: @app-header-height;
+  height: @toolbar-height;
+  line-height: @toolbar-height;
 
   & > * {
     flex: 0 0 auto;
   }
 
   .@{_COMMON_PREFIX}button {
-    line-height: @app-header-height;
+    line-height: @toolbar-height;
   }
 
   .fold-button .@{_COMMON_PREFIX}button {

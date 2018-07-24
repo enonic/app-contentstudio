@@ -8,7 +8,9 @@ export class SlidablePanel extends DetailsPanel {
     private slideOutFunction: () => void;
 
     private slidedInListeners: {(): void}[] = [];
+    private slidedOutListeners: { (): void }[] = [];
     private slidedIn: boolean;
+    private offsetTop: number = 0;
 
     constructor(builder: SlidablePanelBuilder, detailsView: DetailsView) {
         super(detailsView);
@@ -31,6 +33,11 @@ export class SlidablePanel extends DetailsPanel {
     slideOut() {
         this.slideOutFunction();
         this.slidedIn = false;
+        this.notifySlidedOut();
+    }
+
+    setOffsetTop(offset: number) {
+        this.offsetTop = offset;
     }
 
     public isSlidedIn(): boolean {
@@ -86,7 +93,7 @@ export class SlidablePanel extends DetailsPanel {
     }
 
     protected slideInBottom() {
-        this.getEl().setTopPx(36);
+        this.getEl().setTopPx(this.offsetTop);
     }
 
     protected slideOutBottom() {
@@ -97,8 +104,16 @@ export class SlidablePanel extends DetailsPanel {
         this.slidedInListeners.forEach((listener: ()=> void) => listener());
     }
 
+    notifySlidedOut() {
+        this.slidedOutListeners.forEach((listener: () => void) => listener());
+    }
+
     onSlidedIn(listener: () => void) {
         this.slidedInListeners.push(listener);
+    }
+
+    onSlidedOut(listener: () => void) {
+        this.slidedOutListeners.push(listener);
     }
 }
 
