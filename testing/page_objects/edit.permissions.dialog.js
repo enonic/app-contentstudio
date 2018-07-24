@@ -5,7 +5,13 @@ const xpath = {
     applyButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Apply')]]`,
     cancelButton: `//button/span[text()='Cancel']`,
     overwriteChildPermissionsCheckbox: `//div[contains(@class,'overwrite-child')]`,
-    inheritPermissionsCheckbox: `//div[contains(@class,'inherit-perm')]`
+    inheritPermissionsCheckbox: `//div[contains(@class,'inherit-perm')]`,
+    permissionSelector: `//[contains(@id,'PermissionSelector')]`,
+    permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
+    aclEntryByName:
+        name => `//div[contains(@id,'ACESelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
+    menuItemByName:
+        name => `//li[contains(@id,'TabMenuItem') and child::a[text()='${name}']]`,
 };
 
 const contentPublishDialog = Object.create(page, {
@@ -40,6 +46,32 @@ const contentPublishDialog = Object.create(page, {
             return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_close_permissions_dialog');
                 throw new Error('Edit Permissions dialog must be closed ' + err);
+            })
+        }
+    },
+
+    showAceMenuAndSelectItem: {
+        value: function (principalName, menuItem) {
+            let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
+            let menuItemXpath = xpath.aclEntryByName(principalName) + xpath.menuItemByName(menuItem);
+            return this.doClick(tabMenuButton).pause(1000).then(() => {
+                return this.doClick(menuItemXpath)
+            }).catch(err => {
+                this.saveScreenshot('err_click_on_ace_menu_button');
+                throw new Error('Error when clicking on ACE-menu button ' + err);
+            })
+        }
+    },
+    clickOnPermissionToggle: {
+        value: function (principalName, operationName,) {
+            let permToggle = xpath.permissionToggleByOperationName(operationName);
+            let selector = xpath.aclEntryByName(principalName) + permToggle;
+
+            return this.waitForVisible(selector, 1000).then(() => {
+                return this.doClick(selector);
+            }).catch(err => {
+                this.saveScreenshot('err_click_on_permission_toggle');
+                throw new Error('Error when clicking on Permission Toggle ' + err);
             })
         }
     },

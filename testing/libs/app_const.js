@@ -14,9 +14,12 @@ module.exports = Object.freeze({
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
     },
+    permissionsAppliedNotificationMessage: function (name) {
+        return `Permissions applied to content \"${name}\".`
+    },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
-    TWO_ITEMS_PUBLISHED:`2 items are published.`,
+    TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
     TEST_FOLDER_2_NAME: `selenium-tests-folder`,
@@ -33,6 +36,11 @@ module.exports = Object.freeze({
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
 
+    ACCESS_MENU_ITEM: {
+        CUSTOM: 'Custom...',
+        CAN_PUBLISH: 'Can Publish',
+        FULL_ACCESS: 'Full Access'
+    },
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
     },
@@ -66,5 +74,26 @@ module.exports = Object.freeze({
         LONG_MIN_MAX: ':long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: ':textline_conf',
+    },
+    permissions: {
+        FULL_ACCESS: `Full Access`,
+        CUSTOM: `Custom...`,
+        CAN_PUBLISH: `Can Publish`,
+        CAN_READ: `Can Read`,
+    },
+    permissionOperation: {
+        READ: 'Read',
+        CREATE: `Create`,
+        MODIFY: 'Modify',
+        DELETE: `Delete`,
+        PUBLISH: `Publish`,
+        READ_PERMISSIONS: `Read Permissions`,
+        WRITE_PERMISSIONS: 'Write Permissions',
+    },
+    roleName: {
+        CONTENT_MANAGER_APP: 'cms.cm.app',
+    },
+    roleDisplayName: {
+        CONTENT_MANAGER_APP: 'Content Manager App',
     },
 });

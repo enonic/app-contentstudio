@@ -21,6 +21,7 @@ const wizard = {
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
+    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`
 };
 const contentWizardPanel = Object.create(page, {
 
@@ -93,6 +94,13 @@ const contentWizardPanel = Object.create(page, {
         value: function () {
             return this.doClick(this.showComponentViewToggler).catch(err => {
                 return this.doCatch('err_click_on_show_component_view', err);
+            }).pause(700);
+        }
+    },
+    clickOnAccessTabBarItem: {
+        value: function () {
+            return this.doClick(wizard.accessTabBarItem).catch(err => {
+                return this.doCatch('err_click_on_access_tabbar', err);
             }).pause(700);
         }
     },
