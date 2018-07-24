@@ -1,5 +1,5 @@
 /**
- * Created on 21.02.2018.
+ * Created on 13.04.2018.
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -21,7 +21,6 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '1' number should be in 'Items' on IssueDetailsDialog`,
         () => {
-            //this.bail(1);
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return studioUtils.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
@@ -65,7 +64,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
-                return issueDetailsDialogItemsTab.clickOnIncludeChildItems("All Content types images");
+                return issueDetailsDialogItemsTab.clickOnIncludeChildItems(appConstant.TEST_FOLDER_WITH_IMAGES);
             }).then(() => {
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isShowDependentItemsLinkDisplayed(),
                     '`Show dependent items` link should appear');
@@ -112,6 +111,22 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             })
         });
 
+    it(`GIVEN existing issue (child items are included) WHEN issue details is opened  AND 'Exclude child items' icon has been clicked THEN number of items to publish should be decreased `,
+        () => {
+            return studioUtils.openIssuesListDialog().then(() => {
+                return issueListDialog.clickOnIssue(issueTitle);
+            }).then(() => {
+                return issueDetailsDialog.waitForDialogLoaded();
+            }).then(() => {
+                return issueDetailsDialog.clickOnItemsTabBarItem();
+            }).then(() => {
+                return issueDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_WITH_IMAGES);
+            }).pause(1000).then(() => {
+                return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
+            }).then(result => {
+                return assert.equal(result, '1', 'only one item should be in the link');
+            })
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
