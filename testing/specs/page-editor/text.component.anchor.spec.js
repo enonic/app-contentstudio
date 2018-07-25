@@ -64,9 +64,41 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             })
         });
 
+    it(`GIVEN 'Insert Anchor' dialog is opened WHEN incorrect text has been typed in the dialog THEN validation message should be displayed`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                return contentWizard.clickOnShowComponentViewToggler();
+            }).then(() => {
+                return pageComponentView.openMenu("main");
+            }).then(() => {
+                return pageComponentView.selectMenuItem(["Insert", "Text"]);
+            }).then(() => {
+                return textComponentCke.switchToLiveEditFrame();
+            }).then(() => {
+                return textComponentCke.clickOnInsertAnchorButton();
+            }).then(() => {
+                return insertAnchorDialog.typeInTextInput('test anchor');
+            }).then(() => {
+                return insertAnchorDialog.clickOnInsertButton();
+            }).then(() => {
+                studioUtils.saveScreenshot('not_valid_text_in_anchor');
+                return insertAnchorDialog.waitForValidationMessage();
+            }).then(result => {
+                assert.isTrue(result, 'Validation message should be present in the modal dialog');
+            })
+        });
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => {
+        return insertAnchorDialog.isDialogOpened().then(result => {
+            if (result) {
+                return insertAnchorDialog.clickOnCancelButton();
+            }
+        }).pause(500).then(() => {
+            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        })
+    });
     before(() => {
         return console.log('specification starting: ' + this.title);
     });

@@ -62,12 +62,24 @@ const insertAnchorModalDialog = Object.create(page, {
             })
         }
     },
+    waitForValidationMessage: {
+        value: function () {
+            return this.waitForVisible(dialog.container + elements.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+                return false;
+            });
+        }
+    },
     waitForDialogLoaded: {
         value: function () {
             return this.waitForVisible(this.insertButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_open_insert_anchor_dialog');
                 throw new Error('Insert Anchor Dialog should be opened!' + err);
             });
+        }
+    },
+    isDialogOpened: {
+        value: function () {
+            return this.isVisible(dialog.container);
         }
     },
     waitForDialogClosed: {

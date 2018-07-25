@@ -104,9 +104,29 @@ var insertLinkDialog = Object.create(page, {
             return this.doClick(this.insertButton).catch((err) => {
                 this.saveScreenshot('err_click_on_insert_link_icon');
                 throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
+            })
+        }
+    },
+    clickOnInsertButtonAndWaitForClosed: {
+        value: function () {
+            return this.doClick(this.insertButton).catch((err) => {
+                this.saveScreenshot('err_click_on_insert_link_icon');
+                throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
             }).then(() => {
                 return this.waitForDialogClosed();
             })
+        }
+    },
+    waitForValidationMessage: {
+        value: function () {
+            return this.waitForVisible(dialog.container + elements.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+                return false;
+            });
+        }
+    },
+    isDialogOpened: {
+        value: function () {
+            return this.isVisible(dialog.container);
         }
     },
     waitForDialogLoaded: {
