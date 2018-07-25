@@ -58,8 +58,8 @@ module.exports = {
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.typeUrl(url);
         }).then(() => {
-            return insertLinkDialog.clickOnInsertButton();
-        }).pause(700);
+            return insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        });
 
     },
     insertDownloadLinkInCke: function (text, contentDisplayName) {
@@ -423,6 +423,7 @@ module.exports = {
                 return title.includes(reqTitle);
             }).catch(err => {
                 console.log("Error when getting Title" + err);
+                throw new Error("Error  " + err);
             })
         });
     },
