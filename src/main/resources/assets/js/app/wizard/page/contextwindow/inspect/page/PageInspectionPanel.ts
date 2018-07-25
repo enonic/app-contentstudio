@@ -8,6 +8,7 @@ import {PageTemplateOption} from './PageTemplateOption';
 import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageModel, SetTemplate} from '../../../../../../page-editor/PageModel';
+import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import PropertyTree = api.data.PropertyTree;
 import FormContextBuilder = api.form.FormContextBuilder;
@@ -18,7 +19,6 @@ import PageMode = api.content.page.PageMode;
 
 import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
-import GetPageDescriptorByKeyRequest = api.content.page.GetPageDescriptorByKeyRequest;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ActionButton = api.ui.button.ActionButton;
 
