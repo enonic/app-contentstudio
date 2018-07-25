@@ -2,15 +2,15 @@ import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {LayoutComponentView} from './LayoutComponentView';
 import {SiteModel} from '../../app/site/SiteModel';
+import {LayoutDescriptorComboBox} from './LayoutDescriptorComboBox';
 import LayoutComponent = api.content.page.region.LayoutComponent;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import LayoutDescriptorComboBox = api.content.page.region.LayoutDescriptorComboBox;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 
 export class LayoutPlaceholder
     extends ItemViewPlaceholder {
 
-    private comboBox: api.content.page.region.LayoutDescriptorComboBox;
+    private comboBox: LayoutDescriptorComboBox;
 
     private layoutComponentView: LayoutComponentView;
 

@@ -19,6 +19,7 @@ import {RegionView} from './RegionView';
 import {PageView} from './PageView';
 import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
+import {CreateFragmentRequest} from './CreateFragmentRequest';
 import Component = api.content.page.region.Component;
 import ComponentPath = api.content.page.region.ComponentPath;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
@@ -388,7 +389,7 @@ export class ComponentView<COMPONENT extends Component>
         const contentId = this.getPageView().getLiveEditModel().getContent().getContentId();
         const config = this.getPageView().getLiveEditModel().getPageModel().getConfig();
 
-        let request = new api.content.page.region.CreateFragmentRequest(contentId).setConfig(config).setComponent(
+        let request = new CreateFragmentRequest(contentId).setConfig(config).setComponent(
             this.getComponent());
 
         return request.sendAndParse();

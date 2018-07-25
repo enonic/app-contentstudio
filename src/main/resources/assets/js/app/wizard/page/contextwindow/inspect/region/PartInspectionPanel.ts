@@ -6,10 +6,10 @@ import {
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {PartComponentView} from '../../../../../../page-editor/part/PartComponentView';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {GetPartDescriptorByKeyRequest} from './GetPartDescriptorByKeyRequest';
+import {PartDescriptorDropdown} from './PartDescriptorDropdown';
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import GetPartDescriptorByKeyRequest = api.content.page.region.GetPartDescriptorByKeyRequest;
 import PartComponent = api.content.page.region.PartComponent;
-import PartDescriptorDropdown = api.content.page.region.PartDescriptorDropdown;
 import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import DescriptorKey = api.content.page.DescriptorKey;
