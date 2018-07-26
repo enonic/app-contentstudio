@@ -8,7 +8,7 @@ const dialog = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
-var insertImageModalDialog = Object.create(page, {
+const insertImageModalDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {

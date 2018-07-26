@@ -2,14 +2,14 @@
  * Created on 1.12.2017.
  */
 
-var page = require('../page');
-var elements = require('../../libs/elements');
-var panel = {
+const page = require('../page');
+const elements = require('../../libs/elements');
+const panel = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterButton: "//a[contains(@id,'ClearFilterButton']",
     searchInput: "//input[contains(@id,'browse.filter.TextSearchField')]"
 };
-var browseFilterPanel = Object.create(page, {
+const browseFilterPanel = Object.create(page, {
 
     clearFilterLink: {
         get: function () {

@@ -2,7 +2,6 @@
  * Created on 5/31/2017.
  */
 const page = require('../page');
-const saveBeforeCloseDialog = require('../save.before.close.dialog');
 const contentDuplicateDialog = require('../content.duplicate.dialog');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
@@ -324,7 +323,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     clickOnRowByName: {
         value: function (name) {
-            var nameXpath = panel.treeGrid + elements.itemByName(name);
+            let nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
             }).pause(400).catch((err) => {
@@ -335,7 +334,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     clickOnRowByDisplayName: {
         value: function (displayName) {
-            var nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
+            let nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
             return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
             }).pause(400).catch((err) => {
@@ -346,7 +345,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     waitForRowByNameVisible: {
         value: function (name) {
-            var nameXpath = panel.treeGrid + elements.itemByName(name);
+            let nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000)
                 .catch((err) => {
                     this.saveScreenshot('err_find_' + name);
@@ -356,7 +355,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     waitForContentByDisplayNameVisible: {
         value: function (displayName) {
-            var nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
+            let nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
             return this.waitForVisible(nameXpath, 3000).catch(err => {
                 this.saveScreenshot('err_find_' + displayName);
                 throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
@@ -385,17 +384,7 @@ const contentBrowsePanel = Object.create(page, {
             })
         }
     },
-    // clickOnRowByDisplayName: {
-    //     value: function (name) {
-    //         var nameXpath = panel.rowByDisplayName(name);
-    //         return this.waitForVisible(nameXpath, 3000).then(() => {
-    //             return this.doClick(nameXpath);
-    //         }).pause(400).catch((err) => {
-    //             this.saveScreenshot('err_find_' + name);
-    //             throw Error('Row with the name ' + name + ' was not found')
-    //         })
-    //     }
-    // },
+
     getNumberOfSelectedRows: {
         value: function () {
             return this.elements(panel.selectedRows).then(result => {
@@ -418,22 +407,13 @@ const contentBrowsePanel = Object.create(page, {
     doCloseWindowTabAndSwitchToBrowsePanel: {
         value: function (displayName) {
             return this.getBrowser().close().pause(300).then(() => {
-                return saveBeforeCloseDialog.isDialogPresent(100);
-            }).then((result) => {
-                if (result) {
-                    this.saveScreenshot('err_save_close_item').then(() => {
-                        console.log('save before close dialog must not be present');
-                        throw new Error('`Save Before Close` dialog should not appear when try to close the ' + displayName);
-                    });
-                }
-            }).then(() => {
                 return this.doSwitchToContentBrowsePanel();
             });
         }
     },
     clickOnExpanderIcon: {
         value: function (name) {
-            var expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
+            let expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
             return this.doClick(expanderIcon).pause(700).catch(err => {
                 this.saveScreenshot('err_click_on_expander ' + name);
                 throw new Error('error when click on expander-icon ' + err);
@@ -442,7 +422,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     isExpanderIconPresent: {
         value: function (name) {
-            var expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
+            let expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
             return this.waitForVisible(expanderIcon).catch(err => {
                 this.saveScreenshot('expander_not_exists ' + name);
                 return false;
@@ -452,7 +432,7 @@ const contentBrowsePanel = Object.create(page, {
     // this method does not wait, it just checks the attribute
     isRedIconDisplayed: {
         value: function (contentName) {
-            var xpath = panel.contentSummaryByName(contentName);
+            let xpath = panel.contentSummaryByName(contentName);
             return this.getBrowser().getAttribute(xpath, 'class').then(result => {
                 return result.includes('invalid');
             });
@@ -461,7 +441,7 @@ const contentBrowsePanel = Object.create(page, {
     // this method waits until 'invalid' appears in the @class
     waitForRedIconDisplayed: {
         value: function (contentName) {
-            var xpath = panel.contentSummaryByName(contentName);
+            let xpath = panel.contentSummaryByName(contentName);
             return this.waitUntilInvalid(xpath);
         }
     },
@@ -521,7 +501,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     getContentStatus: {
         value: function (name) {
-            let selector =  elements.slickRowByDisplayName(panel.treeGrid,name) + "//div[contains(@class,'r3')]";
+            let selector = elements.slickRowByDisplayName(panel.treeGrid, name) + "//div[contains(@class,'r3')]";
             return this.getText(selector);
         }
     },

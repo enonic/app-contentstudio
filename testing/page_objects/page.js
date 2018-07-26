@@ -8,6 +8,31 @@ function Page() {
 Page.prototype.getBrowser = function () {
     return webDriverHelper.browser;
 };
+Page.prototype.alertAccept = function () {
+    return this.getBrowser().alertAccept();
+};
+
+Page.prototype.isAlertPresent = function () {
+    return this.getBrowser().alertText().then(() => {
+        return true;
+    }).catch(err => {
+        if (err.name = 'NoAlertOpenError') {
+            return false
+        } else {
+            throw new Error(err);
+        }
+    })
+};
+
+Page.prototype.alertText = function () {
+    return this.getBrowser().alertText().catch(err => {
+        if (err.name = 'NoAlertOpenError') {
+            throw new Error("Alert is not open " + err);
+        } else {
+            throw new Error(err);
+        }
+    })
+};
 
 Page.prototype.numberOfElements = function (selector) {
     return this.getBrowser().elements(selector).then((res) => {
@@ -133,7 +158,7 @@ Page.prototype.getTextFromElements = function (selector) {
     return this.getBrowser().elements(selector).then((result) => {
         result.value.forEach((val) => {
             json.push(this.getBrowser().elementIdText(val.ELEMENT));
-        })
+        });
         return Promise.all(json).then((p) => {
             return p;
         });
@@ -141,17 +166,17 @@ Page.prototype.getTextFromElements = function (selector) {
         let res = [];
         responses.forEach((str) => {
             return res.push(str.value);
-        })
+        });
         return res;
     });
-}
+};
 
 Page.prototype.getTextFromInput = function (selector) {
     return this.getBrowser().getAttribute(selector, 'value');
 };
 
 Page.prototype.saveScreenshot = function (name) {
-    var screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+    let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
     return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
         console.log('screenshot is saved ' + name);
     }).catch(err => {
@@ -177,7 +202,7 @@ Page.prototype.waitForNotificationMessage = function () {
 };
 
 Page.prototype.waitForExpectedNotificationMessage = function (expectedMessage) {
-    let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`
+    let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
     return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).catch((err) => {
         this.saveScreenshot('err_notification_mess');
         throw new Error('expected notification message was not shown! ' + err);
@@ -185,14 +210,14 @@ Page.prototype.waitForExpectedNotificationMessage = function (expectedMessage) {
 };
 
 Page.prototype.waitForErrorNotificationMessage = function () {
-    var selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
+    let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
     return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
         return this.getBrowser().getText(selector);
     })
 };
 
 Page.prototype.waitForNotificationWarning = function () {
-    var selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
+    let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
     return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
         return this.getBrowser().getText(selector);
     })
@@ -207,5 +232,5 @@ Page.prototype.waitUntilInvalid = function (selector) {
     }).catch((err) => {
         return false;
     });
-},
-    module.exports = new Page();
+};
+module.exports = new Page();

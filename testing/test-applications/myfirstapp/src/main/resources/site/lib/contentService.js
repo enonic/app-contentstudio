@@ -1,4 +1,4 @@
-var contentSvc = require('/lib/xp/content');
+const contentSvc = require('/lib/xp/content');
 
 exports.getChildren = function (parentPath, size) {
 

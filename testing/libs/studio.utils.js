@@ -509,8 +509,8 @@ module.exports = {
         });
     },
     saveScreenshot: function (name) {
-        var path = require('path')
-        var screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+        let path = require('path');
+        let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
         return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             return console.log('screenshot saved ' + name);
         }).catch(err => {

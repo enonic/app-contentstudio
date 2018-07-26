@@ -5,7 +5,7 @@ const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
-var component = {
+const component = {
     container: `//div[contains(@id,'LoaderComboBox')]`,
     modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,

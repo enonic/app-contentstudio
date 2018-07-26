@@ -23,7 +23,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     const EXPECTED_TEXT_TEXT2 = '<p>test text 2</p>';
     const TEXT_1 = "test text";
     const TEXT_2 = "test text 2";
-    let htmlAreaContent
+    let htmlAreaContent;
     let SITE;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {

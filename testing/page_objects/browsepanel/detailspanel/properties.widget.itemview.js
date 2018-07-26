@@ -8,8 +8,8 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'DetailsView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
     languageProperty: `//dd[contains(.,'Language:')]/following-sibling::dt[1]`
-}
-var propertiesItemView = Object.create(page, {
+};
+const propertiesItemView = Object.create(page, {
 
     languageProperty: {
         get: function () {

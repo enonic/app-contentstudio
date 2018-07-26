@@ -134,7 +134,7 @@ const contentWizardPanel = Object.create(page, {
     waitForOpened: {
         value: function () {
             return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch(err => {
-                this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'))
+                this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
                 throw new Error("Content wizard was not loaded! " + err);
             });
         }

@@ -21,7 +21,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>'
+    let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {

@@ -6,7 +6,7 @@ const dialog = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
-var siteConfiguratorDialog = Object.create(page, {
+const siteConfiguratorDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {

@@ -10,8 +10,8 @@ const loaderComboBox = require('../components/loader.combobox');
 const form = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,
     metadataStepForm: `//div[contains(@id,'XDataWizardStepForm') and descendant::div[text()='Override "Title"']]`,
-}
-var testMetadataStepForm = Object.create(page, {
+};
+const testMetadataStepForm = Object.create(page, {
 
     overrideTitleInput: {
         get: function () {

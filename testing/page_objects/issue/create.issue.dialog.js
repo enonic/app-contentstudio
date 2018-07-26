@@ -16,7 +16,7 @@ const xpath = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
 
 };
-var createIssueDialog = Object.create(page, {
+const createIssueDialog = Object.create(page, {
 
     cancelTopButton: {
         get: function () {

@@ -63,7 +63,7 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN correct notification message should be displayed `,
         () => {
             let displayName = contentBuilder.generateRandomName('htmlarea');
-            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea0_1', [TEXT_TO_TYPE])
+            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea0_1', [TEXT_TO_TYPE]);
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
             }).then(() => {

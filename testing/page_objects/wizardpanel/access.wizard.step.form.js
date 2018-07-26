@@ -14,8 +14,8 @@ const xpath = {
     entryRowByDisplayName:
         displayName => `//div[contains(@id,'AccessControlEntryView') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-}
-var accessStepForm = Object.create(page, {
+};
+const accessStepForm = Object.create(page, {
 
     editPermissionsButton: {
         get: function () {

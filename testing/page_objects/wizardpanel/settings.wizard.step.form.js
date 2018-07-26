@@ -15,8 +15,8 @@ const xpath = {
     selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
     selectedLocale: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     removeLanguageButton: "//div[contains(@id,'LocaleSelectedOptionView')]",
-}
-var settingsStepForm = Object.create(page, {
+};
+const settingsStepForm = Object.create(page, {
 
     languageFilterInput: {
         get: function () {

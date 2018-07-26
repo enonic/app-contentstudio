@@ -36,7 +36,7 @@ const liveContextWindow = Object.create(page, {
             }).then((result)=> {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
             }).catch(err=> {
-                this.saveScreenshot('err_click_on_inspection_link')
+                this.saveScreenshot('err_click_on_inspection_link');
                 throw new Error('clickOnContentType:' + err);
             }).pause(500);
         }

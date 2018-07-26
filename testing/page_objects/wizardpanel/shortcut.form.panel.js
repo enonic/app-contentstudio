@@ -2,12 +2,12 @@
  * Created on 02.12.2017.
  */
 
-var page = require('../page');
-var elements = require('../../libs/elements');
-var appConst = require('../../libs/app_const');
+const page = require('../page');
+const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
 
-var shortcutForm = Object.create(page, {
+const shortcutForm = Object.create(page, {
 
     targetOptionsFilterInput: {
         get: function () {

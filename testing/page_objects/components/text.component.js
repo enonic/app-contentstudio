@@ -8,7 +8,7 @@ const utils = require('../../libs/studio.utils');
 const insertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const insertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 
-var component = {
+const component = {
     editor: `//div[contains(@id,'TextComponentViewCK_editor') and contains(@title,'Rich Text Editor')]`,
     toolbox: `//span[contains(@id,'cke_1_toolbox')]`,
 
