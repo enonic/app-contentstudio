@@ -21,11 +21,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_DATA_CKE = '<p><a id="test anchor" name="test anchor"></a></p>'
+    let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -52,10 +51,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             }).then(() => {
                 return textComponentCke.clickOnInsertAnchorButton();
             }).then(() => {
-                return insertAnchorDialog.typeInTextInput('test anchor');
+                return insertAnchorDialog.typeInTextInput('test_anchor');
             }).then(() => {
                 studioUtils.saveScreenshot('anchor_text_typed');
-                return insertAnchorDialog.clickOnInsertButton();
+                return insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
             }).then(() => {
                 return contentWizard.switchToLiveEditFrame();
             }).then(() => {
@@ -65,9 +64,41 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             })
         });
 
+    it(`GIVEN 'Insert Anchor' dialog is opened WHEN incorrect text has been typed in the dialog THEN validation message should be displayed`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                return contentWizard.clickOnShowComponentViewToggler();
+            }).then(() => {
+                return pageComponentView.openMenu("main");
+            }).then(() => {
+                return pageComponentView.selectMenuItem(["Insert", "Text"]);
+            }).then(() => {
+                return textComponentCke.switchToLiveEditFrame();
+            }).then(() => {
+                return textComponentCke.clickOnInsertAnchorButton();
+            }).then(() => {
+                return insertAnchorDialog.typeInTextInput('test anchor');
+            }).then(() => {
+                return insertAnchorDialog.clickOnInsertButton();
+            }).then(() => {
+                studioUtils.saveScreenshot('not_valid_text_in_anchor');
+                return insertAnchorDialog.waitForValidationMessage();
+            }).then(result => {
+                assert.isTrue(result, 'Validation message should be present in the modal dialog');
+            })
+        });
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => {
+        return insertAnchorDialog.isDialogOpened().then(result => {
+            if (result) {
+                return insertAnchorDialog.clickOnCancelButton();
+            }
+        }).pause(500).then(() => {
+            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        })
+    });
     before(() => {
         return console.log('specification starting: ' + this.title);
     });

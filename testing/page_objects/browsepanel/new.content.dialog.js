@@ -14,7 +14,7 @@ const dialog = {
     },
 
 };
-var newContentDialog = Object.create(page, {
+const newContentDialog = Object.create(page, {
 
     header: {
         get: function () {

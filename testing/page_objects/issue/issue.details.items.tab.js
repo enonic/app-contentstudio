@@ -57,7 +57,7 @@ const issueDetailsDialogItemsTab = Object.create(page, {
     },
     clickOnIncludeChildrenToggler: {
         value: function (displayName) {
-            let selector = xpath.selectionItemByDisplayName(displayName) + `${elements.INCLUDE_CHILDREN_TOGGLER}`
+            let selector = xpath.selectionItemByDisplayName(displayName) + `${elements.INCLUDE_CHILDREN_TOGGLER}`;
             return this.waitForVisible(selector, appConst.TIMEOUT_1).then(() => {
                 return this.doClick(selector);
             }).catch(err => {

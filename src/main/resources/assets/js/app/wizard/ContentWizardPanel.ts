@@ -436,7 +436,9 @@ export class ContentWizardPanel
 
             this.appendChild(this.getContentWizardToolbarPublishControls().getPublishButtonForMobile());
 
-            this.getLivePanel().updateWritePermissions(this.writePermissions);
+            if (this.getLivePanel()) {
+                this.getLivePanel().updateWritePermissions(this.writePermissions);
+            }
 
             if (this.contentType.hasContentDisplayNameScript()) {
                 this.displayNameScriptExecutor.setScript(this.contentType.getContentDisplayNameScript());

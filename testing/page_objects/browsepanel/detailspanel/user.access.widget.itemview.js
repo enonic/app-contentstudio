@@ -8,8 +8,8 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'DetailsView')]//div[contains(@id,'UserAccessWidgetItemView')]`,
     editPermissionsLink: `//a[@class='edit-permissions-link']`
-}
-var userAccessWidgetItemView = Object.create(page, {
+};
+const userAccessWidgetItemView = Object.create(page, {
 
     editPermissionsLink: {
         get: function () {

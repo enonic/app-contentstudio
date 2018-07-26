@@ -2,9 +2,9 @@
  * Created on 09.03.2018
  */
 
-var page = require('../page');
-var elements = require('../../libs/elements');
-var appConst = require('../../libs/app_const');
+const page = require('../page');
+const elements = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
 
 const form = {
@@ -13,9 +13,9 @@ const form = {
     supportOptionFilterInput: "//div[contains(@id,'ContentTypeFilter')]//input[contains(@class,'option-filter-input')]",
     contentTypeSelectedOptionsView: "//div[contains(@id,'ContentTypeSelectedOptionsView')]",
 
-}
+};
 
-var pageTemplateForm = Object.create(page, {
+const pageTemplateForm = Object.create(page, {
 
     supportOptionsFilterInput: {
         get: function () {

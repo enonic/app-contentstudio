@@ -75,7 +75,7 @@ exports.content.getPath = function (contentKey, noDefault) {
  * @Return {String} path of the parent content.
  */
 exports.content.getParentPath = function (path) {
-    var pathArray = path.split('/')
+    var pathArray = path.split('/');
     return pathArray.slice(0, pathArray.length - 1).join('/');
 };
 

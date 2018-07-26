@@ -1,6 +1,6 @@
-var page = require('./page')
+const page = require('./page');
 
-var loginPage = Object.create(page, {
+const loginPage = Object.create(page, {
     /**
      * define elements
      */

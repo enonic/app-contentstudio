@@ -9,7 +9,7 @@ const dialog = {
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
 
 };
-var confirmContentDeleteDialog = Object.create(page, {
+const confirmContentDeleteDialog = Object.create(page, {
 
     warningMessage: {
         get: function () {

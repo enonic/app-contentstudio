@@ -12,7 +12,7 @@ const dialog = {
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
 };
 // it appears when select a content and click on  'Delete' button on the toolbar
-var deleteContentDialog = Object.create(page, {
+const deleteContentDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {

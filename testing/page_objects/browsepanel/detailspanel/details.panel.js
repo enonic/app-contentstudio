@@ -2,8 +2,6 @@
  * Created on 04/07/2018.
  */
 const page = require('../../page');
-const saveBeforeCloseDialog = require('../../save.before.close.dialog');
-const contentDuplicateDialog = require('../../content.duplicate.dialog');
 const elements = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
@@ -11,15 +9,15 @@ const xpath = {
     container: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DockedDetailsPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
 
-}
-var detailsPanel = Object.create(page, {
+};
+const detailsPanel = Object.create(page, {
 
     widgetSelectorDropdownHandle: {
         get: function () {
             return `${xpath.container}` + `${xpath.widgetSelectorDropdown}` + `${elements.DROP_DOWN_HANDLE}`;
         }
     },
-    clickOnwidgetSelectorDropdownHandle: {
+    clickOnWidgetSelectorDropdownHandle: {
         value: function () {
             return this.waitForVisible(this.widgetSelectorDropdownHandle, appConst.TIMEOUT_3).catch(err => {
                 console.log("widget Selector DropdownHandle was not found:");

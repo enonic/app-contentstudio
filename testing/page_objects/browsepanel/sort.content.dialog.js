@@ -12,7 +12,7 @@ const dialog = {
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
 };
 
-var sortContentDialog = Object.create(page, {
+const sortContentDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {

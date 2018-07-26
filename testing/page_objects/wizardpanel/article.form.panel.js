@@ -8,7 +8,7 @@ const form = {
     bodyTextArea: `//textarea[contains(@name,'body')]`,
     titleInput: `//input[contains(@name,'title')]`,
 };
-var articleForm = Object.create(page, {
+const articleForm = Object.create(page, {
 
     bodyTextArea: {
         get: function () {

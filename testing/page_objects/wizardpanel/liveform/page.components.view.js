@@ -32,7 +32,7 @@ const pageComponentView = Object.create(page, {
     },
     isMenuItemPresent: {
         value: function (name) {
-            let selector = xpath.contextMenuItemByName(name)
+            let selector = xpath.contextMenuItemByName(name);
             return this.waitForVisible(selector, appConst.TIMEOUT_2).catch(err=> {
                 console.log(err);
                 return false;
@@ -45,7 +45,7 @@ const pageComponentView = Object.create(page, {
             let result = Promise.resolve();
             items.forEach(menuItem=> {
                 result = result.then(() => this.clickOnMenuItem(menuItem));
-            })
+            });
             return result;
         }
     },

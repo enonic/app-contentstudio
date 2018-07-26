@@ -13,7 +13,7 @@ const xpath = {
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Cancel')]]`,
 };
 
-var moveContentDialog = Object.create(page, {
+const moveContentDialog = Object.create(page, {
 
     header: {
         get: function () {
@@ -73,7 +73,7 @@ var moveContentDialog = Object.create(page, {
     clickOnMoveButton: {
         value: function (contentTypeName) {
             return this.doClick(this.moveButton).catch(err=> {
-                this.saveScreenshot('err_click_on_move_button')
+                this.saveScreenshot('err_click_on_move_button');
                 throw new Error('Move dialog:' + err);
             }).pause(500);
 

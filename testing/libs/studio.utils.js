@@ -58,8 +58,8 @@ module.exports = {
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.typeUrl(url);
         }).then(() => {
-            return insertLinkDialog.clickOnInsertButton();
-        }).pause(700);
+            return insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        });
 
     },
     insertDownloadLinkInCke: function (text, contentDisplayName) {
@@ -421,6 +421,9 @@ module.exports = {
         return webDriverHelper.browser.switchTab(tabId).then(() => {
             return webDriverHelper.browser.getTitle().then(title => {
                 return title.includes(reqTitle);
+            }).catch(err => {
+                console.log("Error when getting Title" + err);
+                throw new Error("Error  " + err);
             })
         });
     },
@@ -436,7 +439,7 @@ module.exports = {
             return launcherPanel.clickOnContentStudioLink().pause(1000);
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).catch((err) => {
+        }).catch(err => {
             throw new Error(err);
         })
     },
@@ -494,6 +497,8 @@ module.exports = {
                     if (!result) {
                         return webDriverHelper.browser.close().then(() => {
                             console.log(tabId + ' was closed');
+                        }).catch(err => {
+                            console.log(tabId + ' was not closed ' + err);
                         });
                     }
                 });
@@ -504,8 +509,8 @@ module.exports = {
         });
     },
     saveScreenshot: function (name) {
-        var path = require('path')
-        var screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+        let path = require('path');
+        let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
         return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             return console.log('screenshot saved ' + name);
         }).catch(err => {

@@ -32,7 +32,7 @@ const insertAnchorModalDialog = Object.create(page, {
     },
     typeInTextInput: {
         value: function (text) {
-            return this.typeTextInInput(this.textInput, text).catch((err) => {
+            return this.typeTextInInput(this.textInput, text).catch(err => {
                 this.doCatch('err_insert_anchor', err);
             })
         }
@@ -44,12 +44,29 @@ const insertAnchorModalDialog = Object.create(page, {
     },
     clickOnInsertButton: {
         value: function () {
+            return this.doClick(this.insertButton).pause(300).catch((err) => {
+                this.saveScreenshot('err_click_on_insert_anchor_icon');
+                throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
+            });
+        }
+    },
+    clickOnInsertButtonAndWaitForClosed: {
+        value: function () {
             return this.doClick(this.insertButton).catch((err) => {
                 this.saveScreenshot('err_click_on_insert_anchor_icon');
                 throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
             }).then(() => {
-                return this.waitForDialogClosed();
+                return this.waitForDialogClosed(appConst.TIMEOUT_3);
+            }).catch(err => {
+                throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.TIMEOUT_3 + "   " + err);
             })
+        }
+    },
+    waitForValidationMessage: {
+        value: function () {
+            return this.waitForVisible(dialog.container + elements.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+                return false;
+            });
         }
     },
     waitForDialogLoaded: {
@@ -58,6 +75,11 @@ const insertAnchorModalDialog = Object.create(page, {
                 this.saveScreenshot('err_open_insert_anchor_dialog');
                 throw new Error('Insert Anchor Dialog should be opened!' + err);
             });
+        }
+    },
+    isDialogOpened: {
+        value: function () {
+            return this.isVisible(dialog.container);
         }
     },
     waitForDialogClosed: {

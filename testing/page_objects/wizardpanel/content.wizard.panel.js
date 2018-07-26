@@ -21,6 +21,7 @@ const wizard = {
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
+    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`
 };
 const contentWizardPanel = Object.create(page, {
 
@@ -96,6 +97,13 @@ const contentWizardPanel = Object.create(page, {
             }).pause(700);
         }
     },
+    clickOnAccessTabBarItem: {
+        value: function () {
+            return this.doClick(wizard.accessTabBarItem).catch(err => {
+                return this.doCatch('err_click_on_access_tabbar', err);
+            }).pause(700);
+        }
+    },
     doOpenContextWindow: {
         value: function () {
             return this.clickOnShowInspectionPanelToggler().then(() => {
@@ -126,7 +134,7 @@ const contentWizardPanel = Object.create(page, {
     waitForOpened: {
         value: function () {
             return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch(err => {
-                this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'))
+                this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
                 throw new Error("Content wizard was not loaded! " + err);
             });
         }

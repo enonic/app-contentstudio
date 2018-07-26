@@ -14,8 +14,8 @@ const form = {
     selectedAppByDisplayName: function (displayName) {
         return `//div[contains(@id,'SiteConfiguratorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
     },
-}
-var siteForm = Object.create(page, {
+};
+const siteForm = Object.create(page, {
 
     applicationsOptionsFilterInput: {
         get: function () {
@@ -68,7 +68,7 @@ var siteForm = Object.create(page, {
     },
     removeApplication: {
         value: function (displayName) {
-            let selector = `${form.selectedAppByDisplayName()}` + `${elements.REMOVE_ICON}`
+            let selector = `${form.selectedAppByDisplayName()}` + `${elements.REMOVE_ICON}`;
             return this.doClick(selector);
         }
     },

@@ -6,10 +6,10 @@ const articleForm = require('./article.form.panel');
 const pageTemplateForm = require('./page.template.form.panel');
 const htmlAreaForm = require('./htmlarea.form.panel');
 const appConst = require('../../libs/app_const');
-var panel = {
+const panel = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
 }
-var contentWizardStepForm = Object.create(page, {
+const contentWizardStepForm = Object.create(page, {
 
     type: {
         value: function (data, contentType) {

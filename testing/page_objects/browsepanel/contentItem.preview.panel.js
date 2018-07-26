@@ -2,8 +2,6 @@
  * Created on 20/06/2018.
  */
 const page = require('../page');
-const saveBeforeCloseDialog = require('../save.before.close.dialog');
-const contentDuplicateDialog = require('../content.duplicate.dialog');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
@@ -15,9 +13,8 @@ const xpath = {
     issueMenuItemByName:
         name => `//div[contains(@id,'MenuButton')]/button[contains(@id,'ActionButton')]/i[contains(.,'${name}')]`,
 
-
-}
-var contentItemPreviewPanel = Object.create(page, {
+};
+const contentItemPreviewPanel = Object.create(page, {
 
     issueDropdownHandle: {
         get: function () {
@@ -86,8 +83,6 @@ var contentItemPreviewPanel = Object.create(page, {
             });
         }
     },
-
-
     getContentStatus: {
         value: function () {
             return this.getDisplayedElements(this.contentStatus).then(result => {

@@ -15,18 +15,19 @@ const contentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const textComponentCke = require('../../page_objects/components/text.component');
+const insertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 describe('Text Component with CKE - insert link and table  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
+    let NOT_VALID_URL = 'test';
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_URL = '<p><a href="http://enonic.com">test</a></p>';
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -57,6 +58,32 @@ describe('Text Component with CKE - insert link and table  specification', funct
                 return textComponentCke.switchToCKETableFrameAndInsertTable();
             }).then((result) => {
                 assert.isTrue(result, '');
+            })
+        });
+
+    it(`GIVEN 'Insert Link' dialog is opened WHEN incorrect 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                return contentWizard.clickOnShowComponentViewToggler();
+            }).then(() => {
+                return pageComponentView.openMenu("main");
+            }).then(() => {
+                return pageComponentView.selectMenuItem(["Insert", "Text"]);
+            }).then(() => {
+                return textComponentCke.switchToLiveEditFrame();
+            }).then(() => {
+                return textComponentCke.clickOnInsertLinkButton();
+            }).then(() => {
+                return insertLinkDialog.typeText("url_link");
+            }).then(() => {
+                return insertLinkDialog.typeUrl(NOT_VALID_URL);
+            }).then(() => {
+                return insertLinkDialog.clickOnInsertButton();
+            }).then(() => {
+                return insertLinkDialog.waitForValidationMessage();
+            }).then(result => {
+                studioUtils.saveScreenshot('not_valid_url_typed');
+                assert.isTrue(result, 'Validation message should be displayed on the modal dialog ');
             })
         });
 
@@ -120,7 +147,15 @@ describe('Text Component with CKE - insert link and table  specification', funct
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => {
+        return insertLinkDialog.isDialogOpened().then(result => {
+            if (result) {
+                return insertLinkDialog.clickOnCancelButton();
+            }
+        }).pause(500).then(() => {
+            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        })
+    });
     before(() => {
         return console.log('specification starting: ' + this.title);
     });

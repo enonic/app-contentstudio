@@ -5,7 +5,7 @@ const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
-var form = {
+const form = {
     wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
     imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
     flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
@@ -21,7 +21,7 @@ var form = {
 
     },
 }
-var imageSelectorForm = Object.create(page, {
+const imageSelectorForm = Object.create(page, {
 
     imageComboBoxDrppdownHandle: {
         get: function () {
@@ -122,7 +122,7 @@ var imageSelectorForm = Object.create(page, {
 
     clickOnExpanderIconInOptions: {
         value: function (name) {
-            var expanderIcon = form.imageContentComboBox + form.expanderIconByName(name);
+            let expanderIcon = form.imageContentComboBox + form.expanderIconByName(name);
             return this.doClick(expanderIcon).pause(700).catch(err => {
                 this.saveScreenshot('err_click_on_expander ' + name);
                 throw new Error('error when click on expander-icon ' + err);

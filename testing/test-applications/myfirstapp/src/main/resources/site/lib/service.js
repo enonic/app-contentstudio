@@ -1,4 +1,4 @@
-var portal = require('/lib/xp/portal');
+const portal = require('/lib/xp/portal');
 exports.service = {};
 
 exports.service.serviceUrl = function (service, params, module) {
