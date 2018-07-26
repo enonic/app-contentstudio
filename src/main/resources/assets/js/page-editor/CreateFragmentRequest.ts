@@ -1,4 +1,4 @@
-import FragmentResourceRequest = api.content.page.region.FragmentResourceRequest;
+import {FragmentResourceRequest} from './FragmentResourceRequest';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<api.content.json.ContentJson, api.content.Content> {

@@ -1,6 +1,6 @@
-import HasUnpublishedChildrenListJson = api.content.json.HasUnpublishedChildrenListJson;
-import HasUnpublishedChildrenResult = api.content.resource.result.HasUnpublishedChildrenResult;
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
+import {HasUnpublishedChildrenResult} from './HasUnpublishedChildrenResult';
 
 export class HasUnpublishedChildrenRequest
     extends ContentResourceRequest<HasUnpublishedChildrenListJson, HasUnpublishedChildrenResult> {

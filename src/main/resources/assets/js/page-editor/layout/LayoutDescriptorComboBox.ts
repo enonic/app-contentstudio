@@ -6,9 +6,9 @@ import BaseSelectedOptionView = api.ui.selector.combobox.BaseSelectedOptionView;
 import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
 import DescriptorKey = api.content.page.DescriptorKey;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import LayoutDescriptorViewer = api.content.page.region.LayoutDescriptorViewer;
-import LayoutDescriptorLoader = api.content.page.region.LayoutDescriptorLoader;
 import ApplicationKey = api.application.ApplicationKey;
+import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorLoader';
+import {LayoutDescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorViewer';
 
 export class LayoutDescriptorComboBox
     extends RichComboBox<LayoutDescriptor> {

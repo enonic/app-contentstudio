@@ -1,5 +1,5 @@
 import Widget = api.content.Widget;
-import WidgetDescriptorResourceRequest = api.content.resource.WidgetDescriptorResourceRequest;
+import {WidgetDescriptorResourceRequest} from './WidgetDescriptorResourceRequest';
 
 export class GetWidgetsByInterfaceRequest
     extends WidgetDescriptorResourceRequest<api.content.json.WidgetDescriptorJson[], any> {

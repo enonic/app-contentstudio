@@ -1,8 +1,8 @@
 import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartDescriptorLoader = api.content.page.region.PartDescriptorLoader;
-import DescriptorBasedDropdown = api.content.page.region.DescriptorBasedDropdown;
-import PartDescriptorViewer = api.content.page.region.PartDescriptorViewer;
+import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
+import {PartDescriptorLoader} from './PartDescriptorLoader';
+import {PartDescriptorViewer} from './PartDescriptorViewer';
 
 export class PartDescriptorDropdown
     extends DescriptorBasedDropdown<PartDescriptor> {

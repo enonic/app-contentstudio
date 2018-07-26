@@ -1,7 +1,7 @@
 import Content = api.content.Content;
 import ContentJson = api.content.json.ContentJson;
-import PageResourceRequest = api.content.page.PageResourceRequest;
-import PageCUDRequest = api.content.page.PageCUDRequest;
+import {PageCUDRequest} from '../resource/PageCUDRequest';
+import {PageResourceRequest} from '../resource/PageResourceRequest';
 
 export class DeletePageRequest
     extends PageResourceRequest<ContentJson, Content>

@@ -1,7 +1,8 @@
 import ApplicationKey = api.application.ApplicationKey;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
 import PageDescriptor = api.content.page.PageDescriptor;
-import GetPageDescriptorsByApplicationsRequest = api.content.page.GetPageDescriptorsByApplicationsRequest;
+import {GetPageDescriptorsByApplicationsRequest} from './GetPageDescriptorsByApplicationsRequest';
+import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
 
 export class PageDescriptorLoader
     extends api.util.loader.BaseLoader<PageDescriptorsJson, PageDescriptor> {
@@ -11,7 +12,7 @@ export class PageDescriptorLoader
     constructor() {
         super();
 
-        this.setComparator(new api.content.page.DescriptorByDisplayNameComparator());
+        this.setComparator(new DescriptorByDisplayNameComparator());
     }
 
     filterFn(descriptor: PageDescriptor) {

@@ -7,8 +7,8 @@ import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsVie
 import DescriptorKey = api.content.page.DescriptorKey;
 import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartDescriptorViewer = api.content.page.region.PartDescriptorViewer;
-import PartDescriptorLoader = api.content.page.region.PartDescriptorLoader;
+import {PartDescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/region/PartDescriptorViewer';
+import {PartDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/PartDescriptorLoader';
 
 export class PartDescriptorComboBox
     extends RichComboBox<PartDescriptor> {

@@ -1,8 +1,8 @@
-import DescriptorBasedDropdown = api.content.page.region.DescriptorBasedDropdown;
-import LayoutDescriptorLoader = api.content.page.region.LayoutDescriptorLoader;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import LayoutDescriptorViewer = api.content.page.region.LayoutDescriptorViewer;
 import ApplicationKey = api.application.ApplicationKey;
+import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
+import {LayoutDescriptorLoader} from './LayoutDescriptorLoader';
+import {LayoutDescriptorViewer} from './LayoutDescriptorViewer';
 
 export class LayoutDescriptorDropdown
     extends DescriptorBasedDropdown<LayoutDescriptor> {

@@ -3,10 +3,10 @@ import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './Compon
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {ApplicationAddedEvent} from '../../../../../site/ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
+import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import FormView = api.form.FormView;
 import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
 import Descriptor = api.content.page.Descriptor;
-import DescriptorBasedDropdown = api.content.page.region.DescriptorBasedDropdown;
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {

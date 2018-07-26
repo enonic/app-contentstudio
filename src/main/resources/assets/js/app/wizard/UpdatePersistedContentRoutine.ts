@@ -3,8 +3,8 @@ import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
 import {UpdatePageRequest} from '../resource/UpdatePageRequest';
+import {PageCUDRequest} from '../resource/PageCUDRequest';
 import Content = api.content.Content;
-import PageCUDRequest = api.content.page.PageCUDRequest;
 
 type Producer = { (content: Content, viewedContent: Content): UpdateContentRequest; };
 

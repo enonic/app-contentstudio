@@ -1,7 +1,7 @@
 import './../../../../../../api.ts';
 import {FragmentContentSummaryRequest} from '../../../../../resource/FragmentContentSummaryRequest';
+import {ContentSummaryLoader} from './ContentSummaryLoader';
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentSummaryLoader = api.content.resource.ContentSummaryLoader;
 
 export class FragmentContentSummaryLoader
     extends ContentSummaryLoader {
