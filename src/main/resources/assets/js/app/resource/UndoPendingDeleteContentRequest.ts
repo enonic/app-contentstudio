@@ -31,7 +31,7 @@ export class UndoPendingDeleteContentRequest
 
     static showResponse(result: number) {
         if (result > 0) {
-            api.notify.showSuccess(result == 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
+            api.notify.showSuccess(result === 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
         } else {
             api.notify.showWarning(i18n('notify.nothingToUndelete'));
         }
