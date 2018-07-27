@@ -39,13 +39,13 @@ const loginPage = Object.create(page, {
 
     isUserNameInputVisible: {
         value: function (ms) {
-            return this.waitForExist(this.usernameInput, ms);
+            return this.waitForVisible(this.usernameInput, ms);
         }
     },
 
     isPasswordInputVisible: {
         value: function (ms) {
-            return this.waitForExist(this.passwordInput, ms);
+            return this.waitForVisible(this.passwordInput, ms);
         }
     },
 

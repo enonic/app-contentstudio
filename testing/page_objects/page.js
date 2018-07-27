@@ -16,7 +16,7 @@ Page.prototype.isAlertPresent = function () {
     return this.getBrowser().alertText().then(() => {
         return true;
     }).catch(err => {
-        if (err.name = 'NoAlertOpenError') {
+        if (err.seleniumStack.type == 'NoAlertOpenError') {
             return false
         } else {
             throw new Error(err);
@@ -26,7 +26,7 @@ Page.prototype.isAlertPresent = function () {
 
 Page.prototype.alertText = function () {
     return this.getBrowser().alertText().catch(err => {
-        if (err.name = 'NoAlertOpenError') {
+        if (err.seleniumStack.type == 'NoAlertOpenError') {
             throw new Error("Alert is not open " + err);
         } else {
             throw new Error(err);
@@ -72,25 +72,22 @@ Page.prototype.waitForSpinnerNotVisible = function (ms) {
         throw Error('spinner is still visible after a the interval ' + ` ` + ms);
     })
 };
-
 Page.prototype.isSpinnerVisible = function () {
     return this.getBrowser().isVisible(`//div[@class='spinner']`);
 };
 
 Page.prototype.doClick = function (selector) {
-    return this.getBrowser().element(selector).then((result) => {
+    return this.getBrowser().element(selector).then(result => {
         return this.getBrowser().click(selector);
-    }).catch(function (err) {
-        throw Error(err.message + ` ` + selector);
+    }).catch(err => {
+        throw Error('Error when clicking on ' + err);
     })
 };
-
 Page.prototype.typeTextInInput = function (selector, text) {
-    return this.getBrowser().setValue(selector, text).catch((err) => {
+    return this.getBrowser().setValue(selector, text).catch(err => {
         throw new Error('text was not set in the input ' + err);
     })
 };
-
 Page.prototype.clearElement = function (selector) {
     return this.getBrowser().clearElement(selector);
 };
