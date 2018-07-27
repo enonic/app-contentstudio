@@ -1,17 +1,17 @@
 import './../api.ts';
 import {PageModel, SetController, SetTemplate} from './PageModel';
+import {SiteModel} from '../app/site/SiteModel';
+import {GetPageDescriptorByKeyRequest} from '../app/resource/GetPageDescriptorByKeyRequest';
+import {GetPageTemplateByKeyRequest} from '../app/resource/GetPageTemplateByKeyRequest';
 import PropertyTree = api.data.PropertyTree;
 import Page = api.content.page.Page;
 import Content = api.content.Content;
 import DescriptorKey = api.content.page.DescriptorKey;
-import GetPageDescriptorByKeyRequest = api.content.page.GetPageDescriptorByKeyRequest;
 import Regions = api.content.page.region.Regions;
 import PageMode = api.content.page.PageMode;
 import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageTemplateKey = api.content.page.PageTemplateKey;
-import GetPageTemplateByKeyRequest = api.content.page.GetPageTemplateByKeyRequest;
-import SiteModel = api.content.site.SiteModel;
 import ContentFormContext = api.content.form.ContentFormContext;
 import i18n = api.util.i18n;
 

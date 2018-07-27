@@ -1,12 +1,11 @@
 import '../../../api.ts';
 import {DefaultModels} from './DefaultModels';
-
+import {GetDefaultPageTemplateRequest} from './GetDefaultPageTemplateRequest';
+import {GetPageDescriptorByKeyRequest} from '../../resource/GetPageDescriptorByKeyRequest';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentId = api.content.ContentId;
 import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
-import GetPageDescriptorByKeyRequest = api.content.page.GetPageDescriptorByKeyRequest;
-import GetDefaultPageTemplateRequest = api.content.page.GetDefaultPageTemplateRequest;
 import i18n = api.util.i18n;
 
 export interface DefaultModelsFactoryConfig {

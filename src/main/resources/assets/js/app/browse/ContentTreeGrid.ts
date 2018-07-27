@@ -4,6 +4,7 @@ import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
+import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import ElementHelper = api.dom.ElementHelper;
 
 import TreeGrid = api.ui.treegrid.TreeGrid;
@@ -20,8 +21,6 @@ import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStat
 import CompareContentRequest = api.content.resource.CompareContentRequest;
 import CompareContentResults = api.content.resource.result.CompareContentResults;
 import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
-
-import ContentVersionSetEvent = api.content.event.ActiveContentVersionSetEvent;
 
 import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
@@ -178,7 +177,7 @@ export class ContentTreeGrid
         BrowseFilterRefreshEvent.on(() => {
             this.notifyLoaded();
         });
-        ContentVersionSetEvent.on((event: ContentVersionSetEvent) => {
+        ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
             this.updateContentNode(event.getContentId());
         });
     }

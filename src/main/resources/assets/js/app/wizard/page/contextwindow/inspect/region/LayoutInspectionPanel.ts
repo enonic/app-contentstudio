@@ -6,13 +6,13 @@ import {
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {LayoutComponentView} from '../../../../../../page-editor/layout/LayoutComponentView';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {GetLayoutDescriptorByKeyRequest} from './GetLayoutDescriptorByKeyRequest';
+import {LayoutDescriptorDropdown} from './LayoutDescriptorDropdown';
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import DescriptorKey = api.content.page.DescriptorKey;
 import LayoutComponent = api.content.page.region.LayoutComponent;
 import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
-import GetLayoutDescriptorByKeyRequest = api.content.page.region.GetLayoutDescriptorByKeyRequest;
-import LayoutDescriptorDropdown = api.content.page.region.LayoutDescriptorDropdown;
 import Option = api.ui.selector.Option;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import i18n = api.util.i18n;

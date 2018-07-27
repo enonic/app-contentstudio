@@ -1,11 +1,11 @@
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
-import DescriptorBasedDropdown = api.content.page.region.DescriptorBasedDropdown;
-import ApplicationRemovedEvent = api.content.site.ApplicationRemovedEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
-import PageDescriptorViewer = api.content.page.PageDescriptorViewer;
-import PageDescriptorLoader = api.content.page.PageDescriptorLoader;
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {SetController} from '../../../../../../page-editor/PageModel';
+import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
+import {PageDescriptorLoader} from './PageDescriptorLoader';
+import {PageDescriptorViewer} from './PageDescriptorViewer';
+import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 
 export class PageDescriptorDropdown
     extends DescriptorBasedDropdown<PageDescriptor> {

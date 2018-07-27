@@ -1,9 +1,9 @@
 import '../../api.ts';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
+import {ContentIds} from '../ContentIds';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
-import ContentIds = api.content.ContentIds;
 import i18n = api.util.i18n;
 
 export class PublishDialogDependantList

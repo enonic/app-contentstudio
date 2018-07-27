@@ -12,6 +12,8 @@ import {ShowFormAction} from './ShowFormAction';
 import {ShowSplitEditAction} from './ShowSplitEditAction';
 import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
 import {ContentSaveAction} from './ContentSaveAction';
+import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
+import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import SaveAndCloseAction = api.app.wizard.SaveAndCloseAction;
@@ -283,7 +285,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
             if (existing.hasParent()) {
                 new api.content.resource.GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
                     (parent: api.content.Content) => {
-                        new api.content.resource.GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
+                        new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
                             (accessControlList: api.security.acl.AccessControlList) => {
                                 let hasParentCreatePermission = api.security.acl.PermissionHelper.hasPermission(
                                     api.security.acl.Permission.CREATE,
@@ -296,7 +298,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
                             });
                     });
             } else {
-                new api.content.resource.GetContentRootPermissionsRequest().sendAndParse().then(
+                new GetContentRootPermissionsRequest().sendAndParse().then(
                     (accessControlList: api.security.acl.AccessControlList) => {
                         let hasParentCreatePermission = api.security.acl.PermissionHelper.hasPermission(api.security.acl.Permission.CREATE,
                             loginResult,
