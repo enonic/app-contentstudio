@@ -62,12 +62,13 @@
     order: 2;
   }
 
-  .toggle-button.icon-clipboard {
-    order: 3;
-  }
-
-  .toggle-button.icon-cog {
-    order: 4;
+  .toggle-button {
+    &.icon-clipboard {
+      order: 3;
+    }
+    &.icon-cog {
+      order: 4;
+    }
   }
 
   .cycle-button {
@@ -75,7 +76,10 @@
   }
 
   &:not(.live) .toggle-button {
-    display: none !important;
+    &.icon-clipboard,
+    &.icon-cog {
+      display: none !important;
+    }
   }
 
 }
@@ -83,6 +87,33 @@
 @media screen and (min-width: 720px) {
   .content-wizard-toolbar {
     padding-right: 40px;
+
+    .details-toggle {
+      display: none !important;
+    }
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .content-wizard-toolbar {
+    .details-toggle {
+      min-width: 45px;
+      text-align: center;
+
+      &:not(.active) {
+        .icon-list();
+        &:before {
+          font-size: 16px;
+        }
+      }
+      &.active {
+        .icon-close();
+        &:before {
+          color: @admin-font-gray2 !important;
+        }
+      }
+      order: 20;
+    }
   }
 }
 

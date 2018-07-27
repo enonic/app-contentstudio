@@ -9,7 +9,6 @@ import AppIcon = api.app.bar.AppIcon;
 import Application = api.app.Application;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
-import Button = api.ui.button.Button;
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
@@ -18,7 +17,7 @@ export class ContentWizardToolbar
     private componentsViewToggler: TogglerButton;
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
-    private mobileItemStatisticsButton: Button;
+    private mobileItemStatisticsButton: TogglerButton;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -92,13 +91,13 @@ export class ContentWizardToolbar
         return this.contentWizardToolbarPublishControls;
     }
 
-    getMobileItemStatisticsButton(): Button {
+    getMobileItemStatisticsToggler(): TogglerButton {
         return this.mobileItemStatisticsButton;
     }
 
     private addMobileItemStatisticsButton() {
-        this.mobileItemStatisticsButton = new api.ui.button.Button();
-        this.mobileItemStatisticsButton.addClass('mobile-content-item-statistics-button');
+        this.mobileItemStatisticsButton = new api.ui.button.TogglerButton();
+        this.mobileItemStatisticsButton.setEnabled(true).addClass('details-toggle');
         super.addElement(this.mobileItemStatisticsButton);
     }
 }

@@ -2,12 +2,13 @@ import '../../../api.ts';
 import {DetailsPanel} from './DetailsPanel';
 import {DetailsView} from './DetailsView';
 
-export class SlidablePanel extends DetailsPanel {
+export class SlidablePanel
+    extends DetailsPanel {
 
     private slideInFunction: () => void;
     private slideOutFunction: () => void;
 
-    private slidedInListeners: {(): void}[] = [];
+    private slidedInListeners: { (): void }[] = [];
     private slidedOutListeners: { (): void }[] = [];
     private slidedIn: boolean;
     private offsetTop: number = 0;
@@ -30,10 +31,12 @@ export class SlidablePanel extends DetailsPanel {
         this.notifySlidedIn();
     }
 
-    slideOut() {
+    slideOut(silent?: boolean) {
         this.slideOutFunction();
         this.slidedIn = false;
-        this.notifySlidedOut();
+        if (!silent) {
+            this.notifySlidedOut();
+        }
     }
 
     setOffsetTop(offset: number) {
@@ -101,7 +104,7 @@ export class SlidablePanel extends DetailsPanel {
     }
 
     notifySlidedIn() {
-        this.slidedInListeners.forEach((listener: ()=> void) => listener());
+        this.slidedInListeners.forEach((listener: () => void) => listener());
     }
 
     notifySlidedOut() {

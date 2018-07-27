@@ -245,26 +245,16 @@
       top: 0;
       height: 40px;
     }
-  }
 
-  .mobile-content-item-statistics-panel {
-
-    .mobile-content-item-statistics-header {
-      height: 40px;
-
-      > * {
-        line-height: 40px !important;
-      }
-
-      .mobile-details-panel-toggle-button {
-        display: none;
-      }
-    }
-
-    .content-item-preview-panel {
-      display: none;
+    &.mobile {
+      width: auto;
+      right: 0;
+      left: 0;
+      display: block;
+      margin-top: 40px; // leave space for the wizard toolbar
     }
   }
+
 
   &._0-240, &._240-360, &._360-540, &._540-720 {
     .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
@@ -319,20 +309,6 @@
         display: inherit;
         height: 100%;
       }
-
-      .mobile-content-item-statistics-button {
-        display: none !important;
-      }
-    }
-  }
-}
-
-._0-240, ._240-360, ._360-540, ._540-720 {
-  .content-wizard-toolbar {
-    .mobile-content-item-statistics-button {
-      .icon-list();
-      font-size: 16px;
-      order: 20;
     }
   }
 }

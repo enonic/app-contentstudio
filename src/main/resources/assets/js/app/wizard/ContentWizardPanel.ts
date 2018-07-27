@@ -432,24 +432,31 @@ export class ContentWizardPanel
             wizardActions.getDeleteAction(),
             wizardActions.getDuplicateAction()
         ];
-        this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions);
-        this.detailsSplitPanel.setDetailsPanelShownByDefault(true);
+        this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions, {noPreview: true});
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();
             const contentPublishMenuButton = mainToolbar.getContentWizardToolbarPublishControls().getPublishButton();
+            const toggler = mainToolbar.getMobileItemStatisticsToggler();
             this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
                 if (!isMobile) {
                     contentPublishMenuButton.maximize();
+                    if (toggler.isActive()) {
+                        toggler.setActive(false);
+                    }
                 } else {
                     contentPublishMenuButton.minimize();
                 }
             });
 
-            mainToolbar.getMobileItemStatisticsButton().onClicked(() => {
+            toggler.onActiveChanged((isActive) => {
                 if (this.detailsSplitPanel.isMobileMode()) {
-                    this.detailsSplitPanel.setContent(this.persistedContent);
-                    this.detailsSplitPanel.showMobilePanel();
+                    if (isActive) {
+                        this.detailsSplitPanel.setContent(this.persistedContent);
+                        this.detailsSplitPanel.showMobilePanel();
+                    } else {
+                        this.detailsSplitPanel.hideMobilePanel();
+                    }
                 }
             });
         });

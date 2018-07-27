@@ -21,8 +21,6 @@ export class MobileContentItemStatisticsPanel
     private detailsPanel: MobileDetailsPanel;
     private detailsToggleButton: MobileDetailsPanelToggleButton;
 
-    private detailsPanelShownByDefault: boolean;
-
     private foldButton: MobilePreviewFoldButton;
 
     private slideOutListeners: { (): void }[] = [];
@@ -48,10 +46,6 @@ export class MobileContentItemStatisticsPanel
         this.onRendered(() => {
             this.detailsPanel.setOffsetTop(this.itemHeader.getEl().getHeightWithBorder());
         });
-    }
-
-    setDetailsPanelShownByDefault(flag: boolean) {
-        this.detailsPanelShownByDefault = flag;
     }
 
     private initListeners() {
@@ -154,7 +148,7 @@ export class MobileContentItemStatisticsPanel
 
     slideAllOut(silent?: boolean) {
         this.slideOut(silent);
-        this.detailsPanel.slideOut();
+        this.detailsPanel.slideOut(silent);
     }
 
     // hide
@@ -163,13 +157,6 @@ export class MobileContentItemStatisticsPanel
         api.dom.Body.get().getHTMLElement().classList.remove('mobile-statistics-panel');
         if (!silent) {
             this.notifySlideOut();
-        }
-    }
-
-    slideAllIn(silent?: boolean) {
-        this.slideIn(silent);
-        if (this.detailsPanelShownByDefault) {
-            this.detailsPanel.slideIn();
         }
     }
 

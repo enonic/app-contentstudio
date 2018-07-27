@@ -151,8 +151,11 @@ export class ContentBrowsePanel
     }
 
     private updateDetailsPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        let item = this.getFirstSelectedOrHighlightedBrowseItem(selection);
-        this.doUpdateDetailsPanel(item ? item.getModel() : null);
+        if (!this.detailsSplitPanel.isMobileMode()) {
+            // no need to update on selection change in mobile mode as it opens in a separate screen
+            let item = this.getFirstSelectedOrHighlightedBrowseItem(selection);
+            this.doUpdateDetailsPanel(item ? item.getModel() : null);
+        }
     }
 
     private subscribeDetailsPanelsOnEvents() {

@@ -11,11 +11,18 @@ import {DetailsView} from './DetailsView';
 import {FloatingDetailsPanel} from './FloatingDetailsPanel';
 import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import {MobileContentItemStatisticsPanel} from '../MobileContentItemStatisticsPanel';
+import {MobileDetailsPanel} from './MobileDetailsSlidablePanel';
+import {DetailsPanel} from './DetailsPanel';
+
+export interface DetailsPanelOptions {
+    noPreview?: boolean;
+}
 
 export class DetailsSplitPanel
     extends api.ui.panel.SplitPanel {
 
-    private detailsPanelShownByDefault: boolean;
+    private options: DetailsPanelOptions;
+    private mobileMode: boolean;
     private mobilePanelSlideListeners: { (out: boolean): void }[];
     private detailsView: DetailsView;
     private dockedDetailsPanel: DockedDetailsPanel;
@@ -25,8 +32,9 @@ export class DetailsSplitPanel
     private nonMobileDetailsManager: NonMobileDetailsPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: api.ui.panel.Panel;
+    private mobileDetailsPanel: MobileDetailsPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[]) {
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], options?: DetailsPanelOptions) {
         const detailsView = new DetailsView();
         const dockedDetails = new DockedDetailsPanel(detailsView);
 
@@ -41,6 +49,7 @@ export class DetailsSplitPanel
         this.addClass('details-split-panel');
         this.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
 
+        this.options = options || {};
         this.leftPanel = leftPanel;
         this.detailsView = detailsView;
         this.dockedDetailsPanel = dockedDetails;
@@ -48,14 +57,18 @@ export class DetailsSplitPanel
         this.dockedModeChangedListeners = [];
         this.mobilePanelSlideListeners = [];
 
-        this.dockedDetailsPanel.onAdded(this.renderAfterDockedPanelReady.bind(this))
+        this.dockedDetailsPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
     }
 
     private renderAfterDockedPanelReady() {
         const nonMobileDetailsManagerBuilder = NonMobileDetailsPanelsManager.create();
         this.initSplitPanelWithDockedDetails(nonMobileDetailsManagerBuilder);
         this.initFloatingDetailsPanel(nonMobileDetailsManagerBuilder);
-        this.initMobileItemStatisticsPanel();
+        if (this.options.noPreview) {
+            this.initMobileDetailsPanelOnly();
+        } else {
+            this.initMobileItemStatisticsPanel();
+        }
 
         this.nonMobileDetailsManager = nonMobileDetailsManagerBuilder.build();
         if (this.nonMobileDetailsManager.requiresCollapsedDetailsPanel()) {
@@ -64,8 +77,6 @@ export class DetailsSplitPanel
 
         this.nonMobileDetailsManager.ensureButtonHasCorrectState();
         this.detailsView.appendChild(this.nonMobileDetailsManager.getToggleButton());
-
-        this.setActiveDetailsPanel(this.nonMobileDetailsManager);
 
         this.onShown(() => {
             if (!!this.nonMobileDetailsManager.getActivePanel().getActiveWidget()) {
@@ -88,9 +99,17 @@ export class DetailsSplitPanel
         this.floatingDetailsPanel.insertAfterEl(this);
     }
 
+    private initMobileDetailsPanelOnly() {
+        this.mobileDetailsPanel = new MobileDetailsPanel(this.detailsView);
+        this.mobileDetailsPanel.insertAfterEl(this);
+        this.mobileDetailsPanel.slideOut(true);
+
+        this.mobileDetailsPanel.onSlidedOut(() => this.notifyMobilePanelSlide(true));
+        this.mobileDetailsPanel.onSlidedIn(() => this.notifyMobilePanelSlide(false));
+    }
+
     private initMobileItemStatisticsPanel() {
         this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.detailsView);
-        this.mobileContentItemStatisticsPanel.setDetailsPanelShownByDefault(this.detailsPanelShownByDefault);
         this.mobileContentItemStatisticsPanel.insertAfterEl(this);
         this.mobileContentItemStatisticsPanel.slideAllOut(true);
 
@@ -99,10 +118,31 @@ export class DetailsSplitPanel
     }
 
     private setActiveDetailsPanel(nonMobileDetailsPanelsManager: NonMobileDetailsPanelsManager) {
-        if (this.mobileContentItemStatisticsPanel.isVisible()) {
-            ActiveDetailsPanelManager.setActiveDetailsPanel(this.mobileContentItemStatisticsPanel.getDetailsPanel());
+        if (this.isMobileMode()) {
+            ActiveDetailsPanelManager.setActiveDetailsPanel(this.getMobileDetailsPanel());
         } else {
             ActiveDetailsPanelManager.setActiveDetailsPanel(nonMobileDetailsPanelsManager.getActivePanel());
+        }
+    }
+
+    private getMobileDetailsPanel(): DetailsPanel {
+        return this.options.noPreview ? this.mobileDetailsPanel : this.mobileContentItemStatisticsPanel.getDetailsPanel();
+    }
+
+    private getMobilePanelItem(): ContentSummaryAndCompareStatus {
+        if (this.options.noPreview) {
+            return this.mobileDetailsPanel.getItem();
+        } else {
+            const item = this.mobileContentItemStatisticsPanel.getItem();
+            return item && item.getModel() || null;
+        }
+    }
+
+    private slideMobilePanelOut(silent?: boolean) {
+        if (this.options.noPreview) {
+            this.mobileDetailsPanel.slideOut(silent);
+        } else {
+            this.mobileContentItemStatisticsPanel.slideAllOut(silent);
         }
     }
 
@@ -110,19 +150,26 @@ export class DetailsSplitPanel
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             nonMobileDetailsPanelsManager.handleResizeEvent();
+            if (this.mobileMode === undefined) {
+                this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
+            }
 
-            if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
-                if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
+            if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
+                nonMobileDetailsPanelsManager.hideActivePanel(true);
+                ActiveDetailsPanelManager.setActiveDetailsPanel(this.getMobileDetailsPanel());
+                if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
                     // transition through 720 from bigger side
+                    this.mobileMode = true;
                     this.notifyMobileModeChanged(true);
-                    ActiveDetailsPanelManager.setActiveDetailsPanel(this.mobileContentItemStatisticsPanel.getDetailsPanel());
-                    nonMobileDetailsPanelsManager.hideActivePanel(true);
                 }
-            } else if (item.isInRangeOrBigger(ResponsiveRanges._720_960)) {
-                // transition through 720 from smaller side
-                this.notifyMobileModeChanged(false);
+            } else {
+                this.slideMobilePanelOut(true);
                 nonMobileDetailsPanelsManager.setActivePanel();
-                this.mobileContentItemStatisticsPanel.slideAllOut(true);
+                if (item.isInRangeOrBigger(ResponsiveRanges._720_960)) {
+                    // transition through 720 from smaller side
+                    this.mobileMode = false;
+                    this.notifyMobileModeChanged(false);
+                }
             }
         });
     }
@@ -152,43 +199,57 @@ export class DetailsSplitPanel
     }
 
     setMobilePreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>, force?: boolean) {
-        this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(previewItem, force);
+        if (!this.options.noPreview) {
+            this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(previewItem, force);
+        }
     }
 
     setContent(content: api.content.ContentSummaryAndCompareStatus) {
         if (!this.isMobileMode()) {
             this.detailsView.setItem(content);
         } else {
-            const previewPanel = this.mobileContentItemStatisticsPanel.getPreviewPanel();
-            const prevItem = previewPanel.getItem();
-            const changed = !prevItem || !prevItem.getModel() || prevItem.getModel().getId() !== content.getId();
+            const prevItem = this.getMobilePanelItem();
+            const changed = !prevItem || prevItem.getId() !== content.getId();
 
             if (changed) {
-                previewPanel.setBlank();
-                previewPanel.showMask();
+                if (this.options.noPreview) {
+                    this.mobileDetailsPanel.setItem(content);
+                } else {
+                    const previewPanel = this.mobileContentItemStatisticsPanel.getPreviewPanel();
+                    previewPanel.setBlank();
+                    previewPanel.showMask();
 
-                const item = ViewItem.fromContentSummaryAndCompareStatus(content);
-                this.mobileContentItemStatisticsPanel.setItem(item);
+                    const item = ViewItem.fromContentSummaryAndCompareStatus(content);
+                    this.mobileContentItemStatisticsPanel.setItem(item);
 
-                setTimeout(() => {
-                    new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-                        item.setRenderable(renderable);
-                        this.setMobilePreviewItem(item);
-                    });
-                }, 300);
+                    setTimeout(() => {
+                        new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
+                            item.setRenderable(renderable);
+                            this.setMobilePreviewItem(item);
+                        });
+                    }, 300);
+                }
             }
         }
     }
 
     showMobilePanel() {
-        this.mobileContentItemStatisticsPanel.slideAllIn();
+        if (this.options.noPreview) {
+            this.mobileDetailsPanel.slideIn();
+        } else {
+            this.mobileContentItemStatisticsPanel.slideIn();
+        }
+    }
+
+    hideMobilePanel() {
+        if (this.options.noPreview) {
+            this.mobileDetailsPanel.slideOut();
+        } else {
+            this.mobileContentItemStatisticsPanel.slideAllOut();
+        }
     }
 
     isMobileMode(): boolean {
-        return this.mobileContentItemStatisticsPanel.isVisible();
-    }
-
-    setDetailsPanelShownByDefault(flag: boolean) {
-        this.detailsPanelShownByDefault = flag;
+        return this.mobileMode;
     }
 }
