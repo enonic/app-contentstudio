@@ -97,8 +97,9 @@
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
     .details-toggle {
-      min-width: 45px;
       text-align: center;
+      padding: 6px 3px;
+      min-width: 36px;
 
       &:not(.active) {
         .icon-list();
@@ -110,6 +111,7 @@
         .icon-close();
         &:before {
           color: @admin-font-gray2 !important;
+          font-size: 20px;
         }
       }
       order: 20;
