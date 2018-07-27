@@ -1996,12 +1996,19 @@ export class ContentWizardPanel
     private openLiveEdit() {
         let livePanel = this.getLivePanel();
 
+        if (this.detailsSplitPanel.isMobileMode()) {
+            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
+        }
+
         this.getSplitPanel().showSecondPanel();
         livePanel.clearPageViewSelectionAndOpenInspectPage();
         this.showMinimizeEditButton();
     }
 
     private closeLiveEdit() {
+        if (this.detailsSplitPanel.isMobileMode()) {
+            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
+        }
         this.getSplitPanel().hideSecondPanel();
         this.hideMinimizeEditButton();
 
