@@ -198,9 +198,6 @@ export class ContentItemPreviewPanel
 
     public setBlank() {
         this.setPreviewType(PREVIEW_TYPE.BLANK);
-    }
-
-    public setBlankFrame() {
         this.frame.setSrc('about:blank');
     }
 

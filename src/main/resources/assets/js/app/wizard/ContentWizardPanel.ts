@@ -20,6 +20,7 @@ import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {PageModel} from '../../page-editor/PageModel';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
+import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -76,6 +77,8 @@ import NavigatorEvent = api.ui.NavigatorEvent;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
+
+    private detailsSplitPanel: DetailsSplitPanel;
 
     protected wizardActions: ContentWizardActions;
 
@@ -423,8 +426,52 @@ export class ContentWizardPanel
         return liveFormPanel;
     }
 
+    protected createWizardAndDetailsSplitPanel(leftPanel: api.ui.panel.Panel): api.ui.panel.SplitPanel {
+        const wizardActions = this.getWizardActions();
+        const detailsActions = [
+            wizardActions.getUnpublishAction(),
+            wizardActions.getPublishAction(),
+            wizardActions.getDeleteAction(),
+            wizardActions.getDuplicateAction()
+        ];
+        this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions, {noPreview: true});
+
+        this.onRendered(() => {
+            const mainToolbar = this.getMainToolbar();
+            const contentPublishMenuButton = mainToolbar.getContentWizardToolbarPublishControls().getPublishButton();
+            const toggler = mainToolbar.getMobileItemStatisticsToggler();
+            this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+                if (!isMobile) {
+                    contentPublishMenuButton.maximize();
+                    if (toggler.isActive()) {
+                        toggler.setActive(false);
+                    }
+                } else {
+                    contentPublishMenuButton.minimize();
+                }
+            });
+
+            toggler.onActiveChanged((isActive) => {
+                if (this.detailsSplitPanel.isMobileMode()) {
+                    if (isActive) {
+                        this.detailsSplitPanel.setContent(this.persistedContent);
+                        this.detailsSplitPanel.showMobilePanel();
+                    } else {
+                        this.detailsSplitPanel.hideMobilePanel();
+                    }
+                }
+            });
+        });
+
+        return this.detailsSplitPanel;
+    }
+
     public getLivePanel(): LiveFormPanel {
         return <LiveFormPanel> super.getLivePanel();
+    }
+
+    getWizardActions(): ContentWizardActions {
+        return <ContentWizardActions> super.getWizardActions();
     }
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
@@ -478,6 +525,8 @@ export class ContentWizardPanel
                 thumbnailUploader.setEnabled(!this.contentType.isImage());
                 thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
             }
+
+            this.detailsSplitPanel.onRendered(() => this.detailsSplitPanel.setContent(this.persistedContent));
 
             return rendered;
         });
@@ -1958,12 +2007,19 @@ export class ContentWizardPanel
     private openLiveEdit() {
         let livePanel = this.getLivePanel();
 
+        if (this.detailsSplitPanel.isMobileMode()) {
+            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
+        }
+
         this.getSplitPanel().showSecondPanel();
         livePanel.clearPageViewSelectionAndOpenInspectPage();
         this.showMinimizeEditButton();
     }
 
     private closeLiveEdit() {
+        if (this.detailsSplitPanel.isMobileMode()) {
+            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
+        }
         this.getSplitPanel().hideSecondPanel();
         this.hideMinimizeEditButton();
 

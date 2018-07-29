@@ -12,9 +12,11 @@ export class MobileDetailsPanelToggleButton extends api.dom.DivEl {
 
         this.detailsPanel = detailsPanel;
 
+        this.detailsPanel.onSlidedIn(() => this.addClass(MobileDetailsPanelToggleButton.EXPANDED_CLASS));
+        this.detailsPanel.onSlidedOut(() => this.removeClass(MobileDetailsPanelToggleButton.EXPANDED_CLASS));
+
         this.onClicked((event) => {
-            this.toggleClass(MobileDetailsPanelToggleButton.EXPANDED_CLASS);
-            if (this.hasClass(MobileDetailsPanelToggleButton.EXPANDED_CLASS)) {
+            if (!this.hasClass(MobileDetailsPanelToggleButton.EXPANDED_CLASS)) {
                 this.detailsPanel.slideIn();
                 if (!!slideInCallback) {
                     slideInCallback();

@@ -12,7 +12,7 @@ export class NonMobileDetailsPanelsManager {
     private dockedDetailsPanel: DockedDetailsPanel;
     private floatingDetailsPanel: FloatingDetailsPanel;
     private resizeEventMonitorLocked: boolean = false;
-    private toggleButton: api.dom.DivEl = new NonMobileDetailsPanelToggleButton();
+    private toggleButton: api.dom.ButtonEl = new NonMobileDetailsPanelToggleButton();
     private debouncedResizeHandler: () => void = api.util.AppHelper.debounce(this.doHandleResizeEvent, 300, false);
 
     constructor(builder: NonMobileDetailsPanelsManagerBuilder) {
@@ -179,7 +179,7 @@ export class NonMobileDetailsPanelsManager {
         this.splitPanelWithGridAndDetails.foldSecondPanel();
     }
 
-    getToggleButton(): api.dom.DivEl {
+    getToggleButton(): api.dom.ButtonEl {
         return this.toggleButton;
     }
 
