@@ -2,8 +2,12 @@
 
   &:not(.rendered) {
     .content-wizard-toolbar {
-      .cycle-button, .toggle-button {
+      .cycle-button, .toggle-button.icon-clipboard, .toggle-button.icon-cog {
         display: none;
+      }
+
+      .details-toggle {
+        margin-left: auto;
       }
     }
   }
@@ -248,13 +252,14 @@
 
     &.mobile {
       width: auto;
+      height: auto;
       right: 0;
       left: 0;
       display: block;
       margin-top: 40px; // leave space for the wizard toolbar
+      top: 3000px; // hide by default;
     }
   }
-
 
   &._0-240, &._240-360, &._360-540, &._540-720 {
     .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
