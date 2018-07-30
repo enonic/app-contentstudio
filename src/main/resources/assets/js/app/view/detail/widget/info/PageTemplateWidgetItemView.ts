@@ -16,8 +16,16 @@ import PageMode = api.content.page.PageMode;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import i18n = api.util.i18n;
+import ContentQuery = api.content.query.ContentQuery;
+import QueryExpr = api.query.expr.QueryExpr;
+import CompareExpr = api.query.expr.CompareExpr;
+import FieldExpr = api.query.expr.FieldExpr;
+import ValueExpr = api.query.expr.ValueExpr;
+import ContentQueryRequest = api.content.resource.ContentQueryRequest;
+import ContentSummaryJson = api.content.json.ContentSummaryJson;
 
-export class PageTemplateWidgetItemView extends WidgetItemView {
+export class PageTemplateWidgetItemView
+    extends WidgetItemView {
 
     private content: ContentSummary;
 
@@ -107,6 +115,7 @@ export class PageTemplateWidgetItemView extends WidgetItemView {
             return new GetPageDescriptorByKeyRequest(content.getPage().getController()).sendAndParse()
                 .then((pageDescriptor: PageDescriptor) => {
                     pageTemplateViewer.setPageController(pageDescriptor);
+                    pageTemplateViewer.setContent(this.content);
 
                     return wemQ(pageTemplateViewer);
                 });
@@ -162,6 +171,7 @@ class PageTemplateViewer {
     private pageMode: PageMode;
     private pageTemplate: PageTemplate;
     private pageController: PageDescriptor;
+    private content: ContentSummary;
 
     constructor() {
         this.setPageMode(PageMode.NO_CONTROLLER);
@@ -177,6 +187,10 @@ class PageTemplateViewer {
 
     setPageController(pageController: PageDescriptor) {
         this.pageController = pageController;
+    }
+
+    setContent(content: ContentSummary) {
+        this.content = content;
     }
 
     private getPageModeString(): string {
@@ -246,12 +260,20 @@ class PageTemplateViewer {
             return divEl;
         }
 
-        let pageTemplateView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        const pageTemplateView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        const isPageTemplate = this.content && this.content.isPageTemplate();
 
-        pageTemplateView.setMainName(this.getPageModeString());
+        if (!isPageTemplate) {
+            pageTemplateView.setMainName(this.getPageModeString());
+        } else {
+            pageTemplateView.setMainName(this.content.getDisplayName());
+        }
 
         if (this.pageMode === PageMode.FRAGMENT) {
             pageTemplateView.setIconClass(api.StyleHelper.getCommonIconCls('fragment'));
+        } else if (isPageTemplate) {
+            this.fillPageTemplateInfo(pageTemplateView);
+
         } else {
             const descriptorEl = this.getDescriptorEl();
             if (descriptorEl) {
@@ -269,5 +291,32 @@ class PageTemplateViewer {
         divEl.appendChildren(pageTemplateView);
 
         return divEl;
+    }
+
+    private fillPageTemplateInfo(pageTemplateView: api.app.NamesAndIconView) {
+        pageTemplateView.setIconClass('icon-page-template');
+
+        const contentQuery: ContentQuery = new ContentQuery();
+        contentQuery.setQueryExpr(new QueryExpr(CompareExpr.eq(new FieldExpr('page.template'),
+            ValueExpr.string(this.content.getId()))));
+
+        new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then((result) => {
+            if (result.getMetadata().getHits() === 0) {
+                pageTemplateView.setSubName(i18n('widget.pagetemplate.notused'));
+            }
+
+            const descriptors = result.getContents().map(contentSummary => {
+                const aEl = new api.dom.AEl();
+                aEl.setHtml(contentSummary.getDisplayName());
+
+                aEl.onClicked(() => {
+                    new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(contentSummary)]).fire();
+                });
+
+                return aEl;
+            });
+
+            pageTemplateView.setSubNameElements(descriptors);
+        });
     }
 }
