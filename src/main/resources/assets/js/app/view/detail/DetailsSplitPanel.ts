@@ -207,28 +207,27 @@ export class DetailsSplitPanel
     setContent(content: api.content.ContentSummaryAndCompareStatus) {
         if (!this.isMobileMode()) {
             this.detailsView.setItem(content);
+        }
+        if (this.options.noPreview) {
+            this.mobileDetailsPanel.setItem(content);
         } else {
             const prevItem = this.getMobilePanelItem();
             const changed = !prevItem || prevItem.getId() !== content.getId();
 
+            const item = ViewItem.fromContentSummaryAndCompareStatus(content);
+            this.mobileContentItemStatisticsPanel.setItem(item);
+
             if (changed) {
-                if (this.options.noPreview) {
-                    this.mobileDetailsPanel.setItem(content);
-                } else {
-                    const previewPanel = this.mobileContentItemStatisticsPanel.getPreviewPanel();
-                    previewPanel.setBlank();
-                    previewPanel.showMask();
+                const previewPanel = this.mobileContentItemStatisticsPanel.getPreviewPanel();
+                previewPanel.setBlank();
+                previewPanel.showMask();
 
-                    const item = ViewItem.fromContentSummaryAndCompareStatus(content);
-                    this.mobileContentItemStatisticsPanel.setItem(item);
-
-                    setTimeout(() => {
-                        new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-                            item.setRenderable(renderable);
-                            this.setMobilePreviewItem(item);
-                        });
-                    }, 300);
-                }
+                setTimeout(() => {
+                    new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
+                        item.setRenderable(renderable);
+                        this.setMobilePreviewItem(item);
+                    });
+                }, 300);
             }
         }
     }

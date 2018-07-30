@@ -997,6 +997,7 @@ export class ContentWizardPanel
                 this.persistedContent = this.currentContent = updatedContent;
                 this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
                 this.getMainToolbar().setItem(updatedContent);
+                this.detailsSplitPanel.setContent(updatedContent);
 
                 if (this.currentContent.getCompareStatus() != null) {
                     this.refreshScheduleWizardStep();
