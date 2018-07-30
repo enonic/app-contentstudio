@@ -639,11 +639,11 @@ export class ContentBrowsePanel
             createIssueAction: browseActions.getCreateIssueAction()
         });
 
-        this.detailsSplitPanel.onMobileModeChanged((isDocked: boolean) => {
-            if (isDocked) {
-                contentPublishMenuButton.maximize();
-            } else {
+        this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+            if (isMobile) {
                 contentPublishMenuButton.minimize();
+            } else {
+                contentPublishMenuButton.maximize();
             }
         });
 
