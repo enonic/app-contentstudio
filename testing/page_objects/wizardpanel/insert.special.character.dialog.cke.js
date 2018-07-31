@@ -3,7 +3,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const dialog = {
-    container: `//div[contains(@id,'SpecialCharDialogCKE')]`,
+    container: `//div[contains(@id,'SpecialCharDialog')]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
