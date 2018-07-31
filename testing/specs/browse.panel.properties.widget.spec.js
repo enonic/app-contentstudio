@@ -26,7 +26,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             }).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 studioUtils.saveScreenshot("details_panel_language_en");
                 return expect(propertiesWidget.getLanguage()).to.eventually.equal('en');
@@ -42,7 +42,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             }).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 studioUtils.saveScreenshot("details_panel_language_removed");
                 return expect(propertiesWidget.waitForLanguageNotVisible()).to.eventually.true;

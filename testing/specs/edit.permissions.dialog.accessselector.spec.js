@@ -29,7 +29,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
             }).then(() => {
                 return studioUtils.findAndSelectItem(folder.displayName);
             }).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
@@ -87,7 +87,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
     it(`GIVEN existing folder with 'Custom' permissions AND 'Edit Permissions' dialog is opened WHEN clicked on 'Create' toggle(Content Manager App role) THEN 'Create' operation is getting denied(red)`,
         () => {
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
