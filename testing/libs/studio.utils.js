@@ -18,7 +18,7 @@ const deleteContentDialog = require('../page_objects/delete.content.dialog');
 const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const contentPublishDialog = require('../page_objects/content.publish.dialog');
-const contentDetailsPanel = require('../page_objects/browsepanel/detailspanel/details.panel');
+const browseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 
 module.exports = {
     xpTabs: {},
@@ -115,13 +115,13 @@ module.exports = {
             return createIssueDialog.waitForDialogLoaded();
         })
     },
-    openDetailsPanel: function () {
-        return contentDetailsPanel.isPanelVisible().then(result => {
+    openBrowseDetailsPanel: function () {
+        return browseDetailsPanel.isPanelVisible().then(result => {
             if (!result) {
                 return browsePanel.clickOnDetailsPanelToggleButton();
             }
         }).then(() => {
-            return contentDetailsPanel.waitForDetailsPanelLoaded();
+            return browseDetailsPanel.waitForDetailsPanelLoaded();
         })
     },
 
@@ -323,7 +323,6 @@ module.exports = {
                     return filterPanel.waitForOpened();
                 })
             }
-            return;
         }).then(() => {
             return filterPanel.typeSearchText(name);
         }).catch((err) => {

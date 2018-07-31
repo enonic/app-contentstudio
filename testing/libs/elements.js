@@ -38,4 +38,7 @@ module.exports = Object.freeze({
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'security.PrincipalSelectedOptionView')]`,
     REMOVE_ICON: `//a[@class='remove']`,
     INCLUDE_CHILDREN_TOGGLER: `//div[contains(@id,'IncludeChildrenToggler')]`,
+    VERSION_HISTORY_MENU_OPTION: `//div[text()='Version history']`,
+    DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
+    DETAILS_MENU_OPTION: `//div[text()='Details']`,
 });

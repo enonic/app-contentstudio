@@ -1,0 +1,54 @@
+/**
+ * Created on 31.07.2018.
+ *
+ */
+const chai = require('chai');
+chai.use(require('chai-as-promised'));
+const expect = chai.expect;
+const assert = chai.assert;
+const webDriverHelper = require('../libs/WebDriverHelper');
+const appConstant = require('../libs/app_const');
+const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const studioUtils = require('../libs/studio.utils.js');
+const appConst = require('../libs/app_const');
+const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const wizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
+
+describe('wizard.details.panel.spec: Open details panel in wizard and check widgets ', function () {
+    this.timeout(appConstant.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+
+    it(`GIVEN folder-wizard is opened WHEN 'Version history' menu item in Details panel has been selected THEN 'Version history' widget should be loaded`,
+        () => {
+            return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
+            }).then(() => {
+                return contentWizard.openDetailsPanel();
+            }).then(() => {
+                return wizardDetailsPanel.openVersionHistory();
+            }).then(() => {
+                studioUtils.saveScreenshot("wizard_versions_widget");
+                return assert.eventually.isTrue(wizardVersionsWidget.waitForVersionsLoaded(), "`Versions Widget` should be loaded");
+            });
+        });
+
+    it(`GIVEN folder-wizard is opened WHEN 'Dependencies' menu item in Details panel has been selected THEN 'Dependencies' widget should be loaded`,
+        () => {
+            return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
+            }).then(() => {
+                return contentWizard.openDetailsPanel();
+            }).then(() => {
+                return wizardDetailsPanel.openDependencies();
+            }).then(() => {
+                studioUtils.saveScreenshot("wizard_dependencies_widget");
+                return assert.eventually.isTrue(wizardDependenciesWidget.waitForDependenciesLoaded(),
+                    "`Dependencies Widget` should be loaded");
+            });
+        });
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+});

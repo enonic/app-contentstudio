@@ -28,7 +28,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             }).then(() => {
                 return studioUtils.findAndSelectItem(folder.displayName);
             }).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
@@ -44,7 +44,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
     it(`GIVEN 'Inherit permissions' checkbox is unselected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should be not selected`,
         () => {
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
@@ -68,7 +68,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
     it(`GIVEN existing folder with 'unselected' Inherit permissions checkbox WHEN 'Edit permissions' dialog has been opened THEN 'Inherit permissions' checkbox should be not selected`,
         () => {
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
@@ -80,7 +80,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
     it(`GIVEN 'Edit Permissions' dialog is opened in 'Details Panel' WHEN 'Overwrite  Permissions' checkbox has been selected AND 'Apply' button pressed AND the dialog is reopened THEN 'Overwrite  Permissions' should not be selected`,
         () => {
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openDetailsPanel();
+                return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
