@@ -3,9 +3,9 @@ import {PagePlaceholderInfoBlock} from './PagePlaceholderInfoBlock';
 import {PageView} from './PageView';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {PageDescriptorDropdown} from '../app/wizard/page/contextwindow/inspect/page/PageDescriptorDropdown';
+import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameRequest';
 import PageDescriptor = api.content.page.PageDescriptor;
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
-import GetContentTypeByNameRequest = api.schema.content.GetContentTypeByNameRequest;
 import ContentType = api.schema.content.ContentType;
 
 export class PagePlaceholder

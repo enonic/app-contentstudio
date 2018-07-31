@@ -62,7 +62,12 @@
       "property-declaration",
       "member-variable-declaration"
     ],
-    "variable-name": true,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ],
     "curly": true,
     "eofline": true,
     "indent": [

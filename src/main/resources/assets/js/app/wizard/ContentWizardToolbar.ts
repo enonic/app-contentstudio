@@ -2,7 +2,7 @@ import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
-import CycleButton = api.ui.button.CycleButton;
+import {CycleButton} from './CycleButton';
 import TogglerButton = api.ui.button.TogglerButton;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import AppIcon = api.app.bar.AppIcon;
