@@ -1,7 +1,6 @@
 import ListBox = api.ui.selector.list.ListBox;
 import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
 import H6El = api.dom.H6El;
-import InPlaceTextArea = api.ui.text.InPlaceTextArea;
 import Principal = api.security.Principal;
 import i18n = api.util.i18n;
 import ContextMenu = api.ui.menu.ContextMenu;
@@ -13,6 +12,7 @@ import {DeleteIssueCommentRequest} from '../resource/DeleteIssueCommentRequest';
 import {Issue} from '../Issue';
 import {ListIssueCommentsRequest} from '../resource/ListIssueCommentsRequest';
 import {UpdateIssueCommentRequest} from '../resource/UpdateIssueCommentRequest';
+import {InPlaceTextArea} from './InPlaceTextArea';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {

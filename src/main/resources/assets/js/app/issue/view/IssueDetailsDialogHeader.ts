@@ -1,5 +1,5 @@
 import ModalDialogHeader = api.ui.dialog.ModalDialogHeader;
-import InPlaceTextInput = api.ui.text.InPlaceTextInput;
+import {InPlaceTextInput} from './InPlaceTextInput';
 
 class IssueDetailsInPlaceTextInput
     extends InPlaceTextInput {
