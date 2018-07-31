@@ -45,8 +45,8 @@ const confirmationDialog = Object.create(page, {
         }
     },
     waitForDialogClosed: {
-        value: function (ms) {
-            return this.waitForVisible(`${dialog.container}`, ms);
+        value: function () {
+            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
         }
     },
     isWarningMessageVisible: {

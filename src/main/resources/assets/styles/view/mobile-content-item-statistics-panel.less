@@ -99,18 +99,20 @@
 
   .mobile-details-panel-toggle-button {
     right: -2px;
-
     box-sizing: border-box;
-    .icon-list();
-
-    &.expanded {
-      padding: 14px 0;
-      .icon-close();
-    }
 
     &:not(.expanded) {
-      font-size: 15px;
+      font-size: 16px;
+      .icon-list();
+      line-height: 44px;
     }
+
+    &.expanded {
+      font-size: 24px;
+      .icon-close();
+      line-height: 44px;
+    }
+
   }
 
   .mobile-details-panel-back-button {
@@ -241,12 +243,12 @@
 
 // Transition when opeining content preview on a mobile
 body {
-  .appbar, .split-panel-with-details {
+  .appbar, .details-split-panel {
     right: 0;
     transition: right 0.3s linear;
   }
   &.mobile-statistics-panel {
-    .appbar, .split-panel-with-details {
+    .appbar, .details-split-panel {
       right: 110px;
     }
   }

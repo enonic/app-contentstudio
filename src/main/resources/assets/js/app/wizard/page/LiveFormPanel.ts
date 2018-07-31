@@ -35,7 +35,6 @@ import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent'
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../../page-editor/ComponentAddedEvent';
 import {TextComponentView} from '../../../page-editor/text/TextComponentView';
-import {TextComponentViewCK} from '../../../page-editor/text/TextComponentViewCK';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
@@ -609,8 +608,7 @@ export class LiveFormPanel
             // do something when component is added
             // onItemViewSelected() is not called on adding TextComponentView
             // thus calling minimizeContentFormPanelIfNeeded() for it from here
-            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView) ||
-                api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentViewCK)) {
+            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
                 this.minimizeContentFormPanelIfNeeded();
             }
         });
@@ -774,8 +772,7 @@ export class LiveFormPanel
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
             this.layoutInspectionPanel.setLayoutComponent(<LayoutComponentView>componentView);
             this.contextWindow.showInspectionPanel(this.layoutInspectionPanel);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView) ||
-                   api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentViewCK)) {
+        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
             this.contextWindow.showInspectionPanel(this.textInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {

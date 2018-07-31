@@ -14,9 +14,6 @@ import PartComponent = api.content.page.region.PartComponent;
 import TextComponent = api.content.page.region.TextComponent;
 import i18n = api.util.i18n;
 import Region = api.content.page.region.Region;
-import {TextComponentViewCK} from './text/TextComponentViewCK';
-
-declare var CONFIG;
 
 export interface ItemViewFactory {
     createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView;
@@ -36,11 +33,7 @@ export class DefaultItemViewFactory
         case 'part':
             return this.createPartView(<CreateItemViewConfig<RegionView, PartComponent>>config);
         case 'text':
-            if (CONFIG.isCkeUsed) {
-                return this.createTextViewCK(<CreateItemViewConfig<RegionView, TextComponent>>config);
-            } else {
-                return this.createTextView(<CreateItemViewConfig<RegionView, TextComponent>>config);
-            }
+            return this.createTextView(<CreateItemViewConfig<RegionView, TextComponent>>config);
         case 'region':
             return this.createRegionView(<CreateItemViewConfig<ItemView, Region>>config);
         case 'content':
@@ -99,17 +92,6 @@ export class DefaultItemViewFactory
 
     private createTextView(config: CreateItemViewConfig<RegionView, TextComponent>): TextComponentView {
         return new TextComponentView(new TextComponentViewBuilder()
-            .setItemViewIdProducer(config.itemViewIdProducer)
-            .setItemViewFactory(config.itemViewFactory)
-            .setParentRegionView(config.parentView)
-            .setParentElement(config.parentElement)
-            .setComponent(config.data)
-            .setElement(config.element)
-            .setPositionIndex(config.positionIndex));
-    }
-
-    private createTextViewCK(config: CreateItemViewConfig<RegionView, TextComponent>): TextComponentViewCK {
-        return new TextComponentViewCK(new TextComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)

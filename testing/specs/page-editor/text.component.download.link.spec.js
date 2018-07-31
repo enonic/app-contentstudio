@@ -25,11 +25,9 @@ describe('Text Component with CKE - insert download link  specification', functi
 
     it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
                 studioUtils.saveScreenshot(displayName + '_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
             }).then(() => {

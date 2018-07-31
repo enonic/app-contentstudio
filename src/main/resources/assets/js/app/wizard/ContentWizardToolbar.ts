@@ -17,6 +17,7 @@ export class ContentWizardToolbar
     private componentsViewToggler: TogglerButton;
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
+    private mobileItemStatisticsButton: TogglerButton;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -25,6 +26,7 @@ export class ContentWizardToolbar
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
         this.addTogglerButtons(actions);
+        this.addMobileItemStatisticsButton();
 
         if (item) {
             this.setItem(item);
@@ -89,4 +91,13 @@ export class ContentWizardToolbar
         return this.contentWizardToolbarPublishControls;
     }
 
+    getMobileItemStatisticsToggler(): TogglerButton {
+        return this.mobileItemStatisticsButton;
+    }
+
+    private addMobileItemStatisticsButton() {
+        this.mobileItemStatisticsButton = new api.ui.button.TogglerButton();
+        this.mobileItemStatisticsButton.setEnabled(true).addClass('details-toggle');
+        super.addElement(this.mobileItemStatisticsButton);
+    }
 }

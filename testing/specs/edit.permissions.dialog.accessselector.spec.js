@@ -67,6 +67,40 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
             });
         });
 
+    it(`GIVEN existing folder with 'Custom' permissions is selected WHEN wizard has been opened THEN both operations should be allowed by default`,
+        () => {
+            return studioUtils.openContentInWizard(folder.displayName).then(() => {
+                return contentWizardPanel.clickOnAccessTabBarItem();
+            }).then(() => {
+                return accessStepForm.clickOnEntryRow(appConstant.roleDisplayName.CONTENT_MANAGER_APP);
+            }).then(() => {
+                return accessStepForm.isOperationAllowed(appConstant.roleDisplayName.CONTENT_MANAGER_APP, 'Read');
+            }).then(result => {
+                assert.isTrue(result, '`Read` operation should be allowed(green)');
+            }).then(() => {
+                return accessStepForm.isOperationAllowed(appConstant.roleDisplayName.CONTENT_MANAGER_APP, 'Create');
+            }).then((result) => {
+                assert.isTrue(result, '`Create` operation should be allowed(green)');
+            })
+        });
+
+    it(`GIVEN existing folder with 'Custom' permissions AND 'Edit Permissions' dialog is opened WHEN clicked on 'Create' toggle(Content Manager App role) THEN 'Create' operation is getting denied(red)`,
+        () => {
+            return studioUtils.findAndSelectItem(folder.displayName).then(() => {
+                return studioUtils.openDetailsPanel();
+            }).then(() => {
+                return userAccessWidget.clickOnEditPermissionsLink();
+            }).then(() => {
+                return editPermissionsDialog.clickOnPermissionToggle(appConstant.roleName.CONTENT_MANAGER_APP,
+                    appConstant.permissionOperation.CREATE);
+            }).then(() => {
+                studioUtils.saveScreenshot("create_operation_is_denied");
+                return editPermissionsDialog.isOperationDenied(appConstant.roleName.CONTENT_MANAGER_APP, 'Create');
+            }).then(() => {
+                return editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
+            })
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

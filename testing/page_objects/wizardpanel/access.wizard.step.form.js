@@ -13,7 +13,7 @@ const xpath = {
     editPermissionsButton: `//button[contains(@class,'edit-permissions') and child::span[text()='Edit Permissions']]`,
     entryRowByDisplayName:
         displayName => `//div[contains(@id,'AccessControlEntryView') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-
+    toggleByOperationName: operation => `//a[contains(@id,'PermissionToggle') and text()='${operation}']`,
 };
 const accessStepForm = Object.create(page, {
 
@@ -47,6 +47,28 @@ const accessStepForm = Object.create(page, {
                 return this.getText(selector);
             }).then(result => {
                 return [].concat(result).filter(value => value.length > 0);
+            });
+        }
+    },
+    isOperationAllowed: {
+        value: function (principalDisplayName, operation) {
+            let selector = xpath.entryRowByDisplayName(principalDisplayName) + xpath.permissionSelector +
+                           xpath.toggleByOperationName(operation);
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getAttribute(selector, 'class');
+            }).then(result => {
+                return result.includes('allow');
+            });
+        }
+    },
+    isOperationDenied: {
+        value: function (principalDisplayName, operation) {
+            let selector = xpath.entryRowByDisplayName(principalDisplayName) + xpath.permissionSelector +
+                           xpath.toggleByOperationName(operation);
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getAttribute(selector, 'class');
+            }).then(result => {
+                return result.includes('deny');
             });
         }
     }

@@ -83,6 +83,29 @@ const contentPublishDialog = Object.create(page, {
             })
         }
     },
+    isOperationAllowed: {
+        value: function (principalName, operation) {
+            let permToggle = xpath.permissionToggleByOperationName(operation);
+            let selector = xpath.aclEntryByName(principalName)+permToggle;
+
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getAttribute(selector, 'class');
+            }).then(result => {
+                return result.includes('allow');
+            });
+        }
+    },
+    isOperationDenied: {
+        value: function (principalName, operation) {
+            let permToggle = xpath.permissionToggleByOperationName(operation);
+            let selector = xpath.aclEntryByName(principalName)+permToggle;
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getAttribute(selector, 'class');
+            }).then(result => {
+                return result.includes('deny');
+            });
+        }
+    },
     clickOnInheritPermissionsCheckBox: {
         value: function () {
             return this.doClick(this.inheritPermissionsCheckbox + '/label').catch(err => {
