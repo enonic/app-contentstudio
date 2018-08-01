@@ -11,7 +11,7 @@
           <occurrences minimum="0" maximum="1"/>
           <help-text>select an image</help-text>
         </input>
-        <inline mixin="com.enonic.xp.testing.contenttypes:select-image"/>
+        <mixin name="com.enonic.xp.testing.contenttypes:select-image"/>
       </items>
       <occurrences minimum="0" maximum="0"/>
     </item-set>
