@@ -9,7 +9,6 @@ const insertLinkDialog = require('../../page_objects/wizardpanel/insert.link.mod
 const insertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 
 const component = {
-    editor: `//div[contains(@id,'TextComponentViewCK_editor') and contains(@title,'Rich Text Editor')]`,
     toolbox: `//span[contains(@id,'cke_1_toolbox')]`,
 
 };
@@ -32,7 +31,7 @@ const textComponent = Object.create(page, {
     typeTextInCkeEditor: {
         value: function (text) {
             return this.switchToLiveEditFrame().then(() => {
-                return this.waitForVisible(component.editor, appConst.TIMEOUT_3);
+                return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
             }).then(() => {
                 return this.getIdOfEditor();
             }).then(id => {
@@ -46,7 +45,7 @@ const textComponent = Object.create(page, {
     getTextFromEditor: {
         value: function () {
             let strings = [];
-            return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(() => {
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(() => {
                 return this.getIdOfEditor();
             }).then(id => {
                 return utils.getTextInCKE(id);
@@ -57,7 +56,7 @@ const textComponent = Object.create(page, {
     },
     getIdOfEditor: {
         value: function (text) {
-            return this.getAttribute(component.editor, 'id');
+            return this.getAttribute(elements.RICH_TEXT_EDITOR, 'id');
         }
     },
 
@@ -89,7 +88,7 @@ const textComponent = Object.create(page, {
     },
     clickOnInsertTableButton: {
         value: function () {
-            return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(result => {
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(this.insertTableButton);
             }).then(() => {
                 console.log('Insert Table dialog');
@@ -100,7 +99,7 @@ const textComponent = Object.create(page, {
     },
     clickOnInsertLinkButton: {
         value: function () {
-            return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(result => {
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(this.insertLinkButton);
             }).then(() => {
                 return this.switchToParentFrame();
@@ -111,7 +110,7 @@ const textComponent = Object.create(page, {
     },
     clickOnInsertAnchorButton: {
         value: function () {
-            return this.waitForVisible(component.editor, appConst.TIMEOUT_3).then(result => {
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(this.insertAnchorButton);
             }).then(() => {
                 return this.switchToParentFrame();
@@ -120,8 +119,6 @@ const textComponent = Object.create(page, {
             });
         }
     },
-
-
 });
 module.exports = textComponent;
 

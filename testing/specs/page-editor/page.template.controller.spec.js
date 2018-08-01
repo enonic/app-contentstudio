@@ -29,7 +29,6 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     it(`WHEN new site has been added THEN the site should be listed in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             return studioUtils.doAddSite(SITE).then(() => {
