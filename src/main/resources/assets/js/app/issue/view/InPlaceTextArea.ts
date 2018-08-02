@@ -51,7 +51,7 @@ export class InPlaceTextArea
     }
 
     private updateButtonState() {
-        const textEdited = this.persistedValue != this.area.getValue();
+        const textEdited = this.persistedValue !== this.area.getValue();
         this.okButton.setEnabled(textEdited);
     }
 
