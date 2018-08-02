@@ -1,7 +1,7 @@
 import ContentPath = api.content.ContentPath;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryPreLoader = api.content.resource.ContentSummaryPreLoader;
-import ContentSummaryRequest = api.content.resource.ContentSummaryRequest;
+import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
 
 export class ContentSummaryLoader
     extends ContentSummaryPreLoader {

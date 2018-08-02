@@ -4,7 +4,7 @@ import ValueExpr = api.query.expr.ValueExpr;
 import LogicalExpr = api.query.expr.LogicalExpr;
 import LogicalOperator = api.query.expr.LogicalOperator;
 import ConstraintExpr = api.query.expr.ConstraintExpr;
-import ContentSummaryRequest = api.content.resource.ContentSummaryRequest;
+import {ContentSummaryRequest} from './ContentSummaryRequest';
 
 export class FragmentContentSummaryRequest
     extends ContentSummaryRequest {

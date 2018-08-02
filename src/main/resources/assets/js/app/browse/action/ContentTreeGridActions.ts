@@ -16,6 +16,7 @@ import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
+import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
@@ -437,7 +438,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private checkIsChildrenAllowedByContentType(contentSummary: ContentSummary): wemQ.Promise<Boolean> {
         let deferred = wemQ.defer<boolean>();
 
-        new api.schema.content.GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
+        new GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
             .then((contentType: api.schema.content.ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
             .fail(() => this.handleDeletedContentType(contentSummary));
 

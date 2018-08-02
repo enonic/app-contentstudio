@@ -4,16 +4,13 @@ import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
 import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
+import {Flow, RoutineContext} from './Flow';
 import Content = api.content.Content;
 
 type Producer = { (content: Content, viewedContent: Content): UpdateContentRequest; };
 
-export class UpdatePersistedContentRoutineContext {
-
-    content: Content = null;
-}
-
-export class UpdatePersistedContentRoutine extends api.util.Flow<Content,UpdatePersistedContentRoutineContext> {
+export class UpdatePersistedContentRoutine
+    extends Flow<Content> {
 
     private persistedContent: Content;
 
@@ -38,12 +35,12 @@ export class UpdatePersistedContentRoutine extends api.util.Flow<Content,UpdateP
 
     public execute(): wemQ.Promise<Content> {
 
-        let context = new UpdatePersistedContentRoutineContext();
+        let context = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: UpdatePersistedContentRoutineContext): wemQ.Promise<Content> {
+    doExecuteNext(context: RoutineContext): wemQ.Promise<Content> {
 
         if (!this.doneHandledContent) {
 
@@ -67,7 +64,7 @@ export class UpdatePersistedContentRoutine extends api.util.Flow<Content,UpdateP
         }
     }
 
-    private doHandleUpdateContent(context: UpdatePersistedContentRoutineContext): wemQ.Promise<void> {
+    private doHandleUpdateContent(context: RoutineContext): wemQ.Promise<void> {
 
         return this.updateContentRequestProducer.call(this.getThisOfProducer(), context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
@@ -77,7 +74,7 @@ export class UpdatePersistedContentRoutine extends api.util.Flow<Content,UpdateP
             });
     }
 
-    private doHandlePage(context: UpdatePersistedContentRoutineContext): wemQ.Promise<void> {
+    private doHandlePage(context: RoutineContext): wemQ.Promise<void> {
 
         let pageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 

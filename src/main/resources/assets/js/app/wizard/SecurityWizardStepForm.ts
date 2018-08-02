@@ -1,10 +1,8 @@
 import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
-
+import {AccessControlListView} from '../view/AccessControlListView';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import AccessControlList = api.security.acl.AccessControlList;
-import AccessControlListView = api.ui.security.acl.AccessControlListView;
-import AccessControlEntryView = api.ui.security.acl.AccessControlEntryView;
-
 import DivEl = api.dom.DivEl;
 import LabelEl = api.dom.LabelEl;
 import Button = api.ui.button.Button;

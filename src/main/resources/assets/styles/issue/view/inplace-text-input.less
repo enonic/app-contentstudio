@@ -1,0 +1,57 @@
+.inplace-text-input {
+  display: flex;
+
+  .@{_COMMON_PREFIX}text-input, h2 {
+    flex: 1;
+    font-size: 24px;
+    line-height: 38px;
+  }
+
+  h2 {
+    margin: 1px 6px; // copy input styles to keep text in place
+  }
+
+  .inplace-toggle {
+    font-size: 20px;
+    margin-left: 10px;
+    background: transparent;
+    border: 0 none;
+
+    &:before {
+      color: @admin-font-gray2;
+    }
+  }
+
+  &:not(.readonly) {
+    .inplace-toggle:hover:before {
+      color: @admin-bg-dark-gray;
+      cursor: pointer;
+    }
+  }
+
+  &:not(.edit-mode) {
+    .@{_COMMON_PREFIX}text-input {
+      display: none;
+    }
+    .inplace-toggle {
+      .icon-pencil();
+    }
+  }
+
+  &.readonly {
+    pointer-events: none;
+
+    .inplace-toggle {
+      display: none;
+    }
+  }
+
+  &.edit-mode {
+    h2 {
+      display: none;
+    }
+    .inplace-toggle {
+      .icon-disk();
+    }
+  }
+}
