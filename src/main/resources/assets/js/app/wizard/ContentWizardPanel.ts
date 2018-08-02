@@ -27,7 +27,6 @@ import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
-import {CycleButton} from './CycleButton';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import PropertyTree = api.data.PropertyTree;
@@ -68,9 +67,10 @@ import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import Toolbar = api.ui.toolbar.Toolbar;
 import Permission = api.security.acl.Permission;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
-import i18n = api.util.i18n;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import NavigatorEvent = api.ui.NavigatorEvent;
+import CycleButton = api.ui.button.CycleButton;
+import i18n = api.util.i18n;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
