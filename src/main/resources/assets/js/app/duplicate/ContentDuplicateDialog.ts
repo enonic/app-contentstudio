@@ -64,7 +64,7 @@ export class ContentDuplicateDialog
         this.loadMask.show();
         this.lockControls();
 
-        return this.loadDescendantIds().then(() => {
+        this.loadDescendantIds().then(() => {
             this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
                 this.countItemsToDuplicateAndUpdateButtonCounter();
@@ -74,6 +74,8 @@ export class ContentDuplicateDialog
                 this.updateTabbable();
                 this.actionButton.giveFocus();
             });
+        }).catch((reason: any) => {
+            api.DefaultErrorHandler.handle(reason);
         });
     }
 

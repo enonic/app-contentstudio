@@ -104,7 +104,7 @@ export class ContentDeleteDialog
         this.loadMask.show();
         this.lockControls();
 
-        return this.loadDescendantIds().then(() => {
+        this.loadDescendantIds().then(() => {
             this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
                 this.manageInstantDeleteStatus(this.getItemList().getItems());
@@ -116,6 +116,8 @@ export class ContentDeleteDialog
                 this.updateTabbable();
                 this.actionButton.giveFocus();
             });
+        }).catch((reason: any) => {
+            api.DefaultErrorHandler.handle(reason);
         });
     }
 
