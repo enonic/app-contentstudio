@@ -1,8 +1,8 @@
 import '../../api.ts';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependantItemViewer} from './DependantItemViewer';
+import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import ContentId = api.content.ContentId;
-import GetDescendantsOfContentsRequest = api.content.resource.GetDescendantsOfContentsRequest;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
 import BrowseItem = api.app.browse.BrowseItem;
@@ -251,7 +251,7 @@ export class DependantItemsDialog
 
         const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
 
-        return new api.content.resource.GetDescendantsOfContentsRequest().setContentPaths(
+        return new GetDescendantsOfContentsRequest().setContentPaths(
             contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()
             .then((result: ContentId[]) => {
                 this.dependantIds = result;

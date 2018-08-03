@@ -1,6 +1,8 @@
 import '../../../../../api.ts';
+import {ContentVersion} from '../../../../ContentVersion';
 
-export class ContentVersionViewer extends api.ui.Viewer<api.content.ContentVersion> {
+export class ContentVersionViewer
+    extends api.ui.Viewer<ContentVersion> {
 
     private namesAndIconView: api.app.NamesAndIconView;
 
@@ -10,7 +12,7 @@ export class ContentVersionViewer extends api.ui.Viewer<api.content.ContentVersi
         this.appendChild(this.namesAndIconView);
     }
 
-    private getModifierSpan(contentVersion: api.content.ContentVersion): api.dom.SpanEl {
+    private getModifierSpan(contentVersion: ContentVersion): api.dom.SpanEl {
         let span = new api.dom.SpanEl('version-modifier');
 
         span.setHtml(api.util.DateHelper.getModifiedString(contentVersion.modified));
@@ -18,11 +20,11 @@ export class ContentVersionViewer extends api.ui.Viewer<api.content.ContentVersi
         return span;
     }
 
-    private getSubNameElements(contentVersion: api.content.ContentVersion): api.dom.Element[] {
+    private getSubNameElements(contentVersion: ContentVersion): api.dom.Element[] {
         return [this.getModifierSpan(contentVersion)];
     }
 
-    setObject(contentVersion: api.content.ContentVersion, row?: number) {
+    setObject(contentVersion: ContentVersion, row?: number) {
 
         //TODO: use content version image and number instead of row
         this.namesAndIconView

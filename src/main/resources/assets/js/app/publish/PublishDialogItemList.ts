@@ -4,6 +4,7 @@ import BrowseItem = api.app.browse.BrowseItem;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ArrayHelper = api.util.ArrayHelper;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {

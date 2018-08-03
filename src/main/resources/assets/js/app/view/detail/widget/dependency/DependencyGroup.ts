@@ -1,6 +1,5 @@
 import '../../../../../api.ts';
-
-import ContentDependencyGroupJson = api.content.json.ContentDependencyGroupJson;
+import {ContentDependencyGroupJson} from '../../../../resource/json/ContentDependencyGroupJson';
 import ContentTypeName = api.schema.content.ContentTypeName;
 
 export enum DependencyType {

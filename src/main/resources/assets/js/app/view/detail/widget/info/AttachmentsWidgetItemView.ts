@@ -1,6 +1,6 @@
 import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
-
+import {GetContentAttachmentsRequest} from '../../../../resource/GetContentAttachmentsRequest';
 import ContentSummary = api.content.ContentSummary;
 import Attachments = api.content.attachment.Attachments;
 import Attachment = api.content.attachment.Attachment;
@@ -50,7 +50,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     }
 
     private layoutAttachments(): wemQ.Promise<Attachments> {
-        return new api.content.resource.GetContentAttachmentsRequest(this.content.getContentId()).sendAndParse().then(
+        return new GetContentAttachmentsRequest(this.content.getContentId()).sendAndParse().then(
             (attachments: Attachments) => {
 
                 if (this.hasChild(this.list)) {

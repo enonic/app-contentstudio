@@ -9,12 +9,12 @@ import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler'
 import {Issue} from '../issue/Issue';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {PublishContentRequest} from '../resource/PublishContentRequest';
+import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import PublishContentRequest = api.content.resource.PublishContentRequest;
 import CompareStatus = api.content.CompareStatus;
 import ContentId = api.content.ContentId;
 import ListBox = api.ui.selector.list.ListBox;
-import HasUnpublishedChildrenRequest = api.content.resource.HasUnpublishedChildrenRequest;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;

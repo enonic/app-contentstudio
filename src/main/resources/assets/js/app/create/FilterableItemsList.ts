@@ -1,5 +1,6 @@
 import {NewContentDialogList} from './NewContentDialogList';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
+import {CreateContentFilter} from './CreateContentFilter';
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 import Site = api.content.site.Site;
 import ApplicationKey = api.application.ApplicationKey;
@@ -70,7 +71,7 @@ export class FilterableItemsList extends NewContentDialogList {
 
     private filterByParentContent(items: NewContentDialogListItem[],
                                   siteApplicationKeys: ApplicationKey[]): NewContentDialogListItem[] {
-        let createContentFilter = new api.content.util.CreateContentFilter().siteApplicationsFilter(siteApplicationKeys);
+        let createContentFilter = new CreateContentFilter().siteApplicationsFilter(siteApplicationKeys);
         return items.filter((item: NewContentDialogListItem) =>
             createContentFilter.isCreateContentAllowed(this.parentContent, item.getContentType())
         );

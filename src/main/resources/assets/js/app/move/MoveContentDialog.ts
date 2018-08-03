@@ -1,14 +1,14 @@
 import '../../api.ts';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
+import {MoveContentRequest} from '../resource/MoveContentRequest';
+import {ContentIds} from '../ContentIds';
 import ContentPath = api.content.ContentPath;
 import ContentSummary = api.content.ContentSummary;
-import ContentIds = api.content.ContentIds;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
 import TreeNode = api.ui.treegrid.TreeNode;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import ProgressBarManager = api.ui.dialog.ProgressBarManager;
-import MoveContentRequest = api.content.resource.MoveContentRequest;
 import TaskId = api.task.TaskId;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;

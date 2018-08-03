@@ -1,15 +1,11 @@
 import '../../api.ts';
 import {ContentWizardPanel} from './ContentWizardPanel';
-
-import CreateContentRequest = api.content.resource.CreateContentRequest;
+import {CreateContentRequest} from '../resource/CreateContentRequest';
+import {Flow, RoutineContext} from './Flow';
 import Content = api.content.Content;
 
-export class PersistedNewContentRoutineContext {
-
-    content: api.content.Content = null;
-}
-
-export class PersistNewContentRoutine extends api.util.Flow<api.content.Content,PersistedNewContentRoutineContext> {
+export class PersistNewContentRoutine
+    extends Flow<Content> {
 
     private createContentRequestProducer: {() : wemQ.Promise<CreateContentRequest>; };
 
@@ -26,11 +22,11 @@ export class PersistNewContentRoutine extends api.util.Flow<api.content.Content,
 
     public execute(): wemQ.Promise<Content> {
 
-        let context = new PersistedNewContentRoutineContext();
+        let context = new RoutineContext();
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: PersistedNewContentRoutineContext): wemQ.Promise<Content> {
+    doExecuteNext(context: RoutineContext): wemQ.Promise<Content> {
 
         if (!this.doneHandledContent) {
 
@@ -45,7 +41,7 @@ export class PersistNewContentRoutine extends api.util.Flow<api.content.Content,
         }
     }
 
-    private doHandleCreateContent(context: PersistedNewContentRoutineContext): wemQ.Promise<void> {
+    private doHandleCreateContent(context: RoutineContext): wemQ.Promise<void> {
 
         if (this.createContentRequestProducer != null) {
 

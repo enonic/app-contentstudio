@@ -1,10 +1,8 @@
 import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
-
+import {AccessControlListView} from '../view/AccessControlListView';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import AccessControlList = api.security.acl.AccessControlList;
-import AccessControlListView = api.ui.security.acl.AccessControlListView;
-import AccessControlEntryView = api.ui.security.acl.AccessControlEntryView;
-
 import DivEl = api.dom.DivEl;
 import LabelEl = api.dom.LabelEl;
 import Button = api.ui.button.Button;
@@ -12,6 +10,7 @@ import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDia
 import ContentPath = api.content.ContentPath;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class SecurityWizardStepForm
     extends api.app.wizard.WizardStepForm {
