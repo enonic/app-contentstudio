@@ -1,3 +1,4 @@
+import ContentId = api.content.ContentId;
 import Attachments = api.content.attachment.Attachments;
 import AttachmentJson = api.content.attachment.AttachmentJson;
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
