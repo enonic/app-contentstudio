@@ -7,6 +7,7 @@ import ContentSummary = api.content.ContentSummary;
 
 import RichDropdown = api.ui.selector.dropdown.RichDropdown;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
+import ContentId = api.content.ContentId;
 
 export class FragmentDropdown
     extends RichDropdown<ContentSummary> {

@@ -1,4 +1,5 @@
 import ContentSummary = api.content.ContentSummary;
+import ContentId = api.content.ContentId;
 
 export class ContentIds
     implements api.Equitable {

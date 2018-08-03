@@ -10,6 +10,7 @@ import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDia
 import ContentPath = api.content.ContentPath;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class SecurityWizardStepForm
     extends api.app.wizard.WizardStepForm {

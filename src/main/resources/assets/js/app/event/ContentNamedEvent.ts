@@ -1,4 +1,5 @@
 import WizardPanel = api.app.wizard.WizardPanel;
+import Content = api.content.Content;
 
 export class ContentNamedEvent
     extends api.event.Event {

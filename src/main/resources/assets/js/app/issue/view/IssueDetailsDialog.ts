@@ -41,6 +41,7 @@ import PrincipalType = api.security.PrincipalType;
 import PrincipalKey = api.security.PrincipalKey;
 import PrincipalLoader = api.security.PrincipalLoader;
 import ComboBox = api.ui.selector.combobox.ComboBox;
+import ContentId = api.content.ContentId;
 
 export class IssueDetailsDialog
     extends SchedulableDialog {

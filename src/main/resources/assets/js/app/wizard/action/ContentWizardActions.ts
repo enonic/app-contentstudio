@@ -23,6 +23,7 @@ import ManagedActionManager = api.managedaction.ManagedActionManager;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ManagedActionState = api.managedaction.ManagedActionState;
 import ActionsStateManager = api.ui.ActionsStateManager;
+import Content = api.content.Content;
 
 type ActionNames =
     'SAVE' |

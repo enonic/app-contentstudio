@@ -1,3 +1,5 @@
+import Content = api.content.Content;
+
 export class RoutineContext {
 
     content: Content = null;

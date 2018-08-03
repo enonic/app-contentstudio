@@ -5,6 +5,7 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
+import ContentId = api.content.ContentId;
 
 export class PublishProcessor {
 

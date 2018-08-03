@@ -14,6 +14,7 @@ import PartComponent = api.content.page.region.PartComponent;
 import TextComponent = api.content.page.region.TextComponent;
 import i18n = api.util.i18n;
 import Region = api.content.page.region.Region;
+import Content = api.content.Content;
 
 export interface ItemViewFactory {
     createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView;

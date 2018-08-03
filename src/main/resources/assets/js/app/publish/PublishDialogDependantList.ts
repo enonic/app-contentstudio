@@ -5,6 +5,7 @@ import {ContentIds} from '../ContentIds';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class PublishDialogDependantList
     extends DialogDependantList {

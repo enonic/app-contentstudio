@@ -3,6 +3,7 @@ import Permission = api.security.acl.Permission;
 import LoginResult = api.security.auth.LoginResult;
 import PrincipalKey = api.security.PrincipalKey;
 import RoleKeys = api.security.RoleKeys;
+import AccessControlList = api.security.acl.AccessControlList;
 
 export class PermissionHelper {
 

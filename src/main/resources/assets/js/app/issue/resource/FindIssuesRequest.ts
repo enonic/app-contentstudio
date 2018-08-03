@@ -2,6 +2,7 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {Issue} from '../Issue';
 import {FindIssuesResult} from './FindIssuesResult';
+import ContentId = api.content.ContentId;
 
 export class FindIssuesRequest
     extends IssueResourceRequest<FindIssuesResult, Issue[]> {
