@@ -1,4 +1,5 @@
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import ContentId = api.content.ContentId;
 import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
 import {ActiveContentVersionJson} from './json/ActiveContentVersionJson';
 import {ContentVersionJson} from './json/ContentVersionJson';

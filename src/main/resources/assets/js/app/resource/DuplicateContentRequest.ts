@@ -1,5 +1,6 @@
 import TaskIdJson = api.task.TaskIdJson;
 import TaskId = api.task.TaskId;
+import ContentId = api.content.ContentId;
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 
 export type DuplicatableId = {

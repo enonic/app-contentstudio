@@ -1,5 +1,6 @@
 import {ResolveDependencyResult} from './ResolveDependencyResult';
 import {ContentDependencyJson} from './json/ContentDependencyJson';
+import ContentId = api.content.ContentId;
 
 export interface ResolveDependenciesResultJson {
     dependencies: { key: string, value: ContentDependencyJson };

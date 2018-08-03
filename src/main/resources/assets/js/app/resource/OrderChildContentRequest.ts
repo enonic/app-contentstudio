@@ -1,4 +1,5 @@
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import ContentId = api.content.ContentId;
 import {OrderChildMovements} from './order/OrderChildMovements';
 import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
 

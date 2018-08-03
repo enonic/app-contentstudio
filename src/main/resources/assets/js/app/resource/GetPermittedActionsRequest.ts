@@ -1,5 +1,6 @@
 import Permission = api.security.acl.Permission;
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import ContentId = api.content.ContentId;
 
 export class GetPermittedActionsRequest
     extends ContentResourceRequest<string[], Permission[]> {

@@ -1,6 +1,7 @@
 import ResolvePublishContentResultJson = api.content.json.ResolvePublishContentResultJson;
 import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import ContentId = api.content.ContentId;
 
 export class ResolvePublishDependenciesRequest
     extends ContentResourceRequest<ResolvePublishContentResultJson, ResolvePublishDependenciesResult> {

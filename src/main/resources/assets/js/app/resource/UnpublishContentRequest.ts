@@ -1,6 +1,7 @@
 import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import TaskIdJson = api.task.TaskIdJson;
 import TaskId = api.task.TaskId;
+import ContentId = api.content.ContentId;
 
 export class UnpublishContentRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
