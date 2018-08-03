@@ -3,7 +3,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const dialog = {
-    container: `//div[contains(@id,'SpecialCharDialogCKE')]`,
+    container: `//div[contains(@id,'SpecialCharDialog')]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
@@ -27,7 +27,7 @@ var insertSpecialCharacterDialog = Object.create(page, {
     },
     clickOnInsertButton: {
         value: function () {
-            return this.doClick(this.insertButton).catch((err) => {
+            return this.doClick(this.insertButton).catch(err => {
                 this.saveScreenshot('err_click_on_insert_anchor_icon');
                 throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
             }).then(() => {

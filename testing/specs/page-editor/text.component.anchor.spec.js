@@ -23,7 +23,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
 
-    it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
+    it(`Precondition before tests: new site should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
@@ -87,7 +87,6 @@ describe('Text Component with CKE - insert Anchor specification', function () {
                 assert.isTrue(result, 'Validation message should be present in the modal dialog');
             })
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => {

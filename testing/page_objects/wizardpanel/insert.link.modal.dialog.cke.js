@@ -4,7 +4,7 @@ const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
 
 const dialog = {
-    container: `//div[contains(@id,'LinkModalDialogCKE')]`,
+    container: `//div[contains(@id,'LinkModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     textInput: `//div[contains(@id,'FormItem') and child::label[text()='Text']]//input[@type='text']`,

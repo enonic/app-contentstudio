@@ -1,4 +1,5 @@
 import '../api.ts';
+import {GetPrincipalByKeyRequest} from './security/GetPrincipalByKeyRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
@@ -53,7 +54,7 @@ export class ContentStatusToolbar
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
         if (content && content.getContentSummary()) {
             const name = content.getContentSummary().getModifier();
-            new api.security.GetPrincipalByKeyRequest(api.security.PrincipalKey.fromString(name)).sendAndParse()
+            new GetPrincipalByKeyRequest(api.security.PrincipalKey.fromString(name)).sendAndParse()
                 .then((user: api.security.Principal) => {
                     this.author.setHtml(i18n('field.preview.toolbar.status', user.getDisplayName()));
                 })

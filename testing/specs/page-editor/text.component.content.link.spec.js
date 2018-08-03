@@ -22,9 +22,8 @@ describe('Text Component with CKE - insert content link  specification', functio
     let CONTROLLER_NAME = 'main region';
     const EXPECTED_SRC = '<p><a href="content://';
 
-    it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
+    it(`Precondition: new site should be added`,
         () => {
-            // this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {

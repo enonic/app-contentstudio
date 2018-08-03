@@ -2,6 +2,7 @@ import '../../api.ts';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
+import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
 import ContentId = api.content.ContentId;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Content = api.content.Content;
@@ -106,7 +107,7 @@ export class ContentWizardDataLoader {
 
     private loadContentType(name: ContentTypeName): wemQ.Promise<ContentType> {
         let deferred = wemQ.defer<ContentType>();
-        new api.schema.content.GetContentTypeByNameRequest(name).sendAndParse().then((contentType) => {
+        new GetContentTypeByNameRequest(name).sendAndParse().then((contentType) => {
             deferred.resolve(contentType);
         }).catch((reason) => {
             const msg = i18n('notify.wizard.noContentType', name.toString());

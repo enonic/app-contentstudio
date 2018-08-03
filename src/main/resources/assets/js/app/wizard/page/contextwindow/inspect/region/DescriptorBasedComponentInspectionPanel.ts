@@ -1,10 +1,12 @@
 import '../../../../../../api.ts';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {ApplicationAddedEvent} from '../../../../../site/ApplicationAddedEvent';
+import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
+import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import FormView = api.form.FormView;
 import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
 import Descriptor = api.content.page.Descriptor;
-import DescriptorBasedDropdown = api.content.page.region.DescriptorBasedDropdown;
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -20,9 +22,9 @@ export class DescriptorBasedComponentInspectionPanel<COMPONENT extends Descripto
 
     private applicationUnavailableListener: (applicationEvent: api.application.ApplicationEvent) => void;
 
-    private applicationAddedListener: (event: api.content.site.ApplicationAddedEvent) => void;
+    private applicationAddedListener: (event: ApplicationAddedEvent) => void;
 
-    private applicationRemovedListener: (event: api.content.site.ApplicationRemovedEvent) => void;
+    private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);

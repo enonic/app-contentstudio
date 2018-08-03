@@ -1,11 +1,11 @@
 import './../api.ts';
 import {LiveEditModel} from './LiveEditModel';
+import {PageModeChangedEvent} from './PageModeChangedEvent';
 import PropertyTree = api.data.PropertyTree;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageTemplate = api.content.page.PageTemplate;
 import PageMode = api.content.page.PageMode;
-import PageModeChangedEvent = api.content.page.PageModeChangedEvent;
 import Page = api.content.page.Page;
 import PageBuilder = api.content.page.PageBuilder;
 import PageTemplateKey = api.content.page.PageTemplateKey;

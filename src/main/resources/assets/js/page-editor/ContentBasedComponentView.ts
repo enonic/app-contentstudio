@@ -7,6 +7,7 @@ import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class ContentBasedComponentViewBuilder<COMPONENT extends Component>
     extends ComponentViewBuilder<COMPONENT> {

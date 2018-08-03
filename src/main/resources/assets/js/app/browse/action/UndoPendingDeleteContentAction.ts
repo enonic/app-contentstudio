@@ -1,8 +1,7 @@
 import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
-
+import {UndoPendingDeleteContentRequest} from '../../resource/UndoPendingDeleteContentRequest';
 import Action = api.ui.Action;
-import UndoPendingDeleteContentRequest = api.content.resource.UndoPendingDeleteContentRequest;
 import i18n = api.util.i18n;
 
 export class UndoPendingDeleteContentAction extends Action {

@@ -1,4 +1,6 @@
 import '../../api.ts';
+import {ContentNodeByDisplayNameComparator} from './ContentNodeByDisplayNameComparator';
+import {ContentNodeByModifiedTimeComparator} from './ContentNodeByModifiedTimeComparator';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
 
 import ContentResponse = api.content.resource.result.ContentResponse;
@@ -36,7 +38,7 @@ export class CompareContentGrid
                     .setField('displayName')
                     .setFormatter(nameFormatter)
                     .build()
-            ]).setPartialLoadEnabled(true).setLoadBufferSize(20).// rows count
+            ]).setPartialLoadEnabled(true).setLoadBufferSize(20).
             prependClasses('compare-content-grid')
         );
 
@@ -75,9 +77,9 @@ export class CompareContentGrid
     sortNodeChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
         let comparator: api.Comparator<TreeNode<ContentSummaryAndCompareStatus>>;
         if (this.getRoot().getCurrentRoot() === node) {
-            comparator = new api.content.util.ContentNodeByDisplayNameComparator();
+            comparator = new ContentNodeByDisplayNameComparator();
         } else {
-            comparator = new api.content.util.ContentNodeByModifiedTimeComparator();
+            comparator = new ContentNodeByModifiedTimeComparator();
         }
         let children: TreeNode<ContentSummaryAndCompareStatus>[] = node.getChildren().sort(comparator.compare);
         node.setChildren(children);

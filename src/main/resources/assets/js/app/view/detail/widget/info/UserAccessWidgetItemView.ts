@@ -1,10 +1,11 @@
 import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
+import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectivePermissionsRequest';
+import {UserAccessListView} from './UserAccessListView';
+import {AccessControlEntryView} from '../../../AccessControlEntryView';
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
-import AccessControlEntryView = api.ui.security.acl.AccessControlEntryView;
-import UserAccessListView = api.ui.security.acl.UserAccessListView;
 import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDialogEvent;
@@ -104,7 +105,7 @@ export class UserAccessWidgetItemView
 
         let deferred = wemQ.defer<boolean>();
 
-        let request = new api.content.resource.GetEffectivePermissionsRequest(content.getContentId());
+        let request = new GetEffectivePermissionsRequest(content.getContentId());
 
         request.sendAndParse().then((results: api.ui.security.acl.EffectivePermission[]) => {
 

@@ -5,6 +5,7 @@ import BrowseItem = api.app.browse.BrowseItem;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Tooltip = api.ui.Tooltip;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class DialogTogglableItemList
     extends DialogItemList {

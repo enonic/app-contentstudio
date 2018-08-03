@@ -88,7 +88,9 @@ const contentDuplicateDialog = Object.create(page, {
     },
     clickOnDuplicateButton: {
         value: function () {
-            return this.doClick(this.duplicateButton).pause(500);
+            return this.waitForEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(this.duplicateButton).pause(500);
+            })
         }
     },
     clickOnShowDependentItemLink: {

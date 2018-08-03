@@ -23,18 +23,17 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
     let TEMPLATE;
     let SUPPORT = 'Site';
     let CONTROLLER_NAME = 'main region';
-    it(`WHEN new site has been added THEN the site should be listed in the grid`,
+    it(`Precondition: new site should be present in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 studioUtils.saveScreenshot(displayName + '_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
@@ -43,36 +42,35 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
         () => {
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-            return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(()=> {
+            return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(() => {
                 return studioUtils.findAndSelectItem(TEMPLATE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(TEMPLATE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'template should be listed in the grid');
             });
         });
 
     it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.doDeleteContent(TEMPLATE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot(SITE.displayName + '_reset');
                 assert.isTrue(result, 'Options filter input should appear in the site, because the template was deleted')
 
             });
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification starting: ' + this.title);
     });
 });

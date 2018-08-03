@@ -1,8 +1,8 @@
 import '../../api.ts';
 import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import UnpublishContentRequest = api.content.resource.UnpublishContentRequest;
 import CompareStatus = api.content.CompareStatus;
 import ContentId = api.content.ContentId;
 import i18n = api.util.i18n;
