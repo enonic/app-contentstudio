@@ -1,11 +1,11 @@
-import MixinResourceRequest = api.schema.mixin.MixinResourceRequest;
 import MixinListJson = api.schema.mixin.MixinListJson;
 import Mixin = api.schema.mixin.Mixin;
 import MixinJson = api.schema.mixin.MixinJson;
 import ContentId = api.content.ContentId;
+import {XDataResourceRequest} from './XDataResourceRequest';
 
 export class GetContentXDataRequest
-    extends MixinResourceRequest<MixinListJson, Mixin[]> {
+    extends XDataResourceRequest<MixinListJson, Mixin[]> {
 
     private contentId: ContentId;
 
