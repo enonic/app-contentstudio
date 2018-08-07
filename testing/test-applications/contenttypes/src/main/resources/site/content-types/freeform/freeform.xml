@@ -4,6 +4,6 @@
   <super-type>base:structured</super-type>
   <allow-child-content>true</allow-child-content>
   <form>
-    <inline mixin="freeform"/>
+    <mixin name="freeform"/>
   </form>
 </content-type>

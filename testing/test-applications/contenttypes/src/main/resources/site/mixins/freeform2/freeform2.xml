@@ -91,12 +91,12 @@
           </config>
           <default>get</default>
         </input>
-        <inline mixin="freeform-common-attr"/>
+        <mixin name="freeform-common-attr"/>
         <item-set name="customattributes">
           <label>custom attribute</label>
           <occurrences minimum="0" maximum="0"/>
           <items>
-            <inline mixin="freeform-name-value"/>
+            <mixin name="freeform-name-value"/>
           </items>
         </item-set>
         <item-set name="fieldsets">
@@ -117,7 +117,7 @@
               <label>Input</label>
               <occurrences minimum="1" maximum="0"/>
               <items>
-                <inline mixin="freeform-common-attr"/>
+                <mixin name="freeform-common-attr"/>
                 <input type="TextLine" name="label">
                   <label>label</label>
                   <help-text></help-text>
@@ -127,7 +127,7 @@
                   <label>custom attribute</label>
                   <occurrences minimum="0" maximum="0"/>
                   <items>
-                    <inline mixin="freeform-name-value"/>
+                    <mixin name="freeform-name-value"/>
                   </items>
                 </item-set>
                 <option-set name="element">
@@ -158,7 +158,7 @@
                           <help-text></help-text>
                           <occurrences minimum="0" maximum="1"/>
                         </input>
-                        <inline mixin="freeform-input-types"/>
+                        <mixin name="freeform-input-types"/>
                       </items>
                     </option>
                     <option name="textarea">
@@ -193,7 +193,7 @@
                     <option name="button">
                       <label>Button</label>
                       <items>
-                        <inline mixin="freeform-name-value"/>
+                        <mixin name="freeform-name-value"/>
                       </items>
                     </option>
                     <option name="select">
@@ -203,7 +203,7 @@
                           <label>Options</label>
                           <occurrences minimum="1" maximum="0"/>
                           <items>
-                            <inline mixin="freeform-name-value"/>
+                            <mixin name="freeform-name-value"/>
                           </items>
                         </item-set>
                       </items>
