@@ -34,7 +34,7 @@ export class PreviewContentHandler {
         if (PreviewContentHandler.BLOCK_COUNT < contentBrowseItems.length) {
             this.setBlocked(true, true);
 
-            return;
+            return this.getRenderablePromise(contentBrowseItems, changes);
         }
 
         if (this.isBlocked() || !changes) {
