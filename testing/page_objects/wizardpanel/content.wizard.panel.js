@@ -8,6 +8,7 @@ const contentBuilder = require('../../libs/content.builder');
 const contentStepForm = require('./content.wizard.step.form');
 const contentSettingsForm = require('./settings.wizard.step.form');
 const contextWindow = require('./liveform/liveform.context.window');
+const detailsPanel = require('./details/wizard.details.panel');
 const wizard = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
@@ -21,13 +22,20 @@ const wizard = {
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
-    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`
+    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
+    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
+
 };
 const contentWizardPanel = Object.create(page, {
 
     displayNameInput: {
         get: function () {
             return `${wizard.container}` + `${wizard.displayNameInput}`;
+        }
+    },
+    detailsPanelToggleButton: {
+        get: function () {
+            return `${wizard.container}` + `${wizard.detailsPanelToggleButton}`;
         }
     },
     saveButton: {
@@ -50,7 +58,6 @@ const contentWizardPanel = Object.create(page, {
             return `${wizard.container}` + `${wizard.deleteButton}`;
         }
     },
-
     controllerOptionFilterInput: {
         get: function () {
             return `${elements.DROPDOWN_OPTION_FILTER_INPUT}`;
@@ -80,6 +87,24 @@ const contentWizardPanel = Object.create(page, {
             return this.waitForVisible(this.showComponentViewToggler, ms).catch(err => {
                 this.saveScreenshot('err_open_component_view');
                 throw new Error('Component View is not opened in ' + ms + '  ' + err);
+            })
+        }
+    },
+    // opens Details Panel if it is not loaded
+    openDetailsPanel: {
+        value: function () {
+            return detailsPanel.waitForDetailsPanelLoaded().then(result => {
+                if (!result) {
+                    return this.doClick(this.detailsPanelToggleButton).then(() => {
+                        return detailsPanel.waitForDetailsPanelLoaded();
+                    }).then(result => {
+                        if (!result) {
+                            throw new Error("Details panel was not loaded! ");
+                        }
+                    })
+                } else {
+                    console.log("Content wizard is opened and Details Panel is loaded");
+                }
             })
         }
     },

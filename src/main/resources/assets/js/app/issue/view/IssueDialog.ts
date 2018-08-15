@@ -11,6 +11,7 @@ import ListBox = api.ui.selector.list.ListBox;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import ArrayHelper = api.util.ArrayHelper;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
+import ContentId = api.content.ContentId;
 
 export abstract class IssueDialog
     extends DependantItemsDialog {

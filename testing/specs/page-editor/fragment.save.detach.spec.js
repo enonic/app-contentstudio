@@ -21,9 +21,8 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    it(`WHEN new site has been added THEN the site should be listed in the grid`,
+    it(`Precondition: new site should be present in the grid`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(()=> {

@@ -1,11 +1,13 @@
+import './../../../../../../api.ts';
+import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 import Option = api.ui.selector.Option;
 
 import ContentSummary = api.content.ContentSummary;
 
 import RichDropdown = api.ui.selector.dropdown.RichDropdown;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import FragmentContentSummaryLoader = api.content.FragmentContentSummaryLoader;
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import ContentId = api.content.ContentId;
 
 export class FragmentDropdown
     extends RichDropdown<ContentSummary> {

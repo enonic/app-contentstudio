@@ -1,12 +1,15 @@
 import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
+import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
+import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
+import {AccessControlComboBox} from './AccessControlComboBox';
 import Content = api.content.Content;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import AccessControlComboBox = api.ui.security.acl.AccessControlComboBox;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import AccessControlList = api.security.acl.AccessControlList;
 import ContentPath = api.content.ContentPath;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class EditPermissionsDialog
     extends api.ui.dialog.ModalDialog {
@@ -154,7 +157,7 @@ export class EditPermissionsDialog
         let permissions = new AccessControlList(this.getEntries());
 
         if (this.immediateApply) {
-            let req = new api.content.resource.ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
+            let req = new ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
                 this.inheritPermissionsCheck.isChecked()).setPermissions(permissions).setOverwriteChildPermissions(
                 this.overwriteChildPermissionsCheck.isChecked());
             let res = req.sendAndParse();
@@ -220,7 +223,7 @@ export class EditPermissionsDialog
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
             }).done();
         } else {
-            new api.content.resource.GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
+            new GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
                 deferred.resolve(rootPermissions);
             }).catch((reason: any) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));

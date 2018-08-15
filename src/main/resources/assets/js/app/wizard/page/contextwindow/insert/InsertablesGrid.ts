@@ -1,5 +1,6 @@
 import '../../../../../api.ts';
 import {Insertable} from './Insertable';
+import {FontIcon} from '../FontIcon';
 
 export interface InsertablesGridOptions {
     draggableRows?: boolean;
@@ -48,7 +49,7 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
             rowEl.addClass(this.componentGridOptions.rowClass);
         }
 
-        let icon = new api.ui.FontIcon(insertable.getIconCls());
+        let icon = new FontIcon(insertable.getIconCls());
 
         let title = new api.dom.H5El();
         title.getEl().setInnerHtml(insertable.getDisplayName());

@@ -3,7 +3,7 @@ const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const dialog = {
-    container: `//div[contains(@id,'MacroModalDialogCKE')]`,
+    container: `//div[contains(@id,'MacroModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };

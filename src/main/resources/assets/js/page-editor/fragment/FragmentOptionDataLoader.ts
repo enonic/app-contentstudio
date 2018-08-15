@@ -1,8 +1,8 @@
 import '../../api';
 import {FragmentOptionDataRequest} from './FragmentOptionDataRequest';
+import {FragmentContentSummaryRequest} from '../../app/resource/FragmentContentSummaryRequest';
 import ContentSummaryOptionDataLoader = api.content.ContentSummaryOptionDataLoader;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
-import FragmentContentSummaryRequest = api.content.resource.FragmentContentSummaryRequest;
 import ContentSummary = api.content.ContentSummary;
 
 export class FragmentOptionDataLoader

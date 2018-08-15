@@ -15,6 +15,8 @@ import {ContentBrowseItem} from '../ContentBrowseItem';
 import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
+import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
+import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
@@ -348,7 +350,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private updateActionsByPermissionsNoItemsSelected(): wemQ.Promise<any> {
-        return new api.content.resource.GetPermittedActionsRequest().addPermissionsToBeChecked(Permission.CREATE).sendAndParse().then(
+        return new GetPermittedActionsRequest().addPermissionsToBeChecked(Permission.CREATE).sendAndParse().then(
             (allowedPermissions: Permission[]) => {
                 this.resetDefaultActionsNoItemsSelected();
 
@@ -371,7 +373,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private handleDeletedContentType(contentSummary: ContentSummary): wemQ.Promise<any> {
         api.notify.NotifyManager.get().showWarning(i18n('notify.contentType.notFound', contentSummary.getType().getLocalName()));
 
-        return new api.content.resource.GetPermittedActionsRequest().addContentIds(contentSummary.getContentId()).addPermissionsToBeChecked(
+        return new GetPermittedActionsRequest().addContentIds(contentSummary.getContentId()).addPermissionsToBeChecked(
             Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse().then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsNoItemsSelected();
             this.enableActions({SHOW_NEW_DIALOG: false});
@@ -398,7 +400,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[],
                                                             contentTypesAllowChildren: boolean = true): wemQ.Promise<any> {
-        return new api.content.resource.GetPermittedActionsRequest().addContentIds(
+        return new GetPermittedActionsRequest().addContentIds(
             ...contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId())).addPermissionsToBeChecked(
             Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse().then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsMultipleItemsSelected(contentBrowseItems);
@@ -436,7 +438,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private checkIsChildrenAllowedByContentType(contentSummary: ContentSummary): wemQ.Promise<Boolean> {
         let deferred = wemQ.defer<boolean>();
 
-        new api.schema.content.GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
+        new GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
             .then((contentType: api.schema.content.ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
             .fail(() => this.handleDeletedContentType(contentSummary));
 
@@ -458,7 +460,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
         // Need to check if parent allows content creation
         return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
-            new api.content.resource.GetPermittedActionsRequest()
+            new GetPermittedActionsRequest()
                 .addContentIds(content.getContentId())
                 .addPermissionsToBeChecked(Permission.CREATE)
                 .sendAndParse().then((allowedPermissions: Permission[]) => {

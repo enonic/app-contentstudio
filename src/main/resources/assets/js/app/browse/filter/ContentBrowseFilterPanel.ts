@@ -1,12 +1,11 @@
-import '../../../api.ts';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
+import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummary = api.content.ContentSummary;
 import AggregationGroupView = api.aggregation.AggregationGroupView;
-import ContentTypeAggregationGroupView = api.aggregation.ContentTypeAggregationGroupView;
 import Aggregation = api.aggregation.Aggregation;
 import SearchInputValues = api.query.SearchInputValues;
 import ContentQuery = api.content.query.ContentQuery;

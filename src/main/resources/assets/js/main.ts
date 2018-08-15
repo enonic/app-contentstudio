@@ -5,7 +5,6 @@ import Content = api.content.Content;
 import ImgEl = api.dom.ImgEl;
 import LostConnectionDetector = api.system.ConnectionDetector;
 import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
-import GetContentTypeByNameRequest = api.schema.content.GetContentTypeByNameRequest;
 
 declare const CONFIG;
 // init should go before imports to correctly translate their static fields etc.
@@ -41,6 +40,7 @@ import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchP
 import {ContentDuplicateDialog} from './app/duplicate/ContentDuplicateDialog';
 import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
 import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
+import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);

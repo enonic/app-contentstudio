@@ -1,5 +1,4 @@
 import '../../api.ts';
-
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
@@ -19,6 +18,7 @@ import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ListContentByIdRequest = api.content.resource.ListContentByIdRequest;
+import Content = api.content.Content;
 
 export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 

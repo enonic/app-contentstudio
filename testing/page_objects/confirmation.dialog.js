@@ -29,8 +29,8 @@ const confirmationDialog = Object.create(page, {
     clickOnYesButton: {
         value: function () {
             return this.doClick(this.yesButton).then(() => {
-                return this.waitForNotVisible(`${dialog.container}`, 2000);
-            }).catch((err) => {
+                return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
+            }).catch(err => {
                 this.saveScreenshot('err_close_confirmation');
                 throw new Error('Confirmation dialog must be closed!')
             })
@@ -38,7 +38,7 @@ const confirmationDialog = Object.create(page, {
     },
     waitForDialogVisible: {
         value: function () {
-            return this.waitForVisible(`${dialog.container}`, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot("confirmation_dialog_was_not_loaded");
                 return false;
             })

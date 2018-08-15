@@ -56,7 +56,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
                 return textComponentCke.clickOnInsertTableButton();
             }).pause(3000).then(() => {
                 return textComponentCke.switchToCKETableFrameAndInsertTable();
-            }).then((result) => {
+            }).then(result => {
                 assert.isTrue(result, '');
             })
         });

@@ -6,6 +6,7 @@ import {ImagePlaceholder} from './ImagePlaceholder';
 import ImageComponent = api.content.page.region.ImageComponent;
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentTypeName = api.schema.content.ContentTypeName;
+import ContentId = api.content.ContentId;
 
 export class ImageComponentViewBuilder
     extends ContentBasedComponentViewBuilder<ImageComponent> {
