@@ -26,7 +26,6 @@ describe('content.image.selector: Image content specification', function () {
     let FOLDER_WITH_FILES = 'selenium-tests-folder';
     it(`Precondition: WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -37,6 +36,31 @@ describe('content.image.selector: Image content specification', function () {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
+            });
+        });
+
+    it(`GIVEN wizard for image-selector is opened WHEN 'zzzzzz' string typed in the filter input THEN 'No matching items' should appears`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
+                return imageSelectorForm.doFilterOptions('zzzzzz');
+            }).then(() => {
+                return imageSelectorForm.waitForEmptyOptionsMessage();
+            }).then(result => {
+                studioUtils.saveScreenshot('img_empty_options1');
+                assert.isTrue(result, "No matching items message should appear");
+            });
+        });
+    it(`GIVEN wizard for image-selector is opened and actual name is typed in filter input WHEN 'zzzzzz' string has been typed in the filter input THEN 'No matching items' should appears`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
+                return imageSelectorForm.doFilterOptions(appConstant.TEST_IMAGES.SPUMANS);
+            }).pause(1000).then(()=>{
+                return imageSelectorForm.doFilterOptions('zzzzzz');
+            }).then(() => {
+                return imageSelectorForm.waitForEmptyOptionsMessage();
+            }).then(result => {
+                studioUtils.saveScreenshot('img_empty_options2');
+                assert.isTrue(result, "No matching items message should appear");
             });
         });
 

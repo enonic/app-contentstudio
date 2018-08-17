@@ -88,9 +88,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
                 return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
             }).then(() => {
                 return pageTemplateForm.clickOnRemoveSupportIcon();
-            }).pause(1500).then(() => {
+            }).pause(1200).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(() => {
+            }).pause(700).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
