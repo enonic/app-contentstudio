@@ -89,6 +89,8 @@ export class RegionView
 
     private mouseOverListener: (e: MouseEvent) => void;
 
+    private resetAction: api.ui.Action;
+
     private textMode: boolean = false;
 
     public static debug: boolean = false;
@@ -111,6 +113,10 @@ export class RegionView
         this.componentIndex = 0;
         this.itemViewAddedListeners = [];
         this.itemViewRemovedListeners = [];
+        this.resetAction = new api.ui.Action(i18n('live.view.reset')).onExecuted(() => {
+            this.deselect();
+            this.empty();
+        });
         this.initListeners();
 
         this.setRegion(builder.region);
@@ -129,8 +135,8 @@ export class RegionView
             // Check if removed ItemView is a child, and remove it if so
             if (api.ObjectHelper.iFrameSafeInstanceOf(event.getView(), ComponentView)) {
 
-                let removedComponentView: ComponentView<Component> = <ComponentView<Component>>event.getView();
-                let childIndex = this.getComponentViewIndex(removedComponentView);
+                const removedComponentView: ComponentView<Component> = <ComponentView<Component>>event.getView();
+                const childIndex = this.getComponentViewIndex(removedComponentView);
                 if (childIndex > -1) {
                     this.componentViews.splice(childIndex, 1);
                 }
@@ -144,6 +150,7 @@ export class RegionView
             }
 
             this.refreshEmptyState();
+            this.handleResetContextMenuAction();
         };
 
         this.componentRemovedListener = (event: api.content.page.region.ComponentRemovedEvent) => {
@@ -152,6 +159,7 @@ export class RegionView
             }
 
             this.refreshEmptyState();
+            this.handleResetContextMenuAction();
         };
 
         this.onMouseDown(this.memorizeLastMouseDownTarget.bind(this));
@@ -189,16 +197,23 @@ export class RegionView
     }
 
     private addRegionContextMenuActions() {
-        let actions: api.ui.Action[] = [];
+        const actions: api.ui.Action[] = [];
 
         actions.push(this.createSelectParentAction());
         actions.push(this.createInsertAction());
-        actions.push(new api.ui.Action(i18n('live.view.reset')).onExecuted(() => {
-            this.deselect();
-            this.empty();
-        }));
 
         this.addContextMenuActions(actions);
+        this.handleResetContextMenuAction();
+    }
+
+    private handleResetContextMenuAction() {
+        if (this.isEmpty()) {
+            this.removeContextMenuAction(this.resetAction);
+        } else {
+            if (this.getContextMenuActions().indexOf(this.resetAction) === -1) {
+                this.addContextMenuActions([this.resetAction]);
+            }
+        }
     }
 
     setRegion(region: Region) {
@@ -212,14 +227,16 @@ export class RegionView
             this.region.onComponentAdded(this.componentAddedListener);
             this.region.onComponentRemoved(this.componentRemovedListener);
 
-            let components = region.getComponents();
-            let componentViews = this.getComponentViews();
+            const components = region.getComponents();
+            const componentViews = this.getComponentViews();
 
             componentViews.forEach((view: ComponentView<Component>, index: number) => {
                 view.setComponent(components[index]);
             });
         }
+
         this.refreshEmptyState();
+        this.handleResetContextMenuAction();
     }
 
     getRegion(): Region {
@@ -260,7 +277,7 @@ export class RegionView
     }
 
     handleClick(event: MouseEvent) {
-        let pageView = <PageView>this.getPageView();
+        const pageView = <PageView>this.getPageView();
         if (pageView.isTextEditMode()) {
             event.stopPropagation();
             if (!pageView.hasTargetWithinTextComponent(this.mouseDownLastTarget)) {
@@ -317,7 +334,7 @@ export class RegionView
             console.log('RegionView[' + this.toString() + '].unregisterComponentView: ' + componentView.toString());
         }
 
-        let indexToRemove = this.getComponentViewIndex(componentView);
+        const indexToRemove = this.getComponentViewIndex(componentView);
         if (indexToRemove >= 0) {
 
             componentView.unItemViewAdded(this.itemViewAddedListener);
@@ -385,7 +402,7 @@ export class RegionView
 
     getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
 
-        let firstLevelOfPath = path.getFirstLevel();
+        const firstLevelOfPath = path.getFirstLevel();
 
         if (path.numberOfLevels() === 1) {
 
@@ -393,11 +410,11 @@ export class RegionView
         }
 
         for (let i = 0; i < this.componentViews.length; i++) {
-            let componentView = this.componentViews[i];
+            const componentView = this.componentViews[i];
             if (componentView.getType().equals(LayoutItemType.get())) {
 
-                let layoutView = <LayoutComponentView>componentView;
-                let match = layoutView.getComponentViewByPath(path.removeFirstLevel());
+                const layoutView = <LayoutComponentView>componentView;
+                const match = layoutView.getComponentViewByPath(path.removeFirstLevel());
                 if (match) {
                     return match;
                 }
@@ -414,8 +431,8 @@ export class RegionView
     }
 
     isEmpty(): boolean {
-        let onlyMoving = this.hasOnlyMovingComponentViews();
-        let empty = !this.region || this.region.isEmpty();
+        const onlyMoving = this.hasOnlyMovingComponentViews();
+        const empty = !this.region || this.region.isEmpty();
 
         return empty || onlyMoving;
     }
@@ -446,7 +463,7 @@ export class RegionView
         let array: ItemView[] = [];
         array.push(this);
         this.componentViews.forEach((componentView: ComponentView<Component>) => {
-            let itemViews = componentView.toItemViewArray();
+            const itemViews = componentView.toItemViewArray();
             array = array.concat(itemViews);
         });
         return array;
@@ -463,7 +480,7 @@ export class RegionView
     }
 
     private notifyItemViewAdded(itemView: ItemView, isNew: boolean = false) {
-        let event = new ItemViewAddedEvent(itemView, isNew);
+        const event = new ItemViewAddedEvent(itemView, isNew);
         this.itemViewAddedListeners.forEach((listener) => {
             listener(event);
         });
@@ -484,7 +501,7 @@ export class RegionView
     }
 
     private notifyItemViewRemoved(itemView: ItemView) {
-        let event = new ItemViewRemovedEvent(itemView);
+        const event = new ItemViewRemovedEvent(itemView);
         this.itemViewRemovedListeners.forEach((listener) => {
             listener(event);
         });
@@ -492,7 +509,7 @@ export class RegionView
 
     static isRegionViewFromHTMLElement(htmlElement: HTMLElement): boolean {
 
-        let name = htmlElement.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
+        const name = htmlElement.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
         return !api.util.StringHelper.isBlank(name);
     }
 
@@ -509,12 +526,12 @@ export class RegionView
 
     private doParseComponentViews(parentElement?: api.dom.Element) {
 
-        let children = parentElement ? parentElement.getChildren() : this.getChildren();
-        let region = this.getRegion();
+        const children = parentElement ? parentElement.getChildren() : this.getChildren();
+        const region = this.getRegion();
 
         children.forEach((childElement: api.dom.Element) => {
-            let itemType = ItemType.fromElement(childElement);
-            let isComponentView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
+            const itemType = ItemType.fromElement(childElement);
+            const isComponentView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
             let component: Component;
             let componentView;
 
