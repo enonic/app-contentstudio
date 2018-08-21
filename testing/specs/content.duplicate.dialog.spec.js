@@ -32,9 +32,11 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             }).then(() => {
                 return assert.eventually.isTrue(contentDuplicateDialog.isCancelButtonDisplayed(), 'Cancel button should be displayed');
             }).then(() => {
-                return expect(contentDuplicateDialog.getNumberInDependentItemsLink()).to.eventually.equal('10');
+                // get number in 'Hide dependent items' link
+                return expect(contentDuplicateDialog.getNumberInDependentItemsLink()).to.eventually.equal('12');
             }).then(() => {
-                return expect(contentDuplicateDialog.getTotalNumberItemsToDuplicate()).to.eventually.equal('11');
+                //Get Nunmber in 'Duplicate' button
+                return expect(contentDuplicateDialog.getTotalNumberItemsToDuplicate()).to.eventually.equal('13');
             }).then(() => {
                 return contentDuplicateDialog.getDisplayNamesToDuplicate();
             }).then(result => {
@@ -86,7 +88,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
                 studioUtils.saveScreenshot("duplicate_show_dependent_clicked");
                 return contentDuplicateDialog.getDependentsName();
             }).then(result => {
-                assert.isTrue(result.length == 10, '10 dependents to duplicate should be displayed');
+                assert.isTrue(result.length == 12, '12 dependents to duplicate should be displayed');
             });
         });
 

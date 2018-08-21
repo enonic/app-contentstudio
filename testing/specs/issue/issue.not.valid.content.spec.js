@@ -31,7 +31,7 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
                 return issueDetailsDialog.waitForDialogLoaded();
-            }).pause(1000).then(() => {
+            }).pause(2000).then(() => {
                 return issueDetailsDialog.getNumberOfItems();
             }).then(result => {
                 return assert.equal(result, '10', 'Ten items should be displayed in the `Items`link');

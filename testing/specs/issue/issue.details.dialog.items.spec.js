@@ -31,7 +31,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return issueDetailsDialog.waitForDialogLoaded();
             }).then(() => {
                 return issueDetailsDialog.getNumberOfItems();
-            }).then((result) => {
+            }).then(result => {
                 return assert.equal(result, '1', 'One number should be displayed in the `Items`link');
             });
         });
@@ -71,9 +71,9 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
             }).then(result => {
-                assert.equal(result, '11', 'Number of items should be updated to 11');
+                assert.equal(result, '13', 'Number of items should be updated to 13');
             }).then(() => {
-                return expect(issueDetailsDialogItemsTab.getNumberInDependentItemsLink()).to.eventually.equal('10');
+                return expect(issueDetailsDialogItemsTab.getNumberInDependentItemsLink()).to.eventually.equal('12');
             })
         });
 
@@ -91,7 +91,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
             }).then(result => {
-                return assert.equal(result, '11', 'Correct number of items should be displayed');
+                return assert.equal(result, '13', 'Correct number of items should be displayed');
             })
         });
 

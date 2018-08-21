@@ -85,7 +85,7 @@ describe('content.image.selector: Image content specification', function () {
             }).then(imagesNames => {
                 studioUtils.saveScreenshot('img_sel_flat_mode');
                 assert.isTrue(imagesNames.length > 0, 'images should be present in the dropdown list');
-                assert.isTrue(imagesNames[0].includes('.png') || imagesNames[0].includes('.jpg') || imagesNames[0].includes('.svg'),
+                assert.isTrue(imagesNames[0].includes('.png') || imagesNames[0].includes('.jpg') || imagesNames[0].includes('.jpeg') || imagesNames[0].includes('.svg'),
                     'correct extension should be in the name');
             });
         });

@@ -88,7 +88,7 @@ const issueDetailsDialog = Object.create(page, {
 
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, appConst.TIMEOUT_3).catch(err => {
                 throw new Error('Issue Details dialog is not loaded ' + err)
             });
         }
