@@ -92,6 +92,7 @@ function initToolTip() {
 
     let pageX = 0;
     let pageY = 0;
+    let isVisibleCheckInterval;
 
     const showAt = function (e: any) {
         const top = pageY + OFFSET_Y;
@@ -133,6 +134,7 @@ function initToolTip() {
         wemjq(e.target).removeClass(CLS_ON);
         wemjq('#' + ID).remove();
         unRemovedOrHidden();
+        clearInterval(isVisibleCheckInterval);
     };
 
     wemjq(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
@@ -152,6 +154,13 @@ function initToolTip() {
         if (element) {
             element.onRemoved(removeHandler);
             element.onHidden(removeHandler);
+        } else { // seems to be an element without id, thus special handling needed
+            isVisibleCheckInterval = setInterval(() => {
+                if (!isVisible(target)) {
+                    removeTooltip({target});
+                    clearInterval(isVisibleCheckInterval);
+                }
+            }, 500);
         }
     };
     const unRemovedOrHidden = () => {
@@ -160,6 +169,10 @@ function initToolTip() {
             element.unHidden(removeHandler);
         }
     };
+}
+
+function isVisible(target: Element) {
+    return wemjq(target).is(':visible');
 }
 
 function updateTabTitle(title: string) {
