@@ -21,7 +21,7 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    it(`Precondition: new site should be present in the grid`,
+    it(`Precondition: new site should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
@@ -70,7 +70,6 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
                 studioUtils.saveScreenshot('text_is_detached');
                 return assert.eventually.isTrue(pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT),
                     "'Save as Fragment' menu item should appear again");
-
             })
         });
 

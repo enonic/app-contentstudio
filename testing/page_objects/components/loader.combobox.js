@@ -8,8 +8,6 @@ const appConst = require('../../libs/app_const');
 const component = {
     container: `//div[contains(@id,'LoaderComboBox')]`,
     modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
-    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
-
 };
 const loaderComboBox = Object.create(page, {
     optionsFilterInput: {
@@ -31,9 +29,12 @@ const loaderComboBox = Object.create(page, {
         }
     },
     typeTextAndSelectOption: {
-        value: function (optionDisplayName) {
+        value: function (optionDisplayName,xpath) {
             let optionSelector = elements.slickRowByDisplayName(`${component.container}`, optionDisplayName);
-            return this.getDisplayedElements(this.optionsFilterInput).then(result => {
+            if (xpath === undefined){
+                xpath='';
+            }
+                return this.getDisplayedElements(xpath+this.optionsFilterInput).then(result => {
                 return this.getBrowser().elementIdValue(result[0].ELEMENT, optionDisplayName);
             }).pause(1000).then(() => {
                 return this.doClick(optionSelector).catch((err) => {

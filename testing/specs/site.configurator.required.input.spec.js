@@ -11,7 +11,6 @@ const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const imageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const siteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const siteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 
@@ -23,7 +22,6 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
     let SITE;
     it(`GIVEN existing site is opened WHEN 'edit' button on the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         () => {
-            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
             return studioUtils.doAddSite(SITE).then(()=> {

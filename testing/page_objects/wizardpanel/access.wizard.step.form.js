@@ -6,7 +6,6 @@ const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const loaderComboBox = require('../components/loader.combobox');
-const siteConfigDialog = require('./site.configurator.dialog');
 const xpath = {
     container: `//div[contains(@id,'SecurityWizardStepForm')]`,
     permissionSelector: `//div[contains(@id,'PermissionSelector')]`,

@@ -1,8 +1,8 @@
-var gulp = require('gulp');
+const gulp = require('gulp');
 const selenium = require('selenium-standalone');
 const mocha = require('gulp-mocha');
-var runSequence = require('run-sequence');
-var allure = require("mocha-allure-reporter");
+const runSequence = require('run-sequence');
+const allure = require("mocha-allure-reporter");
 
 gulp.task('selenium', function (done) {
     return selenium.install(
@@ -29,7 +29,7 @@ gulp.task('selenium', function (done) {
 
 gulp.task('mocha', function () {
     return gulp
-        .src('specs/**/**.js', {read: false})
+        .src('specs/**/*.spec.js', {read: false})
         .pipe(mocha(
             {
                 reporter: 'mocha-allure-reporter',
