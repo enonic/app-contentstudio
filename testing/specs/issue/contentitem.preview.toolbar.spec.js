@@ -78,9 +78,12 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 //close the modal dialog
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
+                assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed(),
+                    '`Issues-dropdown handle` should should appear on the toolbar');
+            }).then(() => {
                 return contentItemPreviewPanel.getIssueNameOnMenuButton();
             }).then(result => {
-                assert.isTrue(result == secondIssueTitle);
+                assert.isTrue(result == secondIssueTitle, "issue-name should be update on the menu-button");
             })
         });
 
@@ -95,6 +98,22 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_clicked");
                 assert.isTrue(result == secondIssueTitle);
+            })
+        });
+
+    it(`GIVEN existing folder with 2 issues is selected AND dropdown in the issue-menu has been clicked WHEN click on the menu-item in the dropdown list THEN 'IssueDetails' modal dialog should appear with correct tittle`,
+        () => {
+            return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
+                return contentItemPreviewPanel.clickOnIssueMenuDropDownHandle();
+            }).then(() => {
+                return contentItemPreviewPanel.clickOnIssueMenuItem(firstIssueTitle);
+            }).then(() => {
+                return issueDetailsDialog.waitForDialogLoaded();
+            }).then(() => {
+                return issueDetailsDialog.getIssueTitle();
+            }).then(result => {
+                studioUtils.saveScreenshot("issue_menu_item_clicked");
+                assert.isTrue(result == firstIssueTitle,"required issue should be loaded in the modal dialog");
             })
         });
 //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
