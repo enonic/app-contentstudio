@@ -534,6 +534,7 @@ export class IssueDetailsDialog
                             .sendAndParse()
                             .then((updatedIssue: Issue) => {
                                 this.setIssue(updatedIssue);
+                                this.notifyIssueUpdated(updatedIssue);
                                 api.notify.showFeedback(i18n('notify.issue.closed', updatedIssue.getTitle()));
                             }).catch(() => {
                             api.notify.showError(i18n('notify.issue.closeError', issue.getTitle()));
