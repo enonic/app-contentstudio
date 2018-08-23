@@ -1,5 +1,6 @@
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
+import {Router} from '../../Router';
 import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
@@ -67,6 +68,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         this.resetConstraints();
         this.dependenciesSection.reset();
         this.search();
+        Router.back();
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean) {

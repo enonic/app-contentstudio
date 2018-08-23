@@ -41,6 +41,7 @@ import {ContentDuplicateDialog} from './app/duplicate/ContentDuplicateDialog';
 import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
 import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
 import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
+import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -289,6 +290,8 @@ function startApplication() {
 
     ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
         IssueDialogsManager.get().openListDialog(event.getAssignedToMe(), event.getCreatedByMe()));
+
+    ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
     // tslint:disable-next-line:no-unused-expression
     new EditPermissionsDialog();

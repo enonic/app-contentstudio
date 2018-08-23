@@ -1,11 +1,11 @@
 import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup, DependencyType} from './DependencyGroup';
-import {ToggleSearchPanelWithDependenciesEvent} from '../../../../browse/ToggleSearchPanelWithDependenciesEvent';
 import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
 import {ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
 import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
 import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
+import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ActionButton = api.ui.button.ActionButton;
 import Action = api.ui.Action;
@@ -39,12 +39,12 @@ export class DependenciesWidgetItemView
     }
 
     private manageButtonClick() {
-        this.inboundButton.getAction().onExecuted((action: Action) => {
-            new ToggleSearchPanelWithDependenciesEvent(this.item.getContentSummary(), true).fire();
+        this.inboundButton.getAction().onExecuted(() => {
+            new ShowDependenciesEvent(this.item.getContentId(), true).fire();
         });
 
-        this.outboundButton.getAction().onExecuted((action: Action) => {
-            new ToggleSearchPanelWithDependenciesEvent(this.item.getContentSummary(), false).fire();
+        this.outboundButton.getAction().onExecuted(() => {
+            new ShowDependenciesEvent(this.item.getContentId(), false).fire();
         });
     }
 
