@@ -80,4 +80,12 @@ export class PageViewController {
     isNextClickDisabled(): boolean {
         return this.nextClickDisabled;
     }
+
+    getEditorToolbarContainerId(): string {
+        if (this.editorToolbar) {
+            return this.editorToolbar.getId();
+        }
+
+        return null;
+    }
 }

@@ -352,14 +352,6 @@ export class PageView
         return this.hasClass('has-toolbar-container');
     }
 
-    getEditorToolbarContainerId(): string {
-        if (this.editorToolbar) {
-            return this.editorToolbar.getId();
-        }
-
-        return null;
-    }
-
     private setIgnorePropertyChanges(value: boolean) {
         this.ignorePropertyChanges = value;
     }
