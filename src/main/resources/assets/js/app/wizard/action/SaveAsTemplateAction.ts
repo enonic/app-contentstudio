@@ -34,9 +34,10 @@ export class SaveAsTemplateAction
                 .setSupports(this.contentSummary.getType())
                 .setName(this.contentSummary.getName())
                 .sendAndParse().then(createdTemplate => {
-
                 new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(createdTemplate)]).fire();
-            });
+            }).catch((reason) => {
+                api.DefaultErrorHandler.handle(reason);
+            }).done();
         });
     }
 
