@@ -55,7 +55,7 @@ const textComponent = Object.create(page, {
         }
     },
     getIdOfEditor: {
-        value: function (text) {
+        value: function () {
             return this.getAttribute(elements.RICH_TEXT_EDITOR, 'id');
         }
     },
@@ -73,7 +73,6 @@ const textComponent = Object.create(page, {
                 return this.getDisplayedElements("//iframe[contains(@class,'cke_panel_frame')]");
             }).then(result => {
                 return this.frame(result.value);
-
             }).pause(5000).then(() => {
                 return this.doClick("//div[contains(@class,'cke_panel_block')]");
             }).pause(5000).then(() => {
@@ -99,7 +98,10 @@ const textComponent = Object.create(page, {
     },
     clickOnInsertLinkButton: {
         value: function () {
-            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(result => {
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).catch(err=>{
+                this.saveScreenshot('err_text_component_open_cke');
+                throw new Error('Text Component - rich editor is not focused!');
+            }).then(result => {
                 return this.doClick(this.insertLinkButton);
             }).then(() => {
                 return this.switchToParentFrame();

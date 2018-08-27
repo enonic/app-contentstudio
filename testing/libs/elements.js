@@ -14,7 +14,7 @@ module.exports = Object.freeze({
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     TEXT_INPUT: "//input[contains(@id,'TextInput')]",
-    RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@title,'Rich Text Editor')]`,
+    RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]//div[contains(@id,'TextComponentView')]`,
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
     GRID_CANVAS: `//div[@class='grid-canvas']`,
