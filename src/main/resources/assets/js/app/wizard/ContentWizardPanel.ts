@@ -1953,12 +1953,14 @@ export class ContentWizardPanel
                     extraData = this.enrichWithExtraData(contentCopy, mixinName);
                 }
 
-                let form = this.xDataStepFormByName[key];
+                let form: XDataWizardStepForm = this.xDataStepFormByName[key];
                 form.getData().unChanged(this.dataChangedHandler);
 
                 let data = extraData.getData();
                 data.onChanged(this.dataChangedHandler);
 
+                form.resetForm();
+                form.resetState(data);
                 form.update(data, unchangedOnly);
 
                 this.synchPersistedItemWithMixinData(mixinName, data);
