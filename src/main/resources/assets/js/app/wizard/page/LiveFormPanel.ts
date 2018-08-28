@@ -470,6 +470,11 @@ export class LiveFormPanel
 
             this.pageLoading = true;
 
+            this.insertablesPanel.getComponentsView().addClass('loading');
+            this.liveEditPageProxy.onLoaded(() => {
+                this.insertablesPanel.getComponentsView().removeClass('loading');
+            });
+
             this.liveEditPageProxy.load();
 
             if (clearInspection) {
