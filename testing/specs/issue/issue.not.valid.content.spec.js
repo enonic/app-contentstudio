@@ -28,8 +28,10 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
             }).then(() => {
                 return createIssueDialog.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_2_DISPLAY_NAME);
             }).then(result => {
+                studioUtils.saveScreenshot("create_issue_dialog1");
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
+                studioUtils.saveScreenshot("issue_details_should_be_loaded");
                 return issueDetailsDialog.waitForDialogLoaded();
             }).pause(2000).then(() => {
                 return issueDetailsDialog.getNumberOfItems();

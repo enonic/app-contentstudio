@@ -86,7 +86,7 @@ const contentPublishDialog = Object.create(page, {
     isOperationAllowed: {
         value: function (principalName, operation) {
             let permToggle = xpath.permissionToggleByOperationName(operation);
-            let selector = xpath.aclEntryByName(principalName)+permToggle;
+            let selector = xpath.aclEntryByName(principalName) + permToggle;
 
             return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
                 return this.getAttribute(selector, 'class');
@@ -98,7 +98,7 @@ const contentPublishDialog = Object.create(page, {
     isOperationDenied: {
         value: function (principalName, operation) {
             let permToggle = xpath.permissionToggleByOperationName(operation);
-            let selector = xpath.aclEntryByName(principalName)+permToggle;
+            let selector = xpath.aclEntryByName(principalName) + permToggle;
             return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
                 return this.getAttribute(selector, 'class');
             }).then(result => {
@@ -108,7 +108,9 @@ const contentPublishDialog = Object.create(page, {
     },
     clickOnInheritPermissionsCheckBox: {
         value: function () {
-            return this.doClick(this.inheritPermissionsCheckbox + '/label').catch(err => {
+            return this.waitForVisible(this.inheritPermissionsCheckbox).then(() => {
+                return this.doClick(this.inheritPermissionsCheckbox + '/label');
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_inherit_permis_dialog');
                 throw new Error('Error when clicking on Inherit permissions ' + err);
             })
