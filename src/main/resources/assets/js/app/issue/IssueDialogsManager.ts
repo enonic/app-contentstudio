@@ -39,9 +39,9 @@ export class IssueDialogsManager {
         let ignoreNextClosedEvent = false;
         dialog.onIssueCreated(issue => {
             ignoreNextClosedEvent = true;
+            dialog.close();
             this.notifyIssueCreated(issue);
             this.openDetailsDialog(issue);
-            dialog.close();
         });
         dialog.onClosed(() => {
             if (!ignoreNextClosedEvent) {
