@@ -10,7 +10,6 @@ export class InPlaceTextInput
     private h2: H2El;
     private toggleButton: Button;
     private persistedValue: string;
-    private allowEmpty: boolean = false;
 
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
     private outsideClickListener: (event: MouseEvent) => void;
@@ -18,15 +17,32 @@ export class InPlaceTextInput
     constructor(originalValue?: string, size?: string) {
         super();
         this.addClass('inplace-text-input');
+
+        this.initElements(originalValue, size);
+        this.addElements();
+    }
+
+    private initElements(originalValue: string, size: string) {
+        this.createHeader(originalValue);
+        this.createInput(originalValue, size);
+        this.createToggleButton();
+    }
+
+    private createHeader(originalValue: string) {
         this.h2 = new H2El('inplace-text');
         this.h2.setHtml(this.formatTextToDisplay(originalValue), false);
         this.h2.onDblClicked(() => this.setEditMode(true));
+    }
+
+    private createInput(originalValue: string, size: string) {
         this.input = new TextInput('inplace-input', size, originalValue);
+
         this.input.onValueChanged(event => {
             const isValid = this.isInputValid();
             this.input.toggleClass('invalid', !isValid);
             this.toggleClass('invalid', !isValid);
         });
+
         this.input.onKeyDown((event: KeyboardEvent) => {
             event.stopImmediatePropagation();
             switch (event.keyCode) {
@@ -40,9 +56,9 @@ export class InPlaceTextInput
                 break;
             }
         });
-        this.setWrappedInput(this.input);
-        this.addAdditionalElement(this.h2);
+    }
 
+    private createToggleButton() {
         this.toggleButton = new Button();
         this.toggleButton.onClicked(() => {
             if (this.isInputValid()) {
@@ -50,15 +66,16 @@ export class InPlaceTextInput
             }
         });
         this.toggleButton.setClass('inplace-toggle');
+    }
+
+    private addElements() {
+        this.setWrappedInput(this.input);
+        this.addAdditionalElement(this.h2);
         this.addAdditionalElement(this.toggleButton);
     }
 
     private isInputValid(): boolean {
-        return this.allowEmpty || !api.util.StringHelper.isBlank(this.input.getValue());
-    }
-
-    public setAllowEmpty(flag: boolean) {
-        this.allowEmpty = flag;
+        return !api.util.StringHelper.isBlank(this.input.getValue());
     }
 
     public setEditMode(flag: boolean, cancel?: boolean) {
