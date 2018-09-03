@@ -11,7 +11,6 @@ import FormItem = api.ui.form.FormItem;
 import ValidityChangedEvent = api.ValidityChangedEvent;
 import PrincipalKey = api.security.PrincipalKey;
 import ContentId = api.content.ContentId;
-import UserStoreKey = api.security.UserStoreKey;
 import i18n = api.util.i18n;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
@@ -201,11 +200,11 @@ export class IssueDialogForm
     }
 
     public getTitle(): string {
-        return this.title.getValue();
+        return this.title.getValue().trim();
     }
 
     public getDescription(): string {
-        return this.description.getValue();
+        return this.description.getValue().trim();
     }
 
     public getApprovers(): PrincipalKey[] {

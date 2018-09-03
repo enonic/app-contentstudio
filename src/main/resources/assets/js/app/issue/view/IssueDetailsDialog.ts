@@ -94,7 +94,7 @@ export class IssueDetailsDialog
 
         this.commentTextArea = new IssueCommentTextArea();
         this.commentTextArea.onValueChanged(event => {
-            const saveAllowed = event.getNewValue().length > 0;
+            const saveAllowed = event.getNewValue().trim().length > 0;
             this.commentAction.setEnabled(saveAllowed);
         });
         this.commentTextArea.onKeyDown(event => {
@@ -572,7 +572,7 @@ export class IssueDetailsDialog
         const statusChanged = newStatus !== this.issue.getIssueStatus();
 
         return new UpdateIssueRequest(this.issue.getId())
-            .setTitle(this.header.getTitle())
+            .setTitle(this.header.getTitle().trim())
             .setStatus(newStatus)
             .setAutoSave(autoSave)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
