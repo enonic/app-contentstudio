@@ -20,12 +20,6 @@ export class XDataWizardStepForm
         this.addClass('x-data-wizard-step-form');
 
         this.external = external;
-
-        /* this.onRendered(() => {
-             if (this.outerHeader) {
-                 this.outerHeader.setTogglerState(this.enabled, true);
-             }
-         });*/
     }
 
     setExpandState(value: boolean) {
