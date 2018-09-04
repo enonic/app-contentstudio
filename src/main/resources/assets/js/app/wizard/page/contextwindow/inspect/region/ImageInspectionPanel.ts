@@ -129,6 +129,7 @@ export class ImageInspectionPanel
         let configForm = imageComponent.getForm();
         this.formView = new api.form.FormView(this.formContext, configForm, configData.getRoot());
         this.appendChild(this.formView);
+        this.formView.setVisible(this.imageComponent.hasImage());
         imageComponent.setDisableEventForwarding(true);
         this.formView.layout().catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
