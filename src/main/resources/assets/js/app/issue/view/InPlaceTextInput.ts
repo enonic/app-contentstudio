@@ -17,10 +17,32 @@ export class InPlaceTextInput
     constructor(originalValue?: string, size?: string) {
         super();
         this.addClass('inplace-text-input');
+
+        this.initElements(originalValue, size);
+        this.addElements();
+    }
+
+    private initElements(originalValue: string, size: string) {
+        this.createHeader(originalValue);
+        this.createInput(originalValue, size);
+        this.createToggleButton();
+    }
+
+    private createHeader(originalValue: string) {
         this.h2 = new H2El('inplace-text');
         this.h2.setHtml(this.formatTextToDisplay(originalValue), false);
         this.h2.onDblClicked(() => this.setEditMode(true));
+    }
+
+    private createInput(originalValue: string, size: string) {
         this.input = new TextInput('inplace-input', size, originalValue);
+
+        this.input.onValueChanged(event => {
+            const isValid = this.isInputValid();
+            this.input.toggleClass('invalid', !isValid);
+            this.toggleClass('invalid', !isValid);
+        });
+
         this.input.onKeyDown((event: KeyboardEvent) => {
             event.stopImmediatePropagation();
             switch (event.keyCode) {
@@ -28,22 +50,39 @@ export class InPlaceTextInput
                 this.setEditMode(false, true);
                 break;
             case 13:
-                this.setEditMode(false);
+                if (this.isInputValid()) {
+                    this.setEditMode(false);
+                }
                 break;
             }
         });
+    }
+
+    private createToggleButton() {
+        this.toggleButton = new Button();
+        this.toggleButton.onClicked(() => {
+            if (this.isInputValid()) {
+                this.setEditMode(!this.isEditMode());
+            }
+        });
+        this.toggleButton.setClass('inplace-toggle');
+    }
+
+    private addElements() {
         this.setWrappedInput(this.input);
         this.addAdditionalElement(this.h2);
-
-        this.toggleButton = new Button();
-        this.toggleButton.onClicked(() => this.setEditMode(!this.isEditMode()));
-        this.toggleButton.setClass('inplace-toggle');
         this.addAdditionalElement(this.toggleButton);
+    }
+
+    private isInputValid(): boolean {
+        return !api.util.StringHelper.isBlank(this.input.getValue());
     }
 
     public setEditMode(flag: boolean, cancel?: boolean) {
         if (cancel) {
             this.input.setValue(this.persistedValue, true);
+            this.input.removeClass('invalid');
+            this.removeClass('invalid');
         }
         this.toggleClass('edit-mode', flag);
         const newValue = this.input.getValue();
