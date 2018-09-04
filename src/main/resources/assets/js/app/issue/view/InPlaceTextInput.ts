@@ -85,7 +85,7 @@ export class InPlaceTextInput
             this.removeClass('invalid');
         }
         this.toggleClass('edit-mode', flag);
-        const newValue = this.input.getValue();
+        const newValue = this.input.getValue().trim();
         if (flag) {
             this.persistedValue = newValue;
         } else {
