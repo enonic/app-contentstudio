@@ -114,7 +114,7 @@ export class MoveContentDialog
                 }).done();
 
             });
-        this.addAction(this.moveAction);
+        this.addAction(this.moveAction, true);
     }
 
     private initProgressManager() {
