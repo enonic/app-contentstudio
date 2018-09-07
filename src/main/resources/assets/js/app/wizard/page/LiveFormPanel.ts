@@ -227,17 +227,17 @@ export class LiveFormPanel
     private createInspectionsPanel(model: LiveEditModel, saveAsTemplateAction: SaveAsTemplateAction): InspectionsPanel {
         let saveAction = new api.ui.Action(i18n('action.apply'));
         saveAction.onExecuted(() => {
-            if (!this.pageView) {
-                this.contentWizardPanel.saveChanges();
-                return;
+
+            if (this.pageView) {
+                const itemView = this.pageView.getSelectedView();
+                if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
+                    this.saveAndReloadOnlyComponent(<ComponentView<Component>> itemView);
+
+                    return;
+                }
             }
 
-            let itemView = this.pageView.getSelectedView();
-            if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.saveAndReloadOnlyComponent(<ComponentView<Component>> itemView);
-            } else if (this.pageView.isLocked() || api.ObjectHelper.iFrameSafeInstanceOf(itemView, PageView)) {
-                this.contentWizardPanel.saveChanges();
-            }
+            this.contentWizardPanel.saveChanges();
         });
 
         this.contentInspectionPanel = new ContentInspectionPanel();
