@@ -875,7 +875,7 @@ export class ContentWizardPanel
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
-        return this.persistedContent.isReferencedBy([content.getContentId()]);
+        return content.isReferencedBy(this.persistedContent.getContentId());
     }
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
