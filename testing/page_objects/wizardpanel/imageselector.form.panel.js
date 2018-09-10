@@ -113,8 +113,10 @@ const imageSelectorForm = Object.create(page, {
     },
     waitForEmptyOptionsMessage: {
         value: function (displayName) {
-            return this.waitForVisible(`//div[contains(@class,'empty-options') and text()='No matching items']`, appConst.TIMEOUT_2).catch(
+            return this.waitForVisible(`//div[contains(@class,'empty-options') and text()='No matching items']`, appConst.TIMEOUT_3).catch(
                 err => {
+                    console.log("Error: "+err);
+                    this.saveScreenshot("err_empty_options");
                     return false;
                 });
         }
