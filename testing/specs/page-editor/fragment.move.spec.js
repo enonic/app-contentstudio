@@ -16,7 +16,7 @@ const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const moveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
 const confirmationDialog = require('../../page_objects/confirmation.dialog');
-
+const textComponent =  require('../../page_objects/components/text.component');
 
 describe('Move Fragment` specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -48,7 +48,9 @@ describe('Move Fragment` specification', function () {
             }).then(() => {
                 return pageComponentView.selectMenuItem(["Insert", "Text"]);
             }).then(() => {
-                return liveFormPanel.typeTextInCKETextComponent('text_component_1');
+                return textComponent.typeTextInCkeEditor('text_component_1')
+            }).then(()=>{
+                return contentWizard.switchToMainFrame();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
