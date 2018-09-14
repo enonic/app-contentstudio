@@ -53,7 +53,9 @@ export class XDataWizardStepForm
         }
 
         if (this.enabled) {
-            return super.doLayout(form, data);
+            return super.doLayout(form, data).then(() => {
+                this.validate(false);
+            });
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
@@ -84,7 +86,7 @@ export class XDataWizardStepForm
                 if (this.disabledData) {
                     this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
                 }
-                this.doLayout(this.form, this.data).then(() => this.validate());
+                this.doLayout(this.form, this.data);
             }
         } else {
             if (this.data) {
