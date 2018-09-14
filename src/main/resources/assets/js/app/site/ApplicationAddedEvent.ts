@@ -1,20 +1,20 @@
 import '../../api.ts';
 import ApplicationKey = api.application.ApplicationKey;
-import SiteConfig = api.content.site.SiteConfig;
+import ApplicationConfig = api.application.ApplicationConfig;
 
 export class ApplicationAddedEvent {
 
-    private siteConfig: SiteConfig;
+    private applicationConfig: ApplicationConfig;
 
-    constructor(siteConfig: SiteConfig) {
-        this.siteConfig = siteConfig;
+    constructor(applicationConfig: ApplicationConfig) {
+        this.applicationConfig = applicationConfig;
     }
 
     getApplicationKey(): ApplicationKey {
-        return this.siteConfig.getApplicationKey();
+        return this.applicationConfig.getApplicationKey();
     }
 
-    getSiteConfig(): SiteConfig {
-        return this.siteConfig;
+    getApplicationConfig(): ApplicationConfig {
+        return this.applicationConfig;
     }
 }

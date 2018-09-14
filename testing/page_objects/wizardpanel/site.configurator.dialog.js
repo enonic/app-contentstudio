@@ -1,7 +1,7 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const dialog = {
-    container: `//div[contains(@id,'SiteConfiguratorDialog')]`,
+    container: `//div[contains(@id,'ApplicationConfiguratorDialog')]`,
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };

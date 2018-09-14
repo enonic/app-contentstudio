@@ -32,7 +32,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 return siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
             }).then(isDisplayed=> {
                 studioUtils.saveScreenshot('site_config1');
-                assert.isTrue(isDisplayed, '`site-configurator` dialog should be visible');
+                assert.isTrue(isDisplayed, '`application-configurator` dialog should be visible');
             });
         });
 
@@ -56,7 +56,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
             });
         });
 
-    it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected site-configurator option-view should be red`,
+    it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
                 return siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
