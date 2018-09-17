@@ -5,13 +5,13 @@ import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import Site = api.content.site.Site;
-import SiteConfig = api.content.site.SiteConfig;
+import ApplicationConfig = api.application.ApplicationConfig;
 
 export class SiteModel {
 
     private site: api.content.site.Site;
 
-    private siteConfigs: SiteConfig[];
+    private siteConfigs: ApplicationConfig[];
 
     private applicationAddedListeners: { (event: ApplicationAddedEvent): void }[] = [];
 
@@ -41,7 +41,7 @@ export class SiteModel {
             let property: api.data.Property = event.getProperty();
 
             if (property.getPath().toString().indexOf('.siteConfig') === 0 && property.getName() === 'config') {
-                let siteConfig: SiteConfig = api.content.site.SiteConfig.create().fromData(property.getParent()).build();
+                let siteConfig: ApplicationConfig = api.application.ApplicationConfig.create().fromData(property.getParent()).build();
                 if (!this.siteConfigs) {
                     this.siteConfigs = [];
                 }
@@ -54,7 +54,7 @@ export class SiteModel {
             let property: api.data.Property = event.getProperty();
             if (property.getName() === 'siteConfig') {
                 let applicationKey = ApplicationKey.fromString(property.getPropertySet().getString('applicationKey'));
-                this.siteConfigs = this.siteConfigs.filter((siteConfig: SiteConfig) =>
+                this.siteConfigs = this.siteConfigs.filter((siteConfig: ApplicationConfig) =>
                     !siteConfig.getApplicationKey().equals(applicationKey)
                 );
                 this.notifyApplicationRemoved(applicationKey);
@@ -103,7 +103,7 @@ export class SiteModel {
     }
 
     getApplicationKeys(): ApplicationKey[] {
-        return this.siteConfigs.map((sc: SiteConfig) => sc.getApplicationKey());
+        return this.siteConfigs.map((sc: ApplicationConfig) => sc.getApplicationKey());
     }
 
     onPropertyChanged(listener: (event: api.PropertyChangedEvent) => void) {
@@ -128,7 +128,7 @@ export class SiteModel {
             });
     }
 
-    private notifyApplicationAdded(siteConfig: SiteConfig) {
+    private notifyApplicationAdded(siteConfig: ApplicationConfig) {
         let event = new ApplicationAddedEvent(siteConfig);
         this.applicationAddedListeners.forEach((listener: (event: ApplicationAddedEvent) => void) => {
             listener(event);

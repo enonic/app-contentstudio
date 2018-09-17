@@ -335,6 +335,23 @@
       }
     }
   }
+
+  .live-form-panel.rendering {
+    opacity: 0;
+  }
+
+  .settings-wizard-step-form,
+  .schedule-wizard-step-form,
+  .security-wizard-step-form {
+    .input-view {
+      .input-label, label {
+        float: none;
+      }
+      .input-type-view, label + .form-input {
+        margin-left: 0;
+      }
+    }
+  }
 }
 
 ._0-240, ._240-360, ._360-540, ._540-720, ._720-960, .mce-fullscreen {

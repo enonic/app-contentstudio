@@ -12,7 +12,12 @@ api.util.i18nInit(CONFIG.messages);
 
 const body = api.dom.Body.get();
 
-import './api.ts';
+// Dynamically import and execute all input types, since they are used
+// on-demand, when parsing XML schemas and has not real usage in app
+declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+const importAll = r => r.keys().forEach(r);
+importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
+
 import {Router} from './app/Router';
 import {ContentAppPanel} from './app/ContentAppPanel';
 import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
