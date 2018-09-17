@@ -293,7 +293,7 @@ const contentWizardPanel = Object.create(page, {
             return this.waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
                 return this.doClick(selector);
             }).then(() => {
-                this.switchToLiveEditFrame();
+                return this.switchToLiveEditFrame();
             }).then(() => {
                 return this.waitForVisible(wizard.itemViewContextMenu, appConst.TIMEOUT_2);
             }).catch(err => {
