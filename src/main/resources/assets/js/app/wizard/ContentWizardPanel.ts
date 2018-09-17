@@ -68,7 +68,6 @@ import Toolbar = api.ui.toolbar.Toolbar;
 import Permission = api.security.acl.Permission;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
-import NavigatorEvent = api.ui.NavigatorEvent;
 import CycleButton = api.ui.button.CycleButton;
 import i18n = api.util.i18n;
 
@@ -819,14 +818,6 @@ export class ContentWizardPanel
 
                             steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
                         }
-                    });
-
-                    this.getStepNavigator().onNavigationItemAdded((event: NavigatorEvent) => {
-                        const item = <ContentTabBarItem>event.getItem();
-                        if (item.getIconCls()) {
-                            this.getHeader(item.getIndex()).addClass('step-icon ' + item.getIconCls());
-                        }
-
                     });
 
                     this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');

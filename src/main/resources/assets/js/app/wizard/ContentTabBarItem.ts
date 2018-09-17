@@ -13,10 +13,6 @@ export class ContentTabBarItem extends api.ui.tab.TabBarItem {
         this.toggleClass('step-icon ' + this.iconCls, !!builder.iconCls);
     }
 
-    getIconCls(): string {
-        return this.iconCls;
-    }
-
     setLabel(newValue: string, markUnnamed: boolean = false, addLabelTitleAttribute: boolean = true) {
 
         super.setLabel(newValue, markUnnamed, addLabelTitleAttribute);
