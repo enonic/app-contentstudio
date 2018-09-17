@@ -875,7 +875,7 @@ export class ContentWizardPanel
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
-        return this.persistedContent.isReferencedBy([content.getContentId()]);
+        return content.isReferencedBy(this.persistedContent.getContentId());
     }
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -1953,12 +1953,14 @@ export class ContentWizardPanel
                     extraData = this.enrichWithExtraData(contentCopy, mixinName);
                 }
 
-                let form = this.xDataStepFormByName[key];
+                let form: XDataWizardStepForm = this.xDataStepFormByName[key];
                 form.getData().unChanged(this.dataChangedHandler);
 
                 let data = extraData.getData();
                 data.onChanged(this.dataChangedHandler);
 
+                form.resetForm();
+                form.resetState(data);
                 form.update(data, unchangedOnly);
 
                 this.synchPersistedItemWithMixinData(mixinName, data);

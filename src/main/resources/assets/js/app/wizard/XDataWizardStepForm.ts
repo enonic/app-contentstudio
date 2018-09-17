@@ -20,12 +20,6 @@ export class XDataWizardStepForm
         this.addClass('x-data-wizard-step-form');
 
         this.external = external;
-
-        this.onRendered(() => {
-            if (this.outerHeader) {
-                this.outerHeader.setTogglerState(this.enabled, true);
-            }
-        });
     }
 
     setExpandState(value: boolean) {
@@ -45,7 +39,7 @@ export class XDataWizardStepForm
     }
 
     resetForm() {
-        this.data.getRoot().removeAllProperties();
+        this.data.getRoot().reset();
         this.disabledData = null;
 
         if (this.enabled) {
@@ -59,7 +53,9 @@ export class XDataWizardStepForm
         }
 
         if (this.enabled) {
-            return super.doLayout(form, data);
+            return super.doLayout(form, data).then(() => {
+                this.validate(false);
+            });
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
@@ -67,11 +63,16 @@ export class XDataWizardStepForm
         return wemQ(null);
     }
 
+    update(data: PropertyTree, unchangedOnly: boolean = true): wemQ.Promise<void> {
+        return super.update(data, unchangedOnly);
+    }
+
+    resetState(data: PropertyTree) {
+        this.setEnabled(!this.external || data.getRoot().getSize() > 0, true);
+    }
+
     private setEnabled(value: boolean, silent: boolean = false) {
-        let changed: boolean = false;
-        if (value !== this.enabled) {
-            changed = true;
-        }
+        let changed: boolean = value !== this.enabled;
         this.enabled = value;
 
         this.enabled ? this.show() : this.hide();
@@ -85,7 +86,7 @@ export class XDataWizardStepForm
                 if (this.disabledData) {
                     this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
                 }
-                this.doLayout(this.form, this.data).then(() => this.validate());
+                this.doLayout(this.form, this.data);
             }
         } else {
             if (this.data) {
@@ -101,13 +102,13 @@ export class XDataWizardStepForm
             }
         }
 
+        if (this.outerHeader) {
+            this.outerHeader.setTogglerState(this.enabled, true);
+        }
+
         if (!silent) {
             this.notifyEnableChanged(value);
         }
-    }
-
-    private resetState(data: PropertyTree) {
-        this.setEnabled(!this.external || data.getRoot().getSize() > 0, true);
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

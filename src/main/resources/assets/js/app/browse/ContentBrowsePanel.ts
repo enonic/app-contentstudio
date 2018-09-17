@@ -577,7 +577,11 @@ export class ContentBrowsePanel
 
         }).then(() => {
             if (!previewRefreshRequired) {
-                return previewItem.getModel().isReferencedBy(updatedContents.map(updatedContent => updatedContent.getContentId()));
+                return wemQ.all(
+                    updatedContents.map(updatedContent => updatedContent.isReferencedBy(previewItem.getModel().getContentId()))).then(
+                    (results: boolean[]) => {
+                        return results.some(result => result);
+                    });
             } else {
                 return wemQ(previewRefreshRequired);
             }

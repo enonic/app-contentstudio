@@ -30,4 +30,8 @@ export class IssueCommentTextArea
             return rendered;
         });
     }
+
+    getValue(): string {
+        return super.getValue().trim();
+    }
 }

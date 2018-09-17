@@ -24,6 +24,7 @@ const wizard = {
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
+    itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
 
 };
 const contentWizardPanel = Object.create(page, {
@@ -279,6 +280,35 @@ const contentWizardPanel = Object.create(page, {
             throw new Error(errString);
         }
     },
+    doUnlockLiveEditor: {
+        value: function () {
+            return this.doOpenItemViewContextMenu().then(() => {
+                return this.clickOnCustomizeMenuItem();
+            })
+        }
+    },
+    doOpenItemViewContextMenu: {
+        value: function () {
+            let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
+            return this.waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(selector);
+            }).then(() => {
+                this.switchToLiveEditFrame();
+            }).then(() => {
+                return this.waitForVisible(wizard.itemViewContextMenu, appConst.TIMEOUT_2);
+            }).catch(err => {
+                this.saveScreenshot("err_customize_menu_item");
+                throw  new Error(`'Customize Page' menu item is not displayed` + err);
+            });
+        }
+    },
+    // wait for 'Customize Page' context menu item
+    clickOnCustomizeMenuItem: {
+        value: function () {
+            let selector = wizard.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
+            return this.doClick(selector).pause(700);
+        }
+    },
     switchToLiveEditFrame: {
         value: function () {
             return this.getBrowser().element(`${wizard.liveEditFrame}`).then(result => {
@@ -286,7 +316,7 @@ const contentWizardPanel = Object.create(page, {
             });
         }
     },
-    doFilterAndClickOnOption: {
+    doFilterControllersAndClickOnOption: {
         value: function (pageControllerDisplayName) {
             let optionSelector = elements.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`,
                 pageControllerDisplayName);
@@ -307,12 +337,17 @@ const contentWizardPanel = Object.create(page, {
     selectPageDescriptor: {
         value: function (pageControllerDisplayName) {
             return this.switchToLiveEditFrame().then(() => {
-                return this.doFilterAndClickOnOption(pageControllerDisplayName);
+                return this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
             }).then(() => {
                 return this.getBrowser().frameParent();
             }).then(() => {
                 return this.waitForInspectionPanelTogglerVisible();
             })
+        }
+    },
+    switchToMainFrame: {
+        value: function () {
+            return this.getBrowser().frameParent();
         }
     },
     waitForControllerOptionFilterInputVisible: {
