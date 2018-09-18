@@ -33,8 +33,8 @@ export class DependantItemsWithProgressDialog
         return this.progressManager.isEnabled();
     }
 
-    protected pollTask(taskId: TaskId, elapsed: number = 0) {
-        this.progressManager.pollTask(taskId, elapsed);
+    protected pollTask(taskId: TaskId) {
+        this.progressManager.pollTask(taskId);
     }
 
     protected onProgressComplete(listener: (taskState: TaskState) => void) {
