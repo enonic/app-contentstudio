@@ -7,7 +7,7 @@ import PropertyTree = api.data.PropertyTree;
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
-    private external: boolean;
+    private optional: boolean;
 
     private enabled: boolean;
 
@@ -19,7 +19,7 @@ export class XDataWizardStepForm
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.external = external;
+        this.optional = external;
     }
 
     setExpandState(value: boolean) {
@@ -27,15 +27,15 @@ export class XDataWizardStepForm
     }
 
     isExpandable(): boolean {
-        return this.external;
+        return this.optional;
     }
 
     isEnabled(): boolean {
         return this.enabled;
     }
 
-    isExternal(): boolean {
-        return this.external;
+    isOptional(): boolean {
+        return this.optional;
     }
 
     resetForm() {
@@ -68,7 +68,7 @@ export class XDataWizardStepForm
     }
 
     resetState(data: PropertyTree) {
-        this.setEnabled(!this.external || data.getRoot().getSize() > 0, true);
+        this.setEnabled(!this.optional || data.getRoot().getSize() > 0, true);
     }
 
     private setEnabled(value: boolean, silent: boolean = false) {

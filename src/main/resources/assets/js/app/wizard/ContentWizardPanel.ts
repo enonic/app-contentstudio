@@ -708,7 +708,7 @@ export class ContentWizardPanel
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
                 const form: XDataWizardStepForm = this.xDataStepFormByName[key];
 
-                if (form.isExternal() && !form.isEnabled()) {
+                if (form.isOptional() && !form.isEnabled()) {
                     value = true;
                     break;
                 }
@@ -725,7 +725,7 @@ export class ContentWizardPanel
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
                 const form: XDataWizardStepForm = this.xDataStepFormByName[key];
 
-                if (form.isExternal() && form.isEnabled()) {
+                if (form.isOptional() && form.isEnabled()) {
                     value = false;
                     break;
                 }
@@ -805,10 +805,10 @@ export class ContentWizardPanel
 
                     xDatas.forEach((xData: Mixin, index: number) => {
                         if (!this.xDataStepFormByName[xData.getMixinName().toString()]) {
-                            let stepForm = new XDataWizardStepForm(xData.isExternal());
+                            let stepForm = new XDataWizardStepForm(xData.isOptional());
                             this.xDataStepFormByName[xData.getMixinName().toString()] = stepForm;
 
-                            if (!xDataAnchorIndex && xData.isExternal()) {
+                            if (!xDataAnchorIndex && xData.isOptional()) {
                                 xDataAnchorIndex = steps.length;
                             }
                             stepForm.onEnableChanged(() => {
@@ -1714,7 +1714,7 @@ export class ContentWizardPanel
                 xDatasToAdd.forEach((mixin: Mixin) => {
                     if (!this.xDataStepFormByName[mixin.getMixinName().toString()]) {
 
-                        let stepForm = new XDataWizardStepForm(mixin.isExternal());
+                        let stepForm = new XDataWizardStepForm(mixin.isOptional());
                         this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
 
                         let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
