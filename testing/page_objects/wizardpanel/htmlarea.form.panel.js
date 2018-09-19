@@ -54,7 +54,7 @@ const htmlAreaForm = Object.create(page, {
 
     type: {
         value: function (data) {
-            return this.typeTextInHtmlArea(data.texts);
+            return this.typeTextInHtmlArea(data.texts).pause(300);
         }
     },
 
