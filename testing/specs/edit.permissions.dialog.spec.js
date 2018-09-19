@@ -41,7 +41,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             });
         });
     //verifies: https://github.com/enonic/app-contentstudio/issues/277  incorrect state of the checkbox, when dialog is closed and reopened again
-    it(`GIVEN 'Inherit permissions' checkbox is unselected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should be not selected`,
+    it(`GIVEN 'Inherit permissions' checkbox is unselected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
         () => {
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
@@ -53,15 +53,16 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
                 return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
                     "the checkbox is getting unchecked");
             }).then(() => {
+                studioUtils.saveScreenshot("inherit_perm_is_unchecked");
                 return editPermissionsDialog.clickOnApplyButton();
             }).then(() => {
                 return editPermissionsDialog.waitForDialogClosed();
             }).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
-                studioUtils.saveScreenshot("edit_perm_dlg_inherit_checkbox");
+                studioUtils.saveScreenshot("dlg_inherit_checkbox_should_be_unchecked");
                 return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
-                    "the checkbox should be not selected");
+                    "the checkbox should not be checked");
             })
         });
 
