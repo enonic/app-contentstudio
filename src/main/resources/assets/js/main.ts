@@ -271,6 +271,7 @@ function startApplication() {
             .setContentToDuplicate(event.getModels())
             .setYesCallback(event.getYesCallback())
             .setNoCallback(event.getNoCallback())
+            .setOpenTabAfterDuplicate(event.getOpenActionAfterDuplicate())
             .open();
     });
 

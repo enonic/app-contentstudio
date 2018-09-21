@@ -8,6 +8,8 @@ export class ContentDuplicatePromptEvent
 
     private noCallback: () => void;
 
+    private openTabAfterDuplicate: boolean;
+
     setYesCallback(callback: () => void): ContentDuplicatePromptEvent {
         this.yesCallback = callback;
         return this;
@@ -18,12 +20,21 @@ export class ContentDuplicatePromptEvent
         return this;
     }
 
+    setOpenActionAfterDuplicate(value: boolean): ContentDuplicatePromptEvent {
+        this.openTabAfterDuplicate = value;
+        return this;
+    }
+
     getYesCallback(): () => void {
         return this.yesCallback;
     }
 
     getNoCallback(): () => void {
         return this.noCallback;
+    }
+
+    getOpenActionAfterDuplicate(): boolean {
+        return this.openTabAfterDuplicate;
     }
 
     static on(handler: (event: ContentDuplicatePromptEvent) => void) {
