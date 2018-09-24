@@ -5,6 +5,7 @@ import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
+import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
 import ElementHelper = api.dom.ElementHelper;
 
 import TreeGrid = api.ui.treegrid.TreeGrid;
@@ -179,6 +180,10 @@ export class ContentTreeGrid
         });
         ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
             this.updateContentNode(event.getContentId());
+        });
+
+        this.onLoaded(() => {
+            new ContentTreeGridLoadedEvent().fire();
         });
     }
 

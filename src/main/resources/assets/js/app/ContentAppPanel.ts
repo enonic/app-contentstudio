@@ -5,6 +5,9 @@ import {NewContentEvent} from './create/NewContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
+import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
+import {Router} from './Router';
+import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
@@ -58,6 +61,12 @@ export class ContentAppPanel
                     });
             }
             break;
+        case 'inbound' :
+            this.handleDependencies(id, true);
+            break;
+        case 'outbound' :
+            this.handleDependencies(id, false);
+            break;
         default:
             new ShowBrowsePanelEvent().fire();
             break;
@@ -82,7 +91,7 @@ export class ContentAppPanel
 
     private handleNew(newContentEvent: NewContentEvent) {
         if (newContentEvent.getContentType().isSite() && this.browsePanel) {
-            let content: Content = newContentEvent.getParentContent();
+            const content: Content = newContentEvent.getParentContent();
             if (!!content) { // refresh site's node
                 this.browsePanel.getTreeGrid().refreshNodeById(content.getId());
             }
@@ -94,4 +103,23 @@ export class ContentAppPanel
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
 
+    private handleDependencies(id: string, inbound: boolean) {
+        const treeGridLoadedListener = () => {
+            api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                (content: ContentSummaryAndCompareStatus) => {
+                    new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
+
+                    const mode: string = inbound ? 'inbound' : 'outbound';
+                    const hash: string = `${mode}/${id}`;
+
+                    Router.setHash(hash);
+                });
+
+            ContentTreeGridLoadedEvent.un(treeGridLoadedListener);
+        };
+
+        ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
+
+        new ShowBrowsePanelEvent().fire();
+    }
 }
