@@ -75,7 +75,7 @@ export class PageComponentsTreeGrid
     }
 
     toggleCompact(flag: boolean) {
-        const options = this.getOptions().setRowHeight(flag ? 32 : 45);
+        const options = this.getOptions().setRowHeight(flag ? 30 : 45);
         this.getGrid().setOptions(options);
         this.invalidate();
     }
