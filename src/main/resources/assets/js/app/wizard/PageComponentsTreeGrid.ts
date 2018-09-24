@@ -74,6 +74,12 @@ export class PageComponentsTreeGrid
         (new PageComponentsGridDragHandler(this));
     }
 
+    toggleCompact(flag: boolean) {
+        const options = this.getOptions().setRowHeight(flag ? 30 : 45);
+        this.getGrid().setOptions(options);
+        this.invalidate();
+    }
+
     queryScrollable(): api.dom.Element {
         return this;
     }
@@ -168,7 +174,7 @@ export class PageComponentsTreeGrid
     public static menuFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
         let wrapper = new api.dom.SpanEl();
 
-        let icon = new api.dom.DivEl('menu-icon');
+        let icon = new api.dom.DivEl('menu-icon icon-menu2');
         wrapper.getEl().setInnerHtml(icon.toString(), false);
         return wrapper.toString();
     }

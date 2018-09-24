@@ -38,6 +38,50 @@
     }
   }
 
+  &.compact {
+    .tree-grid .grid .slick-viewport .slick-row {
+      height: 30px;
+
+      .toggle {
+        margin-right: 5px;
+      }
+
+      .slick-cell {
+        height: 30px;
+
+        .names-and-icon-view {
+
+          .xp-admin-common-wrapper {
+            line-height: 22px;
+            height: 22px;
+            width: 22px;
+            margin-right: 0;
+
+            .font-icon, .font-icon-default {
+              font-size: 18px;
+              display: block;
+
+              &:before {
+                font-size: 18px;
+              }
+            }
+          }
+
+          .xp-admin-common-names-view {
+            margin-left: 35px;
+
+            .xp-admin-common-main-name {
+              line-height: 22px;
+              height: auto;
+            }
+            .xp-admin-common-sub-name {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
 
   .tree-grid {
     width: 370px;
@@ -94,26 +138,22 @@
                 width: 37px;
                 height: 100%;
                 cursor: pointer;
+                transition-duration: .5s;
 
-                &:after {
-                  content: "";
+                &:before {
                   position: absolute;
                   top: 50%;
                   left: 50%;
                   width: 0;
                   height: 0;
                   margin: -5px 0 0 -7px;
-                  border-left: 6px solid transparent;
-                  border-right: 6px solid transparent;
-                  border-top: 10px solid @admin-font-gray1;
                   color: @admin-font-gray1;
                 }
               }
 
               &:hover {
                 .menu-icon {
-                  &:after {
-                    border-top: 10px solid @admin-dark-gray;
+                  &:before {
                     color: @admin-dark-gray;
                   }
                 }
@@ -121,26 +161,13 @@
 
               &.menu-open {
                 .menu-icon {
-                  &:after {
-                    border-top: 0 solid transparent;
-                    border-bottom: 10px solid @admin-dark-gray;
-                  }
+                  .rotate(90deg);
                 }
               }
 
               &.selected {
-                &.menu-open {
-                  .menu-icon {
-                    &:after {
-                      border-top: 0 solid transparent;
-                      border-bottom: 10px solid #ffffff;
-                    }
-                  }
-                }
-
                 .menu-icon {
-                  &:after {
-                    border-top: 10px solid #ffffff;
+                  &:before {
                     color: #ffffff;
                   }
                 }
