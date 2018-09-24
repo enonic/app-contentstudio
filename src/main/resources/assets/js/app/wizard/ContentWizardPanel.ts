@@ -29,6 +29,7 @@ import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
+import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentFormContext = api.content.form.ContentFormContext;
@@ -68,7 +69,6 @@ import Toolbar = api.ui.toolbar.Toolbar;
 import Permission = api.security.acl.Permission;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
-import NavigatorEvent = api.ui.NavigatorEvent;
 import CycleButton = api.ui.button.CycleButton;
 import i18n = api.util.i18n;
 
@@ -821,14 +821,6 @@ export class ContentWizardPanel
                         }
                     });
 
-                    this.getStepNavigator().onNavigationItemAdded((event: NavigatorEvent) => {
-                        const item = <ContentTabBarItem>event.getItem();
-                        if (item.getIconCls()) {
-                            this.getHeader(item.getIndex()).addClass('step-icon ' + item.getIconCls());
-                        }
-
-                    });
-
                     this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
                     this.scheduleWizardStepIndex = steps.length;
                     steps.push(this.scheduleWizardStep);
@@ -1113,6 +1105,9 @@ export class ContentWizardPanel
             }
         };
 
+        const versionChangeHandler = this.updateButtonsState.bind(this);
+
+        ActiveContentVersionSetEvent.on(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
         serverEvents.onContentMoved(movedHandler);
@@ -1125,6 +1120,7 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(childrenModifiedHandler);
 
         this.onClosed(() => {
+            ActiveContentVersionSetEvent.un(versionChangeHandler);
             ContentDeletedEvent.un(deleteHandler);
 
             serverEvents.unContentMoved(movedHandler);
