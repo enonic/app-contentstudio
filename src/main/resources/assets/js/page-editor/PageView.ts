@@ -35,6 +35,7 @@ import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
 import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
+import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import PageMode = api.content.page.PageMode;
 import Component = api.content.page.region.Component;
 import RegionPath = api.content.page.region.RegionPath;
@@ -496,7 +497,7 @@ export class PageView
     private isTextEditorDialogClicked(event: MouseEvent) {
         let target = <HTMLElement> event.target;
         while (target) {
-            if (target.classList.contains(api.util.htmlarea.dialog.ModalDialog.CLASS_NAME)) {
+            if (target.classList.contains(ModalDialog.CLASS_NAME)) {
                 return true;
             }
             target = target.parentElement;

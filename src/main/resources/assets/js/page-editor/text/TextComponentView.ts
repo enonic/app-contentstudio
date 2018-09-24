@@ -9,16 +9,15 @@ import {ItemView} from '../ItemView';
 import {PageViewController} from '../PageViewController';
 import {DragAndDrop} from '../DragAndDrop';
 import {PageView} from '../PageView';
-
-declare var CONFIG;
-
+import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
+import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
+import {HTMLAreaBuilder} from '../../app/inputtype/ui/text/HTMLAreaBuilder';
 import TextComponent = api.content.page.region.TextComponent;
-import HTMLAreaBuilder = api.util.htmlarea.editor.HTMLAreaBuilder;
 import eventInfo = CKEDITOR.eventInfo;
-import HTMLAreaHelper = api.util.htmlarea.editor.HTMLAreaHelper;
-import ModalDialog = api.util.htmlarea.dialog.ModalDialog;
 import Promise = Q.Promise;
 import i18n = api.util.i18n;
+
+declare var CONFIG;
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {

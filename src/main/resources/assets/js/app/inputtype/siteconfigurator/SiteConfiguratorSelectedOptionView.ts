@@ -5,7 +5,10 @@ import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationConfig = api.application.ApplicationConfig;
 import ContentFormContext = api.content.form.ContentFormContext;
-import ApplicationConfiguratorDialog = api.form.inputtype.appconfig.ApplicationConfiguratorDialog;
+import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
+import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
+import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
+import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 
 export class SiteConfiguratorSelectedOptionView
     extends api.ui.selector.combobox.BaseSelectedOptionView<Application> {
@@ -22,7 +25,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private formValidityChangedHandler: { (event: api.form.FormValidityChangedEvent): void };
 
-    private configureDialog: ApplicationConfiguratorDialog;
+    private configureDialog: SiteConfiguratorDialog;
 
     private formViewStateOnDialogOpen: FormView;
 
@@ -64,7 +67,7 @@ export class SiteConfiguratorSelectedOptionView
             this.toggleClass('invalid', !event.isValid());
         };
 
-        this.toggleClass('empty', !!this.getOption().empty);
+        this.toggleClass('empty', this.getOption().empty === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
         this.formView = this.createFormView(this.siteConfig);
@@ -103,31 +106,48 @@ export class SiteConfiguratorSelectedOptionView
         }
     }
 
-    initConfigureDialog(): ApplicationConfiguratorDialog {
+    initConfigureDialog(): SiteConfiguratorDialog {
         if (!this.isEditable()) {
             return null;
         }
 
-        let tempSiteConfig: ApplicationConfig = this.makeTemporarySiteConfig();
+        const tempSiteConfig: ApplicationConfig = this.makeTemporarySiteConfig();
 
         this.formView = this.createFormView(tempSiteConfig);
         this.bindValidationEvent(this.formView);
 
-        let okCallback = () => {
+        const okCallback = () => {
             if (!tempSiteConfig.equals(this.siteConfig)) {
                 this.applyTemporaryConfig(tempSiteConfig);
                 new api.content.event.ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
             }
         };
 
-        let cancelCallback = () => {
+        const cancelCallback = () => {
             this.revertFormViewToGivenState(this.formViewStateOnDialogOpen);
         };
 
-        let siteConfiguratorDialog = new ApplicationConfiguratorDialog(this.application,
+        const siteConfiguratorDialog = new SiteConfiguratorDialog(this.application,
             this.formView,
             okCallback,
-            cancelCallback);
+            cancelCallback
+        );
+
+        const handleAvailableSizeChanged = () => siteConfiguratorDialog.handleAvailableSizeChanged();
+        const toggleMask = () => {
+            siteConfiguratorDialog.toggleMask(true);
+            HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
+                siteConfiguratorDialog.toggleMask(false);
+            });
+        };
+
+        HtmlAreaResizeEvent.on(handleAvailableSizeChanged);
+        CreateHtmlAreaDialogEvent.on(toggleMask);
+
+        siteConfiguratorDialog.onRemoved(() => {
+            HtmlAreaResizeEvent.un(handleAvailableSizeChanged);
+            CreateHtmlAreaDialogEvent.un(toggleMask);
+        });
 
         return siteConfiguratorDialog;
     }

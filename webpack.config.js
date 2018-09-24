@@ -12,10 +12,13 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/bundle': './js/main.ts',
+        'lib/_all': './lib/index.js',
         'styles/_all': './styles/main.less',
         'page-editor/js/_all': './js/page-editor.ts',
-        'page-editor/lib/_all': './page-editor/lib/_include.js',
-        'page-editor/styles/_all': './page-editor/styles/main.less'
+        'page-editor/lib/_all': './page-editor/lib/index.js',
+        'page-editor/styles/_all': './page-editor/styles/main.less',
+        // html editor css imported separately in the HTMLAreaBuilder for legacy mode
+        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
