@@ -9,7 +9,7 @@ export class DuplicateContentAction extends api.ui.Action {
         super(i18n('action.duplicateMore'));
         this.onExecuted(() => {
             const content = ContentSummaryAndCompareStatus.fromContentSummary(wizardPanel.getPersistedItem());
-            new ContentDuplicatePromptEvent([content]).fire();
+            new ContentDuplicatePromptEvent([content]).setOpenActionAfterDuplicate(true).fire();
         });
     }
 }
