@@ -223,8 +223,8 @@ export class MoveContentDialog
         return this.progressManager.isEnabled();
     }
 
-    private pollTask(taskId: TaskId, elapsed: number = 0) {
-        this.progressManager.pollTask(taskId, elapsed);
+    private pollTask(taskId: TaskId) {
+        this.progressManager.pollTask(taskId);
     }
 
     open(reset: boolean = true) {
