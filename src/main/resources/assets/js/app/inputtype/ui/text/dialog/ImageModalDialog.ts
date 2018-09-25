@@ -411,7 +411,7 @@ export class ImageModalDialog
     }
 
     private setCaptionText() {
-        (<any>this.ckeOriginalDialog).widget.parts.image.$.parentElement.getElementsByTagName('figcaption')[0].textContent =
+        (<any>this.ckeOriginalDialog).widget.parts.image.getAscendant('figure').findOne('figcaption').$.textContent =
             this.getCaptionFieldValue();
     }
 
@@ -435,7 +435,7 @@ export class ImageModalDialog
     }
 
     private getDescriptionFromImageContent(imageContent: Content): string {
-        const imageInfoMixin = new api.schema.mixin.MixinName('media:imageInfo');
+        const imageInfoMixin = new api.schema.xdata.XDataName('media:imageInfo');
         const imageInfoData = imageContent.getExtraData(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {
@@ -841,3 +841,4 @@ export class ImagePreviewScrollHandlerCKE {
         }, 500);
     }
 }
+
