@@ -54,7 +54,7 @@ const htmlAreaForm = Object.create(page, {
 
     type: {
         value: function (data) {
-            return this.typeTextInHtmlArea(data.texts);
+            return this.typeTextInHtmlArea(data.texts).pause(300);
         }
     },
 
@@ -66,7 +66,7 @@ const htmlAreaForm = Object.create(page, {
     },
     typeTextInHtmlArea: {
         value: function (texts) {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).pause(300).then(() => {
                 return this.getIdOfHtmlAreas();
             }).then(ids => {
                 const promises = [].concat(texts).map((text, index) => {

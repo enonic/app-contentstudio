@@ -116,7 +116,9 @@ Page.prototype.waitForDisabled = function (selector, ms) {
 Page.prototype.isSelected = function (selector) {
     return this.getBrowser().isSelected(selector);
 };
-
+Page.prototype.hasFocus = function (selector) {
+    return this.getBrowser().hasFocus(selector);
+};
 Page.prototype.getElementId = function (ele) {
     return ele.value.ELEMENT;
 };

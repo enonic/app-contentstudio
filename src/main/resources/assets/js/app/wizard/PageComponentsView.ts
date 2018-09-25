@@ -107,6 +107,11 @@ export class PageComponentsView
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(api.dom.Body.get(), (item: ResponsiveItem) => {
             let smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
+            const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
+            this.toggleClass('compact', compactSize);
+            if (this.tree) {
+                this.tree.toggleCompact(compactSize);
+            }
             if (!smallSize && this.isVisible()) {
                 this.constrainToParent();
             }

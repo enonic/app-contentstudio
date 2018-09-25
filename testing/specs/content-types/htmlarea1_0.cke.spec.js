@@ -66,7 +66,7 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea0_1', [TEXT_TO_TYPE]);
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
-            }).then(() => {
+            }).pause(500).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
                 let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' is saved';

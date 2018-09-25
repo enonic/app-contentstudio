@@ -72,7 +72,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea2_4', TEXT_1, TEXT_2);
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').pause(1000).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
-            }).then(() => {
+            }).pause(500).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();

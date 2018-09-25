@@ -5,6 +5,7 @@ import {SortContentEvent} from './browse/SortContentEvent';
 import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';
+import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import AppBarTabId = api.app.bar.AppBarTabId;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
@@ -23,7 +24,12 @@ export class ContentEventsProcessor {
             // contents of the same type simultaneously
             wizardId = tabId.toString();
         }
-        return window.open(wizardUrl, wizardId);
+
+        return ContentEventsProcessor.openTab(wizardUrl, wizardId);
+    }
+
+    static openTab(url: string, target?: string): Window {
+        return window.open(url, target);
     }
 
     static popupBlocked(win: Window) {
@@ -88,5 +94,13 @@ export class ContentEventsProcessor {
 
         let contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getRootNode()).fire();
+    }
+
+    static handleShowDependencies(event: ShowDependenciesEvent) {
+        const mode: string = event.isInbound() ? 'inbound' : 'outbound';
+        const id: string = event.getId().toString();
+        const url = `main#/${mode}/${id}`;
+
+        ContentEventsProcessor.openTab(url);
     }
 }

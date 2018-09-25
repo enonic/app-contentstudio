@@ -4,10 +4,16 @@ import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
 import {DuplicatableId, DuplicateContentRequest} from '../resource/DuplicateContentRequest';
+import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
+import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ListBox = api.ui.selector.list.ListBox;
 import i18n = api.util.i18n;
+import TaskState = api.task.TaskState;
+import AppBarTabId = api.app.bar.AppBarTabId;
+import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
+import ContentSummary = api.content.ContentSummary;
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -20,6 +26,8 @@ export class ContentDuplicateDialog
     private totalItemsToDuplicate: number;
 
     private messageId: string;
+
+    private openTabAfterDuplicate: boolean;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
@@ -119,6 +127,11 @@ export class ContentDuplicateDialog
         return this;
     }
 
+    setOpenTabAfterDuplicate(value: boolean): ContentDuplicateDialog {
+        this.openTabAfterDuplicate = value;
+        return this;
+    }
+
     private doDuplicate(ignoreConfirmation: boolean = false) {
         if (this.yesCallback) {
             this.yesCallback();
@@ -126,10 +139,13 @@ export class ContentDuplicateDialog
 
         this.lockControls();
 
-        this.createDuplicateRequest()
+        const itemToDuplicate = this.getItemList().getItems()[0];
+
+        const taskIsFinishedPromise = this.createDuplicateRequest()
             .sendAndParse()
             .then((taskId: api.task.TaskId) => {
                 this.pollTask(taskId);
+                return this.checkFinished();
             })
             .catch((reason) => {
                 this.close();
@@ -137,6 +153,76 @@ export class ContentDuplicateDialog
                     api.notify.showError(reason.message);
                 }
             });
+
+        if (this.openTabAfterDuplicate) {
+
+            const duplicatedPromise = this.checkDuplicated(itemToDuplicate.getContentSummary());
+
+            wemQ.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
+                if (isFinished) {
+                    this.openTab(duplicatedContent);
+                }
+            });
+        }
+    }
+
+    private checkFinished(): wemQ.Promise<Boolean> {
+
+        let deferred = wemQ.defer<Boolean>();
+
+        const handler = (taskState: TaskState) => {
+            if (taskState === TaskState.FINISHED) {
+                deferred.resolve(true);
+            }
+            this.unProgressComplete(handler);
+        };
+
+        this.onProgressComplete(handler);
+
+        return deferred.promise;
+    }
+
+    private checkDuplicated(itemToDuplicate: ContentSummary) {
+
+        let deferred = wemQ.defer<ContentSummary>();
+
+        const serverEvents = ContentServerEventsHandler.getInstance();
+
+        const handler = (data: ContentSummaryAndCompareStatus[]) => {
+
+            data.forEach((value: ContentSummaryAndCompareStatus) => {
+                const createdContent = value.getContentSummary();
+                const createdPath = createdContent.getPath();
+
+                const path = itemToDuplicate.getPath();
+
+                const isDuplicatedContent = createdPath.getParentPath().equals(path.getParentPath());
+
+                if (isDuplicatedContent) {
+
+                    serverEvents.unContentDuplicated(handler);
+
+                    deferred.resolve(createdContent);
+                }
+            });
+
+            // Remove handler in case some items have error
+        };
+        serverEvents.onContentDuplicated(handler);
+        setTimeout(() => serverEvents.unContentDuplicated(handler), 300000);
+
+        return deferred.promise;
+    }
+
+    private openTab(content: ContentSummary) {
+        let tabId = AppBarTabId.forEdit(content.getContentId().toString());
+
+        let wizardParams = new ContentWizardPanelParams()
+            .setTabId(tabId)
+            .setContentTypeName(content.getType())
+            .setContentId(content.getContentId());
+
+        ContentEventsProcessor.openWizardTab(wizardParams, tabId);
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
@@ -150,9 +236,7 @@ export class ContentDuplicateDialog
         const duplicatableIds: DuplicatableId[] = this.getItemList().getItemViews().map(
             item => (<DuplicatableId>{contentId: item.getContentId(), includeChildren: item.includesChildren()}));
 
-        const duplicateRequest = new DuplicateContentRequest(duplicatableIds);
-
-        return duplicateRequest;
+        return new DuplicateContentRequest(duplicatableIds);
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
