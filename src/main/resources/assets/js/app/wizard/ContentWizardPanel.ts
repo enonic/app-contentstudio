@@ -60,8 +60,6 @@ import ImageErrorEvent = api.content.image.ImageErrorEvent;
 import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
-import Mixin = api.schema.mixin.Mixin;
-import MixinName = api.schema.mixin.MixinName;
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import BeforeContentSavedEvent = api.content.event.BeforeContentSavedEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
@@ -71,6 +69,8 @@ import AccessControlEntry = api.security.acl.AccessControlEntry;
 import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import CycleButton = api.ui.button.CycleButton;
 import i18n = api.util.i18n;
+import XData = api.schema.xdata.XData;
+import XDataName = api.schema.xdata.XDataName;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -708,7 +708,7 @@ export class ContentWizardPanel
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
                 const form: XDataWizardStepForm = this.xDataStepFormByName[key];
 
-                if (form.isExternal() && !form.isEnabled()) {
+                if (form.isOptional() && !form.isEnabled()) {
                     value = true;
                     break;
                 }
@@ -725,7 +725,7 @@ export class ContentWizardPanel
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
                 const form: XDataWizardStepForm = this.xDataStepFormByName[key];
 
-                if (form.isExternal() && form.isEnabled()) {
+                if (form.isOptional() && form.isEnabled()) {
                     value = false;
                     break;
                 }
@@ -779,7 +779,7 @@ export class ContentWizardPanel
         this.xDataAnchor.toggleClass('all-collapsed', this.areAllExternalMixinsCollapsed());
     }
 
-    private createSteps(contentId: ContentId): wemQ.Promise<Mixin[]> {
+    private createSteps(contentId: ContentId): wemQ.Promise<XData[]> {
         this.contentWizardStepForm = new ContentWizardStepForm();
         this.settingsWizardStepForm = new SettingsWizardStepForm();
         this.scheduleWizardStepForm = new ScheduleWizardStepForm();
@@ -796,19 +796,19 @@ export class ContentWizardPanel
             this.handleMissingApp();
 
             return new GetContentXDataRequest(contentId).sendAndParse().then(
-                (xDatas: Mixin[]) => {
+                (xDatas: XData[]) => {
                     let xDataAnchorIndex;
                     let steps: ContentWizardStep[] = [];
 
                     this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
                     steps.push(this.contentWizardStep);
 
-                    xDatas.forEach((xData: Mixin, index: number) => {
-                        if (!this.xDataStepFormByName[xData.getMixinName().toString()]) {
-                            let stepForm = new XDataWizardStepForm(xData.isExternal());
-                            this.xDataStepFormByName[xData.getMixinName().toString()] = stepForm;
+                    xDatas.forEach((xData: XData, index: number) => {
+                        if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
+                            let stepForm = new XDataWizardStepForm(xData.isOptional());
+                            this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
 
-                            if (!xDataAnchorIndex && xData.isExternal()) {
+                            if (!xDataAnchorIndex && xData.isOptional()) {
                                 xDataAnchorIndex = steps.length;
                             }
                             stepForm.onEnableChanged(() => {
@@ -1384,11 +1384,11 @@ export class ContentWizardPanel
     // synch persisted content extra data with data from mixins
     // when rendering form - we may add extra fields from mixins;
     // as this is intended action from XP, not user - it should be present in persisted content
-    private synchPersistedItemWithMixinData(mixinName: MixinName, mixinData: PropertyTree) {
+    private synchPersistedItemWithXData(xDataName: XDataName, mixinData: PropertyTree) {
         let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraData(mixinName);
+        let extraData = persistedContent.getExtraData(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, mixinName, mixinData.copy());
+            this.enrichWithExtraData(persistedContent, xDataName, mixinData.copy());
         } else {
             let diff = extraData.getData().diff(mixinData);
             diff.added.forEach((property: api.data.Property) => {
@@ -1397,8 +1397,8 @@ export class ContentWizardPanel
         }
     }
 
-    private enrichWithExtraData(content: Content, mixinName: MixinName, propertyTree?: PropertyTree): ExtraData {
-        let extraData = new ExtraData(mixinName, propertyTree ? propertyTree.copy() : new PropertyTree());
+    private enrichWithExtraData(content: Content, xDataName: XDataName, propertyTree?: PropertyTree): ExtraData {
+        let extraData = new ExtraData(xDataName, propertyTree ? propertyTree.copy() : new PropertyTree());
         content.getAllExtraData().push(extraData);
         return extraData;
     }
@@ -1461,7 +1461,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(formContext, content).then(() => {
 
-                return this.createSteps(content.getContentId()).then((schemas: Mixin[]) => {
+                return this.createSteps(content.getContentId()).then((schemas: XData[]) => {
 
                     let contentData = content.getContentData();
 
@@ -1479,12 +1479,12 @@ export class ContentWizardPanel
                     this.refreshScheduleWizardStep();
                     this.securityWizardStepForm.layout(content);
 
-                    schemas.forEach((schema: Mixin, index: number) => {
-                        let extraData = content.getExtraData(schema.getMixinName());
+                    schemas.forEach((schema: XData, index: number) => {
+                        let extraData = content.getExtraData(schema.getXDataName());
                         if (!extraData) {
-                            extraData = this.enrichWithExtraData(content, schema.getMixinName());
+                            extraData = this.enrichWithExtraData(content, schema.getXDataName());
                         }
-                        let xDataFormView = this.xDataStepFormByName[schema.getMixinName().toString()];
+                        let xDataFormView = this.xDataStepFormByName[schema.getXDataName().toString()];
                         let xDataForm = new api.form.FormBuilder().addFormItems(schema.getFormItems()).build();
 
                         let data = extraData.getData();
@@ -1492,7 +1492,7 @@ export class ContentWizardPanel
 
                         formViewLayoutPromises.push(xDataFormView.layout(formContext, data, xDataForm));
 
-                        this.synchPersistedItemWithMixinData(schema.getMixinName(), data);
+                        this.synchPersistedItemWithXData(schema.getXDataName(), data);
                     });
 
                     return wemQ.all(formViewLayoutPromises).spread<void>(() => {
@@ -1530,13 +1530,13 @@ export class ContentWizardPanel
         this.missingOrStoppedAppKeys = [];
 
         new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
-            (mixinsToRemove: Mixin[]) => {
+            (xDatasToRemove: XData[]) => {
                 this.handleMissingApp();
 
-                for (const i in mixinsToRemove) {
-                    if (mixinsToRemove.hasOwnProperty(i)) {
-                        this.removeStepWithForm(this.xDataStepFormByName[mixinsToRemove[i].getName()]);
-                        delete this.xDataStepFormByName[mixinsToRemove[i].getName()];
+                for (const i in xDatasToRemove) {
+                    if (xDatasToRemove.hasOwnProperty(i)) {
+                        this.removeStepWithForm(this.xDataStepFormByName[xDatasToRemove[i].getName()]);
+                        delete this.xDataStepFormByName[xDatasToRemove[i].getName()];
                     }
                 }
             }).done();
@@ -1700,27 +1700,27 @@ export class ContentWizardPanel
 
     private addMetadataStepForms(applicationKey: ApplicationKey) {
         new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
-            (xDatas: Mixin[]) => {
+            (xDatas: XData[]) => {
                 const xDatasToAdd = xDatas.filter(xData =>
                     !this.xDataStepFormByName[xData.getName()]
                 );
 
                 const formContext = this.getFormContext(this.getPersistedItem());
 
-                xDatasToAdd.forEach((mixin: Mixin) => {
-                    if (!this.xDataStepFormByName[mixin.getMixinName().toString()]) {
+                xDatasToAdd.forEach((xData: XData) => {
+                    if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
 
-                        let stepForm = new XDataWizardStepForm(mixin.isExternal());
-                        this.xDataStepFormByName[mixin.getMixinName().toString()] = stepForm;
+                        let stepForm = new XDataWizardStepForm(xData.isOptional());
+                        this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
 
-                        let wizardStep = new ContentWizardStep(mixin.getDisplayName(), stepForm);
+                        let wizardStep = new ContentWizardStep(xData.getDisplayName(), stepForm);
                         this.insertStepBefore(wizardStep, this.settingsWizardStep);
 
-                        let extraData = new ExtraData(mixin.getMixinName(), new PropertyTree());
+                        let extraData = new ExtraData(xData.getXDataName(), new PropertyTree());
 
                         extraData.getData().onChanged(this.dataChangedHandler);
 
-                        stepForm.layout(formContext, extraData.getData(), mixin.toForm());
+                        stepForm.layout(formContext, extraData.getData(), xData.toForm());
                     }
                 });
             }).catch((reason: any) => {
@@ -1829,7 +1829,7 @@ export class ContentWizardPanel
         let extraData: ExtraData[] = [];
         for (let key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                extraData.push(new ExtraData(new MixinName(key), this.xDataStepFormByName[key].getData()));
+                extraData.push(new ExtraData(new XDataName(key), this.xDataStepFormByName[key].getData()));
             }
         }
 
@@ -1943,10 +1943,10 @@ export class ContentWizardPanel
         for (let key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
 
-                let mixinName = new MixinName(key);
-                let extraData = contentCopy.getExtraData(mixinName);
+                let xDataName = new XDataName(key);
+                let extraData = contentCopy.getExtraData(xDataName);
                 if (!extraData) { // ensure ExtraData object corresponds to each step form
-                    extraData = this.enrichWithExtraData(contentCopy, mixinName);
+                    extraData = this.enrichWithExtraData(contentCopy, xDataName);
                 }
 
                 let form: XDataWizardStepForm = this.xDataStepFormByName[key];
@@ -1959,7 +1959,7 @@ export class ContentWizardPanel
                 form.resetState(data);
                 form.update(data, unchangedOnly);
 
-                this.synchPersistedItemWithMixinData(mixinName, data);
+                this.synchPersistedItemWithXData(xDataName, data);
             }
         }
     }

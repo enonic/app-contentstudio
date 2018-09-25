@@ -1,11 +1,11 @@
-import MixinListJson = api.schema.mixin.MixinListJson;
-import Mixin = api.schema.mixin.Mixin;
-import MixinJson = api.schema.mixin.MixinJson;
 import ContentId = api.content.ContentId;
-import {XDataResourceRequest} from './XDataResourceRequest';
+import XDataResourceRequest = api.schema.xdata.XDataResourceRequest;
+import XData = api.schema.xdata.XData;
+import XDataListJson = api.schema.xdata.XDataListJson;
+import XDataJson = api.schema.xdata.XDataJson;
 
 export class GetContentXDataRequest
-    extends XDataResourceRequest<MixinListJson, Mixin[]> {
+    extends XDataResourceRequest<XDataListJson, XData[]> {
 
     private contentId: ContentId;
 
@@ -25,11 +25,11 @@ export class GetContentXDataRequest
         return api.rest.Path.fromParent(super.getResourcePath(), 'getContentXData');
     }
 
-    sendAndParse(): wemQ.Promise<Mixin[]> {
+    sendAndParse(): wemQ.Promise<XData[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<MixinListJson>) => {
-            return response.getResult().mixins.map((mixinJson: MixinJson) => {
-                return this.fromJsonToMixin(mixinJson);
+        return this.send().then((response: api.rest.JsonResponse<XDataListJson>) => {
+            return response.getResult().xdatas.map((xDataJson: XDataJson) => {
+                return this.fromJsonToXData(xDataJson);
             });
         });
     }
