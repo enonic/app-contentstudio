@@ -92,7 +92,7 @@ export class LinkModalDialog
         const anchors: any[] = CKEDITOR.plugins.link.getEditorAnchors(this.getEditor())
             .filter((anchor: any) => !!anchor.id) // filter anchors with missing id's
             .map((anchor: any) => anchor.id)
-            .filter((item, pos, self) => self.indexOf(item) == pos); // filter duplicates cke returns;
+            .filter((item, pos, self) => self.indexOf(item) === pos); // filter duplicates cke returns;
 
         if (anchors.length > 0) {
             this.dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());

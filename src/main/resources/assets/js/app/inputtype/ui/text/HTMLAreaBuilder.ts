@@ -544,7 +544,7 @@ export class HTMLAreaBuilder {
         });
 
         ckeditor.on('key', function (evt: eventInfo) { // stopping select all from propagating
-            if (evt.data.keyCode == CKEDITOR.CTRL + 65) {
+            if (evt.data.keyCode === CKEDITOR.CTRL + 65) {
                 if (evt.data.domEvent && evt.data.domEvent.stopPropagation) {
                     evt.data.domEvent.stopPropagation();
                 }

@@ -38,7 +38,7 @@ export class SiteConfiguratorSelectedOptionView
         this.siteConfig = siteConfig;
         this.formContext = formContext;
 
-        if (!this.application.getForm() || this.application.getForm().getFormItems().length == 0) {
+        if (!this.application.getForm() || this.application.getForm().getFormItems().length === 0) {
             this.setEditable(false);
         }
     }
