@@ -11,7 +11,7 @@ export class XDataWizardStepForm
 
     private enabled: boolean;
 
-    private disabledData: PropertyTree;
+    private stashedData: PropertyTree;
 
     private enableChangedListeners: { (value: boolean): void }[] = [];
 
@@ -38,13 +38,15 @@ export class XDataWizardStepForm
         return this.optional;
     }
 
-    resetForm() {
+    resetData() {
         this.data.getRoot().reset();
-        this.disabledData = null;
+        this.stashedData = null;
+    }
 
-        if (this.enabled) {
-            this.doLayout(this.form, this.data);
-        }
+    resetForm(): wemQ.Promise<void> {
+        this.resetData();
+
+        return this.enabled ? this.doLayout(this.form, this.data) : wemQ(null);
     }
 
     protected doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
@@ -83,14 +85,14 @@ export class XDataWizardStepForm
 
         if (this.enabled) {
             if (this.form && this.data) {
-                if (this.disabledData) {
-                    this.data.getRoot().addPropertiesFromSet(this.disabledData.getRoot());
+                if (this.stashedData) {
+                    this.data.getRoot().addPropertiesFromSet(this.stashedData.getRoot());
                 }
                 this.doLayout(this.form, this.data);
             }
         } else {
             if (this.data) {
-                this.disabledData = this.data.copy();
+                this.stashedData = this.data.copy();
                 this.data.getRoot().removeAllProperties();
             }
 
