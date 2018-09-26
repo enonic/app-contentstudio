@@ -3,7 +3,7 @@ Enonic XP - Content Studio App
 
 [![Travis Build Status][travis-image]][travis-url]
 [![License][license-image]][license-url]
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a6ab0dd0d4d04b3d96e563a11056e536)](https://www.codacy.com/app/enonic/app-admin-home?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-admin-home&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3372bea65e16411181979c842ca475fa)](https://www.codacy.com/app/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
 Create sites and manage content in [Enonic XP](https://github.com/enonic/xp).
 
