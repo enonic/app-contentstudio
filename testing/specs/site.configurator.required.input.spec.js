@@ -20,7 +20,6 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
     webDriverHelper.setupBrowser();
 
     let SITE;
-    //verifies: issue#427 Site Configurator Dialog - focus should be moved to the first enabled input
     it(`GIVEN existing site is opened WHEN 'edit' button on the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
@@ -60,7 +59,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
             });
         });
 
-    it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected site-configurator option-view should be red`,
+    it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
@@ -79,7 +78,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 return siteConfiguratorDialog.clickOnApplyButton();
             }).then(() => {
                 return siteFormPanel.waitUntilSiteConfiguratorViewValid(appConstant.APP_WITH_CONFIGURATOR);
-            }).then(isValid => {
+            }).then(isValid=> {
                 studioUtils.saveScreenshot('site_conf_is_getting_valid');
                 assert.isTrue(isValid, 'Selected option view should be valid because, the required input is not empty');
             }).then(() => {

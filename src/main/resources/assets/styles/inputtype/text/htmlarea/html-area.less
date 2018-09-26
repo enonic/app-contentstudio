@@ -1,0 +1,92 @@
+.html-area {
+  // next is cke related styles
+
+  .cke_top, .cke_bottom {
+    display: none;
+  }
+
+  .cke_top {
+    position: sticky;
+    top: 40px;
+  }
+
+  .cke_bottom {
+    padding: 1px 8px 2px;
+  }
+
+  .cke_button__fullscreen, .cke_button__sourcedialog {
+    float: right;
+  }
+
+  .cke_path {
+    padding-top: 6px;
+  }
+
+  .cke_focus {
+    box-shadow: 0px 0px 5px @admin-input-blue;
+    .input-border(@admin-input-blue);
+
+    .cke_top, .cke_bottom {
+      display: block;
+    }
+  }
+
+  .sticky-toolbar {
+    .cke_top {
+      position: fixed;
+      box-shadow: 0px 3px 6px 0 @admin-toolbar-shadow;
+      z-index: 1000;
+      border-top: 1px solid @admin-medium-gray-border;
+    }
+  }
+
+  .autosize-attendant {
+    display: none;
+  }
+
+  // cke end
+}
+
+.application-configurator-dialog {
+  .html-area .cke_top {
+    top: -15px;
+  }
+}
+
+// when fullscreen mode triggered 'application-configurator-dialog' class is removed, have to use this selector
+*[id*='SiteConfiguratorDialog'] {
+  &.masked {
+    .cke_maximized {
+      z-index: 1999 !important;
+    }
+  }
+}
+
+// next is cke related styles
+.cke_maximized {
+  z-index: 2000 !important;
+
+  .cke_bottom {
+    padding: 1px 8px 2px;
+  }
+
+  .cke_button__code, .cke_button__sourcedialog {
+    float: right;
+  }
+
+  .cke_path {
+    padding-top: 6px;
+  }
+
+  .cke_top {
+
+    text-align: center;
+    width: 100% !important;
+
+    .cke_toolbox {
+      display: inline-block;
+      padding-right: 30px;
+      vertical-align: middle;
+    }
+  }
+}

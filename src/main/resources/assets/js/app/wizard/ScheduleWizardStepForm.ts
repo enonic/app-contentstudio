@@ -1,11 +1,11 @@
-import '../../api.ts';
-
 import Content = api.content.Content;
 import PublishStatus = api.content.PublishStatus;
 import FormView = api.form.FormView;
 import PropertySet = api.data.PropertySet;
 import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
 import i18n = api.util.i18n;
+import {PublishFrom} from '../inputtype/publish/PublishFrom';
+import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
 
 export class ScheduleWizardStepForm
     extends api.app.wizard.WizardStepForm {
@@ -48,7 +48,7 @@ export class ScheduleWizardStepForm
         let formBuilder = new api.form.FormBuilder()
             .addFormItem(new api.form.InputBuilder()
                 .setName('from')
-                .setInputType(api.content.form.inputtype.publish.PublishFrom.getName())
+                .setInputType(PublishFrom.getName())
                 .setLabel(i18n('field.onlineFrom'))
                 .setHelpText(i18n('field.onlineFrom.help'))
                 .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
@@ -57,7 +57,7 @@ export class ScheduleWizardStepForm
                 .build())
             .addFormItem(new api.form.InputBuilder()
                 .setName('to')
-                .setInputType(api.content.form.inputtype.publish.PublishToFuture.getName())
+                .setInputType(PublishToFuture.getName())
                 .setLabel(i18n('field.onlineTo'))
                 .setHelpText(i18n('field.onlineTo.help'))
                 .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())

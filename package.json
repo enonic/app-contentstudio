@@ -12,6 +12,7 @@
     "fix:js": "eslint . --fix"
   },
   "devDependencies": {
+    "@types/ckeditor": "^4.9.1",
     "autoprefixer": "^8.1.0",
     "browserslist": "^3.1.2",
     "browserslist-config-enonic": "^1.0.3",

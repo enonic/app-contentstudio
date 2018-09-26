@@ -48,6 +48,9 @@ import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {ImageComponentView} from '../../../page-editor/image/ImageComponentView';
 import {PageModel} from '../../../page-editor/PageModel';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
+import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
+import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDialogHandler';
+import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import Content = api.content.Content;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
@@ -60,12 +63,9 @@ import LayoutComponent = api.content.page.region.LayoutComponent;
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import RenderingMode = api.rendering.RenderingMode;
-import HtmlAreaDialogShownEvent = api.util.htmlarea.editor.CreateHtmlAreaDialogEvent;
-import HTMLAreaDialogHandler = api.util.htmlarea.dialog.HTMLAreaDialogHandler;
 import Panel = api.ui.panel.Panel;
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
-import BeforeContentSavedEvent = api.content.event.BeforeContentSavedEvent;
 import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
 import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
@@ -708,7 +708,7 @@ export class LiveFormPanel
             this.contentWizardPanel.close();
         });
 
-        this.liveEditPageProxy.onLiveEditPageDialogCreate((event: HtmlAreaDialogShownEvent) => {
+        this.liveEditPageProxy.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
             let modalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
         });

@@ -1,6 +1,7 @@
-import '../../api.ts';
 import AEl = api.dom.AEl;
 import i18n = api.util.i18n;
+import {PublishFrom} from '../inputtype/publish/PublishFrom';
+import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
 
 export class SchedulePublishDialog
     extends api.ui.dialog.ModalDialog {
@@ -57,11 +58,11 @@ export class SchedulePublishDialog
 
     private initFormView() {
         let formBuilder = new api.form.FormBuilder().addFormItem(
-            new api.form.InputBuilder().setName('from').setInputType(api.content.form.inputtype.publish.PublishFrom.getName()).setLabel(
+            new api.form.InputBuilder().setName('from').setInputType(PublishFrom.getName()).setLabel(
                 i18n('field.onlineFrom')).setHelpText(i18n('field.onlineFrom.help')).setOccurrences(
                 new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build()).setInputTypeConfig({}).setMaximizeUIInputWidth(
                 true).build()).addFormItem(
-            new api.form.InputBuilder().setName('to').setInputType(api.content.form.inputtype.publish.PublishToFuture.getName()).setLabel(
+            new api.form.InputBuilder().setName('to').setInputType(PublishToFuture.getName()).setLabel(
                 i18n('field.onlineTo')).setHelpText(i18n('field.onlineTo.help')).setOccurrences(
                 new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).setInputTypeConfig({}).setMaximizeUIInputWidth(
                 true).build());

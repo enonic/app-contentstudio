@@ -32,17 +32,16 @@ import {CreateItemViewConfig} from '../../../page-editor/CreateItemViewConfig';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
-
-declare var CONFIG;
-
+import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import Component = api.content.page.region.Component;
 import RenderingMode = api.rendering.RenderingMode;
 import Workspace = api.content.Branch;
 import EditContentEvent = api.content.event.EditContentEvent;
-import CreateHtmlAreaDialogEvent = api.util.htmlarea.editor.CreateHtmlAreaDialogEvent;
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
-
 import i18n = api.util.i18n;
+
+declare var CONFIG;
 
 export class LiveEditPageProxy {
 
@@ -802,7 +801,7 @@ export class LiveEditPageProxy {
         this.createHtmlAreaDialogListeners.forEach((listener) => listener(event));
     }
 
-    notifyLiveEditPageDialogCreated(modalDialog: api.util.htmlarea.dialog.ModalDialog, config: any) {
+    notifyLiveEditPageDialogCreated(modalDialog: ModalDialog, config: any) {
         new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
     }
 

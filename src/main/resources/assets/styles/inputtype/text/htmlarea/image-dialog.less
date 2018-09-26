@@ -1,0 +1,275 @@
+@image-cropping-selector-height: 26px;
+
+.html-area-modal-dialog.image-modal-dialog {
+
+  .modal-dialog-body {
+    max-height: 70vh;
+  }
+
+  .hasSelectedItemPreview();
+
+  .image-selector {
+    .showsSelectedOption();
+
+    margin-bottom: 0;
+
+    &.invalid .preview-panel-scroll-navigation-wrapper {
+      display: none;
+    }
+
+    .content-item-preview-panel {
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      > .progress-bar {
+        display: none;
+        width: auto;
+      }
+      &.upload {
+        margin-left: @form-label-width;
+        margin-top: 10px;
+
+        > .error {
+          width: 100%;
+        }
+
+        > .error {
+          margin-left: 0;
+          text-align: center;
+          color: @admin-white;
+          font-weight: bold;
+          background-color: @admin-input-red;
+        }
+      }
+
+      > img {
+        display: block;
+        max-width: 640px;
+      }
+    }
+
+    .input-wrapper {
+      display: flex;
+
+      .image-uploader-el {
+        max-width: 37px !important;
+        position: static;
+
+        .upload-button {
+          right: auto;
+        }
+
+        .dropzone-container {
+          position: static;
+        }
+      }
+    }
+  }
+
+  .form-view {
+    .input-view {
+      .@{_COMMON_PREFIX}combobox, .content-combo-box {
+        .options-container {
+          position: absolute !important;
+          box-sizing: border-box;
+        }
+      }
+
+      &.caption {
+        margin: 15px 0 15px 0;
+      }
+
+      .edit {
+        display: block;
+      }
+    }
+
+    fieldset.modal-dialog-fieldset {
+      margin: 0;
+    }
+
+    @-moz-document url-prefix() { // FF Issue with fieldset width, fix for XP-4975
+      fieldset {
+        display: table-cell;
+      }
+    }
+  }
+
+  .toolbar {
+    &.image-toolbar {
+      position: relative;
+      border-bottom-width: 0;
+
+      .@{_COMMON_PREFIX}button[class*="icon-paragraph-"] {
+        &[class*="icon-paragraph-"] {
+          padding: 7px 7px;
+        }
+
+        &[class*="icon-"] {
+          font-size: 18px;
+          line-height: 24px;
+        }
+
+      }
+
+      .keep-size-check {
+        display: inline-block;
+        line-height: 25px;
+        margin: 11px 0 0 15px;
+
+        input {
+          width: 0;
+          height: 0;
+          margin: 0;
+        }
+
+        label {
+          vertical-align: top;
+          display: inherit;
+          float: none;
+        }
+      }
+
+      .fold-button {
+        bottom: 3px;
+      }
+
+    }
+
+    .image-cropping-selector {
+      height: @image-cropping-selector-height;
+      width: 220px;
+      top: 4px;
+      float: right;
+
+      .option-filter-input {
+        position: absolute;
+        height: @image-cropping-selector-height;
+
+        .placeholder(1em, normal);
+      }
+
+      .selected-option {
+        height: @image-cropping-selector-height;
+        min-height: @image-cropping-selector-height;
+        position: absolute;
+        padding: 4px 37px 4px 10px;
+
+        .option-value {
+          margin: 0;
+        }
+      }
+
+      .options-container {
+        height: 210px !important;
+
+        .slick-cell {
+          padding-bottom: 4px;
+          padding-top: 4px;
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          font-size: 12px;
+        }
+      }
+
+      .selected-option:not([style*="display: none"]) + .dropdown-handle {
+        top: 4px;
+      }
+    }
+  }
+
+  img {
+
+    &[style*="text-align: justify"] {
+      &:not([data-src*="keepSize=true"]) {
+        width: 100%;
+      }
+    }
+
+    &[style*="text-align: left"] {
+
+      margin: 0;
+      float: left;
+
+      &:not([data-src*="keepSize=true"]) {
+        width: 40%;
+      }
+    }
+
+    &[style*="text-align: center"] {
+
+      margin: auto;
+
+      &:not([data-src*="keepSize=true"]) {
+        width: 60%;
+      }
+    }
+
+    &[style*="text-align: right"] {
+
+      margin: 0;
+      float: right;
+
+      &:not([data-src*="keepSize=true"]) {
+        width: 40%;
+      }
+    }
+  }
+
+  max-width: 640px;
+  max-height: 100%;
+
+  .scroll-up-div, .scroll-down-div {
+    position: absolute;
+    height: 50px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+
+    .arrow {
+      width: 50px;
+      height: 50px;
+      margin: auto;
+      opacity: 0.7;
+      background-size: contain;
+      filter: invert(0.7);
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .scroll-up-div {
+    top: 0;
+    .arrow {
+      background-image: url('../../../../icons/arrow_up.png');
+    }
+  }
+
+  .scroll-down-div {
+    bottom: 0;
+    .arrow {
+      background-image: url('../../../../icons/arrow_down.png');
+    }
+  }
+
+  .preview-panel-scroll-navigation-wrapper {
+    position: relative;
+    margin-top: 10px;
+
+    .preview-panel-scrollbar-wrapper {
+      overflow: hidden;
+    }
+  }
+
+  > .dropzone-container {
+    .dialog-dropzone-container(120px);
+    .dropzone {
+      font-size: 18px;
+    }
+  }
+}

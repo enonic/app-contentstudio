@@ -1,4 +1,5 @@
 import '../../api.ts';
+import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import Form = api.form.Form;
 import FormContext = api.form.FormContext;
 import FormView = api.form.FormView;
@@ -18,6 +19,12 @@ export class ContentWizardStepForm
 
     constructor() {
         super();
+
+        BeforeContentSavedEvent.on(() => {
+            if (this.formView) {
+                this.formView.clean();
+            }
+        });
     }
 
     update(data: PropertyTree, unchangedOnly: boolean = true): wemQ.Promise<void> {

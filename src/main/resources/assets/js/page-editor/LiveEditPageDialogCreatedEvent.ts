@@ -1,5 +1,5 @@
 import './../api.ts';
-import ModalDialog = api.util.htmlarea.dialog.ModalDialog;
+import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 
 export class LiveEditPageDialogCreatedEvent
     extends api.event.Event {
