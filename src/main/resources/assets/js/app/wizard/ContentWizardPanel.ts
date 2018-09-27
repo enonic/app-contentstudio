@@ -701,7 +701,7 @@ export class ContentWizardPanel
         return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
-    private hasDisabledExternalMixin(): boolean {
+    private hasDisabledOptionalXData(): boolean {
         let value = false;
 
         for (let key in this.xDataStepFormByName) {
@@ -718,7 +718,7 @@ export class ContentWizardPanel
         return value;
     }
 
-    private areAllExternalMixinsCollapsed(): boolean {
+    private areAllOptionalXDatasCollapsed(): boolean {
         let value = true;
 
         for (let key in this.xDataStepFormByName) {
@@ -775,8 +775,8 @@ export class ContentWizardPanel
         if (!this.xDataAnchor) {
             return;
         }
-        this.xDataAnchor.toggleClass('hidden', !this.hasDisabledExternalMixin());
-        this.xDataAnchor.toggleClass('all-collapsed', this.areAllExternalMixinsCollapsed());
+        this.xDataAnchor.toggleClass('hidden', !this.hasDisabledOptionalXData());
+        this.xDataAnchor.toggleClass('all-collapsed', this.areAllOptionalXDatasCollapsed());
     }
 
     private createSteps(contentId: ContentId): wemQ.Promise<XData[]> {
@@ -1381,16 +1381,16 @@ export class ContentWizardPanel
         }
     }
 
-    // synch persisted content extra data with data from mixins
-    // when rendering form - we may add extra fields from mixins;
+    // synch persisted content extra data with xData
+    // when rendering form - we may add extra fields from xData;
     // as this is intended action from XP, not user - it should be present in persisted content
-    private synchPersistedItemWithXData(xDataName: XDataName, mixinData: PropertyTree) {
+    private synchPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
         let persistedContent = this.getPersistedItem();
         let extraData = persistedContent.getExtraData(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, mixinData.copy());
+            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree.copy());
         } else {
-            let diff = extraData.getData().diff(mixinData);
+            let diff = extraData.getData().diff(xDataPropertyTree);
             diff.added.forEach((property: api.data.Property) => {
                 extraData.getData().addProperty(property.getName(), property.getValue());
             });
@@ -1955,9 +1955,13 @@ export class ContentWizardPanel
                 let data = extraData.getData();
                 data.onChanged(this.dataChangedHandler);
 
-                form.resetForm();
                 form.resetState(data);
-                form.update(data, unchangedOnly);
+
+                if (form.isEnabled()) {
+                    form.update(data, unchangedOnly);
+                } else {
+                    form.resetData();
+                }
 
                 this.synchPersistedItemWithXData(xDataName, data);
             }
