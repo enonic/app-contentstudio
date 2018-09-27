@@ -1,0 +1,6 @@
+
+Licenses used by Enonic XP Content Studio
+
+    CKEditor 4
+    GNU LGPL 2.1
+    https://ckeditor.com/legal/ckeditor-oss-license/
