@@ -1,7 +1,7 @@
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 
-export abstract class CKEBackedDialog
+export abstract class OverrideNativeDialog
     extends ModalDialog {
 
     protected ckeOriginalDialog: CKEDITOR.dialog;

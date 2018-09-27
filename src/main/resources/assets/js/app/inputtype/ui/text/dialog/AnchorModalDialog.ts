@@ -3,12 +3,12 @@ import Validators = api.ui.form.Validators;
 import i18n = api.util.i18n;
 import TextInput = api.ui.text.TextInput;
 import eventInfo = CKEDITOR.eventInfo;
-import {CKEBackedDialog} from './CKEBackedDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 export class AnchorModalDialog
-    extends CKEBackedDialog {
+    extends OverrideNativeDialog {
 
     private nameField: FormItem;
 

@@ -13,7 +13,7 @@ import ContentId = api.content.ContentId;
 import i18n = api.util.i18n;
 import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 import AppHelper = api.util.AppHelper;
-import {CKEBackedDialog} from './CKEBackedDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
@@ -37,7 +37,7 @@ import {ImageCroppingOptions} from './ImageCroppingOptions';
  * Update those in case ckeditor lib is updated
  */
 export class ImageModalDialog
-    extends CKEBackedDialog {
+    extends OverrideNativeDialog {
 
     private imagePreviewContainer: api.dom.DivEl;
     private imageCaptionField: FormItem;
@@ -49,8 +49,8 @@ export class ImageModalDialog
     private progress: api.ui.ProgressBar;
     private error: api.dom.DivEl;
     private image: api.dom.ImgEl;
-    private imageToolbar: ImageToolbarCKE;
-    private imagePreviewScrollHandler: ImagePreviewScrollHandlerCKE;
+    private imageToolbar: ImageDialogToolbar;
+    private imagePreviewScrollHandler: ImagePreviewScrollHandler;
     private imageLoadMask: api.ui.mask.LoadMask;
     private dropzoneContainer: api.ui.uploader.DropzoneContainer;
     private imageSelectorFormItem: FormItem;
@@ -204,7 +204,7 @@ export class ImageModalDialog
 
         wemjq(scrollNavigationWrapperDiv.getHTMLElement()).insertAfter(imageSelectorContainer.getHTMLElement());
 
-        this.imagePreviewScrollHandler = new ImagePreviewScrollHandlerCKE(this.imagePreviewContainer);
+        this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
 
         this.imageLoadMask = new api.ui.mask.LoadMask(this.imagePreviewContainer);
         this.imagePreviewContainer.appendChild(this.imageLoadMask);
@@ -224,7 +224,7 @@ export class ImageModalDialog
     }
 
     private previewImage() {
-        this.imageToolbar = new ImageToolbarCKE(this.image, this.imageLoadMask);
+        this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask);
         this.imageToolbar.onCroppingChanged(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
         });
@@ -484,7 +484,7 @@ export class ImageModalDialogConfig
     content: api.content.ContentSummary;
 }
 
-export class ImageToolbarCKE
+export class ImageDialogToolbar
     extends api.ui.toolbar.Toolbar {
 
     private image: api.dom.ImgEl;
@@ -692,7 +692,7 @@ export class ImageToolbarCKE
 
 }
 
-export class ImagePreviewScrollHandlerCKE {
+export class ImagePreviewScrollHandler {
 
     private imagePreviewContainer: api.dom.DivEl;
 

@@ -24,12 +24,12 @@ import ContentComboBox = api.content.ContentComboBox;
 import ContentId = api.content.ContentId;
 import Content = api.content.Content;
 import AppHelper = api.util.AppHelper;
-import {CKEBackedDialog} from './CKEBackedDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {ImageModalDialogConfig} from './ImageModalDialog';
 
 export class LinkModalDialog
-    extends CKEBackedDialog {
+    extends OverrideNativeDialog {
 
     private dockedPanel: DockedPanel;
     private link: string;

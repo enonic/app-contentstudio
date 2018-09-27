@@ -1,11 +1,11 @@
 import TextArea = api.ui.text.TextArea;
 import i18n = api.util.i18n;
 import eventInfo = CKEDITOR.eventInfo;
-import {CKEBackedDialog} from './CKEBackedDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig} from './ModalDialog';
 
 export class CodeDialog
-    extends CKEBackedDialog {
+    extends OverrideNativeDialog {
 
     private textArea: TextArea;
 

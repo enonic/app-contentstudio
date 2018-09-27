@@ -6,12 +6,12 @@ import eventInfo = CKEDITOR.eventInfo;
 import Checkbox = api.ui.Checkbox;
 import InputAlignment = api.ui.InputAlignment;
 import button = CKEDITOR.ui.dialog.button;
-import {CKEBackedDialog} from './CKEBackedDialog';
+import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 export class FindAndReplaceDialog
-    extends CKEBackedDialog {
+    extends OverrideNativeDialog {
 
     private findInput: TextInput;
     private replaceInput: TextInput;
