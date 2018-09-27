@@ -1,5 +1,0 @@
-<script>
-    var lockOptions= {{{lockOptions}}};
-    var auth0Options= {{{auth0Options}}};
-    var authorizeUrl = '{{{authorizeUrl}}}';
-</script>
