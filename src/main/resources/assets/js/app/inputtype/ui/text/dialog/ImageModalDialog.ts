@@ -19,6 +19,8 @@ import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
 
+declare var CONFIG;
+
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
  * 1. setWrapperAlign() method updated to make image wrapper element have inline alignment styles we used to have
@@ -503,6 +505,8 @@ export class ImageDialogToolbar
 
     private imageLoadMask: api.ui.mask.LoadMask;
 
+    private scale: string;
+
     constructor(image: api.dom.ImgEl, imageLoadMask: api.ui.mask.LoadMask) {
         super('image-toolbar');
 
@@ -659,14 +663,25 @@ export class ImageDialogToolbar
         const keepOriginalSizeChecked: boolean = this.keepOriginalSizeCheckbox.isChecked();
 
         if (isCroppingSelected) {
+            const urlParts = newSrc.split('/');
+            const contentId = urlParts[urlParts.length-1];
+
             const imageCroppingOption: ImageCroppingOption = this.imageCroppingSelector.getSelectedOption().displayValue;
-            newSrc = newSrc + '?scale=' + imageCroppingOption.getProportionString() +
+            this.scale = imageCroppingOption.getProportionString();
+            newSrc = newSrc + '?scale=' + this.scale +
                      (keepOriginalSizeChecked ? '' : '&size=640');
+
+            const previewSrc = CONFIG.imagePreviewUrl + '?id=' + contentId + '&width=' + ImageModalDialog.maxImageWidth + '&scale=' + this.scale +
+                               (keepOriginalSizeChecked ? '&original=true' : '');
+            console.log(previewSrc);
+
+            this.image.getEl().setAttribute('src', previewSrc);
         } else {
+            this.scale = '';
             newSrc = newSrc + (keepOriginalSizeChecked ? '?scaleWidth=true' : '?size=640&scaleWidth=true');
+            this.image.getEl().setAttribute('src', newSrc);
         }
 
-        this.image.getEl().setAttribute('src', newSrc);
     }
 
     private rebuildImgDataSrcParams() {
@@ -677,7 +692,8 @@ export class ImageDialogToolbar
 
         if (isCroppingSelected) {
             const imageCroppingOption: ImageCroppingOption = this.imageCroppingSelector.getSelectedOption().displayValue;
-            newDataSrc = newDataSrc + '?scale=' + imageCroppingOption.getProportionString() +
+            this.scale = imageCroppingOption.getProportionString();
+            newDataSrc = newDataSrc + '?scale=' + this.scale +
                          (keepOriginalSizeChecked ? '&keepSize=true' : '&size=640');
         } else {
             newDataSrc = newDataSrc + (keepOriginalSizeChecked ? '?keepSize=true' : '');
@@ -688,6 +704,10 @@ export class ImageDialogToolbar
 
     onCroppingChanged(listener: (event: OptionSelectedEvent<ImageCroppingOption>) => void) {
         this.imageCroppingSelector.onOptionSelected(listener);
+    }
+
+    getScale(): string {
+        return this.scale;
     }
 
 }

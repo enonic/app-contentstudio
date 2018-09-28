@@ -17,7 +17,8 @@ function handleGet() {
         messages: admin.getPhrases(),
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
-        launcherUrl: admin.getLauncherUrl()
+        launcherUrl: admin.getLauncherUrl(),
+        imagePreviewUrl: portal.serviceUrl({service: 'image-preview'})
     };
 
     return {

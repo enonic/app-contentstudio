@@ -1,3 +1,28 @@
+<styles css="assets/styles.css">
+  <style name="warning"> <!-- Example of generic non-image style -->
+    <display-name>Warning</display-name>
+  </style>
+  <image name="cinema">
+    <display-name>Cinema</display-name>
+    <params>
+      <aspect-ratio>21:9</aspect-ratio>
+      <filter>pixelate(10)</filter>
+    </params>
+  </image>
+  <image name="thumbnail">
+    <display-name>Thumbnail</display-name>
+    <params>
+      <aspect-ratio>1:1</aspect-ratio>
+    </params>
+  </image>
+  <image name="bubble">
+    <display-name>Bubble</display-name>
+    <params>
+      <aspect-ratio>1:1</aspect-ratio>
+    </params>
+  </image>
+</styles>
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <content-type>
   <display-name>All the Input Types</display-name>
