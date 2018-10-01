@@ -138,7 +138,7 @@ export class ContentItemPreviewPanel
 
     }
 
-    public addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
+    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
         let imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
         let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
             item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();

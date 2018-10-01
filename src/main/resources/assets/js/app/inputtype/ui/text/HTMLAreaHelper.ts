@@ -6,6 +6,18 @@ export class HTMLAreaHelper {
     static imagePrefix: string = 'image://';
     static maxImageWidth: number = 640;
 
+    public static getImagePreviewUrl(imageId: string, originalWidth: boolean = false, scale?: string): string {
+        let resolver = new api.content.util.ContentImageUrlResolver()
+            .setContentId(new api.content.ContentId(imageId))
+            .setWidth(originalWidth ? '' : HTMLAreaHelper.maxImageWidth.toString());
+
+        if (scale) {
+            resolver.setScale(scale);
+        }
+
+        return resolver.generate();
+    }
+
     private static getConvertedImageSrc(imgSrc: string): string {
         let contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
         let scaleValue = HTMLAreaHelper.extractScaleParamFromImgSrc(imgSrc);

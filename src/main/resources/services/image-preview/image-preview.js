@@ -1,15 +1,6 @@
 var lib = {
     httpClient: require('/lib/http-client'),
-    portal: require('/lib/xp/portal'),
-    auth: require('/lib/xp/auth'),
-    context: require('/lib/xp/context')
-};
-
-var sudo = function(func) {
-    return lib.context.run({
-        user: "su",
-        principals: ["role:system.admin"]
-    }, func);
+    portal: require('/lib/xp/portal')
 };
 
 var imageUrl;
@@ -17,32 +8,16 @@ var imageUrl;
 exports.get = function(req) {
     imageUrl = getImageUrl(req.params.id, req.params.width, req.params.scale);
 
-    var login = lib.auth.login({
-        user: 'su',
-        password: 'password'
-    });
-
-    log.info(JSON.stringify(login, null, 4));
-
-    var response = getImage();
+    var response = getImage(imageUrl);
 
     log.info(JSON.stringify(response, null, 4));
+
+    return {
+        status: 200,
+        contentType: response.contentType,
+        body: response.bodyStream
+    }
 };
-
-var getImage = function () {
-
-    log.info(imageUrl);
-    return lib.httpClient.request({
-        url: imageUrl,
-        method: 'GET',
-        readTimeout: 5000,
-        contentType: 'image/jpeg',
-        auth: {
-            user: 'su',
-            password: 'password'
-        }
-    });
-}
 
 var getImageUrl = function(id, width, scale) {
     var scaleArr = scale.split(':');
@@ -54,3 +29,17 @@ var getImageUrl = function(id, width, scale) {
         type: 'absolute'
     });
 };
+
+var getImage = function (imageUrl) {
+
+    log.info(imageUrl);
+    return lib.httpClient.request({
+        url: imageUrl,
+        method: 'GET',
+        //contentType: 'image/jpeg',
+        auth: {
+            user: 'su',
+            password: 'password'
+        }
+    });
+}

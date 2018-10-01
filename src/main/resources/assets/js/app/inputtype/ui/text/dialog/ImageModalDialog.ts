@@ -18,8 +18,7 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDial
 import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
-
-declare var CONFIG;
+import {HTMLAreaHelper} from '../HTMLAreaHelper';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -58,7 +57,6 @@ export class ImageModalDialog
     private imageSelectorFormItem: FormItem;
 
     static imagePrefix: string = 'image://';
-    static maxImageWidth: number = 640;
 
     constructor(config: eventInfo, content: api.content.ContentSummary) {
         super(<HtmlAreaModalDialogConfig>{
@@ -226,7 +224,7 @@ export class ImageModalDialog
     }
 
     private previewImage() {
-        this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask);
+        this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask, this.imageSelector.getValue());
         this.imageToolbar.onCroppingChanged(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
         });
@@ -249,7 +247,7 @@ export class ImageModalDialog
     private createImgElForPreview(imageContentId: string, isExistingImg: boolean = false): api.dom.ImgEl {
         const imgSrcAttr = isExistingImg
                            ? new api.dom.ElementHelper(this.imageElement).getAttribute('src')
-                           : this.generateDefaultImgSrc(imageContentId);
+                           : HTMLAreaHelper.getImagePreviewUrl(imageContentId);
         const imgDataSrcAttr = isExistingImg
                                ? new api.dom.ElementHelper(this.imageElement).getAttribute('data-src')
                                : ImageModalDialog.imagePrefix + imageContentId;
@@ -261,12 +259,6 @@ export class ImageModalDialog
         imageEl.getHTMLElement().style.textAlign = imageAlignment;
 
         return imageEl;
-    }
-
-    private generateDefaultImgSrc(contentId: string): string {
-        return new api.content.util.ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
-            true).setSize(
-            ImageModalDialog.maxImageWidth).resolve();
     }
 
     private removePreview() {
@@ -491,6 +483,8 @@ export class ImageDialogToolbar
 
     private image: api.dom.ImgEl;
 
+    private imageId: string;
+
     private justifyButton: api.ui.button.ActionButton;
 
     private alignLeftButton: api.ui.button.ActionButton;
@@ -507,10 +501,11 @@ export class ImageDialogToolbar
 
     private scale: string;
 
-    constructor(image: api.dom.ImgEl, imageLoadMask: api.ui.mask.LoadMask) {
+    constructor(image: api.dom.ImgEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
         super('image-toolbar');
 
         this.image = image;
+        this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
 
         super.addElement(this.justifyButton = this.createJustifiedButton());
@@ -657,31 +652,11 @@ export class ImageDialogToolbar
     }
 
     private rebuildImgSrcParams() {
-        const imgSrc = this.image.getEl().getAttribute('src');
-        let newSrc = api.util.UriHelper.trimUrlParams(imgSrc);
+
         const isCroppingSelected: boolean = !!this.imageCroppingSelector.getSelectedOption();
-        const keepOriginalSizeChecked: boolean = this.keepOriginalSizeCheckbox.isChecked();
+        const scale = isCroppingSelected ? this.imageCroppingSelector.getSelectedOption().displayValue.getProportionString() : '';
 
-        if (isCroppingSelected) {
-            const urlParts = newSrc.split('/');
-            const contentId = urlParts[urlParts.length-1];
-
-            const imageCroppingOption: ImageCroppingOption = this.imageCroppingSelector.getSelectedOption().displayValue;
-            this.scale = imageCroppingOption.getProportionString();
-            newSrc = newSrc + '?scale=' + this.scale +
-                     (keepOriginalSizeChecked ? '' : '&size=640');
-
-            const previewSrc = CONFIG.imagePreviewUrl + '?id=' + contentId + '&width=' + ImageModalDialog.maxImageWidth + '&scale=' + this.scale +
-                               (keepOriginalSizeChecked ? '&original=true' : '');
-            console.log(previewSrc);
-
-            this.image.getEl().setAttribute('src', previewSrc);
-        } else {
-            this.scale = '';
-            newSrc = newSrc + (keepOriginalSizeChecked ? '?scaleWidth=true' : '?size=640&scaleWidth=true');
-            this.image.getEl().setAttribute('src', newSrc);
-        }
-
+        this.image.getEl().setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(this.imageId, this.keepOriginalSizeCheckbox.isChecked(), scale));
     }
 
     private rebuildImgDataSrcParams() {
