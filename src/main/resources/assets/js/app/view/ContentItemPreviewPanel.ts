@@ -174,7 +174,7 @@ export class ContentItemPreviewPanel
                 this.showMask();
                 if (item.isRenderable()) {
                     this.setPreviewType(PREVIEW_TYPE.PAGE);
-                    let src = api.rendering.UriHelper.getPortalUri(item.getPath(), RenderingMode.PREVIEW, api.content.Branch.DRAFT);
+                    let src = api.rendering.UriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, api.content.Branch.DRAFT);
                     // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
                     wemjq.ajax({
                         type: 'HEAD',
