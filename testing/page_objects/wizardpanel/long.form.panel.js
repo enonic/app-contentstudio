@@ -5,7 +5,7 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const form = {
-    longInput: `//div[contains(@id,'inputtype.number.long.Long')]`,
+    longInput: `//div[contains(@id,'inputtype.number.Long')]`,
     validationRecording:`//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
