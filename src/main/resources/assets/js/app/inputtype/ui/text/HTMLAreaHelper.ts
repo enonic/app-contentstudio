@@ -21,8 +21,7 @@ export class HTMLAreaHelper {
     private static getConvertedImageSrc(imgSrc: string): string {
         let contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
         let scaleValue = HTMLAreaHelper.extractScaleParamFromImgSrc(imgSrc);
-        let imageUrl = new api.content.util.ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
-            true).setScale(scaleValue).setSize(HTMLAreaHelper.maxImageWidth).resolve();
+        let imageUrl = HTMLAreaHelper.getImagePreviewUrl(contentId, false, scaleValue);
 
         return ` src="${imageUrl}" data-src="${imgSrc}"`;
     }

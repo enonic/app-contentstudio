@@ -6,7 +6,7 @@ import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {ImageModalDialog} from './dialog/ImageModalDialog';
+import {HTMLAreaHelper} from './HTMLAreaHelper';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -368,8 +368,7 @@ export class HTMLAreaBuilder {
                 evt.cancel();
             } else {
                 const mediaContent = JSON.parse(response[0]);
-                const url: string = new api.content.util.ContentImageUrlResolver().setContentId(
-                    mediaContent.id).setScaleWidth(true).setSize(ImageModalDialog.maxImageWidth).resolve();
+                const url: string = HTMLAreaHelper.getImagePreviewUrl(mediaContent.id);
                 data.url = url;
             }
         });
