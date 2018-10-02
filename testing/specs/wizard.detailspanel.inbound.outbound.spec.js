@@ -73,7 +73,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 }).then(() => {
                     return contentWizard.switchToMainFrame();
                 }).then(() => {
-                    return pageComponentView.openMenu("kotey");
+                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 }).then(() => {
                     return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
                 }).then(() => {
@@ -83,10 +83,10 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 }).then(() => {
                     studioUtils.saveScreenshot('site_wizard_dependencies');
                     return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                        'Show outbound button should be present on the widget, because one fragment has been created');
+                        '`Show outbound` button should be present on the widget, because one fragment has been created');
                 }).then(() => {
                     return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
-                        'Show Inbound button should not be present, because the site has no inbound dependencies');
+                        '`Show Inbound` button should not be present, because the site has no inbound dependencies');
                 })
             });
 
@@ -99,10 +99,10 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 }).then(() => {
                     studioUtils.saveScreenshot('fragment_wizard_dependencies');
                     return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                        'Show outbound button should be present on the widget, because the fragment has parent site');
+                        'Show outbound button should be present on the widget, because the fragment was created from an image');
                 }).then(() => {
                     return assert.eventually.isTrue(wizardDependenciesWidget.isInboundButtonVisible(),
-                        'Show Inbound button should not be present, because the fragment has inbound dependencies');
+                        '`Show Inbound` button should be present, because the fragment has parent site');
                 })
             });
 
