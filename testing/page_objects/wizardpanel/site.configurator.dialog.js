@@ -62,7 +62,7 @@ const siteConfiguratorDialog = Object.create(page, {
             return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
         }
     },
-    isHasDefaultFocus: {
+    hasDefaultFocus: {
         value: function (selector) {
             return this.hasFocus(selector);
         }
