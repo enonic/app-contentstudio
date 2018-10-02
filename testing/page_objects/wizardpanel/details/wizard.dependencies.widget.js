@@ -33,6 +33,27 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
             return this.isVisible(this.dependenciesWidget);
         }
     },
+    waitForInboundButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.showInboundButton, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('err_inbound_button');
+                throw new Error('Wizard dependency panel - showInboundButton: is not visible in ' + appConst.TIMEOUT_2);
+            });
+        }
+    },
+    isInboundButtonVisible: {
+        value: function () {
+            return this.isVisible(this.showInboundButton);
+        }
+    },
+    waitForOutboundButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.showOutboundButton, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('err_outbound_button');
+                throw new Error('Wizard dependency panel - showOutboundButton: is not visible in ' + appConst.TIMEOUT_2);
+            });
+        }
+    },
     waitForDependenciesLoaded: {
         value: function () {
             return this.waitForVisible(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
