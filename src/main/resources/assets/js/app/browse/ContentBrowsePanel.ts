@@ -16,6 +16,8 @@ import {ContentPublishMenuButton} from './ContentPublishMenuButton';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from '../rendering/UriHelper';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -299,7 +301,7 @@ export class ContentBrowsePanel
     }
 
     private getPathFromPreviewPath(contentPreviewPath: string): string {
-        return api.rendering.UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, api.rendering.RenderingMode.PREVIEW,
+        return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW,
             api.content.Branch.DRAFT);
     }
 

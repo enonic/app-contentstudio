@@ -1,6 +1,7 @@
 import '../../api.ts';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from '../rendering/UriHelper';
 import Action = api.ui.Action;
-import RenderingMode = api.rendering.RenderingMode;
 import i18n = api.util.i18n;
 
 interface OpenedWindow {
@@ -51,7 +52,7 @@ export class BasePreviewAction extends Action {
     }
 
     protected updateLocation(targetWindow: Window, content: api.content.ContentSummary, focus: boolean = true) {
-        targetWindow.location.href = api.rendering.UriHelper.getPortalUri(content.getPath().toString(),
+        targetWindow.location.href = UriHelper.getPortalUri(content.getPath().toString(),
             RenderingMode.PREVIEW, api.content.Branch.DRAFT);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox

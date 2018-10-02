@@ -51,6 +51,8 @@ import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/Component
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {UriHelper} from '../../rendering/UriHelper';
+import {RenderingMode} from '../../rendering/RenderingMode';
 import Content = api.content.Content;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
@@ -62,7 +64,6 @@ import PartComponent = api.content.page.region.PartComponent;
 import LayoutComponent = api.content.page.region.LayoutComponent;
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
-import RenderingMode = api.rendering.RenderingMode;
 import Panel = api.ui.panel.Panel;
 import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
@@ -492,7 +493,7 @@ export class LiveFormPanel
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
         this.pageSkipReload = true;
-        let componentUrl = api.rendering.UriHelper.getComponentUri(this.content.getContentId().toString(),
+        let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT,
             api.content.Branch.DRAFT);
@@ -674,7 +675,7 @@ export class LiveFormPanel
         this.liveEditPageProxy.onFragmentReloadRequired((event: FragmentComponentReloadRequiredEvent) => {
             let fragmentView = event.getFragmentComponentView();
 
-            let componentUrl = api.rendering.UriHelper.getComponentUri(this.content.getContentId().toString(),
+            let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
                 fragmentView.getComponentPath(),
                 RenderingMode.EDIT,
                 api.content.Branch.DRAFT);
