@@ -10,7 +10,12 @@ const baseDependenciesWidget = Object.create(page, {
 
     clickOnShowOutboundButton: {
         value: function () {
-            return this.doClick(this.showOutboundButton);
+            return this.waitForVisible(this.showOutboundButton, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('err_outbound_button');
+                throw new Error('Show Outbound button is not visible in ' + err);
+            }).then(() => {
+                return this.doClick(this.showOutboundButton);
+            })
         }
     },
     clickOnShowInboundButton: {

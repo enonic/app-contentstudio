@@ -416,6 +416,14 @@ module.exports = {
             return contentWizardPanel.waitForOpened();
         });
     },
+    doSwitchToNextTab: function () {
+        return webDriverHelper.browser.getTabIds().then(tabs => {
+            this.xpTabs = tabs;
+            return webDriverHelper.browser.switchTab(this.xpTabs[this.xpTabs.length - 1]);
+        }).then(() => {
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_3);
+        });
+    },
     switchAndCheckTitle: function (tabId, reqTitle) {
         return webDriverHelper.browser.switchTab(tabId).then(() => {
             return webDriverHelper.browser.getTitle().then(title => {
@@ -457,7 +465,7 @@ module.exports = {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
             tabs.some(tabId => {
-                prevPromise = prevPromise.then((isStudio) => {
+                prevPromise = prevPromise.then(isStudio => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, "Content Studio - Enonic XP Admin");
                     }
@@ -473,7 +481,7 @@ module.exports = {
         return webDriverHelper.browser.getTabIds().then(tabs => {
             let prevPromise = Promise.resolve(false);
             tabs.some(tabId => {
-                prevPromise = prevPromise.then((isStudio) => {
+                prevPromise = prevPromise.then(isStudio => {
                     if (!isStudio) {
                         return this.switchAndCheckTitle(tabId, contentDisplayName);
                     }
@@ -486,6 +494,13 @@ module.exports = {
     doPressBackspace: function () {
         return webDriverHelper.browser.keys('\uE003');
     },
+    doPressTabKey: function () {
+        return webDriverHelper.browser.keys('Tab');
+    },
+    doPressEnter: function () {
+        return webDriverHelper.browser.keys('Enter');
+    },
+
     doCloseAllWindowTabsAndSwitchToHome: function () {
         return webDriverHelper.browser.getTabIds().then(tabIds => {
             let result = Promise.resolve();

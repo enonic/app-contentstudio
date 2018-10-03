@@ -36,12 +36,11 @@ const baseDetailsPanel = Object.create(page, {
     //clicks on dropdown handle and select the 'Dependencies' menu item
     openDependencies: {
         value: function () {
-            return this.clickOnWidgetSelectorDropdownHandle().pause().then(() => {
+            return this.clickOnWidgetSelectorDropdownHandle().then(() => {
                 let dependenciesOption = this.widgetSelectorDropdown + elements.DEPENDENCIES_MENU_OPTION;
                 return this.waitForVisible(dependenciesOption, appConst.TIMEOUT_2).then(() => {
                     return this.getDisplayedElements(dependenciesOption)
                 }).then(result => {
-                    console.log('number of elements:  '+result.length);
                     return this.getBrowser().elementIdClick(result[0].ELEMENT);
                 });
             });

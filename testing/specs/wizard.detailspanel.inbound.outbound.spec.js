@@ -9,6 +9,7 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const contentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
@@ -79,6 +80,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 }).then(() => {
                     return contentWizard.openDetailsPanel();
                 }).then(() => {
+                    console.log("details panel is opened");
                     return wizardDetailsPanel.openDependencies();
                 }).then(() => {
                     studioUtils.saveScreenshot('site_wizard_dependencies');
@@ -103,6 +105,28 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 }).then(() => {
                     return assert.eventually.isTrue(wizardDependenciesWidget.isInboundButtonVisible(),
                         '`Show Inbound` button should be present, because the fragment has parent site');
+                })
+            });
+
+        it(`GIVEN existing site with fragment WHEN 'Show Outbound' button has been pressed THEN  Dependencies Section should appear in the new browser-tab`,
+            () => {
+                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME).then(() => {
+                    return contentWizard.openDetailsPanel();
+                }).then(() => {
+                    return wizardDetailsPanel.openDependencies();
+                }).then(() => {
+                    return wizardDependenciesWidget.clickOnShowOutboundButton();
+                }).pause(1000).then(() => {
+                    return studioUtils.doSwitchToNextTab();
+                }).then(() => {
+                    return assert.eventually.isTrue(contentFilterPanel.waitForDependenciesSectionVisible(),
+                        '`Dependencies Section` should be present, in the filter panel');
+                }).then(() => {
+                    studioUtils.saveScreenshot('outbound_dep_in_new_tab');
+                    return contentBrowsePanel.getDisplayNamesInGrid();
+                }).then(result => {
+                    assert.isTrue(result[0] == IMAGE_DISPLAY_NAME, 'correct display name of dependency');
+                    assert.isTrue(result.length == 1, 'Only one dependency should be present in the grid');
                 })
             });
 
