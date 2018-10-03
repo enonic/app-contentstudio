@@ -50,6 +50,8 @@ describe('Browse toolbar shortcut spec`', function () {
             return newContentDialog.waitForOpened();
         }).then(result => {
             assert.isTrue(result, 'New Content Dialog should be loaded');
+        }).then(()=>{
+            return assert.eventually.isTrue(newContentDialog.hasDefaultFocus(`//input[contains(@placeholder,'Search for content types')]`));
         })
     });
 

@@ -120,7 +120,22 @@ const contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
         }
     },
-
+    displayNames: {
+        get: function () {
+            return `${panel.treeGrid}` + elements.H6_DISPLAY_NAME;
+        }
+    },
+    //gets list of content display names
+    getDisplayNamesInGrid: {
+        value: function () {
+            return this.getText(this.displayNames).catch(err => {
+                this.saveScreenshot('err_click_on_details_panel_toggle');
+                throw new Error(`Error when getting display names in grid` + err);
+            }).then(result=>{
+                return [].concat(result);
+            });
+        }
+    },
     clickOnDetailsPanelToggleButton: {
         value: function () {
             return this.doClick(this.detailsPanelToggleButton).catch(err => {
@@ -337,7 +352,7 @@ const contentBrowsePanel = Object.create(page, {
             let nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
             return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
-            }).pause(400).catch((err) => {
+            }).pause(400).catch(err => {
                 this.saveScreenshot('err_find_' + displayName);
                 throw Error('Row with the displayName ' + displayName + ' was not found')
             })
@@ -347,7 +362,7 @@ const contentBrowsePanel = Object.create(page, {
         value: function (name) {
             let nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000)
-                .catch((err) => {
+                .catch(err => {
                     this.saveScreenshot('err_find_' + name);
                     throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
                 })
@@ -394,7 +409,7 @@ const contentBrowsePanel = Object.create(page, {
             });
         }
     },
-    getNumberOfCheckeddRows: {
+    getNumberOfCheckedRows: {
         value: function () {
             return this.elements(panel.checkedRows).then(result => {
                 return result.value.length;
