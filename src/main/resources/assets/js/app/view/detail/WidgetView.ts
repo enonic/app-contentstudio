@@ -2,6 +2,7 @@ import '../../../api.ts';
 import {DetailsView} from './DetailsView';
 import {WidgetItemView} from './WidgetItemView';
 import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
+import {UriHelper} from '../../rendering/UriHelper';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Widget = api.content.Widget;
 
@@ -79,7 +80,7 @@ export class WidgetView extends api.dom.DivEl {
     }
 
     private getWidgetUrl() {
-        return api.rendering.UriHelper.getAdminUri(this.widget.getUrl(), '/');
+        return UriHelper.getAdminUri(this.widget.getUrl(), '/');
     }
 
     private getFullUrl(url: string) {

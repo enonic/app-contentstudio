@@ -34,8 +34,9 @@ import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageD
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
+import {UriHelper} from '../../rendering/UriHelper';
+import {RenderingMode} from '../../rendering/RenderingMode';
 import Component = api.content.page.region.Component;
-import RenderingMode = api.rendering.RenderingMode;
 import Workspace = api.content.Branch;
 import EditContentEvent = api.content.event.EditContentEvent;
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
@@ -254,7 +255,7 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = api.rendering.UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Workspace.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Workspace.DRAFT);
 
         if (api.BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();
