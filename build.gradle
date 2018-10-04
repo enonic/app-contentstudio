@@ -20,8 +20,6 @@ dependencies {
     include "${group}:lib-admin:${xpVersion}"
     include "${group}:lib-mustache:${xpVersion}"
     include "${group}:lib-portal:${xpVersion}"
-    include "${group}:lib-auth:${xpVersion}"
-    include "${group}:lib-context:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-http-client:1.0.1"
     testCompile 'junit:junit:4.12'

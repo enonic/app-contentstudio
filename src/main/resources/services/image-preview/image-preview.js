@@ -6,6 +6,7 @@ var lib = {
 var imageUrl;
 
 exports.get = function(req) {
+    log.info(JSON.stringify(req, null, 4));
     imageUrl = getImageUrl(req.params.id, req.params.width, req.params.scale);
 
     var response = getImage(imageUrl);
@@ -20,12 +21,17 @@ exports.get = function(req) {
 };
 
 var getImageUrl = function(id, width, scale) {
-    var scaleArr = scale.split(':');
-    var height = parseInt(width * scaleArr[1] / scaleArr[0], 10);
+    var scaleParam = 'width(' + width + ')';
+    if (scale) {
+        var scaleArr = scale.split(':');
+        var height = parseInt(width * scaleArr[1] / scaleArr[0], 10);
+
+        scaleParam = 'block(' + width + ',' + height + ')';
+    }
 
     return lib.portal.imageUrl({
         id: id,
-        scale: 'block(' + width + ',' + height + ')',
+        scale: scaleParam,
         type: 'absolute'
     });
 };
