@@ -1,37 +1,43 @@
 import StringHelper = api.util.StringHelper;
 import AppHelper = api.util.AppHelper;
+import {ImagePreviewUrlResolver, ImageRenderUrlResolver, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 
 export class HTMLAreaHelper {
 
-    static imagePrefix: string = 'image://';
-    static maxImageWidth: number = 640;
+    private static getImageUrl(resolver: ImagePreviewUrlResolver, params: ImageUrlParameters): string {
+        resolver
+            .setContentId(new api.content.ContentId(params.id))
+            .setUseActualWidth(params.useActualWidth);
 
-    public static getImagePreviewUrl(imageId: string, originalWidth: boolean = false, scale?: string): string {
-        let resolver = new api.content.util.ContentImageUrlResolver()
-            .setContentId(new api.content.ContentId(imageId))
-            .setWidth(originalWidth ? '' : HTMLAreaHelper.maxImageWidth.toString());
-
-        if (scale) {
-            resolver.setScale(scale);
+        if (params.scale) {
+            resolver.setScale(params.scale);
         }
 
-        return resolver.generate();
+        return resolver.resolve();
+    }
+
+    public static getImageRenderUrl(params: ImageUrlParameters): string {
+        return HTMLAreaHelper.getImageUrl(new ImageRenderUrlResolver(), params);
+    }
+
+    public static getImagePreviewUrl(params: ImageUrlParameters): string {
+        return HTMLAreaHelper.getImageUrl(new ImagePreviewUrlResolver(), params);
     }
 
     private static getConvertedImageSrc(imgSrc: string): string {
         let contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
         let scaleValue = HTMLAreaHelper.extractScaleParamFromImgSrc(imgSrc);
-        let imageUrl = HTMLAreaHelper.getImagePreviewUrl(contentId, false, scaleValue);
+        let imageUrl = HTMLAreaHelper.getImagePreviewUrl({id: contentId, scale: scaleValue});
 
         return ` src="${imageUrl}" data-src="${imgSrc}"`;
     }
 
-    private static extractContentIdFromImgSrc(imgSrc: string): string {
+    public static extractContentIdFromImgSrc(imgSrc: string): string {
         if (imgSrc.indexOf('?') !== -1) {
-            return StringHelper.substringBetween(imgSrc, HTMLAreaHelper.imagePrefix, '?');
+            return StringHelper.substringBetween(imgSrc, ImageRenderUrlResolver.imagePrefix, '?');
         }
 
-        return imgSrc.replace(HTMLAreaHelper.imagePrefix, StringHelper.EMPTY_STRING);
+        return imgSrc.replace(ImageRenderUrlResolver.imagePrefix, StringHelper.EMPTY_STRING);
     }
 
     private static extractScaleParamFromImgSrc(imgSrc: string): string {
@@ -51,11 +57,11 @@ export class HTMLAreaHelper {
             return '';
         }
 
-        while (processedContent.search(` src="${HTMLAreaHelper.imagePrefix}`) > -1) {
+        while (processedContent.search(` src="${ImageRenderUrlResolver.imagePrefix}`) > -1) {
             imgSrcs = regex.exec(processedContent);
             if (imgSrcs) {
                 imgSrcs.forEach((imgSrc: string) => {
-                    if (imgSrc.indexOf(HTMLAreaHelper.imagePrefix) === 0) {
+                    if (imgSrc.indexOf(ImageRenderUrlResolver.imagePrefix) === 0) {
                         processedContent =
                             processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc));
                     }
@@ -72,7 +78,7 @@ export class HTMLAreaHelper {
         AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
             const imgTag = imgTags[0];
 
-            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(HTMLAreaHelper.imagePrefix) > 0) {
+            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageRenderUrlResolver.imagePrefix) > 0) {
                 const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
                 const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
 

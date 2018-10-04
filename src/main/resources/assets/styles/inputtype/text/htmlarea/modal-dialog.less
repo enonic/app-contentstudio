@@ -65,7 +65,11 @@
 }
 
 .html-area-modal-dialog {
-  max-width: 600px;
+  box-sizing: content-box;
+
+  &:not(.image-modal-dialog) {
+    max-width: 600px;
+  }
 
   .modal-dialog-body {
     overflow: visible;
