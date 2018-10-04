@@ -1,23 +1,53 @@
 var lib = {
     httpClient: require('/lib/http-client'),
-    portal: require('/lib/xp/portal')
+    portal: require('/lib/xp/portal'),
+    content: require('/lib/xp/content')
 };
 
 var imageUrl;
 
 exports.get = function(req) {
-    log.info(JSON.stringify(req, null, 4));
-    imageUrl = getImageUrl(req.params.id, req.params.width, req.params.scale);
+
+    if (!req.params.id) {
+        throw Error('Image id is required to generate image preview url');
+    }
+
+    var useActualImage = req.params.actual && req.params.actual=='true';
+
+    if (useActualImage) {
+        imageUrl = getAttachmentUrl(req.params.id);
+    }
+    else {
+        var width = req.params.width || getDefaultWidth(req.params.id);
+        imageUrl = getImageUrl(req.params.id, width, req.params.scale);
+    }
 
     var response = getImage(imageUrl);
-
-    log.info(JSON.stringify(response, null, 4));
 
     return {
         status: 200,
         contentType: response.contentType,
         body: response.bodyStream
     }
+};
+
+var getDefaultWidth = function(id) {
+    var result = lib.content.get({
+        key: id
+    });
+
+    if (result) {
+        return result.x.media.imageInfo.imageWidth;
+    }
+
+    return 640; // Fallback width
+};
+
+var getAttachmentUrl = function(id) {
+    return lib.portal.attachmentUrl({
+        id: id,
+        type: 'absolute'
+    });
 };
 
 var getImageUrl = function(id, width, scale) {
@@ -38,11 +68,9 @@ var getImageUrl = function(id, width, scale) {
 
 var getImage = function (imageUrl) {
 
-    log.info(imageUrl);
     return lib.httpClient.request({
         url: imageUrl,
         method: 'GET',
-        //contentType: 'image/jpeg',
         auth: {
             user: 'su',
             password: 'password'
