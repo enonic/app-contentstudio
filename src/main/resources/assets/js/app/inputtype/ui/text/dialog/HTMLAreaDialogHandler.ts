@@ -2,7 +2,7 @@ import eventInfo = CKEDITOR.eventInfo;
 import {ModalDialog} from './ModalDialog';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {LinkModalDialog} from './LinkModalDialog';
-import {ImageModalDialog} from './ImageModalDialog';
+import {ImageModalDialog} from './image/ImageModalDialog';
 import {AnchorModalDialog} from './AnchorModalDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {CodeDialog} from './CodeDialog';

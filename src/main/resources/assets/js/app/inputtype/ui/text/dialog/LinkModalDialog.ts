@@ -26,7 +26,7 @@ import Content = api.content.Content;
 import AppHelper = api.util.AppHelper;
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {ImageModalDialogConfig} from './ImageModalDialog';
+import {ImageModalDialogConfig} from './image/ImageModalDialog';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {
