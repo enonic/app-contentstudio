@@ -219,7 +219,10 @@ export class HTMLAreaBuilder {
             image2_captionedClass: '',
             disallowedContent: 'img[width,height]',
             uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
-            contentsCss: this.assetsUri + '/styles/html-editor.css',
+            contentsCss: [
+                            this.assetsUri + '/styles/html-editor.css',
+                            this.assetsUri + '/styles/styles.css'
+                        ],
             sharedSpaces: this.inline ? {top: this.fixedToolbarContainer} : null
         };
 
