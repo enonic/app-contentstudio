@@ -7,6 +7,7 @@ import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import ApplicationConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
 import {SiteConfiguratorSelectedOptionsView} from './SiteConfiguratorSelectedOptionsView';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {ContentFormContext} from '../../ContentFormContext';
 
 export class SiteConfiguratorComboBox
     extends api.ui.selector.combobox.RichComboBox<Application> {
@@ -14,7 +15,7 @@ export class SiteConfiguratorComboBox
     private siteConfiguratorSelectedOptionsView: SiteConfiguratorSelectedOptionsView;
 
     constructor(maxOccurrences: number, siteConfigProvider: ApplicationConfigProvider,
-                formContext: api.content.form.ContentFormContext, value?: string) {
+                formContext: ContentFormContext, value?: string) {
 
         let filterObject = {
             state: Application.STATE_STARTED

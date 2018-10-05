@@ -8,25 +8,25 @@ import TextInput = api.ui.text.TextInput;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
 import Option = api.ui.selector.Option;
-import i18n = api.util.i18n;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import eventInfo = CKEDITOR.eventInfo;
-import MediaUploaderEl = api.ui.uploader.MediaUploaderEl;
-import FileUploadedEvent = api.ui.uploader.FileUploadedEvent;
-import FileUploadStartedEvent = api.ui.uploader.FileUploadStartedEvent;
 import UploadItem = api.ui.uploader.UploadItem;
-import MediaSelectorDisplayValue = api.content.media.MediaSelectorDisplayValue;
-import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 import ContentSummary = api.content.ContentSummary;
-import FileUploadFailedEvent = api.ui.uploader.FileUploadFailedEvent;
 import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import ContentComboBox = api.content.ContentComboBox;
 import ContentId = api.content.ContentId;
 import Content = api.content.Content;
 import AppHelper = api.util.AppHelper;
+import i18n = api.util.i18n;
+import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
+import UploadedEvent = api.ui.uploader.UploadedEvent;
+import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {ImageModalDialogConfig} from './ImageModalDialog';
+import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
+import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
+import {ContentComboBox} from '../../selector/ContentComboBox';
+import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {
@@ -327,7 +327,7 @@ export class LinkModalDialog
             loaderBuilder.setContentTypeNames(contentTypeNames.map(name => name.toString()));
         }
 
-        const contentSelector = api.content.ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
+        const contentSelector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
 
         this.onAdded(() => {
             contentSelector.setValue(getValueFn.call(this));
@@ -336,7 +336,7 @@ export class LinkModalDialog
         return contentSelector;
     }
 
-    private createSelectorFormItem(id: string, label: string, contentSelector: api.content.ContentComboBox<ContentTreeSelectorItem>,
+    private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,
                                    addValueValidation: boolean = false): FormItem {
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
@@ -366,7 +366,7 @@ export class LinkModalDialog
             params: {
                 parent: this.contentId.toString()
             },
-            operation: api.ui.uploader.MediaUploaderElOperation.create,
+            operation: MediaUploaderElOperation.create,
             name: 'media-selector-upload-el',
             showCancel: false,
             showResult: false,
@@ -374,7 +374,7 @@ export class LinkModalDialog
             allowMultiSelection: false
         });
 
-        mediaUploader.onUploadStarted((event: FileUploadStartedEvent<Content>) => {
+        mediaUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
             event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
                 const value = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
@@ -387,7 +387,7 @@ export class LinkModalDialog
             });
         });
 
-        mediaUploader.onFileUploaded((event: FileUploadedEvent<Content>) => {
+        mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             let item = event.getUploadItem();
             let createdContent = item.getModel();
 
@@ -399,7 +399,7 @@ export class LinkModalDialog
             selectedOption.getOptionView().setOption(option);
         });
 
-        mediaUploader.onUploadFailed((event: FileUploadFailedEvent<Content>) => {
+        mediaUploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
             let item = event.getUploadItem();
 
             let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
@@ -448,7 +448,7 @@ export class LinkModalDialog
     }
 
     private createContentLink() {
-        const contentSelectorValue: string = (<api.content.ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
+        const contentSelectorValue: string = (<ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
             'contentId')).getValue();
         const isOpenInNewTab: boolean = (<api.ui.Checkbox>this.getFieldById('contentTarget')).isChecked();
         const url: string = LinkModalDialog.contentPrefix + contentSelectorValue;
@@ -461,7 +461,7 @@ export class LinkModalDialog
     }
 
     private createDownloadLink() {
-        const contentSelectorValue: string = (<api.content.ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
+        const contentSelectorValue: string = (<ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
             'downloadId')).getValue();
         const url: string = LinkModalDialog.downloadPrefix + contentSelectorValue;
 

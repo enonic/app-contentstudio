@@ -19,6 +19,7 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
+import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
@@ -64,7 +65,7 @@ export class IssueDetailsDialog
     private detailsSubTitle: DetailsDialogSubTitle;
     private publishAction: ContentPublishDialogAction;
     private publishButton: api.ui.button.MenuButton;
-    private itemSelector: api.content.ContentComboBox<api.content.resource.ContentTreeSelectorItem>;
+    private itemSelector: ContentComboBox<api.content.resource.ContentTreeSelectorItem>;
     private publishProcessor: PublishProcessor;
     private saveOnLoaded: boolean;
     private skipNextServerUpdatedEvent: boolean;
@@ -244,7 +245,7 @@ export class IssueDetailsDialog
 
     private createItemsPanel() {
         const itemsPanel = new Panel();
-        this.itemSelector = api.content.ContentComboBox.create()
+        this.itemSelector = ContentComboBox.create()
             .setShowStatus(true)
             .setHideComboBoxWhenMaxReached(false)
             .build();

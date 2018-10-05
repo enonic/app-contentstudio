@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';

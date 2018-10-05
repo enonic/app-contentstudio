@@ -1,23 +1,23 @@
-import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {FragmentComponentView} from './FragmentComponentView';
 import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
 import {LayoutItemType} from '../layout/LayoutItemType';
 import {FragmentOptionDataLoader} from './FragmentOptionDataLoader';
+import {ContentComboBox} from '../../app/inputtype/ui/selector/ContentComboBox';
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import Content = api.content.Content;
 import LayoutComponentType = api.content.page.region.LayoutComponentType;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import i18n = api.util.i18n;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
+import i18n = api.util.i18n;
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {
 
     private fragmentComponentView: FragmentComponentView;
 
-    private comboBox: api.content.ContentComboBox<ContentTreeSelectorItem>;
+    private comboBox: ContentComboBox<ContentTreeSelectorItem>;
 
     private comboboxWrapper: api.dom.DivEl;
 
@@ -31,7 +31,7 @@ export class FragmentPlaceholder
         let sitePath = this.fragmentComponentView.getLiveEditModel().getSiteModel().getSite().getPath().toString();
         let loader = new FragmentOptionDataLoader().setParentSitePath(sitePath);
 
-        this.comboBox = api.content.ContentComboBox.create()
+        this.comboBox = ContentComboBox.create()
             .setMaximumOccurrences(1)
             .setLoader(loader)
             .setMinWidth(270)

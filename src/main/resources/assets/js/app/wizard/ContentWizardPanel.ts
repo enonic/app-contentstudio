@@ -30,9 +30,10 @@ import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
+import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
+import {ContentFormContext} from '../ContentFormContext';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
-import ContentFormContext = api.content.form.ContentFormContext;
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
@@ -56,7 +57,6 @@ import TogglerButton = api.ui.button.TogglerButton;
 import WizardHeaderWithDisplayNameAndName = api.app.wizard.WizardHeaderWithDisplayNameAndName;
 import WizardHeaderWithDisplayNameAndNameBuilder = api.app.wizard.WizardHeaderWithDisplayNameAndNameBuilder;
 import ContentRequiresSaveEvent = api.content.event.ContentRequiresSaveEvent;
-import ImageErrorEvent = api.content.image.ImageErrorEvent;
 import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
@@ -792,7 +792,7 @@ export class ContentWizardPanel
 
     }
 
-    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
+    private onFileUploaded(event: api.ui.uploader.UploadedEvent<api.content.Content>) {
         let newPersistedContent: Content = event.getUploadItem().getModel();
         this.setPersistedItem(newPersistedContent.clone());
         this.updateXDataStepForms(newPersistedContent);

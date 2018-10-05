@@ -7,24 +7,25 @@ import {NewContentEvent} from './NewContentEvent';
 import {FilterableItemsList} from './FilterableItemsList';
 import {AggregateContentTypesResult} from './AggregateContentTypesResult';
 import {AggregateContentTypesByPathRequest} from './AggregateContentTypesByPathRequest';
+import {FileInput} from './FileInput';
 import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
 import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
 import Content = api.content.Content;
 import ContentPath = api.content.ContentPath;
 import Site = api.content.site.Site;
-import FileUploadStartedEvent = api.ui.uploader.FileUploadStartedEvent;
 import LoadMask = api.ui.mask.LoadMask;
 import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
 import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 
 export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     private parentContent: api.content.Content;
 
-    private fileInput: api.ui.text.FileInput;
+    private fileInput: FileInput;
 
     private dropzoneContainer: api.ui.uploader.DropzoneContainer;
 
@@ -82,7 +83,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.dropzoneContainer.hide();
         this.appendChild(this.dropzoneContainer);
 
-        this.fileInput = new api.ui.text.FileInput('large', undefined).setPlaceholder(i18n('dialog.new.searchTypes')).setUploaderParams(
+        this.fileInput = new FileInput('large', undefined).setPlaceholder(i18n('dialog.new.searchTypes')).setUploaderParams(
             {parent: ContentPath.ROOT.toString()});
 
         this.fileInput.getUploader().addDropzone(this.dropzoneContainer.getDropzone().getId());
@@ -132,7 +133,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.fileInput.getUploader().onDropzoneDrop(() => this.dropzoneContainer.hide());
     }
 
-    private closeAndFireEventFromMediaUpload(event: FileUploadStartedEvent<Content>) {
+    private closeAndFireEventFromMediaUpload(event: UploadStartedEvent<Content>) {
         let handler = (e: api.dom.ElementHiddenEvent) => {
             new NewMediaUploadEvent(event.getUploadItems(), this.parentContent).fire();
             this.unHidden(handler);
