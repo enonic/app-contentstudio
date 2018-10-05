@@ -19,27 +19,27 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
     let string42 = 'qwertyuiopasdfghjklzxcvbnm1234567890qwerty';
     let string41 = 'qwertyuiopasdfghjklzxcvbnm1234567890qwert';
 
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
+    it(`Preconditions: WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
                 return textAreaForm.typeText('hello');
-            }).pause(1000).then(()=> {
+            }).pause(700).then(() => {
                 return textAreaForm.isValidationRecordingVisible();
-            }).then((result)=> {
+            }).then(result => {
                 studioUtils.saveScreenshot('textarea_max_length_1');
                 assert.isFalse(result, 'Validation recording should not be displayed');
             });
@@ -47,11 +47,11 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN validation record should be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTAREA_MAX_LENGTH).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTAREA_MAX_LENGTH).then(() => {
                 return textAreaForm.typeText(string42);
-            }).then(()=> {
+            }).then(() => {
                 return textAreaForm.waitForValidationRecording();
-            }).then((result)=> {
+            }).then((result) => {
                 studioUtils.saveScreenshot('textarea_max_length_2');
                 assert.isTrue(result, 'Validation recording should appear');
             });
@@ -59,11 +59,11 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN correct validation recording should be displayed`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
                 return textAreaForm.typeText(string42);
-            }).pause(1000).then(()=> {
+            }).pause(1000).then(() => {
                 return textAreaForm.getValidationRecord();
-            }).then((text)=> {
+            }).then(text => {
                 studioUtils.saveScreenshot('textarea_max_length_3');
                 assert.isTrue(text == 'Text cannot be more than 41 characters long', 'correct validation recording should appear');
             });
@@ -71,11 +71,11 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 41 chars has been typed THEN validation record should not be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
                 return textAreaForm.typeText(string41);
-            }).pause(1000).then(()=> {
+            }).pause(1000).then(() => {
                 return textAreaForm.isValidationRecordingVisible();
-            }).then((result)=> {
+            }).then((result) => {
                 studioUtils.saveScreenshot('textarea_max_length_4');
                 assert.isFalse(result, 'Validation recording should not be displayed');
             });

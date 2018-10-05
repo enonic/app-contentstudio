@@ -25,6 +25,7 @@ const wizard = {
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
+    xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
 
 };
 const contentWizardPanel = Object.create(page, {
@@ -106,6 +107,20 @@ const contentWizardPanel = Object.create(page, {
                 } else {
                     console.log("Content wizard is opened and Details Panel is loaded");
                 }
+            })
+        }
+    },
+    waitForXdataTogglerVisible: {
+        value: function () {
+            return this.waitForVisible(this.showComponentViewToggler, appConst.TIMEOUT_1).catch(err => {
+                return false;
+            })
+        }
+    },
+    clickOnXdataToggler: {
+        value: function () {
+            return this.doClick(wizard.xDataToggler).catch(err => {
+                return this.doCatch('err_click_on_xdata_toggler', err);
             })
         }
     },
@@ -255,7 +270,7 @@ const contentWizardPanel = Object.create(page, {
                 });
             }, 2000).then(() => {
                 return true;
-            }).catch((err) => {
+            }).catch(err => {
                 throw new Error('content-wizard:invalid-icon was not found' + err);
             });
         }
