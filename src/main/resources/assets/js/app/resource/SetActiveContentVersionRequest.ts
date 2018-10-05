@@ -1,5 +1,5 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentId = api.content.ContentId;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class SetActiveContentVersionRequest
     extends ContentResourceRequest<any, any> {

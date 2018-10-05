@@ -1,4 +1,3 @@
-import '../../api';
 import CompareExpr = api.query.expr.CompareExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import ValueExpr = api.query.expr.ValueExpr;
@@ -6,8 +5,8 @@ import LogicalExpr = api.query.expr.LogicalExpr;
 import LogicalOperator = api.query.expr.LogicalOperator;
 import Expression = api.query.expr.Expression;
 import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
-import ContentTreeSelectorQueryRequest = api.content.ContentTreeSelectorQueryRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
+import {ContentTreeSelectorQueryRequest} from '../../app/resource/ContentTreeSelectorQueryRequest';
 
 export class FragmentOptionDataRequest
     extends ContentTreeSelectorQueryRequest<ContentTreeSelectorItem> {

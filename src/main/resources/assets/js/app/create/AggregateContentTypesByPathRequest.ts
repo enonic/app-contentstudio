@@ -9,11 +9,11 @@ import BucketAggregation = api.aggregation.BucketAggregation;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import QueryField = api.query.QueryField;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentSummary = api.content.ContentSummary;
 import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentPath = api.content.ContentPath;
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {

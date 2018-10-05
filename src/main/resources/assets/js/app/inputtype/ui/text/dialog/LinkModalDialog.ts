@@ -27,6 +27,7 @@ import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem'
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
 import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
+import {ContentSummaryOptionDataLoader} from '../../selector/ContentSummaryOptionDataLoader';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {
@@ -321,7 +322,7 @@ export class LinkModalDialog
     }
 
     private createContentSelector(getValueFn: Function, contentTypeNames?: api.schema.content.ContentTypeName[]) {
-        const loaderBuilder = api.content.ContentSummaryOptionDataLoader.create();
+        const loaderBuilder = ContentSummaryOptionDataLoader.create();
 
         if (contentTypeNames) {
             loaderBuilder.setContentTypeNames(contentTypeNames.map(name => name.toString()));

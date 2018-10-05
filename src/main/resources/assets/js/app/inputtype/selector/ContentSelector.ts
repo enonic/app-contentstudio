@@ -10,10 +10,10 @@ import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import DivEl = api.dom.DivEl;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryOptionDataLoader = api.content.ContentSummaryOptionDataLoader;
 import {ContentComboBox, ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {

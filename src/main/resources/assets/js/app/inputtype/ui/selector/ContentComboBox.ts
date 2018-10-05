@@ -11,7 +11,6 @@ import OptionDataHelper = api.ui.selector.OptionDataHelper;
 import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
 import ComboBoxConfig = api.ui.selector.combobox.ComboBoxConfig;
 import ComboBox = api.ui.selector.combobox.ComboBox;
-import ContentSummaryOptionDataLoader = api.content.ContentSummaryOptionDataLoader;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
 import ValueChangedEvent = api.ValueChangedEvent;
@@ -19,6 +18,7 @@ import ContentSummaryOptionDataHelper = api.content.ContentSummaryOptionDataHelp
 import ContentTreeSelectorItemViewer = api.content.ContentTreeSelectorItemViewer;
 import i18n = api.util.i18n;
 import {ModeTogglerButton} from './ModeTogglerButton';
+import {ContentSummaryOptionDataLoader} from './ContentSummaryOptionDataLoader';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {

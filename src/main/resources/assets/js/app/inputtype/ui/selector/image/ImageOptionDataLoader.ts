@@ -4,10 +4,9 @@ import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import Option = api.ui.selector.Option;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryOptionDataLoaderBuilder = api.content.ContentSummaryOptionDataLoaderBuilder;
-import ContentSummaryOptionDataLoader = api.content.ContentSummaryOptionDataLoader;
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
