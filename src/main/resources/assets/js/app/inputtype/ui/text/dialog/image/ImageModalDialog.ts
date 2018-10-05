@@ -13,13 +13,15 @@ import ContentId = api.content.ContentId;
 import i18n = api.util.i18n;
 import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 import AppHelper = api.util.AppHelper;
-import {OverrideNativeDialog} from './OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {OverrideNativeDialog} from './../OverrideNativeDialog';
+import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
-import {HTMLAreaHelper} from '../HTMLAreaHelper';
-import {ImageUrlParameters} from '../../../../util/ImageUrlResolver';
+import {ImageStylesRequest} from './ImageStylesRequest';
+import {ImageStyle} from './ImageStyle';
+import {HTMLAreaHelper} from '../../HTMLAreaHelper';
+import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -503,6 +505,10 @@ export class ImageDialogToolbar
         this.image = image;
         this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
+
+        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyle[]) => {
+            debugger;
+        });
 
         super.addElement(this.justifyButton = this.createJustifiedButton());
         super.addElement(this.alignLeftButton = this.createLeftAlignedButton());
