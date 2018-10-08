@@ -15,11 +15,11 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: { (value: boolean): void }[] = [];
 
-    constructor(external: boolean) {
+    constructor(optional: boolean) {
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.optional = external;
+        this.optional = optional;
     }
 
     setExpandState(value: boolean) {
@@ -73,6 +73,18 @@ export class XDataWizardStepForm
         this.setEnabled(!this.optional || data.getRoot().getSize() > 0, true);
     }
 
+    resetHeaderState() {
+        if (this.outerHeader) {
+            this.outerHeader.setTogglerState(this.enabled, true);
+        }
+    }
+
+    private setHeaderState(enabled: boolean, silent: boolean = false) {
+        if (this.outerHeader) {
+            this.outerHeader.setTogglerState(enabled, silent);
+        }
+    }
+
     private setEnabled(value: boolean, silent: boolean = false) {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
@@ -104,9 +116,7 @@ export class XDataWizardStepForm
             }
         }
 
-        if (this.outerHeader) {
-            this.outerHeader.setTogglerState(this.enabled, true);
-        }
+        this.setHeaderState(this.enabled, true);
 
         if (!silent) {
             this.notifyEnableChanged(value);

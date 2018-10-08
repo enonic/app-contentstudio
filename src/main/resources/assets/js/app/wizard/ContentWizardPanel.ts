@@ -11,7 +11,6 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
 import {ContentWizardStep} from './ContentWizardStep';
-import {ContentTabBarItem, ContentTabBarItemBuilder} from './ContentTabBarItem';
 import {Router} from '../Router';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -156,9 +155,9 @@ export class ContentWizardPanel
 
     private reloadPageEditorOnSave: boolean = true;
 
-    private xDataAnchor: ContentTabBarItem;
-
     private writePermissions: boolean = false;
+
+    private applicationLoadCount: number;
 
     public static debug: boolean = false;
 
@@ -178,6 +177,7 @@ export class ContentWizardPanel
         this.contentNamedListeners = [];
         this.dataChangedListeners = [];
         this.contentUpdateDisabled = false;
+        this.applicationLoadCount = 0;
 
         this.displayNameScriptExecutor = new DisplayNameScriptExecutor();
 
@@ -225,109 +225,11 @@ export class ContentWizardPanel
         return wizardActions;
     }
 
-    private initListeners() {
-
-        let shownAndLoadedHandler = () => {
-            if (this.getPersistedItem()) {
-                Router.setHash('edit/' + this.getPersistedItem().getId());
-            } else {
-                Router.setHash('new/' + this.contentType.getName());
-            }
-        };
-
-        this.onShown(() => {
-            if (this.isDataLoaded()) {
-                shownAndLoadedHandler();
-            } else {
-                this.onDataLoaded(shownAndLoadedHandler);
-            }
+    reInitXDataSteps(content: Content): wemQ.Promise<ContentWizardStep[]> {
+        return new GetContentXDataRequest(content.getContentId()).sendAndParse().then((xDatas: XData[]) => {
+            this.removeXDataSteps();
+            return this.createXDataSteps(content, xDatas);
         });
-
-        this.onContentNamed(event => {
-            // content path has changed so update site as well
-            const content = event.getContent();
-            if (content.isSite()) {
-                this.site = <Site>content;
-            } else {
-                new ContentWizardDataLoader().loadSite(content.getContentId()).then(site => {
-                    this.site = site;
-                });
-            }
-        });
-
-        this.dataChangedHandler = () => {
-            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-
-            this.notifyDataChanged();
-        };
-
-        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
-            this.addMetadataStepForms(event.getApplicationKey());
-        };
-
-        this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
-            this.removeMetadataStepForms(event.getApplicationKey());
-        };
-
-        this.applicationUnavailableListener = (event: ApplicationEvent) => {
-            let isAppFromSiteModelUnavailable: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
-                return event.getApplicationKey().equals(applicationKey);
-            });
-
-            if (isAppFromSiteModelUnavailable) {
-                this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-
-                let message = i18n('notify.app.missing', event.getApplicationKey().toString());
-
-                if (this.isVisible()) {
-                    api.notify.showWarning(message);
-                } else {
-                    let shownHandler = () => {
-                        new api.application.GetApplicationRequest(event.getApplicationKey()).sendAndParse()
-                            .then(
-                                (application: Application) => {
-                                    if (application.getState() === 'stopped') {
-                                        api.notify.showWarning(message);
-                                    }
-                                })
-                            .catch((reason: any) => { //app was uninstalled
-                                api.notify.showWarning(message);
-                            });
-
-                        this.unShown(shownHandler);
-                    };
-
-                    this.onShown(shownHandler);
-                }
-
-                this.handleMissingApp();
-            }
-        };
-
-        this.applicationStartedListener = (event: ApplicationEvent) => {
-            let isAppFromSiteModelStarted: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
-                return event.getApplicationKey().equals(applicationKey);
-            });
-
-            if (isAppFromSiteModelStarted) {
-                let indexToRemove = -1;
-                this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
-                    indexToRemove = index;
-                    return event.getApplicationKey().equals(applicationKey);
-                });
-                if (indexToRemove > -1) {
-                    this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
-                }
-                this.handleMissingApp();
-            }
-        };
-
-        api.app.wizard.MaskContentWizardPanelEvent.on(event => {
-            if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
-                this.wizardActions.suspendActions(event.isMask());
-            }
-        });
-
     }
 
     protected doLoadData(): Q.Promise<api.content.Content> {
@@ -633,13 +535,87 @@ export class ContentWizardPanel
         this.startRememberFocus();
     }
 
-    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
-        let newPersistedContent: Content = event.getUploadItem().getModel();
-        this.setPersistedItem(newPersistedContent.clone());
-        this.updateMetadataAndMetadataStepForms(newPersistedContent);
-        this.updateThumbnailWithContent(newPersistedContent);
+    doLayout(persistedContent: Content): wemQ.Promise<void> {
 
-        this.showFeedbackContentSaved(newPersistedContent);
+        return super.doLayout(persistedContent).then(() => {
+
+            if (ContentWizardPanel.debug) {
+                console.debug('ContentWizardPanel.doLayout at ' + new Date().toISOString(), persistedContent);
+            }
+
+            this.updateThumbnailWithContent(persistedContent);
+
+            let publishControls = this.getContentWizardToolbarPublishControls();
+            let wizardHeader = this.getWizardHeader();
+
+            wizardHeader.setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
+            publishControls.enableActionsForExisting(persistedContent);
+
+            if (this.isRendered()) {
+
+                let viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
+                if (viewedContent.equals(persistedContent) || this.skipValidation) {
+
+                    // force update wizard with server bounced values to erase incorrect ones
+                    this.updateWizard(persistedContent, false);
+
+                    let liveFormPanel = this.getLivePanel();
+                    if (liveFormPanel) {
+                        liveFormPanel.loadPage();
+                    }
+                } else {
+                    console.warn(`Received Content from server differs from what's viewed:`);
+                    if (!viewedContent.getContentData().equals(persistedContent.getContentData())) {
+                        console.warn(' inequality found in Content.data');
+                        if (persistedContent.getContentData() && viewedContent.getContentData()) {
+                            console.warn(' comparing persistedContent.data against viewedContent.data:');
+                            new api.data.PropertyTreeComparator().compareTree(persistedContent.getContentData(),
+                                viewedContent.getContentData());
+                        }
+                    }
+                    if (!api.ObjectHelper.equals(viewedContent.getPage(), persistedContent.getPage())) {
+                        console.warn(' inequality found in Content.page');
+                        if (persistedContent.getPage() && viewedContent.getPage()) {
+                            console.warn(' comparing persistedContent.page.config against viewedContent.page.config:');
+                            new api.data.PropertyTreeComparator().compareTree(persistedContent.getPage().getConfig(),
+                                viewedContent.getPage().getConfig());
+                        }
+                    }
+                    if (!api.ObjectHelper.arrayEquals(viewedContent.getAllExtraData(), persistedContent.getAllExtraData())) {
+                        console.warn(' inequality found in Content.meta');
+                    }
+                    if (!api.ObjectHelper.equals(viewedContent.getAttachments(), persistedContent.getAttachments())) {
+                        console.warn(' inequality found in Content.attachments');
+                    }
+                    if (!api.ObjectHelper.equals(viewedContent.getPermissions(), persistedContent.getPermissions())) {
+                        console.warn(' inequality found in Content.permissions');
+                    }
+                    console.warn(' viewedContent: ', viewedContent);
+                    console.warn(' persistedContent: ', persistedContent);
+
+                    if (persistedContent.getType().isDescendantOfMedia()) {
+                        this.updateXDataStepForms(persistedContent);
+                    } else {
+                        new ConfirmationDialog()
+                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
+                            .setYesCallback(() => this.doLayoutPersistedItem(persistedContent.clone()))
+                            .setNoCallback(() => { /* empty */
+                            })
+                            .show();
+                    }
+                }
+
+                return this.updatePersistedContent(persistedContent);
+
+            } else {
+
+                return this.doLayoutPersistedItem(persistedContent.clone()).then(() => {
+                    return this.updatePersistedContent(persistedContent);
+                });
+            }
+
+        });
+
     }
 
     close(checkCanClose: boolean = false) {
@@ -701,40 +677,6 @@ export class ContentWizardPanel
         return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
-    private hasDisabledOptionalXData(): boolean {
-        let value = false;
-
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
-
-                if (form.isOptional() && !form.isEnabled()) {
-                    value = true;
-                    break;
-                }
-            }
-        }
-
-        return value;
-    }
-
-    private areAllOptionalXDatasCollapsed(): boolean {
-        let value = true;
-
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                const form: XDataWizardStepForm = this.xDataStepFormByName[key];
-
-                if (form.isOptional() && form.isEnabled()) {
-                    value = false;
-                    break;
-                }
-            }
-        }
-
-        return value;
-    }
-
     private isCurrentContentId(id: api.content.ContentId): boolean {
         return this.getPersistedItem() && id && this.getPersistedItem().getContentId().equals(id);
     }
@@ -745,99 +687,169 @@ export class ContentWizardPanel
 
     private formContext: ContentFormContext;
 
+    private initListeners() {
+
+        let shownAndLoadedHandler = () => {
+            if (this.getPersistedItem()) {
+                Router.setHash('edit/' + this.getPersistedItem().getId());
+            } else {
+                Router.setHash('new/' + this.contentType.getName());
+            }
+        };
+
+        this.onShown(() => {
+            if (this.isDataLoaded()) {
+                shownAndLoadedHandler();
+            } else {
+                this.onDataLoaded(shownAndLoadedHandler);
+            }
+        });
+
+        this.onContentNamed(event => {
+            // content path has changed so update site as well
+            const content = event.getContent();
+            if (content.isSite()) {
+                this.site = <Site>content;
+            } else {
+                new ContentWizardDataLoader().loadSite(content.getContentId()).then(site => {
+                    this.site = site;
+                });
+            }
+        });
+
+        this.dataChangedHandler = () => {
+            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
+
+            this.notifyDataChanged();
+        };
+
+        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
+            this.addXDataStepForms(event.getApplicationKey());
+        };
+
+        this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
+            this.removeXDataStepForms(event.getApplicationKey());
+        };
+
+        this.applicationUnavailableListener = (event: ApplicationEvent) => {
+            let isAppFromSiteModelUnavailable: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
+                return event.getApplicationKey().equals(applicationKey);
+            });
+
+            if (isAppFromSiteModelUnavailable) {
+                this.missingOrStoppedAppKeys.push(event.getApplicationKey());
+
+                let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+
+                if (this.isVisible()) {
+                    api.notify.showWarning(message);
+                } else {
+                    let shownHandler = () => {
+                        new api.application.GetApplicationRequest(event.getApplicationKey()).sendAndParse()
+                            .then(
+                                (application: Application) => {
+                                    if (application.getState() === 'stopped') {
+                                        api.notify.showWarning(message);
+                                    }
+                                })
+                            .catch((reason: any) => { //app was uninstalled
+                                api.notify.showWarning(message);
+                            });
+
+                        this.unShown(shownHandler);
+                    };
+
+                    this.onShown(shownHandler);
+                }
+
+                this.handleMissingApp();
+            }
+        };
+
+        this.applicationStartedListener = (event: ApplicationEvent) => {
+            let isAppFromSiteModelStarted: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
+                return event.getApplicationKey().equals(applicationKey);
+            });
+
+            if (isAppFromSiteModelStarted) {
+                let indexToRemove = -1;
+                this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
+                    indexToRemove = index;
+                    return event.getApplicationKey().equals(applicationKey);
+                });
+                if (indexToRemove > -1) {
+                    this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
+                }
+                this.handleMissingApp();
+            }
+        };
+
+        api.app.wizard.MaskContentWizardPanelEvent.on(event => {
+            if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
+                this.wizardActions.suspendActions(event.isMask());
+            }
+        });
+
+    }
+
+    private onFileUploaded(event: api.ui.uploader.FileUploadedEvent<api.content.Content>) {
+        let newPersistedContent: Content = event.getUploadItem().getModel();
+        this.setPersistedItem(newPersistedContent.clone());
+        this.updateXDataStepForms(newPersistedContent);
+        this.updateThumbnailWithContent(newPersistedContent);
+
+        this.showFeedbackContentSaved(newPersistedContent);
+    }
+
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
 
         this.updateWizardHeader(content);
         this.updateWizardStepForms(content, unchangedOnly);
-        this.updateMetadataAndMetadataStepForms(content, unchangedOnly);
+        this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
     }
 
-    private createXDataAnchor(xDataAnchorIndex: number) {
-        this.xDataAnchor =
-            (<ContentTabBarItemBuilder>new ContentTabBarItemBuilder()
-                .setLabel('X-data')
-                .setClickHandler(() => {
-                    this.getStepNavigator().deselectNavigationItem();
-                    this.getWizardStepsPanel().setListenToScroll(false);
-                    this.getWizardStepsPanel().showPanelByIndex(xDataAnchorIndex).then(() => {
-                        this.getWizardStepsPanel().setListenToScroll(true);
-                    });
-                }))
-                .setIconCls('icon-plus')
-                .build();
-
-        this.xDataAnchor.addClass('x-data-anchor');
-        this.getStepNavigator().insertChild(this.xDataAnchor, xDataAnchorIndex);
-    }
-
-    private togglexDataAnchorVisibility() {
-        if (!this.xDataAnchor) {
-            return;
+    private removeXDataSteps() {
+        for (const key in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                this.removeStepWithForm(this.xDataStepFormByName[key]);
+                delete this.xDataStepFormByName[key];
+            }
         }
-        this.xDataAnchor.toggleClass('hidden', !this.hasDisabledOptionalXData());
-        this.xDataAnchor.toggleClass('all-collapsed', this.areAllOptionalXDatasCollapsed());
     }
 
-    private createSteps(contentId: ContentId): wemQ.Promise<XData[]> {
-        this.contentWizardStepForm = new ContentWizardStepForm();
-        this.settingsWizardStepForm = new SettingsWizardStepForm();
-        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
-        this.securityWizardStepForm = new SecurityWizardStepForm();
-        this.missingOrStoppedAppKeys = [];
+    private createXDataSteps(content: Content, xDatas: XData[]): wemQ.Promise<ContentWizardStep[]> {
 
-        let applicationKeys = this.site ? this.site.getApplicationKeys() : [];
-        let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+        const steps = [];
+        const resultPromises = [];
 
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            this.checkPermissions(loginResult);
-            return wemQ.all(applicationPromises);
-        }).then(() => {
-            this.handleMissingApp();
+        xDatas.forEach((xData: XData, index: number) => {
+            if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
+                let stepForm = new XDataWizardStepForm(xData.isOptional());
+                this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
 
-            return new GetContentXDataRequest(contentId).sendAndParse().then(
-                (xDatas: XData[]) => {
-                    let xDataAnchorIndex;
-                    let steps: ContentWizardStep[] = [];
+                steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
 
-                    this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-                    steps.push(this.contentWizardStep);
+                let extraData = content.getExtraData(xData.getXDataName());
+                if (!extraData) {
+                    extraData = this.enrichWithExtraData(content, xData.getXDataName());
+                }
 
-                    xDatas.forEach((xData: XData, index: number) => {
-                        if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
-                            let stepForm = new XDataWizardStepForm(xData.isOptional());
-                            this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
+                let data = extraData.getData();
+                data.onChanged(this.dataChangedHandler);
 
-                            if (!xDataAnchorIndex && xData.isOptional()) {
-                                xDataAnchorIndex = steps.length;
-                            }
-                            stepForm.onEnableChanged(() => {
-                                this.togglexDataAnchorVisibility();
-                                this.getStepNavigatorContainer().checkAndMinimize();
-                                this.getStepNavigatorContainer().renumerateSteps();
-                            });
+                let xDataForm = new api.form.FormBuilder().addFormItems(xData.getFormItems()).build();
 
-                            steps.splice(index + 1, 0, new ContentWizardStep(xData.getDisplayName(), stepForm));
-                        }
-                    });
-
-                    this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
-                    this.scheduleWizardStepIndex = steps.length;
-                    steps.push(this.scheduleWizardStep);
-
-                    this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
-                    steps.push(this.settingsWizardStep);
-
-                    steps.push(new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
-
-                    this.setSteps(steps);
-
-                    if (xDataAnchorIndex) {
-                        this.createXDataAnchor(xDataAnchorIndex);
-                    }
-
-                    return xDatas;
+                const promise = stepForm.layout(this.getFormContext(content), data, xDataForm).then(() => {
+                    this.synchPersistedItemWithXData(xData.getXDataName(), data);
                 });
+
+                resultPromises.push(promise);
+            }
+        });
+
+        return wemQ.all(resultPromises).then(() => {
+            return steps;
         });
     }
 
@@ -897,6 +909,56 @@ export class ContentWizardPanel
             return outboundDependencyUpdated && !pageChanged;
 
         });
+    }
+
+    private createSteps(content: Content): wemQ.Promise<ContentWizardStep[]> {
+        this.contentWizardStepForm = new ContentWizardStepForm();
+        this.settingsWizardStepForm = new SettingsWizardStepForm();
+        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
+        this.securityWizardStepForm = new SecurityWizardStepForm();
+        this.missingOrStoppedAppKeys = [];
+
+        let applicationKeys = this.site ? this.site.getApplicationKeys() : [];
+        let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+
+        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            this.checkPermissions(loginResult);
+            return wemQ.all(applicationPromises);
+        }).then(() => {
+            this.handleMissingApp();
+
+            let steps: ContentWizardStep[] = [];
+
+            this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+            steps.push(this.contentWizardStep);
+
+            return this.reInitXDataSteps(content).then(
+                (xDataSteps: ContentWizardStep[]) => {
+                    steps = steps.concat(xDataSteps);
+
+                    this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
+                    this.scheduleWizardStepIndex = steps.length;
+                    steps.push(this.scheduleWizardStep);
+
+                    this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
+                    steps.push(this.settingsWizardStep);
+
+                    steps.push(new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
+
+                    this.setSteps(steps);
+
+                    for (let key in this.xDataStepFormByName) {
+                        if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                            this.xDataStepFormByName[key].resetHeaderState();
+                        }
+                    }
+                    return steps;
+                });
+        });
+    }
+
+    private fetchPersistedContent(): wemQ.Promise<Content> {
+        return new GetContentByIdRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
     private listenToContentEvents() {
@@ -1047,7 +1109,7 @@ export class ContentWizardPanel
             if (this.site != null && this.siteModel !== null && this.site.getContentId().equals(contentId)
                 && !this.persistedContent.getContentId().equals(contentId)) {
                 new ContentWizardDataLoader().loadSite(contentId).then(site => {
-                    this.siteModel.update(site);
+                    this.updateSiteModel(site);
                 }).catch(api.DefaultErrorHandler.handle).done();
             }
         };
@@ -1134,42 +1196,6 @@ export class ContentWizardPanel
         });
     }
 
-    private fetchPersistedContent(): wemQ.Promise<Content> {
-        return new GetContentByIdRequest(this.getPersistedItem().getContentId()).sendAndParse();
-    }
-
-    private updateLiveForm(content: Content): wemQ.Promise<any> {
-        let formContext = this.getFormContext(content);
-
-        if (this.siteModel) {
-            this.unbindSiteModelListeners();
-        }
-
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-
-            let site = content.isSite() ? <Site>content : this.site;
-
-            this.siteModel = this.siteModel ? this.siteModel.update(site) : new SiteModel(site);
-            this.initSiteModelListeners();
-
-            return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
-                this.liveEditModel = liveEditModel;
-
-                liveFormPanel.setModel(this.liveEditModel);
-                liveFormPanel.skipNextReloadConfirmation(true);
-                liveFormPanel.loadPage(false);
-
-                return wemQ(null);
-            });
-
-        }
-        if (!this.siteModel && content.isSite()) {
-            this.siteModel = new SiteModel(<Site>content);
-            this.initSiteModelListeners();
-        }
-    }
-
     private doComponentsContainId(contentId: ContentId): wemQ.Promise<boolean> {
         const page = this.getPersistedItem().getPage();
 
@@ -1216,87 +1242,37 @@ export class ContentWizardPanel
         return result;
     }
 
-    doLayout(persistedContent: Content): wemQ.Promise<void> {
+    private updateLiveForm(content: Content): wemQ.Promise<any> {
+        let formContext = this.getFormContext(content);
 
-        return super.doLayout(persistedContent).then(() => {
+        if (this.siteModel) {
+            this.unbindSiteModelListeners();
+        }
 
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.doLayout at ' + new Date().toISOString(), persistedContent);
-            }
+        let liveFormPanel = this.getLivePanel();
+        if (liveFormPanel) {
 
-            this.updateThumbnailWithContent(persistedContent);
+            let site = content.isSite() ? <Site>content : this.site;
 
-            let publishControls = this.getContentWizardToolbarPublishControls();
-            let wizardHeader = this.getWizardHeader();
+            this.unbindSiteModelListeners();
+            this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
+            this.initSiteModelListeners();
 
-            wizardHeader.setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
-            publishControls.enableActionsForExisting(persistedContent);
+            return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
+                this.liveEditModel = liveEditModel;
 
-            if (this.isRendered()) {
+                liveFormPanel.setModel(this.liveEditModel);
+                liveFormPanel.skipNextReloadConfirmation(true);
+                liveFormPanel.loadPage(false);
 
-                let viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
-                if (viewedContent.equals(persistedContent) || this.skipValidation) {
+                return wemQ(null);
+            });
 
-                    // force update wizard with server bounced values to erase incorrect ones
-                    this.updateWizard(persistedContent, false);
-
-                    let liveFormPanel = this.getLivePanel();
-                    if (liveFormPanel) {
-                        liveFormPanel.loadPage();
-                    }
-                } else {
-                    console.warn(`Received Content from server differs from what's viewed:`);
-                    if (!viewedContent.getContentData().equals(persistedContent.getContentData())) {
-                        console.warn(' inequality found in Content.data');
-                        if (persistedContent.getContentData() && viewedContent.getContentData()) {
-                            console.warn(' comparing persistedContent.data against viewedContent.data:');
-                            new api.data.PropertyTreeComparator().compareTree(persistedContent.getContentData(),
-                                viewedContent.getContentData());
-                        }
-                    }
-                    if (!api.ObjectHelper.equals(viewedContent.getPage(), persistedContent.getPage())) {
-                        console.warn(' inequality found in Content.page');
-                        if (persistedContent.getPage() && viewedContent.getPage()) {
-                            console.warn(' comparing persistedContent.page.config against viewedContent.page.config:');
-                            new api.data.PropertyTreeComparator().compareTree(persistedContent.getPage().getConfig(),
-                                viewedContent.getPage().getConfig());
-                        }
-                    }
-                    if (!api.ObjectHelper.arrayEquals(viewedContent.getAllExtraData(), persistedContent.getAllExtraData())) {
-                        console.warn(' inequality found in Content.meta');
-                    }
-                    if (!api.ObjectHelper.equals(viewedContent.getAttachments(), persistedContent.getAttachments())) {
-                        console.warn(' inequality found in Content.attachments');
-                    }
-                    if (!api.ObjectHelper.equals(viewedContent.getPermissions(), persistedContent.getPermissions())) {
-                        console.warn(' inequality found in Content.permissions');
-                    }
-                    console.warn(' viewedContent: ', viewedContent);
-                    console.warn(' persistedContent: ', persistedContent);
-
-                    if (persistedContent.getType().isDescendantOfMedia()) {
-                        this.updateMetadataAndMetadataStepForms(persistedContent);
-                    } else {
-                        new ConfirmationDialog()
-                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => this.doLayoutPersistedItem(persistedContent.clone()))
-                            .setNoCallback(() => { /* empty */
-                            })
-                            .show();
-                    }
-                }
-
-                return this.updatePersistedContent(persistedContent);
-
-            } else {
-
-                return this.doLayoutPersistedItem(persistedContent.clone()).then(() => {
-                    return this.updatePersistedContent(persistedContent);
-                });
-            }
-
-        });
-
+        }
+        if (!this.siteModel && content.isSite()) {
+            this.siteModel = this.createSiteModel(<Site>content);
+            this.initSiteModelListeners();
+        }
     }
 
     private updatePersistedContent(persistedContent: Content) {
@@ -1348,7 +1324,7 @@ export class ContentWizardPanel
                 let site = content.isSite() ? <Site>content : this.site;
 
                 this.unbindSiteModelListeners();
-                this.siteModel = this.siteModel ? this.siteModel.update(site) : new SiteModel(site);
+                this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
                 this.initSiteModelListeners();
 
                 this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
@@ -1461,7 +1437,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(formContext, content).then(() => {
 
-                return this.createSteps(content.getContentId()).then((schemas: XData[]) => {
+                return this.createSteps(content).then((/*schemas: XData[]*/) => {
 
                     let contentData = content.getContentData();
 
@@ -1479,25 +1455,7 @@ export class ContentWizardPanel
                     this.refreshScheduleWizardStep();
                     this.securityWizardStepForm.layout(content);
 
-                    schemas.forEach((schema: XData, index: number) => {
-                        let extraData = content.getExtraData(schema.getXDataName());
-                        if (!extraData) {
-                            extraData = this.enrichWithExtraData(content, schema.getXDataName());
-                        }
-                        let xDataFormView = this.xDataStepFormByName[schema.getXDataName().toString()];
-                        let xDataForm = new api.form.FormBuilder().addFormItems(schema.getFormItems()).build();
-
-                        let data = extraData.getData();
-                        data.onChanged(this.dataChangedHandler);
-
-                        formViewLayoutPromises.push(xDataFormView.layout(formContext, data, xDataForm));
-
-                        this.synchPersistedItemWithXData(schema.getXDataName(), data);
-                    });
-
                     return wemQ.all(formViewLayoutPromises).spread<void>(() => {
-
-                        this.togglexDataAnchorVisibility();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         if (this.formState.isNew()) {
@@ -1509,7 +1467,7 @@ export class ContentWizardPanel
                         this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
 
                         if (!this.siteModel && content.isSite()) {
-                            this.siteModel = new SiteModel(<Site>content);
+                            this.siteModel = this.createSiteModel(<Site>content);
                             this.initSiteModelListeners();
                         }
 
@@ -1526,20 +1484,37 @@ export class ContentWizardPanel
         });
     }
 
-    private removeMetadataStepForms(applicationKey: ApplicationKey) {
-        this.missingOrStoppedAppKeys = [];
+    private updateSiteModel(site: Site): SiteModel {
+        this.unbindSiteModelListeners();
+        this.siteModel.update(site);
+        this.initSiteModelListeners();
 
-        new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
-            (xDatasToRemove: XData[]) => {
-                this.handleMissingApp();
+        return this.siteModel;
+    }
 
-                for (const i in xDatasToRemove) {
-                    if (xDatasToRemove.hasOwnProperty(i)) {
-                        this.removeStepWithForm(this.xDataStepFormByName[xDatasToRemove[i].getName()]);
-                        delete this.xDataStepFormByName[xDatasToRemove[i].getName()];
-                    }
-                }
-            }).done();
+    private createSiteModel(site: Site): SiteModel {
+        const siteModel = new SiteModel(site);
+
+        const handler = api.util.AppHelper.debounce(() => {
+            this.reInitXDataSteps(this.siteModel.getSite()).then((steps) => {
+                steps.forEach(xDataWizardStep => {
+                    this.insertStepBefore(xDataWizardStep, this.settingsWizardStep);
+
+                    const form = <XDataWizardStepForm>xDataWizardStep.getStepForm();
+                    form.resetHeaderState();
+                });
+                this.notifyDataChanged();
+            }).finally(() => {
+                this.formMask.hide();
+            });
+        }, 100, false);
+
+        siteModel.onSiteModelUpdated(() => {
+            this.formMask.show();
+            handler();
+        });
+
+        return siteModel;
     }
 
     private initLiveEditModel(content: Content, siteModel: SiteModel, formContext: ContentFormContext): wemQ.Promise<LiveEditModel> {
@@ -1698,34 +1673,56 @@ export class ContentWizardPanel
         }
     }
 
-    private addMetadataStepForms(applicationKey: ApplicationKey) {
-        new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+    private addXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
+
+        this.applicationLoadCount++;
+        this.formMask.show();
+
+        return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
             (xDatas: XData[]) => {
                 const xDatasToAdd = xDatas.filter(xData =>
                     !this.xDataStepFormByName[xData.getName()]
                 );
+                return this.createXDataSteps(this.getPersistedItem(), xDatasToAdd).then(steps => {
+                    steps.forEach(step => this.insertStepBefore(step, this.settingsWizardStep));
 
-                const formContext = this.getFormContext(this.getPersistedItem());
-
-                xDatasToAdd.forEach((xData: XData) => {
-                    if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
-
-                        let stepForm = new XDataWizardStepForm(xData.isOptional());
-                        this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
-
-                        let wizardStep = new ContentWizardStep(xData.getDisplayName(), stepForm);
-                        this.insertStepBefore(wizardStep, this.settingsWizardStep);
-
-                        let extraData = new ExtraData(xData.getXDataName(), new PropertyTree());
-
-                        extraData.getData().onChanged(this.dataChangedHandler);
-
-                        stepForm.layout(formContext, extraData.getData(), xData.toForm());
+                    for (let key in this.xDataStepFormByName) {
+                        if (this.xDataStepFormByName.hasOwnProperty(key)) {
+                            this.xDataStepFormByName[key].resetHeaderState();
+                        }
                     }
                 });
+
             }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
-        }).done();
+        }).finally(() => {
+            if (--this.applicationLoadCount === 0) {
+                this.formMask.hide();
+            }
+        });
+    }
+
+    private removeXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
+        this.missingOrStoppedAppKeys = [];
+
+        this.applicationLoadCount++;
+        this.formMask.show();
+        return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
+            (xDatasToRemove: XData[]) => {
+                this.formMask.show();
+                this.handleMissingApp();
+
+                for (const i in xDatasToRemove) {
+                    if (xDatasToRemove.hasOwnProperty(i)) {
+                        this.removeStepWithForm(this.xDataStepFormByName[xDatasToRemove[i].getName()]);
+                        delete this.xDataStepFormByName[xDatasToRemove[i].getName()];
+                    }
+                }
+            }).finally(() => {
+            if (--this.applicationLoadCount === 0) {
+                this.formMask.hide();
+            }
+        });
     }
 
     private cleanFormRedundantData(data: api.data.PropertyTree): api.data.PropertyTree {
@@ -1936,7 +1933,7 @@ export class ContentWizardPanel
      * erases steps forms (meta)data and populates it with content's (meta)data.
      * @param content
      */
-    private updateMetadataAndMetadataStepForms(content: Content, unchangedOnly: boolean = true) {
+    private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
         let contentCopy = content.clone();
         this.getFormContext(contentCopy).updatePersistedContent(contentCopy);
 
@@ -1978,11 +1975,11 @@ export class ContentWizardPanel
 
         this.contentWizardStepForm.update(contentCopy.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
+        }).then(() => {
+            if (contentCopy.isSite()) {
+                this.updateSiteModel(<Site>contentCopy);
+            }
         });
-
-        if (contentCopy.isSite()) {
-            this.siteModel.update(<Site>contentCopy);
-        }
 
         this.settingsWizardStepForm.update(contentCopy, unchangedOnly);
         this.scheduleWizardStepForm.update(contentCopy, unchangedOnly);
