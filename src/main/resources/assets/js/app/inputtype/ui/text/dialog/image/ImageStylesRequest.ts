@@ -1,5 +1,5 @@
 import {ImageStyleJson} from './ImageStylesDescriptor';
-import {ImageStyle} from './ImageStyle';
+import {ImageStyles} from './ImageStyles';
 declare var CONFIG;
 
 export interface GetImageStylesResponse {
@@ -8,7 +8,7 @@ export interface GetImageStylesResponse {
 }
 
 export class ImageStylesRequest
-    extends api.rest.ResourceRequest<GetImageStylesResponse, ImageStyle[]> {
+    extends api.rest.ResourceRequest<GetImageStylesResponse, ImageStyles> {
 
     getRequestPath(): api.rest.Path {
         return CONFIG.imageStylesUrl;
@@ -18,20 +18,13 @@ export class ImageStylesRequest
         return null;
     }
 
-    sendAndParse(): wemQ.Promise<ImageStyle[]> {
+    sendAndParse(): wemQ.Promise<ImageStyles> {
         return this.send().then((response: api.rest.JsonResponse<GetImageStylesResponse>) => {
             return this.fromJson(response.getResult());
         });
     }
 
-    private fromJson(json: GetImageStylesResponse): ImageStyle[] {
-
-        const list: ImageStyle[] = [];
-
-        json.styles.forEach((imageStyleJson: ImageStyleJson) => {
-            list.push(new ImageStyle(imageStyleJson));
-        });
-
-        return list;
+    private fromJson(json: GetImageStylesResponse): ImageStyles {
+        return new ImageStyles(json);
     }
 }

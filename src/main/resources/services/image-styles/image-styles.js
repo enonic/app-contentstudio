@@ -9,7 +9,7 @@ var json = {
         "displayName": "Unprocessed raw image"
     }, {
         "name": "editor-align-justify",
-        "type": "align",
+        "type": "alignment",
         "displayName": "Justify",
         "requires": {
             "name": "editor-width-auto",
@@ -17,7 +17,7 @@ var json = {
         }
     }, {
         "name": "editor-align-left",
-        "type": "align",
+        "type": "alignment",
         "displayName": "Align Left",
         "requires": {
             "name": "editor-width-auto",
@@ -25,7 +25,7 @@ var json = {
         }
     }, {
         "name": "editor-align-center",
-        "type": "align",
+        "type": "alignment",
         "displayName": "Center",
         "requires": {
             "name": "editor-width-auto",
@@ -33,7 +33,7 @@ var json = {
         }
     }, {
         "name": "editor-align-right",
-        "type": "align",
+        "type": "alignment",
         "displayName": "Align Right",
         "requires": {
             "name": "editor-width-auto",

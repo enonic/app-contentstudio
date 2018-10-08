@@ -19,7 +19,7 @@ import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
 import {ImageStylesRequest} from './ImageStylesRequest';
-import {ImageStyle} from './ImageStyle';
+import {ImageStyles} from './ImageStyles';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 
@@ -506,7 +506,7 @@ export class ImageDialogToolbar
         this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
 
-        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyle[]) => {
+        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyles) => {
             debugger;
         });
 

@@ -14,3 +14,8 @@ export interface ImageStyleJson {
     params: ImageStyleParamsJson;
     requires: ImageStyleRequiresJson;
 }
+
+export interface ImageStylesJson {
+    css: string;
+    styles: ImageStyleJson[];
+}

@@ -1,5 +1,11 @@
 import {ImageStyleJson, ImageStyleParamsJson, ImageStyleRequiresJson} from './ImageStylesDescriptor';
 
+enum StyleType {
+    WIDTH = 'width',
+    ALIGNMENT = 'alignment',
+    STYLE = 'style'
+}
+
 export class ImageStyle {
 
     private name: string;
@@ -26,5 +32,17 @@ export class ImageStyle {
 
     getType(): string {
         return this.type;
+    }
+
+    isWidthType(): boolean {
+        return this.type == StyleType.WIDTH;
+    }
+
+    isAlignmentType(): boolean {
+        return this.type == StyleType.ALIGNMENT;
+    }
+
+    isStyleType(): boolean {
+        return this.type == StyleType.STYLE;
     }
 }
