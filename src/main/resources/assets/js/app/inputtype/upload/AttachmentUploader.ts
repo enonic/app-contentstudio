@@ -7,6 +7,7 @@ import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {AttachmentUploaderEl} from '../ui/attachment/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export class AttachmentUploader
     extends FileUploader {
@@ -44,7 +45,7 @@ export class AttachmentUploader
             this.uploaderEl.onUploadCompleted(() => {
 
                 this.validate(false);
-                new api.content.event.ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
+                new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
 
             });
 
@@ -103,7 +104,7 @@ export class AttachmentUploader
 
         this.updateOccurrences();
 
-        new api.content.event.ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
+        new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
     }
 
     private addItemCallback() {

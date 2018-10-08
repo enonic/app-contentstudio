@@ -1,6 +1,6 @@
-import GetContentSummaryByIds = api.content.resource.GetContentSummaryByIds;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
+import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
 
 type RequestToken = {
     contentId: ContentId;

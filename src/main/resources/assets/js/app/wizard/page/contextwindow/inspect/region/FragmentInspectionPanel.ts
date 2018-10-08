@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
 import {FragmentComponentView} from '../../../../../../page-editor/fragment/FragmentComponentView';
@@ -7,17 +6,18 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {LayoutItemType} from '../../../../../../page-editor/layout/LayoutItemType';
 import {FragmentDropdown} from './FragmentDropdown';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
+import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
+import {ContentUpdatedEvent} from '../../../../../event/ContentUpdatedEvent';
+import {EditContentEvent} from '../../../../../event/EditContentEvent';
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentId = api.content.ContentId;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Option = api.ui.selector.Option;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import Content = api.content.Content;
 import LayoutComponentType = api.content.page.region.LayoutComponentType;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
 import Button = api.ui.button.Button;
 import i18n = api.util.i18n;
 
@@ -91,7 +91,7 @@ export class FragmentInspectionPanel
                 const fragment: ContentSummary = this.fragmentSelector.getSelection(fragmentId);
                 const fragmentContent: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(fragment);
 
-                new api.content.event.EditContentEvent([fragmentContent]).fire();
+                new EditContentEvent([fragmentContent]).fire();
             }
         });
 

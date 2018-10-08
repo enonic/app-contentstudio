@@ -9,6 +9,7 @@ import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export class SiteConfiguratorSelectedOptionView
     extends api.ui.selector.combobox.BaseSelectedOptionView<Application> {
@@ -119,7 +120,7 @@ export class SiteConfiguratorSelectedOptionView
         const okCallback = () => {
             if (!tempSiteConfig.equals(this.siteConfig)) {
                 this.applyTemporaryConfig(tempSiteConfig);
-                new api.content.event.ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
+                new ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
             }
         };
 

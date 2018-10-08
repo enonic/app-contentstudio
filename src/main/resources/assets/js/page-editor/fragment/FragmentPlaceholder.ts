@@ -4,12 +4,12 @@ import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
 import {LayoutItemType} from '../layout/LayoutItemType';
 import {FragmentOptionDataLoader} from './FragmentOptionDataLoader';
 import {ContentComboBox} from '../../app/inputtype/ui/selector/ContentComboBox';
+import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
+import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import FragmentComponent = api.content.page.region.FragmentComponent;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import Content = api.content.Content;
 import LayoutComponentType = api.content.page.region.LayoutComponentType;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import i18n = api.util.i18n;
 
 export class FragmentPlaceholder

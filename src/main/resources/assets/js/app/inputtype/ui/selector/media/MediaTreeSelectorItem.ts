@@ -1,7 +1,7 @@
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import ContentSummary = api.content.ContentSummary;
 import ObjectHelper = api.ObjectHelper;
 import {MediaSelectorDisplayValue} from './MediaSelectorDisplayValue';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class MediaTreeSelectorItem
     extends ContentTreeSelectorItem {

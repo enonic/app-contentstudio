@@ -1,15 +1,12 @@
-import '../../api.ts';
-
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
 import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
-
-import ContentResponse = api.content.resource.result.ContentResponse;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
 import ChildOrder = api.content.order.ChildOrder;
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentResponse} from '../resource/ContentResponse';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 

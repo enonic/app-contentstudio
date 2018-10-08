@@ -10,9 +10,9 @@ import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import BaseLoader = api.util.loader.BaseLoader;
 import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
 import ContentTypeSummaryLoader = api.schema.content.ContentTypeSummaryLoader;
-import PageTemplateContentTypeLoader = api.schema.content.PageTemplateContentTypeLoader;
 import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
@@ -62,7 +62,7 @@ export class ContentTypeFilter
 
     private createPageTemplateLoader(): PageTemplateContentTypeLoader {
         let contentId = this.context.site.getContentId();
-        let loader = new api.schema.content.PageTemplateContentTypeLoader(contentId);
+        let loader = new PageTemplateContentTypeLoader(contentId);
 
         return loader;
     }

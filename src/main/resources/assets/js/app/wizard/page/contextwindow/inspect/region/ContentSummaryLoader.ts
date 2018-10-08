@@ -1,10 +1,13 @@
 import ContentPath = api.content.ContentPath;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryPreLoader = api.content.resource.ContentSummaryPreLoader;
+import PostLoader = api.util.loader.PostLoader;
+import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
+import {ContentQueryResultJson} from '../../../../../resource/json/ContentQueryResultJson';
+import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';
 
 export class ContentSummaryLoader
-    extends ContentSummaryPreLoader {
+    extends PostLoader<ContentQueryResultJson<ContentSummaryJson>, ContentSummary> {
 
     protected request: ContentSummaryRequest;
 
@@ -12,6 +15,14 @@ export class ContentSummaryLoader
         super();
 
         this.setSearchQueryExpr();
+    }
+
+    protected sendPreLoadRequest(ids: string): Q.Promise<ContentSummary[]> {
+        let contentIds = ids.split(';').map((id) => {
+            return new api.content.ContentId(id);
+        });
+
+        return new GetContentSummaryByIds(contentIds).sendAndParse();
     }
 
     protected createRequest(): ContentSummaryRequest {

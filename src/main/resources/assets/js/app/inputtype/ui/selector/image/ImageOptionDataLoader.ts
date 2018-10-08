@@ -1,12 +1,12 @@
 import TreeNode = api.ui.treegrid.TreeNode;
 import OptionDataLoaderData = api.ui.selector.OptionDataLoaderData;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import Option = api.ui.selector.Option;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {

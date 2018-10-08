@@ -6,7 +6,6 @@ import ValueTypes = api.data.ValueTypes;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import StringHelper = api.util.StringHelper;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import DivEl = api.dom.DivEl;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
@@ -14,6 +13,8 @@ import {ContentComboBox, ContentSelectedOptionsView} from '../ui/selector/Conten
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -113,7 +114,7 @@ export class ContentSelector
         propertyArray.forEach((property: Property) => {
             if (property.hasNonNullValue()) {
                 let referenceValue = property.getReference();
-                if (referenceValue instanceof api.util.Reference) {
+                if (api.ObjectHelper.iFrameSafeInstanceOf(referenceValue, api.util.Reference)) {
                     contentIds.push(ContentId.fromReference(referenceValue));
                 }
             }
@@ -214,7 +215,7 @@ export class ContentSelector
     }
 
     private static doFetchSummaries() {
-        new api.content.resource.GetContentSummaryByIds(ContentSelector.contentIdBatch).sendAndParse().then(
+        new GetContentSummaryByIds(ContentSelector.contentIdBatch).sendAndParse().then(
             (result: api.content.ContentSummary[]) => {
 
                 ContentSelector.contentIdBatch = []; // empty batch of ids after loading

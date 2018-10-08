@@ -3,6 +3,7 @@ import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
 import {AccessControlComboBox} from './AccessControlComboBox';
+import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import Content = api.content.Content;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
@@ -217,7 +218,7 @@ export class EditPermissionsDialog
 
         let parentPath = this.contentPath.getParentPath();
         if (parentPath && parentPath.isNotRoot()) {
-            new api.content.resource.GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
+            new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
                 deferred.resolve(content.getPermissions());
             }).catch((reason: any) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));

@@ -3,8 +3,8 @@ import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../Co
 import {ImageItemType} from './ImageItemType';
 import {ImageComponentViewer} from './ImageComponentViewer';
 import {ImagePlaceholder} from './ImagePlaceholder';
+import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
 import ImageComponent = api.content.page.region.ImageComponent;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentId = api.content.ContentId;
 
@@ -41,7 +41,7 @@ export class ImageComponentView
 
     private handleContentRemovedEvent() {
         let contentDeletedListener = (event) => {
-            let deleted = event.getDeletedItems().some((deletedItem: api.content.event.ContentDeletedItem) => {
+            let deleted = event.getDeletedItems().some((deletedItem: ContentDeletedItem) => {
                 return !deletedItem.isPending() && deletedItem.getContentId().equals(this.component.getImage());
             });
             if (deleted) {

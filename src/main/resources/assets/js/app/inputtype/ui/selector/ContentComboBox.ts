@@ -2,9 +2,7 @@ import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import Option = api.ui.selector.Option;
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
 import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import Viewer = api.ui.Viewer;
-import ContentRowFormatter = api.content.util.ContentRowFormatter;
 import OptionsFactory = api.ui.selector.OptionsFactory;
 import StringHelper = api.util.StringHelper;
 import OptionDataHelper = api.ui.selector.OptionDataHelper;
@@ -14,11 +12,15 @@ import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
 import ValueChangedEvent = api.ValueChangedEvent;
-import ContentSummaryOptionDataHelper = api.content.ContentSummaryOptionDataHelper;
-import ContentTreeSelectorItemViewer = api.content.ContentTreeSelectorItemViewer;
 import i18n = api.util.i18n;
 import {ModeTogglerButton} from './ModeTogglerButton';
 import {ContentSummaryOptionDataLoader} from './ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
+import {ContentRowFormatter} from '../../../browse/ContentRowFormatter';
+import {ContentTreeSelectorItemViewer} from '../../../item/ContentTreeSelectorItemViewer';
+import {ContentSummaryOptionDataHelper} from '../../../util/ContentSummaryOptionDataHelper';
+import {EditContentEvent} from '../../../event/EditContentEvent';
+import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -51,6 +53,10 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
             builder.setCreateColumns(columns);
         }
+
+        builder.setRequestMissingOptions((missingOptionIds: string[]) => {
+            return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
+        });
 
         super(builder);
 
@@ -277,7 +283,7 @@ export class ContentSelectedOptionView
     protected onEditButtonClicked(e: MouseEvent) {
         let content = this.getOptionDisplayValue().getContent();
         let model = [api.content.ContentSummaryAndCompareStatus.fromContentSummary(content)];
-        new api.content.event.EditContentEvent(model).fire();
+        new EditContentEvent(model).fire();
 
         return super.onEditButtonClicked(e);
     }

@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 
 export class ViewContentEvent extends BaseContentModelEvent {

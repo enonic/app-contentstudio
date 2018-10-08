@@ -1,8 +1,8 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectivePermissionsRequest';
 import {UserAccessListView} from './UserAccessListView';
 import {AccessControlEntryView} from '../../../AccessControlEntryView';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
@@ -138,7 +138,7 @@ export class UserAccessWidgetItemView
 
             this.loginResult = loginResult;
             if (this.contentId) {
-                return new api.content.resource.GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
+                return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
                     if (content) {
                         this.layoutHeader(content);
                         return this.layoutList(content).then(() => {

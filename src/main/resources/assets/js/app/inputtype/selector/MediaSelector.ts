@@ -1,7 +1,6 @@
 import PropertyArray = api.data.PropertyArray;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import ComboBox = api.ui.selector.combobox.ComboBox;
 import ValueTypes = api.data.ValueTypes;
 import Value = api.data.Value;
@@ -17,6 +16,7 @@ import {MediaSelectorDisplayValue} from '../ui/selector/media/MediaSelectorDispl
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class MediaSelector
     extends ContentSelector {

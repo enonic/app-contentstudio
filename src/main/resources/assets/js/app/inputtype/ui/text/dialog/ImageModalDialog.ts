@@ -22,6 +22,7 @@ import {ImageUploaderEl} from '../../selector/image/ImageUploaderEl';
 import {ImageContentComboBox} from '../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -107,7 +108,7 @@ export class ImageModalDialog
     private loadImage() {
         const imageId: string = this.extractImageId();
 
-        new api.content.resource.GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
+        new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
             this.createImgElForExistingImage(imageContent);
             this.previewImage();
@@ -433,7 +434,7 @@ export class ImageModalDialog
     }
 
     private fetchImageCaption(imageContent: ContentSummary): wemQ.Promise<string> {
-        return new api.content.resource.GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
+        return new GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
             .then((content: api.content.Content) => {
                 return this.getDescriptionFromImageContent(content) || content.getProperty('caption').getString() || '';
             });

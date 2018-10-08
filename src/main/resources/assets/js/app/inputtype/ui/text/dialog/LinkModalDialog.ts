@@ -8,7 +8,6 @@ import TextInput = api.ui.text.TextInput;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
 import Option = api.ui.selector.Option;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import eventInfo = CKEDITOR.eventInfo;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
@@ -28,6 +27,7 @@ import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDispl
 import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader} from '../../selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {

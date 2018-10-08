@@ -11,6 +11,7 @@ import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 
 export class ImageUploader
     extends api.form.inputtype.support.BaseInputTypeSingleOccurrence {
@@ -149,7 +150,7 @@ export class ImageUploader
     updateProperty(_property: api.data.Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
 
-            return new api.content.resource.GetContentByIdRequest(this.getContext().content.getContentId())
+            return new GetContentByIdRequest(this.getContext().content.getContentId())
                 .sendAndParse().then((content: api.content.Content) => {
 
                     this.imageUploader.setOriginalDimensions(

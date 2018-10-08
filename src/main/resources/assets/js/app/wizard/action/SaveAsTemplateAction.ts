@@ -1,10 +1,9 @@
-import '../../../api.ts';
 import {PageModel} from '../../../page-editor/PageModel';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
+import {EditContentEvent} from '../../event/EditContentEvent';
 import i18n = api.util.i18n;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import EditContentEvent = api.content.event.EditContentEvent;
 import Action = api.ui.Action;
 import Permission = api.security.acl.Permission;
 import ContentSummary = api.content.ContentSummary;

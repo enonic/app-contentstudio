@@ -1,7 +1,7 @@
-import '../../api.ts';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import ContentId = api.content.ContentId;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
@@ -268,7 +268,7 @@ export class DependantItemsDialog
                               size: number): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
 
         let ids = this.getDependantIds().slice(from, from + size);
-        return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
+        return ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
     }
 
     protected countTotal(): number {

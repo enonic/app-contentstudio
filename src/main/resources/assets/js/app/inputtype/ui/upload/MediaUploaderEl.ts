@@ -2,6 +2,7 @@ import ValueTypes = api.data.ValueTypes;
 import Content = api.content.Content;
 import UploadItem = api.ui.uploader.UploadItem;
 import UploaderEl = api.ui.uploader.UploaderEl;
+import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 
 export enum MediaUploaderElOperation {
     create,
@@ -95,7 +96,7 @@ export class MediaUploaderEl
         const uploadItem = new UploadItem<api.content.Content>(<any>{name: name});
         this.notifyFileUploadStarted([uploadItem]);
 
-        new api.content.resource.CreateMediaFromUrlRequest().setName(name).setUrl(imgSrc).setParent(parent).sendAndParse().then(
+        new CreateMediaFromUrlRequest().setName(name).setUrl(imgSrc).setParent(parent).sendAndParse().then(
             (content: Content) => {
                 uploadItem.setModel(<any>content);
                 this.notifyFileUploaded(uploadItem);

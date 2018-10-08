@@ -1,13 +1,13 @@
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
 import RelationshipTypeName = api.schema.relationshiptype.RelationshipTypeName;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
 import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
 import ContentPath = api.content.ContentPath;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
+import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {

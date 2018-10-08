@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
@@ -32,6 +31,13 @@ import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {ContentFormContext} from '../ContentFormContext';
+import {IsRenderableRequest} from '../resource/IsRenderableRequest';
+import {ContentHelper} from '../util/ContentHelper';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
+import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import Content = api.content.Content;
@@ -43,7 +49,6 @@ import PublishStatus = api.content.PublishStatus;
 import ContentBuilder = api.content.ContentBuilder;
 import ContentName = api.content.ContentName;
 import ContentUnnamed = api.content.ContentUnnamed;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ExtraData = api.content.ExtraData;
 import Page = api.content.page.Page;
 import Site = api.content.site.Site;
@@ -56,20 +61,17 @@ import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import TogglerButton = api.ui.button.TogglerButton;
 import WizardHeaderWithDisplayNameAndName = api.app.wizard.WizardHeaderWithDisplayNameAndName;
 import WizardHeaderWithDisplayNameAndNameBuilder = api.app.wizard.WizardHeaderWithDisplayNameAndNameBuilder;
-import ContentRequiresSaveEvent = api.content.event.ContentRequiresSaveEvent;
 import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import Toolbar = api.ui.toolbar.Toolbar;
 import Permission = api.security.acl.Permission;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
-import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import CycleButton = api.ui.button.CycleButton;
 import i18n = api.util.i18n;
 import XData = api.schema.xdata.XData;
 import XDataName = api.schema.xdata.XDataName;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -879,7 +881,7 @@ export class ContentWizardPanel
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
-        return content.isReferencedBy(this.persistedContent.getContentId());
+        return ContentHelper.isReferencedBy(content.getContentSummary(), this.persistedContent.getContentId());
     }
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -963,7 +965,7 @@ export class ContentWizardPanel
 
     private listenToContentEvents() {
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         const loadDefaultModelsAndUpdatePageModel = (reloadPage: boolean = true) => {
             const item = this.getPersistedItem();
@@ -987,7 +989,7 @@ export class ContentWizardPanel
                 });
         };
 
-        const deleteHandler = (event: api.content.event.ContentDeletedEvent) => {
+        const deleteHandler = (event: ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
                 return;
             }
@@ -1204,7 +1206,7 @@ export class ContentWizardPanel
                 return wemQ(true);
             }
 
-            return this.getPersistedItem().containsChildContentId(contentId);
+            return ContentHelper.containsChildContentId(this.getPersistedItem(), contentId);
         }
 
         return wemQ(false);
@@ -1276,7 +1278,7 @@ export class ContentWizardPanel
     }
 
     private updatePersistedContent(persistedContent: Content) {
-        return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
+        return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.persistedContent = this.currentContent = summaryAndStatus;
 
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
