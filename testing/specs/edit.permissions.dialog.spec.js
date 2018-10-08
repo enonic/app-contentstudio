@@ -57,7 +57,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
                 return editPermissionsDialog.clickOnApplyButton();
             }).then(() => {
                 return editPermissionsDialog.waitForDialogClosed();
-            }).then(() => {
+            }).pause(1000).then(() => {
                 return userAccessWidget.clickOnEditPermissionsLink();
             }).then(() => {
                 studioUtils.saveScreenshot("dlg_inherit_checkbox_should_be_unchecked");

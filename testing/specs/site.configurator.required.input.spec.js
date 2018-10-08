@@ -34,8 +34,8 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 studioUtils.saveScreenshot('site_config1');
                 assert.isTrue(isDisplayed, '`site-configurator` dialog should be visible');
             }).then(() => {
-                //TODO uncomment it when issue#427 will be fixed
-                //return siteConfiguratorDialog.isHasDefaultFocus(`//input[contains(@name,'trackingId')]`);
+                //verifies issue#427
+               return assert.eventually.isTrue(siteConfiguratorDialog.hasDefaultFocus(`//input[contains(@name,'trackingId')]`));
             });
         });
 
@@ -82,7 +82,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 studioUtils.saveScreenshot('site_conf_is_getting_valid');
                 assert.isTrue(isValid, 'Selected option view should be valid because, the required input is not empty');
             }).then(() => {
-                assert.eventually.isFalse(contentWizard.isContentInvalid(), 'the site is getting valid, red icon is getting not visible');
+               return assert.eventually.isFalse(contentWizard.isContentInvalid(), 'the site is getting valid, red icon is getting not visible');
             })
         });
     it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in the grid`,

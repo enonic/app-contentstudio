@@ -23,7 +23,7 @@ describe('Browse panel selections spec`', function () {
             studioUtils.saveScreenshot('one_row_clicked');
             assert.isTrue(result == 1, 'One row should be selected');
         }).then(() => {
-            return contentBrowsePanel.getNumberOfCheckeddRows()
+            return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
             assert.isTrue(result == 0, 'no one row should be checked');
         }).then(() => {
@@ -55,7 +55,7 @@ describe('Browse panel selections spec`', function () {
             studioUtils.saveScreenshot('two_rows_checked');
             assert.isTrue(result == 0, 'no one row should be selected');
         }).then(() => {
-            return contentBrowsePanel.getNumberOfCheckeddRows()
+            return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
             assert.isTrue(result == 2, 'Two rows should be checked');
         })
@@ -70,7 +70,7 @@ describe('Browse panel selections spec`', function () {
             studioUtils.saveScreenshot('two_rows_checked');
             assert.isTrue(result == 0, 'no one row should be selected');
         }).then(() => {
-            return contentBrowsePanel.getNumberOfCheckeddRows()
+            return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
             assert.isTrue(result == 0, '0 rows should be checked');
         })

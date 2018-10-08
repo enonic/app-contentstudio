@@ -1,0 +1,116 @@
+/**
+ * Created on 04.10.2018.
+ */
+const chai = require('chai');
+chai.use(require('chai-as-promised'));
+const expect = chai.expect;
+const assert = chai.assert;
+const webDriverHelper = require('../libs/WebDriverHelper');
+const appConstant = require('../libs/app_const');
+const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../libs/studio.utils.js');
+const contentBuilder = require("../libs/content.builder");
+const xDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard.step.form');
+const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+
+describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, type a text in the textarea`', function () {
+    this.timeout(appConstant.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+    let SITE;
+    let contentName = contentBuilder.generateRandomName('test');
+    let TEST_TEXT = 'test text';
+
+    it(`Preconditions: WHEN site with content types has been added THEN the site should be present in the grid`,
+        () => {
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            return studioUtils.doAddSite(SITE).then(() => {
+            }).then(() => {
+                return studioUtils.findAndSelectItem(SITE.displayName);
+            }).then(() => {
+                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+            }).then(isDisplayed => {
+                assert.isTrue(isDisplayed, 'site should be present in the grid');
+            });
+        });
+
+    it(`GIVEN content with optional x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':date0_1').then(() => {
+                return contentWizard.typeDisplayName(contentName);
+            }).then(() => {
+                return contentWizard.waitForXdataTogglerVisible();
+            }).then(() => {
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                return xDataTextArea.waitForTextAreaVisible();
+            }).then(result => {
+                studioUtils.saveScreenshot('xdata_enabled_textarea');
+                assert.isTrue(result, 'x-data form should be added and text area should be visible');
+            }).then(() => {
+                return contentWizard.waitUntilInvalidIconAppears();
+            }).then(result => {
+                assert.isTrue(result, 'Red icon should be present in the wizard, because text-area is required input in x-data');
+            });
+        });
+    it(`GIVEN existing content with enabled x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be hidden and content is getting valid`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                //x-data is disabled now and 'text area' is getting hidden
+                return xDataTextArea.waitForTextAreaNotVisible();
+            }).then(result => {
+                studioUtils.saveScreenshot('xdata_has_been_disabled');
+                assert.isTrue(result, 'x-data form should be disabled and text area should be not visible');
+            }).then(() => {
+                return contentWizard.waitUntilInvalidIconDisappears();
+            }).then(result => {
+                assert.isTrue(result, 'Red icon should not be present in the wizard, because x-data is disabled now');
+            });
+        });
+
+    it(`GIVEN existing content with enabled x-data is opened WHEN text typed in x-data form THEN content is getting valid`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return xDataTextArea.typeText(TEST_TEXT);
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                return contentWizard.waitUntilInvalidIconDisappears();
+            }).then(result => {
+                studioUtils.saveScreenshot('xdata_text_typed');
+                assert.isTrue(result, 'Red icon should not be present in the wizard, because required text-area in x-data is not empty');
+            });
+        });
+
+    it(`GIVEN text is present in  textarea AND x-data has been disabled AND content saved WHEN x-data has been enabled again THEN text-area in x-data should be cleared, when x-data was disabled and the content was saved`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
+                //x-data form has been disabled
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                //x-data form has been enabled again
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return xDataTextArea.getTextInTextArea();
+            }).then(result => {
+                studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
+                assert.isTrue(result == '', 'text-area in x-data should be cleared, when x-data was disabled and the content was saved');
+            }).then(()=>{
+                return assert.eventually.isTrue( contentWizard.waitUntilInvalidIconAppears(), "Red icon should be present in the wizard, because text-area is required input");
+            })
+        });
+
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+});

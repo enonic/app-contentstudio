@@ -21,7 +21,7 @@ const pageComponentView = Object.create(page, {
 
     openMenu: {
         value: function (componentName) {
-            let menuButton = xpath.componentByName(componentName) + "/../..//div[@class='menu-icon']";
+            let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
             return this.waitForVisible(menuButton, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(menuButton);
             }).pause(500).catch(err => {

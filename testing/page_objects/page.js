@@ -232,4 +232,8 @@ Page.prototype.waitUntilInvalid = function (selector) {
         return false;
     });
 };
+Page.prototype.hasDefaultFocus = function (selector) {
+    return this.hasFocus(selector);
+};
+
 module.exports = new Page();

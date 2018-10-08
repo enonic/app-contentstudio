@@ -6,7 +6,7 @@ const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const form = {
-    doubleInput: `//div[contains(@id,'inputtype.number.double.Double')]`,
+    doubleInput: `//div[contains(@id,'Double')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
