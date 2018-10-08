@@ -22,10 +22,10 @@ const baseDetailsPanel = Object.create(page, {
 //clicks on dropdown handle and select the 'Version History' menu item
     openVersionHistory: {
         value: function () {
-            return this.clickOnWidgetSelectorDropdownHandle().pause().then(() => {
+            return this.clickOnWidgetSelectorDropdownHandle().then(() => {
                 let versionHistoryOption = this.widgetSelectorDropdown + elements.VERSION_HISTORY_MENU_OPTION;
-                return this.waitForVisible(versionHistoryOption, appConst.TIMEOUT_2).then(() => {
-                    return this.getDisplayedElements(versionHistoryOption)
+                return this.waitForVisible(versionHistoryOption, appConst.TIMEOUT_2).pause(500).then(() => {
+                    return this.getDisplayedElements(versionHistoryOption);
                 }).then(result => {
                     console.log('number of elements:  '+result.length);
                     return this.getBrowser().elementIdClick(result[0].ELEMENT);
