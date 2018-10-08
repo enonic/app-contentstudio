@@ -45,7 +45,7 @@ export class FullscreenDialog
     }
 
     private initEditor() {
-        this.fseditor = new HTMLAreaBuilder()
+        new HTMLAreaBuilder()
             .setEditorContainerId(this.textArea.getId())
             .setAssetsUri(CONFIG.assetsUri)
             .setInline(false)
@@ -57,7 +57,9 @@ export class FullscreenDialog
             .setTools(this.config.customToolConfig)
             .setEditableSourceCode(this.config.editableSourceCode)
             .setFullscreenMode(true)
-            .createEditor();
+            .createEditor().then(editor => {
+                this.fseditor = editor;
+            });
     }
 
     private addCKEListeners() {

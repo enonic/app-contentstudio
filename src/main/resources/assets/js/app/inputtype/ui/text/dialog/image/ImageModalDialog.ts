@@ -79,6 +79,10 @@ export class ImageModalDialog
             this.loadImage();
         }
 
+        if (!ImageStyles.get()) {
+            new ImageStylesRequest().sendAndParse();
+        }
+
     }
 
     protected initializeConfig(params: ImageModalDialogConfig) {
@@ -506,15 +510,12 @@ export class ImageDialogToolbar
         this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
 
-        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyles) => {
-            debugger;
-        });
-
         super.addElement(this.justifyButton = this.createJustifiedButton());
         super.addElement(this.alignLeftButton = this.createLeftAlignedButton());
         super.addElement(this.centerButton = this.createCenteredButton());
         super.addElement(this.alignRightButton = this.createRightAlignedButton());
         super.addElement(this.keepOriginalSizeCheckbox = this.createKeepOriginalSizeCheckbox());
+        //super.addElement(this.imageCroppingSelector = this.createImageCroppingSelector());
         super.addElement(this.imageCroppingSelector = this.createImageCroppingSelector());
 
         this.initKeepSizeCheckbox();

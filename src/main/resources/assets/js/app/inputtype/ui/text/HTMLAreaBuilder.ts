@@ -7,6 +7,8 @@ import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
+import {ImageStylesRequest} from './dialog/image/ImageStylesRequest';
+import {ImageStyles} from './dialog/image/ImageStyles';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -170,24 +172,27 @@ export class HTMLAreaBuilder {
         }
     }
 
-    public createEditor(): HTMLAreaEditor {
+    public createEditor(): wemQ.Promise<HTMLAreaEditor> {
         this.checkRequiredFieldsAreSet();
         this.adjustToolsList();
 
-        const config: CKEDITOR.config = this.createConfig();
-        const ckeditor: HTMLAreaEditor = this.inline ? CKEDITOR.inline(this.editorContainerId, config) : CKEDITOR.replace(
-            this.editorContainerId, config);
+        return this.createConfig().then((config: CKEDITOR.config) => {
 
-        this.listenCKEditorEvents(ckeditor);
-        this.handleFileUpload(ckeditor);
-        this.handleNativeNotifications(ckeditor);
-        this.handleTooltipForClickableElements(ckeditor);
-        this.setupDialogsToOpen(ckeditor);
-        this.setupKeyboardShortcuts(ckeditor);
-        this.addCustomLangEntries(ckeditor);
-        this.removeUnwantedMenuItems(ckeditor);
+            const ckeditor: HTMLAreaEditor = this.inline ?
+                         CKEDITOR.inline(this.editorContainerId, config) :
+                         CKEDITOR.replace(this.editorContainerId, config);
 
-        return ckeditor;
+            this.listenCKEditorEvents(ckeditor);
+            this.handleFileUpload(ckeditor);
+            this.handleNativeNotifications(ckeditor);
+            this.handleTooltipForClickableElements(ckeditor);
+            this.setupDialogsToOpen(ckeditor);
+            this.setupKeyboardShortcuts(ckeditor);
+            this.addCustomLangEntries(ckeditor);
+            this.removeUnwantedMenuItems(ckeditor);
+
+            return ckeditor;
+        });
     }
 
     private adjustToolsList() {
@@ -202,7 +207,17 @@ export class HTMLAreaBuilder {
         this.tools.push(this.toolsToInclude);
     }
 
-    private createConfig(): CKEDITOR.config {
+    private createConfig(): wemQ.Promise<CKEDITOR.config> {
+
+        const resolvePath = path => this.assetsUri + path;
+        const injectCss = function(imageStyles) {
+            const contentsCss = [resolvePath('/styles/html-editor.css')];
+            if (imageStyles.getPathToCss()) {
+                contentsCss.push(resolvePath(imageStyles.getPathToCss()));
+            }
+            config.contentsCss = contentsCss;
+        };
+
         const config: CKEDITOR.config = {
             toolbar: this.tools,
             entities: false,
@@ -219,10 +234,6 @@ export class HTMLAreaBuilder {
             image2_captionedClass: '',
             disallowedContent: 'img[width,height]',
             uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
-            contentsCss: [
-                            this.assetsUri + '/styles/html-editor.css',
-                            this.assetsUri + '/styles/styles.css'
-                        ],
             sharedSpaces: this.inline ? {top: this.fixedToolbarContainer} : null
         };
 
@@ -235,7 +246,20 @@ export class HTMLAreaBuilder {
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
 
-        return config;
+        if (ImageStyles.get()) {
+            injectCss(ImageStyles.get());
+            return wemQ(config);
+        }
+
+        const deferred = wemQ.defer<CKEDITOR.config>();
+
+        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyles) => {
+            debugger;
+            injectCss(imageStyles);
+            deferred.resolve(config);
+        });
+
+        return deferred.promise;
     }
 
     private getExtraPlugins(): string {

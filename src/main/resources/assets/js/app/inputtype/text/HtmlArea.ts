@@ -206,7 +206,7 @@ export class HtmlArea
             textAreaWrapper.addClass(focusedEditorCls);
         };
 
-        const editor = new HTMLAreaBuilder()
+        new HTMLAreaBuilder()
             .setEditorContainerId(id)
             .setAssetsUri(assetsUri)
             .setInline(false)
@@ -223,35 +223,35 @@ export class HtmlArea
                 exclude: this.inputConfig['exclude']
             })
             .setEditableSourceCode(this.editableSourceCode)
-            .createEditor();
+            .createEditor().then(editor => {
 
-        editor.on('loaded', () => {
-            this.setEditorContent(id, property);
+                editor.on('loaded', () => {
+                    this.setEditorContent(id, property);
 
-            if (this.notInLiveEdit()) {
-                if (api.BrowserHelper.isIE()) {
-                    this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
-                }
+                    if (this.notInLiveEdit()) {
+                        if (api.BrowserHelper.isIE()) {
+                            this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
+                        }
 
-                this.onRemoved(() => {
-                    this.destroyEditor(id);
+                        this.onRemoved(() => {
+                            this.destroyEditor(id);
+                        });
+                    }
+
+                    this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
+                    this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
+
+                    const removeButtonEL = wemjq(textAreaWrapper.getParentElement().getParentElement().getHTMLElement()).find(
+                        '.remove-button')[0];
+                    removeButtonEL.addEventListener('mouseover', () => {
+                        isMouseOverRemoveOccurenceButton = true;
+                    });
+                    removeButtonEL.addEventListener('mouseleave', () => {
+                        isMouseOverRemoveOccurenceButton = false;
+                    });
+
                 });
-            }
-
-            this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
-            this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
-
-            const removeButtonEL = wemjq(textAreaWrapper.getParentElement().getParentElement().getHTMLElement()).find(
-                '.remove-button')[0];
-            removeButtonEL.addEventListener('mouseover', () => {
-                isMouseOverRemoveOccurenceButton = true;
             });
-            removeButtonEL.addEventListener('mouseleave', () => {
-                isMouseOverRemoveOccurenceButton = false;
-            });
-
-        });
-
     }
 
     private moveButtonToBottomBar(inputOccurence: Element, buttonClass: string): void {

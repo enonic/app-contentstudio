@@ -3,6 +3,8 @@ import {ImageStyleJson, ImageStylesJson} from './ImageStylesDescriptor';
 
 export class ImageStyles {
 
+    private static INSTANCE: ImageStyles;
+
     private css: string;
     private styles: ImageStyle[] = [];
 
@@ -13,9 +15,15 @@ export class ImageStyles {
                 this.styles.push(new ImageStyle(imageStyleJson));
             });
         }
+
+        ImageStyles.INSTANCE = this;
     }
 
-    getCssFileName(): string {
+    public static get(): ImageStyles {
+        return ImageStyles.INSTANCE;
+    }
+
+    getPathToCss(): string {
         return this.css;
     }
 

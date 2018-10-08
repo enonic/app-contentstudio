@@ -382,7 +382,7 @@ export class TextComponentView
             this.onKeydownHandler(e);
         };
 
-        const editor: CKEDITOR.editor = new HTMLAreaBuilder()
+        new HTMLAreaBuilder()
             .setEditorContainerId(this.getId() + '_editor')
             .setAssetsUri(assetsUri)
             .setInline(true)
@@ -399,9 +399,10 @@ export class TextComponentView
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
-            .createEditor();
-
-        editor.on('instanceReady', this.handleEditorCreated.bind(this));
+            .createEditor()
+            .then((editor: CKEDITOR.editor) => {
+                editor.on('instanceReady', this.handleEditorCreated.bind(this));
+            });
     }
 
     private handleEditorCreated(evt: eventInfo) {
