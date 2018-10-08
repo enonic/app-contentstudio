@@ -7,6 +7,7 @@ import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummary = api.content.ContentSummary;
 import AggregationGroupView = api.aggregation.AggregationGroupView;
+import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import Aggregation = api.aggregation.Aggregation;
 import SearchInputValues = api.query.SearchInputValues;
 import ContentQuery = api.content.query.ContentQuery;
@@ -44,6 +45,40 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         super();
 
         this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+
+        this.handleEvents();
+    }
+
+    private handleEvents() {
+        const handler = ContentServerEventsHandler.getInstance();
+
+        handler.onContentDeleted((data: api.content.event.ContentServerChangeItem[]) => {
+            if (!this.dependenciesSection.isActive()) {
+                return;
+            }
+
+            const isDependencyItemDeleted = data.some((item: api.content.event.ContentServerChangeItem) => {
+                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
+            });
+
+            if (isDependencyItemDeleted) {
+                this.removeDependencyItem();
+            }
+        });
+
+        handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => {
+            if (!this.dependenciesSection.isActive()) {
+                return;
+            }
+
+            const isDependencyItemUpdated = data.some((item: ContentSummaryAndCompareStatus) => {
+                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
+            });
+
+            if (isDependencyItemUpdated) {
+                this.search();
+            }
+        });
     }
 
     protected getGroupViews(): api.aggregation.AggregationGroupView[] {
@@ -60,13 +95,13 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
 
     protected appendExtraSections() {
         super.appendExtraSections();
-        this.dependenciesSection = new DependenciesSection(this.removeDependencyItemCallback.bind(this));
+        this.dependenciesSection = new DependenciesSection(this.removeDependencyItem.bind(this));
         this.appendChild(this.dependenciesSection);
     }
 
-    private removeDependencyItemCallback() {
-        this.resetConstraints();
+    private removeDependencyItem() {
         this.dependenciesSection.reset();
+        this.resetConstraints();
         this.search();
         Router.back();
     }
