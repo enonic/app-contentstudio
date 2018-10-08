@@ -212,7 +212,10 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         } else if (this.hasSearchStringSet()) { // if still no result and search text is set remove last modified facet
             this.deselectAll();
             return this.searchDataAndHandleResponse(this.cloneContentQueryNoAggregations(contentQuery));
+        } else if (this.dependenciesSection.isActive()) {
+            this.removeDependencyItem();
         }
+
         return this.reset();
     }
 
