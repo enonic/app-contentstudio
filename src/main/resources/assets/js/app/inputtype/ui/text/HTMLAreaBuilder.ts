@@ -254,7 +254,6 @@ export class HTMLAreaBuilder {
         const deferred = wemQ.defer<CKEDITOR.config>();
 
         new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyles) => {
-            debugger;
             injectCss(imageStyles);
             deferred.resolve(config);
         });
