@@ -3,11 +3,11 @@ import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView
 import {Router} from '../../Router';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
 import AggregationGroupView = api.aggregation.AggregationGroupView;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import Aggregation = api.aggregation.Aggregation;
 import SearchInputValues = api.query.SearchInputValues;
 import ContentQuery = api.content.query.ContentQuery;
