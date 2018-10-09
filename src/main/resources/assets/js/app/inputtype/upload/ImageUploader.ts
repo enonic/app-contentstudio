@@ -3,8 +3,6 @@ import PropertySet = api.data.PropertySet;
 import Value = api.data.Value;
 import ValueType = api.data.ValueType;
 import ValueTypes = api.data.ValueTypes;
-import Point = api.ui.image.Point;
-import Rect = api.ui.image.Rect;
 import Content = api.content.Content;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
@@ -12,6 +10,7 @@ import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
+import {Point, Rect} from '../ui/selector/image/ImageEditor';
 
 export class ImageUploader
     extends api.form.inputtype.support.BaseInputTypeSingleOccurrence {

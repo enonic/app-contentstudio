@@ -1,9 +1,7 @@
-import Point = api.ui.image.Point;
-import Rect = api.ui.image.Rect;
-import ImageEditor = api.ui.image.ImageEditor;
 import i18n = api.util.i18n;
 import {ImageErrorEvent} from './ImageErrorEvent';
 import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
+import {ImageEditor, Point, Rect} from './ImageEditor';
 
 export class ImageUploaderEl
     extends MediaUploaderEl {

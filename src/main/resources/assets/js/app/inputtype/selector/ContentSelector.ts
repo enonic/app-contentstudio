@@ -40,7 +40,7 @@ export class ContentSelector
     protected static loadSummaries: () => void = api.util.AppHelper.debounce(ContentSelector.doFetchSummaries, 10, false);
 
     constructor(config?: ContentInputTypeViewContext) {
-        super('relationship', config);
+        super('content-selector', config);
     }
 
     protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {

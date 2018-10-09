@@ -5,7 +5,7 @@ import Attachment = api.content.attachment.Attachment;
 import {FileUploader} from './FileUploader';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {AttachmentUploaderEl} from '../ui/attachment/AttachmentUploaderEl';
+import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
