@@ -1,103 +1,93 @@
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
+import PropertySet = api.data.PropertySet;
+import FormItem = api.form.FormItem;
 import i18n = api.util.i18n;
-import {SchedulePublishDialog} from '../publish/SchedulePublishDialog';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import ModalDialog = api.ui.dialog.ModalDialog;
+import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 
 export abstract class SchedulableDialog
-    extends DependantItemsWithProgressDialog {
+    extends ModalDialog {
 
-    private scheduleDialog: SchedulePublishDialog;
+    propertySet: PropertySet;
 
-    protected showScheduleAction: ShowSchedulePublishDialogAction;
+    formView: api.form.FormView;
 
-    constructor(config: DependantItemsWithProgressDialogConfig) {
+    confirmScheduleButton: api.ui.dialog.DialogButton;
+
+    onScheduleCallback: () => void;
+
+    constructor(config: ModalDialogConfig) {
         super(config);
-        this.addClass('schedulable-dialog');
+
+        this.initConfirmScheduleAction();
+
+        this.initFormView();
+        this.layoutFormView();
     }
 
-    protected getFromDate(): Date {
-        return this.scheduleDialog.getFromDate();
+    public resetDates() {
+        this.propertySet.reset();
+        this.formView.update(this.propertySet);
+        this.formView.validate();
     }
 
-    protected getToDate(): Date {
-        return this.scheduleDialog.getToDate();
+    public onSchedule(onScheduleCallback: () => void) {
+        this.onScheduleCallback = onScheduleCallback;
     }
 
-    protected initActions() {
-        if (!this.showScheduleAction) {
-            this.showScheduleAction = new ShowSchedulePublishDialogAction();
-            this.showScheduleAction.onExecuted(this.showScheduleDialog.bind(this));
-        }
+    public getFromDate(): Date {
+        let from = this.propertySet.getDateTime('from');
+        return from && from.toDate();
     }
 
-    protected lockControls() {
-        super.lockControls();
-        this.showScheduleAction.setEnabled(false);
+    public getToDate(): Date {
+        let to = this.propertySet.getDateTime('to');
+        return to && to.toDate();
     }
 
-    protected unlockControls() {
-        super.unlockControls();
-        this.showScheduleAction.setEnabled(true);
+    protected abstract createFromFormItem(): FormItem;
+
+    protected abstract createToFormItem(): FormItem;
+
+    private initFormView() {
+        let formBuilder = new api.form.FormBuilder().addFormItem(this.createFromFormItem()).addFormItem(this.createToFormItem());
+
+        this.propertySet = new api.data.PropertyTree().getRoot();
+        this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);
+
     }
 
-    protected toggleAction(enable: boolean) {
-        this.toggleControls(enable);
-        this.toggleClass('no-action', !enable);
-    }
-
-    private showScheduleDialog() {
-        if (!this.scheduleDialog) {
-            this.scheduleDialog = new SchedulePublishDialog();
-            this.scheduleDialog.onClose(() => {
-                this.removeClass('masked');
-                this.getEl().focus();
+    private layoutFormView(): wemQ.Promise<boolean> {
+        return this.formView.layout().then(() => {
+            this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
+                this.confirmScheduleButton.getAction().setEnabled(event.isValid());
+                this.formView.displayValidationErrors(true);
             });
-            this.scheduleDialog.onSchedule(() => {
-                this.doScheduledAction();
-                // this.doPublish(true);
+            this.propertySet.onChanged(() => {
+                this.formView.validate();
             });
-            this.addClickIgnoredElement(this.scheduleDialog);
-        }
-        this.scheduleDialog.open();
-        this.addClass('masked');
+            this.appendChildToContentPanel(this.formView);
+
+            return true;
+        });
     }
 
-    protected countTotal(): number {
-        return this.countToPublish(this.getItemList().getItems()) + this.getDependantIds().length;
-    }
+    private initConfirmScheduleAction() {
+        const confirmScheduleAction = new api.ui.Action(i18n('action.schedule'));
 
-    private countToPublish(summaries: ContentSummaryAndCompareStatus[]): number {
-        return summaries.reduce((count, summary: ContentSummaryAndCompareStatus) => {
-            return summary.getCompareStatus() !== CompareStatus.EQUAL ? ++count : count;
-        }, 0);
-    }
+        confirmScheduleAction.setIconClass('confirm-schedule-action');
+        confirmScheduleAction.onExecuted(() => {
+            let validationRecording = this.formView.validate();
+            if (validationRecording.isValid()) {
+                this.close();
+                if (this.onScheduleCallback) {
+                    this.onScheduleCallback();
+                }
+            } else {
+                confirmScheduleAction.setEnabled(false);
+                this.formView.displayValidationErrors(true);
+            }
+        });
 
-    protected updateShowScheduleDialogButton() {
-        this.showScheduleAction.setEnabled(this.isScheduleButtonAllowed());
-    }
-
-    getButtonRow(): DropdownButtonRow {
-        return <DropdownButtonRow>super.getButtonRow();
-    }
-
-    protected doScheduledAction() {
-        throw Error('Must be implemented in inheritors');
-    }
-
-    protected isScheduleButtonAllowed(): boolean {
-        return true;
-    }
-
-    protected hasSubDialog(): boolean {
-        return true;
-    }
-}
-
-export class ShowSchedulePublishDialogAction extends api.ui.Action {
-    constructor() {
-        super(i18n('action.scheduleMore'));
-        this.setIconClass('show-schedule-action');
+        this.confirmScheduleButton = this.addAction(confirmScheduleAction, true, true);
     }
 }

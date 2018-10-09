@@ -22,7 +22,7 @@ export interface DependantItemsDialogConfig
     showDependantList?: boolean;
 }
 
-export class DependantItemsDialog
+export abstract class DependantItemsDialog
     extends api.ui.dialog.ModalDialog {
 
     protected actionButton: DialogButton;
