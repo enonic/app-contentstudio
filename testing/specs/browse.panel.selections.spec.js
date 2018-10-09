@@ -38,7 +38,7 @@ describe('Browse panel selections spec`', function () {
             studioUtils.saveScreenshot('one_row_checked');
             assert.isTrue(result == 0, 'no one row should be selected');
         }).then(() => {
-            return contentBrowsePanel.getNumberOfCheckeddRows()
+            return contentBrowsePanel.getNumberOfCheckedRows();
         }).then(result => {
             assert.isTrue(result == 1, 'One row should be checked');
         }).then(() => {
