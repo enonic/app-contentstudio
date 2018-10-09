@@ -1,4 +1,4 @@
-@image-cropping-selector-height: 26px;
+@image-style-selector-height: 26px;
 
 .html-area-modal-dialog.image-modal-dialog {
 
@@ -135,27 +135,28 @@
 
     }
 
-    .image-cropping-selector {
-      height: @image-cropping-selector-height;
+    .image-style-selector {
+      height: @image-style-selector-height;
       width: 220px;
       top: 4px;
       float: right;
 
       .option-filter-input {
         position: absolute;
-        height: @image-cropping-selector-height;
+        height: @image-style-selector-height;
 
         .placeholder(1em, normal);
       }
 
       .selected-option {
-        height: @image-cropping-selector-height;
-        min-height: @image-cropping-selector-height;
+        height: @image-style-selector-height;
+        min-height: @image-style-selector-height;
         position: absolute;
         padding: 4px 37px 4px 10px;
 
         .option-value {
           margin: 0;
+          width: 100%;
         }
       }
 

@@ -3,7 +3,7 @@ import {ImageStyles} from './ImageStyles';
 declare var CONFIG;
 
 export interface GetImageStylesResponse {
-    css: string;
+    css: string[];
     styles: ImageStyleJson[];
 }
 

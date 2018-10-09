@@ -212,8 +212,8 @@ export class HTMLAreaBuilder {
         const resolvePath = path => this.assetsUri + path;
         const injectCss = function(imageStyles) {
             const contentsCss = [resolvePath('/styles/html-editor.css')];
-            if (imageStyles.getPathToCss()) {
-                contentsCss.push(resolvePath(imageStyles.getPathToCss()));
+            if (imageStyles) {
+                contentsCss.push(resolvePath(imageStyles.getCssPaths()));
             }
             config.contentsCss = contentsCss;
         };

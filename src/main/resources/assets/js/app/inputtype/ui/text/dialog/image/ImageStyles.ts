@@ -5,7 +5,7 @@ export class ImageStyles {
 
     private static INSTANCE: ImageStyles;
 
-    private css: string;
+    private css: string[];
     private styles: ImageStyle[] = [];
 
     constructor(json: ImageStylesJson) {
@@ -23,8 +23,8 @@ export class ImageStyles {
         return ImageStyles.INSTANCE;
     }
 
-    getPathToCss(): string {
-        return this.css;
+    getCssPaths(): string[] {
+        return this.css || [];
     }
 
     getAlignmentStyles(): ImageStyle[] {

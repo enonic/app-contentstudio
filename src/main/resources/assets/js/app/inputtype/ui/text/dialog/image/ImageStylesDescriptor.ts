@@ -10,12 +10,12 @@ export interface ImageStyleRequiresJson {
 export interface ImageStyleJson {
     name: string;
     displayName: string;
-    type: string;
-    params: ImageStyleParamsJson;
-    requires: ImageStyleRequiresJson;
+    type?: string;
+    params?: ImageStyleParamsJson;
+    requires?: ImageStyleRequiresJson;
 }
 
 export interface ImageStylesJson {
-    css: string;
+    css: string[];
     styles: ImageStyleJson[];
 }

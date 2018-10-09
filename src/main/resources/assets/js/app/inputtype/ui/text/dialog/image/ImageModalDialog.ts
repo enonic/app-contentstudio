@@ -16,6 +16,7 @@ import AppHelper = api.util.AppHelper;
 import {OverrideNativeDialog} from './../OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import {ImageCroppingSelector} from './ImageCroppingSelector';
+import {ImageStyleSelector} from './ImageStyleSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
 import {ImageStylesRequest} from './ImageStylesRequest';
@@ -501,6 +502,8 @@ export class ImageDialogToolbar
 
     private imageCroppingSelector: ImageCroppingSelector;
 
+    private imageStyleSelector: ImageStyleSelector;
+
     private imageLoadMask: api.ui.mask.LoadMask;
 
     constructor(image: api.dom.ImgEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
@@ -514,10 +517,9 @@ export class ImageDialogToolbar
         super.addElement(this.alignLeftButton = this.createLeftAlignedButton());
         super.addElement(this.centerButton = this.createCenteredButton());
         super.addElement(this.alignRightButton = this.createRightAlignedButton());
+        super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
         super.addElement(this.keepOriginalSizeCheckbox = this.createKeepOriginalSizeCheckbox());
-        //super.addElement(this.imageCroppingSelector = this.createImageCroppingSelector());
-        super.addElement(this.imageCroppingSelector = this.createImageCroppingSelector());
-
+        this.imageCroppingSelector = this.createImageCroppingSelector();
         this.initKeepSizeCheckbox();
         this.initActiveButton();
     }
@@ -568,6 +570,14 @@ export class ImageDialogToolbar
         keepOriginalSizeCheckbox.setLabel(i18n('dialog.image.keepsize'));
 
         return keepOriginalSizeCheckbox;
+    }
+
+    private createImageStyleSelector(): ImageStyleSelector {
+        const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
+
+        imageStyleSelector.onOptionSelected(() => this.refreshImagePreview());
+
+        return imageStyleSelector;
     }
 
     private createImageCroppingSelector(): ImageCroppingSelector {

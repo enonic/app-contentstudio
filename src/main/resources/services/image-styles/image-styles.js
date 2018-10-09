@@ -2,7 +2,7 @@
 // https://github.com/enonic/xp/issues/6619
 
 var json = {
-    "css": "/styles/styles.css",
+    "css": ["/styles/styles.css"],
     "styles": [{
         "name": "editor-style-raw",
         "type": "style",
