@@ -1,7 +1,7 @@
 import PropertyPath = api.data.PropertyPath;
 import FormState = api.app.wizard.FormState;
 import Content = api.content.Content;
-import {ContentInputTypeViewContext} from "./inputtype/ContentInputTypeViewContext";
+import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
 
 export class ContentFormContext
     extends api.form.FormContext {

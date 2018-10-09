@@ -3,12 +3,12 @@ import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectiveP
 import {UserAccessListView} from './UserAccessListView';
 import {AccessControlEntryView} from '../../../AccessControlEntryView';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {OpenEditPermissionsDialogEvent} from '../../../../event/OpenEditPermissionsDialogEvent';
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
 import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDialogEvent;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
 
