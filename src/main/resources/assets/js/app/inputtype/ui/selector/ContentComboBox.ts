@@ -60,7 +60,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         super(builder);
 
-        this.addClass('combobox-wrapper');
+        this.addClass('content-combo-box');
 
         this.treegridDropdownEnabled = builder.treegridDropdownEnabled;
         this.initialTreeEnabledState = this.treegridDropdownEnabled;
