@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid} from './ContentTreeGrid';
@@ -23,6 +22,7 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {Branch} from '../versioning/Branch';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -306,7 +306,7 @@ export class ContentBrowsePanel
 
     private getPathFromPreviewPath(contentPreviewPath: string): string {
         return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
     }
 
     private subscribeOnContentEvents() {

@@ -1,10 +1,10 @@
-import '../../api.ts';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
-import ViewItem = api.app.view.ViewItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
+import {Branch} from '../versioning/Branch';
+import ViewItem = api.app.view.ViewItem;
+import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
@@ -175,7 +175,7 @@ export class ContentItemPreviewPanel
                 this.showMask();
                 if (item.isRenderable()) {
                     this.setPreviewType(PREVIEW_TYPE.PAGE);
-                    let src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, api.content.Branch.DRAFT);
+                    let src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
                     // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
                     wemjq.ajax({
                         type: 'HEAD',

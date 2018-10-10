@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultModels} from './DefaultModels';
 import {EmulatorPanel} from './contextwindow/EmulatorPanel';
@@ -57,6 +56,7 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
+import {Branch} from '../../versioning/Branch';
 import Content = api.content.Content;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
@@ -497,7 +497,7 @@ export class LiveFormPanel
         let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
@@ -679,7 +679,7 @@ export class LiveFormPanel
             let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
                 fragmentView.getComponentPath(),
                 RenderingMode.EDIT,
-                api.content.Branch.DRAFT);
+                Branch.DRAFT);
 
             fragmentView.showLoadingSpinner();
             this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).then(() => {

@@ -36,8 +36,8 @@ import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
+import {Branch} from '../../versioning/Branch';
 import Component = api.content.page.region.Component;
-import Workspace = api.content.Branch;
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import i18n = api.util.i18n;
 
@@ -254,7 +254,7 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Workspace.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Branch.DRAFT);
 
         if (api.BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();
