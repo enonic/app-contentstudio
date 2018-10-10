@@ -1,8 +1,8 @@
 import ValueTypes = api.data.ValueTypes;
-import Content = api.content.Content;
 import UploadItem = api.ui.uploader.UploadItem;
 import UploaderEl = api.ui.uploader.UploaderEl;
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
+import {Content, ContentBuilder} from '../../../content/Content';
 
 export enum MediaUploaderElOperation {
     create,
@@ -16,7 +16,7 @@ export interface MediaUploaderElConfig
 }
 
 export class MediaUploaderEl
-    extends UploaderEl<api.content.Content> {
+    extends UploaderEl<Content> {
 
     private fileName: string;
 
@@ -93,7 +93,7 @@ export class MediaUploaderEl
         const name: string = this.generateUniqueName(imgSrc);
         const parent: string = this.config.params.parent;
 
-        const uploadItem = new UploadItem<api.content.Content>(<any>{name: name});
+        const uploadItem = new UploadItem<Content>(<any>{name: name});
         this.notifyFileUploadStarted([uploadItem]);
 
         new CreateMediaFromUrlRequest().setName(name).setUrl(imgSrc).setParent(parent).sendAndParse().then(
@@ -116,19 +116,19 @@ export class MediaUploaderEl
         return 'image-' + dateParts.map(api.util.DateHelper.padNumber).join('') + '.' + type;
     }
 
-    createModel(serverResponse: api.content.json.ContentJson): api.content.Content {
+    createModel(serverResponse: api.content.json.ContentJson): Content {
         if (serverResponse) {
-            return new api.content.ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
         } else {
             return null;
         }
     }
 
-    getModelValue(item: api.content.Content): string {
+    getModelValue(item: Content): string {
         return item.getId();
     }
 
-    getMediaValue(item: api.content.Content): api.data.Value {
+    getMediaValue(item: Content): api.data.Value {
         let mediaProperty = item.getContentData().getProperty('media');
         let mediaValue;
         switch (mediaProperty.getType()) {

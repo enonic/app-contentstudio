@@ -5,10 +5,10 @@ import DockedPanel = api.ui.panel.DockedPanel;
 import Panel = api.ui.panel.Panel;
 import PropertySet = api.data.PropertySet;
 import i18n = api.util.i18n;
-import Content = api.content.Content;
 import ContentSummary = api.content.ContentSummary;
 import LoadMask = api.ui.mask.LoadMask;
 import {ContentFormContext} from '../../../../ContentFormContext';
+import {Content} from '../../../../content/Content';
 
 export class MacroDockedPanel
     extends DockedPanel {

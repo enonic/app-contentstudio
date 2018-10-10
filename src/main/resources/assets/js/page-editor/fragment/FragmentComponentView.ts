@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {FragmentItemType} from './FragmentItemType';
 import {FragmentComponentViewer} from './FragmentComponentViewer';
@@ -18,8 +17,8 @@ import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
 import {ContentUpdatedEvent} from '../../app/event/ContentUpdatedEvent';
+import {Content} from '../../app/content/Content';
 import FragmentComponent = api.content.page.region.FragmentComponent;
-import Content = api.content.Content;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import ComponentType = api.content.page.region.ComponentType;

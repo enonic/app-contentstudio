@@ -1,5 +1,5 @@
 import {ContentResourceRequest} from './ContentResourceRequest';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 import ContentJson = api.content.json.ContentJson;
 
 export class CreateMediaFromUrlRequest

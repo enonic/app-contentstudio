@@ -1,4 +1,3 @@
-import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
@@ -10,6 +9,7 @@ import ContentSummary = api.content.ContentSummary;
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {Content} from '../content/Content';
 
 export class ContentHelper {
 

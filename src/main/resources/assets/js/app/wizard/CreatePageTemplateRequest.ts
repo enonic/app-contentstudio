@@ -1,10 +1,10 @@
-import Content = api.content.Content;
 import ContentJson = api.content.json.ContentJson;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentName = api.content.ContentName;
 import ContentPath = api.content.ContentPath;
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
+import {Content} from '../content/Content';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<ContentJson, Content>

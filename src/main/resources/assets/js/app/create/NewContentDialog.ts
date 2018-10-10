@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {MostPopularItemsBlock} from './MostPopularItemsBlock';
 import {RecentItemsBlock} from './RecentItemsBlock';
 import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
@@ -9,10 +8,10 @@ import {AggregateContentTypesResult} from './AggregateContentTypesResult';
 import {AggregateContentTypesByPathRequest} from './AggregateContentTypesByPathRequest';
 import {FileInput} from './FileInput';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
+import {Content} from '../content/Content';
+import {Site} from '../content/Site';
 import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
-import Content = api.content.Content;
 import ContentPath = api.content.ContentPath;
-import Site = api.content.site.Site;
 import LoadMask = api.ui.mask.LoadMask;
 import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
@@ -23,7 +22,7 @@ import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 
 export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
-    private parentContent: api.content.Content;
+    private parentContent: Content;
 
     private fileInput: FileInput;
 
@@ -169,7 +168,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     }
 
-    setParentContent(parent: api.content.Content) {
+    setParentContent(parent: Content) {
         this.parentContent = parent;
         this.allContentTypes.setParentContent(parent);
 

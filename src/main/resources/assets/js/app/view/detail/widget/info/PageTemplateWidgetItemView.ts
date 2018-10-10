@@ -8,11 +8,11 @@ import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest'
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
-import Content = api.content.Content;
+import {Content} from '../../../../content/Content';
+import {PageTemplate} from '../../../../content/PageTemplate';
+import {Site} from '../../../../content/Site';
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import PageTemplate = api.content.page.PageTemplate;
-import Site = api.content.site.Site;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageMode = api.content.page.PageMode;
 import ContentTypeName = api.schema.content.ContentTypeName;

@@ -7,7 +7,6 @@ import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import StringHelper = api.util.StringHelper;
-import Content = api.content.Content;
 import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
 import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
 import {MediaSelector} from './MediaSelector';
@@ -19,6 +18,7 @@ import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader'
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
+import {Content} from '../../content/Content';
 
 export class ImageSelector
     extends MediaSelector {

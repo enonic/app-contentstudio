@@ -1,14 +1,15 @@
 import {NewContentDialogList} from './NewContentDialogList';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
 import {CreateContentFilter} from './CreateContentFilter';
+import {Content} from '../content/Content';
+import {Site} from '../content/Site';
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import Site = api.content.site.Site;
 import ApplicationKey = api.application.ApplicationKey;
 import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
 
 export class FilterableItemsList extends NewContentDialogList {
 
-    private parentContent: api.content.Content;
+    private parentContent: Content;
 
     private listItems: NewContentDialogListItem[];
 
@@ -27,7 +28,7 @@ export class FilterableItemsList extends NewContentDialogList {
         this.setItems(filteredItems);
     }
 
-    setParentContent(parent: api.content.Content) {
+    setParentContent(parent: Content) {
         this.parentContent = parent;
     }
 

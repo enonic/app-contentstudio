@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
@@ -40,20 +39,19 @@ import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {XDataWizardStep} from './XDataWizardStep';
+import {Content, ContentBuilder} from '../content/Content';
+import {Site} from '../content/Site';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
-import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
 import PublishStatus = api.content.PublishStatus;
-import ContentBuilder = api.content.ContentBuilder;
 import ContentName = api.content.ContentName;
 import ContentUnnamed = api.content.ContentUnnamed;
 import ExtraData = api.content.ExtraData;
 import Page = api.content.page.Page;
-import Site = api.content.site.Site;
 import ContentType = api.schema.content.ContentType;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
@@ -236,7 +234,7 @@ export class ContentWizardPanel
         });
     }
 
-    protected doLoadData(): Q.Promise<api.content.Content> {
+    protected doLoadData(): Q.Promise<Content> {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
@@ -796,7 +794,7 @@ export class ContentWizardPanel
 
     }
 
-    private onFileUploaded(event: api.ui.uploader.UploadedEvent<api.content.Content>) {
+    private onFileUploaded(event: api.ui.uploader.UploadedEvent<Content>) {
         let newPersistedContent: Content = event.getUploadItem().getModel();
         this.setPersistedItem(newPersistedContent.clone());
         this.updateXDataStepForms(newPersistedContent);

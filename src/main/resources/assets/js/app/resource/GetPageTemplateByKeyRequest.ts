@@ -1,7 +1,7 @@
 import ContentJson = api.content.json.ContentJson;
-import PageTemplate = api.content.page.PageTemplate;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
+import {PageTemplate} from '../content/PageTemplate';
 
 export class GetPageTemplateByKeyRequest
     extends PageTemplateResourceRequest<ContentJson, PageTemplate> {

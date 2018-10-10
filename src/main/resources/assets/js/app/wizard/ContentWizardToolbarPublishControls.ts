@@ -1,7 +1,7 @@
-import '../../api.ts';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {PermissionHelper} from './PermissionHelper';
+import {Content} from '../content/Content';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -109,7 +109,7 @@ export class ContentWizardToolbarPublishControls
         return !!this.content && this.content.isPendingDelete();
     }
 
-    public enableActionsForExisting(existing: api.content.Content) {
+    public enableActionsForExisting(existing: Content) {
         new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
             let hasPublishPermission = PermissionHelper.hasPermission(api.security.acl.Permission.PUBLISH,
                 loginResult, existing.getPermissions());

@@ -1,7 +1,5 @@
-import '../../api.ts';
-
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 
 export class NewContentEvent extends api.event.Event {
 

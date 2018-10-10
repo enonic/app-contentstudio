@@ -5,6 +5,7 @@ import {ImageContentComboBox} from '../../app/inputtype/ui/selector/image/ImageC
 import {ImageUploaderEl} from '../../app/inputtype/ui/selector/image/ImageUploaderEl';
 import {MediaTreeSelectorItem} from '../../app/inputtype/ui/selector/media/MediaTreeSelectorItem';
 import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploaderEl';
+import {Content} from '../../app/content/Content';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ImageComponent = api.content.page.region.ImageComponent;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
@@ -74,7 +75,7 @@ export class ImagePlaceholder
 
         this.imageUploader.getUploadButton().onClicked(() => this.comboboxWrapper.show());
 
-        this.imageUploader.onFileUploaded((event: UploadedEvent<api.content.Content>) => {
+        this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             let createdImage = event.getUploadItem().getModel();
 
             let component: ImageComponent = this.imageComponentView.getComponent();

@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ItemView} from '../../page-editor/ItemView';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
@@ -6,7 +5,7 @@ import {TextComponentViewer} from '../../page-editor/text/TextComponentViewer';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {PageItemType} from '../../page-editor/PageItemType';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 import TextComponent = api.content.page.region.TextComponent;
 
 export class PageComponentsItemViewer

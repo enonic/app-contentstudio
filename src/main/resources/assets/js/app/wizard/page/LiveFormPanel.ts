@@ -57,7 +57,8 @@ import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
-import Content = api.content.Content;
+import {Content} from '../../content/Content';
+import {Site} from '../../content/Site';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
 import PageMode = api.content.page.PageMode;
@@ -71,7 +72,6 @@ import ComponentPropertyChangedEvent = api.content.page.region.ComponentProperty
 import Panel = api.ui.panel.Panel;
 import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
-import Site = api.content.site.Site;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export interface LiveFormPanelConfig {

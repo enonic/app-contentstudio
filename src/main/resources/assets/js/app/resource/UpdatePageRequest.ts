@@ -1,7 +1,8 @@
-import Content = api.content.Content;
 import ContentJson = api.content.json.ContentJson;
+import PageTemplateKey = api.content.page.PageTemplateKey;
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
+import {Content} from '../content/Content';
 
 export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content> implements PageCUDRequest {
 
@@ -9,7 +10,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
 
     private controller: api.content.page.DescriptorKey;
 
-    private template: api.content.page.PageTemplateKey;
+    private template: PageTemplateKey;
 
     private config: api.data.PropertyTree;
 
@@ -30,7 +31,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         return this;
     }
 
-    setPageTemplateKey(pageTemplateKey: api.content.page.PageTemplateKey): UpdatePageRequest {
+    setPageTemplateKey(pageTemplateKey: PageTemplateKey): UpdatePageRequest {
         this.template = pageTemplateKey;
         return this;
     }

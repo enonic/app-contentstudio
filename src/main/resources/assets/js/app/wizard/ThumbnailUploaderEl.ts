@@ -1,14 +1,12 @@
-import '../../api.ts';
+import {Content, ContentBuilder} from '../content/Content';
+import UploaderElConfig = api.ui.uploader.UploaderElConfig;
 
-export interface ThumbnailUploaderElConfig extends api.ui.uploader.UploaderElConfig {
-
-}
-
-export class ThumbnailUploaderEl extends api.ui.uploader.UploaderEl<api.content.Content> {
+export class ThumbnailUploaderEl
+    extends api.ui.uploader.UploaderEl<Content> {
 
     private iconUrlResolver: api.content.util.ContentIconUrlResolver;
 
-    constructor(config?: ThumbnailUploaderElConfig) {
+    constructor(config?: UploaderElConfig) {
 
         if (config.url == null) {
             config.url = api.util.UriHelper.getRestUri('content/updateThumbnail');
@@ -40,15 +38,15 @@ export class ThumbnailUploaderEl extends api.ui.uploader.UploaderEl<api.content.
         this.iconUrlResolver = new api.content.util.ContentIconUrlResolver();
     }
 
-    createModel(serverResponse: api.content.json.ContentJson): api.content.Content {
+    createModel(serverResponse: api.content.json.ContentJson): Content {
         if (serverResponse) {
-            return new api.content.ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
         } else {
             return null;
         }
     }
 
-    getModelValue(item: api.content.Content): string {
+    getModelValue(item: Content): string {
         return this.iconUrlResolver.setContent(item).resolve();
     }
 

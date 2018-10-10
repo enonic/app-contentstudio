@@ -8,13 +8,13 @@ import ContentSummary = api.content.ContentSummary;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ContentId = api.content.ContentId;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import Content = api.content.Content;
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ListContentByIdRequest} from '../resource/ListContentByIdRequest';
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {Content} from '../content/Content';
 
 export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 

@@ -1,5 +1,5 @@
 import {JsonResourceRequest} from './JsonResourceRequest';
-import PageTemplate = api.content.page.PageTemplate;
+import {PageTemplate} from '../content/PageTemplate';
 import ContentJson = api.content.json.ContentJson;
 
 export class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>

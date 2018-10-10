@@ -1,7 +1,7 @@
-import '../../../../../../api.ts';
 import {PageTemplateOption} from './PageTemplateOption';
-import PageTemplate = api.content.page.PageTemplate;
+import {PageTemplate} from '../../../../../content/PageTemplate';
 import i18n = api.util.i18n;
+import PageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
 
 export class PageTemplateOptionViewer extends api.ui.NamesAndIconViewer<PageTemplateOption> {
 
@@ -18,7 +18,7 @@ export class PageTemplateOptionViewer extends api.ui.NamesAndIconViewer<PageTemp
     }
 
     resolveDisplayName(object: PageTemplateOption): string {
-        let pageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
+        let pageTemplateDisplayName = PageTemplateDisplayName;
 
         return !!object.getPageTemplate() ?
                (object.isCustom() ? pageTemplateDisplayName[pageTemplateDisplayName.Custom] : object.getPageTemplate().getDisplayName())

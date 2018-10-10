@@ -4,7 +4,7 @@ import {UserAccessListView} from './UserAccessListView';
 import {AccessControlEntryView} from '../../../AccessControlEntryView';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {OpenEditPermissionsDialogEvent} from '../../../../event/OpenEditPermissionsDialogEvent';
-import Content = api.content.Content;
+import {Content} from '../../../../content/Content';
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
 import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;

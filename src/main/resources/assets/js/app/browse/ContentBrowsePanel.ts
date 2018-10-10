@@ -23,6 +23,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {Branch} from '../versioning/Branch';
+import {Content} from '../content/Content';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -35,7 +36,6 @@ import ContentPath = api.content.ContentPath;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import Content = api.content.Content;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 

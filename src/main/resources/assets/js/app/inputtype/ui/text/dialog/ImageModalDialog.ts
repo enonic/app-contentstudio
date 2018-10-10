@@ -4,7 +4,6 @@ import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import Action = api.ui.Action;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummary = api.content.ContentSummary;
-import Content = api.content.Content;
 import Option = api.ui.selector.Option;
 import eventInfo = CKEDITOR.eventInfo;
 import ContentId = api.content.ContentId;
@@ -23,6 +22,7 @@ import {ImageContentComboBox} from '../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {Content} from '../../../../content/Content';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -435,7 +435,7 @@ export class ImageModalDialog
 
     private fetchImageCaption(imageContent: ContentSummary): wemQ.Promise<string> {
         return new GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
-            .then((content: api.content.Content) => {
+            .then((content: Content) => {
                 return this.getDescriptionFromImageContent(content) || content.getProperty('caption').getString() || '';
             });
     }

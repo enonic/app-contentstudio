@@ -1,7 +1,8 @@
 import {FragmentResourceRequest} from './FragmentResourceRequest';
+import {Content} from '../app/content/Content';
 
 export class CreateFragmentRequest
-    extends FragmentResourceRequest<api.content.json.ContentJson, api.content.Content> {
+    extends FragmentResourceRequest<api.content.json.ContentJson, Content> {
 
     private contentId: api.content.ContentId;
 
@@ -37,7 +38,7 @@ export class CreateFragmentRequest
         return api.rest.Path.fromParent(super.getResourcePath(), 'create');
     }
 
-    sendAndParse(): wemQ.Promise<api.content.Content> {
+    sendAndParse(): wemQ.Promise<Content> {
 
         return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
             return response.isBlank() ? null : this.fromJsonToContent(response.getResult());

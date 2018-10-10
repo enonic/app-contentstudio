@@ -1,16 +1,17 @@
 import PropertyPath = api.data.PropertyPath;
 import FormState = api.app.wizard.FormState;
-import Content = api.content.Content;
 import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
+import {Content} from './content/Content';
+import {Site} from './content/Site';
 
 export class ContentFormContext
     extends api.form.FormContext {
 
-    private site: api.content.site.Site;
+    private site: Site;
 
-    private parentContent: api.content.Content;
+    private parentContent: Content;
 
-    private persistedContent: api.content.Content;
+    private persistedContent: Content;
 
     private contentTypeName: api.schema.content.ContentTypeName;
 
@@ -31,7 +32,7 @@ export class ContentFormContext
         this.formState = builder.formState;
     }
 
-    getSite(): api.content.site.Site {
+    getSite(): Site {
         return this.site;
     }
 
@@ -56,7 +57,7 @@ export class ContentFormContext
         return this.parentContent.getPath();
     }
 
-    getPersistedContent(): api.content.Content {
+    getPersistedContent(): Content {
         return this.persistedContent;
     }
 
@@ -96,27 +97,27 @@ export class ContentFormContext
 export class ContentFormContextBuilder
     extends api.form.FormContextBuilder {
 
-    site: api.content.site.Site;
+    site: Site;
 
-    parentContent: api.content.Content;
+    parentContent: Content;
 
-    persistedContent: api.content.Content;
+    persistedContent: Content;
 
     contentTypeName: api.schema.content.ContentTypeName;
 
     formState: FormState;
 
-    public setSite(value: api.content.site.Site): ContentFormContextBuilder {
+    public setSite(value: Site): ContentFormContextBuilder {
         this.site = value;
         return this;
     }
 
-    public setParentContent(value: api.content.Content): ContentFormContextBuilder {
+    public setParentContent(value: Content): ContentFormContextBuilder {
         this.parentContent = value;
         return this;
     }
 
-    public setPersistedContent(value: api.content.Content): ContentFormContextBuilder {
+    public setPersistedContent(value: Content): ContentFormContextBuilder {
         this.persistedContent = value;
         return this;
     }

@@ -1,5 +1,5 @@
-import '../../../../../../api.ts';
-import PageTemplate = api.content.page.PageTemplate;
+import {PageTemplate} from '../../../../../content/PageTemplate';
+import PageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
 
 export class PageTemplateOption implements api.Equitable {
 
@@ -14,7 +14,7 @@ export class PageTemplateOption implements api.Equitable {
     }
 
     isCustom(): boolean {
-        let pageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
+        let pageTemplateDisplayName = PageTemplateDisplayName;
 
         return this.template && this.template.getDisplayName() === pageTemplateDisplayName[pageTemplateDisplayName.Custom];
     }

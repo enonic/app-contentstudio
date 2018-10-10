@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
@@ -18,7 +17,7 @@ import {ItemView} from '../../page-editor/ItemView';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 import TreeNode = api.ui.treegrid.TreeNode;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;

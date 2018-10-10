@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DuplicateContentAction} from './DuplicateContentAction';
 import {DeleteContentAction} from './DeleteContentAction';
@@ -17,6 +16,7 @@ import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermiss
 import {PermissionHelper} from '../PermissionHelper';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
+import {Content} from '../../content/Content';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -24,7 +24,6 @@ import ManagedActionManager = api.managedaction.ManagedActionManager;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ManagedActionState = api.managedaction.ManagedActionState;
 import ActionsStateManager = api.ui.ActionsStateManager;
-import Content = api.content.Content;
 
 type ActionNames =
     'SAVE' |
@@ -79,7 +78,8 @@ type ActionsState = {
     UNDO_PENDING_DELETE?: boolean,
 };
 
-export class ContentWizardActions extends api.app.wizard.WizardActions<api.content.Content> {
+export class ContentWizardActions
+    extends api.app.wizard.WizardActions<Content> {
 
     private deleteOnlyMode: boolean = false;
 
@@ -208,7 +208,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         this.enableActions({SAVE: false, DELETE: true});
     }
 
-    enableActionsForExisting(existing: api.content.Content) {
+    enableActionsForExisting(existing: Content) {
         this.persistedContent = existing;
 
         this.enableActions({
@@ -222,7 +222,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         });
     }
 
-    setDeleteOnlyMode(content: api.content.Content, valueOn: boolean = true) {
+    setDeleteOnlyMode(content: Content, valueOn: boolean = true) {
         if (this.deleteOnlyMode === valueOn) {
             return;
         }
@@ -247,7 +247,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         }
     }
 
-    private enableDeleteIfAllowed(content: api.content.Content) {
+    private enableDeleteIfAllowed(content: Content) {
         new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
             let hasDeletePermission = PermissionHelper.hasPermission(api.security.acl.Permission.DELETE,
                 loginResult, content.getPermissions());
@@ -255,7 +255,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         });
     }
 
-    private enableActionsForExistingByPermissions(existing: api.content.Content): wemQ.Promise<any> {
+    private enableActionsForExistingByPermissions(existing: Content): wemQ.Promise<any> {
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
 
             this.hasModifyPermission = PermissionHelper.hasPermission(api.security.acl.Permission.MODIFY,
@@ -287,7 +287,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
 
             if (existing.hasParent()) {
                 new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
-                    (parent: api.content.Content) => {
+                    (parent: Content) => {
                         new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
                             (accessControlList: api.security.acl.AccessControlList) => {
                                 let hasParentCreatePermission = PermissionHelper.hasPermission(

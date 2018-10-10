@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ClickPosition} from './ClickPosition';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
@@ -20,10 +19,10 @@ import {PageView} from './PageView';
 import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {CreateFragmentRequest} from './CreateFragmentRequest';
+import {Content} from '../app/content/Content';
 import Component = api.content.page.region.Component;
 import ComponentPath = api.content.page.region.ComponentPath;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
-import Content = api.content.Content;
 import i18n = api.util.i18n;
 import KeyBinding = api.ui.KeyBinding;
 import Element = api.dom.Element;

@@ -8,8 +8,8 @@ import {PageComponentsView} from '../../../PageComponentsView';
 import {SaveAsTemplateAction} from '../../../action/SaveAsTemplateAction';
 import {PageView} from '../../../../../page-editor/PageView';
 import {LiveEditPageViewReadyEvent} from '../../../../../page-editor/LiveEditPageViewReadyEvent';
+import {Content} from '../../../../content/Content';
 import DragHelper = api.ui.DragHelper;
-import Content = api.content.Content;
 import PageMode = api.content.page.PageMode;
 import i18n = api.util.i18n;
 

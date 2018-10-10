@@ -4,6 +4,7 @@ import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
+import {Site} from '../../content/Site';
 
 export class PageTemplateContentTypeLoader
     extends api.util.loader.BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
@@ -24,7 +25,7 @@ export class PageTemplateContentTypeLoader
     sendRequest(): wemQ.Promise<ContentTypeSummary[]> {
         return new GetAllContentTypesRequest().sendAndParse().then((contentTypeArray: ContentTypeSummary[]) => {
             return new GetNearestSiteRequest(this.contentId).sendAndParse().then(
-                (parentSite: api.content.site.Site) => {
+                (parentSite: Site) => {
                     let typesAllowedEverywhere: { [key: string]: ContentTypeName } = {};
                     [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE,
                         ContentTypeName.SHORTCUT].forEach((contentTypeName: ContentTypeName) => {

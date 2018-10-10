@@ -1,5 +1,5 @@
-import './../api.ts';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
+import {Content} from '../app/content/Content';
 import Event = api.event.Event;
 import ComponentType = api.content.page.region.ComponentType;
 
@@ -10,10 +10,10 @@ export class ComponentFragmentCreatedEvent
 
     private fragmentComponentView: FragmentComponentView;
 
-    private fragmentContent: api.content.Content;
+    private fragmentContent: Content;
 
     constructor(fragmentComponentView: FragmentComponentView, sourceComponentType: ComponentType,
-                fragmentContent: api.content.Content) {
+                fragmentContent: Content) {
         super();
         this.fragmentComponentView = fragmentComponentView;
         this.sourceComponentType = sourceComponentType;
@@ -24,7 +24,7 @@ export class ComponentFragmentCreatedEvent
         return this.fragmentComponentView;
     }
 
-    getFragmentContent(): api.content.Content {
+    getFragmentContent(): Content {
         return this.fragmentContent;
     }
 

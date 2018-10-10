@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemType} from './ItemType';
 import {LiveEditModel} from './LiveEditModel';
@@ -25,13 +24,13 @@ import {PageViewController} from './PageViewController';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
+import {Content} from '../app/content/Content';
 import Component = api.content.page.region.Component;
 import PropertyTree = api.data.PropertyTree;
 import i18n = api.util.i18n;
 import ComponentType = api.content.page.region.ComponentType;
 import DescriptorBasedComponentBuilder = api.content.page.region.DescriptorBasedComponentBuilder;
 import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
-import StyleHelper = api.StyleHelper;
 
 export interface ElementDimensions {
     top: number;
@@ -813,7 +812,7 @@ export class ItemView
         return i18n('live.view.itemview.noname');
     }
 
-    getIconUrl(content: api.content.Content): string {
+    getIconUrl(content: Content): string {
         return new api.content.util.ContentIconUrlResolver().setContent(content).resolve();
     }
 

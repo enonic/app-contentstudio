@@ -1,7 +1,7 @@
-import PageTemplate = api.content.page.PageTemplate;
 import ContentJson = api.content.json.ContentJson;
 import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
 import {ListContentResult} from '../../../../../resource/ListContentResult';
+import {PageTemplate} from '../../../../../content/PageTemplate';
 
 export class GetPageTemplatesByCanRenderRequest
     extends PageTemplateResourceRequest<ListContentResult<ContentJson>, PageTemplate[]> {
