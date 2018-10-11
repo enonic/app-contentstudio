@@ -128,7 +128,7 @@
     padding: 0 4px;
     margin: 0;
     display: flex;
-    line-height: 24px;
+    line-height: 26px;
     align-items: center;
 
     .viewer {
@@ -178,6 +178,10 @@
         .dependant-list {
 
           .browse-selection-item {
+
+            .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
+              font-size: 12px;
+            }
 
             &:hover {
               background-color: #eeeeee;
@@ -251,6 +255,10 @@
 
                 .@{_COMMON_PREFIX}names-view {
                   margin-left: 30px;
+
+                  h6 {
+                    height: 18px;
+                  }
                 }
               }
 
