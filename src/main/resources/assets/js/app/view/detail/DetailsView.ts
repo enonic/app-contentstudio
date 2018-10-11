@@ -5,12 +5,12 @@ import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidget
 import {StatusWidgetItemView} from './widget/info/StatusWidgetItemView';
 import {PropertiesWidgetItemView} from './widget/info/PropertiesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/info/AttachmentsWidgetItemView';
-import {UserAccessWidgetItemView} from './widget/info/UserAccessWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/info/PageTemplateWidgetItemView';
-import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
+import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ApplicationEvent = api.application.ApplicationEvent;

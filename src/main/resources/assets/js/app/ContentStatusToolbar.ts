@@ -1,5 +1,5 @@
-import {GetPrincipalByKeyRequest} from './security/GetPrincipalByKeyRequest';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {GetPrincipalByKeyRequest} from './resource/GetPrincipalByKeyRequest';
 import i18n = api.util.i18n;
 
 export class ContentStatusToolbar

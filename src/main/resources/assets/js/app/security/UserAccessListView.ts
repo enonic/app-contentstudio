@@ -1,8 +1,9 @@
 import AccessControlEntry = api.security.acl.AccessControlEntry;
-import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
+import ListBox = api.ui.selector.list.ListBox;
+import {UserAccessListItemView} from './UserAccessListItemView';
 
 export class UserAccessListView
-    extends api.ui.selector.list.ListBox<AccessControlEntry> {
+    extends ListBox<AccessControlEntry> {
 
     private userAccessListItemViews: UserAccessListItemView[];
 

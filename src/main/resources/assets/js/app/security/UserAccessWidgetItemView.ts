@@ -1,14 +1,15 @@
-import {WidgetItemView} from '../../WidgetItemView';
-import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectivePermissionsRequest';
+import {UserAccessListItemView} from './UserAccessListItemView';
+import {WidgetItemView} from '../view/detail/WidgetItemView';
 import {UserAccessListView} from './UserAccessListView';
-import {AccessControlEntryView} from '../../../AccessControlEntryView';
-import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
-import {OpenEditPermissionsDialogEvent} from '../../../../event/OpenEditPermissionsDialogEvent';
-import {Content} from '../../../../content/Content';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {Content} from '../content/Content';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
+import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {GetEffectivePermissionsRequest} from '../resource/GetEffectivePermissionsRequest';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {Access} from './Access';
+import {EffectivePermission} from './EffectivePermission';
 import ContentId = api.content.ContentId;
-import Access = api.ui.security.acl.Access;
-import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
 
@@ -23,7 +24,7 @@ export class UserAccessWidgetItemView
 
     private bottomEl: api.dom.AEl;
 
-    private loginResult: LoginResult;// TODO: need to implement caching for current user value;
+    private loginResult: LoginResult;
 
     private everyoneAccessValue: Access;
 
@@ -107,7 +108,7 @@ export class UserAccessWidgetItemView
 
         let request = new GetEffectivePermissionsRequest(content.getContentId());
 
-        request.sendAndParse().then((results: api.ui.security.acl.EffectivePermission[]) => {
+        request.sendAndParse().then((results: EffectivePermission[]) => {
 
             if (this.hasChild(this.accessListView)) {
                 this.removeChild(this.accessListView);
@@ -150,10 +151,10 @@ export class UserAccessWidgetItemView
         });
     }
 
-    private getUserAccessList(results: api.ui.security.acl.EffectivePermission[]): UserAccessListItemView[] {
+    private getUserAccessList(results: EffectivePermission[]): UserAccessListItemView[] {
 
         return results.filter(item => item.getAccess() !== this.everyoneAccessValue &&
-                                      item.getPermissionAccess().getCount() > 0).map((item: api.ui.security.acl.EffectivePermission) => {
+                                      item.getPermissionAccess().getCount() > 0).map((item: EffectivePermission) => {
             let view = new UserAccessListItemView();
             view.setObject(item);
             view.setCurrentUser(this.loginResult.getUser());

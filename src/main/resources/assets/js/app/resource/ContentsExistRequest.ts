@@ -1,6 +1,6 @@
-import ContentsExistJson = api.content.json.ContentsExistJson;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistResult} from './ContentsExistResult';
+import {ContentsExistJson} from './json/ContentsExistJson';
 
 export class ContentsExistRequest
     extends ContentResourceRequest<ContentsExistJson, ContentsExistResult> {
