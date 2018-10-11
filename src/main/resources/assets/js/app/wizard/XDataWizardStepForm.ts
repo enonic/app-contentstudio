@@ -3,9 +3,13 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 import Form = api.form.Form;
 import FormView = api.form.FormView;
 import PropertyTree = api.data.PropertyTree;
+import XDataName = api.schema.xdata.XDataName;
+import XData = api.schema.xdata.XData;
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
+
+    private xDataName: XDataName;
 
     private optional: boolean;
 
@@ -15,11 +19,16 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: { (value: boolean): void }[] = [];
 
-    constructor(optional: boolean) {
+    constructor(xData: XData) {
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.optional = optional;
+        this.xDataName = xData.getXDataName();
+        this.optional = xData.isOptional();
+    }
+
+    getXDataName(): XDataName {
+        return this.xDataName;
     }
 
     setExpandState(value: boolean) {

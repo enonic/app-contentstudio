@@ -6,6 +6,7 @@ import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import Site = api.content.site.Site;
 import ApplicationConfig = api.application.ApplicationConfig;
+import ObjectHelper = api.ObjectHelper;
 
 export class SiteModel {
 
@@ -79,6 +80,8 @@ export class SiteModel {
     }
 
     update(site: Site): SiteModel {
+        const changed = !ObjectHelper.equals(site, this.site);
+
         if (this.site) {
             this.site.getContentData().unPropertyAdded(this.applicationPropertyAddedListener);
             this.site.getContentData().unPropertyRemoved(this.applicationPropertyRemovedListener);
@@ -89,7 +92,9 @@ export class SiteModel {
             this.setup(site);
         }
 
-        this.notifySiteModelUpdated();
+        if (changed) {
+            this.notifySiteModelUpdated();
+        }
 
         return this;
     }
