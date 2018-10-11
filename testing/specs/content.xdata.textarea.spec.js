@@ -12,6 +12,8 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const xDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard.step.form');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const detailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const versionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, type a text in the textarea`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -105,11 +107,31 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, typ
             }).then(result => {
                 studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
                 assert.isTrue(result == '', 'text-area in x-data should be cleared, when x-data was disabled and the content was saved');
-            }).then(()=>{
-                return assert.eventually.isTrue( contentWizard.waitUntilInvalidIconAppears(), "Red icon should be present in the wizard, because text-area is required input");
+            }).then(() => {
+                return assert.eventually.isTrue(contentWizard.waitUntilInvalidIconAppears(),
+                    "Red icon should be present in the wizard, because text-area is required input");
             })
         });
 
+    it(`GIVEN existing content with x-data is opened WHEN version of the content when text is present in the textarea has been restored THEN text should appear in the area`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
+                //open details panel
+                return contentWizard.openDetailsPanel();
+            }).pause(500).then(() => {
+                //open versions widget
+                return detailsPanel.openVersionHistory();
+            }).then(() => {
+                return versionsWidget.clickAndExpandVersion(1);
+            }).then(() => {
+                return versionsWidget.clickOnRestoreThisVersion();
+            }).pause(2000).then(() => {
+                studioUtils.saveScreenshot('xdata_text_in_textarea_restored');
+                return xDataTextArea.getTextInTextArea();
+            }).then(result => {
+                assert.isTrue(result == TEST_TEXT, 'Required text should appear in the textarea in x-data');
+            })
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

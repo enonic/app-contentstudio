@@ -1725,7 +1725,6 @@ export class ContentWizardPanel
         });
     }
 
-
     private cleanFormRedundantData(data: api.data.PropertyTree): api.data.PropertyTree {
         let optionSets = this.getOptionSetsInForm(this.getContentType().getForm());
 
