@@ -1,13 +1,12 @@
-import '../../../../../api.ts';
 import {ContentVersionViewer} from './ContentVersionViewer';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
 import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
+import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
 import i18n = api.util.i18n;
 
 export class VersionsView
@@ -112,9 +111,9 @@ export class VersionsView
 
     private getState(workspace: string): string {
         if (workspace === VersionsView.branchMaster) {
-            return api.content.CompareStatusFormatter.formatStatus(api.content.CompareStatus.EQUAL);
+            return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL);
         } else {
-            return api.content.CompareStatusFormatter.formatStatusTextFromContent(this.content);
+            return CompareStatusFormatter.formatStatusTextFromContent(this.content);
         }
     }
 

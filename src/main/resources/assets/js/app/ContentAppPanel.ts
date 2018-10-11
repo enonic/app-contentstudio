@@ -10,7 +10,7 @@ import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {EditContentEvent} from './event/EditContentEvent';
 import {Content} from './content/Content';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
 import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
 import AppPanel = api.app.AppPanel;

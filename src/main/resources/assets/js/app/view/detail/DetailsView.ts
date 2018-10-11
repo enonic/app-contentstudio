@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
@@ -11,10 +10,9 @@ import {PageTemplateWidgetItemView} from './widget/info/PageTemplateWidgetItemVi
 import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
 import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
-
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;

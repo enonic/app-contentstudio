@@ -4,6 +4,7 @@ import {Router} from '../../Router';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
@@ -25,7 +26,6 @@ import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import BrowseFilterResetEvent = api.app.browse.filter.BrowseFilterResetEvent;
 import BrowseFilterRefreshEvent = api.app.browse.filter.BrowseFilterRefreshEvent;
 import BrowseFilterSearchEvent = api.app.browse.filter.BrowseFilterSearchEvent;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilterPanel<ContentSummaryAndCompareStatus> {

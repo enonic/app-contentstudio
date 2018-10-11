@@ -6,13 +6,13 @@ import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderR
 import {PageTemplateLoader} from './PageTemplateLoader';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
+import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import Option = api.ui.selector.Option;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
 import i18n = api.util.i18n;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import PageTemplateDisplayName = api.content.page.PageTemplateDisplayName;

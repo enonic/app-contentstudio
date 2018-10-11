@@ -10,9 +10,9 @@ import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdReque
 import {ContentUpdatedEvent} from '../../../../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../../../../event/EditContentEvent';
 import {Content} from '../../../../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentId = api.content.ContentId;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Option = api.ui.selector.Option;

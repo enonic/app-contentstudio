@@ -1,7 +1,7 @@
 import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {CompareStatus} from '../content/CompareStatus';
+import {PublishStatus} from '../publish/PublishStatus';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentAndStatusTreeSelectorItem
     extends ContentTreeSelectorItem {

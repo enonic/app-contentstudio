@@ -17,6 +17,7 @@ import {PermissionHelper} from '../PermissionHelper';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {Content} from '../../content/Content';
+import {CompareStatusChecker} from '../../content/CompareStatus';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -192,7 +193,7 @@ export class ContentWizardActions
 
     refreshPendingDeleteDecorations() {
         let compareStatus = this.wizardPanel.getCompareStatus();
-        let isPendingDelete = api.content.CompareStatusChecker.isPendingDelete(compareStatus);
+        let isPendingDelete = CompareStatusChecker.isPendingDelete(compareStatus);
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
         this.actionsMap.SAVE.setVisible(!isPendingDelete);

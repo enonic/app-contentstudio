@@ -1,7 +1,6 @@
-import '../../../api.ts';
 import {DetailsView} from './DetailsView';
 import {WidgetView} from './WidgetView';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class DetailsPanel extends api.ui.panel.Panel {
 

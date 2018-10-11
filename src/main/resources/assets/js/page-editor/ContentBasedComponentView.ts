@@ -1,11 +1,10 @@
-import './../api.ts';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {EditContentEvent} from '../app/event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 import Component = api.content.page.region.Component;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;

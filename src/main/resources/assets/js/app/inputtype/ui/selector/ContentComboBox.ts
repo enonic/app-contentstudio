@@ -21,6 +21,7 @@ import {ContentTreeSelectorItemViewer} from '../../../item/ContentTreeSelectorIt
 import {ContentSummaryOptionDataHelper} from '../../../util/ContentSummaryOptionDataHelper';
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -282,7 +283,7 @@ export class ContentSelectedOptionView
 
     protected onEditButtonClicked(e: MouseEvent) {
         let content = this.getOptionDisplayValue().getContent();
-        let model = [api.content.ContentSummaryAndCompareStatus.fromContentSummary(content)];
+        let model = [ContentSummaryAndCompareStatus.fromContentSummary(content)];
         new EditContentEvent(model).fire();
 
         return super.onEditButtonClicked(e);

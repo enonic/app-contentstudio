@@ -3,12 +3,12 @@ import {ContentNodeByModifiedTimeComparator} from './ContentNodeByModifiedTimeCo
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../resource/ContentResponse';
 import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class CompareContentGrid

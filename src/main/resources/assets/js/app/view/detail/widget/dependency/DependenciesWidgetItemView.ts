@@ -6,7 +6,7 @@ import {ContentDependencyJson} from '../../../../resource/json/ContentDependency
 import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
 import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ActionButton = api.ui.button.ActionButton;
 import Action = api.ui.Action;
 import NamesAndIconViewSize = api.app.NamesAndIconViewSize;

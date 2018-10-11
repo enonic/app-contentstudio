@@ -1,4 +1,3 @@
-import '../api.ts';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/SortContentEvent';
@@ -8,8 +7,8 @@ import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';
 import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class ContentEventsProcessor {

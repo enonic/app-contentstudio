@@ -1,4 +1,3 @@
-import PublishStatus = api.content.PublishStatus;
 import FormView = api.form.FormView;
 import PropertySet = api.data.PropertySet;
 import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
@@ -6,6 +5,7 @@ import i18n = api.util.i18n;
 import {PublishFrom} from '../inputtype/publish/PublishFrom';
 import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
 import {Content, ContentBuilder} from '../content/Content';
+import {PublishStatus} from '../publish/PublishStatus';
 
 export class ScheduleWizardStepForm
     extends api.app.wizard.WizardStepForm {

@@ -1,7 +1,7 @@
-import CompareStatus = api.content.CompareStatus;
 import ContentPath = api.content.ContentPath;
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {CompareStatus} from '../content/CompareStatus';
 
 export class GetDescendantsOfContentsRequest
     extends ContentResourceRequest<api.content.json.ContentIdBaseItemJson[], ContentId[]> {

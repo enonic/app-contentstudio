@@ -2,9 +2,10 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {PermissionHelper} from './PermissionHelper';
 import {Content} from '../content/Content';
+import {CompareStatusFormatter} from '../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class ContentWizardToolbarPublishControls
@@ -98,7 +99,7 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction.setVisible(canBePublished);
 
         this.publishButtonForMobile.setLabel(
-            i18n('field.publish.item', api.content.CompareStatusFormatter.formatStatusTextFromContent(this.content)));
+            i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));
     }
 
     public isOnline(): boolean {

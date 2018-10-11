@@ -51,6 +51,7 @@ import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
+import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -368,8 +369,9 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
     wizard.onClosed(event => window.close());
 
     // TODO: Remove hack, that connects content events in `FormView`
-    api.content.event.EditContentEvent.on((event) => {
-        new EditContentEvent(event.getModels()).fire();
+    api.content.event.FormEditEvent.on((event) => {
+        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
+        new EditContentEvent([model]).fire();
     });
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
 

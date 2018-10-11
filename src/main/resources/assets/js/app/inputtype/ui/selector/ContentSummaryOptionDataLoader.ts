@@ -2,7 +2,6 @@ import OptionDataLoader = api.ui.selector.OptionDataLoader;
 import TreeNode = api.ui.treegrid.TreeNode;
 import OptionDataLoaderData = api.ui.selector.OptionDataLoaderData;
 import Option = api.ui.selector.Option;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
@@ -14,6 +13,7 @@ import {CompareContentRequest} from '../../../resource/CompareContentRequest';
 import {CompareContentResults} from '../../../resource/CompareContentResults';
 import {CompareContentResult} from '../../../resource/CompareContentResult';
 import {GetContentSummaryByIds} from '../../../resource/GetContentSummaryByIds';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {

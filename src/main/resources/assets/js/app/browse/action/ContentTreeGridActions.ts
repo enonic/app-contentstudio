@@ -18,12 +18,12 @@ import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequ
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {Content} from '../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
 import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Permission = api.security.acl.Permission;
 import i18n = api.util.i18n;
 import ManagedActionManager = api.managedaction.ManagedActionManager;

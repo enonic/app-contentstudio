@@ -1,6 +1,5 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import DefaultErrorHandler = api.DefaultErrorHandler;
 
 export interface BasePublishActionConfig {

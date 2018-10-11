@@ -1,10 +1,9 @@
-import '../../api.ts';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
 import {ContentIds} from '../ContentIds';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
@@ -27,7 +26,7 @@ export class PublishDialogDependantList
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): api.dom.Element {
         const view = super.createItemView(item, readOnly);
-        const isPendingDelete = api.content.CompareStatusChecker.isPendingDelete(item.getCompareStatus());
+        const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
         const isRemovable = !this.requiredIds.contains(item.getContentId()) && !isPendingDelete;
 
         if (isRemovable) {

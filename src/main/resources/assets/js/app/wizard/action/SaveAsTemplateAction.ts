@@ -3,8 +3,8 @@ import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequ
 import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Site} from '../../content/Site';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Action = api.ui.Action;
 import Permission = api.security.acl.Permission;
 import ContentSummary = api.content.ContentSummary;

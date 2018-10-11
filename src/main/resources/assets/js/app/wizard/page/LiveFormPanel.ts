@@ -59,6 +59,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
 import {Content} from '../../content/Content';
 import {Site} from '../../content/Site';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
 import PageMode = api.content.page.PageMode;
@@ -72,7 +73,6 @@ import ComponentPropertyChangedEvent = api.content.page.region.ComponentProperty
 import Panel = api.ui.panel.Panel;
 import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export interface LiveFormPanelConfig {
 
@@ -663,7 +663,7 @@ export class LiveFormPanel
 
             this.saveAndReloadOnlyComponent(event.getComponentView());
 
-            let summaryAndStatus = api.content.ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
+            let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
             new EditContentEvent([summaryAndStatus]).fire();
         });
 

@@ -7,7 +7,7 @@ import {OrderChildContentRequest} from '../resource/OrderChildContentRequest';
 import {OrderChildMovements} from '../resource/order/OrderChildMovements';
 import {OrderContentRequest} from '../resource/OrderContentRequest';
 import {Content} from '../content/Content';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ChildOrder = api.content.order.ChildOrder;
 import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
 import DialogButton = api.ui.dialog.DialogButton;
@@ -17,7 +17,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     private sortAction: SaveSortedContentAction;
 
-    private parentContent: api.content.ContentSummaryAndCompareStatus;
+    private parentContent: ContentSummaryAndCompareStatus;
 
     private contentGrid: SortContentTreeGrid;
 

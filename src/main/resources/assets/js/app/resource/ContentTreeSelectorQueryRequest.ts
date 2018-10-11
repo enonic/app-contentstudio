@@ -2,13 +2,13 @@ import QueryExpr = api.query.expr.QueryExpr;
 import Expression = api.query.expr.Expression;
 import QueryField = api.query.QueryField;
 import ChildOrder = api.content.order.ChildOrder;
-import ContentMetadata = api.content.ContentMetadata;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentSelectorQueryRequest} from './ContentSelectorQueryRequest';
 import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentResourceRequest<any, DATA[]> {

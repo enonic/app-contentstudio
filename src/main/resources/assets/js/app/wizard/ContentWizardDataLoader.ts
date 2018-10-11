@@ -8,11 +8,11 @@ import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {Content} from '../content/Content';
 import {Site} from '../content/Site';
+import {CompareStatus} from '../content/CompareStatus';
+import {PublishStatus} from '../publish/PublishStatus';
 import ContentId = api.content.ContentId;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentType = api.schema.content.ContentType;
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
 import i18n = api.util.i18n;
 
 export class ContentWizardDataLoader {

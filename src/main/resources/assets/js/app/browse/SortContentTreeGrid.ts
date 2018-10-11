@@ -3,10 +3,10 @@ import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
 import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ChildOrder = api.content.order.ChildOrder;
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../resource/ContentResponse';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 

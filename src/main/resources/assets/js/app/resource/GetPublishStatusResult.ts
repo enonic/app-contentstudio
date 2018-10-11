@@ -1,10 +1,10 @@
-import PublishStatus = api.content.PublishStatus;
 import {GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
+import {PublishStatus} from '../publish/PublishStatus';
 
 export class GetPublishStatusResult
     implements api.Equitable {
 
-    publishStatus: api.content.PublishStatus;
+    publishStatus: PublishStatus;
 
     id: string;
 

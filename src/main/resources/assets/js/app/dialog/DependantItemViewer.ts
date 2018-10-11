@@ -1,5 +1,5 @@
-import '../../api.ts';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummaryAndCompareStatus> {
 
@@ -8,7 +8,7 @@ export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummar
     }
 
     resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
-        let pendingDelete = (api.content.CompareStatus.PENDING_DELETE === object.getCompareStatus());
+        let pendingDelete = (CompareStatus.PENDING_DELETE === object.getCompareStatus());
 
         this.toggleClass('pending-delete', pendingDelete);
         return object.getPath().toString();

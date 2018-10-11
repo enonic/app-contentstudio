@@ -1,5 +1,5 @@
 import TreeNode = api.ui.treegrid.TreeNode;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentNodeByModifiedTimeComparator
     implements api.Comparator<TreeNode<ContentSummaryAndCompareStatus>> {

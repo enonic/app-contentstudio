@@ -1,9 +1,8 @@
-import '../../api.ts';
 import {OrderChildMovements} from '../resource/order/OrderChildMovements';
 import {OrderChildMovement} from '../resource/order/OrderChildMovement';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import GridDragHandler = api.ui.grid.GridDragHandler;
 import TreeGrid = api.ui.treegrid.TreeGrid;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentId = api.content.ContentId;
 
 export class ContentGridDragHandler extends GridDragHandler<ContentSummaryAndCompareStatus> {

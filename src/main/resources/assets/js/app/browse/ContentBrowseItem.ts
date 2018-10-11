@@ -1,9 +1,8 @@
-import '../../api.ts';
-
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import AccessControlList = api.security.acl.AccessControlList;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
-export class ContentBrowseItem extends api.app.browse.BrowseItem<api.content.ContentSummaryAndCompareStatus> {
+export class ContentBrowseItem
+    extends api.app.browse.BrowseItem<ContentSummaryAndCompareStatus> {
 
     private accessControlList: api.security.acl.AccessControlList;
 

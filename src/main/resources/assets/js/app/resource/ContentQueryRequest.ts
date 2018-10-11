@@ -4,11 +4,11 @@ import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentJson = api.content.json.ContentJson;
 import AggregationQueryTypeWrapperJson = api.query.aggregation.AggregationQueryTypeWrapperJson;
 import ContentIdBaseItem = api.content.ContentIdBaseItem;
-import ContentMetadata = api.content.ContentMetadata;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
 import {Content} from '../content/Content';
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentIdBaseItemJson, CONTENT extends ContentIdBaseItem>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {

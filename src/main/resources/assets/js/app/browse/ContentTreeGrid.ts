@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {SortContentEvent} from './SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
@@ -14,6 +13,8 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentRowFormatter} from './ContentRowFormatter';
 import {EditContentEvent} from '../event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
 import ElementHelper = api.dom.ElementHelper;
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
@@ -23,9 +24,7 @@ import TreeGridContextMenu = api.ui.treegrid.TreeGridContextMenu;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import CompareStatus = api.content.CompareStatus;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ContentId = api.content.ContentId;
 import BrowseFilterResetEvent = api.app.browse.filter.BrowseFilterResetEvent;

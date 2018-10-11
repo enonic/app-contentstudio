@@ -5,10 +5,10 @@ import {AccessControlEntryView} from '../../../AccessControlEntryView';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {OpenEditPermissionsDialogEvent} from '../../../../event/OpenEditPermissionsDialogEvent';
 import {Content} from '../../../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
 import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
 

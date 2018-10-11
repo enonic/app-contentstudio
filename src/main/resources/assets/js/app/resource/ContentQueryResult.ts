@@ -1,6 +1,6 @@
 import ContentIdBaseItem = api.content.ContentIdBaseItem;
-import ContentMetadata = api.content.ContentMetadata;
 import ContentIdBaseItemJson = api.content.json.ContentIdBaseItemJson;
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export class ContentQueryResult<C extends ContentIdBaseItem, CJ extends ContentIdBaseItemJson> {
 

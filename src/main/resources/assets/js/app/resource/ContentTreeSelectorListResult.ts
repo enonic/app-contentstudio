@@ -1,5 +1,5 @@
 import {ContentTreeSelectorItem, ContentTreeSelectorItemJson} from '../item/ContentTreeSelectorItem';
-import ContentMetadata = api.content.ContentMetadata;
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export interface ContentTreeSelectorListJson {
 
