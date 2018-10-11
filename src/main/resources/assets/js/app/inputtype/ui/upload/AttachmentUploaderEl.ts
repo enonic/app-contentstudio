@@ -1,9 +1,8 @@
 import i18n = api.util.i18n;
-import Attachment = api.content.attachment.Attachment;
-import AttachmentJson = api.content.attachment.AttachmentJson;
-import AttachmentBuilder = api.content.attachment.AttachmentBuilder;
 import {FileUploaderEl} from './FileUploaderEl';
 import {AttachmentItem} from './AttachmentItem';
+import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
+import {AttachmentJson} from '../../../attachment/AttachmentJson';
 
 export class AttachmentUploaderEl
     extends FileUploaderEl<Attachment> {

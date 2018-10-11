@@ -3,8 +3,10 @@ import ContentPath = api.content.ContentPath;
 import ExtraData = api.content.ExtraData;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
-export class CreateContentRequest extends ContentResourceRequest<api.content.json.ContentJson, Content> {
+export class CreateContentRequest
+    extends ContentResourceRequest<ContentJson, Content> {
 
     private valid: boolean;
 
@@ -92,7 +94,7 @@ export class CreateContentRequest extends ContentResourceRequest<api.content.jso
 
     sendAndParse(): wemQ.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
 
             return this.fromJsonToContent(response.getResult());
 

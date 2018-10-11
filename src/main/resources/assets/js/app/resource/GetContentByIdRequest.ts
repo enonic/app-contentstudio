@@ -1,7 +1,7 @@
-import ContentJson = api.content.json.ContentJson;
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class GetContentByIdRequest
     extends ContentResourceRequest<ContentJson, Content> {

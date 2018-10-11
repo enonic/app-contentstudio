@@ -1,8 +1,8 @@
-import ContentJson = api.content.json.ContentJson;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class CreatePageRequest
     extends PageResourceRequest<ContentJson, Content>
@@ -76,7 +76,7 @@ export class CreatePageRequest
 
     sendAndParse(): wemQ.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
         });
     }

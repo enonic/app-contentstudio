@@ -1,8 +1,9 @@
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Site} from '../content/Site';
+import {ContentJson} from '../content/ContentJson';
 
 export class GetNearestSiteRequest
-    extends ContentResourceRequest<api.content.json.ContentJson, Site> {
+    extends ContentResourceRequest<ContentJson, Site> {
 
     private contentId: api.content.ContentId;
 
@@ -24,7 +25,7 @@ export class GetNearestSiteRequest
 
     sendAndParse(): wemQ.Promise<Site> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
         });
     }

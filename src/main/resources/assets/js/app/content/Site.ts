@@ -2,6 +2,7 @@ import Property = api.data.Property;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationConfig = api.application.ApplicationConfig;
 import {Content, ContentBuilder} from './Content';
+import {ContentJson} from './ContentJson';
 
 export class Site
     extends Content
@@ -63,7 +64,7 @@ export class SiteBuilder
         super(source);
     }
 
-    fromContentJson(contentJson: api.content.json.ContentJson): SiteBuilder {
+    fromContentJson(contentJson: ContentJson): SiteBuilder {
         super.fromContentJson(contentJson);
         return this;
     }

@@ -1,13 +1,13 @@
 import PropertyArray = api.data.PropertyArray;
 import ValueTypes = api.data.ValueTypes;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
-import Attachment = api.content.attachment.Attachment;
 import {FileUploader} from './FileUploader';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {Attachment} from '../../attachment/Attachment';
 
 export class AttachmentUploader
     extends FileUploader {

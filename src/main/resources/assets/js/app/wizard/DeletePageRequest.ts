@@ -1,7 +1,7 @@
-import ContentJson = api.content.json.ContentJson;
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class DeletePageRequest
     extends PageResourceRequest<ContentJson, Content>

@@ -1,7 +1,6 @@
 import ContentQuery = api.content.query.ContentQuery;
 import ContentIdBaseItemJson = api.content.json.ContentIdBaseItemJson;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentJson = api.content.json.ContentJson;
 import AggregationQueryTypeWrapperJson = api.query.aggregation.AggregationQueryTypeWrapperJson;
 import ContentIdBaseItem = api.content.ContentIdBaseItem;
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -9,6 +8,7 @@ import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
 import {Content} from '../content/Content';
 import {ContentMetadata} from '../content/ContentMetadata';
+import {ContentJson} from '../content/ContentJson';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentIdBaseItemJson, CONTENT extends ContentIdBaseItem>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {

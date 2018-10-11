@@ -1,4 +1,5 @@
 import {Content, ContentBuilder} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 import UploaderElConfig = api.ui.uploader.UploaderElConfig;
 
 export class ThumbnailUploaderEl
@@ -38,9 +39,9 @@ export class ThumbnailUploaderEl
         this.iconUrlResolver = new api.content.util.ContentIconUrlResolver();
     }
 
-    createModel(serverResponse: api.content.json.ContentJson): Content {
+    createModel(serverResponse: ContentJson): Content {
         if (serverResponse) {
-            return new ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(<ContentJson> serverResponse).build();
         } else {
             return null;
         }

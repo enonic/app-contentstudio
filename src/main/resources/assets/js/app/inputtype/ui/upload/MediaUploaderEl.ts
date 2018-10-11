@@ -3,6 +3,7 @@ import UploadItem = api.ui.uploader.UploadItem;
 import UploaderEl = api.ui.uploader.UploaderEl;
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
+import {ContentJson} from '../../../content/ContentJson';
 
 export enum MediaUploaderElOperation {
     create,
@@ -116,9 +117,9 @@ export class MediaUploaderEl
         return 'image-' + dateParts.map(api.util.DateHelper.padNumber).join('') + '.' + type;
     }
 
-    createModel(serverResponse: api.content.json.ContentJson): Content {
+    createModel(serverResponse: ContentJson): Content {
         if (serverResponse) {
-            return new ContentBuilder().fromContentJson(<api.content.json.ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(<ContentJson> serverResponse).build();
         } else {
             return null;
         }

@@ -1,6 +1,6 @@
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
-import ContentJson = api.content.json.ContentJson;
+import {ContentJson} from '../content/ContentJson';
 
 export class CreateMediaFromUrlRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -45,7 +45,7 @@ export class CreateMediaFromUrlRequest
 
     sendAndParse(): wemQ.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
 
             return this.fromJsonToContent(response.getResult());
 

@@ -1,8 +1,8 @@
-import ContentJson = api.content.json.ContentJson;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
 import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content> implements PageCUDRequest {
 

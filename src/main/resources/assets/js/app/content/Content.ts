@@ -2,11 +2,11 @@ import AccessControlList = api.security.acl.AccessControlList;
 import Property = api.data.Property;
 import PropertyTree = api.data.PropertyTree;
 import RoleKeys = api.security.RoleKeys;
-import Attachments = api.content.attachment.Attachments;
-import AttachmentsBuilder = api.content.attachment.AttachmentsBuilder;
 import ContentSummary = api.content.ContentSummary;
 import ExtraData = api.content.ExtraData;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
+import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
+import {ContentJson} from './ContentJson';
 
 export class Content
     extends ContentSummary
@@ -203,7 +203,7 @@ export class ContentBuilder
         }
     }
 
-    fromContentJson(json: api.content.json.ContentJson): ContentBuilder {
+    fromContentJson(json: ContentJson): ContentBuilder {
 
         super.fromContentSummaryJson(json);
 

@@ -1,11 +1,11 @@
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetContentAttachmentsRequest} from '../../../../resource/GetContentAttachmentsRequest';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {Attachments} from '../../../../attachment/Attachments';
+import {Attachment} from '../../../../attachment/Attachment';
+import {AttachmentName} from '../../../../attachment/AttachmentName';
 import ContentSummary = api.content.ContentSummary;
-import Attachments = api.content.attachment.Attachments;
-import Attachment = api.content.attachment.Attachment;
 import ContentId = api.content.ContentId;
-import AttachmentName = api.content.attachment.AttachmentName;
 import i18n = api.util.i18n;
 
 export class AttachmentsWidgetItemView extends WidgetItemView {

@@ -4,6 +4,7 @@ import PropertyTree = api.data.PropertyTree;
 import DescriptorKey = api.content.page.DescriptorKey;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import {Content, ContentBuilder} from './Content';
+import {ContentJson} from './ContentJson';
 
 export class PageTemplate
     extends Content
@@ -109,7 +110,7 @@ export class PageTemplateBuilder
         super(source);
     }
 
-    fromContentJson(contentJson: api.content.json.ContentJson): PageTemplateBuilder {
+    fromContentJson(contentJson: ContentJson): PageTemplateBuilder {
         super.fromContentJson(contentJson);
         return this;
     }
