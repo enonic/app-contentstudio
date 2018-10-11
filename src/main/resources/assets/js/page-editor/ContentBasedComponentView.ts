@@ -1,6 +1,7 @@
 import './../api.ts';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
+import {EditContentEvent} from '../app/event/EditContentEvent';
 import Component = api.content.page.region.Component;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
@@ -45,7 +46,7 @@ export class ContentBasedComponentView<COMPONENT extends Component>
 
     private createEditAction(): api.ui.Action {
         return new api.ui.Action(i18n('action.edit')).onExecuted(() => {
-            new api.content.event.EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
+            new EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
         });
     }
 

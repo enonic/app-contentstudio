@@ -4,11 +4,12 @@ import FormView = api.form.FormView;
 import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationConfig = api.application.ApplicationConfig;
-import ContentFormContext = api.content.form.ContentFormContext;
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
+import {ContentFormContext} from '../../ContentFormContext';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export class SiteConfiguratorSelectedOptionView
     extends api.ui.selector.combobox.BaseSelectedOptionView<Application> {
@@ -29,7 +30,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private formViewStateOnDialogOpen: FormView;
 
-    constructor(option: Option<Application>, siteConfig: ApplicationConfig, formContext: api.content.form.ContentFormContext) {
+    constructor(option: Option<Application>, siteConfig: ApplicationConfig, formContext: ContentFormContext) {
         super(option);
 
         this.siteConfigFormDisplayedListeners = [];
@@ -119,7 +120,7 @@ export class SiteConfiguratorSelectedOptionView
         const okCallback = () => {
             if (!tempSiteConfig.equals(this.siteConfig)) {
                 this.applyTemporaryConfig(tempSiteConfig);
-                new api.content.event.ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
+                new ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
             }
         };
 

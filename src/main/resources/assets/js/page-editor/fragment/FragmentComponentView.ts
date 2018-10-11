@@ -15,11 +15,11 @@ import {RegionView} from '../RegionView';
 import {ComponentView} from '../ComponentView';
 import {ComponentDetachedFromFragmentEvent} from '../ComponentDetachedFromFragmentEvent';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
+import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
+import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
+import {ContentUpdatedEvent} from '../../app/event/ContentUpdatedEvent';
 import FragmentComponent = api.content.page.region.FragmentComponent;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import Content = api.content.Content;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import ComponentType = api.content.page.region.ComponentType;
@@ -86,7 +86,7 @@ export class FragmentComponentView
 
     private handleContentRemovedEvent() {
         let contentDeletedListener = (event) => {
-            let deleted = event.getDeletedItems().some((deletedItem: api.content.event.ContentDeletedItem) => {
+            let deleted = event.getDeletedItems().some((deletedItem: ContentDeletedItem) => {
                 return !deletedItem.isPending() && deletedItem.getContentId().equals(this.component.getFragment());
             });
             if (deleted) {
@@ -114,7 +114,7 @@ export class FragmentComponentView
 
         ContentUpdatedEvent.on(contentUpdatedListener);
 
-        this.onRemoved((event) => {
+        this.onRemoved(() => {
             ContentUpdatedEvent.un(contentUpdatedListener);
         });
     }

@@ -5,6 +5,9 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {ImageComponentView} from '../../../../../../page-editor/image/ImageComponentView';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
+import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
+import {ContentSelectedOptionsView} from '../../../../../inputtype/ui/selector/ContentComboBox';
+import {MediaTreeSelectorItem} from '../../../../../inputtype/ui/selector/media/MediaTreeSelectorItem';
 import ImageComponent = api.content.page.region.ImageComponent;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
@@ -13,9 +16,6 @@ import Option = api.ui.selector.Option;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import i18n = api.util.i18n;
-import ImageContentComboBox = api.content.image.ImageContentComboBox;
-import ContentSelectedOptionsView = api.content.ContentSelectedOptionsView;
-import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {

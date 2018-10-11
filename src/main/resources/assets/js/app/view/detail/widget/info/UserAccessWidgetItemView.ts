@@ -1,14 +1,14 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetEffectivePermissionsRequest} from '../../../../resource/GetEffectivePermissionsRequest';
 import {UserAccessListView} from './UserAccessListView';
 import {AccessControlEntryView} from '../../../AccessControlEntryView';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {OpenEditPermissionsDialogEvent} from '../../../../event/OpenEditPermissionsDialogEvent';
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import Access = api.ui.security.acl.Access;
 import UserAccessListItemView = api.ui.security.acl.UserAccessListItemView;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDialogEvent;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
 
@@ -138,7 +138,7 @@ export class UserAccessWidgetItemView
 
             this.loginResult = loginResult;
             if (this.contentId) {
-                return new api.content.resource.GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
+                return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
                     if (content) {
                         this.layoutHeader(content);
                         return this.layoutList(content).then(() => {

@@ -1,14 +1,12 @@
 import '../../api.ts';
+import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
+import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import ContentSummary = api.content.ContentSummary;
-import ContentSelectedOptionsView = api.content.ContentSelectedOptionsView;
 import ContentPath = api.content.ContentPath;
 import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentComboBox = api.content.ContentComboBox;
-import ContentComboBoxBuilder = api.content.ContentComboBoxBuilder;
-import ContentSummaryOptionDataLoader = api.content.ContentSummaryOptionDataLoader;
-import ContentAndStatusTreeSelectorItem = api.content.resource.ContentAndStatusTreeSelectorItem;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 
 export class ContentMoveComboBox
     extends ContentComboBox<ContentTreeSelectorItem> {

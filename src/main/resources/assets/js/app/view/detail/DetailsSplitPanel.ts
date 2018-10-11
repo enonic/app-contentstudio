@@ -3,7 +3,6 @@ import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ViewItem = api.app.view.ViewItem;
-import IsRenderableRequest = api.content.page.IsRenderableRequest;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import {DockedDetailsPanel} from './DockedDetailsPanel';
 import {NonMobileDetailsPanelsManager, NonMobileDetailsPanelsManagerBuilder} from './NonMobileDetailsPanelsManager';
@@ -13,6 +12,7 @@ import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import {MobileContentItemStatisticsPanel} from '../MobileContentItemStatisticsPanel';
 import {MobileDetailsPanel} from './MobileDetailsSlidablePanel';
 import {DetailsPanel} from './DetailsPanel';
+import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
 
 export interface DetailsPanelOptions {
     noPreview?: boolean;

@@ -7,6 +7,7 @@ import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {ImageModalDialog} from './dialog/ImageModalDialog';
+import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -376,7 +377,7 @@ export class HTMLAreaBuilder {
     }
 
     private fileExists(fileName: string): wemQ.Promise<boolean> {
-        return new api.content.resource.GetContentByPathRequest(
+        return new GetContentByPathRequest(
             new api.content.ContentPath([this.content.getPath().toString(), fileName])).sendAndParse().then(() => {
             return true;
         }).catch((reason: any) => {

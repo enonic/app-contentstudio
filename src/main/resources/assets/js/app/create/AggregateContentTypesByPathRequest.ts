@@ -4,16 +4,16 @@ import ValueExpr = api.query.expr.ValueExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import QueryExpr = api.query.expr.QueryExpr;
 import TermsAggregationQuery = api.query.aggregation.TermsAggregationQuery;
-import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import BucketAggregation = api.aggregation.BucketAggregation;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import QueryField = api.query.QueryField;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentSummary = api.content.ContentSummary;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentPath = api.content.ContentPath;
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ContentQueryRequest} from '../resource/ContentQueryRequest';
+import {ContentQueryResult} from '../resource/ContentQueryResult';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {

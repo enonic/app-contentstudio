@@ -1,7 +1,7 @@
 import ContentId = api.content.ContentId;
 import Attachments = api.content.attachment.Attachments;
 import AttachmentJson = api.content.attachment.AttachmentJson;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetContentAttachmentsRequest
     extends ContentResourceRequest<any, any> {

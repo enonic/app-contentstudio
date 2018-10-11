@@ -53,6 +53,10 @@ import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDial
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
+import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
+import {EditContentEvent} from '../../event/EditContentEvent';
 import Content = api.content.Content;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Page = api.content.page.Page;
@@ -65,11 +69,8 @@ import LayoutComponent = api.content.page.region.LayoutComponent;
 import FragmentComponent = api.content.page.region.FragmentComponent;
 import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Panel = api.ui.panel.Panel;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
 import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import Site = api.content.site.Site;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
@@ -663,7 +664,7 @@ export class LiveFormPanel
             this.saveAndReloadOnlyComponent(event.getComponentView());
 
             let summaryAndStatus = api.content.ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
-            new api.content.event.EditContentEvent([summaryAndStatus]).fire();
+            new EditContentEvent([summaryAndStatus]).fire();
         });
 
         this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
@@ -695,8 +696,8 @@ export class LiveFormPanel
             api.notify.showWarning(event.getMessage());
         });
 
-        this.liveEditPageProxy.onEditContent((event: api.content.event.EditContentEvent) => {
-            new api.content.event.EditContentEvent(event.getModels()).fire();
+        this.liveEditPageProxy.onEditContent((event: EditContentEvent) => {
+            new EditContentEvent(event.getModels()).fire();
         });
 
         this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {

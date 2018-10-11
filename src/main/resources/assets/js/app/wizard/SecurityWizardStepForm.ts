@@ -1,12 +1,11 @@
-import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
 import {AccessControlListView} from '../view/AccessControlListView';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
+import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import AccessControlList = api.security.acl.AccessControlList;
 import DivEl = api.dom.DivEl;
 import LabelEl = api.dom.LabelEl;
 import Button = api.ui.button.Button;
-import OpenEditPermissionsDialogEvent = api.content.event.OpenEditPermissionsDialogEvent;
 import ContentPath = api.content.ContentPath;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;

@@ -1,8 +1,8 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentName = api.content.ContentName;
 import ContentPath = api.content.ContentPath;
 import ExtraData = api.content.ExtraData;
 import Content = api.content.Content;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class CreateContentRequest extends ContentResourceRequest<api.content.json.ContentJson, Content> {
 

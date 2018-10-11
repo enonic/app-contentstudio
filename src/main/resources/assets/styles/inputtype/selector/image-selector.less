@@ -1,0 +1,206 @@
+.image-selector {
+  position: relative;
+
+  .combobox-wrapper {
+
+    .rich-combobox {
+      .selected-options {
+        .selected-option {
+          height: auto;
+        }
+      }
+    }
+  }
+
+  .image-uploader-el {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    .progress-bar {
+      display: none !important;
+      height: 37px;
+      margin: 0;
+    }
+
+    &:focus {
+      .dropzone {
+        box-shadow: 0 0 5px @admin-input-blue;
+        border: 1px solid @admin-input-blue;
+      }
+    }
+
+    width: 100%;
+    max-width: initial !important;
+
+    .dropzone {
+      overflow: visible;
+      z-index: @z-index-mask !important;
+      &:before {
+        .dropcircle(60px);
+        padding: 40px 5px 0;
+        line-height: 20px;
+      }
+
+      ////// cover underlying input
+      min-height: 37px;
+      height: 37px;
+      line-height: 30px;
+      font-size: 14px;
+      background-color: @admin-white;
+      border: 1px solid @admin-medium-gray-border;
+
+      box-sizing: border-box;
+      .input-border();
+      .input-glow();
+    }
+  }
+
+  .selected-options {
+    .clearfix();
+
+    .selected-option {
+      position: relative;
+      float: left;
+      width: 28.3018867924%;
+      padding: 0;
+      margin: 10px 4.5% 20px 0;
+
+      &:not(.placeholder) {
+        background-color: #ffffff;
+        border: 1px solid #d3d3d3;
+      }
+
+      &.placeholder:before {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        top: 50%;
+        margin-top: -22px;
+      }
+
+      &.editing {
+        .image-selector-active-cell();
+      }
+
+      .squared-content > .label {
+        display: block;
+        position: absolute;
+        width: 100%;
+        padding: 3px 0 3px 0;
+        bottom: 0;
+        opacity: 0.8;
+        text-align: center;
+        overflow: hidden;
+        background-color: #fff;
+      }
+
+      // make selected-option square sized
+      // http://spin.atomicobject.com/2015/07/14/css-responsive-square/
+      &:after {
+        content: "";
+        display: block;
+        padding-bottom: 100%;
+      }
+
+      .squared-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        > img {
+          display: block;
+          max-height: 100%;
+          max-width: 100%;
+          margin: auto;
+        }
+
+        > .checkbox {
+          position: absolute;
+          top: 3px;
+          left: 3px;
+
+          label {
+            padding: 0;
+          }
+        }
+
+        > .progress-bar,
+        > .error {
+          position: absolute;
+          width: 100%;
+          top: 0;
+          left: 0;
+        }
+
+        > .error {
+          margin-left: 0;
+          text-align: center;
+          color: @admin-white;
+          font-weight: bold;
+          background-color: @admin-input-red;
+        }
+      }
+
+    }
+  }
+  .selection-toolbar {
+    float: left;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    box-sizing: border-box;
+
+    button {
+      margin-right: 10px;
+    }
+
+    &.image-selector-toolbar-sticky {
+      float: none;
+      position: fixed;
+      bottom: 0;
+      z-index: @z-index-toolbar-element;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 0;
+      box-sizing: content-box;
+    }
+  }
+
+  .open-library-button {
+    background: url("../../../icons/folder-open.png") no-repeat center;
+  }
+
+  &._0-240, &._240-360 {
+    .squared-content > .label {
+      font-size: 8px;
+    }
+  }
+  &._360-540 {
+    .squared-content > .label {
+      font-size: 10px;
+    }
+  }
+}
+
+.image-selector-small() {
+  .image-selector {
+    .selected-options {
+      color: @admin-font-gray3;
+
+      .selected-option {
+        width: 135px;
+        height: 135px;
+        margin: 10px 15px 10px 0;
+
+        &.last-in-row {
+          margin-right: 0;
+        }
+
+        &.editing {
+          top: auto;
+          background-color: @admin-button-blue1;
+        }
+      }
+    }
+  }
+}
