@@ -2,9 +2,10 @@ import ContentPath = api.content.ContentPath;
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
+import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 
 export class GetDescendantsOfContentsRequest
-    extends ContentResourceRequest<api.content.json.ContentIdBaseItemJson[], ContentId[]> {
+    extends ContentResourceRequest<ContentIdBaseItemJson[], ContentId[]> {
 
     private contentPaths: ContentPath[] = [];
 
@@ -51,7 +52,7 @@ export class GetDescendantsOfContentsRequest
 
     sendAndParse(): wemQ.Promise<ContentId[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentIdBaseItemJson[]>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentIdBaseItemJson[]>) => {
             return response.getResult().map((item => new ContentId(item.id)));
         });
     }
