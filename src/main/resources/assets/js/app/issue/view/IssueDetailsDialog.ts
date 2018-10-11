@@ -1,4 +1,3 @@
-import {SchedulableDialog} from '../../dialog/SchedulableDialog';
 import {Issue} from '../Issue';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {Router} from '../../Router';
@@ -19,6 +18,7 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
+import {BasePublishDialog} from '../../dialog/BasePublishDialog';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -46,7 +46,7 @@ import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentId = api.content.ContentId;
 
 export class IssueDetailsDialog
-    extends SchedulableDialog {
+    extends BasePublishDialog {
 
     private issue: Issue;
 
