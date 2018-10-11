@@ -1,7 +1,7 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentId = api.content.ContentId;
 import Path = api.rest.Path;
 import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class ResolveDependenciesRequest
     extends ContentResourceRequest<ResolveDependenciesResultJson, ResolveDependenciesResult> {

@@ -1,0 +1,43 @@
+.media-uploader-el {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  .progress-bar {
+    display: none !important;
+    height: 37px;
+    margin: 0;
+  }
+
+  &:focus {
+    .dropzone {
+      box-shadow: 0 0 5px @admin-input-blue;
+      border: 1px solid @admin-input-blue;
+    }
+  }
+
+  width: 100%;
+  max-width: initial !important;
+
+  .dropzone {
+    overflow: visible;
+    z-index: @z-index-mask !important;
+    &:before {
+      .dropcircle(60px);
+      padding: 40px 5px 0;
+      line-height: 20px;
+    }
+
+    ////// cover underlying input
+    min-height: 37px;
+    height: 37px;
+    line-height: 30px;
+    font-size: 14px;
+    background-color: @admin-white;
+    border: 1px solid @admin-medium-gray-border;
+
+    box-sizing: border-box;
+    .input-border();
+    .input-glow();
+  }
+}

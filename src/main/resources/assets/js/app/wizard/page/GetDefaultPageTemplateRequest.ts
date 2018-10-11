@@ -1,5 +1,5 @@
-import PageTemplateResourceRequest = api.content.page.PageTemplateResourceRequest;
 import PageTemplate = api.content.page.PageTemplate;
+import {PageTemplateResourceRequest} from '../../resource/PageTemplateResourceRequest';
 
 export class GetDefaultPageTemplateRequest
     extends PageTemplateResourceRequest<api.content.json.ContentJson, PageTemplate> {

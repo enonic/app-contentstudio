@@ -2,8 +2,8 @@ import '../../../../../../api.ts';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {ComponentView} from '../../../../../../page-editor/ComponentView';
+import {ContentFormContext} from '../../../../../ContentFormContext';
 import Component = api.content.page.region.Component;
-import ContentFormContext = api.content.form.ContentFormContext;
 
 export interface ComponentInspectionPanelConfig {
 

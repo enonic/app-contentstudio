@@ -4,6 +4,7 @@ import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {MobileDetailsPanelToggleButton} from './detail/button/MobileDetailsPanelToggleButton';
 import {DetailsView} from './detail/DetailsView';
 import {MobilePreviewFoldButton} from './MobilePreviewFoldButton';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import ViewItem = api.app.view.ViewItem;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import StringHelper = api.util.StringHelper;
@@ -62,7 +63,7 @@ export class MobileContentItemStatisticsPanel
             }
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished(reloadItemPublishStateChange);
         serverEvents.onContentUnpublished(reloadItemPublishStateChange);

@@ -1,8 +1,8 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import SetChildOrderJson = api.content.json.SetChildOrderJson;
 import ContentJson = api.content.json.ContentJson;
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class OrderContentRequest extends ContentResourceRequest<ContentJson, Content> {
 

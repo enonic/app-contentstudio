@@ -1,7 +1,7 @@
 import ExtraData = api.content.ExtraData;
 import ContentName = api.content.ContentName;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import Content = api.content.Content;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class UpdateContentRequest
     extends ContentResourceRequest<api.content.json.ContentJson, Content> {

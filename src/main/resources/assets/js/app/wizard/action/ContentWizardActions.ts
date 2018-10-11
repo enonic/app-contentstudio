@@ -16,6 +16,7 @@ import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPer
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import {PermissionHelper} from '../PermissionHelper';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
+import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -285,7 +286,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
             }
 
             if (existing.hasParent()) {
-                new api.content.resource.GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
+                new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
                     (parent: api.content.Content) => {
                         new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
                             (accessControlList: api.security.acl.AccessControlList) => {

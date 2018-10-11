@@ -5,6 +5,7 @@ import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageModel} from '../../../../../../page-editor/PageModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
+import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import PageTemplateKey = api.content.page.PageTemplateKey;
 import PageTemplate = api.content.page.PageTemplate;
@@ -14,9 +15,8 @@ import Dropdown = api.ui.selector.dropdown.Dropdown;
 import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
 import i18n = api.util.i18n;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class PageTemplateSelector
     extends Dropdown<PageTemplateOption> {

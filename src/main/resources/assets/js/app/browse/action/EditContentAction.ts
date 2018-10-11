@@ -1,6 +1,5 @@
-import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
-
+import {EditContentEvent} from '../../event/EditContentEvent';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -18,7 +17,7 @@ export class EditContentAction extends Action {
             if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
                 api.notify.showWarning(i18n('notify.edit.tooMuch'));
             } else {
-                new api.content.event.EditContentEvent(contents).fire();
+                new EditContentEvent(contents).fire();
             }
 
         });

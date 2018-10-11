@@ -1,7 +1,7 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentId = api.content.ContentId;
 import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
 import {HasUnpublishedChildrenResult} from './HasUnpublishedChildrenResult';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class HasUnpublishedChildrenRequest
     extends ContentResourceRequest<HasUnpublishedChildrenListJson, HasUnpublishedChildrenResult> {

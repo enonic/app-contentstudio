@@ -1,8 +1,8 @@
 import TaskIdJson = api.task.TaskIdJson;
 import TaskId = api.task.TaskId;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentPath = api.content.ContentPath;
 import {ContentIds} from '../ContentIds';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class MoveContentRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
