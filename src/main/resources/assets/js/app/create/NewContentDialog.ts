@@ -4,8 +4,8 @@ import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedE
 import {NewMediaUploadEvent} from './NewMediaUploadEvent';
 import {NewContentEvent} from './NewContentEvent';
 import {FilterableItemsList} from './FilterableItemsList';
-import {AggregateContentTypesResult} from './AggregateContentTypesResult';
-import {AggregateContentTypesByPathRequest} from './AggregateContentTypesByPathRequest';
+import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
+import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {FileInput} from './FileInput';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {Content} from '../content/Content';

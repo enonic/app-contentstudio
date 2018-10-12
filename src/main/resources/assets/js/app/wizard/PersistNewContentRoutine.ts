@@ -52,8 +52,8 @@ export class PersistNewContentRoutine
 
                 });
             });
-        } else {
-            return api.util.PromiseHelper.newResolvedVoidPromise();
         }
+
+        return wemQ(null);
     }
 }

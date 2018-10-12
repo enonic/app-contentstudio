@@ -1,12 +1,13 @@
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
+import {ContentQuery} from '../../content/ContentQuery';
 
 export class ContentBrowseSearchData {
 
     private contentQueryResult: ContentQueryResult<any, any>;
-    private contentQuery: api.content.query.ContentQuery;
+    private contentQuery: ContentQuery;
 
     constructor(contentQueryResult: ContentQueryResult<any, any>,
-                contentQuery?: api.content.query.ContentQuery) {
+                contentQuery?: ContentQuery) {
 
         this.contentQueryResult = contentQueryResult;
         this.contentQuery = contentQuery;
@@ -16,7 +17,7 @@ export class ContentBrowseSearchData {
         return this.contentQueryResult;
     }
 
-    getContentQuery(): api.content.query.ContentQuery {
+    getContentQuery(): ContentQuery {
         return this.contentQuery;
     }
 }

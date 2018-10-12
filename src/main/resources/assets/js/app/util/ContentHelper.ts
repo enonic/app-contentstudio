@@ -1,5 +1,4 @@
 import ContentId = api.content.ContentId;
-import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import CompareExpr = api.query.expr.CompareExpr;
@@ -12,6 +11,7 @@ import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentHelper {
 

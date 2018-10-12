@@ -15,6 +15,7 @@ import {ContentRowFormatter} from './ContentRowFormatter';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
+import {ContentQuery} from '../content/ContentQuery';
 import ElementHelper = api.dom.ElementHelper;
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
@@ -37,7 +38,7 @@ export class ContentTreeGrid
 
     static MAX_FETCH_SIZE: number = 10;
 
-    private filterQuery: api.content.query.ContentQuery;
+    private filterQuery: ContentQuery;
 
     constructor() {
         let builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
