@@ -23,6 +23,7 @@ import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {Content} from '../../../../content/Content';
+import {XDataName} from '../../../../content/XDataName';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -441,7 +442,7 @@ export class ImageModalDialog
     }
 
     private getDescriptionFromImageContent(imageContent: Content): string {
-        const imageInfoMixin = new api.schema.xdata.XDataName('media:imageInfo');
+        const imageInfoMixin = new XDataName('media:imageInfo');
         const imageInfoData = imageContent.getExtraData(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {

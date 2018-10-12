@@ -44,13 +44,15 @@ import {Site} from '../content/Site';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishStatus} from '../publish/PublishStatus';
+import {XDataName} from '../content/XDataName';
+import {ExtraData} from '../content/ExtraData';
+import {XData} from '../content/XData';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
 import ContentName = api.content.ContentName;
 import ContentUnnamed = api.content.ContentUnnamed;
-import ExtraData = api.content.ExtraData;
 import Page = api.content.page.Page;
 import ContentType = api.schema.content.ContentType;
 import ContentTypeName = api.schema.content.ContentTypeName;
@@ -68,11 +70,8 @@ import Toolbar = api.ui.toolbar.Toolbar;
 import Permission = api.security.acl.Permission;
 import AccessControlEntry = api.security.acl.AccessControlEntry;
 import CycleButton = api.ui.button.CycleButton;
-import i18n = api.util.i18n;
-import XData = api.schema.xdata.XData;
-import XDataName = api.schema.xdata.XDataName;
-import ObjectHelper = api.ObjectHelper;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import i18n = api.util.i18n;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {

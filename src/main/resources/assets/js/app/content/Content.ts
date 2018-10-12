@@ -3,10 +3,13 @@ import Property = api.data.Property;
 import PropertyTree = api.data.PropertyTree;
 import RoleKeys = api.security.RoleKeys;
 import ContentSummary = api.content.ContentSummary;
-import ExtraData = api.content.ExtraData;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
+import {ExtraData} from './ExtraData';
+import {ExtraDataByMixinNameComparator} from './ExtraDataByMixinNameComparator';
+import {ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {XDataName} from './XDataName';
 
 export class Content
     extends ContentSummary
@@ -47,7 +50,7 @@ export class Content
         return this.attachments;
     }
 
-    getExtraData(name: api.schema.xdata.XDataName): ExtraData {
+    getExtraData(name: XDataName): ExtraData {
         return this.extraData.filter((item: ExtraData) => item.getName().equals(name))[0];
     }
 
@@ -118,7 +121,7 @@ export class Content
     }
 
     extraDataEquals(other: ExtraData[]): boolean {
-        let comparator = new api.content.util.ExtraDataByMixinNameComparator();
+        let comparator = new ExtraDataByMixinNameComparator();
 
         return api.ObjectHelper.arrayEquals(this.extraData.sort(comparator.compare), other.sort(comparator.compare));
     }
@@ -210,7 +213,7 @@ export class ContentBuilder
         this.data = PropertyTree.fromJson(json.data);
         this.attachments = new AttachmentsBuilder().fromJson(json.attachments).build();
         this.extraData = [];
-        json.meta.forEach((extraDataJson: api.content.json.ExtraDataJson) => {
+        json.meta.forEach((extraDataJson: ExtraDataJson) => {
             this.extraData.push(ExtraData.fromJson(extraDataJson));
         });
 
