@@ -1,4 +1,5 @@
 import AggregationGroupView = api.aggregation.AggregationGroupView;
+import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 
 export class ContentTypeAggregationGroupView
     extends AggregationGroupView {
@@ -13,7 +14,7 @@ export class ContentTypeAggregationGroupView
 
         this.setTooltipActive(true);
 
-        let request = new api.schema.content.GetAllContentTypesRequest();
+        let request = new GetAllContentTypesRequest();
         request.sendAndParse().done((contentTypes: api.schema.content.ContentTypeSummary[]) => {
 
             contentTypes.forEach((contentType: api.schema.content.ContentTypeSummary) => {

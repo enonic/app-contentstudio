@@ -4,7 +4,6 @@ import ContentTypeName = api.schema.content.ContentTypeName;
 import ComboBox = api.ui.selector.combobox.ComboBox;
 import ValueTypes = api.data.ValueTypes;
 import Value = api.data.Value;
-import GetMimeTypesByContentTypeNamesRequest = api.schema.content.GetMimeTypesByContentTypeNamesRequest;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
@@ -17,6 +16,7 @@ import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {Content} from '../../content/Content';
+import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 
 export class MediaSelector
     extends ContentSelector {

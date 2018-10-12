@@ -3,16 +3,17 @@ import Value = api.data.Value;
 import ValueType = api.data.ValueType;
 import ValueTypes = api.data.ValueTypes;
 import Input = api.form.Input;
-import ContentTypeComboBox = api.schema.content.ContentTypeComboBox;
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import BaseLoader = api.util.loader.BaseLoader;
 import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import ContentTypeSummaryLoader = api.schema.content.ContentTypeSummaryLoader;
 import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
+import {ContentTypeComboBox} from './ContentTypeComboBox';
+import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
+import {ContentTypeSummaryByDisplayNameComparator} from './ContentTypeSummaryByDisplayNameComparator';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
@@ -49,20 +50,14 @@ export class ContentTypeFilter
     private createLoader(): BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
         let loader: BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary>;
         if (this.context.formContext.getContentTypeName().isPageTemplate()) {
-            loader = this.createPageTemplateLoader();
+            let contentId = this.context.site.getContentId();
+            loader = new PageTemplateContentTypeLoader(contentId);
         } else {
-            let contentId = this.isContextDependent && !!this.context.content ? this.context.content.getContentId() : null;
+            let contentId = this.isContextDependent && (this.context.content ? this.context.content.getContentId() : null);
             loader = new ContentTypeSummaryLoader(contentId);
         }
 
-        loader.setComparator(new api.content.ContentTypeSummaryByDisplayNameComparator());
-
-        return loader;
-    }
-
-    private createPageTemplateLoader(): PageTemplateContentTypeLoader {
-        let contentId = this.context.site.getContentId();
-        let loader = new PageTemplateContentTypeLoader(contentId);
+        loader.setComparator(new ContentTypeSummaryByDisplayNameComparator());
 
         return loader;
     }

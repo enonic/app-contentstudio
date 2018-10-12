@@ -10,7 +10,7 @@ import {FileInput} from './FileInput';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {Content} from '../content/Content';
 import {Site} from '../content/Site';
-import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
+import {GetAllContentTypesRequest} from '../resource/GetAllContentTypesRequest';
 import ContentPath = api.content.ContentPath;
 import LoadMask = api.ui.mask.LoadMask;
 import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;

@@ -19,6 +19,7 @@ import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRe
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {Content} from '../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentType} from '../../inputtype/schema/ContentType';
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
@@ -438,7 +439,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         let deferred = wemQ.defer<boolean>();
 
         new GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
-            .then((contentType: api.schema.content.ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
+            .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
             .fail(() => this.handleDeletedContentType(contentSummary));
 
         return deferred.promise;

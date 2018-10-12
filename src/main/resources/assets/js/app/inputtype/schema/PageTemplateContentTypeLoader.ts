@@ -1,9 +1,9 @@
 import ApplicationKey = api.application.ApplicationKey;
 import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import GetAllContentTypesRequest = api.schema.content.GetAllContentTypesRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
+import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 import {Site} from '../../content/Site';
 
 export class PageTemplateContentTypeLoader

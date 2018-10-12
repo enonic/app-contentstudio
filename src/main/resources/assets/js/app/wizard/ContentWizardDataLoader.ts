@@ -10,9 +10,9 @@ import {Content} from '../content/Content';
 import {Site} from '../content/Site';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishStatus} from '../publish/PublishStatus';
+import {ContentType} from '../inputtype/schema/ContentType';
 import ContentId = api.content.ContentId;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentType = api.schema.content.ContentType;
 import i18n = api.util.i18n;
 
 export class ContentWizardDataLoader {
