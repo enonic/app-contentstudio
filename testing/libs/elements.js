@@ -38,6 +38,7 @@ module.exports = Object.freeze({
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'security.PrincipalSelectedOptionView')]`,
     REMOVE_ICON: `//a[@class='remove']`,
+    REMOVE_BUTTON: `//a[@class='remove-button']`,
     INCLUDE_CHILDREN_TOGGLER: `//div[contains(@id,'IncludeChildrenToggler')]`,
     VERSION_HISTORY_MENU_OPTION: `//div[text()='Version history']`,
     DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
