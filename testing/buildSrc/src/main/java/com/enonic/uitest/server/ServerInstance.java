@@ -44,7 +44,8 @@ public final class ServerInstance
         }
         catch ( InvocationTargetException e )
         {
-            System.out.println( e.getMessage() );
+            System.out.println("ERROR when try to create 'New Instance' of LauncherImpl" + e.getMessage() + "  " + e);
+            e.printStackTrace();
         }
         this.instance.getClass().getMethod( "start" ).invoke( this.instance );
 
