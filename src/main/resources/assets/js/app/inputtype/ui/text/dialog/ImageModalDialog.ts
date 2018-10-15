@@ -24,6 +24,7 @@ import {MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {Content} from '../../../../content/Content';
 import {XDataName} from '../../../../content/XDataName';
+import {ContentImageUrlResolver} from '../../../../content/ContentImageUrlResolver';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -269,7 +270,7 @@ export class ImageModalDialog
     }
 
     private generateDefaultImgSrc(contentId: string): string {
-        return new api.content.util.ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
+        return new ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
             true).setSize(
             ImageModalDialog.maxImageWidth).resolve();
     }

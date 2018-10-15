@@ -4,6 +4,7 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
@@ -141,7 +142,7 @@ export class ContentItemPreviewPanel
 
     public addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
         let imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
-        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
+        let imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
             item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
         this.image.setSrc(imgUrl);
     }
@@ -157,7 +158,7 @@ export class ContentItemPreviewPanel
                 if (this.isVisible()) {
                     if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
                         this.setPreviewType(PREVIEW_TYPE.SVG);
-                        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
+                        let imgUrl = new ContentImageUrlResolver().setContentId(
                             item.getModel().getContentId()).setTimestamp(
                             item.getModel().getContentSummary().getModifiedTime()).resolve();
                         this.image.setSrc(imgUrl);
