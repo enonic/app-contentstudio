@@ -1,6 +1,7 @@
 import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
 import {ContentJson} from '../app/content/ContentJson';
+import {Component} from '../app/page/region/Component';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<ContentJson, Content> {
@@ -9,7 +10,7 @@ export class CreateFragmentRequest
 
     private config: api.data.PropertyTree;
 
-    private component: api.content.page.region.Component;
+    private component: Component;
 
     constructor(contentId: api.content.ContentId) {
         super();
@@ -22,7 +23,7 @@ export class CreateFragmentRequest
         return this;
     }
 
-    setComponent(value: api.content.page.region.Component): CreateFragmentRequest {
+    setComponent(value: Component): CreateFragmentRequest {
         this.component = value;
         return this;
     }

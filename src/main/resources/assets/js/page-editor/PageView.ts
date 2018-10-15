@@ -36,12 +36,11 @@ import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import {Content} from '../app/content/Content';
-import PageMode = api.content.page.PageMode;
-import Component = api.content.page.region.Component;
-import RegionPath = api.content.page.region.RegionPath;
-import ComponentPath = api.content.page.region.ComponentPath;
+import {Component} from '../app/page/region/Component';
+import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
+import {RegionPath} from '../app/page/region/RegionPath';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 import i18n = api.util.i18n;
-import PageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
 
 export class PageViewBuilder {
 

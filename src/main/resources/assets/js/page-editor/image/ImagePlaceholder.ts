@@ -6,8 +6,8 @@ import {ImageUploaderEl} from '../../app/inputtype/ui/selector/image/ImageUpload
 import {MediaTreeSelectorItem} from '../../app/inputtype/ui/selector/media/MediaTreeSelectorItem';
 import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploaderEl';
 import {Content} from '../../app/content/Content';
+import {ImageComponent} from '../../app/page/region/ImageComponent';
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ImageComponent = api.content.page.region.ImageComponent;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import i18n = api.util.i18n;

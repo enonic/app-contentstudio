@@ -1,7 +1,7 @@
-import PageDescriptorResourceRequest = api.content.page.PageDescriptorResourceRequest;
 import DescriptorKey = api.content.page.DescriptorKey;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorJson = api.content.page.PageDescriptorJson;
+import {PageDescriptorResourceRequest} from './PageDescriptorResourceRequest';
 
 export class GetPageDescriptorByKeyRequest
     extends PageDescriptorResourceRequest<PageDescriptorJson, PageDescriptor> {

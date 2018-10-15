@@ -1,7 +1,7 @@
 import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import GetPartDescriptorsByApplicationRequest = api.content.page.region.GetPartDescriptorsByApplicationRequest;
-import PartDescriptorsResourceRequest = api.content.page.region.PartDescriptorsResourceRequest;
+import {GetPartDescriptorsByApplicationRequest} from '../../../../../resource/GetPartDescriptorsByApplicationRequest';
+import {PartDescriptorsResourceRequest} from '../../../../../resource/PartDescriptorsResourceRequest';
 
 export class GetPartDescriptorsByApplicationsRequest extends PartDescriptorsResourceRequest {
 

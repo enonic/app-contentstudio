@@ -1,8 +1,10 @@
-import PageTemplateKey = api.content.page.PageTemplateKey;
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {PageTemplateKey} from '../page/PageTemplateKey';
+import {Regions} from '../page/region/Regions';
+import {Component} from '../page/region/Component';
 
 export class CreatePageRequest
     extends PageResourceRequest<ContentJson, Content>
@@ -16,9 +18,9 @@ export class CreatePageRequest
 
     private config: api.data.PropertyTree;
 
-    private regions: api.content.page.region.Regions;
+    private regions: Regions;
 
-    private fragment: api.content.page.region.Component;
+    private fragment: Component;
 
     private customized: boolean;
 
@@ -43,12 +45,12 @@ export class CreatePageRequest
         return this;
     }
 
-    setRegions(value: api.content.page.region.Regions): CreatePageRequest {
+    setRegions(value: Regions): CreatePageRequest {
         this.regions = value;
         return this;
     }
 
-    setFragment(value: api.content.page.region.Component): CreatePageRequest {
+    setFragment(value: Component): CreatePageRequest {
         this.fragment = value;
         return this;
     }

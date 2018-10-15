@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
@@ -8,11 +7,11 @@ import {LayoutPlaceholder} from './LayoutPlaceholder';
 import {ItemView} from '../ItemView';
 import {ItemType} from '../ItemType';
 import {RegionItemType} from '../RegionItemType';
-import Component = api.content.page.region.Component;
-import ComponentPath = api.content.page.region.ComponentPath;
-import LayoutComponent = api.content.page.region.LayoutComponent;
 import {DragAndDrop} from '../DragAndDrop';
 import {RegionView, RegionViewBuilder} from '../RegionView';
+import {LayoutComponent} from '../../app/page/region/LayoutComponent';
+import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {Component} from '../../app/page/region/Component';
 
 export class LayoutComponentViewBuilder
     extends ComponentViewBuilder<LayoutComponent> {

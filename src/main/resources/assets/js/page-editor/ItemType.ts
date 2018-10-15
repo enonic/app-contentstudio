@@ -1,5 +1,5 @@
-import './../api.ts';
 import {ItemTypeConfig} from './ItemTypeConfig';
+import {ComponentType} from '../app/page/region/ComponentType';
 import StringHelper = api.util.StringHelper;
 import i18n = api.util.i18n;
 
@@ -39,9 +39,9 @@ export class ItemType
         return false;
     }
 
-    toComponentType(): api.content.page.region.ComponentType {
+    toComponentType(): ComponentType {
         api.util.assert(this.isComponentType(), i18n('live.view.itemtype.error.isnotcomponenttype'));
-        return api.content.page.region.ComponentType.byShortName(this.shortName);
+        return ComponentType.byShortName(this.shortName);
     }
 
     equals(o: api.Equitable): boolean {
@@ -67,7 +67,7 @@ export class ItemType
         return draggables;
     }
 
-    static fromComponentType(componentType: api.content.page.region.ComponentType): ItemType {
+    static fromComponentType(componentType: ComponentType): ItemType {
         return ItemType.byShortName(componentType.getShortName());
     }
 

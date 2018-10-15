@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
@@ -12,7 +11,7 @@ import {PageView} from '../PageView';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {HTMLAreaBuilder} from '../../app/inputtype/ui/text/HTMLAreaBuilder';
-import TextComponent = api.content.page.region.TextComponent;
+import {TextComponent} from '../../app/page/region/TextComponent';
 import eventInfo = CKEDITOR.eventInfo;
 import Promise = Q.Promise;
 import i18n = api.util.i18n;

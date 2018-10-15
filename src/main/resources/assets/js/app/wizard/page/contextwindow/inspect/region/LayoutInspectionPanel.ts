@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {
     DescriptorBasedComponentInspectionPanel,
     DescriptorBasedComponentInspectionPanelConfig
@@ -8,11 +7,11 @@ import {LayoutComponentView} from '../../../../../../page-editor/layout/LayoutCo
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {GetLayoutDescriptorByKeyRequest} from './GetLayoutDescriptorByKeyRequest';
 import {LayoutDescriptorDropdown} from './LayoutDescriptorDropdown';
+import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
+import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
+import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import DescriptorKey = api.content.page.DescriptorKey;
-import LayoutComponent = api.content.page.region.LayoutComponent;
-import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Option = api.ui.selector.Option;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import i18n = api.util.i18n;

@@ -5,6 +5,7 @@ import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {Regions} from '../page/region/Regions';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<ContentJson, Content>
@@ -14,7 +15,7 @@ export class CreatePageTemplateRequest
 
     private config: api.data.PropertyTree;
 
-    private regions: api.content.page.region.Regions;
+    private regions: Regions;
 
     private displayName: string;
 
@@ -39,7 +40,7 @@ export class CreatePageTemplateRequest
         return this;
     }
 
-    setRegions(value: api.content.page.region.Regions): CreatePageTemplateRequest {
+    setRegions(value: Regions): CreatePageTemplateRequest {
         this.regions = value;
         return this;
     }

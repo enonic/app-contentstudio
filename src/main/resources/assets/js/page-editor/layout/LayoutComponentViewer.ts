@@ -1,22 +1,22 @@
-import './../../api.ts';
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
+import {LayoutComponent} from '../../app/page/region/LayoutComponent';
 
 export class LayoutComponentViewer
-    extends api.ui.NamesAndIconViewer<api.content.page.region.LayoutComponent> {
+    extends api.ui.NamesAndIconViewer<LayoutComponent> {
 
     constructor() {
         super();
     }
 
-    resolveDisplayName(object: api.content.page.region.LayoutComponent): string {
+    resolveDisplayName(object: LayoutComponent): string {
         return !!object.getName() ? object.getName().toString() : '';
     }
 
-    resolveSubName(object: api.content.page.region.LayoutComponent, relativePath: boolean = false): string {
+    resolveSubName(object: LayoutComponent, relativePath: boolean = false): string {
         return object.getPath().toString();
     }
 
-    resolveIconClass(object: api.content.page.region.LayoutComponent): string {
+    resolveIconClass(object: LayoutComponent): string {
         return ItemViewIconClassResolver.resolveByType('layout');
     }
 }

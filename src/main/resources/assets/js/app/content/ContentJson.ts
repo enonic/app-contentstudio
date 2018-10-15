@@ -1,5 +1,6 @@
 import {AttachmentJson} from '../attachment/AttachmentJson';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {PageJson} from '../page/PageJson';
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import AccessControlEntryJson = api.security.acl.AccessControlEntryJson;
 
@@ -12,7 +13,7 @@ export interface ContentJson
 
     meta: ExtraDataJson[];
 
-    page: api.content.page.PageJson;
+    page: PageJson;
 
     permissions: AccessControlEntryJson[];
 

@@ -1,13 +1,14 @@
 import {LiveEditModel} from './LiveEditModel';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {PageTemplate} from '../app/content/PageTemplate';
+import {Regions} from '../app/page/region/Regions';
+import {PageMode} from '../app/page/PageMode';
+import {Component} from '../app/page/region/Component';
+import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
+import {Page, PageBuilder} from '../app/page/Page';
+import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import PropertyTree = api.data.PropertyTree;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
-import PageMode = api.content.page.PageMode;
-import Page = api.content.page.Page;
-import PageBuilder = api.content.page.PageBuilder;
-import PageTemplateKey = api.content.page.PageTemplateKey;
 
 export class SetController {
 
@@ -15,7 +16,7 @@ export class SetController {
 
     descriptor: PageDescriptor;
 
-    regions: api.content.page.region.Regions;
+    regions: Regions;
 
     config: PropertyTree;
 
@@ -28,7 +29,7 @@ export class SetController {
         return this;
     }
 
-    setRegions(value: api.content.page.region.Regions): SetController {
+    setRegions(value: Regions): SetController {
         this.regions = value;
         return this;
     }
@@ -47,7 +48,7 @@ export class SetTemplate {
 
     descriptor: PageDescriptor;
 
-    regions: api.content.page.region.Regions;
+    regions: Regions;
 
     config: PropertyTree;
 
@@ -61,7 +62,7 @@ export class SetTemplate {
         return this;
     }
 
-    setRegions(value: api.content.page.region.Regions): SetTemplate {
+    setRegions(value: Regions): SetTemplate {
         this.regions = value;
         return this;
     }
@@ -97,9 +98,9 @@ export class PageModel {
 
     private templateDescriptor: PageDescriptor;
 
-    private regions: api.content.page.region.Regions;
+    private regions: Regions;
 
-    private fragment: api.content.page.region.Component;
+    private fragment: Component;
 
     private config: PropertyTree;
 
@@ -124,7 +125,7 @@ export class PageModel {
     private customized: boolean;
 
     constructor(liveEditModel: LiveEditModel, defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor,
-                pageMode: api.content.page.PageMode) {
+                pageMode: PageMode) {
         this.liveEditModel = liveEditModel;
         this.defaultTemplate = defaultTemplate;
         this.defaultTemplateDescriptor = defaultTemplateDescriptor;
@@ -201,7 +202,7 @@ export class PageModel {
     reset(eventSource?: any) {
         if (this.isPageTemplate() || !this.defaultTemplate) {
             let setController = new SetController(eventSource).setDescriptor(null).setConfig(new PropertyTree()).setRegions(
-                api.content.page.region.Regions.create().build());
+                Regions.create().build());
             this.setController(setController);
         } else {
             this.setAutomaticTemplate(eventSource);
@@ -288,8 +289,8 @@ export class PageModel {
         let config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
 
         let regions = this.defaultTemplate.hasRegions()
-            ? this.defaultTemplate.getRegions().clone()
-            : api.content.page.region.Regions.create().build();
+                      ? this.defaultTemplate.getRegions().clone()
+                      : Regions.create().build();
 
         let setTemplate = new SetTemplate(eventSource).setTemplate(null, this.defaultTemplateDescriptor).setRegions(regions).setConfig(
             config);
@@ -349,7 +350,7 @@ export class PageModel {
         }
     }
 
-    setRegions(value: api.content.page.region.Regions, eventOrigin?: any, ignoreRegionChanges: boolean = false): PageModel {
+    setRegions(value: Regions, eventOrigin?: any, ignoreRegionChanges: boolean = false): PageModel {
         let oldValue = this.regions;
         if (oldValue) {
             this.unregisterRegionsListeners(oldValue);
@@ -489,7 +490,7 @@ export class PageModel {
         return this.template;
     }
 
-    getRegions(): api.content.page.region.Regions {
+    getRegions(): Regions {
         return this.regions;
     }
 
@@ -501,21 +502,21 @@ export class PageModel {
         return this.customized;
     }
 
-    private registerRegionsListeners(regions: api.content.page.region.Regions) {
+    private registerRegionsListeners(regions: Regions) {
         regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
         regions.onChanged(this.regionsChangedEventHandler);
     }
 
-    private unregisterRegionsListeners(regions: api.content.page.region.Regions) {
+    private unregisterRegionsListeners(regions: Regions) {
         regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
         regions.unChanged(this.regionsChangedEventHandler);
     }
 
-    private registerFragmentListeners(fragment: api.content.page.region.Component) {
+    private registerFragmentListeners(fragment: Component) {
         fragment.onPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 
-    private unregisterFragmentListeners(fragment: api.content.page.region.Component) {
+    private unregisterFragmentListeners(fragment: Component) {
         fragment.unPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 

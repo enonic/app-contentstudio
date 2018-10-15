@@ -1,7 +1,7 @@
-import PartDescriptorResourceRequest = api.content.page.region.PartDescriptorResourceRequest;
 import PartDescriptor = api.content.page.region.PartDescriptor;
 import PartDescriptorJson = api.content.page.region.PartDescriptorJson;
-import GetPartDescriptorsByApplicationRequest = api.content.page.region.GetPartDescriptorsByApplicationRequest;
+import {GetPartDescriptorsByApplicationRequest} from '../../../../../resource/GetPartDescriptorsByApplicationRequest';
+import {PartDescriptorResourceRequest} from '../../../../../resource/PartDescriptorResourceRequest';
 
 export class GetPartDescriptorByKeyRequest
     extends PartDescriptorResourceRequest<PartDescriptorJson, PartDescriptor> {

@@ -2,9 +2,11 @@ import ContentTypeName = api.schema.content.ContentTypeName;
 import Property = api.data.Property;
 import PropertyTree = api.data.PropertyTree;
 import DescriptorKey = api.content.page.DescriptorKey;
-import PageTemplateKey = api.content.page.PageTemplateKey;
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
+import {PageMode} from '../page/PageMode';
+import {PageTemplateKey} from '../page/PageTemplateKey';
+import {Regions} from '../page/region/Regions';
 
 export class PageTemplate
     extends Content
@@ -27,16 +29,16 @@ export class PageTemplate
         return <PageTemplateKey>this.getContentId();
     }
 
-    getPageMode(): api.content.page.PageMode {
+    getPageMode(): PageMode {
 
         if (this.isPage()) {
             if (this.getPage().hasController()) {
-                return api.content.page.PageMode.FORCED_CONTROLLER;
+                return PageMode.FORCED_CONTROLLER;
             } else {
                 throw new Error(`Illegal state: A PageTemplate's Page must a controller set`);
             }
         } else {
-            return api.content.page.PageMode.NO_CONTROLLER;
+            return PageMode.NO_CONTROLLER;
         }
     }
 
@@ -63,7 +65,7 @@ export class PageTemplate
         return this.getPage().hasRegions();
     }
 
-    getRegions(): api.content.page.region.Regions {
+    getRegions(): Regions {
         if (!this.isPage()) {
             return null;
         }

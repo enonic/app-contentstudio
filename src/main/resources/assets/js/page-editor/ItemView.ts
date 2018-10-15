@@ -25,12 +25,22 @@ import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
 import {Content} from '../app/content/Content';
-import Component = api.content.page.region.Component;
+import {Component, ComponentBuilder} from '../app/page/region/Component';
+import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from '../app/page/region/DescriptorBasedComponent';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {FragmentComponentBuilder} from '../app/page/region/FragmentComponent';
+import {FragmentComponentType} from '../app/page/region/FragmentComponentType';
+import {ImageComponentType} from '../app/page/region/ImageComponentType';
+import {ImageComponentBuilder} from '../app/page/region/ImageComponent';
+import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
+import {LayoutComponentBuilder} from '../app/page/region/LayoutComponent';
+import {PartComponentType} from '../app/page/region/PartComponentType';
+import {PartComponentBuilder} from '../app/page/region/PartComponent';
+import {TextComponentType} from '../app/page/region/TextComponentType';
+import {TextComponentBuilder} from '../app/page/region/TextComponent';
 import PropertyTree = api.data.PropertyTree;
 import i18n = api.util.i18n;
-import ComponentType = api.content.page.region.ComponentType;
-import DescriptorBasedComponentBuilder = api.content.page.region.DescriptorBasedComponentBuilder;
-import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
+import ObjectHelper = api.ObjectHelper;
 
 export interface ElementDimensions {
     top: number;
@@ -948,7 +958,7 @@ export class ItemView
 
     public createComponent(componentType: ComponentType): Component {
 
-        let builder = componentType.newComponentBuilder().setName(componentType.getDefaultName());
+        let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
             let descriptorBuilder = <DescriptorBasedComponentBuilder<DescriptorBasedComponent>> builder;
@@ -956,6 +966,22 @@ export class ItemView
         }
 
         return builder.build();
+    }
+
+    private createBuilder(componentType: ComponentType): ComponentBuilder<Component> {
+        if (ObjectHelper.iFrameSafeInstanceOf(componentType, FragmentComponentType)) {
+            return new FragmentComponentBuilder();
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, ImageComponentType)) {
+            return new ImageComponentBuilder();
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, LayoutComponentType)) {
+            return new LayoutComponentBuilder();
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, PartComponentType)) {
+            return new PartComponentBuilder();
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, TextComponentType)) {
+            return new TextComponentBuilder();
+        } else {
+            return new ComponentBuilder();
+        }
     }
 
     private getInsertActions(liveEditModel: LiveEditModel): api.ui.Action[] {

@@ -10,6 +10,7 @@ import {ExtraData} from './ExtraData';
 import {ExtraDataByMixinNameComparator} from './ExtraDataByMixinNameComparator';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 import {XDataName} from './XDataName';
+import {Page, PageBuilder} from '../page/Page';
 
 export class Content
     extends ContentSummary
@@ -21,7 +22,7 @@ export class Content
 
     private extraData: ExtraData[] = [];
 
-    private pageObj: api.content.page.Page;
+    private pageObj: Page;
 
     private permissions: AccessControlList;
 
@@ -62,7 +63,7 @@ export class Content
         return propertyName ? this.data.getProperty(propertyName) : null;
     }
 
-    getPage(): api.content.page.Page {
+    getPage(): Page {
         return this.pageObj;
     }
 
@@ -184,7 +185,7 @@ export class ContentBuilder
 
     extraData: ExtraData[];
 
-    pageObj: api.content.page.Page;
+    pageObj: Page;
 
     permissions: AccessControlList;
 
@@ -218,7 +219,7 @@ export class ContentBuilder
         });
 
         if (this.page) {
-            this.pageObj = new api.content.page.PageBuilder().fromJson(json.page).build();
+            this.pageObj = new PageBuilder().fromJson(json.page).build();
             this.page = true;
         }
         if (json.permissions) {
@@ -243,7 +244,7 @@ export class ContentBuilder
         return this;
     }
 
-    setPage(value: api.content.page.Page): ContentBuilder {
+    setPage(value: Page): ContentBuilder {
         this.pageObj = value;
         this.page = !!value;
         return this;

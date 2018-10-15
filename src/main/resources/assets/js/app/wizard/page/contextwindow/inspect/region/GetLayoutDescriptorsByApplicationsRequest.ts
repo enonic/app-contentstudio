@@ -1,7 +1,7 @@
 import ApplicationKey = api.application.ApplicationKey;
-import LayoutDescriptorsResourceRequest = api.content.page.region.LayoutDescriptorsResourceRequest;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import GetLayoutDescriptorsByApplicationRequest = api.content.page.region.GetLayoutDescriptorsByApplicationRequest;
+import {GetLayoutDescriptorsByApplicationRequest} from '../../../../../resource/GetLayoutDescriptorsByApplicationRequest';
+import {LayoutDescriptorsResourceRequest} from '../../../../../resource/LayoutDescriptorsResourceRequest';
 
 export class GetLayoutDescriptorsByApplicationsRequest extends LayoutDescriptorsResourceRequest {
 

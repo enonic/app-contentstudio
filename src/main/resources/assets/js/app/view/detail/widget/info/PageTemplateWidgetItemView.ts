@@ -13,9 +13,9 @@ import {PageTemplate} from '../../../../content/PageTemplate';
 import {Site} from '../../../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../../../content/ContentQuery';
+import {PageMode} from '../../../../page/PageMode';
 import ContentSummary = api.content.ContentSummary;
 import PageDescriptor = api.content.page.PageDescriptor;
-import PageMode = api.content.page.PageMode;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import QueryExpr = api.query.expr.QueryExpr;
@@ -90,14 +90,14 @@ export class PageTemplateWidgetItemView
         let pageTemplateViewer = new PageTemplateViewer();
 
         if (content.getType().isFragment()) {
-            pageTemplateViewer.setPageMode(api.content.page.PageMode.FRAGMENT);
+            pageTemplateViewer.setPageMode(PageMode.FRAGMENT);
             return wemQ(pageTemplateViewer);
         }
 
         if (content.isPage()) {
 
             if (content.getPage().hasTemplate()) {
-                pageTemplateViewer.setPageMode(api.content.page.PageMode.FORCED_TEMPLATE);
+                pageTemplateViewer.setPageMode(PageMode.FORCED_TEMPLATE);
 
                 return new GetPageTemplateByKeyRequest(content.getPage().getTemplate()).sendAndParse()
                     .then(
@@ -110,7 +110,7 @@ export class PageTemplateWidgetItemView
                         });
             }
 
-            pageTemplateViewer.setPageMode(api.content.page.PageMode.FORCED_CONTROLLER);
+            pageTemplateViewer.setPageMode(PageMode.FORCED_CONTROLLER);
 
             return new GetPageDescriptorByKeyRequest(content.getPage().getController()).sendAndParse()
                 .then((pageDescriptor: PageDescriptor) => {

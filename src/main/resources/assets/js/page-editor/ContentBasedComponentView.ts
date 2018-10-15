@@ -2,7 +2,7 @@ import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {EditContentEvent} from '../app/event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
-import Component = api.content.page.region.Component;
+import {Component} from '../app/page/region/Component';
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import ContentTypeName = api.schema.content.ContentTypeName;

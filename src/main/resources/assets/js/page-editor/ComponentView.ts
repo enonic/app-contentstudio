@@ -20,14 +20,14 @@ import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {CreateFragmentRequest} from './CreateFragmentRequest';
 import {Content} from '../app/content/Content';
-import Component = api.content.page.region.Component;
-import ComponentPath = api.content.page.region.ComponentPath;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
+import {Component} from '../app/page/region/Component';
+import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
+import {ComponentResetEvent} from '../app/page/region/ComponentResetEvent';
+import {FragmentComponent} from '../app/page/region/FragmentComponent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 import i18n = api.util.i18n;
 import KeyBinding = api.ui.KeyBinding;
 import Element = api.dom.Element;
-import ComponentResetEvent = api.content.page.region.ComponentResetEvent;
-import FragmentComponent = api.content.page.region.FragmentComponent;
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 

@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {
     DescriptorBasedComponentInspectionPanel,
     DescriptorBasedComponentInspectionPanelConfig
@@ -8,12 +7,11 @@ import {PartComponentView} from '../../../../../../page-editor/part/PartComponen
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {GetPartDescriptorByKeyRequest} from './GetPartDescriptorByKeyRequest';
 import {PartDescriptorDropdown} from './PartDescriptorDropdown';
+import {PartComponent} from '../../../../../page/region/PartComponent';
+import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
+import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartComponent = api.content.page.region.PartComponent;
-import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import DescriptorKey = api.content.page.DescriptorKey;
-
 import Option = api.ui.selector.Option;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import i18n = api.util.i18n;

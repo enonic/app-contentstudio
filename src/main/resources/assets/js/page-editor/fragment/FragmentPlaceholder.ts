@@ -7,8 +7,8 @@ import {ContentComboBox} from '../../app/inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import {Content} from '../../app/content/Content';
-import FragmentComponent = api.content.page.region.FragmentComponent;
-import LayoutComponentType = api.content.page.region.LayoutComponentType;
+import {FragmentComponent} from '../../app/page/region/FragmentComponent';
+import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import i18n = api.util.i18n;
 

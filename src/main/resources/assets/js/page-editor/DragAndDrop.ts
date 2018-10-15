@@ -14,10 +14,10 @@ import {ComponentItemType} from './ComponentItemType';
 import {RegionItemType} from './RegionItemType';
 import {ItemView} from './ItemView';
 import {PageView} from './PageView';
-import Component = api.content.page.region.Component;
+import {LayoutItemType} from './layout/LayoutItemType';
+import {Component} from '../app/page/region/Component';
 import DragHelper = api.ui.DragHelper;
 import i18n = api.util.i18n;
-import {LayoutItemType} from './layout/LayoutItemType';
 
 export class DragAndDrop {
 

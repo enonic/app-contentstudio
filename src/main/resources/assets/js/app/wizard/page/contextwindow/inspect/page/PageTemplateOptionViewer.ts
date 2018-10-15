@@ -1,7 +1,7 @@
 import {PageTemplateOption} from './PageTemplateOption';
 import {PageTemplate} from '../../../../../content/PageTemplate';
+import {PageTemplateDisplayName} from '../../../../../page/PageMode';
 import i18n = api.util.i18n;
-import PageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
 
 export class PageTemplateOptionViewer extends api.ui.NamesAndIconViewer<PageTemplateOption> {
 

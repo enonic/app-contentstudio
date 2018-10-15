@@ -18,6 +18,7 @@ import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import {Content} from '../content/Content';
+import {Component} from '../page/region/Component';
 import TreeNode = api.ui.treegrid.TreeNode;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
@@ -27,7 +28,6 @@ import i18n = api.util.i18n;
 import Action = api.ui.Action;
 import KeyBinding = api.ui.KeyBinding;
 import ObjectHelper = api.ObjectHelper;
-import Component = api.content.page.region.Component;
 
 export class PageComponentsView
     extends api.dom.DivEl {

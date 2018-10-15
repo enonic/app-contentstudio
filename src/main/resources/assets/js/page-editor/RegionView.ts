@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ClickPosition} from './ClickPosition';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
@@ -10,8 +9,8 @@ import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {RegionSelectedEvent} from './RegionSelectedEvent';
-import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {ComponentAddedEvent as PageEditorComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {PageViewController} from './PageViewController';
@@ -20,10 +19,12 @@ import {ComponentView} from './ComponentView';
 import {PageView} from './PageView';
 import {LayoutComponentView} from './layout/LayoutComponentView';
 import {DragAndDrop} from './DragAndDrop';
-import Region = api.content.page.region.Region;
-import RegionPath = api.content.page.region.RegionPath;
-import Component = api.content.page.region.Component;
-import ComponentPath = api.content.page.region.ComponentPath;
+import {Region} from '../app/page/region/Region';
+import {Component} from '../app/page/region/Component';
+import {RegionPath} from '../app/page/region/RegionPath';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
 import i18n = api.util.i18n;
 
 export class RegionViewBuilder {
@@ -81,9 +82,9 @@ export class RegionView
 
     private itemViewRemovedListener: (event: ItemViewRemovedEvent) => void;
 
-    private componentAddedListener: (event: api.content.page.region.ComponentAddedEvent) => void;
+    private componentAddedListener: (event: ComponentAddedEvent) => void;
 
-    private componentRemovedListener: (event: api.content.page.region.ComponentRemovedEvent) => void;
+    private componentRemovedListener: (event: ComponentRemovedEvent) => void;
 
     private mouseDownLastTarget: HTMLElement;
 
@@ -144,7 +145,7 @@ export class RegionView
             this.notifyItemViewRemoved(event.getView());
         };
 
-        this.componentAddedListener = (event: api.content.page.region.ComponentAddedEvent) => {
+        this.componentAddedListener = (event: ComponentAddedEvent) => {
             if (RegionView.debug) {
                 console.log('RegionView.handleComponentAdded: ' + event.getComponentPath().toString());
             }
@@ -153,7 +154,7 @@ export class RegionView
             this.handleResetContextMenuAction();
         };
 
-        this.componentRemovedListener = (event: api.content.page.region.ComponentRemovedEvent) => {
+        this.componentRemovedListener = (event: ComponentRemovedEvent) => {
             if (RegionView.debug) {
                 console.log('RegionView.handleComponentRemoved: ' + event.getComponentPath().toString());
             }
@@ -366,7 +367,7 @@ export class RegionView
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, isNew || dragged);
 
-        new ComponentAddedEvent(componentView, this, dragged).fire();
+        new PageEditorComponentAddedEvent(componentView, this, dragged).fire();
     }
 
     removeComponentView(componentView: ComponentView<Component>, silent: boolean = false) {
@@ -383,7 +384,7 @@ export class RegionView
             componentView.getComponent().remove();
         }
 
-        new ComponentRemovedEvent(componentView, this).fire();
+        new PageEditorComponentRemovedEvent(componentView, this).fire();
     }
 
     getComponentViews(): ComponentView<Component>[] {

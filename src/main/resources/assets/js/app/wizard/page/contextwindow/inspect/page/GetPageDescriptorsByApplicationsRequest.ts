@@ -1,8 +1,8 @@
 import ApplicationKey = api.application.ApplicationKey;
-import PageDescriptorResourceRequest = api.content.page.PageDescriptorResourceRequest;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
-import GetPageDescriptorsByApplicationRequest = api.content.page.GetPageDescriptorsByApplicationRequest;
+import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
+import {GetPageDescriptorsByApplicationRequest} from '../../../../../resource/GetPageDescriptorsByApplicationRequest';
 
 export class GetPageDescriptorsByApplicationsRequest
     extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {

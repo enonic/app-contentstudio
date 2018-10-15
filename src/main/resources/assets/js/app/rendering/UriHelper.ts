@@ -1,5 +1,6 @@
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
+import {ComponentPath} from '../page/region/ComponentPath';
 
 export class UriHelper {
 
@@ -28,7 +29,7 @@ export class UriHelper {
         }
     }
 
-    public static getComponentUri(contentId: string, componentPath: api.content.page.region.ComponentPath, renderingMode: RenderingMode,
+    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode,
                                   workspace: Branch): string {
         let elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
         let componentPart = elementDivider + '_' + elementDivider + 'component' + elementDivider;

@@ -1,7 +1,7 @@
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {Content} from '../app/content/Content';
+import {ComponentType} from '../app/page/region/ComponentType';
 import Event = api.event.Event;
-import ComponentType = api.content.page.region.ComponentType;
 
 export class ComponentFragmentCreatedEvent
     extends api.event.Event {

@@ -6,7 +6,7 @@ import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {PageItemType} from '../../page-editor/PageItemType';
 import {Content} from '../content/Content';
-import TextComponent = api.content.page.region.TextComponent;
+import {TextComponent} from '../page/region/TextComponent';
 
 export class PageComponentsItemViewer
     extends api.ui.NamesAndIconViewer<ItemView> {

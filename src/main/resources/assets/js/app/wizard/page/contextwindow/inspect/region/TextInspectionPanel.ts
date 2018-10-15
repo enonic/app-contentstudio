@@ -1,9 +1,8 @@
-import '../../../../../../api.ts';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {TextComponentView} from '../../../../../../page-editor/text/TextComponentView';
 import {TextComponentViewer} from '../../../../../../page-editor/text/TextComponentViewer';
-import TextComponent = api.content.page.region.TextComponent;
+import {TextComponent} from '../../../../../page/region/TextComponent';
 
 export class TextInspectionPanel
     extends BaseInspectionPanel {

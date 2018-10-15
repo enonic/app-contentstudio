@@ -1,22 +1,22 @@
-import './../../api.ts';
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
+import {PartComponent} from '../../app/page/region/PartComponent';
 
 export class PartComponentViewer
-    extends api.ui.NamesAndIconViewer<api.content.page.region.PartComponent> {
+    extends api.ui.NamesAndIconViewer<PartComponent> {
 
     constructor() {
         super();
     }
 
-    resolveDisplayName(object: api.content.page.region.PartComponent): string {
+    resolveDisplayName(object: PartComponent): string {
         return !!object.getName() ? object.getName().toString() : '';
     }
 
-    resolveSubName(object: api.content.page.region.PartComponent, relativePath: boolean = false): string {
+    resolveSubName(object: PartComponent, relativePath: boolean = false): string {
         return object.getPath().toString();
     }
 
-    resolveIconClass(object: api.content.page.region.PartComponent): string {
+    resolveIconClass(object: PartComponent): string {
         return ItemViewIconClassResolver.resolveByType('part');
     }
 }
