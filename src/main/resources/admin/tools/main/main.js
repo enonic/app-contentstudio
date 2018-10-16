@@ -19,7 +19,6 @@ function handleGet() {
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
         imagePreviewUrl: portal.serviceUrl({service: 'image-preview'}),
-        imageStylesUrl: portal.serviceUrl({service: 'image-styles'}),
         stylesUrl: portal.serviceUrl({service: 'styles'})
     };
 

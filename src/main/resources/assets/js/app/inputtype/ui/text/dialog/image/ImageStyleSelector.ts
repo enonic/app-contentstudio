@@ -23,7 +23,7 @@ export class ImageStyleSelector
         this.addOptions();
 
         this.onOptionSelected((event: OptionSelectedEvent<ImageStyleOption>) => {
-            if (event.getOption().displayValue.getName() === 'none') {
+            if ((<ImageStyleOption>event.getOption().displayValue).isEmpty()) {
                 this.reset();
             }
         });

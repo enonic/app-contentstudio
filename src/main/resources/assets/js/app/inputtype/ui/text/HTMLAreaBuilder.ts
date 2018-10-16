@@ -7,8 +7,8 @@ import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
-import {ImageStylesRequest} from './dialog/image/ImageStylesRequest';
-import {ImageStyles} from './dialog/image/ImageStyles';
+import {StylesRequest} from './styles/StylesRequest';
+import {Styles} from './styles/Styles';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -172,11 +172,11 @@ export class HTMLAreaBuilder {
         }
     }
 
-    public createEditor(): wemQ.Promise<HTMLAreaEditor> {
+    public createEditor(contentId?: string): wemQ.Promise<HTMLAreaEditor> {
         this.checkRequiredFieldsAreSet();
         this.adjustToolsList();
 
-        return this.createConfig().then((config: CKEDITOR.config) => {
+        return this.createConfig(contentId).then((config: CKEDITOR.config) => {
 
             const ckeditor: HTMLAreaEditor = this.inline ?
                          CKEDITOR.inline(this.editorContainerId, config) :
@@ -207,18 +207,18 @@ export class HTMLAreaBuilder {
         this.tools.push(this.toolsToInclude);
     }
 
-    private createConfig(): wemQ.Promise<CKEDITOR.config> {
+    private createConfig(contentId?: string): wemQ.Promise<CKEDITOR.config> {
 
-        const resolvePath = path => this.assetsUri + path;
-        const injectCss = function(imageStyles) {
-            const contentsCss = [resolvePath('/styles/html-editor.css')];
-            if (imageStyles) {
-                contentsCss.push(resolvePath(imageStyles.getCssPaths()));
+        const contentsCss = [this.assetsUri + '/styles/html-editor.css'];
+        const injectCss = () => {
+            if (Styles.getInstance()) {
+                contentsCss.concat(Styles.getCssPaths());
+                config.contentsCss = contentsCss;
             }
-            config.contentsCss = contentsCss;
         };
 
         const config: CKEDITOR.config = {
+            contentsCss: contentsCss,
             toolbar: this.tools,
             entities: false,
             title: '',
@@ -246,15 +246,19 @@ export class HTMLAreaBuilder {
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
 
-        if (ImageStyles.get()) {
-            injectCss(ImageStyles.get());
+        if (!contentId) { // inline mode
+            return wemQ(config);
+        }
+
+        if (Styles.getInstance()) {
+            injectCss();
             return wemQ(config);
         }
 
         const deferred = wemQ.defer<CKEDITOR.config>();
 
-        new ImageStylesRequest().sendAndParse().then((imageStyles: ImageStyles) => {
-            injectCss(imageStyles);
+        new StylesRequest(contentId).sendAndParse().then(() => {
+            injectCss();
             deferred.resolve(config);
         });
 

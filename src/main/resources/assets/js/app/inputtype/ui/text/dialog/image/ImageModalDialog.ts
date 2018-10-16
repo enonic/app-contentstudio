@@ -19,8 +19,8 @@ import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
-import {ImageStylesRequest} from './ImageStylesRequest';
-import {ImageStyles} from './ImageStyles';
+import {StylesRequest} from '../../styles/StylesRequest';
+import {Styles} from '../../styles/Styles';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 
@@ -80,8 +80,8 @@ export class ImageModalDialog
             this.loadImage();
         }
 
-        if (!ImageStyles.get()) {
-            new ImageStylesRequest().sendAndParse();
+        if (!Styles.getInstance()) {
+            new StylesRequest(content.getId()).sendAndParse();
         }
 
     }

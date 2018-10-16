@@ -1,8 +1,6 @@
-import i18n = api.util.i18n;
 import Option = api.ui.selector.Option;
-import {ImageStyle} from './ImageStyle';
-import {ImageStyles} from './ImageStyles';
-import {ImageCroppingOption} from './ImageCroppingOption';
+import {Styles} from '../../styles/Styles';
+import {Style, StyleType} from '../../styles/Style';
 
 export class ImageStyleOption {
 
@@ -10,9 +8,12 @@ export class ImageStyleOption {
 
     private displayName: string;
 
-    constructor(imageStyle: ImageStyle) {
+    private empty: boolean;
+
+    constructor(imageStyle: Style) {
         this.name = imageStyle.getName();
         this.displayName = imageStyle.getDisplayName();
+        this.empty = imageStyle.isEmpty();
     }
 
     getName(): string {
@@ -23,15 +24,18 @@ export class ImageStyleOption {
         return this.displayName;
     }
 
+    isEmpty(): boolean {
+        return this.empty;
+    }
 }
 
 export class ImageStyleOptions {
 
-    static getEmptyOption(): Option<ImageStyleOption> {
-        const imageStyle = new ImageStyle({
-            name: 'none',
-            displayName: i18n('dialog.image.cropping.none')
-        });
+    private static getEmptyOption(): Option<ImageStyleOption> {
+        return ImageStyleOptions.getOption(Style.getEmpty(StyleType.IMAGE));
+    }
+
+    private static getOption(imageStyle: Style): Option<ImageStyleOption> {
 
         const imageStyleOption = new ImageStyleOption(imageStyle);
 
@@ -45,14 +49,8 @@ export class ImageStyleOptions {
 
         const options: Option<ImageStyleOption>[] = [ImageStyleOptions.getEmptyOption()];
 
-        ImageStyles.get().getStyles().forEach((imageStyle: ImageStyle) => {
-            const imageStyleOption = new ImageStyleOption(imageStyle);
-            const option = {
-                value: imageStyleOption.getName(),
-                displayValue: imageStyleOption
-            };
-
-            options.push(option);
+        Styles.getForImage().forEach((imageStyle: Style) => {
+            options.push(ImageStyleOptions.getOption(imageStyle));
         });
 
         return options;

@@ -223,7 +223,7 @@ export class HtmlArea
                 exclude: this.inputConfig['exclude']
             })
             .setEditableSourceCode(this.editableSourceCode)
-            .createEditor().then(editor => {
+            .createEditor(this.content.getId()).then(editor => {
 
                 editor.on('loaded', () => {
                     this.setEditorContent(id, property);
