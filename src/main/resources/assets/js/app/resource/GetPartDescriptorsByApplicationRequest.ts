@@ -1,16 +1,21 @@
 import PartDescriptor = api.content.page.region.PartDescriptor;
 import PartDescriptorsJson = api.content.page.region.PartDescriptorsJson;
-import {PartDescriptorsResourceRequest} from './PartDescriptorsResourceRequest';
+import PartDescriptorJson = api.content.page.region.PartDescriptorJson;
+import {PartDescriptorResourceRequest} from './PartDescriptorResourceRequest';
+import {PartDescriptorCache} from '../page/region/PartDescriptorCache';
 
 export class GetPartDescriptorsByApplicationRequest
-    extends PartDescriptorsResourceRequest {
+    extends PartDescriptorResourceRequest<PartDescriptorsJson, PartDescriptor[]> {
 
     private applicationKey: api.application.ApplicationKey;
+
+    private cache: PartDescriptorCache;
 
     constructor(applicationKey: api.application.ApplicationKey) {
         super();
         super.setMethod('GET');
         this.applicationKey = applicationKey;
+        this.cache = PartDescriptorCache.get();
     }
 
     getParams(): Object {
@@ -24,14 +29,21 @@ export class GetPartDescriptorsByApplicationRequest
     }
 
     sendAndParse(): wemQ.Promise<PartDescriptor[]> {
-
-        let cached = this.cache.getByApplication(this.applicationKey);
+        const cached = this.cache.getByApplication(this.applicationKey);
         if (cached) {
             return wemQ(cached);
         } else {
             return this.send().then((response: api.rest.JsonResponse<PartDescriptorsJson>) => {
-                return this.fromJsonToPartDescriptors(response.getResult());
+                return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
+                    return this.fromJsonToPartDescriptor(descriptorJson);
+                });
             });
         }
+    }
+
+    fromJsonToPartDescriptor(json: PartDescriptorJson): PartDescriptor {
+        let partDescriptor = PartDescriptor.fromJson(json);
+        this.cache.put(partDescriptor);
+        return partDescriptor;
     }
 }

@@ -25,14 +25,12 @@ export class GetPageDescriptorByKeyRequest
     }
 
     sendAndParse(): wemQ.Promise<PageDescriptor> {
-
         let pageDescriptor = this.cache.getByKey(this.key);
         if (pageDescriptor) {
             return wemQ(pageDescriptor);
         } else {
             return this.send().then((response: api.rest.JsonResponse<PageDescriptorJson>) => {
-                pageDescriptor = this.fromJsonToPageDescriptor(response.getResult(), true);
-                return pageDescriptor;
+                return PageDescriptor.fromJson(response.getResult());
             });
         }
     }

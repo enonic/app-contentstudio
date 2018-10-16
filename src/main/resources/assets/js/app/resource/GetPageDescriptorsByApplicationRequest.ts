@@ -1,6 +1,7 @@
 import {PageDescriptorResourceRequest} from './PageDescriptorResourceRequest';
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
+import PageDescriptorJson = api.content.page.PageDescriptorJson;
 
 export class GetPageDescriptorsByApplicationRequest
     extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
@@ -24,16 +25,21 @@ export class GetPageDescriptorsByApplicationRequest
     }
 
     sendAndParse(): wemQ.Promise<PageDescriptor[]> {
-
-        if (!api.BrowserHelper.isIE()) { // In case frame was reloaded in IE it can't use objects from cache
-            const cached = this.cache.getByApplication(this.applicationKey); // as they are from old unreachable for IE frame
+        // In case frame was reloaded in IE it can't use objects from cache
+        // as they are from old unreachable for IE frame
+        if (!api.BrowserHelper.isIE()) {
+            const cached = this.cache.getByApplication(this.applicationKey);
             if (cached) {
                 return wemQ(cached);
             }
         }
 
         return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {
-            return this.fromJsonToPageDescriptors(response.getResult());
+            return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
+                const pageDescriptor = api.content.page.PageDescriptor.fromJson(descriptorJson);
+                this.cache.put(pageDescriptor);
+                return pageDescriptor;
+            });
         });
     }
 }

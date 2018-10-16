@@ -1,11 +1,10 @@
 import ApplicationKey = api.application.ApplicationKey;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
-import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
 import {GetPageDescriptorsByApplicationRequest} from '../../../../../resource/GetPageDescriptorsByApplicationRequest';
 
 export class GetPageDescriptorsByApplicationsRequest
-    extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
+    extends api.rest.ResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -13,29 +12,18 @@ export class GetPageDescriptorsByApplicationsRequest
         this.applicationKeys = applicationKeys;
     }
 
-    getParams(): Object {
-        throw new Error('Unexpected call');
-    }
-
-    getRequestPath(): api.rest.Path {
-        throw new Error('Unexpected call');
-    }
-
     sendAndParse(): wemQ.Promise<PageDescriptor[]> {
 
         if (this.applicationKeys.length > 0) {
-            let promises = this.applicationKeys.map(
-                (applicationKey: ApplicationKey) => new GetPageDescriptorsByApplicationRequest(applicationKey).sendAndParse());
+            const request = (applicationKey: ApplicationKey) => new GetPageDescriptorsByApplicationRequest(applicationKey).sendAndParse();
+
+            const promises = this.applicationKeys.map(request);
 
             return wemQ.all(promises).then((results: PageDescriptor[][]) => {
-                let all: PageDescriptor[] = [];
-                results.forEach((descriptors: PageDescriptor[]) => {
-                    Array.prototype.push.apply(all, descriptors);
-                });
-                return all;
+                return results.reduce((prev: PageDescriptor[], curr: PageDescriptor[]) => prev.concat(curr), []);
             });
-        } else {
-            return wemQ.resolve([]);
         }
+
+        return wemQ.resolve([]);
     }
 }

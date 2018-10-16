@@ -1,9 +1,10 @@
 import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
+import PartDescriptorsJson = api.content.page.region.PartDescriptorsJson;
 import {GetPartDescriptorsByApplicationRequest} from '../../../../../resource/GetPartDescriptorsByApplicationRequest';
-import {PartDescriptorsResourceRequest} from '../../../../../resource/PartDescriptorsResourceRequest';
 
-export class GetPartDescriptorsByApplicationsRequest extends PartDescriptorsResourceRequest {
+export class GetPartDescriptorsByApplicationsRequest
+    extends api.rest.ResourceRequest<PartDescriptorsJson, PartDescriptor[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -11,26 +12,19 @@ export class GetPartDescriptorsByApplicationsRequest extends PartDescriptorsReso
         this.applicationKeys = applicationKeys;
     }
 
-    getParams(): Object {
-        throw new Error('Unexpected call');
-    }
-
-    getRequestPath(): api.rest.Path {
-        throw new Error('Unexpected call');
-    }
-
     sendAndParse(): wemQ.Promise<PartDescriptor[]> {
 
-        const request = (applicationKey: ApplicationKey) => new GetPartDescriptorsByApplicationRequest(applicationKey).sendAndParse();
+        if (this.applicationKeys.length > 0) {
 
-        const promises = this.applicationKeys.map(request);
+            const request = (applicationKey: ApplicationKey) => new GetPartDescriptorsByApplicationRequest(applicationKey).sendAndParse();
 
-        return wemQ.all(promises).then((results: PartDescriptor[][]) => {
-            let all: PartDescriptor[] = [];
-            results.forEach((result: PartDescriptor[]) => {
-                Array.prototype.push.apply(all, result);
+            const promises = this.applicationKeys.map(request);
+
+            return wemQ.all(promises).then((results: PartDescriptor[][]) => {
+                return results.reduce((prev: PartDescriptor[], curr: PartDescriptor[]) => prev.concat(curr), []);
             });
-            return all;
-        });
+        }
+
+        return wemQ.resolve([]);
     }
 }
