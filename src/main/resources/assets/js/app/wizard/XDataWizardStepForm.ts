@@ -78,8 +78,10 @@ export class XDataWizardStepForm
         return super.update(data, unchangedOnly);
     }
 
-    resetState(data: PropertyTree) {
-        this.setEnabled(!this.optional || data.getRoot().getSize() > 0, true);
+    resetState(data?: PropertyTree) {
+        this.data = data || this.data;
+        this.setEnabled(!this.optional || this.data.getRoot().getSize() > 0, true);
+        this.resetHeaderState();
     }
 
     resetHeaderState() {
