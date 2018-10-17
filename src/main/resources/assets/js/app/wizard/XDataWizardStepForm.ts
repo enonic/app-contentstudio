@@ -78,10 +78,11 @@ export class XDataWizardStepForm
         return super.update(data, unchangedOnly);
     }
 
-    resetState(data?: PropertyTree) {
+    resetState(data?: PropertyTree): wemQ.Promise<void> {
         this.data = data || this.data;
-        this.setEnabled(!this.optional || this.data.getRoot().getSize() > 0, true);
-        this.resetHeaderState();
+        return this.setEnabled(!this.optional || this.data.getRoot().getSize() > 0, true).then(() => {
+            this.resetHeaderState();
+        });
     }
 
     resetHeaderState() {
@@ -96,22 +97,23 @@ export class XDataWizardStepForm
         }
     }
 
-    private setEnabled(value: boolean, silent: boolean = false) {
+    private setEnabled(value: boolean, silent: boolean = false): wemQ.Promise<void> {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
 
         this.enabled ? this.show() : this.hide();
 
         if (!changed) {
-            return;
+            return wemQ(null);
         }
 
+        let promise: wemQ.Promise<void>;
         if (this.enabled) {
             if (this.form && this.data) {
                 if (this.stashedData) {
                     this.data.getRoot().addPropertiesFromSet(this.stashedData.getRoot());
                 }
-                this.doLayout(this.form, this.data);
+                promise = this.doLayout(this.form, this.data);
             }
         } else {
             if (this.data) {
@@ -132,6 +134,8 @@ export class XDataWizardStepForm
         if (!silent) {
             this.notifyEnableChanged(value);
         }
+
+        return promise || wemQ(null);
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

@@ -1705,12 +1705,15 @@ export class ContentWizardPanel
         }
     }
 
-    private resetXDatasState() {
+    private resetXDatasState(): wemQ.Promise<void[]> {
+        const promises = [];
         for (let key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                this.xDataStepFormByName[key].resetState();
+                promises.push(this.xDataStepFormByName[key].resetState());
             }
         }
+
+        return wemQ.all(promises);
     }
 
     private addXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
@@ -1724,10 +1727,15 @@ export class ContentWizardPanel
                     !this.xDataStepFormByName[xData.getName()]
                 );
                 return this.createXDataSteps(this.getPersistedItem(), xDatasToAdd).then(steps => {
-                    steps.forEach(xDataStep => {
+                    steps.forEach((xDataStep: XDataWizardStep) => {
                         if (!this.getSteps().some(step => step === xDataStep)) {
                             this.insertStepBefore(xDataStep, this.settingsWizardStep);
                         }
+
+                        const form = xDataStep.getStepForm();
+                        form.onRendered(() => {
+                            form.validate(false, true);
+                        });
                     });
 
                     this.resetXDatasState();
