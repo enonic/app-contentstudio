@@ -21,7 +21,6 @@ import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {ImageModalDialogConfig} from './ImageModalDialog';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
 import {ContentComboBox} from '../../selector/ContentComboBox';
