@@ -56,14 +56,14 @@ export class Component
     }
 
     hasPath(): boolean {
-        return this.parent && this.index >= 0;
+        return !!this.parent && this.index >= 0;
     }
 
     getPath(): ComponentPath {
-        return this.hasPath() ? this.fromRegionPathAndComponentIndex(this.parent.getPath(), this.index) : null;
+        return this.hasPath() ? Component.fromRegionPathAndComponentIndex(this.parent.getPath(), this.index) : null;
     }
 
-    private fromRegionPathAndComponentIndex(regionPath: RegionPath, componentIndex: number): ComponentPath {
+    public static fromRegionPathAndComponentIndex(regionPath: RegionPath, componentIndex: number): ComponentPath {
         api.util.assertNotNull(regionPath, 'regionPath cannot be null');
         api.util.assert(componentIndex >= 0, 'componentIndex must be zero or more');
 

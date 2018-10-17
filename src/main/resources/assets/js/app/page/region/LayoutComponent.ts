@@ -1,19 +1,20 @@
 import PropertyTree = api.data.PropertyTree;
 import DescriptorKey = api.content.page.DescriptorKey;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {Regions} from './Regions';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {Region} from './Region';
-import {ComponentPath} from './ComponentPath';
+import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
 import {Component} from './Component';
 import {LayoutComponentJson} from './LayoutComponentJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {ComponentName} from './ComponentName';
+import {LayoutRegionsMerger} from './LayoutRegionsMerger';
+import {LayoutBasedComponent, LayoutBasedComponentBuilder} from './LayoutBasedComponent';
 
 export class LayoutComponent
-    extends DescriptorBasedComponent
+    extends LayoutBasedComponent
     implements api.Equitable, api.Cloneable {
 
     public static debug: boolean = false;
@@ -30,10 +31,10 @@ export class LayoutComponent
         super(builder);
 
         if (builder.regions) {
-            this.regions = builder.regions;
-            this.regions.getRegions().forEach((region: Region) => {
+            builder.regions.getRegions().forEach((region: Region) => {
                 region.setParentPath(this.getPath());
             });
+            this.setRegions(builder.regions);
         } else {
             this.regions = Regions.create().build();
         }
@@ -50,7 +51,18 @@ export class LayoutComponent
     }
 
     public getComponent(path: ComponentPath): Component {
-        return this.regions.getComponent(path);
+        const first: ComponentPathRegionAndComponent = path.getFirstLevel();
+        const region = this.regions.getRegionByName(first.getRegionName());
+        const component = region.getComponentByIndex(first.getComponentIndex());
+
+        if (path.numberOfLevels() === 1) {
+            return component;
+        } else {
+            if (!api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+                throw new Error('Expected component to be a LayoutComponent: ' + api.ClassHelper.getClassName(component));
+            }
+            return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
+        }
     }
 
     public getRegions(): Regions {
@@ -85,7 +97,7 @@ export class LayoutComponent
 
     addRegions(layoutDescriptor: LayoutDescriptor) {
         let sourceRegions = this.getRegions();
-        let mergedRegions = sourceRegions.mergeRegions(layoutDescriptor.getRegions(), this);
+        const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, layoutDescriptor.getRegions(), this);
         this.setRegions(mergedRegions);
     }
 
@@ -149,7 +161,7 @@ export class LayoutComponent
 }
 
 export class LayoutComponentBuilder
-    extends DescriptorBasedComponentBuilder<LayoutComponent> {
+    extends LayoutBasedComponentBuilder<LayoutComponent> {
 
     regions: Regions;
 
@@ -164,21 +176,21 @@ export class LayoutComponentBuilder
         this.setType(LayoutComponentType.get());
     }
 
-    public fromJson(json: LayoutComponentJson, region: Region): LayoutComponent {
+    public fromJson(json: LayoutComponentJson, region: Region): LayoutComponentBuilder {
 
         if (json.descriptor) {
             this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
         }
+
         this.setName(json.name ? new ComponentName(json.name) : null);
+
         if (json.config) {
             this.setConfig(PropertyTree.fromJson(json.config));
         }
+
         this.setParent(region);
 
-        let layoutComponent = this.build();
-        let layoutRegions = Regions.fromJson(json.regions, layoutComponent);
-        layoutComponent.setRegions(layoutRegions);
-        return layoutComponent;
+        return this;
     }
 
     public setRegions(value: Regions): LayoutComponentBuilder {

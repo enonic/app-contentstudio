@@ -177,7 +177,7 @@ export class PageBuilder {
     public fromJson(json: PageJson): PageBuilder {
         this.setController(json.controller ? DescriptorKey.fromString(json.controller) : null);
         this.setTemplate(json.template ? PageTemplateKey.fromString(json.template) : null);
-        this.setRegions(json.regions != null ? Regions.fromJson(json.regions, null) : null);
+        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : null);
         this.setConfig(json.config != null
                        ? PropertyTree.fromJson(json.config)
                        : null);
@@ -185,8 +185,7 @@ export class PageBuilder {
 
         if (json.fragment) {
             // tslint:disable-next-line:max-line-length
-            let component: Component = ComponentFactory.createFromJson(
-                json.fragment as ComponentTypeWrapperJson, 0, null);
+            let component: Component = ComponentFactory.createFromJson(json.fragment as ComponentTypeWrapperJson, 0, null);
             this.setFragment(component);
         }
 

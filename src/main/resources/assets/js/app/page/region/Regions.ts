@@ -4,15 +4,9 @@ import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {RegionChangedEvent} from './RegionChangedEvent';
 import {RegionAddedEvent} from './RegionAddedEvent';
 import {RegionRemovedEvent} from './RegionRemovedEvent';
-import {LayoutComponent} from './LayoutComponent';
-import {LayoutRegionsMerger} from './LayoutRegionsMerger';
-import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
-import {Component} from './Component';
 import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {ComponentFactory} from './ComponentFactory';
 import RegionDescriptor = api.content.page.region.RegionDescriptor;
 
 export class Regions
@@ -48,10 +42,6 @@ export class Regions
 
             this.addRegion(region);
         });
-    }
-
-    mergeRegions(descriptorRegions: RegionDescriptor[], parent: LayoutComponent): Regions {
-        return new LayoutRegionsMerger().merge(this, descriptorRegions, parent);
     }
 
     addRegion(region: Region) {
@@ -94,24 +84,6 @@ export class Regions
     getRegionByName(name: string): Region {
 
         return this.regionByName[name];
-    }
-
-    getComponent(path: ComponentPath): Component {
-
-        let first: ComponentPathRegionAndComponent = path.getFirstLevel();
-        let region = this.getRegionByName(first.getRegionName());
-        let component = region.getComponentByIndex(first.getComponentIndex());
-
-        if (path.numberOfLevels() === 1) {
-            return component;
-        } else {
-            if (!api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                throw new Error('Expected component to be a LayoutComponent: ' + api.ClassHelper.getClassName(component));
-            }
-
-            let layoutComponent = <LayoutComponent> component;
-            return layoutComponent.getComponent(path.removeFirstLevel());
-        }
     }
 
     /**
@@ -276,20 +248,6 @@ export class Regions
     public static create(): RegionsBuilder {
 
         return new RegionsBuilder();
-    }
-
-    public static fromJson(regionsJson: RegionJson[], parent: LayoutComponent): Regions {
-
-        return Regions.create().setRegions(regionsJson.map((regionJson: RegionJson) => {
-            const region = Region.create().setName(regionJson.name).setParentPath(parent ? parent.getPath() : null).build();
-
-            regionJson.components.forEach((componentJson: ComponentTypeWrapperJson, componentIndex: number) => {
-                let component: Component = ComponentFactory.createFromJson(componentJson, componentIndex, region);
-                region.addComponent(component);
-            });
-
-            return region;
-        })).build();
     }
 }
 

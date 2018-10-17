@@ -38,7 +38,7 @@ import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
-import {Regions} from '../../page/region/Regions';
+import {ComponentFactory} from '../../page/region/ComponentFactory';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
@@ -901,7 +901,7 @@ export class LiveEditPageProxy {
 
     private resetRegionsForIE() {
         if (this.regionsCopyForIE) {
-            let regions = Regions.fromJson(this.regionsCopyForIE, null);
+            let regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
             this.liveEditModel.getPageModel().setRegions(regions);
         }
     }

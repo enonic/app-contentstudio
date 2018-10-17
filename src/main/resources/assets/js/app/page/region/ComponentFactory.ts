@@ -6,6 +6,9 @@ import {ImageComponentBuilder} from './ImageComponent';
 import {LayoutComponentBuilder} from './LayoutComponent';
 import {TextComponentBuilder} from './TextComponent';
 import {FragmentComponentBuilder} from './FragmentComponent';
+import {RegionJson} from './RegionJson';
+import {Regions} from './Regions';
+import {ComponentPath} from './ComponentPath';
 
 export class ComponentFactory {
 
@@ -16,9 +19,10 @@ export class ComponentFactory {
         } else if (json.ImageComponent) {
             return new ImageComponentBuilder().fromJson(json.ImageComponent, region).build();
         } else if (json.LayoutComponent) {
-            let layoutComponentBuilder = new LayoutComponentBuilder();
-            layoutComponentBuilder.setIndex(componentIndex);
-            return layoutComponentBuilder.fromJson(json.LayoutComponent, region);
+            const hasPath = !!region && componentIndex >= 0;
+            const path = hasPath ? Component.fromRegionPathAndComponentIndex(region.getPath(), componentIndex) : null;
+            const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions, path);
+            return new LayoutComponentBuilder().fromJson(json.LayoutComponent, region).setRegions(regions).setIndex(componentIndex).build();
         } else if (json.TextComponent) {
             return new TextComponentBuilder().fromJson(json.TextComponent, region).setIndex(componentIndex).build();
         } else if (json.FragmentComponent) {
@@ -26,5 +30,19 @@ export class ComponentFactory {
         } else {
             throw new Error('Not a component that can be placed in a Region: ' + json);
         }
+    }
+
+    public static createRegionsFromJson(regionsJson: RegionJson[], parentPath?: ComponentPath): Regions {
+
+        return Regions.create().setRegions(regionsJson.map((regionJson: RegionJson) => {
+            const region = Region.create().setName(regionJson.name).setParentPath(parentPath || null).build();
+
+            regionJson.components.forEach((componentJson: ComponentTypeWrapperJson, componentIndex: number) => {
+                let component: Component = ComponentFactory.createFromJson(componentJson, componentIndex, region);
+                region.addComponent(component);
+            });
+
+            return region;
+        })).build();
     }
 }

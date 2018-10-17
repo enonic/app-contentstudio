@@ -1,5 +1,4 @@
 import {Component} from './Component';
-import {LayoutComponent} from './LayoutComponent';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
@@ -9,6 +8,7 @@ import {RegionPath} from './RegionPath';
 import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {LayoutBasedComponent} from './LayoutBasedComponent';
 
 export class Region
     implements api.Equitable, api.Cloneable {
@@ -167,7 +167,7 @@ export class Region
     }
 
     private checkIllegalLayoutComponentWithinLayoutComponent(component: Component) {
-        if (this.parentPath && api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+        if (this.parentPath && api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutBasedComponent)) {
             throw new Error('Not allowed to have a LayoutComponent within a LayoutComponent: ' +
                             component.getPath().toString());
         }
