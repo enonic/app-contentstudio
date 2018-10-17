@@ -18,7 +18,6 @@ function handleGet() {
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
-        imagePreviewUrl: portal.serviceUrl({service: 'image-preview'}),
         stylesUrl: portal.serviceUrl({service: 'styles'})
     };
 

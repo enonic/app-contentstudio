@@ -20,6 +20,8 @@ export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
 
     protected scale: string = null; //scale params applied to image
 
+    protected readonly useOriginalParamName: string = 'source';
+
     setTimestamp(value: Date): ImagePreviewUrlResolver {
         this.ts = '' + value.getTime();
         return this;
@@ -55,15 +57,27 @@ export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
         return this;
     }
 
+    protected getBaseUrl(): string {
+        const url = 'content/image/' + this.contentId.toString();
+
+        return api.util.UriHelper.getRestUri(url);
+    }
+
+    protected getUseOriginalParamName(): string {
+        const url = 'content/image/' + this.contentId.toString();
+
+        return api.util.UriHelper.getRestUri(url);
+    }
+
     resolve(): string {
-        let url = 'content/image/' + this.contentId.toString();
+        let url = this.getBaseUrl();
 
         if (this.ts) {
             url = this.appendParam('ts', this.ts, url);
         }
 
         if (this.useOriginal) {
-            url = this.appendParam('source', 'true', url);
+            url = this.appendParam(this.useOriginalParamName, 'true', url);
         }
         else {
             if (this.size) {
@@ -79,31 +93,19 @@ export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
             }
         }
 
-        return api.util.UriHelper.getRestUri(url);
+        return url;
     }
 
 }
 
 export class ImageRenderUrlResolver extends ImagePreviewUrlResolver {
+
     public static imagePrefix: string = 'image://';
 
-    resolve(): string {
+    protected readonly useOriginalParamName: string = 'keepSize';
 
-        let url = ImageRenderUrlResolver.imagePrefix + this.contentId.toString();
-
-        if (this.useOriginal) {
-            url = this.appendParam('keepSize', 'true', url);
-        }
-        else {
-            if (this.size) {
-                url = this.appendParam('size', '' + this.size, url);
-            }
-
-            if (this.scale) {
-                url = this.appendParam('scale', this.scale, url);
-            }
-        }
-
-        return url;
+    protected getBaseUrl(): string {
+        return ImageRenderUrlResolver.imagePrefix + this.contentId.toString();
     }
+
 }
