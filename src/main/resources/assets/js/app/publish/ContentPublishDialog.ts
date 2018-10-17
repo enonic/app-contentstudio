@@ -3,7 +3,6 @@ import {isContentSummaryValid, PublishDialogDependantList} from './PublishDialog
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
-import {SchedulableDialog} from '../dialog/SchedulableDialog';
 import {PublishProcessor} from './PublishProcessor';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import {Issue} from '../issue/Issue';
@@ -11,6 +10,7 @@ import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
+import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import CompareStatus = api.content.CompareStatus;
 import ContentId = api.content.ContentId;
@@ -29,7 +29,7 @@ import i18n = api.util.i18n;
  * resolved dependencies usually differ in that case.
  */
 export class ContentPublishDialog
-    extends SchedulableDialog {
+    extends BasePublishDialog {
 
     private publishButton: ActionButton;
 

@@ -1,27 +1,27 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DefaultModels} from '../../../../wizard/page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from '../../../../wizard/page/DefaultModelsFactory';
 import {GetPageDescriptorByKeyRequest} from '../../../../resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../../../../resource/GetPageTemplateByKeyRequest';
+import {ContentQueryRequest} from '../../../../resource/ContentQueryRequest';
+import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
+import {EditContentEvent} from '../../../../event/EditContentEvent';
 import Content = api.content.Content;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
 import PageTemplate = api.content.page.PageTemplate;
 import Site = api.content.site.Site;
-import EditContentEvent = api.content.event.EditContentEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageMode = api.content.page.PageMode;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import i18n = api.util.i18n;
 import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
 import CompareExpr = api.query.expr.CompareExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import ValueExpr = api.query.expr.ValueExpr;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 
 export class PageTemplateWidgetItemView
@@ -45,7 +45,7 @@ export class PageTemplateWidgetItemView
             }
             this.content = content;
 
-            return this.loadPageTemplate().then((pageTemplateViewer) => this.layout());
+            return this.loadPageTemplate().then(() => this.layout());
         }
 
         return wemQ<any>(null);
@@ -63,12 +63,12 @@ export class PageTemplateWidgetItemView
             if (contentSummary) {
                 this.setContentAndUpdateView(contentSummary);
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
-                this.loadPageTemplate().then((pageTemplateViewer) => this.layout());
+                this.loadPageTemplate().then(() => this.layout());
             }
 
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
     }

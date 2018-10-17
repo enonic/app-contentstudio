@@ -1,18 +1,18 @@
-import '../../../api.ts';
+import {ContentQueryResult} from '../../resource/ContentQueryResult';
 
 export class ContentBrowseSearchData {
 
-    private contentQueryResult: api.content.resource.result.ContentQueryResult<any,any>;
+    private contentQueryResult: ContentQueryResult<any, any>;
     private contentQuery: api.content.query.ContentQuery;
 
-    constructor(contentQueryResult: api.content.resource.result.ContentQueryResult<any,any>,
+    constructor(contentQueryResult: ContentQueryResult<any, any>,
                 contentQuery?: api.content.query.ContentQuery) {
 
         this.contentQueryResult = contentQueryResult;
         this.contentQuery = contentQuery;
     }
 
-    getContentQueryResult(): api.content.resource.result.ContentQueryResult<any,any> {
+    getContentQueryResult(): ContentQueryResult<any, any> {
         return this.contentQueryResult;
     }
 

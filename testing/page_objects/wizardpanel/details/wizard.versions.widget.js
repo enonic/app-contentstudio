@@ -8,7 +8,7 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionsWidgetItemView')]`,
     versionsList: `//ul[contains(@id,'VersionsView')]`,
-    versionItem: `/li[contains(@class,'content-version-item')]`,
+    versionItem: `//li[contains(@class,'content-version-item')]`,
 };
 const wizardVersionsWidget = Object.create(baseVersionsWidget, {
 
@@ -34,6 +34,16 @@ const wizardVersionsWidget = Object.create(baseVersionsWidget, {
             });
         }
     },
+    clickOnRestoreThisVersion: {
+        value: function () {
+            let selector = xpath.versionItem + "//button";
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getDisplayedElements(selector)
+            }).then(result => {
+                return this.getBrowser().elementIdClick(result[0].ELEMENT);
+            });
+        }
+    }
 });
 module.exports = wizardVersionsWidget;
 

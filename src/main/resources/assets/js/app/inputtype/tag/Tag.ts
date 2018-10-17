@@ -8,17 +8,18 @@ import {ContentTagSuggester, ContentTagSuggesterBuilder} from './ContentTagSugge
 import {Tags, TagsBuilder} from '../ui/tag/Tags';
 import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
 import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 
 export class Tag
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
 
-    private context: api.content.form.inputtype.ContentInputTypeViewContext;
+    private context: ContentInputTypeViewContext;
 
     private tags: Tags;
 
     private tagSuggester: ContentTagSuggester;
 
-    constructor(context: api.content.form.inputtype.ContentInputTypeViewContext) {
+    constructor(context: ContentInputTypeViewContext) {
         super('tag');
         this.addClass('input-type-view');
 
@@ -27,7 +28,7 @@ export class Tag
         this.tagSuggester = new ContentTagSuggesterBuilder().setDataPath(this.resolveDataPath(context)).build();
     }
 
-    private resolveDataPath(context: api.content.form.inputtype.ContentInputTypeViewContext): PropertyPath {
+    private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
         if (context.parentDataPath) {
             return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
         } else {

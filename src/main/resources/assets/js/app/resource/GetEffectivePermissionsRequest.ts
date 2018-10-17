@@ -1,7 +1,7 @@
 import EffectivePermissionJson = api.content.json.EffectivePermissionJson;
 import EffectivePermission = api.ui.security.acl.EffectivePermission;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentId = api.content.ContentId;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetEffectivePermissionsRequest
     extends ContentResourceRequest<EffectivePermissionJson[], EffectivePermission[]> {

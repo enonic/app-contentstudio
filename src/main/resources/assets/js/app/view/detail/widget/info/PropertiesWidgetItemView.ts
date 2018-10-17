@@ -1,6 +1,6 @@
 import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
-
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import ContentSummary = api.content.ContentSummary;
 import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
 import Application = api.application.Application;
@@ -46,7 +46,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
             }
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished(layoutOnPublishStateChange);
 

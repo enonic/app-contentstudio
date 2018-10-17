@@ -1,6 +1,6 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import {GetPublishStatusesResult} from './GetPublishStatusesResult';
 import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetPublishStatusesRequest
     extends ContentResourceRequest<GetPublishStatusesResultJson, GetPublishStatusesResult> {

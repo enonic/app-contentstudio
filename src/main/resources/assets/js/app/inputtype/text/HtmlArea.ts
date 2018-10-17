@@ -12,6 +12,7 @@ import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {HTMLAreaBuilder} from '../ui/text/HTMLAreaBuilder';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 
 declare var CONFIG;
 
@@ -31,7 +32,7 @@ export class HtmlArea
     private editableSourceCode: boolean;
     private inputConfig: any;
 
-    constructor(config: api.content.form.inputtype.ContentInputTypeViewContext) {
+    constructor(config: ContentInputTypeViewContext) {
         super(config);
 
         this.addClass('html-area');

@@ -1,7 +1,7 @@
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetContentSummaryByIdRequest
     extends ContentResourceRequest<ContentSummaryJson, ContentSummary> {

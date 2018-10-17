@@ -1,6 +1,6 @@
 import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 import {ContentVersions} from '../ContentVersions';
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import {ContentResourceRequest} from './ContentResourceRequest';
 import ContentId = api.content.ContentId;
 
 export class GetContentVersionsForViewRequest

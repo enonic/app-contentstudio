@@ -1,4 +1,3 @@
-import '../api.ts';
 import {ViewContentEvent} from './browse/ViewContentEvent';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {NewContentEvent} from './create/NewContentEvent';
@@ -8,6 +7,8 @@ import {IssueDialogsManager} from './issue/IssueDialogsManager';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
 import {Router} from './Router';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
+import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
+import {EditContentEvent} from './event/EditContentEvent';
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Content = api.content.Content;
 import ContentId = api.content.ContentId;
@@ -38,15 +39,15 @@ export class ContentAppPanel
         switch (action) {
         case 'edit':
             if (id) {
-                api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
-                        new api.content.event.EditContentEvent([content]).fire();
+                        new EditContentEvent([content]).fire();
                     });
             }
             break;
         case 'view' :
             if (id) {
-                api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
                         new ViewContentEvent([content]).fire();
                     });
@@ -105,7 +106,7 @@ export class ContentAppPanel
 
     private handleDependencies(id: string, inbound: boolean) {
         const treeGridLoadedListener = () => {
-            api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+            ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                 (content: ContentSummaryAndCompareStatus) => {
                     new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
 

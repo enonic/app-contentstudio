@@ -1,20 +1,19 @@
-import '../../api.ts';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentIds} from '../ContentIds';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import ContentPath = api.content.ContentPath;
 import ContentSummary = api.content.ContentSummary;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
 import TreeNode = api.ui.treegrid.TreeNode;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import ProgressBarManager = api.ui.dialog.ProgressBarManager;
 import TaskId = api.task.TaskId;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import SpanEl = api.dom.SpanEl;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
-import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
 
 export class MoveContentDialog
     extends api.ui.dialog.ModalDialog

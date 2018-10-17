@@ -1,10 +1,11 @@
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
+import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
+import {ContentQueryResult} from '../../resource/ContentQueryResult';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummary = api.content.ContentSummary;
 import AggregationGroupView = api.aggregation.AggregationGroupView;
 import Aggregation = api.aggregation.Aggregation;
@@ -44,6 +45,40 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         super();
 
         this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+
+        this.handleEvents();
+    }
+
+    private handleEvents() {
+        const handler = ContentServerEventsHandler.getInstance();
+
+        handler.onContentDeleted((data: api.content.event.ContentServerChangeItem[]) => {
+            if (!this.dependenciesSection.isActive()) {
+                return;
+            }
+
+            const isDependencyItemDeleted = data.some((item: api.content.event.ContentServerChangeItem) => {
+                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
+            });
+
+            if (isDependencyItemDeleted) {
+                this.removeDependencyItem();
+            }
+        });
+
+        handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => {
+            if (!this.dependenciesSection.isActive()) {
+                return;
+            }
+
+            const isDependencyItemUpdated = data.some((item: ContentSummaryAndCompareStatus) => {
+                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
+            });
+
+            if (isDependencyItemUpdated) {
+                this.search();
+            }
+        });
     }
 
     protected getGroupViews(): api.aggregation.AggregationGroupView[] {
@@ -60,13 +95,13 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
 
     protected appendExtraSections() {
         super.appendExtraSections();
-        this.dependenciesSection = new DependenciesSection(this.removeDependencyItemCallback.bind(this));
+        this.dependenciesSection = new DependenciesSection(this.removeDependencyItem.bind(this));
         this.appendChild(this.dependenciesSection);
     }
 
-    private removeDependencyItemCallback() {
-        this.resetConstraints();
+    private removeDependencyItem() {
         this.dependenciesSection.reset();
+        this.resetConstraints();
         this.search();
         Router.back();
     }
@@ -177,7 +212,10 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         } else if (this.hasSearchStringSet()) { // if still no result and search text is set remove last modified facet
             this.deselectAll();
             return this.searchDataAndHandleResponse(this.cloneContentQueryNoAggregations(contentQuery));
+        } else if (this.dependenciesSection.isActive()) {
+            this.removeDependencyItem();
         }
+
         return this.reset();
     }
 

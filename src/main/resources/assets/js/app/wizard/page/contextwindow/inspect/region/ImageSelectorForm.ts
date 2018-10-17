@@ -1,5 +1,4 @@
-import '../../../../../../api.ts';
-import ImageContentComboBox = api.content.image.ImageContentComboBox;
+import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
 
 export class ImageSelectorForm extends api.ui.form.Form {
 

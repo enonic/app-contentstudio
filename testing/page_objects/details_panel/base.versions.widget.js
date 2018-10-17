@@ -11,8 +11,10 @@ const baseVersionsWidget = Object.create(page, {
     //click on a version and expand the content-version-item
     clickAndExpandVersion: {
         value: function (index) {
-            return this.elements(this.versionItems).then(items => {
-                return this.getBrowser().elementIdClick(result[index].ELEMENT);
+            return this.waitForVisible(this.versionItems).then(()=>{
+                return this.elements(this.versionItems);
+            }).then(items => {
+                return this.getBrowser().elementIdClick(items.value[index].ELEMENT);
             });
         }
     },

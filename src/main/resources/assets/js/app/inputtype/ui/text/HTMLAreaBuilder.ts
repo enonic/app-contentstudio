@@ -9,6 +9,7 @@ import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDia
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {StylesRequest} from './styles/StylesRequest';
 import {Styles} from './styles/Styles';
+import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -405,7 +406,7 @@ export class HTMLAreaBuilder {
     }
 
     private fileExists(fileName: string): wemQ.Promise<boolean> {
-        return new api.content.resource.GetContentByPathRequest(
+        return new GetContentByPathRequest(
             new api.content.ContentPath([this.content.getPath().toString(), fileName])).sendAndParse().then(() => {
             return true;
         }).catch((reason: any) => {

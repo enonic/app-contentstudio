@@ -13,28 +13,28 @@
 
 .icon-spinner {
   .icon;
-  &:before {
+  &::before {
     content: "\e007";
   }
 }
 
 .icon-image {
   .icon;
-  &:before {
+  &::before {
     content: "\e90d";
   }
 }
 
 .icon-calendar {
   .icon;
-  &:before {
+  &::before {
     content: "\e953";
   }
 }
 
 .icon-pie {
   .icon;
-  &:before {
+  &::before {
     content: "\e1f7";
   }
 }
@@ -45,42 +45,42 @@
 
 .icon-signup {
   .icon;
-  &:before {
+  &::before {
     content: "\e296";
   }
 }
 
 .icon-list {
   .icon;
-  &:before {
+  &::before {
     content: "\e299";
   }
 }
 
 .icon-attachment {
   .icon;
-  &:before {
+  &::before {
     content: "\e9cd";
   }
 }
 
 .icon-close {
   .icon;
-  &:before {
+  &::before {
     content: "\e36b";
   }
 }
 
 .icon-plus {
   .icon;
-  &:before {
+  &::before {
     content: "\e36c";
   }
 }
 
 .icon-keyboard_arrow_left {
   .icon;
-  &:before {
+  &::before {
     content: "\e900";
   }
 }
@@ -96,28 +96,28 @@
 
 .icon-arrow-left2 {
   .icon;
-  &:before {
+  &::before {
     content: "\ea40";
   }
 }
 
 .icon-font-size {
   .icon;
-  &:before {
+  &::before {
     content: "\ea62";
   }
 }
 
 .icon-insert-template {
   .icon;
-  &:before {
+  &::before {
     content: "\ea73";
   }
 }
 
 .icon-layout {
   .icon-insert-template;
-  &:before {
+  &::before {
     display: inline-block;
     .rotate(90deg);
   }
@@ -125,7 +125,7 @@
 
 .icon-more_vert {
   .icon;
-  &:before {
+  &::before {
     content: "\e5d4";
   }
 }
@@ -136,21 +136,37 @@
 
 .icon-wrench {
   .icon;
-  &:before {
+  &::before {
     content: "\e992";
   }
 }
 
 .icon-pencil {
   .icon;
-  &:before {
+  &::before {
     content: "\e906";
   }
 }
 
 .icon-disk {
   .icon;
-  &:before {
+  &::before {
     content: "\e134";
+  }
+}
+
+.icon-tree.mode-toggler-button {
+  .icon;
+  &::before {
+    content: "\e92f";
+  }
+
+  &.active {
+    &::before {
+      content: "\e930";
+    }
+  }
+  &::before {
+    font-size: 22px;
   }
 }

@@ -3,23 +3,36 @@ import {DependantItemsDialog, DependantItemsDialogConfig} from '../dialog/Depend
 import ProgressBarManager = api.ui.dialog.ProgressBarManager;
 import TaskId = api.task.TaskId;
 import TaskState = api.task.TaskState;
-import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
+import TaskProgressInterface = api.ui.dialog.TaskProgressInterface;
+import applyMixins = api.ui.dialog.applyMixins;
 
-export interface DependantItemsWithProgressDialogConfig
-    extends DependantItemsDialogConfig {
-    processingLabel: string;
-    processHandler: () => void;
-}
-
-export class DependantItemsWithProgressDialog
+export abstract class DependantItemsWithProgressDialog
     extends DependantItemsDialog
-    implements ManagedActionExecutor {
+    implements TaskProgressInterface {
 
-    protected progressManager: ProgressBarManager;
+    //
+    progressManager: ProgressBarManager;
+
+    show() {
+        super.show(this.isProgressBarEnabled());
+    }
+
+    //
+    // fields
+    //
+    isProgressBarEnabled: () => boolean;
+
+    //
+    // methods
+    pollTask: (taskId: TaskId) => void;
+    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
+    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
+    isExecuting: () => boolean;
 
     constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
-        this.progressManager = new ProgressBarManager({
+
+        TaskProgressInterface.prototype.constructor.call(this, {
             processingLabel: config.processingLabel,
             processHandler: config.processHandler,
             unlockControlsHandler: () => {
@@ -28,28 +41,12 @@ export class DependantItemsWithProgressDialog
             managingElement: this
         });
     }
-
-    protected isProgressBarEnabled(): boolean {
-        return this.progressManager.isEnabled();
-    }
-
-    protected pollTask(taskId: TaskId) {
-        this.progressManager.pollTask(taskId);
-    }
-
-    protected onProgressComplete(listener: (taskState: TaskState) => void) {
-        this.progressManager.onProgressComplete(listener);
-    }
-
-    protected unProgressComplete(listener: (taskState: TaskState) => void) {
-        this.progressManager.unProgressComplete(listener);
-    }
-
-    show() {
-        super.show(this.isProgressBarEnabled());
-    }
-
-    isExecuting(): boolean {
-        return this.progressManager.isActive();
-    }
 }
+
+export interface DependantItemsWithProgressDialogConfig
+    extends DependantItemsDialogConfig {
+    processingLabel: string;
+    processHandler: () => void;
+}
+
+applyMixins(DependantItemsWithProgressDialog, [TaskProgressInterface]);

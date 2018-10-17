@@ -1,9 +1,9 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentId = api.content.ContentId;
 import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
 import {ActiveContentVersionJson} from './json/ActiveContentVersionJson';
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {ContentVersion} from '../ContentVersion';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetActiveContentVersionsRequest
     extends ContentResourceRequest<GetActiveContentVersionsResultsJson, ContentVersion[]> {

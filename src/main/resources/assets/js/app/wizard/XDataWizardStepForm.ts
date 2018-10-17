@@ -3,9 +3,13 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 import Form = api.form.Form;
 import FormView = api.form.FormView;
 import PropertyTree = api.data.PropertyTree;
+import XDataName = api.schema.xdata.XDataName;
+import XData = api.schema.xdata.XData;
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
+
+    private xDataName: XDataName;
 
     private optional: boolean;
 
@@ -15,11 +19,16 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: { (value: boolean): void }[] = [];
 
-    constructor(external: boolean) {
+    constructor(xData: XData) {
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.optional = external;
+        this.xDataName = xData.getXDataName();
+        this.optional = xData.isOptional();
+    }
+
+    getXDataName(): XDataName {
+        return this.xDataName;
     }
 
     setExpandState(value: boolean) {
@@ -73,6 +82,18 @@ export class XDataWizardStepForm
         this.setEnabled(!this.optional || data.getRoot().getSize() > 0, true);
     }
 
+    resetHeaderState() {
+        if (this.outerHeader) {
+            this.outerHeader.setTogglerState(this.enabled, true);
+        }
+    }
+
+    private setHeaderState(enabled: boolean, silent: boolean = false) {
+        if (this.outerHeader) {
+            this.outerHeader.setTogglerState(enabled, silent);
+        }
+    }
+
     private setEnabled(value: boolean, silent: boolean = false) {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
@@ -104,9 +125,7 @@ export class XDataWizardStepForm
             }
         }
 
-        if (this.outerHeader) {
-            this.outerHeader.setTogglerState(this.enabled, true);
-        }
+        this.setHeaderState(this.enabled, true);
 
         if (!silent) {
             this.notifyEnableChanged(value);

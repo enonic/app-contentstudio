@@ -14,6 +14,8 @@ import ApplicationEventType = api.application.ApplicationEventType;
 import ApplicationConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentFormContext} from '../../ContentFormContext';
 
 export class SiteConfigurator
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
@@ -24,11 +26,11 @@ export class SiteConfigurator
 
     private siteConfigProvider: ApplicationConfigProvider;
 
-    private formContext: api.content.form.ContentFormContext;
+    private formContext: ContentFormContext;
 
     private readOnlyPromise: wemQ.Promise<void>;
 
-    constructor(config: api.content.form.inputtype.ContentInputTypeViewContext) {
+    constructor(config: ContentInputTypeViewContext) {
         super('application-configurator');
         this.formContext = config.formContext;
 
@@ -85,11 +87,10 @@ export class SiteConfigurator
 
             this.siteConfigProvider.setPropertyArray(propertyArray);
 
+            this.deselectOldViews(propertyArray);
+
             const selectedOptionViews = propertyArray.map(property =>
                 <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property).getOptionView());
-
-            const optionsToDeselect = this.getOptionsToDeselect(selectedOptionViews);
-            optionsToDeselect.forEach(option => this.comboBox.deselect(option.getApplication(), true));
 
             const updatePromises = selectedOptionViews.map((view, index) => {
                 const configSet = propertyArray.get(index).getPropertySet().getProperty('config').getPropertySet();
@@ -113,10 +114,19 @@ export class SiteConfigurator
         return option.getApplication().getApplicationKey().toString();
     }
 
-    private getOptionsToDeselect(selectedOptionViews: SiteConfiguratorSelectedOptionView[]) {
-        return this.comboBox.getSelectedOptionViews().filter(oldView => !selectedOptionViews.some(newView =>
-            SiteConfigurator.optionViewToKey(newView) === SiteConfigurator.optionViewToKey(oldView))
-        );
+    private deselectOldViews(newPropertyArray: PropertyArray) {
+
+        this.comboBox.getSelectedOptionViews().forEach(oldView => {
+            const haveToDeselect = !newPropertyArray.some(property => {
+                const key = property.getPropertySet().getProperty('applicationKey').getValue().getString();
+                return SiteConfigurator.optionViewToKey(oldView) === key;
+
+            });
+
+            if (haveToDeselect) {
+                this.comboBox.deselect(oldView.getApplication(), true);
+            }
+        });
     }
 
     private selectOptionFromProperty(property: Property): SelectedOption<Application> {

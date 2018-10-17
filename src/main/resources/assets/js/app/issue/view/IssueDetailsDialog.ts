@@ -1,4 +1,3 @@
-import {SchedulableDialog} from '../../dialog/SchedulableDialog';
 import {Issue} from '../Issue';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {Router} from '../../Router';
@@ -19,9 +18,12 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
+import {BasePublishDialog} from '../../dialog/BasePublishDialog';
+import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
 import TaskState = api.task.TaskState;
 import ListBox = api.ui.selector.list.ListBox;
 import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
@@ -44,7 +46,7 @@ import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentId = api.content.ContentId;
 
 export class IssueDetailsDialog
-    extends SchedulableDialog {
+    extends BasePublishDialog {
 
     private issue: Issue;
 
@@ -64,7 +66,7 @@ export class IssueDetailsDialog
     private detailsSubTitle: DetailsDialogSubTitle;
     private publishAction: ContentPublishDialogAction;
     private publishButton: api.ui.button.MenuButton;
-    private itemSelector: api.content.ContentComboBox<api.content.resource.ContentTreeSelectorItem>;
+    private itemSelector: ContentComboBox<ContentTreeSelectorItem>;
     private publishProcessor: PublishProcessor;
     private saveOnLoaded: boolean;
     private skipNextServerUpdatedEvent: boolean;
@@ -244,7 +246,7 @@ export class IssueDetailsDialog
 
     private createItemsPanel() {
         const itemsPanel = new Panel();
-        this.itemSelector = api.content.ContentComboBox.create()
+        this.itemSelector = ContentComboBox.create()
             .setShowStatus(true)
             .setHideComboBoxWhenMaxReached(false)
             .build();
@@ -287,7 +289,7 @@ export class IssueDetailsDialog
     }
 
     public reloadItemList() {
-        api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
             this.getItemList().replaceItems(items);
             this.getItemList().refreshList();
 

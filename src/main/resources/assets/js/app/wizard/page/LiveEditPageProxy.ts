@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
@@ -36,9 +35,9 @@ import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaD
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
+import {EditContentEvent} from '../../event/EditContentEvent';
 import Component = api.content.page.region.Component;
 import Workspace = api.content.Branch;
-import EditContentEvent = api.content.event.EditContentEvent;
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import i18n = api.util.i18n;
 
