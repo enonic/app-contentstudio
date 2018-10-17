@@ -5,6 +5,7 @@ import ValueTypes = api.data.ValueTypes;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ImagePreviewUrlResolver} from '../../util/ImageUrlResolver';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -119,9 +120,11 @@ export class MediaUploader
     private manageSVGImageIfPresent(content: api.content.Content) {
         if (content.getType().isVectorMedia()) {
             this.addClass('with-svg-image');
-            let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
-                this.getContext().content.getContentId()).setTimestamp(
-                content.getModifiedTime()).resolve();
+            let imgUrl = new ImagePreviewUrlResolver()
+                .setContentId(this.getContext().content.getContentId())
+                .setTimestamp(content.getModifiedTime())
+                .setUseOriginal(true)
+                .resolve();
 
             this.svgImage.setSrc(imgUrl);
         } else {
@@ -162,9 +165,10 @@ export class MediaUploader
 
             let content = this.config.formContext.getPersistedContent();
 
-            let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
-                this.getContext().content.getContentId()).setTimestamp(
-                content.getModifiedTime()).resolve();
+            let imgUrl = new ImagePreviewUrlResolver()
+                            .setContentId(this.getContext().content.getContentId())
+                            .setTimestamp(content.getModifiedTime())
+                            .resolve();
 
             this.svgImage.setSrc(imgUrl);
 

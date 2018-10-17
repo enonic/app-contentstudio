@@ -1,31 +1,52 @@
-declare var CONFIG;
+import ContentId = api.content.ContentId;
 
 export interface ImageUrlParameters {
     id: string;
-    useActualWidth?: boolean;
+    useOriginal?: boolean;
     scale?: string;
 }
 
 export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
 
-    public static maxImageWidth: number = 610; // Modal dialog width (660px) minus side padding (30px + 20px)
-    protected contentId: api.content.ContentId;
-    protected width: string = '' + ImagePreviewUrlResolver.maxImageWidth;
-    protected scale: string;
-    protected useActualWidth: boolean = false;
+    protected contentId: ContentId;
+
+    protected size: number = 0;
+
+    private ts: string = null;
+
+    private scaleWidth: boolean = false; // parameter states if width of the image must be preferred over its height
+
+    protected useOriginal: boolean = false; // parameter states if the source image should be used (without processing)
+
+    protected scale: string = null; //scale params applied to image
+
+    setTimestamp(value: Date): ImagePreviewUrlResolver {
+        this.ts = '' + value.getTime();
+        return this;
+    }
 
     setContentId(value: api.content.ContentId): ImagePreviewUrlResolver {
         this.contentId = value;
         return this;
     }
 
-    setWidth(value: string): ImagePreviewUrlResolver {
-        this.width = value;
+    setWidth(value: number): ImagePreviewUrlResolver {
+        this.setSize(value).scaleWidth = true;
         return this;
     }
 
-    setUseActualWidth(value: boolean): ImagePreviewUrlResolver {
-        this.useActualWidth = value;
+    setSize(value: number): ImagePreviewUrlResolver {
+        this.size = Math.floor(value);
+        return this;
+    }
+
+    setUseOriginal(value: boolean): ImagePreviewUrlResolver {
+        this.useOriginal = value;
+        return this;
+    }
+
+    setScaleWidth(value: boolean): ImagePreviewUrlResolver {
+        this.scaleWidth = value;
         return this;
     }
 
@@ -35,22 +56,32 @@ export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
     }
 
     resolve(): string {
+        let url = 'content/image/' + this.contentId.toString();
 
-        let url = this.appendParam('id', this.contentId.toString(), CONFIG.imagePreviewUrl);
-
-        if (this.scale) {
-            url = this.appendParam('scale', this.scale, url);
+        if (this.ts) {
+            url = this.appendParam('ts', this.ts, url);
         }
 
-        if (this.useActualWidth) {
-            url = this.appendParam('actual', 'true', url);
+        if (this.useOriginal) {
+            url = this.appendParam('source', 'true', url);
         }
         else {
-            url = this.appendParam('width', this.width, url);
+            if (this.size) {
+                url = this.appendParam('size', '' + this.size, url);
+            }
+
+            if (this.scaleWidth) {
+                url = this.appendParam('scaleWidth', 'true', url);
+            }
+
+            if (this.scale) {
+                url = this.appendParam('scale', this.scale, url);
+            }
         }
 
-        return url;
+        return api.util.UriHelper.getRestUri(url);
     }
+
 }
 
 export class ImageRenderUrlResolver extends ImagePreviewUrlResolver {
@@ -60,15 +91,17 @@ export class ImageRenderUrlResolver extends ImagePreviewUrlResolver {
 
         let url = ImageRenderUrlResolver.imagePrefix + this.contentId.toString();
 
-        if (this.scale) {
-            url = this.appendParam('scale', this.scale, url);
-        }
-
-        if (this.useActualWidth) {
+        if (this.useOriginal) {
             url = this.appendParam('keepSize', 'true', url);
         }
         else {
-            url = this.appendParam('size', this.width, url);
+            if (this.size) {
+                url = this.appendParam('size', '' + this.size, url);
+            }
+
+            if (this.scale) {
+                url = this.appendParam('scale', this.scale, url);
+            }
         }
 
         return url;

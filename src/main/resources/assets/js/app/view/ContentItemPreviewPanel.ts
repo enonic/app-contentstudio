@@ -9,6 +9,7 @@ import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
+import {ImagePreviewUrlResolver} from '../util/ImageUrlResolver';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -54,7 +55,7 @@ export class ContentItemPreviewPanel
 
         this.onShown((event) => {
             if (this.item && this.hasClass('image-preview')) {
-                this.addImageSizeToUrl(this.item);
+                this.setImageSrc(this.item);
             }
         });
 
@@ -139,10 +140,20 @@ export class ContentItemPreviewPanel
 
     }
 
-    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        let imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
-        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
-            item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
+    private setImageSrc(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const content = item.getModel().getContentSummary();
+        const resolver = new ImagePreviewUrlResolver()
+            .setContentId(content.getContentId())
+            .setTimestamp(content.getModifiedTime());
+
+        if (content.getType().equals(ContentTypeName.MEDIA_VECTOR)) {
+            resolver.setUseOriginal(true);
+        } else {
+            const imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
+            resolver.setSize(imgSize);
+        }
+
+        const imgUrl = resolver.resolve();
         this.image.setSrc(imgUrl);
     }
 
@@ -157,14 +168,11 @@ export class ContentItemPreviewPanel
                 if (this.isVisible()) {
                     if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
                         this.setPreviewType(PREVIEW_TYPE.SVG);
-                        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
-                            item.getModel().getContentId()).setTimestamp(
-                            item.getModel().getContentSummary().getModifiedTime()).resolve();
-                        this.image.setSrc(imgUrl);
                     } else {
-                        this.addImageSizeToUrl(item);
                         this.setPreviewType(PREVIEW_TYPE.IMAGE);
                     }
+
+                    this.setImageSrc(item);
                 } else {
                     this.setPreviewType(PREVIEW_TYPE.IMAGE);
                 }

@@ -672,7 +672,7 @@ export class ImageDialogToolbar
         const imageEl = this.image.getEl();
         const imageUrlParams: ImageUrlParameters = {
             id: this.imageId,
-            useActualWidth: this.keepOriginalSizeCheckbox.isChecked(),
+            useOriginal: this.keepOriginalSizeCheckbox.isChecked(),
             scale: isCroppingSelected ? this.imageCroppingSelector.getSelectedOption().displayValue.getProportionString() : ''
         };
 
