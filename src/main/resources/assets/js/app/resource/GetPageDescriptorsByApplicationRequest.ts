@@ -1,4 +1,5 @@
 import {PageDescriptorResourceRequest} from './PageDescriptorResourceRequest';
+import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
 import PageDescriptorJson = api.content.page.PageDescriptorJson;
@@ -8,10 +9,13 @@ export class GetPageDescriptorsByApplicationRequest
 
     private applicationKey: api.application.ApplicationKey;
 
+    private cache: ApplicationBasedCache<PageDescriptor>;
+
     constructor(applicationKey: api.application.ApplicationKey) {
         super();
         super.setMethod('GET');
         this.applicationKey = applicationKey;
+        this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationRequest);
     }
 
     getParams(): Object {

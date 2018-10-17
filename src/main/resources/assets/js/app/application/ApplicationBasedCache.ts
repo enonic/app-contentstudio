@@ -4,14 +4,33 @@ import ApplicationEventType = api.application.ApplicationEventType;
 import ApplicationCaches = api.application.ApplicationCaches;
 import Descriptor = api.content.page.Descriptor;
 import DescriptorKey = api.content.page.DescriptorKey;
+import ResourceRequest = api.rest.ResourceRequest;
 
-export abstract class ApplicationBasedCache<T extends Descriptor, TKEY extends DescriptorKey> {
+export interface CacheableRequest {
+    new(keys: ApplicationKey): ResourceRequest<any, Descriptor[]>;
+}
 
-    private applicationCaches: ApplicationCaches<SimpleApplicationCache<T, TKEY>>;
+export class ApplicationBasedCache<T extends Descriptor> {
 
-    protected constructor() {
+    // tslint:disable-next-line variable-name
+    static registerCache<T extends Descriptor>(descriptor: typeof Descriptor, Request: CacheableRequest): ApplicationBasedCache<T> {
+        const w = api.dom.WindowDOM.get();
+        const topWindow: any = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();
 
-        this.applicationCaches = new ApplicationCaches<SimpleApplicationCache<T, TKEY>>();
+        const cacheName = `${api.ClassHelper.getFunctionName(descriptor)}Cache`;
+
+        if (!topWindow[cacheName]) {
+            const loadByApplication = (key: ApplicationKey) => new Request(key).sendAndParse().catch(api.DefaultErrorHandler.handle);
+            topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplication);
+        }
+        return topWindow[cacheName];
+    }
+
+    private applicationCaches: ApplicationCaches<SimpleApplicationCache<T>>;
+
+    protected constructor(loadByApplication: (key: ApplicationKey) => void) {
+
+        this.applicationCaches = new ApplicationCaches<SimpleApplicationCache<T>>();
 
         ApplicationEvent.on((event: ApplicationEvent) => {
             const key = event.getApplicationKey().toString();
@@ -19,15 +38,13 @@ export abstract class ApplicationBasedCache<T extends Descriptor, TKEY extends D
 
             if (ApplicationEventType.STARTED === event.getEventType()) {
                 console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key}`);
-                this.loadByApplication(event.getApplicationKey());
+                loadByApplication(event.getApplicationKey());
             } else if (ApplicationEventType.STOPPED === event.getEventType()) {
                 console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key}`);
                 this.deleteByApplicationKey(event.getApplicationKey());
             }
         });
     }
-
-    protected abstract loadByApplication(_applicationKey: ApplicationKey);
 
     getByApplication(applicationKey: ApplicationKey): T[] {
         api.util.assertNotNull(applicationKey, 'applicationKey not given');
@@ -38,7 +55,7 @@ export abstract class ApplicationBasedCache<T extends Descriptor, TKEY extends D
         return cache.getAll();
     }
 
-    getByKey(key: TKEY): T {
+    getByKey(key: DescriptorKey): T {
         api.util.assertNotNull(key, 'key not given');
 
         const applicationKey = key.getApplicationKey();
@@ -59,8 +76,8 @@ export abstract class ApplicationBasedCache<T extends Descriptor, TKEY extends D
         cache.put(descriptor);
     }
 
-    createApplicationCache(): SimpleApplicationCache<T, TKEY> {
-        return new SimpleApplicationCache<T, TKEY>();
+    createApplicationCache(): SimpleApplicationCache<T> {
+        return new SimpleApplicationCache<T>();
     }
 
     private deleteByApplicationKey(applicationKey: ApplicationKey) {
@@ -68,18 +85,18 @@ export abstract class ApplicationBasedCache<T extends Descriptor, TKEY extends D
     }
 }
 
-export class SimpleApplicationCache<T extends Descriptor, TKEY extends DescriptorKey>
-    extends api.cache.Cache<T, TKEY> {
+export class SimpleApplicationCache<T extends Descriptor>
+    extends api.cache.Cache<T, DescriptorKey> {
 
     copy(object: T): T {
         return <T>object.clone();
     }
 
-    getKeyFromObject(object: T): TKEY {
-        return <TKEY>object.getKey();
+    getKeyFromObject(object: T): DescriptorKey {
+        return object.getKey();
     }
 
-    getKeyAsString(key: TKEY): string {
+    getKeyAsString(key: DescriptorKey): string {
         return key.toString();
     }
 }

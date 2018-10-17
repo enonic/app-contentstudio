@@ -1,16 +1,21 @@
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import LayoutDescriptorsJson = api.content.page.region.LayoutDescriptorsJson;
-import {LayoutDescriptorsResourceRequest} from './LayoutDescriptorsResourceRequest';
+import LayoutDescriptorJson = api.content.page.region.LayoutDescriptorJson;
+import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
+import {LayoutDescriptorResourceRequest} from './LayoutDescriptorResourceRequest';
 
 export class GetLayoutDescriptorsByApplicationRequest
-    extends LayoutDescriptorsResourceRequest {
+    extends LayoutDescriptorResourceRequest<LayoutDescriptorsJson, LayoutDescriptor[]> {
 
     private applicationKey: api.application.ApplicationKey;
+
+    private cache: ApplicationBasedCache<LayoutDescriptor>;
 
     constructor(applicationKey: api.application.ApplicationKey) {
         super();
         super.setMethod('GET');
         this.applicationKey = applicationKey;
+        this.cache = ApplicationBasedCache.registerCache<LayoutDescriptor>(LayoutDescriptor, GetLayoutDescriptorsByApplicationRequest);
     }
 
     getParams(): Object {
@@ -30,7 +35,11 @@ export class GetLayoutDescriptorsByApplicationRequest
             return wemQ(cached);
         } else {
             return this.send().then((response: api.rest.JsonResponse<LayoutDescriptorsJson>) => {
-                return this.fromJsonToLayoutDescriptors(response.getResult());
+                return response.getResult().descriptors.map((descriptorJson: LayoutDescriptorJson) => {
+                    const descriptor = LayoutDescriptor.fromJson(descriptorJson);
+                    this.cache.put(descriptor);
+                    return descriptor;
+                });
             });
         }
     }
