@@ -665,6 +665,7 @@ export class ImageDialogToolbar
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
             imageUrlParams.scale = selectedStyle.getAspectRatio();
+            imageEl.setAttribute('class', selectedOption.value);
         }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
