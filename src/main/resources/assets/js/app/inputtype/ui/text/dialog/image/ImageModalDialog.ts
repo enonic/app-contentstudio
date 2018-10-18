@@ -8,6 +8,7 @@ import Content = api.content.Content;
 import eventInfo = CKEDITOR.eventInfo;
 import ContentId = api.content.ContentId;
 import AppHelper = api.util.AppHelper;
+import ActionButton = api.ui.button.ActionButton;
 import {OverrideNativeDialog} from './../OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import i18n = api.util.i18n;
@@ -26,6 +27,7 @@ import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 import {ImageStyleOption} from './ImageStyleOptions';
+import {StyleHelper, StyleType} from '../../styles/StyleHelper';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -495,13 +497,7 @@ export class ImageDialogToolbar
 
     private imageId: string;
 
-    private justifyButton: api.ui.button.ActionButton;
-
-    private alignLeftButton: api.ui.button.ActionButton;
-
-    private centerButton: api.ui.button.ActionButton;
-
-    private alignRightButton: api.ui.button.ActionButton;
+    private alignmentButtons: ActionButton[] = [];
 
     private keepOriginalSizeCheckbox: api.ui.Checkbox;
 
@@ -516,33 +512,41 @@ export class ImageDialogToolbar
         this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
 
-        super.addElement(this.justifyButton = this.createJustifiedButton());
-        super.addElement(this.alignLeftButton = this.createLeftAlignedButton());
-        super.addElement(this.centerButton = this.createCenteredButton());
-        super.addElement(this.alignRightButton = this.createRightAlignedButton());
+        this.createAlignmentButtons();
         super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
         super.addElement(this.keepOriginalSizeCheckbox = this.createKeepOriginalSizeCheckbox());
         this.initKeepSizeCheckbox();
-        this.initActiveButton();
     }
 
-    private createJustifiedButton(): api.ui.button.ActionButton {
-        return this.createAlignmentButton('icon-paragraph-justify');
+    private createAlignmentButtons() {
+        const alignmentStyles = StyleHelper.getOfType(StyleType[StyleType.ALIGNMENT]);
+        const hasAlignment = alignmentStyles.some(style => this.image.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));
+
+        this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY, !hasAlignment);
+        this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT);
+        this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER);
+        this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT);
     }
 
-    private createLeftAlignedButton(): api.ui.button.ActionButton {
-        return this.createAlignmentButton('icon-paragraph-left');
+    private removeClassesOfTheSameType(styleClass: string) {
+        const appliedClasses = this.image.getClass().split(' ');
+        (appliedClasses || []).forEach(appliedClass => {
+            if (StyleHelper.isOfSameType(appliedClass, styleClass)) {
+                this.image.removeClass(appliedClass);
+            }
+        });
     }
 
-    private createCenteredButton(): api.ui.button.ActionButton {
-        return this.createAlignmentButton('icon-paragraph-center');
+    private addClassToImage(styleClass: string) {
+        const imageClass = this.image.getClass().trim();
+        if (imageClass) {
+            this.removeClassesOfTheSameType(styleClass);
+        }
+
+        this.image.addClass(styleClass);
     }
 
-    private createRightAlignedButton(): api.ui.button.ActionButton {
-        return this.createAlignmentButton('icon-paragraph-right');
-    }
-
-    private createAlignmentButton(iconClass: string): api.ui.button.ActionButton {
+    private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false) {
         const action: Action = new Action('');
 
         action.setIconClass(iconClass);
@@ -550,13 +554,19 @@ export class ImageDialogToolbar
         const button = new api.ui.button.ActionButton(action);
 
         action.onExecuted(() => {
-            this.resetActiveButton();
+            this.resetActiveAlignmentButton();
             button.addClass('active');
-            this.image.getHTMLElement().style.textAlign = this.getImageAlignment();
+            this.addClassToImage(styleClass);
             api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
-        return button;
+        this.alignmentButtons.push(button);
+
+        if (this.image.hasClass(styleClass) || enforceClass) {
+            action.execute();
+        }
+
+        super.addElement(button);
     }
 
     private refreshImagePreview() {
@@ -601,57 +611,12 @@ export class ImageDialogToolbar
         });
     }
 
-    private initActiveButton() {
-        const alignment = this.image.getHTMLElement().style.textAlign;
-
-        switch (alignment) {
-        case 'justify':
-            this.justifyButton.addClass('active');
-            break;
-        case 'left':
-            this.alignLeftButton.addClass('active');
-            break;
-        case 'center':
-            this.centerButton.addClass('active');
-            break;
-        case 'right':
-            this.alignRightButton.addClass('active');
-            break;
-        default:
-            this.justifyButton.addClass('active');
-            break;
-        }
-    }
-
-    private resetActiveButton() {
-        this.justifyButton.removeClass('active');
-        this.alignLeftButton.removeClass('active');
-        this.centerButton.removeClass('active');
-        this.alignRightButton.removeClass('active');
+    private resetActiveAlignmentButton() {
+        this.alignmentButtons.map(button => button.removeClass('active'));
     }
 
     private initKeepSizeCheckbox() {
         this.keepOriginalSizeCheckbox.setChecked(this.image.getEl().getAttribute('data-src').indexOf('keepSize=true') > 0);
-    }
-
-    private getImageAlignment(): string {
-        if (this.justifyButton.hasClass('active')) {
-            return 'justify';
-        }
-
-        if (this.alignLeftButton.hasClass('active')) {
-            return 'left';
-        }
-
-        if (this.centerButton.hasClass('active')) {
-            return 'center';
-        }
-
-        if (this.alignRightButton.hasClass('active')) {
-            return 'right';
-        }
-
-        return 'justify';
     }
 
     private setImageSrc() {
