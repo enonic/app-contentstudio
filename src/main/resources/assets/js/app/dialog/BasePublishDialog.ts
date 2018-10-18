@@ -1,9 +1,9 @@
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
-import i18n = api.util.i18n;
 import {SchedulePublishDialog} from '../publish/SchedulePublishDialog';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
+import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
+import i18n = api.util.i18n;
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {

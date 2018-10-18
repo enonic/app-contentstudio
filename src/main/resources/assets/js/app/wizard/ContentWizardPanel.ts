@@ -72,6 +72,7 @@ import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import i18n = api.util.i18n;
+import ObjectHelper = api.ObjectHelper;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -1927,7 +1928,7 @@ export class ContentWizardPanel
         return this.currentContent ? this.currentContent.getPublishStatus() : null;
     }
 
-    private notifyContentNamed(content: api.content.Content) {
+    private notifyContentNamed(content: Content) {
         this.contentNamedListeners.forEach((listener: (event: ContentNamedEvent) => void) => {
             listener.call(this, new ContentNamedEvent(this, content));
         });
