@@ -1,7 +1,7 @@
-import AccessControlList = api.security.acl.AccessControlList;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
 import {Content} from '../content/Content';
+import {AccessControlList} from '../access/AccessControlList';
 
 export class OpenEditPermissionsDialogEvent
     extends api.event.Event {

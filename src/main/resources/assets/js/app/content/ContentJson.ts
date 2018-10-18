@@ -1,13 +1,14 @@
 import {AttachmentJson} from '../attachment/AttachmentJson';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 import {PageJson} from '../page/PageJson';
+import {AccessControlEntryJson} from '../access/AccessControlEntryJson';
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import AccessControlEntryJson = api.security.acl.AccessControlEntryJson;
+import PropertyArrayJson = api.data.PropertyArrayJson;
 
 export interface ContentJson
     extends ContentSummaryJson {
 
-    data: api.data.PropertyArrayJson[];
+    data: PropertyArrayJson[];
 
     attachments: AttachmentJson[];
 

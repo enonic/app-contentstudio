@@ -1,10 +1,10 @@
-import AccessControlList = api.security.acl.AccessControlList;
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {AccessControlList} from '../access/AccessControlList';
 
 export class ContentBrowseItem
     extends api.app.browse.BrowseItem<ContentSummaryAndCompareStatus> {
 
-    private accessControlList: api.security.acl.AccessControlList;
+    private accessControlList: AccessControlList;
 
     constructor(model: ContentSummaryAndCompareStatus) {
         super(model);

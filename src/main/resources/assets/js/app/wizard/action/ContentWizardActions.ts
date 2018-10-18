@@ -18,6 +18,8 @@ import {SaveAndCloseAction} from './SaveAndCloseAction';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {Content} from '../../content/Content';
 import {CompareStatusChecker} from '../../content/CompareStatus';
+import {AccessControlList} from '../../access/AccessControlList';
+import {Permission} from '../../access/Permission';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -250,7 +252,7 @@ export class ContentWizardActions
 
     private enableDeleteIfAllowed(content: Content) {
         new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            let hasDeletePermission = PermissionHelper.hasPermission(api.security.acl.Permission.DELETE,
+            let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE,
                 loginResult, content.getPermissions());
             this.enableActions({DELETE: hasDeletePermission});
         });
@@ -259,12 +261,9 @@ export class ContentWizardActions
     private enableActionsForExistingByPermissions(existing: Content): wemQ.Promise<any> {
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
 
-            this.hasModifyPermission = PermissionHelper.hasPermission(api.security.acl.Permission.MODIFY,
-                loginResult, existing.getPermissions());
-            let hasDeletePermission = PermissionHelper.hasPermission(api.security.acl.Permission.DELETE,
-                loginResult, existing.getPermissions());
-            let hasPublishPermission = PermissionHelper.hasPermission(api.security.acl.Permission.PUBLISH,
-                loginResult, existing.getPermissions());
+            this.hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
+            const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
+            const hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
 
             (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.hasModifyPermission);
 
@@ -290,9 +289,9 @@ export class ContentWizardActions
                 new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
                     (parent: Content) => {
                         new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
-                            (accessControlList: api.security.acl.AccessControlList) => {
+                            (accessControlList: AccessControlList) => {
                                 let hasParentCreatePermission = PermissionHelper.hasPermission(
-                                    api.security.acl.Permission.CREATE,
+                                    Permission.CREATE,
                                     loginResult,
                                     accessControlList);
 
@@ -303,8 +302,8 @@ export class ContentWizardActions
                     });
             } else {
                 new GetContentRootPermissionsRequest().sendAndParse().then(
-                    (accessControlList: api.security.acl.AccessControlList) => {
-                        let hasParentCreatePermission = PermissionHelper.hasPermission(api.security.acl.Permission.CREATE,
+                    (accessControlList: AccessControlList) => {
+                        let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE,
                             loginResult,
                             accessControlList);
 

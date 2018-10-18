@@ -34,7 +34,7 @@ export class GetPrincipalByKeyRequest extends SecurityResourceRequest<PrincipalJ
     sendAndParse(): wemQ.Promise<Principal> {
 
         return this.send().then((response: api.rest.JsonResponse<PrincipalJson>) => {
-            return this.fromJsonToPrincipal(response.getResult());
+            return Principal.fromJson(response.getResult());
         });
     }
 

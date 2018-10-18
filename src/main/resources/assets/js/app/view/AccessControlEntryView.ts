@@ -1,9 +1,9 @@
 import Principal = api.security.Principal;
-import Permission = api.security.acl.Permission;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
 import {AccessSelector} from '../security/AccessSelector';
 import {PermissionSelector} from '../security/PermissionSelector';
 import {Access} from '../security/Access';
+import {AccessControlEntry} from '../access/AccessControlEntry';
+import {Permission} from '../access/Permission';
 
 export class AccessControlEntryView
     extends api.ui.security.PrincipalViewer {

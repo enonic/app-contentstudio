@@ -9,6 +9,7 @@ import {GetEffectivePermissionsRequest} from '../resource/GetEffectivePermission
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
+import {Permission} from '../access/Permission';
 import ContentId = api.content.ContentId;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
@@ -81,8 +82,7 @@ export class UserAccessWidgetItemView
             this.removeChild(this.bottomEl);
         }
 
-        if (!content.isAnyPrincipalAllowed(this.loginResult.getPrincipals(),
-                api.security.acl.Permission.WRITE_PERMISSIONS)) {
+        if (!content.isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
             return;
         }
 

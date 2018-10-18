@@ -1,4 +1,3 @@
-import AccessControlList = api.security.acl.AccessControlList;
 import Property = api.data.Property;
 import PropertyTree = api.data.PropertyTree;
 import RoleKeys = api.security.RoleKeys;
@@ -11,6 +10,8 @@ import {ExtraDataByMixinNameComparator} from './ExtraDataByMixinNameComparator';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
+import {AccessControlList} from '../access/AccessControlList';
+import {Permission} from '../access/Permission';
 
 export class Content
     extends ContentSummary
@@ -79,7 +80,7 @@ export class Content
         return this.overwritePermissions;
     }
 
-    isAnyPrincipalAllowed(principalKeys: api.security.PrincipalKey[], permission: api.security.acl.Permission): boolean {
+    isAnyPrincipalAllowed(principalKeys: api.security.PrincipalKey[], permission: Permission): boolean {
 
         if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
             return true;

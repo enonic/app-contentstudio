@@ -4,9 +4,9 @@ import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {Permission} from '../../access/Permission';
 import i18n = api.util.i18n;
 import Action = api.ui.Action;
-import Permission = api.security.acl.Permission;
 import ContentSummary = api.content.ContentSummary;
 
 export class SaveAsTemplateAction

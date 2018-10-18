@@ -1,6 +1,5 @@
 import i18n = api.util.i18n;
-import Permission = api.security.acl.Permission;
-import PermissionState = api.security.acl.PermissionState;
+import {Permission, PermissionState} from '../access/Permission';
 
 export interface PermissionSelectorOption {
     value: Permission;

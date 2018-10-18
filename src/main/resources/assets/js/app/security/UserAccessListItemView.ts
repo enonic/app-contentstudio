@@ -1,5 +1,4 @@
 import Principal = api.security.Principal;
-import User = api.security.User;
 import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
 import {EffectivePermission} from './EffectivePermission';
 import {EffectivePermissionMember} from './EffectivePermissionMember';
@@ -14,7 +13,7 @@ export class UserAccessListItemView
 
     private resizeListener: (item: api.ui.responsive.ResponsiveItem) => void;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     public static debug: boolean = false;
 
@@ -22,7 +21,7 @@ export class UserAccessListItemView
         super('user-access-list-item-view' + (className ? ' ' + className : ''));
     }
 
-    setCurrentUser(user: User) {
+    setCurrentUser(user: Principal) {
         this.currentUser = user;
     }
 

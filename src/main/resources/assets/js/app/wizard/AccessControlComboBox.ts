@@ -1,12 +1,12 @@
 import Option = api.ui.selector.Option;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import Permission = api.security.acl.Permission;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
-import AccessControlEntryLoader = api.security.acl.AccessControlEntryLoader;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import {AccessControlEntryViewer} from '../view/AccessControlEntryViewer';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {AccessControlListView} from '../view/AccessControlListView';
+import {AccessControlEntryLoader} from './AccessControlEntryLoader';
+import {AccessControlEntry} from '../access/AccessControlEntry';
+import {Permission} from '../access/Permission';
 
 export class AccessControlComboBox
     extends api.ui.selector.combobox.RichComboBox<AccessControlEntry> {

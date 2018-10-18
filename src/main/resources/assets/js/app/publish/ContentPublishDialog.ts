@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {isContentSummaryValid, PublishDialogDependantList} from './PublishDialogDependantList';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {PublishDialogItemList} from './PublishDialogItemList';
@@ -18,7 +17,7 @@ import ListBox = api.ui.selector.list.ListBox;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
 
@@ -37,7 +36,7 @@ export class ContentPublishDialog
 
     private publishProcessor: PublishProcessor;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {

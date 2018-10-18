@@ -4,6 +4,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {Content} from '../content/Content';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {Permission} from '../access/Permission';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
@@ -112,8 +113,7 @@ export class ContentWizardToolbarPublishControls
 
     public enableActionsForExisting(existing: Content) {
         new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            let hasPublishPermission = PermissionHelper.hasPermission(api.security.acl.Permission.PUBLISH,
-                loginResult, existing.getPermissions());
+            let hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
             this.setUserCanPublish(hasPublishPermission);
         });
     }

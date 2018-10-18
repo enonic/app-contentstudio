@@ -304,14 +304,14 @@
         }
 
         function canClearSelection(evt, selection, selectedTable, table) {
-            // User starts click outside the table or not in the same table as in the previous selection.
+            // Principal starts click outside the table or not in the same table as in the previous selection.
             if (evt.name === 'mousedown' && (detectLeftMouseButton(evt) || !table)) {
                 return true;
             }
 
             // Covers a case when:
-            // 1. User releases mouse button outside the table.
-            // 2. User opens context menu not in the selected table.
+            // 1. Principal releases mouse button outside the table.
+            // 2. Principal opens context menu not in the selected table.
             if (evt.name === 'mouseup' && !isOutsideTable(evt.data.getTarget()) && !isSameTable(selectedTable, table)) {
                 return true;
             }
