@@ -18,7 +18,7 @@ app {
 dependencies {
     compile "${group}:portal-api:${xpVersion}"
     include "${group}:lib-admin:${xpVersion}"
-    include "${group}:lib-mustache:${xpVersion}"
+    include "${group}:lib-mustache:2.0.0-A1"
     include "${group}:lib-portal:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     testCompile 'junit:junit:4.12'
