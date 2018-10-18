@@ -213,8 +213,7 @@ export class HTMLAreaBuilder {
         const contentsCss = [this.assetsUri + '/styles/html-editor.css'];
         const injectCss = () => {
             if (Styles.getInstance()) {
-                contentsCss.concat(Styles.getCssPaths());
-                config.contentsCss = contentsCss;
+                config.contentsCss = contentsCss.concat(Styles.getCssPaths());
             }
         };
 

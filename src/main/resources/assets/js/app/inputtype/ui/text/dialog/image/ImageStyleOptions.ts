@@ -4,24 +4,24 @@ import {Style, StyleType} from '../../styles/Style';
 
 export class ImageStyleOption {
 
-    private name: string;
-
-    private displayName: string;
+    private style: Style;
 
     private empty: boolean;
 
-    constructor(imageStyle: Style) {
-        this.name = imageStyle.getName();
-        this.displayName = imageStyle.getDisplayName();
-        this.empty = imageStyle.isEmpty();
+    constructor(style: Style) {
+        this.style = style;
     }
 
     getName(): string {
-        return this.name;
+        return this.style.getName();
     }
 
     getDisplayName(): string {
-        return this.displayName;
+        return this.style.getDisplayName();
+    }
+
+    getStyle(): Style {
+        return this.style;
     }
 
     isEmpty(): boolean {

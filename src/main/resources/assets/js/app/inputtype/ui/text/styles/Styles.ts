@@ -30,4 +30,8 @@ export class Styles {
     public static getForImage(): Style[] {
         return Styles.INSTANCE.styles.filter(style => style.isForImage());
     }
+
+    public static getForImageAsString(): string[] {
+        return Styles.INSTANCE.styles.filter(style => style.isForImage()).map(style => style.getName());
+    }
 }

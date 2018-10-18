@@ -5,7 +5,6 @@ import Action = api.ui.Action;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummary = api.content.ContentSummary;
 import Content = api.content.Content;
-import Option = api.ui.selector.Option;
 import eventInfo = CKEDITOR.eventInfo;
 import ContentId = api.content.ContentId;
 import AppHelper = api.util.AppHelper;
@@ -14,10 +13,7 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalD
 import i18n = api.util.i18n;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
-import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageStyleSelector} from './ImageStyleSelector';
-import {ImageCroppingOption} from './ImageCroppingOption';
-import {ImageCroppingOptions} from './ImageCroppingOptions';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
 import {ImageContentComboBox} from '../../../selector/image/ImageContentComboBox';
@@ -26,8 +22,10 @@ import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
+import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
+import {ImageStyleOption} from './ImageStyleOptions';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -237,7 +235,7 @@ export class ImageModalDialog
 
     private previewImage() {
         this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask, this.imageSelector.getValue());
-        this.imageToolbar.onCroppingChanged(() => {
+        this.imageToolbar.onStyleSelected(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
         });
 
@@ -507,8 +505,6 @@ export class ImageDialogToolbar
 
     private keepOriginalSizeCheckbox: api.ui.Checkbox;
 
-    private imageCroppingSelector: ImageCroppingSelector;
-
     private imageStyleSelector: ImageStyleSelector;
 
     private imageLoadMask: api.ui.mask.LoadMask;
@@ -526,7 +522,6 @@ export class ImageDialogToolbar
         super.addElement(this.alignRightButton = this.createRightAlignedButton());
         super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
         super.addElement(this.keepOriginalSizeCheckbox = this.createKeepOriginalSizeCheckbox());
-        this.imageCroppingSelector = this.createImageCroppingSelector();
         this.initKeepSizeCheckbox();
         this.initActiveButton();
     }
@@ -582,36 +577,28 @@ export class ImageDialogToolbar
     private createImageStyleSelector(): ImageStyleSelector {
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
 
+        this.initSelectedStyle(imageStyleSelector);
         imageStyleSelector.onOptionSelected(() => this.refreshImagePreview());
 
         return imageStyleSelector;
     }
 
-    private createImageCroppingSelector(): ImageCroppingSelector {
-        const imageCroppingSelector: ImageCroppingSelector = new ImageCroppingSelector();
+    private initSelectedStyle(imageStyleSelector: ImageStyleSelector) {
+        const imgSrc: string = this.image.getEl().getAttribute('style');
+        const stylesApplied = imgSrc ? imgSrc.split(' ') : null;
 
-        this.initSelectedCropping(imageCroppingSelector);
-
-        imageCroppingSelector.onOptionSelected(() => this.refreshImagePreview());
-
-        return imageCroppingSelector;
-    }
-
-    private initSelectedCropping(imageCroppingSelector: ImageCroppingSelector) {
-        const imgSrc: string = this.image.getEl().getAttribute('src');
-        const scalingApplied: boolean = imgSrc.indexOf('scale=') > 0;
-        if (scalingApplied) {
-            const scaleParamValue = api.util.UriHelper.decodeUrlParams(imgSrc.replace('&amp;', '&'))['scale'];
-            const scaleOption = ImageCroppingOptions.get().getOptionByProportion(scaleParamValue);
-            if (!!scaleOption) {
-                imageCroppingSelector.selectOption(imageCroppingSelector.getOptionByValue(scaleOption.getName()));
-            } else {
-                const customOption: Option<ImageCroppingOption> = imageCroppingSelector.addCustomScaleOption(scaleParamValue);
-                if (!!customOption) {
-                    imageCroppingSelector.selectOption(customOption);
-                }
-            }
+        if (!stylesApplied) {
+            return;
         }
+
+        const imageStyles = Styles.getForImageAsString();
+        stylesApplied.forEach(style => {
+            if (imageStyles.indexOf(style) > -1) {
+                imageStyleSelector.setValue(style);
+
+                return;
+            }
+        });
     }
 
     private initActiveButton() {
@@ -668,20 +655,24 @@ export class ImageDialogToolbar
     }
 
     private setImageSrc() {
-        const isCroppingSelected: boolean = !!this.imageCroppingSelector.getSelectedOption();
+        const selectedOption = this.imageStyleSelector.getSelectedOption();
         const imageEl = this.image.getEl();
         const imageUrlParams: ImageUrlParameters = {
             id: this.imageId,
-            useOriginal: this.keepOriginalSizeCheckbox.isChecked(),
-            scale: isCroppingSelected ? this.imageCroppingSelector.getSelectedOption().displayValue.getProportionString() : ''
+            useOriginal: this.keepOriginalSizeCheckbox.isChecked()
         };
+
+        if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
+            const selectedStyle: Style = selectedOption.displayValue.getStyle();
+            imageUrlParams.scale = selectedStyle.getAspectRatio();
+        }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
         imageEl.setAttribute('data-src', HTMLAreaHelper.getImageRenderUrl(imageUrlParams));
     }
 
-    onCroppingChanged(listener: (event: OptionSelectedEvent<ImageCroppingOption>) => void) {
-        this.imageCroppingSelector.onOptionSelected(listener);
+    onStyleSelected(listener: (event: OptionSelectedEvent<ImageStyleOption>) => void) {
+        this.imageStyleSelector.onOptionSelected(listener);
     }
 }
 

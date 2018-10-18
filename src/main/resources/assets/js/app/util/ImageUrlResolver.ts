@@ -63,12 +63,6 @@ export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {
         return api.util.UriHelper.getRestUri(url);
     }
 
-    protected getUseOriginalParamName(): string {
-        const url = 'content/image/' + this.contentId.toString();
-
-        return api.util.UriHelper.getRestUri(url);
-    }
-
     resolve(): string {
         let url = this.getBaseUrl();
 

@@ -1,8 +1,7 @@
 var portalLib = require('/lib/xp/portal');
 
-exports.post = function (req) {
-    var params = JSON.parse(req.body);
-    var contentId = params.contentId;
+exports.get = function (req) {
+    var contentId = req.params.contentId;
     if (!contentId) {
         return {
             status: 400,

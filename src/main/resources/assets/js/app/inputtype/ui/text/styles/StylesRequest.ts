@@ -14,7 +14,6 @@ export class StylesRequest
 
     constructor(contentId: string) {
         super();
-        super.setMethod('POST');
 
         this.contentId = contentId;
     }
