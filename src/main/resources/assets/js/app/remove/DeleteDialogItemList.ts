@@ -1,8 +1,7 @@
-import '../../api.ts';
 import {DialogItemList} from '../dialog/DependantItemsDialog';
 import {DeleteItemViewer} from './DeleteItemViewer';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class DeleteDialogItemList
     extends DialogItemList {

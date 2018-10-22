@@ -1,6 +1,5 @@
-import '../../api.ts';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentItemStatisticsPanel
     extends api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus> {

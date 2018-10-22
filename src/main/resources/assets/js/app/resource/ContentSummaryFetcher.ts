@@ -1,11 +1,11 @@
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
-import Content = api.content.Content;
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {GetContentByIdRequest} from './GetContentByIdRequest';
 import {GetContentSummaryByIds} from './GetContentSummaryByIds';
 import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
+import {Content} from '../content/Content';
 
 export class ContentSummaryFetcher {
 

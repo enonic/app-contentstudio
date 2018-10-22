@@ -1852,7 +1852,7 @@ CKEDITOR.on('scaytReady', function () {
  */
 
 /**
- * Activates a User Dictionary in SCAYT. The user
+ * Activates a Principal Dictionary in SCAYT. The user
  * dictionary name must be used. Available only for the licensed version.
  *
  * Refer to [SCAYT documentation](http://wiki.webspellchecker.net/doku.php?id=installationandconfiguration:userdictionaries)

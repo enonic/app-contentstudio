@@ -1,5 +1,5 @@
-import ResolvePublishContentResultJson = api.content.json.ResolvePublishContentResultJson;
 import ContentId = api.content.ContentId;
+import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 
 export class ResolvePublishDependenciesResult {
 

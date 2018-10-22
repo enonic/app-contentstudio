@@ -36,9 +36,11 @@ import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import Component = api.content.page.region.Component;
-import Workspace = api.content.Branch;
+import {Branch} from '../../versioning/Branch';
+import {Component} from '../../page/region/Component';
+import {ComponentFactory} from '../../page/region/ComponentFactory';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
+import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
 
 declare var CONFIG;
@@ -254,7 +256,7 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Workspace.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Branch.DRAFT);
 
         if (api.BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();
@@ -892,14 +894,14 @@ export class LiveEditPageProxy {
 
     private resetControllerForIE() {
         if (this.controllerCopyForIE) {
-            let controller = api.content.page.PageDescriptor.fromJson(this.controllerCopyForIE);
+            let controller = PageDescriptor.fromJson(this.controllerCopyForIE);
             this.liveEditModel.getPageModel().setControllerDescriptor(controller);
         }
     }
 
     private resetRegionsForIE() {
         if (this.regionsCopyForIE) {
-            let regions = api.content.page.region.Regions.fromJson(this.regionsCopyForIE, null);
+            let regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
             this.liveEditModel.getPageModel().setRegions(regions);
         }
     }

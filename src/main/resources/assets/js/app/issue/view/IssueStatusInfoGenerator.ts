@@ -1,7 +1,7 @@
 import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
 import DateHelper = api.util.DateHelper;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import i18n = api.util.i18n;
 
 export class IssueStatusInfoGenerator {
@@ -10,7 +10,7 @@ export class IssueStatusInfoGenerator {
 
     private issueStatus: IssueStatus;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     private constructor() { /* empty */}
 
@@ -28,7 +28,7 @@ export class IssueStatusInfoGenerator {
         return this;
     }
 
-    public setCurrentUser(currentUser: User): IssueStatusInfoGenerator {
+    public setCurrentUser(currentUser: Principal): IssueStatusInfoGenerator {
         this.currentUser = currentUser;
         return this;
     }

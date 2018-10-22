@@ -5,6 +5,8 @@ import ValueTypes = api.data.ValueTypes;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {Content} from '../../content/Content';
+import {ContentImageUrlResolver} from '../../content/ContentImageUrlResolver';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -49,7 +51,7 @@ export class MediaUploader
             this.uploaderWrapper.removeClass('empty');
         });
 
-        this.mediaUploaderEl.onFileUploaded((event: UploadedEvent<api.content.Content>) => {
+        this.mediaUploaderEl.onFileUploaded((event: UploadedEvent<Content>) => {
 
             let content = event.getUploadItem().getModel();
             let value = this.mediaUploaderEl.getMediaValue(content);
@@ -116,10 +118,10 @@ export class MediaUploader
         this.mediaUploaderEl.resetBaseValues();
     }
 
-    private manageSVGImageIfPresent(content: api.content.Content) {
+    private manageSVGImageIfPresent(content: Content) {
         if (content.getType().isVectorMedia()) {
             this.addClass('with-svg-image');
-            let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
+            let imgUrl = new ContentImageUrlResolver().setContentId(
                 this.getContext().content.getContentId()).setTimestamp(
                 content.getModifiedTime()).resolve();
 
@@ -162,7 +164,7 @@ export class MediaUploader
 
             let content = this.config.formContext.getPersistedContent();
 
-            let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
+            let imgUrl = new ContentImageUrlResolver().setContentId(
                 this.getContext().content.getContentId()).setTimestamp(
                 content.getModifiedTime()).resolve();
 

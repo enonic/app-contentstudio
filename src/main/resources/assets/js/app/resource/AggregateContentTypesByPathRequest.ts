@@ -1,4 +1,3 @@
-import ContentQuery = api.content.query.ContentQuery;
 import CompareExpr = api.query.expr.CompareExpr;
 import ValueExpr = api.query.expr.ValueExpr;
 import FieldExpr = api.query.expr.FieldExpr;
@@ -14,6 +13,7 @@ import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateCo
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {

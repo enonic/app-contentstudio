@@ -1,5 +1,5 @@
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import TreeNode = api.ui.treegrid.TreeNode;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentNodeByDisplayNameComparator
     implements api.Comparator<TreeNode<ContentSummaryAndCompareStatus>> {

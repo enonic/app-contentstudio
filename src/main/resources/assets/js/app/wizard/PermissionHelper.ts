@@ -1,9 +1,9 @@
-import AccessControlEntry = api.security.acl.AccessControlEntry;
-import Permission = api.security.acl.Permission;
 import LoginResult = api.security.auth.LoginResult;
 import PrincipalKey = api.security.PrincipalKey;
 import RoleKeys = api.security.RoleKeys;
-import AccessControlList = api.security.acl.AccessControlList;
+import {AccessControlList} from '../access/AccessControlList';
+import {AccessControlEntry} from '../access/AccessControlEntry';
+import {Permission} from '../access/Permission';
 
 export class PermissionHelper {
 

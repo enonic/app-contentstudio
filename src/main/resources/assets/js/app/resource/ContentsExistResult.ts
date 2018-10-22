@@ -1,8 +1,10 @@
+import {ContentsExistJson} from './json/ContentsExistJson';
+
 export class ContentsExistResult {
 
     private contentsExistMap: Object = {};
 
-    constructor(json: api.content.json.ContentsExistJson) {
+    constructor(json: ContentsExistJson) {
         json.contentsExistJson.forEach(item => {
             this.contentsExistMap[item.contentId] = item.exists;
         });

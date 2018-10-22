@@ -1,6 +1,5 @@
-import '../../../api.ts';
 import LinkEl = api.dom.LinkEl;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class WidgetItemView extends api.dom.DivEl {
 

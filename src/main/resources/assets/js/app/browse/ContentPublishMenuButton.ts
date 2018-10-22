@@ -1,12 +1,11 @@
-import '../../api.ts';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
 import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;

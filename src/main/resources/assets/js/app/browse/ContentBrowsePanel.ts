@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid} from './ContentTreeGrid';
@@ -23,11 +22,13 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {Branch} from '../versioning/Branch';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
@@ -35,7 +36,6 @@ import ContentPath = api.content.ContentPath;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import Content = api.content.Content;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
@@ -306,7 +306,7 @@ export class ContentBrowsePanel
 
     private getPathFromPreviewPath(contentPreviewPath: string): string {
         return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
     }
 
     private subscribeOnContentEvents() {

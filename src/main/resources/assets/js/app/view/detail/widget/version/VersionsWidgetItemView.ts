@@ -1,8 +1,7 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionsView} from './VersionsView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
 export class VersionsWidgetItemView extends WidgetItemView {
 

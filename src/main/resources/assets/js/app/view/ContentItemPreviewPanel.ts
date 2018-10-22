@@ -1,10 +1,11 @@
-import '../../api.ts';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
-import ViewItem = api.app.view.ViewItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
+import {Branch} from '../versioning/Branch';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
+import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
@@ -141,7 +142,7 @@ export class ContentItemPreviewPanel
 
     public addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
         let imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
-        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
+        let imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
             item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
         this.image.setSrc(imgUrl);
     }
@@ -157,7 +158,7 @@ export class ContentItemPreviewPanel
                 if (this.isVisible()) {
                     if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
                         this.setPreviewType(PREVIEW_TYPE.SVG);
-                        let imgUrl = new api.content.util.ContentImageUrlResolver().setContentId(
+                        let imgUrl = new ContentImageUrlResolver().setContentId(
                             item.getModel().getContentId()).setTimestamp(
                             item.getModel().getContentSummary().getModifiedTime()).resolve();
                         this.image.setSrc(imgUrl);
@@ -175,7 +176,7 @@ export class ContentItemPreviewPanel
                 this.showMask();
                 if (item.isRenderable()) {
                     this.setPreviewType(PREVIEW_TYPE.PAGE);
-                    let src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, api.content.Branch.DRAFT);
+                    let src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
                     // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
                     wemjq.ajax({
                         type: 'HEAD',

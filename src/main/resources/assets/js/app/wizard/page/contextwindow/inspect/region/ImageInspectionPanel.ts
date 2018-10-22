@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {ImageSelectorForm} from './ImageSelectorForm';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
@@ -8,10 +7,10 @@ import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSu
 import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../../../inputtype/ui/selector/ContentComboBox';
 import {MediaTreeSelectorItem} from '../../../../../inputtype/ui/selector/media/MediaTreeSelectorItem';
-import ImageComponent = api.content.page.region.ImageComponent;
+import {ImageComponent} from '../../../../../page/region/ImageComponent';
+import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Option = api.ui.selector.Option;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;

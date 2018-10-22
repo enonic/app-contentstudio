@@ -4,10 +4,10 @@ import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermission
 import {AccessControlComboBox} from './AccessControlComboBox';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
+import {AccessControlList} from '../access/AccessControlList';
+import {AccessControlEntry} from '../access/AccessControlEntry';
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
-import AccessControlList = api.security.acl.AccessControlList;
 import ContentPath = api.content.ContentPath;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;

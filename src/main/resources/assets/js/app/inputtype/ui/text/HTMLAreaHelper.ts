@@ -1,5 +1,6 @@
 import StringHelper = api.util.StringHelper;
 import AppHelper = api.util.AppHelper;
+import {ContentImageUrlResolver} from '../../../content/ContentImageUrlResolver';
 
 export class HTMLAreaHelper {
 
@@ -9,7 +10,7 @@ export class HTMLAreaHelper {
     private static getConvertedImageSrc(imgSrc: string): string {
         let contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
         let scaleValue = HTMLAreaHelper.extractScaleParamFromImgSrc(imgSrc);
-        let imageUrl = new api.content.util.ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
+        let imageUrl = new ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
             true).setScale(scaleValue).setSize(HTMLAreaHelper.maxImageWidth).resolve();
 
         return ` src="${imageUrl}" data-src="${imgSrc}"`;

@@ -1,8 +1,8 @@
 import TreeNode = api.ui.treegrid.TreeNode;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import ContentSummaryAndCompareStatusViewer = api.content.ContentSummaryAndCompareStatusViewer;
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 
 export class ContentRowFormatter {
 

@@ -1,6 +1,4 @@
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import RelationshipTypeName = api.schema.relationshiptype.RelationshipTypeName;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
 import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
@@ -8,13 +6,12 @@ import ContentPath = api.content.ContentPath;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
 import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
 
     protected config: ContentInputTypeViewContext;
-
-    protected relationshipTypeName: RelationshipTypeName;
 
     protected relationshipType: string;
 
@@ -54,12 +51,6 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
         let relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
         this.relationshipType = relationshipTypeConfig['value'];
-
-        if (this.relationshipType) {
-            this.relationshipTypeName = new RelationshipTypeName(this.relationshipType);
-        } else {
-            this.relationshipTypeName = RelationshipTypeName.REFERENCE;
-        }
 
         let allowContentTypeConfig = inputConfig['allowContentType'] || [];
         this.allowedContentTypes = allowContentTypeConfig.map((cfg) => cfg['value']).filter((val) => !!val);

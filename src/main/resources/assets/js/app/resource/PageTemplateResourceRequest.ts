@@ -1,6 +1,6 @@
 import {JsonResourceRequest} from './JsonResourceRequest';
-import PageTemplate = api.content.page.PageTemplate;
-import ContentJson = api.content.json.ContentJson;
+import {PageTemplate} from '../content/PageTemplate';
+import {ContentJson} from '../content/ContentJson';
 
 export class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>
     extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {

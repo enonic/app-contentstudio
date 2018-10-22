@@ -3,7 +3,6 @@ import PropertySet = api.data.PropertySet;
 import Value = api.data.Value;
 import ValueType = api.data.ValueType;
 import ValueTypes = api.data.ValueTypes;
-import Content = api.content.Content;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
@@ -11,6 +10,7 @@ import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {Point, Rect} from '../ui/selector/image/ImageEditor';
+import {Content} from '../../content/Content';
 
 export class ImageUploader
     extends api.form.inputtype.support.BaseInputTypeSingleOccurrence {
@@ -150,7 +150,7 @@ export class ImageUploader
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
 
             return new GetContentByIdRequest(this.getContext().content.getContentId())
-                .sendAndParse().then((content: api.content.Content) => {
+                .sendAndParse().then((content: Content) => {
 
                     this.imageUploader.setOriginalDimensions(
                         this.readSizeValue(content, 'imageWidth'),

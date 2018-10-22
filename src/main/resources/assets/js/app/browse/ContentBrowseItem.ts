@@ -1,11 +1,10 @@
-import '../../api.ts';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {AccessControlList} from '../access/AccessControlList';
 
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import AccessControlList = api.security.acl.AccessControlList;
+export class ContentBrowseItem
+    extends api.app.browse.BrowseItem<ContentSummaryAndCompareStatus> {
 
-export class ContentBrowseItem extends api.app.browse.BrowseItem<api.content.ContentSummaryAndCompareStatus> {
-
-    private accessControlList: api.security.acl.AccessControlList;
+    private accessControlList: AccessControlList;
 
     constructor(model: ContentSummaryAndCompareStatus) {
         super(model);

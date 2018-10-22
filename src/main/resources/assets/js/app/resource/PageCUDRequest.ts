@@ -1,8 +1,5 @@
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 
-/**
- * Request representing either a create, update or delete Request for a Page.
- */
 export interface PageCUDRequest {
 
     sendAndParse(): wemQ.Promise<Content>;

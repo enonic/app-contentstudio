@@ -1,7 +1,10 @@
-import Content = api.content.Content;
-import ContentJson = api.content.json.ContentJson;
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
+import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
+import {PageTemplateKey} from '../page/PageTemplateKey';
+import {Regions} from '../page/region/Regions';
+import {Component} from '../page/region/Component';
 
 export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content> implements PageCUDRequest {
 
@@ -9,13 +12,13 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
 
     private controller: api.content.page.DescriptorKey;
 
-    private template: api.content.page.PageTemplateKey;
+    private template: PageTemplateKey;
 
     private config: api.data.PropertyTree;
 
-    private regions: api.content.page.region.Regions;
+    private regions: Regions;
 
-    private fragment: api.content.page.region.Component;
+    private fragment: Component;
 
     private customized: boolean;
 
@@ -30,7 +33,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         return this;
     }
 
-    setPageTemplateKey(pageTemplateKey: api.content.page.PageTemplateKey): UpdatePageRequest {
+    setPageTemplateKey(pageTemplateKey: PageTemplateKey): UpdatePageRequest {
         this.template = pageTemplateKey;
         return this;
     }
@@ -40,12 +43,12 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         return this;
     }
 
-    setRegions(value: api.content.page.region.Regions): UpdatePageRequest {
+    setRegions(value: Regions): UpdatePageRequest {
         this.regions = value;
         return this;
     }
 
-    setFragment(value: api.content.page.region.Component): UpdatePageRequest {
+    setFragment(value: Component): UpdatePageRequest {
         this.fragment = value;
         return this;
     }

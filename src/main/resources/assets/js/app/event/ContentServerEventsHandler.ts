@@ -1,13 +1,14 @@
 import ContentPath = api.content.ContentPath;
 import NodeServerChangeType = api.event.NodeServerChangeType;
 import ContentId = api.content.ContentId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import ContentServerChange = api.content.event.ContentServerChange;
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatusChecker} from '../content/CompareStatus';
 
 /**
  * Class that listens to server events and fires UI events
@@ -225,7 +226,7 @@ export class ContentServerEventsHandler {
             return !!el;        // not sure if this check is necessary
         }).forEach((el) => {
 
-            if (api.content.CompareStatusChecker.isPendingDelete(el.getCompareStatus())) {
+            if (CompareStatusChecker.isPendingDelete(el.getCompareStatus())) {
                 contentDeletedEvent.addPendingItem(el);
             } else {
                 contentDeletedEvent.addUndeletedItem(el);

@@ -1,13 +1,12 @@
-import '../../api.ts';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {IssueStatus} from '../issue/IssueStatus';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
 import {Issue} from '../issue/Issue';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import MenuButton = api.ui.button.MenuButton;
 import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {

@@ -1,10 +1,9 @@
-import '../../api.ts';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
+import {XDataName} from '../content/XDataName';
+import {XData} from '../content/XData';
 import Form = api.form.Form;
 import FormView = api.form.FormView;
 import PropertyTree = api.data.PropertyTree;
-import XDataName = api.schema.xdata.XDataName;
-import XData = api.schema.xdata.XData;
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {

@@ -1,4 +1,3 @@
-import './../api.ts';
 import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';

@@ -1,10 +1,9 @@
-import './../../api.ts';
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {ImageItemType} from './ImageItemType';
 import {ImageComponentViewer} from './ImageComponentViewer';
 import {ImagePlaceholder} from './ImagePlaceholder';
 import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
-import ImageComponent = api.content.page.region.ImageComponent;
+import {ImageComponent} from '../../app/page/region/ImageComponent';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentId = api.content.ContentId;
 

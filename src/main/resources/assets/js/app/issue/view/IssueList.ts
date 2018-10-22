@@ -5,7 +5,7 @@ import {IssueStatus} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import ListBox = api.ui.selector.list.ListBox;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import PEl = api.dom.PEl;
 import SpanEl = api.dom.SpanEl;
 import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
@@ -22,7 +22,7 @@ export class IssueList
 
     private totalItems: number;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     private loadAssignedToMe: boolean = false;
 
@@ -168,11 +168,11 @@ export class IssueListItem
 
     private issue: Issue;
 
-    private assignees: User[];
+    private assignees: Principal[];
 
-    private currentUser: User;
+    private currentUser: Principal;
 
-    constructor(issueWithAssignees: IssueWithAssignees, currentUser: User) {
+    constructor(issueWithAssignees: IssueWithAssignees, currentUser: Principal) {
         super('issue-list-item');
 
         this.issue = issueWithAssignees.getIssue();
@@ -216,13 +216,13 @@ export class IssueListItem
 export class AssigneesLine
     extends DivEl {
 
-    private assignees: User[];
+    private assignees: Principal[];
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     private limitToShow: number = 2;
 
-    constructor(assignees: User[], currentUser?: User) {
+    constructor(assignees: Principal[], currentUser?: Principal) {
         super('assignees-line');
 
         this.assignees = assignees;
@@ -238,7 +238,7 @@ export class AssigneesLine
                 }
                 this.appendChild(this.createElemWithAssigneesAsTooltip());
             } else {
-                this.assignees.forEach((assignee: User) => {
+                this.assignees.forEach((assignee: Principal) => {
                     this.appendChild(this.createPrincipalViewer(assignee));
                 });
             }
@@ -247,12 +247,12 @@ export class AssigneesLine
         });
     }
 
-    setAssignees(value: api.security.User[]) {
+    setAssignees(value: Principal[]) {
         this.assignees = value;
         this.doRender();
     }
 
-    private createPrincipalViewer(assignee: User): PrincipalViewerCompact {
+    private createPrincipalViewer(assignee: Principal): PrincipalViewerCompact {
         const principalViewer: PrincipalViewerCompact = new PrincipalViewerCompact();
         principalViewer.setObject(assignee);
         principalViewer.setCurrentUser(this.currentUser);
@@ -262,7 +262,7 @@ export class AssigneesLine
 
     private createElemWithAssigneesAsTooltip(): Element {
         const span: SpanEl = new SpanEl('all-assignees-tooltip');
-        span.setHtml('...');
+        span.setHtml('…');
         new Tooltip(span, this.assignees.map(user => user.getDisplayName())
             .join('\n'), 200)
             .setMode(Tooltip.MODE_GLOBAL_STATIC);

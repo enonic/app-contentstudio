@@ -1,12 +1,12 @@
-import Content = api.content.Content;
-import ContentJson = api.content.json.ContentJson;
-import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
 import PropertyPath = api.data.PropertyPath;
 import Property = api.data.Property;
 import {TagSuggester} from '../ui/tag/TagSuggester';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
+import {Content} from '../../content/Content';
+import {ContentJson} from '../../content/ContentJson';
+import {ContentQuery} from '../../content/ContentQuery';
 
 export class ContentTagSuggesterBuilder {
 

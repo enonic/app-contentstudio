@@ -8,19 +8,20 @@ import ContentSummary = api.content.ContentSummary;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ContentId = api.content.ContentId;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import Content = api.content.Content;
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ListContentByIdRequest} from '../resource/ListContentByIdRequest';
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {Content} from '../content/Content';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 
     static MAX_FETCH_SIZE: number = 10;
 
-    private filterQuery: api.content.query.ContentQuery;
+    private filterQuery: ContentQuery;
 
     constructor() {
         let builder: TreeGridBuilder<ContentSummary> =

@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
@@ -40,21 +39,24 @@ import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {XDataWizardStep} from './XDataWizardStep';
+import {Content, ContentBuilder} from '../content/Content';
+import {Site} from '../content/Site';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
+import {PublishStatus} from '../publish/PublishStatus';
+import {XDataName} from '../content/XDataName';
+import {ExtraData} from '../content/ExtraData';
+import {XData} from '../content/XData';
+import {ContentType} from '../inputtype/schema/ContentType';
+import {Page} from '../page/Page';
+import {AccessControlEntry} from '../access/AccessControlEntry';
+import {Permission} from '../access/Permission';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
-import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
-import ContentBuilder = api.content.ContentBuilder;
 import ContentName = api.content.ContentName;
 import ContentUnnamed = api.content.ContentUnnamed;
-import ExtraData = api.content.ExtraData;
-import Page = api.content.page.Page;
-import Site = api.content.site.Site;
-import ContentType = api.schema.content.ContentType;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
@@ -67,14 +69,10 @@ import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
 import Toolbar = api.ui.toolbar.Toolbar;
-import Permission = api.security.acl.Permission;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
 import CycleButton = api.ui.button.CycleButton;
-import i18n = api.util.i18n;
-import XData = api.schema.xdata.XData;
-import XDataName = api.schema.xdata.XDataName;
-import ObjectHelper = api.ObjectHelper;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import i18n = api.util.i18n;
+import ObjectHelper = api.ObjectHelper;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -236,7 +234,7 @@ export class ContentWizardPanel
         });
     }
 
-    protected doLoadData(): Q.Promise<api.content.Content> {
+    protected doLoadData(): Q.Promise<Content> {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
@@ -796,7 +794,7 @@ export class ContentWizardPanel
 
     }
 
-    private onFileUploaded(event: api.ui.uploader.UploadedEvent<api.content.Content>) {
+    private onFileUploaded(event: api.ui.uploader.UploadedEvent<Content>) {
         let newPersistedContent: Content = event.getUploadItem().getModel();
         this.setPersistedItem(newPersistedContent.clone());
         this.updateXDataStepForms(newPersistedContent);
@@ -1930,7 +1928,7 @@ export class ContentWizardPanel
         return this.currentContent ? this.currentContent.getPublishStatus() : null;
     }
 
-    private notifyContentNamed(content: api.content.Content) {
+    private notifyContentNamed(content: Content) {
         this.contentNamedListeners.forEach((listener: (event: ContentNamedEvent) => void) => {
             listener.call(this, new ContentNamedEvent(this, content));
         });

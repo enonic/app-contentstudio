@@ -5,8 +5,8 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
 import {EditContentEvent} from '../event/EditContentEvent';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
 import ContentId = api.content.ContentId;
 
 export class PublishProcessor {

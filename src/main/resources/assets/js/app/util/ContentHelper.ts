@@ -1,15 +1,17 @@
-import Content = api.content.Content;
 import ContentId = api.content.ContentId;
-import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import CompareExpr = api.query.expr.CompareExpr;
 import ValueExpr = api.query.expr.ValueExpr;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
+import ViewItem = api.app.view.ViewItem;
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentHelper {
 
@@ -53,5 +55,12 @@ export class ContentHelper {
         }
 
         return wemQ(false);
+    }
+
+    static createView(model: ContentSummaryAndCompareStatus): ViewItem<ContentSummaryAndCompareStatus> {
+        return new ViewItem<ContentSummaryAndCompareStatus>(model)
+            .setIconUrl(model.getIconUrl())
+            .setDisplayName(model.getDisplayName())
+            .setPath(model.getPath().toString());
     }
 }

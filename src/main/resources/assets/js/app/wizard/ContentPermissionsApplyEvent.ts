@@ -1,6 +1,5 @@
-import '../../api.ts';
-import AccessControlList = api.security.acl.AccessControlList;
 import ContentId = api.content.ContentId;
+import {AccessControlList} from '../access/AccessControlList';
 
 export class ContentPermissionsApplyEvent extends api.event.Event {
 

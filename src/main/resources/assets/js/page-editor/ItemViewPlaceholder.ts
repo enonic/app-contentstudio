@@ -1,11 +1,12 @@
-import './../api.ts';
 import i18n = api.util.i18n;
 
 export class ItemViewPlaceholder
     extends api.dom.DivEl {
 
+    static PAGE_EDITOR_PREFIX: string = 'xp-page-editor-';
+
     constructor() {
-        super('item-placeholder', api.StyleHelper.PAGE_EDITOR_PREFIX);
+        super('item-placeholder', ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
     }
 
     showRenderingError(url: string, errorMessage: string = i18n('live.view.component.render.error')) {

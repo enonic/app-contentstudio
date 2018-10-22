@@ -1,8 +1,7 @@
-import '../../api.ts';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {Flow, RoutineContext} from './Flow';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 
 export class PersistNewContentRoutine
     extends Flow<Content> {
@@ -53,8 +52,8 @@ export class PersistNewContentRoutine
 
                 });
             });
-        } else {
-            return api.util.PromiseHelper.newResolvedVoidPromise();
         }
+
+        return wemQ(null);
     }
 }

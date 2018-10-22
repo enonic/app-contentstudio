@@ -22,14 +22,14 @@ import {BasePublishDialog} from '../../dialog/BasePublishDialog';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import TaskState = api.task.TaskState;
 import ListBox = api.ui.selector.list.ListBox;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import i18n = api.util.i18n;
 import Tooltip = api.ui.Tooltip;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
@@ -50,7 +50,7 @@ export class IssueDetailsDialog
 
     private issue: Issue;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     private errorTooltip: Tooltip;
 
@@ -204,9 +204,9 @@ export class IssueDetailsDialog
             }
         };
 
-        this.assigneesCombobox.onValueLoaded(options => updateTabCount(false));
-        this.assigneesCombobox.onOptionSelected(option => updateTabCount(true));
-        this.assigneesCombobox.onOptionDeselected(option => updateTabCount(true));
+        this.assigneesCombobox.onValueLoaded(() => updateTabCount(false));
+        this.assigneesCombobox.onOptionSelected(() => updateTabCount(true));
+        this.assigneesCombobox.onOptionDeselected(() => updateTabCount(true));
         assigneesPanel.appendChild(this.assigneesCombobox);
         return assigneesPanel;
     }
@@ -351,7 +351,7 @@ export class IssueDetailsDialog
         return this.publishProcessor.getDependantIds();
     }
 
-    private loadCurrentUser(): wemQ.Promise<User> {
+    private loadCurrentUser(): wemQ.Promise<Principal> {
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
             return this.currentUser;

@@ -1,6 +1,4 @@
-import '../../api.ts';
-
-import Content = api.content.Content;
+import {Content, ContentBuilder} from '../content/Content';
 
 export class ContentSettingsModel implements api.Equitable {
 
@@ -65,7 +63,7 @@ export class ContentSettingsModel implements api.Equitable {
         }
     }
 
-    apply(builder: api.content.ContentBuilder) {
+    apply(builder: ContentBuilder) {
         builder.owner = this.owner;
         builder.language = this.language;
     }

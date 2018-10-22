@@ -1,5 +1,6 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {EditContentEvent} from '../../event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -11,7 +12,7 @@ export class EditContentAction extends Action {
         super(i18n('action.edit'), 'mod+e');
         this.setEnabled(false);
         this.onExecuted(() => {
-            let contents: api.content.ContentSummaryAndCompareStatus[]
+            let contents: ContentSummaryAndCompareStatus[]
                 = grid.getSelectedDataList().filter((content) => !content.isReadOnly());
 
             if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {

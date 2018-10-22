@@ -1,7 +1,6 @@
-import '../../api.ts';
 import {MostPopularItem} from './MostPopularItem';
 import {NewContentDialogList} from './NewContentDialogList';
-import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
+import {AggregateContentTypesResult, ContentTypeAggregation} from '../resource/AggregateContentTypesResult';
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
 import ContentTypeName = api.schema.content.ContentTypeName;

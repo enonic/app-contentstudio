@@ -1,7 +1,5 @@
 import ContentId = api.content.ContentId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentSummary = api.content.ContentSummary;
-import Content = api.content.Content;
 import ContentPath = api.content.ContentPath;
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
@@ -13,6 +11,8 @@ import {GetContentSummaryByIds} from './GetContentSummaryByIds';
 import {GetContentIdsByParentRequest} from './GetContentIdsByParentRequest';
 import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
 import {CompareContentResult} from './CompareContentResult';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
