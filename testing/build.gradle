@@ -20,6 +20,7 @@ plugins {
     id 'com.enonic.defaults' version '1.0.3'
     id 'com.moowork.node' version '0.13'
     id 'com.moowork.gulp' version '0.13'
+    id 'com.github.psxpaul.execfork' version '0.1.8'
 
 }
 
@@ -51,6 +52,7 @@ ext {
     distroDir = "$unpackDir${File.separator}enonic-xp-$xpVersion"
     deployDir = "$distroDir${File.separator}home${File.separator}deploy"
     appDir = "$projectDir${File.separator}test-applications"
+    seleniumDir = "$projectDir${File.separator}test-applications${File.separator}selenium"
     allureResultsDir = "allure-results"
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
@@ -86,6 +88,11 @@ task unpackDistro( type: Copy ) {
     into file( unpackDir )
 }
 
+task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
+    commandLine = "${seleniumDir}${File.separator}selenium-server.sh"
+    standardOutput = "${buildDir}${File.separator}selenium-daemon.log"
+    errorOutput = "${buildDir}${File.separator}selenium-daemon-error.log"
+}
 task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
@@ -138,13 +145,14 @@ task deleteFolders( type: Delete ) {
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
 //run the tusk in the gulpfile.js. Name of the task is 'test'
-task testContentStudioApp( type: GulpTask, dependsOn: [npmInstall, startServer, copyApps,] ) {
+task testContentStudioApp( type: GulpTask, dependsOn: [npmInstall, startServer, copyApps, startSeleniumDaemon] ) {
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
     //npmInstall.mustRunAfter buildApplications
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
+    startSeleniumDaemon.mustRunAfter copyApps
 }
 
 task testContentStudioAppLocally( type: GulpTask, dependsOn: [npmInstall] ) {
