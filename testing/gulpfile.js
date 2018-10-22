@@ -38,8 +38,8 @@ gulp.task('mocha', function () {
 });
 
 gulp.task('test', function (callback) {
-    return runSequence(['selenium'], 'mocha', function () {
-        selenium.child.kill();
+    return runSequence('mocha', function () {
+        //selenium.child.kill();
         callback();
     });
 });
