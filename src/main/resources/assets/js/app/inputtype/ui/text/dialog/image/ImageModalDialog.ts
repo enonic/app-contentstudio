@@ -64,6 +64,7 @@ export class ImageModalDialog
     private imageLoadMask: api.ui.mask.LoadMask;
     private dropzoneContainer: api.ui.uploader.DropzoneContainer;
     private imageSelectorFormItem: FormItem;
+    private previewFrame: api.dom.IFrameEl;
 
     constructor(config: eventInfo, content: api.content.ContentSummary) {
         super(<HtmlAreaModalDialogConfig>{
@@ -253,7 +254,22 @@ export class ImageModalDialog
         this.imageCaptionField.show();
         this.imageAltTextField.show();
         this.imageUploaderEl.hide();
-        this.imagePreviewContainer.insertChild(this.image, 0);
+
+
+        this.previewFrame = new api.dom.IFrameEl('preview-frame');
+
+        this.previewFrame.getEl().setAttribute('style',
+            'border: none; width: 100%;');
+
+        this.imagePreviewContainer.insertChild(this.previewFrame, 0);
+
+        this.previewFrame.getHTMLElement()['contentWindow'].addEventListener('resize', function(){
+            debugger;
+        });
+
+        this.previewFrame.getHTMLElement()['contentDocument'].write(this.image.getHTMLElement().outerHTML);
+
+        //this.imagePreviewContainer.insertChild(this.image, 0);
     }
 
     private createImgElForPreview(imageContentId: string, isExistingImg: boolean = false): api.dom.ImgEl {
@@ -274,7 +290,8 @@ export class ImageModalDialog
     }
 
     private removePreview() {
-        this.imagePreviewContainer.removeChild(this.image);
+        //this.imagePreviewContainer.removeChild(this.image);
+        this.imagePreviewContainer.removeChild(this.previewFrame);
     }
 
     show() {
