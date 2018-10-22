@@ -11,9 +11,15 @@ import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import ContentPath = api.content.ContentPath;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
+import TaskProgressInterface = api.ui.dialog.TaskProgressInterface;
+import TaskId = api.task.TaskId;
+import TaskState = api.task.TaskState;
+import ProgressBarManager = api.ui.dialog.ProgressBarManager;
+import applyMixins = api.ui.dialog.applyMixins;
 
 export class EditPermissionsDialog
-    extends api.ui.dialog.ModalDialog {
+    extends api.ui.dialog.ModalDialog
+    implements TaskProgressInterface {
 
     private contentId: ContentId;
 
@@ -47,12 +53,127 @@ export class EditPermissionsDialog
 
     protected header: EditPermissionsDialogHeader;
 
+    //
+    progressManager: ProgressBarManager;
+    //
+    isProgressBarEnabled: () => boolean;
+
+    protected createHeader(): EditPermissionsDialogHeader {
+        return new EditPermissionsDialogHeader(i18n('dialog.permissions'), '');
+    }
+
+    protected getHeader(): EditPermissionsDialogHeader {
+        return this.header;
+    }
+
+    pollTask: (taskId: TaskId) => void;
+
+    private setUpDialog() {
+        this.overwriteChildPermissionsCheck.setChecked(false);
+
+        let contentPermissionsEntries: AccessControlEntry[] = this.permissions.getEntries();
+        this.originalValues = contentPermissionsEntries.sort();
+        this.originalInherit = this.inheritPermissions;
+        this.originalOverwrite = this.overwritePermissions;
+
+        this.layoutOriginalPermissions();
+
+        this.inheritPermissionsCheck.setChecked(this.inheritPermissions);
+
+        this.comboBox.giveFocus();
+    }
+
+    private layoutInheritedPermissions() {
+        this.comboBox.clearSelection(true);
+        this.parentPermissions.forEach((item) => {
+            if (!this.comboBox.isSelected(item)) {
+                this.comboBox.select(item);
+            }
+        });
+    }
+
+    private layoutOriginalPermissions() {
+        this.comboBox.clearSelection(true);
+        this.originalValues.forEach((item) => {
+            if (!this.comboBox.isSelected(item)) {
+                this.comboBox.select(item);
+            }
+        });
+    }
+
+    private getEntries(): AccessControlEntry[] {
+        return this.comboBox.getSelectedDisplayValues();
+    }
+
+    private getParentPermissions(): wemQ.Promise<AccessControlList> {
+        let deferred = wemQ.defer<AccessControlList>();
+
+        let parentPath = this.contentPath.getParentPath();
+        if (parentPath && parentPath.isNotRoot()) {
+            new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
+                deferred.resolve(content.getPermissions());
+            }).catch((reason: any) => {
+                deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
+            }).done();
+        } else {
+            new GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
+                deferred.resolve(rootPermissions);
+            }).catch((reason: any) => {
+                deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
+            }).done();
+        }
+
+        return deferred.promise;
+    }
+
+    show() {
+        if (this.contentPath) {
+            this.getHeader().setPath(this.contentPath.toString());
+        } else {
+            this.getHeader().setPath('');
+        }
+        super.show();
+
+        if (this.comboBox.getComboBox().isVisible()) {
+            this.comboBox.giveFocus();
+        } else {
+            this.inheritPermissionsCheck.giveFocus();
+        }
+    }
+
+    isDirty(): boolean {
+        return this.applyAction.isEnabled();
+    }
+
+    //
+    // fields
+    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
+
+    //
+    // methods
+    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
+    isExecuting: () => boolean;
+    private subTitle: api.dom.H6El;
+
     constructor() {
         super(<ModalDialogConfig>{
             confirmation: {
                 yesCallback: () => this.applyAction.execute(),
                 noCallback: () => this.close(),
             }
+        });
+
+        TaskProgressInterface.prototype.constructor.call(this, {
+            processingLabel: `${i18n('field.progress.applying')}...`,
+            managingElement: this
+        });
+
+        this.subTitle = new api.dom.H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
+        this.appendChildToHeader(this.subTitle);
+        this.subTitle.hide();
+
+        this.onProgressComplete(() => {
+            this.subTitle.hide();
         });
 
         this.addClass('edit-permissions-dialog');
@@ -146,27 +267,20 @@ export class EditPermissionsDialog
         this.addCancelButtonToBottom();
     }
 
-    protected createHeader(): EditPermissionsDialogHeader {
-        return new EditPermissionsDialogHeader(i18n('dialog.permissions'), '');
-    }
-
-    protected getHeader(): EditPermissionsDialogHeader {
-        return this.header;
-    }
-
     private applyPermissions() {
+
+        this.subTitle.show();
+
+
         let permissions = new AccessControlList(this.getEntries());
 
         if (this.immediateApply) {
             let req = new ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
                 this.inheritPermissionsCheck.isChecked()).setPermissions(permissions).setOverwriteChildPermissions(
                 this.overwriteChildPermissionsCheck.isChecked());
-            let res = req.sendAndParse();
-
-            res.done((updatedContent: Content) => {
-                api.notify.showFeedback(i18n('notify.permissions.applied', updatedContent.getDisplayName()));
-                this.close();
-            });
+            req.sendAndParse().then((taskId) => {
+                this.pollTask(taskId);
+            }).done();
         } else {
             ContentPermissionsApplyEvent.create().setContentId(this.contentId).setPermissions(
                 permissions).setInheritPermissions(this.inheritPermissionsCheck.isChecked()).setOverwritePermissions(
@@ -175,84 +289,9 @@ export class EditPermissionsDialog
             this.close();
         }
     }
-
-    private setUpDialog() {
-        this.overwriteChildPermissionsCheck.setChecked(false);
-
-        let contentPermissionsEntries: AccessControlEntry[] = this.permissions.getEntries();
-        this.originalValues = contentPermissionsEntries.sort();
-        this.originalInherit = this.inheritPermissions;
-        this.originalOverwrite = this.overwritePermissions;
-
-        this.layoutOriginalPermissions();
-
-        this.inheritPermissionsCheck.setChecked(this.inheritPermissions);
-
-        this.comboBox.giveFocus();
-    }
-
-    private layoutInheritedPermissions() {
-        this.comboBox.clearSelection(true);
-        this.parentPermissions.forEach((item) => {
-            if (!this.comboBox.isSelected(item)) {
-                this.comboBox.select(item);
-            }
-        });
-    }
-
-    private layoutOriginalPermissions() {
-        this.comboBox.clearSelection(true);
-        this.originalValues.forEach((item) => {
-            if (!this.comboBox.isSelected(item)) {
-                this.comboBox.select(item);
-            }
-        });
-    }
-
-    private getEntries(): AccessControlEntry[] {
-        return this.comboBox.getSelectedDisplayValues();
-    }
-
-    private getParentPermissions(): wemQ.Promise<AccessControlList> {
-        let deferred = wemQ.defer<AccessControlList>();
-
-        let parentPath = this.contentPath.getParentPath();
-        if (parentPath && parentPath.isNotRoot()) {
-            new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
-                deferred.resolve(content.getPermissions());
-            }).catch((reason: any) => {
-                deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
-            }).done();
-        } else {
-            new GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
-                deferred.resolve(rootPermissions);
-            }).catch((reason: any) => {
-                deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
-            }).done();
-        }
-
-        return deferred.promise;
-    }
-
-    show() {
-        if (this.contentPath) {
-            this.getHeader().setPath(this.contentPath.toString());
-        } else {
-            this.getHeader().setPath('');
-        }
-        super.show();
-
-        if (this.comboBox.getComboBox().isVisible()) {
-            this.comboBox.giveFocus();
-        } else {
-            this.inheritPermissionsCheck.giveFocus();
-        }
-    }
-
-    isDirty(): boolean {
-        return this.applyAction.isEnabled();
-    }
 }
+
+applyMixins(EditPermissionsDialog, [TaskProgressInterface]);
 
 export class EditPermissionsDialogHeader
     extends api.ui.dialog.DefaultModalDialogHeader {
