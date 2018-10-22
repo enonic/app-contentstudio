@@ -73,8 +73,8 @@ export class ContentWizardStepForm
         });
     }
 
-    public validate(silent?: boolean): api.form.ValidationRecording {
-        return this.formView.validate(silent);
+    public validate(silent: boolean = false, forceNotify: boolean = false): api.form.ValidationRecording {
+        return this.formView.validate(silent, forceNotify);
     }
 
     public resetValidation() {

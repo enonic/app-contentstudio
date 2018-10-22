@@ -541,6 +541,8 @@ export class ContentWizardPanel
 
         return super.doLayout(persistedContent).then(() => {
 
+            const persistedContentCopy = persistedContent.clone();
+
             if (ContentWizardPanel.debug) {
                 console.debug('ContentWizardPanel.doLayout at ' + new Date().toISOString(), persistedContent);
             }
@@ -559,7 +561,7 @@ export class ContentWizardPanel
                 if (viewedContent.equals(persistedContent) || this.skipValidation) {
 
                     // force update wizard with server bounced values to erase incorrect ones
-                    this.updateWizard(persistedContent, false);
+                    this.updateWizard(persistedContentCopy, false);
 
                     let liveFormPanel = this.getLivePanel();
                     if (liveFormPanel) {
@@ -596,22 +598,22 @@ export class ContentWizardPanel
                     console.warn(' persistedContent: ', persistedContent);
 
                     if (persistedContent.getType().isDescendantOfMedia()) {
-                        this.updateXDataStepForms(persistedContent);
+                        this.updateXDataStepForms(persistedContentCopy);
                     } else {
                         new ConfirmationDialog()
                             .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => this.doLayoutPersistedItem(persistedContent.clone()))
+                            .setYesCallback(() => this.doLayoutPersistedItem(persistedContentCopy))
                             .setNoCallback(() => { /* empty */
                             })
                             .show();
                     }
                 }
 
-                return this.updatePersistedContent(persistedContent);
+                return this.updatePersistedContent(persistedContentCopy);
 
             } else {
 
-                return this.doLayoutPersistedItem(persistedContent.clone()).then(() => {
+                return this.doLayoutPersistedItem(persistedContentCopy).then(() => {
                     return this.updatePersistedContent(persistedContent);
                 });
             }
@@ -841,7 +843,7 @@ export class ContentWizardPanel
                     extraData = this.enrichWithExtraData(content, xData.getXDataName());
                 }
 
-                let data = extraData.getData().copy();
+                let data = extraData.getData();
                 data.onChanged(this.dataChangedHandler);
 
                 let xDataForm = new api.form.FormBuilder().addFormItems(xData.getFormItems()).build();
@@ -962,7 +964,7 @@ export class ContentWizardPanel
 
                     this.setSteps(steps);
 
-                    this.resetXDatasHeaderState();
+                    this.resetXDatasState();
                     return steps;
                 });
         });
@@ -1701,12 +1703,15 @@ export class ContentWizardPanel
         }
     }
 
-    private resetXDatasHeaderState() {
+    private resetXDatasState(): wemQ.Promise<void[]> {
+        const promises = [];
         for (let key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                this.xDataStepFormByName[key].resetHeaderState();
+                promises.push(this.xDataStepFormByName[key].resetState());
             }
         }
+
+        return wemQ.all(promises);
     }
 
     private addXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
@@ -1720,13 +1725,18 @@ export class ContentWizardPanel
                     !this.xDataStepFormByName[xData.getName()]
                 );
                 return this.createXDataSteps(this.getPersistedItem(), xDatasToAdd).then(steps => {
-                    steps.forEach(xDataStep => {
+                    steps.forEach((xDataStep: XDataWizardStep) => {
                         if (!this.getSteps().some(step => step === xDataStep)) {
                             this.insertStepBefore(xDataStep, this.settingsWizardStep);
                         }
+
+                        const form = xDataStep.getStepForm();
+                        form.onRendered(() => {
+                            form.validate(false, true);
+                        });
                     });
 
-                    this.resetXDatasHeaderState();
+                    this.resetXDatasState();
                 });
 
             }).catch((reason: any) => {
@@ -1966,16 +1976,15 @@ export class ContentWizardPanel
      * @param content
      */
     private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
-        let contentCopy = content.clone();
-        this.getFormContext(contentCopy).updatePersistedContent(contentCopy);
+        this.getFormContext(content).updatePersistedContent(content);
 
         for (let key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
 
                 let xDataName = new XDataName(key);
-                let extraData = contentCopy.getExtraData(xDataName);
+                let extraData = content.getExtraData(xDataName);
                 if (!extraData) { // ensure ExtraData object corresponds to each step form
-                    extraData = this.enrichWithExtraData(contentCopy, xDataName);
+                    extraData = this.enrichWithExtraData(content, xDataName);
                 }
 
                 let form: XDataWizardStepForm = this.xDataStepFormByName[key];
@@ -2001,21 +2010,19 @@ export class ContentWizardPanel
 
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
 
-        // remember to copy data to have persistedItem pristine
-        let contentCopy = content.clone();
-        contentCopy.getContentData().onChanged(this.dataChangedHandler);
+        content.getContentData().onChanged(this.dataChangedHandler);
 
-        this.contentWizardStepForm.update(contentCopy.getContentData(), unchangedOnly).then(() => {
+        this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
 
-        if (contentCopy.isSite()) {
-            this.updateSiteModel(<Site>contentCopy);
+        if (content.isSite()) {
+            this.updateSiteModel(<Site>content);
         }
 
-        this.settingsWizardStepForm.update(contentCopy, unchangedOnly);
-        this.scheduleWizardStepForm.update(contentCopy, unchangedOnly);
-        this.securityWizardStepForm.update(contentCopy, unchangedOnly);
+        this.settingsWizardStepForm.update(content, unchangedOnly);
+        this.scheduleWizardStepForm.update(content, unchangedOnly);
+        this.securityWizardStepForm.update(content, unchangedOnly);
     }
 
     getSecurityWizardStepForm() {
