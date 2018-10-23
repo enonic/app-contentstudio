@@ -216,16 +216,6 @@ export class HTMLAreaBuilder {
                 config.contentsCss = contentsCss.concat(Styles.getCssPaths());
             }
         };
-        const appendStylesheet = (cssPath) => {
-            const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
-            linkEl.getEl().setAttribute('type', 'text/css');
-            document.getElementsByTagName("head")[0].appendChild(linkEl.getHTMLElement());
-        };
-        const injectCssIntoPage = () => {
-            if (Styles.getInstance()) {
-                Styles.getCssPaths().forEach(cssPath => appendStylesheet(cssPath));
-            }
-        };
 
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
@@ -268,9 +258,6 @@ export class HTMLAreaBuilder {
         const deferred = wemQ.defer<CKEDITOR.config>();
 
         new StylesRequest(contentId).sendAndParse().then((response) => {
-            if (response) {
-                injectCssIntoPage();
-            }
             injectCssIntoConfig();
             deferred.resolve(config);
         });

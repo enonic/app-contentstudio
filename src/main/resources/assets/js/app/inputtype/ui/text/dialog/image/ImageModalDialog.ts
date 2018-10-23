@@ -236,6 +236,32 @@ export class ImageModalDialog
         this.image = this.createImgElForPreview(imageContent.getContentId().toString(), false);
     }
 
+    private createPreviewFrame() {
+        const appendStylesheet = (head, cssPath) => {
+            const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
+            linkEl.getEl().setAttribute('type', 'text/css');
+            head.appendChild(linkEl.getHTMLElement());
+        };
+        const injectCssIntoFrame = (head) => {
+            if (Styles.getInstance()) {
+                Styles.getCssPaths().forEach(cssPath => appendStylesheet(head, cssPath));
+            }
+        };
+        this.previewFrame = new api.dom.IFrameEl('preview-frame');
+
+        this.previewFrame.getEl().setHeightPx(this.image.getEl().getHeight());
+        this.imagePreviewContainer.insertChild(this.previewFrame, 0);
+
+        this.image.getEl().removeAttribute('style');
+
+        const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
+        frameDocument.write(this.image.getHTMLElement().outerHTML);
+        frameDocument.getElementsByTagName('body')[0].classList.add('preview-frame-body');
+        injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
+
+        this.imagePreviewContainer.removeChild(this.image);
+    }
+
     private previewImage() {
         this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask, this.imageSelector.getValue());
         this.imageToolbar.onStyleSelected(() => {
@@ -243,6 +269,8 @@ export class ImageModalDialog
         });
 
         this.image.onLoaded(() => {
+            this.createPreviewFrame();
+
             this.imageLoadMask.hide();
             this.imagePreviewContainer.removeClass('upload');
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(
@@ -255,21 +283,9 @@ export class ImageModalDialog
         this.imageAltTextField.show();
         this.imageUploaderEl.hide();
 
+        this.image.getEl().setAttribute('style', 'visibility: hidden');
 
-        this.previewFrame = new api.dom.IFrameEl('preview-frame');
-
-        this.previewFrame.getEl().setAttribute('style',
-            'border: none; width: 100%;');
-
-        this.imagePreviewContainer.insertChild(this.previewFrame, 0);
-
-        this.previewFrame.getHTMLElement()['contentWindow'].addEventListener('resize', function(){
-            debugger;
-        });
-
-        this.previewFrame.getHTMLElement()['contentDocument'].write(this.image.getHTMLElement().outerHTML);
-
-        //this.imagePreviewContainer.insertChild(this.image, 0);
+        this.imagePreviewContainer.insertChild(this.image, 0);
     }
 
     private createImgElForPreview(imageContentId: string, isExistingImg: boolean = false): api.dom.ImgEl {
