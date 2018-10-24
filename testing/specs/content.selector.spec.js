@@ -21,7 +21,7 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
-            this.bail(1);
+            //this.bail(1);
             let displayName = contentBuilder.generateRandomName('cselector-site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(()=> {

@@ -18,7 +18,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     it(`GIVEN 'Issues List' dialog is opened WHEN 'New Issue...' button has been clicked THEN 'Create Issue Dialog' should be loaded `,
         () => {
-            this.bail(1);
+            //this.bail(1);
             return studioUtils.openIssuesListDialog().then(()=> {
                 return issueListDialog.clickOnNewIssueButton();
             }).then(()=> {
