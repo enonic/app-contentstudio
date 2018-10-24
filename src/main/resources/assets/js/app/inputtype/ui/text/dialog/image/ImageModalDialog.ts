@@ -59,6 +59,7 @@ export class ImageModalDialog
     private progress: api.ui.ProgressBar;
     private error: api.dom.DivEl;
     private image: api.dom.ImgEl;
+    private figure: api.dom.FigureEl;
     private imageToolbar: ImageDialogToolbar;
     private imagePreviewScrollHandler: ImagePreviewScrollHandler;
     private imageLoadMask: api.ui.mask.LoadMask;
@@ -117,7 +118,7 @@ export class ImageModalDialog
 
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
-            this.createImgElForExistingImage(imageContent);
+            this.createPreviewElement(imageContent.getContentId().toString(), false);
             this.previewImage();
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
@@ -178,7 +179,8 @@ export class ImageModalDialog
             }
 
             this.imageLoadMask.show();
-            this.createImgElForNewImage(imageContent);
+
+            this.createPreviewElement(imageContent.getContentId().toString(), true);
             this.previewImage();
             formItem.addClass('selected-item-preview');
             this.setAltTextFieldValue(imageContent.getDisplayName());
@@ -228,6 +230,11 @@ export class ImageModalDialog
         });
     }
 
+    private createPreviewElement(imageContentId: string, isNewImage: boolean) {
+        this.image = this.createImgElForPreview(imageContentId, isNewImage);
+        this.figure = new api.dom.FigureEl(this.image, 'image-preview');
+    }
+/*
     private createImgElForExistingImage(imageContent: Content) {
         this.image = this.createImgElForPreview(imageContent.getContentId().toString(), true);
     }
@@ -235,7 +242,7 @@ export class ImageModalDialog
     private createImgElForNewImage(imageContent: MediaTreeSelectorItem) {
         this.image = this.createImgElForPreview(imageContent.getContentId().toString(), false);
     }
-
+*/
     private createPreviewFrame() {
         const appendStylesheet = (head, cssPath) => {
             const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
@@ -249,26 +256,29 @@ export class ImageModalDialog
         };
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
 
-        this.previewFrame.getEl().setHeightPx(this.image.getEl().getHeight());
+        //this.previewFrame.getEl().setHeightPx(this.image.getEl().getHeight());
+        this.previewFrame.getEl().setHeightPx(this.figure.getEl().getHeight());
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
-        this.image.getEl().removeAttribute('style');
+        //this.image.getEl().removeAttribute('style');
 
         const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
-        frameDocument.write(this.image.getHTMLElement().outerHTML);
+        //frameDocument.write(this.image.getHTMLElement().outerHTML);
+        frameDocument.write(this.figure.getHTMLElement().outerHTML);
         frameDocument.getElementsByTagName('body')[0].classList.add('preview-frame-body');
         injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
 
-        this.imagePreviewContainer.removeChild(this.image);
+        //this.imagePreviewContainer.removeChild(this.image);
+        this.imagePreviewContainer.removeChild(this.figure);
     }
 
     private previewImage() {
-        this.imageToolbar = new ImageDialogToolbar(this.image, this.imageLoadMask, this.imageSelector.getValue());
+        this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getValue());
         this.imageToolbar.onStyleSelected(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
         });
 
-        this.image.onLoaded(() => {
+        this.figure.getImage().onLoaded(() => {
             this.createPreviewFrame();
 
             this.imageLoadMask.hide();
@@ -283,18 +293,20 @@ export class ImageModalDialog
         this.imageAltTextField.show();
         this.imageUploaderEl.hide();
 
-        this.image.getEl().setAttribute('style', 'visibility: hidden');
+        this.figure.getEl().setAttribute('style', 'visibility: hidden');
+        //this.image.getEl().setAttribute('style', 'visibility: hidden');
 
-        this.imagePreviewContainer.insertChild(this.image, 0);
+        this.imagePreviewContainer.insertChild(this.figure, 0);
+        //this.imagePreviewContainer.insertChild(this.image, 0);
     }
 
-    private createImgElForPreview(imageContentId: string, isExistingImg: boolean = false): api.dom.ImgEl {
-        const imgSrcAttr = isExistingImg
-                           ? new api.dom.ElementHelper(this.imageElement).getAttribute('src')
-                           : HTMLAreaHelper.getImagePreviewUrl({id: imageContentId});
-        const imgDataSrcAttr = isExistingImg
-                               ? new api.dom.ElementHelper(this.imageElement).getAttribute('data-src')
-                               :  HTMLAreaHelper.getImageRenderUrl({id: imageContentId});
+    private createImgElForPreview(imageContentId: string, isNewImage: boolean): api.dom.ImgEl {
+        const imgSrcAttr = isNewImage ?
+                            HTMLAreaHelper.getImagePreviewUrl({id: imageContentId}) :
+                            new api.dom.ElementHelper(this.imageElement).getAttribute('src');
+        const imgDataSrcAttr = isNewImage ?
+                                HTMLAreaHelper.getImageRenderUrl({id: imageContentId}) :
+                                new api.dom.ElementHelper(this.imageElement).getAttribute('data-src');
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
         imageEl.getEl().setAttribute('data-src', imgDataSrcAttr);
@@ -419,7 +431,7 @@ export class ImageModalDialog
                 this.updateOriginalDialogInputValues();
                 this.ckeOriginalDialog.getButton('ok').click();
                 (<any>this.ckeOriginalDialog).widget.parts.image.setAttribute('data-src',
-                    this.image.getEl().getAttribute('data-src'));
+                    this.figure.getImage().getEl().getAttribute('data-src'));
                 this.setCaptionText();
                 this.close();
             }
@@ -429,10 +441,11 @@ export class ImageModalDialog
     }
 
     private updateOriginalDialogInputValues(): void {
-        const src: string = this.image.getEl().getAttribute('src');
+        const image = this.figure.getImage();
+        const src: string = image.getEl().getAttribute('src');
         const altText: string = this.getAltTextFieldValue();
-        const alignment: string = this.image.getHTMLElement().style.textAlign;
-        const keepSize: boolean = this.image.getEl().getAttribute('data-src').indexOf('keepSize=true') > 0;
+        const alignment: string = image.getHTMLElement().style.textAlign;
+        const keepSize: boolean = image.getEl().getAttribute('data-src').indexOf('keepSize=true') > 0;
 
         this.getOriginalUrlElem().setValue(src, false);
         this.getOriginalAltTextElem().setValue(altText, false);
@@ -526,7 +539,9 @@ export class ImageModalDialogConfig
 export class ImageDialogToolbar
     extends api.ui.toolbar.Toolbar {
 
-    private image: api.dom.ImgEl;
+    //private image: api.dom.ImgEl;
+
+    private previewEl: api.dom.FigureEl;
 
     private imageId: string;
 
@@ -538,10 +553,10 @@ export class ImageDialogToolbar
 
     private imageLoadMask: api.ui.mask.LoadMask;
 
-    constructor(image: api.dom.ImgEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
+    constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
         super('image-toolbar');
 
-        this.image = image;
+        this.previewEl = previewEl;
         this.imageId = imageId;
         this.imageLoadMask = imageLoadMask;
 
@@ -553,7 +568,7 @@ export class ImageDialogToolbar
 
     private createAlignmentButtons() {
         const alignmentStyles = StyleHelper.getOfType(StyleType[StyleType.ALIGNMENT]);
-        const hasAlignment = alignmentStyles.some(style => this.image.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));
+        const hasAlignment = alignmentStyles.some(style => this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));
 
         this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY, !hasAlignment);
         this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT);
@@ -562,21 +577,21 @@ export class ImageDialogToolbar
     }
 
     private removeClassesOfTheSameType(styleClass: string) {
-        const appliedClasses = this.image.getClass().split(' ');
+        const appliedClasses = this.previewEl.getClass().split(' ');
         (appliedClasses || []).forEach(appliedClass => {
             if (StyleHelper.isOfSameType(appliedClass, styleClass)) {
-                this.image.removeClass(appliedClass);
+                this.previewEl.removeClass(appliedClass);
             }
         });
     }
 
-    private addClassToImage(styleClass: string) {
-        const imageClass = this.image.getClass().trim();
+    private addClassToPreview(styleClass: string) {
+        const imageClass = this.previewEl.getClass().trim();
         if (imageClass) {
             this.removeClassesOfTheSameType(styleClass);
         }
 
-        this.image.addClass(styleClass);
+        this.previewEl.addClass(styleClass);
     }
 
     private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false) {
@@ -589,13 +604,13 @@ export class ImageDialogToolbar
         action.onExecuted(() => {
             this.resetActiveAlignmentButton();
             button.addClass('active');
-            this.addClassToImage(styleClass);
+            this.addClassToPreview(styleClass);
             api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
         this.alignmentButtons.push(button);
 
-        if (this.image.hasClass(styleClass) || enforceClass) {
+        if (this.previewEl.hasClass(styleClass) || enforceClass) {
             action.execute();
         }
 
@@ -627,7 +642,7 @@ export class ImageDialogToolbar
     }
 
     private initSelectedStyle(imageStyleSelector: ImageStyleSelector) {
-        const imgSrc: string = this.image.getEl().getAttribute('style');
+        const imgSrc: string = this.previewEl.getEl().getAttribute('style');
         const stylesApplied = imgSrc ? imgSrc.split(' ') : null;
 
         if (!stylesApplied) {
@@ -649,12 +664,12 @@ export class ImageDialogToolbar
     }
 
     private initKeepSizeCheckbox() {
-        this.keepOriginalSizeCheckbox.setChecked(this.image.getEl().getAttribute('data-src').indexOf('keepSize=true') > 0);
+        this.keepOriginalSizeCheckbox.setChecked(this.previewEl.getImage().getEl().getAttribute('data-src').indexOf('keepSize=true') > 0);
     }
 
     private setImageSrc() {
         const selectedOption = this.imageStyleSelector.getSelectedOption();
-        const imageEl = this.image.getEl();
+        const imageEl = this.previewEl.getImage().getEl();
         const imageUrlParams: ImageUrlParameters = {
             id: this.imageId,
             useOriginal: this.keepOriginalSizeCheckbox.isChecked()
@@ -663,7 +678,7 @@ export class ImageDialogToolbar
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
             imageUrlParams.scale = selectedStyle.getAspectRatio();
-            imageEl.setAttribute('class', selectedOption.value);
+            this.addClassToPreview(selectedOption.value);
         }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
