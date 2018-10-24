@@ -11,9 +11,13 @@ import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAn
 import {EditContentEvent} from './event/EditContentEvent';
 import {Content} from './content/Content';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
+import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
+import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
 import ContentId = api.content.ContentId;
 import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
 import AppPanel = api.app.AppPanel;
+import i18n = api.util.i18n;
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
@@ -106,15 +110,7 @@ export class ContentAppPanel
 
     private handleDependencies(id: string, inbound: boolean) {
         const treeGridLoadedListener = () => {
-            ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
-                (content: ContentSummaryAndCompareStatus) => {
-                    new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
-
-                    const mode: string = inbound ? 'inbound' : 'outbound';
-                    const hash: string = `${mode}/${id}`;
-
-                    Router.setHash(hash);
-                });
+            this.doHandleDependencies(id, inbound);
 
             ContentTreeGridLoadedEvent.un(treeGridLoadedListener);
         };
@@ -122,5 +118,35 @@ export class ContentAppPanel
         ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
 
         new ShowBrowsePanelEvent().fire();
+    }
+
+    private doHandleDependencies(id: string, inbound: boolean) {
+        const contentId: ContentId = new ContentId(id);
+
+        new ResolveDependenciesRequest([contentId]).sendAndParse().then((result: ResolveDependenciesResult) => {
+            const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
+
+            const hasDependencies: boolean = inbound
+                ? dependencyEntry.getDependency().inbound.length > 0
+                : dependencyEntry.getDependency().outbound.length > 0;
+
+            if (hasDependencies) {
+                this.toggleSearchPanelWithDependencies(id, inbound);
+            } else {
+                api.notify.showFeedback(i18n('notify.dependencies.absent', id));
+            }
+        }).catch(reason => api.DefaultErrorHandler.handle(reason));
+    }
+
+    private toggleSearchPanelWithDependencies(id: string, inbound: boolean) {
+        ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+            (content: ContentSummaryAndCompareStatus) => {
+                new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
+
+                const mode: string = inbound ? 'inbound' : 'outbound';
+                const hash: string = `${mode}/${id}`;
+
+                Router.setHash(hash);
+            });
     }
 }
