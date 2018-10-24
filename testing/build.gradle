@@ -56,7 +56,11 @@ ext {
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
 }
-
+task ensureScreenshotsDirectory {
+    doLast {
+        mkdir screenshotsDir
+    }
+}
 task copyConfig( type: Copy ) {
     println "$appDir${File.separator}common-config"
     from "$appDir${File.separator}common-config"
@@ -143,7 +147,8 @@ task deleteFolders( type: Delete ) {
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
 //run the tusk in the task.js. Name of the task is 'test'
-task testContentStudioApp( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, startSeleniumDaemon] ) {
+task testContentStudioApp( type: NpmTask,
+                           dependsOn: [npmInstall, startServer, copyApps, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
@@ -152,7 +157,7 @@ task testContentStudioApp( type: NpmTask, dependsOn: [npmInstall, startServer, c
     startSeleniumDaemon.mustRunAfter copyApps
 }
 
-task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon] ) {
+task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
