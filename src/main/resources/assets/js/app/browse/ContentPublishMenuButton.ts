@@ -42,7 +42,7 @@ export class ContentPublishMenuButton
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
-        if (!item.getContentId().equals(item.getContentId())) {
+        if (!!item && !item.getContentId().equals(item.getContentId())) {
             this.fetchIssues(item);
         }
         this.item = item;
