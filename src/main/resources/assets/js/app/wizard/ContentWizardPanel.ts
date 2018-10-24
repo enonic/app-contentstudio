@@ -162,6 +162,8 @@ export class ContentWizardPanel
 
     private applicationLoadCount: number;
 
+    private debouncedEditorRefresh: (clearInspection: boolean) => void;
+
     public static debug: boolean = false;
 
     constructor(params: ContentWizardPanelParams) {
@@ -191,6 +193,13 @@ export class ContentWizardPanel
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.initBindings();
+
+        this.debouncedEditorRefresh = api.util.AppHelper.debounce((clearInspection: boolean = true) => {
+            const livePanel = this.getLivePanel();
+
+            livePanel.skipNextReloadConfirmation(true);
+            livePanel.loadPage(clearInspection);
+        }, 500);
     }
 
     private initBindings() {
@@ -901,11 +910,11 @@ export class ContentWizardPanel
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
 
-        const item = this.getPersistedItem();
+        const persistedContent = this.getPersistedItem();
         const isSiteUpdated = content.getType().isSite();
         const isPageTemplateUpdated = content.getType().isPageTemplate();
-        const isItemUnderUpdatedSite = item.getPath().isDescendantOf(content.getPath());
-        const site = item.isSite() ? <Site>item : this.site;
+        const isItemUnderUpdatedSite = persistedContent.getPath().isDescendantOf(content.getPath());
+        const site = persistedContent.isSite() ? <Site>persistedContent : this.site;
 
         const isUpdatedItemUnderSite = site ? content.getPath().isDescendantOf(site.getPath()) : false;
 
@@ -919,7 +928,6 @@ export class ContentWizardPanel
 
         // 3. outbound dependency content has changed
         return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
-            const persistedContent: Content = this.getPersistedItem();
             const viewedPage = this.assembleViewedPage();
 
             const pageChanged = !api.ObjectHelper.equals(persistedContent.getPage(), viewedPage);
@@ -991,8 +999,7 @@ export class ContentWizardPanel
                         if (livePanel) {
                             livePanel.setModel(this.liveEditModel);
                             if (needsReload && reloadPage) {
-                                livePanel.skipNextReloadConfirmation(true);
-                                livePanel.loadPage();
+                                this.debouncedEditorRefresh(true);
                             }
                         }
                         return needsReload;
@@ -1110,9 +1117,7 @@ export class ContentWizardPanel
 
                     wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
                         if (containsId || templateUpdated) {
-                            const livePanel = this.getLivePanel();
-                            livePanel.skipNextReloadConfirmation(true);
-                            livePanel.loadPage(false);
+                            this.debouncedEditorRefresh(false);
                         }
                     });
                 });
@@ -1271,8 +1276,8 @@ export class ContentWizardPanel
                 this.liveEditModel = liveEditModel;
 
                 liveFormPanel.setModel(this.liveEditModel);
-                liveFormPanel.skipNextReloadConfirmation(true);
-                liveFormPanel.loadPage(false);
+
+                this.debouncedEditorRefresh(false);
 
                 return wemQ(null);
             });

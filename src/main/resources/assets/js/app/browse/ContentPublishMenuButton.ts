@@ -42,8 +42,10 @@ export class ContentPublishMenuButton
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
+        if (!item.getContentId().equals(item.getContentId())) {
+            this.fetchIssues(item);
+        }
         this.item = item;
-        this.fetchIssues(item);
     }
 
     private fetchIssues(highlightedOrSelected: ContentSummaryAndCompareStatus) {
