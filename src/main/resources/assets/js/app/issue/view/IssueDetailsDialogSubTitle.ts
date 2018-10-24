@@ -1,5 +1,5 @@
 import DivEl = api.dom.DivEl;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import SpanEl = api.dom.SpanEl;
 import {Issue} from '../Issue';
 import {IssueStatusSelector} from './IssueStatusSelector';
@@ -10,12 +10,12 @@ export class DetailsDialogSubTitle
     extends DivEl {
 
     private issue: Issue;
-    private currentUser: User;
+    private currentUser: Principal;
     private issueStatusChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
     private issueStatusSelector: IssueStatusSelector;
     private statusSpan: api.dom.SpanEl;
 
-    constructor(issue: Issue, currentUser: User) {
+    constructor(issue: Issue, currentUser: Principal) {
         super('issue-details-sub-title');
         this.issue = issue;
         this.currentUser = currentUser;

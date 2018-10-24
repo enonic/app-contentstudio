@@ -1,11 +1,12 @@
-import Content = api.content.Content;
-import ContentJson = api.content.json.ContentJson;
-import ContentQuery = api.content.query.ContentQuery;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import QueryExpr = api.query.expr.QueryExpr;
 import PropertyPath = api.data.PropertyPath;
 import Property = api.data.Property;
 import {TagSuggester} from '../ui/tag/TagSuggester';
+import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
+import {ContentQueryResult} from '../../resource/ContentQueryResult';
+import {Content} from '../../content/Content';
+import {ContentJson} from '../../content/ContentJson';
+import {ContentQuery} from '../../content/ContentQuery';
 
 export class ContentTagSuggesterBuilder {
 
@@ -47,7 +48,7 @@ export class ContentTagSuggester
         queryRequest.setExpand(api.rest.Expand.FULL);
 
         return queryRequest.sendAndParse().then(
-            (contentQueryResult: api.content.resource.result.ContentQueryResult<Content, ContentJson>) => {
+            (contentQueryResult: ContentQueryResult<Content, ContentJson>) => {
 
                 let suggestedTags: string[] = [];
                 contentQueryResult.getContents().forEach((content: Content) => {

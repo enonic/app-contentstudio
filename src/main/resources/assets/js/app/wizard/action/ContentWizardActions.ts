@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DuplicateContentAction} from './DuplicateContentAction';
 import {DeleteContentAction} from './DeleteContentAction';
@@ -16,6 +15,11 @@ import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPer
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import {PermissionHelper} from '../PermissionHelper';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
+import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
+import {Content} from '../../content/Content';
+import {CompareStatusChecker} from '../../content/CompareStatus';
+import {AccessControlList} from '../../access/AccessControlList';
+import {Permission} from '../../access/Permission';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -23,7 +27,6 @@ import ManagedActionManager = api.managedaction.ManagedActionManager;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ManagedActionState = api.managedaction.ManagedActionState;
 import ActionsStateManager = api.ui.ActionsStateManager;
-import Content = api.content.Content;
 
 type ActionNames =
     'SAVE' |
@@ -78,7 +81,8 @@ type ActionsState = {
     UNDO_PENDING_DELETE?: boolean,
 };
 
-export class ContentWizardActions extends api.app.wizard.WizardActions<api.content.Content> {
+export class ContentWizardActions
+    extends api.app.wizard.WizardActions<Content> {
 
     private deleteOnlyMode: boolean = false;
 
@@ -191,7 +195,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
 
     refreshPendingDeleteDecorations() {
         let compareStatus = this.wizardPanel.getCompareStatus();
-        let isPendingDelete = api.content.CompareStatusChecker.isPendingDelete(compareStatus);
+        let isPendingDelete = CompareStatusChecker.isPendingDelete(compareStatus);
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
         this.actionsMap.SAVE.setVisible(!isPendingDelete);
@@ -207,7 +211,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         this.enableActions({SAVE: false, DELETE: true});
     }
 
-    enableActionsForExisting(existing: api.content.Content) {
+    enableActionsForExisting(existing: Content) {
         this.persistedContent = existing;
 
         this.enableActions({
@@ -221,7 +225,7 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         });
     }
 
-    setDeleteOnlyMode(content: api.content.Content, valueOn: boolean = true) {
+    setDeleteOnlyMode(content: Content, valueOn: boolean = true) {
         if (this.deleteOnlyMode === valueOn) {
             return;
         }
@@ -246,23 +250,20 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
         }
     }
 
-    private enableDeleteIfAllowed(content: api.content.Content) {
+    private enableDeleteIfAllowed(content: Content) {
         new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            let hasDeletePermission = PermissionHelper.hasPermission(api.security.acl.Permission.DELETE,
+            let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE,
                 loginResult, content.getPermissions());
             this.enableActions({DELETE: hasDeletePermission});
         });
     }
 
-    private enableActionsForExistingByPermissions(existing: api.content.Content): wemQ.Promise<any> {
+    private enableActionsForExistingByPermissions(existing: Content): wemQ.Promise<any> {
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
 
-            this.hasModifyPermission = PermissionHelper.hasPermission(api.security.acl.Permission.MODIFY,
-                loginResult, existing.getPermissions());
-            let hasDeletePermission = PermissionHelper.hasPermission(api.security.acl.Permission.DELETE,
-                loginResult, existing.getPermissions());
-            let hasPublishPermission = PermissionHelper.hasPermission(api.security.acl.Permission.PUBLISH,
-                loginResult, existing.getPermissions());
+            this.hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
+            const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
+            const hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
 
             (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.hasModifyPermission);
 
@@ -285,12 +286,12 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
             }
 
             if (existing.hasParent()) {
-                new api.content.resource.GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
-                    (parent: api.content.Content) => {
+                new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
+                    (parent: Content) => {
                         new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
-                            (accessControlList: api.security.acl.AccessControlList) => {
+                            (accessControlList: AccessControlList) => {
                                 let hasParentCreatePermission = PermissionHelper.hasPermission(
-                                    api.security.acl.Permission.CREATE,
+                                    Permission.CREATE,
                                     loginResult,
                                     accessControlList);
 
@@ -301,8 +302,8 @@ export class ContentWizardActions extends api.app.wizard.WizardActions<api.conte
                     });
             } else {
                 new GetContentRootPermissionsRequest().sendAndParse().then(
-                    (accessControlList: api.security.acl.AccessControlList) => {
-                        let hasParentCreatePermission = PermissionHelper.hasPermission(api.security.acl.Permission.CREATE,
+                    (accessControlList: AccessControlList) => {
+                        let hasParentCreatePermission = PermissionHelper.hasPermission(Permission.CREATE,
                             loginResult,
                             accessControlList);
 

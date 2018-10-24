@@ -1,10 +1,9 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
-
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ContentSummary = api.content.ContentSummary;
 import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
 import Application = api.application.Application;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class PropertiesWidgetItemView extends WidgetItemView {
@@ -46,7 +45,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
             }
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished(layoutOnPublishStateChange);
 

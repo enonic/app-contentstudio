@@ -1,8 +1,7 @@
-import '../../api.ts';
 import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import ContentSummaryAndCompareStatusViewer = api.content.ContentSummaryAndCompareStatusViewer;
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import AEl = api.dom.AEl;
 import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;

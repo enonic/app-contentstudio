@@ -4,13 +4,13 @@ import {PublishProcessor} from '../../publish/PublishProcessor';
 import {PublishRequestItem} from '../PublishRequestItem';
 import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
 import ListBox = api.ui.selector.list.ListBox;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import ArrayHelper = api.util.ArrayHelper;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import ContentId = api.content.ContentId;
 
 export abstract class IssueDialog

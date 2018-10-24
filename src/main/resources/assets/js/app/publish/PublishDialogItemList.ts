@@ -1,7 +1,7 @@
 import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
-import ContentSummaryAndCompareStatusViewer = api.content.ContentSummaryAndCompareStatusViewer;
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import BrowseItem = api.app.browse.BrowseItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ArrayHelper = api.util.ArrayHelper;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;

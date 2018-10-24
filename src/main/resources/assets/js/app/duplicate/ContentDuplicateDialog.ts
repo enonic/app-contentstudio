@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
@@ -6,13 +5,13 @@ import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
 import {DuplicatableId, DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ListBox = api.ui.selector.list.ListBox;
 import i18n = api.util.i18n;
 import TaskState = api.task.TaskState;
 import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import ContentSummary = api.content.ContentSummary;
 
 export class ContentDuplicateDialog

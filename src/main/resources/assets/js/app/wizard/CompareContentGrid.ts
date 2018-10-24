@@ -1,25 +1,22 @@
-import '../../api.ts';
 import {ContentNodeByDisplayNameComparator} from './ContentNodeByDisplayNameComparator';
 import {ContentNodeByModifiedTimeComparator} from './ContentNodeByModifiedTimeComparator';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentResponse} from '../resource/ContentResponse';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
-
-import ContentResponse = api.content.resource.result.ContentResponse;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
-
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
-
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class CompareContentGrid
     extends TreeGrid<ContentSummaryAndCompareStatus> {
 
-    private content: api.content.Content;
+    private content: Content;
 
-    constructor(content: api.content.Content) {
+    constructor(content: Content) {
         const nameFormatter = (row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) => {
 
             let viewer = <ContentSummaryViewer>node.getViewer('name');
@@ -51,7 +48,7 @@ export class CompareContentGrid
 
     fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
         let parentContentId = parentNode && parentNode.getData() ? parentNode.getData().getContentId() : null;
-        return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId).then(
+        return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
                 return data.getContents();
             });

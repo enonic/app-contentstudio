@@ -1,10 +1,10 @@
-import './../api.ts';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
-import Component = api.content.page.region.Component;
+import {EditContentEvent} from '../app/event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
+import {Component} from '../app/page/region/Component';
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
@@ -45,7 +45,7 @@ export class ContentBasedComponentView<COMPONENT extends Component>
 
     private createEditAction(): api.ui.Action {
         return new api.ui.Action(i18n('action.edit')).onExecuted(() => {
-            new api.content.event.EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
+            new EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
         });
     }
 

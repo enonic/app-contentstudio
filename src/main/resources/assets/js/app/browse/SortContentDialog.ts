@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {SaveSortedContentAction} from './action/SaveSortedContentAction';
 import {SortContentTreeGrid} from './SortContentTreeGrid';
 import {SortContentTabMenu} from './SortContentTabMenu';
@@ -6,18 +5,19 @@ import {ContentGridDragHandler} from './ContentGridDragHandler';
 import {OpenSortDialogEvent} from './OpenSortDialogEvent';
 import {OrderChildContentRequest} from '../resource/OrderChildContentRequest';
 import {OrderChildMovements} from '../resource/order/OrderChildMovements';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {OrderContentRequest} from '../resource/OrderContentRequest';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ChildOrder = api.content.order.ChildOrder;
 import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
 import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
-import {OrderContentRequest} from '../resource/OrderContentRequest';
 
 export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     private sortAction: SaveSortedContentAction;
 
-    private parentContent: api.content.ContentSummaryAndCompareStatus;
+    private parentContent: ContentSummaryAndCompareStatus;
 
     private contentGrid: SortContentTreeGrid;
 
@@ -213,7 +213,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.saveButton.removeClass('spinner');
     }
 
-    private setContentChildOrder(order: ChildOrder, silent: boolean = false): wemQ.Promise<api.content.Content> {
+    private setContentChildOrder(order: ChildOrder, silent: boolean = false): wemQ.Promise<Content> {
 
         return new OrderContentRequest()
             .setSilent(silent)
@@ -223,7 +223,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private setManualReorder(order: ChildOrder, movements: OrderChildMovements,
-                             silent: boolean = false): wemQ.Promise<api.content.Content> {
+                             silent: boolean = false): wemQ.Promise<Content> {
 
         return new OrderChildContentRequest()
             .setSilent(silent)

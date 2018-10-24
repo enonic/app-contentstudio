@@ -1,15 +1,18 @@
-import '../../api.ts';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
+import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
+import {Content} from '../content/Content';
+import {Site} from '../content/Site';
+import {CompareStatus} from '../content/CompareStatus';
+import {PublishStatus} from '../publish/PublishStatus';
+import {ContentType} from '../inputtype/schema/ContentType';
 import ContentId = api.content.ContentId;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import Content = api.content.Content;
-import Site = api.content.site.Site;
-import ContentType = api.schema.content.ContentType;
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
 import i18n = api.util.i18n;
 
 export class ContentWizardDataLoader {
@@ -80,7 +83,7 @@ export class ContentWizardDataLoader {
         let otherPromises = contentPromise.then(() => {
             let parentPromise = this.loadParentContent(params, false);
             let typePromise = this.loadContentType(this.content.getType());
-            let statusPromise = api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
+            let statusPromise = ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
 
             return wemQ.all([parentPromise, typePromise, statusPromise]).spread((parentContent, contentType, compareStatus) => {
                 this.parentContent = parentContent;
@@ -101,7 +104,7 @@ export class ContentWizardDataLoader {
         /*        if (api.ObjectHelper.iFrameSafeInstanceOf(contentId, Content)) {
          return wemQ(<Content> contentId);
          } else {*/
-        return new api.content.resource.GetContentByIdRequest(contentId).sendAndParse();
+        return new GetContentByIdRequest(contentId).sendAndParse();
         // }
     }
 
@@ -117,7 +120,7 @@ export class ContentWizardDataLoader {
     }
 
     public loadSite(contentId: ContentId): wemQ.Promise<Site> {
-        return contentId ? new api.content.resource.GetNearestSiteRequest(contentId).sendAndParse() : wemQ<Site>(null);
+        return contentId ? new GetNearestSiteRequest(contentId).sendAndParse() : wemQ<Site>(null);
     }
 
     public loadDefaultModels(site: Site, contentType: ContentTypeName): wemQ.Promise<DefaultModels> {
@@ -146,10 +149,10 @@ export class ContentWizardDataLoader {
             return wemQ<Content>(null);
 
         } else if (this.content) {
-            return new api.content.resource.GetContentByPathRequest(this.content.getPath().getParentPath()).sendAndParse();
+            return new GetContentByPathRequest(this.content.getPath().getParentPath()).sendAndParse();
 
         } else if (params.parentContentId) {
-            return new api.content.resource.GetContentByIdRequest(params.parentContentId).sendAndParse();
+            return new GetContentByIdRequest(params.parentContentId).sendAndParse();
         }
     }
 

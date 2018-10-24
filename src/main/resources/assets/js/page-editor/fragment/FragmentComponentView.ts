@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {FragmentItemType} from './FragmentItemType';
 import {FragmentComponentViewer} from './FragmentComponentViewer';
@@ -15,15 +14,16 @@ import {RegionView} from '../RegionView';
 import {ComponentView} from '../ComponentView';
 import {ComponentDetachedFromFragmentEvent} from '../ComponentDetachedFromFragmentEvent';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
-import FragmentComponent = api.content.page.region.FragmentComponent;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
-import Content = api.content.Content;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
+import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
+import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
+import {ContentUpdatedEvent} from '../../app/event/ContentUpdatedEvent';
+import {Content} from '../../app/content/Content';
+import {FragmentComponent} from '../../app/page/region/FragmentComponent';
+import {ComponentType} from '../../app/page/region/ComponentType';
+import {ComponentPropertyValueChangedEvent} from '../../app/page/region/ComponentPropertyValueChangedEvent';
+import {Component} from '../../app/page/region/Component';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
-import ComponentType = api.content.page.region.ComponentType;
-import Component = api.content.page.region.Component;
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -60,7 +60,7 @@ export class FragmentComponentView
 
         this.setPlaceholder(new FragmentPlaceholder(this));
 
-        this.component.onPropertyValueChanged((e: api.content.page.region.ComponentPropertyValueChangedEvent) => {
+        this.component.onPropertyValueChanged((e: ComponentPropertyValueChangedEvent) => {
             if (e.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
                 this.loadFragmentContent();
             }
@@ -86,7 +86,7 @@ export class FragmentComponentView
 
     private handleContentRemovedEvent() {
         let contentDeletedListener = (event) => {
-            let deleted = event.getDeletedItems().some((deletedItem: api.content.event.ContentDeletedItem) => {
+            let deleted = event.getDeletedItems().some((deletedItem: ContentDeletedItem) => {
                 return !deletedItem.isPending() && deletedItem.getContentId().equals(this.component.getFragment());
             });
             if (deleted) {
@@ -114,7 +114,7 @@ export class FragmentComponentView
 
         ContentUpdatedEvent.on(contentUpdatedListener);
 
-        this.onRemoved((event) => {
+        this.onRemoved(() => {
             ContentUpdatedEvent.un(contentUpdatedListener);
         });
     }
@@ -173,7 +173,7 @@ export class FragmentComponentView
         this.addContextMenuActions(actions);
     }
 
-    getFragmentRootComponent(): api.content.page.region.Component {
+    getFragmentRootComponent(): Component {
         if (this.fragmentContent) {
             let page = this.fragmentContent.getPage();
             if (page) {

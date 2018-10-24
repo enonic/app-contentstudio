@@ -1,8 +1,7 @@
-import '../../api.ts';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import BrowseItem = api.app.browse.BrowseItem;
 import Tooltip = api.ui.Tooltip;
 import i18n = api.util.i18n;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class StatusSelectionItem
     extends api.app.browse.SelectionItem<ContentSummaryAndCompareStatus> {

@@ -1,10 +1,10 @@
-import '../../api.ts';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
 
 export class DeleteAction extends api.ui.Action {
 
-    constructor(itemViewPanel: api.app.view.ItemViewPanel<api.content.ContentSummaryAndCompareStatus>) {
+    constructor(itemViewPanel: api.app.view.ItemViewPanel<ContentSummaryAndCompareStatus>) {
         super(i18n('action.delete'), 'mod+del');
 
         let contentToDelete = itemViewPanel.getItem().getModel().getContentSummary();

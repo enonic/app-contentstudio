@@ -3,7 +3,7 @@ import {IssueListDialog} from './view/IssueListDialog';
 import {Issue} from './Issue';
 import {CreateIssueDialog} from './view/CreateIssueDialog';
 import {GetIssueRequest} from './resource/GetIssueRequest';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ModalDialog = api.ui.dialog.ModalDialog;
 
 export class IssueDialogsManager {

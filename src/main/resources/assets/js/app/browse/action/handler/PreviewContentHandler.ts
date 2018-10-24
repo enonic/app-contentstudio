@@ -1,6 +1,6 @@
-import '../../../../api.ts';
 import {ContentBrowseItem} from '../../ContentBrowseItem';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {IsRenderableRequest} from '../../../resource/IsRenderableRequest';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
 import ContentId = api.content.ContentId;
 
@@ -52,7 +52,7 @@ export class PreviewContentHandler {
                                  changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): wemQ.Promise<any> {
 
         return wemQ.all(this.makeRenderableRequests(contentBrowseItems, changes))
-            .then((values: boolean[]) => {
+            .then(() => {
 
                 if (changes && changes.getRemoved().length > 0) {
                     // items have been removed from selection
@@ -69,7 +69,7 @@ export class PreviewContentHandler {
     public checkIfItemIsRenderable(contentBrowseItem: ContentBrowseItem): wemQ.Promise<any> {
         let contentSummary = contentBrowseItem.getModel().getContentSummary();
 
-        return new api.content.page.IsRenderableRequest(contentSummary.getContentId()).sendAndParse()
+        return new IsRenderableRequest(contentSummary.getContentId()).sendAndParse()
             .then((value: boolean) => {
                 contentBrowseItem.setRenderable(value);
 
@@ -88,7 +88,7 @@ export class PreviewContentHandler {
         return browseItems.map((contentBrowseItem) => {
             let contentSummary = contentBrowseItem.getModel().getContentSummary();
 
-            return new api.content.page.IsRenderableRequest(contentSummary.getContentId()).sendAndParse()
+            return new IsRenderableRequest(contentSummary.getContentId()).sendAndParse()
                 .then((value: boolean) => {
 
                     contentBrowseItem.setRenderable(value);

@@ -1,15 +1,15 @@
-import './../../api.ts';
 import {TextComponentView} from './TextComponentView';
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
+import {TextComponent} from '../../app/page/region/TextComponent';
 
 export class TextComponentViewer
-    extends api.ui.NamesAndIconViewer<api.content.page.region.TextComponent> {
+    extends api.ui.NamesAndIconViewer<TextComponent> {
 
     constructor() {
         super();
     }
 
-    resolveDisplayName(object: api.content.page.region.TextComponent, componentView?: TextComponentView): string {
+    resolveDisplayName(object: TextComponent, componentView?: TextComponentView): string {
         if (componentView) {
             return componentView.extractText() || componentView.getName();
         } else {
@@ -17,11 +17,11 @@ export class TextComponentViewer
         }
     }
 
-    resolveSubName(object: api.content.page.region.TextComponent, relativePath: boolean = false): string {
+    resolveSubName(object: TextComponent, relativePath: boolean = false): string {
         return object.getPath() ? object.getPath().toString() : '';
     }
 
-    resolveIconClass(object: api.content.page.region.TextComponent): string {
+    resolveIconClass(object: TextComponent): string {
         return ItemViewIconClassResolver.resolveByType('text');
     }
 

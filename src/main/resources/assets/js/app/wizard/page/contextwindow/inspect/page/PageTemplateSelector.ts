@@ -1,22 +1,21 @@
-import '../../../../../../api.ts';
 import {PageTemplateOption} from './PageTemplateOption';
 import {PageTemplateOptionViewer} from './PageTemplateOptionViewer';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageModel} from '../../../../../../page-editor/PageModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
+import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
+import {PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
+import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
+import {PageTemplateDisplayName} from '../../../../../page/PageMode';
+import {PageTemplateKey} from '../../../../../page/PageTemplateKey';
 import PropertyChangedEvent = api.PropertyChangedEvent;
-import PageTemplateKey = api.content.page.PageTemplateKey;
-import PageTemplate = api.content.page.PageTemplate;
-import PageTemplateBuilder = api.content.page.PageTemplateBuilder;
 import Option = api.ui.selector.Option;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
-import i18n = api.util.i18n;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import i18n = api.util.i18n;
 
 export class PageTemplateSelector
     extends Dropdown<PageTemplateOption> {
@@ -165,10 +164,9 @@ export class PageTemplateSelector
     }
 
     private createCustomizedOption(): Option<PageTemplateOption> {
-        let pageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
         let pageTemplate: PageTemplate = (<PageTemplateBuilder> new PageTemplateBuilder()
             .setData(new api.data.PropertyTree())
-            .setDisplayName(pageTemplateDisplayName[pageTemplateDisplayName.Custom]))
+            .setDisplayName(PageTemplateDisplayName[PageTemplateDisplayName.Custom]))
             .build();
         let option = {
             value: i18n('field.customized'),

@@ -1,12 +1,12 @@
-import '../../../../../api.ts';
 import {BaseInspectionPanel} from './BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../page-editor/ItemViewIconClassResolver';
+import {Content} from '../../../../content/Content';
 import i18n = api.util.i18n;
 
 export class ContentInspectionPanel
     extends BaseInspectionPanel {
 
-    private content: api.content.Content;
+    private content: Content;
 
     private namesAndIcon: api.app.NamesAndIconView;
 
@@ -20,7 +20,7 @@ export class ContentInspectionPanel
         this.appendChild(this.namesAndIcon);
     }
 
-    setContent(content: api.content.Content) {
+    setContent(content: Content) {
 
         this.content = content;
 

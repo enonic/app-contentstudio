@@ -3,8 +3,6 @@ import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ViewItem = api.app.view.ViewItem;
-import IsRenderableRequest = api.content.page.IsRenderableRequest;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import {DockedDetailsPanel} from './DockedDetailsPanel';
 import {NonMobileDetailsPanelsManager, NonMobileDetailsPanelsManagerBuilder} from './NonMobileDetailsPanelsManager';
 import {DetailsView} from './DetailsView';
@@ -13,6 +11,9 @@ import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import {MobileContentItemStatisticsPanel} from '../MobileContentItemStatisticsPanel';
 import {MobileDetailsPanel} from './MobileDetailsSlidablePanel';
 import {DetailsPanel} from './DetailsPanel';
+import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentHelper} from '../../util/ContentHelper';
 
 export interface DetailsPanelOptions {
     noPreview?: boolean;
@@ -204,7 +205,7 @@ export class DetailsSplitPanel
         }
     }
 
-    setContent(content: api.content.ContentSummaryAndCompareStatus) {
+    setContent(content: ContentSummaryAndCompareStatus) {
         if (!this.isMobileMode()) {
             this.detailsView.setItem(content);
         }
@@ -214,7 +215,7 @@ export class DetailsSplitPanel
             const prevItem = this.getMobilePanelItem();
             const changed = !prevItem || prevItem.getId() !== content.getId();
 
-            const item = ViewItem.fromContentSummaryAndCompareStatus(content);
+            const item = ContentHelper.createView(content);
             this.mobileContentItemStatisticsPanel.setItem(item);
 
             if (changed) {

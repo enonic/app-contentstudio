@@ -1,5 +1,5 @@
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import {ContentResourceRequest} from './ContentResourceRequest';
 import ContentId = api.content.ContentId;
 import i18n = api.util.i18n;
 

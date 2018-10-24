@@ -1,11 +1,14 @@
-import '../../api.ts';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
+import {XDataName} from '../content/XDataName';
+import {XData} from '../content/XData';
 import Form = api.form.Form;
 import FormView = api.form.FormView;
 import PropertyTree = api.data.PropertyTree;
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
+
+    private xDataName: XDataName;
 
     private optional: boolean;
 
@@ -15,11 +18,16 @@ export class XDataWizardStepForm
 
     private enableChangedListeners: { (value: boolean): void }[] = [];
 
-    constructor(optional: boolean) {
+    constructor(xData: XData) {
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.optional = optional;
+        this.xDataName = xData.getXDataName();
+        this.optional = xData.isOptional();
+    }
+
+    getXDataName(): XDataName {
+        return this.xDataName;
     }
 
     setExpandState(value: boolean) {
@@ -69,8 +77,11 @@ export class XDataWizardStepForm
         return super.update(data, unchangedOnly);
     }
 
-    resetState(data: PropertyTree) {
-        this.setEnabled(!this.optional || data.getRoot().getSize() > 0, true);
+    resetState(data?: PropertyTree): wemQ.Promise<void> {
+        this.data = data || this.data;
+        return this.setEnabled(!this.optional || this.data.getRoot().getSize() > 0, true).then(() => {
+            this.resetHeaderState();
+        });
     }
 
     resetHeaderState() {
@@ -85,22 +96,23 @@ export class XDataWizardStepForm
         }
     }
 
-    private setEnabled(value: boolean, silent: boolean = false) {
+    private setEnabled(value: boolean, silent: boolean = false): wemQ.Promise<void> {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
 
         this.enabled ? this.show() : this.hide();
 
         if (!changed) {
-            return;
+            return wemQ(null);
         }
 
+        let promise: wemQ.Promise<void>;
         if (this.enabled) {
             if (this.form && this.data) {
                 if (this.stashedData) {
                     this.data.getRoot().addPropertiesFromSet(this.stashedData.getRoot());
                 }
-                this.doLayout(this.form, this.data);
+                promise = this.doLayout(this.form, this.data);
             }
         } else {
             if (this.data) {
@@ -121,6 +133,8 @@ export class XDataWizardStepForm
         if (!silent) {
             this.notifyEnableChanged(value);
         }
+
+        return promise || wemQ(null);
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

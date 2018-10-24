@@ -1,4 +1,3 @@
-import './../api.ts';
 import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView, ItemViewBuilder} from './ItemView';
@@ -36,10 +35,11 @@ import {PageViewController} from './PageViewController';
 import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
-import PageMode = api.content.page.PageMode;
-import Component = api.content.page.region.Component;
-import RegionPath = api.content.page.region.RegionPath;
-import ComponentPath = api.content.page.region.ComponentPath;
+import {Content} from '../app/content/Content';
+import {Component} from '../app/page/region/Component';
+import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
+import {RegionPath} from '../app/page/region/RegionPath';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 import i18n = api.util.i18n;
 
 export class PageViewBuilder {
@@ -666,7 +666,7 @@ export class PageView
     }
 
     getName(): string {
-        let pageTemplateDisplayName = api.content.page.PageTemplateDisplayName;
+        let pageTemplateDisplayName = PageTemplateDisplayName;
         if (this.pageModel.hasTemplate()) {
             return this.pageModel.getTemplate().getDisplayName();
         }
@@ -685,7 +685,7 @@ export class PageView
         return pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
     }
 
-    getIconUrl(content: api.content.Content): string {
+    getIconUrl(content: Content): string {
         return '';
     }
 

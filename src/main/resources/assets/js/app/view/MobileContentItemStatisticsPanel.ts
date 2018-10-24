@@ -1,18 +1,19 @@
-import '../../api.ts';
 import {MobileDetailsPanel} from './detail/MobileDetailsSlidablePanel';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {MobileDetailsPanelToggleButton} from './detail/button/MobileDetailsPanelToggleButton';
 import {DetailsView} from './detail/DetailsView';
 import {MobilePreviewFoldButton} from './MobilePreviewFoldButton';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentHelper} from '../util/ContentHelper';
 import ViewItem = api.app.view.ViewItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import StringHelper = api.util.StringHelper;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import Action =  api.ui.Action;
 
 export class MobileContentItemStatisticsPanel
-    extends api.app.view.ItemStatisticsPanel<api.content.ContentSummaryAndCompareStatus> {
+    extends api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
 
     private itemHeader: api.dom.DivEl = new api.dom.DivEl('mobile-content-item-statistics-header');
     private headerLabel: api.dom.H6El = new api.dom.H6El('mobile-header-title');
@@ -58,11 +59,11 @@ export class MobileContentItemStatisticsPanel
             })[0];
 
             if (contentSummary) {
-                this.setItem(ViewItem.fromContentSummaryAndCompareStatus(contentSummary));
+                this.setItem(ContentHelper.createView(contentSummary));
             }
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished(reloadItemPublishStateChange);
         serverEvents.onContentUnpublished(reloadItemPublishStateChange);

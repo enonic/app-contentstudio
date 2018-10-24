@@ -1,8 +1,7 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionsView} from './VersionsView';
-
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
 export class VersionsWidgetItemView extends WidgetItemView {
 
@@ -50,7 +49,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
 
     private managePublishEvent() {
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
             if (this.versionsView && this.versionsView.getContentId()) {

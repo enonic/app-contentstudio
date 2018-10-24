@@ -1,18 +1,17 @@
-import './../api.ts';
 import {PageModel, SetController, SetTemplate} from './PageModel';
 import {SiteModel} from '../app/site/SiteModel';
 import {GetPageDescriptorByKeyRequest} from '../app/resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../app/resource/GetPageTemplateByKeyRequest';
+import {ContentFormContext} from '../app/ContentFormContext';
+import {Content} from '../app/content/Content';
+import {PageTemplate} from '../app/content/PageTemplate';
+import {PageMode} from '../app/page/PageMode';
+import {Page} from '../app/page/Page';
+import {Regions} from '../app/page/region/Regions';
+import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import PropertyTree = api.data.PropertyTree;
-import Page = api.content.page.Page;
-import Content = api.content.Content;
 import DescriptorKey = api.content.page.DescriptorKey;
-import Regions = api.content.page.region.Regions;
-import PageMode = api.content.page.PageMode;
-import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
-import PageTemplateKey = api.content.page.PageTemplateKey;
-import ContentFormContext = api.content.form.ContentFormContext;
 import i18n = api.util.i18n;
 
 export class LiveEditModel {
@@ -45,7 +44,7 @@ export class LiveEditModel {
 
     isPageRenderable(): boolean {
         return !!this.pageModel && (this.pageModel.hasController() ||
-                                    this.pageModel.getMode() !== api.content.page.PageMode.NO_CONTROLLER);
+                                    this.pageModel.getMode() !== PageMode.NO_CONTROLLER);
     }
 
     setContent(value: Content): void {
@@ -232,7 +231,7 @@ export class LiveEditModelInitializer {
     }
 
     private static initForcedTemplatePage(content: Content,
-                                          page: api.content.page.Page,
+                                          page: Page,
                                           pageModel: PageModel,
                                           promises: wemQ.Promise<any>[], forcedPageTemplate?: PageTemplate): void {
         const pageTemplateKey: PageTemplateKey = page.getTemplate();
@@ -262,7 +261,7 @@ export class LiveEditModelInitializer {
         promises.push(pageTemplatePromise);
     }
 
-    private static initForcedControllerPage(page: api.content.page.Page, pageModel: PageModel, promises: wemQ.Promise<any>[]): void {
+    private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: wemQ.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
@@ -285,7 +284,7 @@ export class LiveEditModelInitializer {
         pageModel.initController(setController);
     }
 
-    private static initPageController(page: api.content.page.Page, pageModel: PageModel, pageDescriptor: PageDescriptor): void {
+    private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: PageDescriptor): void {
 
         const config: PropertyTree = page.hasConfig() ? page.getConfig().copy() : new PropertyTree();
 
@@ -298,13 +297,13 @@ export class LiveEditModelInitializer {
     }
 
     private static getPageMode(content: Content, defaultTemplatePresents: boolean,
-                               forcedPageTemplate: PageTemplate): api.content.page.PageMode {
+                               forcedPageTemplate: PageTemplate): PageMode {
         if (forcedPageTemplate) {
-            return api.content.page.PageMode.FORCED_TEMPLATE;
+            return PageMode.FORCED_TEMPLATE;
         }
 
         if (content.getType().isFragment()) {
-            return api.content.page.PageMode.FRAGMENT;
+            return PageMode.FRAGMENT;
         }
 
         if (content.isPage()) {
@@ -313,18 +312,18 @@ export class LiveEditModelInitializer {
                 api.notify.showWarning(i18n('live.view.page.error.pagetemplatenotfound'));
 
                 if (defaultTemplatePresents) {
-                    return api.content.page.PageMode.AUTOMATIC;
+                    return PageMode.AUTOMATIC;
 
                 } else {
-                    return api.content.page.PageMode.NO_CONTROLLER;
+                    return PageMode.NO_CONTROLLER;
                 }
             } else {
-                return api.content.page.PageMode.FORCED_CONTROLLER;
+                return PageMode.FORCED_CONTROLLER;
             }
         } else if (defaultTemplatePresents) {
-            return api.content.page.PageMode.AUTOMATIC;
+            return PageMode.AUTOMATIC;
         } else {
-            return api.content.page.PageMode.NO_CONTROLLER;
+            return PageMode.NO_CONTROLLER;
         }
     }
 

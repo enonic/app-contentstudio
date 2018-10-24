@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {SortContentEvent} from './SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
@@ -6,43 +5,40 @@ import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
+import {ContentQueryRequest} from '../resource/ContentQueryRequest';
+import {ContentQueryResult} from '../resource/ContentQueryResult';
+import {CompareContentResults} from '../resource/CompareContentResults';
+import {CompareContentRequest} from '../resource/CompareContentRequest';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentResponse} from '../resource/ContentResponse';
+import {ContentRowFormatter} from './ContentRowFormatter';
+import {EditContentEvent} from '../event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentQuery} from '../content/ContentQuery';
 import ElementHelper = api.dom.ElementHelper;
-
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
 import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
 import TreeGridContextMenu = api.ui.treegrid.TreeGridContextMenu;
-
-import ContentResponse = api.content.resource.result.ContentResponse;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareContentRequest = api.content.resource.CompareContentRequest;
-import CompareContentResults = api.content.resource.result.CompareContentResults;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
-
-import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
-
-import CompareStatus = api.content.CompareStatus;
-
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ContentId = api.content.ContentId;
 import BrowseFilterResetEvent = api.app.browse.filter.BrowseFilterResetEvent;
 import BrowseFilterRefreshEvent = api.app.browse.filter.BrowseFilterRefreshEvent;
 import BrowseFilterSearchEvent = api.app.browse.filter.BrowseFilterSearchEvent;
 import i18n = api.util.i18n;
-import ContentRowFormatter = api.content.util.ContentRowFormatter;
 
 export class ContentTreeGrid
     extends TreeGrid<ContentSummaryAndCompareStatus> {
 
     static MAX_FETCH_SIZE: number = 10;
 
-    private filterQuery: api.content.query.ContentQuery;
+    private filterQuery: ContentQuery;
 
     constructor() {
         let builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
@@ -120,7 +116,7 @@ export class ContentTreeGrid
 
     protected editItem(node: TreeNode<ContentSummaryAndCompareStatus>) {
         if (this.getDataId(node.getData())) { // default event
-            new api.content.event.EditContentEvent([node.getData()]).fire();
+            new EditContentEvent([node.getData()]).fire();
         }
     }
 
@@ -226,7 +222,7 @@ export class ContentTreeGrid
         let from = parentNode.getChildren().length;
         if (from > 0 && !parentNode.getChildren()[from - 1].getData().getContentSummary()) {
             parentNode.getChildren().pop();
-            from--;
+            from -= 1;
         }
 
         if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {

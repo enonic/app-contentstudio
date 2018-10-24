@@ -1,16 +1,16 @@
-import '../../api.ts';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ShowNewContentDialogEvent extends BaseContentModelEvent {
 
-    private parentContent: api.content.ContentSummaryAndCompareStatus;
+    private parentContent: ContentSummaryAndCompareStatus;
 
-    constructor(parentContent: api.content.ContentSummaryAndCompareStatus) {
+    constructor(parentContent: ContentSummaryAndCompareStatus) {
         super([parentContent]);
         this.parentContent = parentContent;
     }
 
-    getParentContent(): api.content.ContentSummaryAndCompareStatus {
+    getParentContent(): ContentSummaryAndCompareStatus {
         return this.parentContent;
     }
 

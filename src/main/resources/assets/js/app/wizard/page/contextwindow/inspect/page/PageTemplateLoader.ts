@@ -1,7 +1,7 @@
-import ContentJson = api.content.json.ContentJson;
-import ListContentResult = api.content.resource.result.ListContentResult;
-import PageTemplate = api.content.page.PageTemplate;
-import PageTemplateResourceRequest = api.content.page.PageTemplateResourceRequest;
+import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
+import {ListContentResult} from '../../../../../resource/ListContentResult';
+import {PageTemplate} from '../../../../../content/PageTemplate';
+import {ContentJson} from '../../../../../content/ContentJson';
 
 export class PageTemplateLoader
     extends api.util.loader.BaseLoader<ListContentResult<ContentJson>, PageTemplate> {

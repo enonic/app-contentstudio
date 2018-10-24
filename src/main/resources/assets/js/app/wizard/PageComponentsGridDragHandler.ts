@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ItemView} from '../../page-editor/ItemView';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ComponentView} from '../../page-editor/ComponentView';
@@ -8,9 +7,9 @@ import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView'
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {PageView} from '../../page-editor/PageView';
 import {RegionItemType} from '../../page-editor/RegionItemType';
+import {Component} from '../page/region/Component';
 import GridDragHandler = api.ui.grid.GridDragHandler;
 import TreeNode = api.ui.treegrid.TreeNode;
-import Component = api.content.page.region.Component;
 
 import DragHelper = api.ui.DragHelper;
 import ElementHelper = api.dom.ElementHelper;

@@ -1,11 +1,11 @@
-import '../../api.ts';
 import TreeNode = api.ui.treegrid.TreeNode;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class OpenMoveDialogEvent extends api.event.Event {
     private content: api.content.ContentSummary[];
-    private rootNode: TreeNode<api.content.ContentSummaryAndCompareStatus>;
+    private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
 
-    constructor(content: api.content.ContentSummary[], rootNode?: TreeNode<api.content.ContentSummaryAndCompareStatus>) {
+    constructor(content: api.content.ContentSummary[], rootNode?: TreeNode<ContentSummaryAndCompareStatus>) {
         super();
         this.content = content;
         this.rootNode = rootNode;
@@ -15,7 +15,7 @@ export class OpenMoveDialogEvent extends api.event.Event {
         return this.content;
     }
 
-    getRootNode(): TreeNode<api.content.ContentSummaryAndCompareStatus> {
+    getRootNode(): TreeNode<ContentSummaryAndCompareStatus> {
         return this.rootNode;
     }
 

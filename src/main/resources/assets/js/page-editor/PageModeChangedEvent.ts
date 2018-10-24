@@ -1,4 +1,4 @@
-import PageMode = api.content.page.PageMode;
+import {PageMode} from '../app/page/PageMode';
 
 export class PageModeChangedEvent {
 

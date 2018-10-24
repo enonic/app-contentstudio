@@ -1,5 +1,5 @@
-import '../../api.ts';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
+import {CompareStatus} from '../content/CompareStatus';
 import i18n = api.util.i18n;
 
 export interface ConfirmContentDeleteDialogConfig {
@@ -8,7 +8,7 @@ export interface ConfirmContentDeleteDialogConfig {
 
     deleteRequest: DeleteContentRequest;
 
-    yesCallback: (exclude?: api.content.CompareStatus[]) => void;
+    yesCallback: (exclude?: CompareStatus[]) => void;
 }
 
 export class ConfirmContentDeleteDialog

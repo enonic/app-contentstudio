@@ -1,8 +1,8 @@
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
 import ContentPath = api.content.ContentPath;
 import TaskIdJson = api.task.TaskIdJson;
 import TaskState = api.task.TaskState;
 import TaskId = api.task.TaskId;
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
 

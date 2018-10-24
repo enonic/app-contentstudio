@@ -4,6 +4,14 @@
     padding-top: 0;
   }
 
+
+  .browse-selection-item {
+    .remove {
+      display: flex;
+      align-items: center;
+    }
+  }
+
   @toggler-width: 35px;
 
   .include-children-toggler {
@@ -60,15 +68,6 @@
       }
     }
 
-    &:not(.readonly) {
-      .browse-selection-item {
-        .remove {
-          display: block;
-          margin-top: 6px;
-        }
-      }
-    }
-
     .content-summary-and-compare-status-viewer:hover * {
       cursor: pointer;
     }
@@ -78,7 +77,13 @@
     }
 
     .browse-selection-item {
-      padding: 6px;
+      padding: 6px 4px;
+
+      .remove {
+        height: 16px;
+        width: 16px;
+      }
+
       &.removable {
         .remove {
           color: @admin-dark-gray;
@@ -91,7 +96,6 @@
       }
 
       .status {
-        line-height: 33px;
         white-space: nowrap;
       }
 
@@ -108,7 +112,7 @@
     &:not(.readonly) {
       .browse-selection-item {
         .remove {
-          display: block;
+          display: flex;
         }
       }
     }
@@ -121,13 +125,17 @@
     }
   }
   .browse-selection-item {
-    padding: 6px 4px 2px 4px;
+    padding: 0 4px;
     margin: 0;
     display: flex;
+    line-height: 26px;
+    align-items: center;
 
     .viewer {
       flex: 5;
       max-width: 75%;
+      display: flex;
+      align-items: center;
     }
 
     .status {
@@ -145,7 +153,6 @@
       order: 1;
       margin: 0;
       margin-left: 20px;
-      font-size: 10px;
     }
   }
 
@@ -170,19 +177,18 @@
 
         .dependant-list {
 
-          h6 {
-            margin-bottom: 5px;
-          }
-
           .browse-selection-item {
+
+            .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
+              font-size: 12px;
+            }
 
             &:hover {
               background-color: #eeeeee;
             }
 
             .remove {
-              height: 18px;
-              line-height: 18px;
+              .icon-small();
             }
 
             &.removable {
@@ -216,6 +222,9 @@
             }
 
             .dependant-item-viewer {
+
+              height: 24px;
+
               &.pending-delete .@{_COMMON_PREFIX}names-view {
                 .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
                   text-decoration: line-through;
@@ -246,14 +255,18 @@
 
                 .@{_COMMON_PREFIX}names-view {
                   margin-left: 30px;
+
+                  h6 {
+                    height: 18px;
+                  }
                 }
               }
 
               .font-icon-default.image {
                 .icon-image;
-                width: 18px;
-                height: 18px;
-                font-size: 18px;
+                width: 16px;
+                height: 16px;
+                font-size: 16px;
                 position: absolute;
                 left: 0;
                 top: 0;

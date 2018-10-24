@@ -1,11 +1,11 @@
-import Content = api.content.Content;
-import PublishStatus = api.content.PublishStatus;
 import FormView = api.form.FormView;
 import PropertySet = api.data.PropertySet;
 import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
 import i18n = api.util.i18n;
 import {PublishFrom} from '../inputtype/publish/PublishFrom';
 import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
+import {Content, ContentBuilder} from '../content/Content';
+import {PublishStatus} from '../publish/PublishStatus';
 
 export class ScheduleWizardStepForm
     extends api.app.wizard.WizardStepForm {
@@ -20,12 +20,12 @@ export class ScheduleWizardStepForm
         super('schedule-wizard-step-form');
     }
 
-    layout(content: api.content.Content) {
+    layout(content: Content) {
         this.content = content;
         this.initFormView(content);
     }
 
-    update(content: api.content.Content, unchangedOnly: boolean = true) {
+    update(content: Content, unchangedOnly: boolean = true) {
         this.updateUnchangedOnly = unchangedOnly;
         this.propertySet.reset();
         this.initPropertySet(content);
@@ -44,7 +44,7 @@ export class ScheduleWizardStepForm
         this.propertySet.unChanged(listener);
     }
 
-    private initFormView(content: api.content.Content) {
+    private initFormView(content: Content) {
         let formBuilder = new api.form.FormBuilder()
             .addFormItem(new api.form.InputBuilder()
                 .setName('from')
@@ -89,7 +89,7 @@ export class ScheduleWizardStepForm
         });
     }
 
-    private initPropertySet(content: api.content.Content) {
+    private initPropertySet(content: Content) {
         let publishFromDate = content.getPublishFromTime();
         if (publishFromDate) {
             this.propertySet.setLocalDateTime('from', 0, api.util.LocalDateTime.fromDate(publishFromDate));
@@ -114,7 +114,7 @@ export class ScheduleWizardStepForm
         return PublishStatus.ONLINE;
     }
 
-    apply(builder: api.content.ContentBuilder) {
+    apply(builder: ContentBuilder) {
         let publishFrom = this.propertySet.getDateTime('from');
         builder.setPublishFromTime(publishFrom && publishFrom.toDate());
         let publishTo = this.propertySet.getDateTime('to');

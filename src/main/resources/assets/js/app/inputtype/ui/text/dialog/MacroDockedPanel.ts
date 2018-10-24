@@ -3,9 +3,12 @@ import MacroPreview = api.macro.MacroPreview;
 import FormView = api.form.FormView;
 import DockedPanel = api.ui.panel.DockedPanel;
 import Panel = api.ui.panel.Panel;
-
 import PropertySet = api.data.PropertySet;
 import i18n = api.util.i18n;
+import ContentSummary = api.content.ContentSummary;
+import LoadMask = api.ui.mask.LoadMask;
+import {ContentFormContext} from '../../../../ContentFormContext';
+import {Content} from '../../../../content/Content';
 
 export class MacroDockedPanel
     extends DockedPanel {
@@ -18,13 +21,13 @@ export class MacroDockedPanel
     private configPanel: Panel;
     private previewPanel: Panel;
 
-    private content: api.content.ContentSummary;
+    private content: ContentSummary;
     private macroDescriptor: MacroDescriptor;
     private previewResolved: boolean = false;
     private macroPreview: MacroPreview;
     private data: PropertySet;
-    private previewPanelLoadMask: api.ui.mask.LoadMask;
-    private configPanelLoadMask: api.ui.mask.LoadMask;
+    private previewPanelLoadMask: LoadMask;
+    private configPanelLoadMask: LoadMask;
 
     private formValueChangedHandler: () => void;
 
@@ -36,8 +39,8 @@ export class MacroDockedPanel
         this.addItem(this.configurationTabName, true, this.createConfigurationPanel());
         this.addItem(this.previewTabName, true, this.createPreviewPanel());
 
-        this.previewPanelLoadMask = new api.ui.mask.LoadMask(this.previewPanel);
-        this.configPanelLoadMask = new api.ui.mask.LoadMask(this.configPanel);
+        this.previewPanelLoadMask = new LoadMask(this.previewPanel);
+        this.configPanelLoadMask = new LoadMask(this.configPanel);
         this.appendChild(this.previewPanelLoadMask);
         this.appendChild(this.configPanelLoadMask);
 
@@ -49,7 +52,7 @@ export class MacroDockedPanel
         };
     }
 
-    public setContent(content: api.content.ContentSummary) {
+    public setContent(content: ContentSummary) {
         this.content = content;
     }
 
@@ -181,9 +184,9 @@ export class MacroDockedPanel
     private showDescriptorConfigView(macroDescriptor: MacroDescriptor) {
         this.selectPanel(this.configPanel);
 
-        if (!!macroDescriptor) {
+        if (macroDescriptor) {
             let formView: FormView = new FormView(
-                api.content.form.ContentFormContext.create().setPersistedContent(<api.content.Content>this.content).build(),
+                ContentFormContext.create().setPersistedContent(<Content>this.content).build(),
                 macroDescriptor.getForm(), this.data);
 
             this.renderConfigView(formView);

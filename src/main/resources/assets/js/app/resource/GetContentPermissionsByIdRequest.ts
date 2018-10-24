@@ -1,7 +1,7 @@
 import ContentId = api.content.ContentId;
-import AccessControlList = api.security.acl.AccessControlList;
-import PermissionsJson = api.content.json.PermissionsJson;
-import ContentResourceRequest = api.content.resource.ContentResourceRequest;
+import {ContentResourceRequest} from './ContentResourceRequest';
+import {PermissionsJson} from '../access/PermissionsJson';
+import {AccessControlList} from '../access/AccessControlList';
 
 export class GetContentPermissionsByIdRequest
     extends ContentResourceRequest<PermissionsJson, AccessControlList> {

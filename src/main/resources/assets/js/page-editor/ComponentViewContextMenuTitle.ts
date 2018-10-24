@@ -1,8 +1,7 @@
-import './../api.ts';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {ComponentItemType} from './ComponentItemType';
-import Component = api.content.page.region.Component;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
+import {Component} from '../app/page/region/Component';
+import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 
 export class ComponentViewContextMenuTitle<COMPONENT extends Component>
     extends ItemViewContextMenuTitle {

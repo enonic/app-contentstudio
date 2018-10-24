@@ -1,27 +1,27 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DefaultModels} from '../../../../wizard/page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from '../../../../wizard/page/DefaultModelsFactory';
 import {GetPageDescriptorByKeyRequest} from '../../../../resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../../../../resource/GetPageTemplateByKeyRequest';
-import Content = api.content.Content;
+import {ContentQueryRequest} from '../../../../resource/ContentQueryRequest';
+import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
+import {EditContentEvent} from '../../../../event/EditContentEvent';
+import {Content} from '../../../../content/Content';
+import {PageTemplate} from '../../../../content/PageTemplate';
+import {Site} from '../../../../content/Site';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentQuery} from '../../../../content/ContentQuery';
+import {PageMode} from '../../../../page/PageMode';
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import GetNearestSiteRequest = api.content.resource.GetNearestSiteRequest;
-import PageTemplate = api.content.page.PageTemplate;
-import Site = api.content.site.Site;
-import EditContentEvent = api.content.event.EditContentEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
-import PageMode = api.content.page.PageMode;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import i18n = api.util.i18n;
-import ContentQuery = api.content.query.ContentQuery;
 import QueryExpr = api.query.expr.QueryExpr;
 import CompareExpr = api.query.expr.CompareExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import ValueExpr = api.query.expr.ValueExpr;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 
 export class PageTemplateWidgetItemView
@@ -45,7 +45,7 @@ export class PageTemplateWidgetItemView
             }
             this.content = content;
 
-            return this.loadPageTemplate().then((pageTemplateViewer) => this.layout());
+            return this.loadPageTemplate().then(() => this.layout());
         }
 
         return wemQ<any>(null);
@@ -63,12 +63,12 @@ export class PageTemplateWidgetItemView
             if (contentSummary) {
                 this.setContentAndUpdateView(contentSummary);
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
-                this.loadPageTemplate().then((pageTemplateViewer) => this.layout());
+                this.loadPageTemplate().then(() => this.layout());
             }
 
         };
 
-        let serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
     }
@@ -90,14 +90,14 @@ export class PageTemplateWidgetItemView
         let pageTemplateViewer = new PageTemplateViewer();
 
         if (content.getType().isFragment()) {
-            pageTemplateViewer.setPageMode(api.content.page.PageMode.FRAGMENT);
+            pageTemplateViewer.setPageMode(PageMode.FRAGMENT);
             return wemQ(pageTemplateViewer);
         }
 
         if (content.isPage()) {
 
             if (content.getPage().hasTemplate()) {
-                pageTemplateViewer.setPageMode(api.content.page.PageMode.FORCED_TEMPLATE);
+                pageTemplateViewer.setPageMode(PageMode.FORCED_TEMPLATE);
 
                 return new GetPageTemplateByKeyRequest(content.getPage().getTemplate()).sendAndParse()
                     .then(
@@ -110,7 +110,7 @@ export class PageTemplateWidgetItemView
                         });
             }
 
-            pageTemplateViewer.setPageMode(api.content.page.PageMode.FORCED_CONTROLLER);
+            pageTemplateViewer.setPageMode(PageMode.FORCED_CONTROLLER);
 
             return new GetPageDescriptorByKeyRequest(content.getPage().getController()).sendAndParse()
                 .then((pageDescriptor: PageDescriptor) => {

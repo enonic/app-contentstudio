@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid} from './ContentTreeGrid';
@@ -18,23 +17,27 @@ import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
+import {IsRenderableRequest} from '../resource/IsRenderableRequest';
+import {ContentHelper} from '../util/ContentHelper';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {Branch} from '../versioning/Branch';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ContentPath = api.content.ContentPath;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
 import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import RepositoryEvent = api.content.event.RepositoryEvent;
-import Content = api.content.Content;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -266,6 +269,7 @@ export class ContentBrowsePanel
         ContentPreviewPathChangedEvent.on((event: ContentPreviewPathChangedEvent) => {
             this.selectPreviewedContentInGrid(event.getPreviewPath());
         });
+
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
@@ -302,7 +306,7 @@ export class ContentBrowsePanel
 
     private getPathFromPreviewPath(contentPreviewPath: string): string {
         return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
     }
 
     private subscribeOnContentEvents() {
@@ -316,7 +320,7 @@ export class ContentBrowsePanel
             this.handleContentCreated(data, oldPaths);
         });
 
-        handler.onContentDeleted((data: api.content.event.ContentServerChangeItem[]) => {
+        handler.onContentDeleted((data: ContentServerChangeItem[]) => {
             this.handleContentDeleted(data.map(d => d.getPath()));
         });
 
@@ -555,7 +559,7 @@ export class ContentBrowsePanel
 
             updatedContents.some((content: ContentSummaryAndCompareStatus) => {
                 if (content.getPath().equals(previewItem.getModel().getPath())) {
-                    new api.content.page.IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
+                    new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
                         this.getBrowseItemPanel().setStatisticsItem(this.toBrowseItem(content, renderable));
                     });
                     previewRefreshRequired = true;
@@ -566,7 +570,8 @@ export class ContentBrowsePanel
                 }
 
                 if (!previewRefreshRequired) {
-                    promises.push(previewItemContent.containsChildContentId(content.getContentId()).then((containsId: boolean) => {
+                    promises.push(
+                        ContentHelper.containsChildContentId(previewItemContent, content.getContentId()).then((containsId: boolean) => {
                         if (containsId) {
                             previewRefreshRequired = true;
                         }
@@ -580,10 +585,9 @@ export class ContentBrowsePanel
         }).then(() => {
             if (!previewRefreshRequired) {
                 return wemQ.all(
-                    updatedContents.map(updatedContent => updatedContent.isReferencedBy(previewItem.getModel().getContentId()))).then(
-                    (results: boolean[]) => {
-                        return results.some(result => result);
-                    });
+                    updatedContents.map(updatedContent =>
+                        ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getModel().getContentId()))
+                ).then((results: boolean[]) => results.some(result => result));
             } else {
                 return wemQ(previewRefreshRequired);
             }

@@ -1,30 +1,27 @@
-import '../../api.ts';
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-
-import ContentResponse = api.content.resource.result.ContentResponse;
 import ContentPath = api.content.ContentPath;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatusFetcher = api.content.resource.ContentSummaryAndCompareStatusFetcher;
-
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ContentId = api.content.ContentId;
-
-import ContentQueryResult = api.content.resource.result.ContentQueryResult;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
-import GetContentByIdRequest = api.content.resource.GetContentByIdRequest;
-import ListContentByIdRequest = api.content.resource.ListContentByIdRequest;
-import Content = api.content.Content;
+import {ContentQueryRequest} from '../resource/ContentQueryRequest';
+import {ContentQueryResult} from '../resource/ContentQueryResult';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {ListContentByIdRequest} from '../resource/ListContentByIdRequest';
+import {ContentResponse} from '../resource/ContentResponse';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {Content} from '../content/Content';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 
     static MAX_FETCH_SIZE: number = 10;
 
-    private filterQuery: api.content.query.ContentQuery;
+    private filterQuery: ContentQuery;
 
     constructor() {
         let builder: TreeGridBuilder<ContentSummary> =
@@ -115,7 +112,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         let from = parentNode.getChildren().length;
         if (from > 0 && !parentNode.getChildren()[from - 1].getData()) {
             parentNode.getChildren().pop();
-            from--;
+            from -= 1;
         }
 
         if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {
@@ -154,7 +151,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         let size = parentNode.getChildren().length;
         if (size > 0 && !parentNode.getChildren()[size - 1].getData()) {
             parentNode.getChildren().pop();
-            size--;
+            size -= 1;
         }
 
         if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {

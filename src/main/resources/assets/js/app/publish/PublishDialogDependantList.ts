@@ -1,11 +1,12 @@
-import '../../api.ts';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
 import {ContentIds} from '../ContentIds';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class PublishDialogDependantList
     extends DialogDependantList {
@@ -25,7 +26,7 @@ export class PublishDialogDependantList
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): api.dom.Element {
         const view = super.createItemView(item, readOnly);
-        const isPendingDelete = api.content.CompareStatusChecker.isPendingDelete(item.getCompareStatus());
+        const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
         const isRemovable = !this.requiredIds.contains(item.getContentId()) && !isPendingDelete;
 
         if (isRemovable) {
@@ -64,14 +65,14 @@ export class PublishDialogDependantList
             }
         });
 
-        const serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        const serverEvents = ContentServerEventsHandler.getInstance();
 
         const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
                 this.notifyListChanged();
             }
         };
-        const deletedHandler = (changedItems: api.content.event.ContentServerChangeItem[], pending?: boolean) => {
+        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
                 this.notifyListChanged();
             }

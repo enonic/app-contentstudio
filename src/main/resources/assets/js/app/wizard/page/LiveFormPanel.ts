@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultModels} from './DefaultModels';
 import {EmulatorPanel} from './contextwindow/EmulatorPanel';
@@ -53,25 +52,27 @@ import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDial
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
-import Content = api.content.Content;
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
+import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
+import {EditContentEvent} from '../../event/EditContentEvent';
+import {Branch} from '../../versioning/Branch';
+import {Content} from '../../content/Content';
+import {Site} from '../../content/Site';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {Component} from '../../page/region/Component';
+import {Page} from '../../page/Page';
+import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
+import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
+import {PartComponent} from '../../page/region/PartComponent';
+import {LayoutComponent} from '../../page/region/LayoutComponent';
+import {ImageComponent} from '../../page/region/ImageComponent';
+import {FragmentComponent} from '../../page/region/FragmentComponent';
+import {ComponentPath} from '../../page/region/ComponentPath';
+import {PageMode} from '../../page/PageMode';
 import ContentTypeName = api.schema.content.ContentTypeName;
-import Page = api.content.page.Page;
-import PageMode = api.content.page.PageMode;
-import Component = api.content.page.region.Component;
-import ImageComponent = api.content.page.region.ImageComponent;
-import DescriptorBasedComponent = api.content.page.region.DescriptorBasedComponent;
-import PartComponent = api.content.page.region.PartComponent;
-import LayoutComponent = api.content.page.region.LayoutComponent;
-import FragmentComponent = api.content.page.region.FragmentComponent;
-import ComponentPropertyChangedEvent = api.content.page.region.ComponentPropertyChangedEvent;
 import Panel = api.ui.panel.Panel;
-import ContentDeletedEvent = api.content.event.ContentDeletedEvent;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
-import ComponentPath = api.content.page.region.ComponentPath;
 import i18n = api.util.i18n;
-import ContentServerEventsHandler = api.content.event.ContentServerEventsHandler;
-import Site = api.content.site.Site;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 
 export interface LiveFormPanelConfig {
 
@@ -496,7 +497,7 @@ export class LiveFormPanel
         let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
@@ -662,8 +663,8 @@ export class LiveFormPanel
 
             this.saveAndReloadOnlyComponent(event.getComponentView());
 
-            let summaryAndStatus = api.content.ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
-            new api.content.event.EditContentEvent([summaryAndStatus]).fire();
+            let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
+            new EditContentEvent([summaryAndStatus]).fire();
         });
 
         this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
@@ -678,7 +679,7 @@ export class LiveFormPanel
             let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
                 fragmentView.getComponentPath(),
                 RenderingMode.EDIT,
-                api.content.Branch.DRAFT);
+                Branch.DRAFT);
 
             fragmentView.showLoadingSpinner();
             this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).then(() => {
@@ -695,8 +696,8 @@ export class LiveFormPanel
             api.notify.showWarning(event.getMessage());
         });
 
-        this.liveEditPageProxy.onEditContent((event: api.content.event.EditContentEvent) => {
-            new api.content.event.EditContentEvent(event.getModels()).fire();
+        this.liveEditPageProxy.onEditContent((event: EditContentEvent) => {
+            new EditContentEvent(event.getModels()).fire();
         });
 
         this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {

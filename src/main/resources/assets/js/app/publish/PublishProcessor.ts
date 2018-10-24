@@ -2,9 +2,11 @@ import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
-import ResolvePublishDependenciesResult = api.content.resource.result.ResolvePublishDependenciesResult;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
+import {EditContentEvent} from '../event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
 import ContentId = api.content.ContentId;
 
 export class PublishProcessor {
@@ -59,7 +61,7 @@ export class PublishProcessor {
         });
 
         const itemClickedFn = (item: ContentSummaryAndCompareStatus) => {
-            new api.content.event.EditContentEvent([item]).fire();
+            new EditContentEvent([item]).fire();
         };
 
         this.itemList.onItemClicked(itemClickedFn);
@@ -207,7 +209,7 @@ export class PublishProcessor {
                             size: number): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
 
         let slicedIds = ids.slice(from, from + size);
-        return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
+        return ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
     }
 
     private filterDependantItems(dependants: ContentSummaryAndCompareStatus[]) {

@@ -1,23 +1,27 @@
-import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {ImageComponentView} from './ImageComponentView';
+import {ImageOptionDataLoader} from '../../app/inputtype/ui/selector/image/ImageOptionDataLoader';
+import {ImageContentComboBox} from '../../app/inputtype/ui/selector/image/ImageContentComboBox';
+import {ImageUploaderEl} from '../../app/inputtype/ui/selector/image/ImageUploaderEl';
+import {MediaTreeSelectorItem} from '../../app/inputtype/ui/selector/media/MediaTreeSelectorItem';
+import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploaderEl';
+import {Content} from '../../app/content/Content';
+import {ImageComponent} from '../../app/page/region/ImageComponent';
 import ContentTypeName = api.schema.content.ContentTypeName;
-import ImageComponent = api.content.page.region.ImageComponent;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import UploadedEvent = api.ui.uploader.UploadedEvent;
 import i18n = api.util.i18n;
-import ImageOptionDataLoader = api.content.image.ImageOptionDataLoader;
-import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 
 export class ImagePlaceholder
     extends ItemViewPlaceholder {
 
     private imageComponentView: ImageComponentView;
 
-    private comboBox: api.content.image.ImageContentComboBox;
+    private comboBox: ImageContentComboBox;
 
     private comboboxWrapper: api.dom.DivEl;
 
-    private imageUploader: api.content.image.ImageUploaderEl;
+    private imageUploader: ImageUploaderEl;
 
     constructor(imageView: ImageComponentView) {
         super();
@@ -35,7 +39,7 @@ export class ImagePlaceholder
             .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()])
             .build();
 
-        this.comboBox = api.content.image.ImageContentComboBox.create()
+        this.comboBox = ImageContentComboBox.create()
             .setMaximumOccurrences(1)
             .setLoader(loader)
             .setContent(imageView.getLiveEditModel().getContent())
@@ -56,11 +60,11 @@ export class ImagePlaceholder
     }
 
     private initImageUploader(imageView: ImageComponentView) {
-        this.imageUploader = new api.content.image.ImageUploaderEl({
+        this.imageUploader = new ImageUploaderEl({
             params: {
                 parent: imageView.getLiveEditModel().getContent().getContentId().toString()
             },
-            operation: api.ui.uploader.MediaUploaderElOperation.create,
+            operation: MediaUploaderElOperation.create,
             name: 'image-selector-placeholder-upload',
             showCancel: false,
             showResult: false,
@@ -71,7 +75,7 @@ export class ImagePlaceholder
 
         this.imageUploader.getUploadButton().onClicked(() => this.comboboxWrapper.show());
 
-        this.imageUploader.onFileUploaded((event: api.ui.uploader.FileUploadedEvent<api.content.Content>) => {
+        this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             let createdImage = event.getUploadItem().getModel();
 
             let component: ImageComponent = this.imageComponentView.getComponent();

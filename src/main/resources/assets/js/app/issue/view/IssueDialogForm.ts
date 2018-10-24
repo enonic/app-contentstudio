@@ -12,9 +12,10 @@ import ValidityChangedEvent = api.ValidityChangedEvent;
 import PrincipalKey = api.security.PrincipalKey;
 import ContentId = api.content.ContentId;
 import i18n = api.util.i18n;
-import ContentTreeSelectorItem = api.content.resource.ContentTreeSelectorItem;
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
 import {Issue} from '../Issue';
+import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class IssueDialogForm
     extends api.ui.form.Form {
@@ -79,7 +80,7 @@ export class IssueDialogForm
         this.approversSelector = api.ui.security.PrincipalComboBox.create().setLoader(principalLoader).setMaxOccurences(0).setCompactView(
             this.compactAssigneesView).build();
 
-        this.contentItemsSelector = api.content.ContentComboBox.create().setShowStatus(true).build();
+        this.contentItemsSelector = ContentComboBox.create().setShowStatus(true).build();
 
         this.contentItemsSelector.onOptionSelected((option) => {
             this.notifyContentItemsAdded(

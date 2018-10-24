@@ -1,14 +1,14 @@
-import '../../api.ts';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class OpenSortDialogEvent extends api.event.Event {
-    private content: api.content.ContentSummaryAndCompareStatus;
+    private content: ContentSummaryAndCompareStatus;
 
-    constructor(content: api.content.ContentSummaryAndCompareStatus) {
+    constructor(content: ContentSummaryAndCompareStatus) {
         super();
         this.content = content;
     }
 
-    getContent(): api.content.ContentSummaryAndCompareStatus {
+    getContent(): ContentSummaryAndCompareStatus {
         return this.content;
     }
 

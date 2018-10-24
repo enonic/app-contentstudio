@@ -5,12 +5,13 @@ import FieldExpr = api.query.expr.FieldExpr;
 import FieldOrderExpr = api.query.expr.FieldOrderExpr;
 import OrderDirection = api.query.expr.OrderDirection;
 import ConstraintExpr = api.query.expr.ConstraintExpr;
-import ContentQuery = api.content.query.ContentQuery;
-import ContentQueryResultJson = api.content.json.ContentQueryResultJson;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
-import ContentQueryRequest = api.content.resource.ContentQueryRequest;
+import {ContentQueryRequest} from './ContentQueryRequest';
+import {ContentQueryResult} from './ContentQueryResult';
+import {ContentQueryResultJson} from './json/ContentQueryResultJson';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentSummaryRequest
     extends api.rest.ResourceRequest<ContentQueryResultJson<ContentSummaryJson>, ContentSummary[]> {
@@ -65,7 +66,7 @@ export class ContentSummaryRequest
         this.buildSearchQueryExpr();
 
         return this.request.sendAndParse().then(
-            (queryResult: api.content.resource.result.ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 return queryResult.getContents();
             });
     }

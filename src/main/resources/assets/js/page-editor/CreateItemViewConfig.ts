@@ -1,11 +1,10 @@
-import './../api.ts';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView} from './ItemView';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionView} from './RegionView';
-import Content = api.content.Content;
-import ComponentType = api.content.page.region.ComponentType;
-import FragmentComponent = api.content.page.region.FragmentComponent;
+import {Content} from '../app/content/Content';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {FragmentComponent} from '../app/page/region/FragmentComponent';
 
 export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
 

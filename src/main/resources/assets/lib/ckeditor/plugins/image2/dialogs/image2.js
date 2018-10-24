@@ -320,7 +320,7 @@ CKEDITOR.dialog.add('image2', function (editor) {
             lockRatio = enable;
         }
 
-        // Undefined. User changed lock value.
+        // Undefined. Principal changed lock value.
         else {
             var width = widthField.getValue(),
                 height;

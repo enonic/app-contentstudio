@@ -1,7 +1,5 @@
-import '../../api.ts';
-
-import Content = api.content.Content;
 import UploadItem = api.ui.uploader.UploadItem;
+import {Content} from '../content/Content';
 
 export class NewMediaUploadEvent extends api.event.Event {
 

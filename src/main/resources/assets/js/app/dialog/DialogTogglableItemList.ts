@@ -1,11 +1,13 @@
 import {DialogItemList} from './DependantItemsDialog';
 import {StatusSelectionItem} from './StatusSelectionItem';
-import ContentSummaryAndCompareStatusViewer = api.content.ContentSummaryAndCompareStatusViewer;
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import BrowseItem = api.app.browse.BrowseItem;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import Tooltip = api.ui.Tooltip;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class DialogTogglableItemList
     extends DialogItemList {
@@ -168,14 +170,14 @@ export class DialogTogglableItemList
     }
 
     private initListItemListeners(item: ContentSummaryAndCompareStatus, view: StatusSelectionItem) {
-        const serverEvents = api.content.event.ContentServerEventsHandler.getInstance();
+        const serverEvents = ContentServerEventsHandler.getInstance();
 
         const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
                 this.notifyListItemsDataChanged();
             }
         };
-        const deletedHandler = (changedItems: api.content.event.ContentServerChangeItem[], pending?: boolean) => {
+        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
                 this.notifyListItemsDataChanged();
             }

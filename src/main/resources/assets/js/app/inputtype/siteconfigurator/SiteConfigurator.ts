@@ -14,6 +14,8 @@ import ApplicationEventType = api.application.ApplicationEventType;
 import ApplicationConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentFormContext} from '../../ContentFormContext';
 
 export class SiteConfigurator
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
@@ -24,11 +26,11 @@ export class SiteConfigurator
 
     private siteConfigProvider: ApplicationConfigProvider;
 
-    private formContext: api.content.form.ContentFormContext;
+    private formContext: ContentFormContext;
 
     private readOnlyPromise: wemQ.Promise<void>;
 
-    constructor(config: api.content.form.inputtype.ContentInputTypeViewContext) {
+    constructor(config: ContentInputTypeViewContext) {
         super('application-configurator');
         this.formContext = config.formContext;
 

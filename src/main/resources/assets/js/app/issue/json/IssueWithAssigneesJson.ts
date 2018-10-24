@@ -1,9 +1,9 @@
 import {IssueJson} from './IssueJson';
-import UserJson = api.security.UserJson;
+import PrincipalJson = api.security.PrincipalJson;
 
 export interface IssueWithAssigneesJson {
 
     issue: IssueJson;
 
-    assignees: UserJson[];
+    assignees: PrincipalJson[];
 }

@@ -1,7 +1,5 @@
-import '../../api.ts';
-
 import TreeNode = api.ui.treegrid.TreeNode;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class TreeNodeParentOfContent {
 

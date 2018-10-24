@@ -1,4 +1,3 @@
-import '../api.ts';
 import {ViewContentEvent} from './browse/ViewContentEvent';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {NewContentEvent} from './create/NewContentEvent';
@@ -8,11 +7,13 @@ import {IssueDialogsManager} from './issue/IssueDialogsManager';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
 import {Router} from './Router';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
+import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
+import {EditContentEvent} from './event/EditContentEvent';
+import {Content} from './content/Content';
+import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import Content = api.content.Content;
 import ContentId = api.content.ContentId;
 import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
 import AppPanel = api.app.AppPanel;
@@ -42,15 +43,15 @@ export class ContentAppPanel
         switch (action) {
         case 'edit':
             if (id) {
-                api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
-                        new api.content.event.EditContentEvent([content]).fire();
+                        new EditContentEvent([content]).fire();
                     });
             }
             break;
         case 'view' :
             if (id) {
-                api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
                         new ViewContentEvent([content]).fire();
                     });
@@ -130,20 +131,20 @@ export class ContentAppPanel
                 : dependencyEntry.getDependency().outbound.length > 0;
 
             if (hasDependencies) {
-                this.toggleSearchPanelWithDependencies(contentId, inbound);
+                this.toggleSearchPanelWithDependencies(id, inbound);
             } else {
                 api.notify.showFeedback(i18n('notify.dependencies.absent', id));
             }
         }).catch(reason => api.DefaultErrorHandler.handle(reason));
     }
 
-    private toggleSearchPanelWithDependencies(contentId: ContentId, inbound: boolean) {
-        api.content.resource.ContentSummaryAndCompareStatusFetcher.fetch(contentId).done(
+    private toggleSearchPanelWithDependencies(id: string, inbound: boolean) {
+        ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
 
                 const mode: string = inbound ? 'inbound' : 'outbound';
-                const hash: string = `${mode}/${contentId}`;
+                const hash: string = `${mode}/${id}`;
 
                 Router.setHash(hash);
             });

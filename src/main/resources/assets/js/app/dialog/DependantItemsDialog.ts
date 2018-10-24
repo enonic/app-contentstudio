@@ -1,15 +1,15 @@
-import '../../api.ts';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import ContentId = api.content.ContentId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
 import BrowseItem = api.app.browse.BrowseItem;
 import ListBox = api.ui.selector.list.ListBox;
 import LoadMask = api.ui.mask.LoadMask;
 import DialogButton = api.ui.dialog.DialogButton;
-import ContentSummaryAndCompareStatusViewer = api.content.ContentSummaryAndCompareStatusViewer;
 import DivEl = api.dom.DivEl;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import i18n = api.util.i18n;
@@ -22,7 +22,7 @@ export interface DependantItemsDialogConfig
     showDependantList?: boolean;
 }
 
-export class DependantItemsDialog
+export abstract class DependantItemsDialog
     extends api.ui.dialog.ModalDialog {
 
     protected actionButton: DialogButton;
@@ -268,7 +268,7 @@ export class DependantItemsDialog
                               size: number): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
 
         let ids = this.getDependantIds().slice(from, from + size);
-        return api.content.resource.ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
+        return ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
     }
 
     protected countTotal(): number {
@@ -460,9 +460,7 @@ export class DialogDependantList
             .setPath(item.getPath().toString())
             .setIconUrl(new api.content.util.ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
 
-        let selectionItem = new StatusSelectionItem(dependantViewer, browseItem);
-
-        return selectionItem;
+        return new StatusSelectionItem(dependantViewer, browseItem);
     }
 
     getItemId(item: ContentSummaryAndCompareStatus): string {

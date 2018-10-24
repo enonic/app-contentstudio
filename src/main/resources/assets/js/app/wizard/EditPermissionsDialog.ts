@@ -1,12 +1,13 @@
-import '../../api.ts';
 import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
 import {AccessControlComboBox} from './AccessControlComboBox';
-import Content = api.content.Content;
+import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
+import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {Content} from '../content/Content';
+import {AccessControlList} from '../access/AccessControlList';
+import {AccessControlEntry} from '../access/AccessControlEntry';
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
-import AccessControlList = api.security.acl.AccessControlList;
 import ContentPath = api.content.ContentPath;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
@@ -116,7 +117,7 @@ export class EditPermissionsDialog
 
         this.parentPermissions = [];
 
-        api.content.event.OpenEditPermissionsDialogEvent.on((event) => {
+        OpenEditPermissionsDialogEvent.on((event) => {
             this.contentId = event.getContentId();
             this.contentPath = event.getContentPath();
             this.displayName = event.getDisplayName();
@@ -217,7 +218,7 @@ export class EditPermissionsDialog
 
         let parentPath = this.contentPath.getParentPath();
         if (parentPath && parentPath.isNotRoot()) {
-            new api.content.resource.GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
+            new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
                 deferred.resolve(content.getPermissions());
             }).catch((reason: any) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));

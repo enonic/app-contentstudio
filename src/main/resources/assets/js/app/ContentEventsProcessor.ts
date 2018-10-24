@@ -1,4 +1,3 @@
-import '../api.ts';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/SortContentEvent';
@@ -6,9 +5,10 @@ import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';
 import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
+import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
+import {EditContentEvent} from './event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import ContentUpdatedEvent = api.content.event.ContentUpdatedEvent;
 import i18n = api.util.i18n;
 
 export class ContentEventsProcessor {
@@ -50,7 +50,7 @@ export class ContentEventsProcessor {
         ContentEventsProcessor.openWizardTab(wizardParams, tabId);
     }
 
-    static handleEdit(event: api.content.event.EditContentEvent) {
+    static handleEdit(event: EditContentEvent) {
 
         event.getModels().every((content: ContentSummaryAndCompareStatus) => {
 

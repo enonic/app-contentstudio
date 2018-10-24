@@ -41,6 +41,8 @@ const wizardVersionsWidget = Object.create(baseVersionsWidget, {
                 return this.getDisplayedElements(selector)
             }).then(result => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
+            }).catch(err=>{
+                throw new Error("Version Widget - error when clicking on 'Restore Version' button " + err);
             });
         }
     }

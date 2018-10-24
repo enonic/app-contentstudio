@@ -1,23 +1,30 @@
 import FormItem = api.ui.form.FormItem;
 import Validators = api.ui.form.Validators;
-import FileUploadedEvent = api.ui.uploader.FileUploadedEvent;
-import FileUploadProgressEvent = api.ui.uploader.FileUploadProgressEvent;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import Action = api.ui.Action;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummary = api.content.ContentSummary;
-import Content = api.content.Content;
 import Option = api.ui.selector.Option;
 import eventInfo = CKEDITOR.eventInfo;
 import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
-import MediaTreeSelectorItem = api.content.media.MediaTreeSelectorItem;
 import AppHelper = api.util.AppHelper;
+import i18n = api.util.i18n;
+import UploadedEvent = api.ui.uploader.UploadedEvent;
+import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {ImageCroppingSelector} from './ImageCroppingSelector';
 import {ImageCroppingOption} from './ImageCroppingOption';
 import {ImageCroppingOptions} from './ImageCroppingOptions';
+import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
+import {ImageUploaderEl} from '../../selector/image/ImageUploaderEl';
+import {ImageContentComboBox} from '../../selector/image/ImageContentComboBox';
+import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
+import {MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
+import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
+import {Content} from '../../../../content/Content';
+import {XDataName} from '../../../../content/XDataName';
+import {ContentImageUrlResolver} from '../../../../content/ContentImageUrlResolver';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -42,10 +49,10 @@ export class ImageModalDialog
     private imagePreviewContainer: api.dom.DivEl;
     private imageCaptionField: FormItem;
     private imageAltTextField: FormItem;
-    private imageUploaderEl: api.content.image.ImageUploaderEl;
+    private imageUploaderEl: ImageUploaderEl;
     private imageElement: HTMLImageElement;
     private content: api.content.ContentSummary;
-    private imageSelector: api.content.image.ImageContentComboBox;
+    private imageSelector: ImageContentComboBox;
     private progress: api.ui.ProgressBar;
     private error: api.dom.DivEl;
     private image: api.dom.ImgEl;
@@ -103,7 +110,7 @@ export class ImageModalDialog
     private loadImage() {
         const imageId: string = this.extractImageId();
 
-        new api.content.resource.GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
+        new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
             this.createImgElForExistingImage(imageContent);
             this.previewImage();
@@ -144,8 +151,8 @@ export class ImageModalDialog
 
     private createImageSelector(id: string): FormItem {
 
-        const imageSelector = api.content.image.ImageContentComboBox.create().setMaximumOccurrences(1).setContent(
-            this.content).setSelectedOptionsView(new api.content.ContentSelectedOptionsView()).build();
+        const imageSelector = ImageContentComboBox.create().setMaximumOccurrences(1).setContent(
+            this.content).setSelectedOptionsView(new ContentSelectedOptionsView()).build();
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
             Validators.required).setInputEl(imageSelector);
@@ -191,8 +198,9 @@ export class ImageModalDialog
 
     private addUploaderAndPreviewControls() {
         const imageSelectorContainer = this.imageSelectorFormItem.getInput().getParentElement();
+        this.imageUploaderEl = this.createImageUploader();
 
-        imageSelectorContainer.appendChild(this.imageUploaderEl = this.createImageUploader());
+        imageSelectorContainer.appendChild(this.imageUploaderEl);
         this.initDragAndDropUploaderEvents();
 
         this.createImagePreviewContainer();
@@ -262,7 +270,7 @@ export class ImageModalDialog
     }
 
     private generateDefaultImgSrc(contentId: string): string {
-        return new api.content.util.ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
+        return new ContentImageUrlResolver().setContentId(new api.content.ContentId(contentId)).setScaleWidth(
             true).setSize(
             ImageModalDialog.maxImageWidth).resolve();
     }
@@ -289,9 +297,9 @@ export class ImageModalDialog
         this.imagePreviewContainer = imagePreviewContainer;
     }
 
-    private createImageUploader(): api.content.image.ImageUploaderEl {
-        const uploader = new api.content.image.ImageUploaderEl({
-            operation: api.ui.uploader.MediaUploaderElOperation.create,
+    private createImageUploader(): ImageUploaderEl {
+        const uploader = new ImageUploaderEl({
+            operation: MediaUploaderElOperation.create,
             name: 'image-selector-upload-dialog',
             showResult: false,
             maximumOccurrences: 1,
@@ -315,13 +323,13 @@ export class ImageModalDialog
             this.showProgress();
         });
 
-        uploader.onUploadProgress((event: FileUploadProgressEvent<Content>) => {
+        uploader.onUploadProgress((event: UploadProgressEvent<Content>) => {
             const item = event.getUploadItem();
 
             this.setProgress(item.getProgress());
         });
 
-        uploader.onFileUploaded((event: FileUploadedEvent<Content>) => {
+        uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const item = event.getUploadItem();
             const createdContent = item.getModel();
 
@@ -428,14 +436,14 @@ export class ImageModalDialog
     }
 
     private fetchImageCaption(imageContent: ContentSummary): wemQ.Promise<string> {
-        return new api.content.resource.GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
-            .then((content: api.content.Content) => {
+        return new GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
+            .then((content: Content) => {
                 return this.getDescriptionFromImageContent(content) || content.getProperty('caption').getString() || '';
             });
     }
 
     private getDescriptionFromImageContent(imageContent: Content): string {
-        const imageInfoMixin = new api.schema.xdata.XDataName('media:imageInfo');
+        const imageInfoMixin = new XDataName('media:imageInfo');
         const imageInfoData = imageContent.getExtraData(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {

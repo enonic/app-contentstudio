@@ -6,6 +6,7 @@ import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
 import SiteConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {ContentFormContext} from '../../ContentFormContext';
 
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
@@ -14,11 +15,11 @@ export class SiteConfiguratorSelectedOptionsView
 
     private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey, formView: FormView): void }[] = [];
 
-    private formContext: api.content.form.ContentFormContext;
+    private formContext: ContentFormContext;
 
     private items: SiteConfiguratorSelectedOptionView[] = [];
 
-    constructor(siteConfigProvider: SiteConfigProvider, formContext: api.content.form.ContentFormContext) {
+    constructor(siteConfigProvider: SiteConfigProvider, formContext: ContentFormContext) {
         super();
         this.siteConfigProvider = siteConfigProvider;
         this.formContext = formContext;

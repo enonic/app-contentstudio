@@ -1,9 +1,8 @@
-import '../../../api.ts';
 import {DetailsView} from './DetailsView';
 import {WidgetItemView} from './WidgetItemView';
-import {ActiveDetailsPanelManager} from '../../view/detail/ActiveDetailsPanelManager';
 import {UriHelper} from '../../rendering/UriHelper';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import Widget = api.content.Widget;
 
 export class WidgetView extends api.dom.DivEl {

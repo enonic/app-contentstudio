@@ -1,11 +1,10 @@
-import '../../api.ts';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
 import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 
 type Producer = { (content: Content, viewedContent: Content): UpdateContentRequest; };
 

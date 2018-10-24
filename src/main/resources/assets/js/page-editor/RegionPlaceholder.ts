@@ -1,6 +1,5 @@
-import './../api.ts';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
-import Region = api.content.page.region.Region;
+import {Region} from '../app/page/region/Region';
 import i18n = api.util.i18n;
 
 export class RegionPlaceholder
