@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
@@ -9,15 +8,13 @@ import {PageItemType} from '../../page-editor/PageItemType';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
 import GridOptionsBuilder = api.ui.grid.GridOptionsBuilder;
-
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-
-import Content = api.content.Content;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import i18n = api.util.i18n;
 
 export class PageComponentsTreeGrid

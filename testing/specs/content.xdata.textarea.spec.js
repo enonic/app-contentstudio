@@ -38,7 +38,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, typ
 
     it(`GIVEN content with optional x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':date0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double0_0').then(() => {
                 return contentWizard.typeDisplayName(contentName);
             }).then(() => {
                 return contentWizard.waitForXdataTogglerVisible();

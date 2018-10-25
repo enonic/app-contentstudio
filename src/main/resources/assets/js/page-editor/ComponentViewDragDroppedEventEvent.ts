@@ -1,8 +1,7 @@
-import './../api.ts';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
+import {Component} from '../app/page/region/Component';
 import Event = api.event.Event;
-import Component = api.content.page.region.Component;
 
 export class ComponentViewDragDroppedEvent
     extends Event {

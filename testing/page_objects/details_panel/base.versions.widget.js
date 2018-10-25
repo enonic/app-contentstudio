@@ -15,7 +15,9 @@ const baseVersionsWidget = Object.create(page, {
                 return this.elements(this.versionItems);
             }).then(items => {
                 return this.getBrowser().elementIdClick(items.value[index].ELEMENT);
-            });
+            }).catch(err=>{
+                throw new Error("Version Widget - error when clicking on version " + err);
+            })
         }
     },
 });

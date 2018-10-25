@@ -6,9 +6,9 @@ import {FragmentOptionDataLoader} from './FragmentOptionDataLoader';
 import {ContentComboBox} from '../../app/inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import FragmentComponent = api.content.page.region.FragmentComponent;
-import Content = api.content.Content;
-import LayoutComponentType = api.content.page.region.LayoutComponentType;
+import {Content} from '../../app/content/Content';
+import {FragmentComponent} from '../../app/page/region/FragmentComponent';
+import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import i18n = api.util.i18n;
 

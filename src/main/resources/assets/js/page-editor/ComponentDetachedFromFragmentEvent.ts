@@ -1,8 +1,7 @@
-import './../api.ts';
 import {ComponentView} from './ComponentView';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {Component} from '../app/page/region/Component';
 import Event = api.event.Event;
-import ComponentType = api.content.page.region.ComponentType;
-import Component = api.content.page.region.Component;
 
 export class ComponentDetachedFromFragmentEvent
     extends api.event.Event {

@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {ConfirmContentDeleteDialog} from './ConfirmContentDeleteDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
@@ -8,8 +7,8 @@ import {DeleteItemViewer} from './DeleteItemViewer';
 import {ResolveDependenciesRequest} from '../resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
-import CompareStatus = api.content.CompareStatus;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
 import NotifyManager = api.notify.NotifyManager;
 

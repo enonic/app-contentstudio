@@ -8,13 +8,13 @@ import {PartComponentView, PartComponentViewBuilder} from './part/PartComponentV
 import {TextComponentView, TextComponentViewBuilder} from './text/TextComponentView';
 import {ContentView, ContentViewBuilder} from './ContentView';
 import {ItemType} from './ItemType';
-import ImageComponent = api.content.page.region.ImageComponent;
-import LayoutComponent = api.content.page.region.LayoutComponent;
-import PartComponent = api.content.page.region.PartComponent;
-import TextComponent = api.content.page.region.TextComponent;
+import {Content} from '../app/content/Content';
+import {ImageComponent} from '../app/page/region/ImageComponent';
+import {LayoutComponent} from '../app/page/region/LayoutComponent';
+import {PartComponent} from '../app/page/region/PartComponent';
+import {TextComponent} from '../app/page/region/TextComponent';
+import {Region} from '../app/page/region/Region';
 import i18n = api.util.i18n;
-import Region = api.content.page.region.Region;
-import Content = api.content.Content;
 
 export interface ItemViewFactory {
     createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView;
@@ -46,7 +46,7 @@ export class DefaultItemViewFactory
     }
 
     private createFragmentView(config: CreateFragmentViewConfig): FragmentComponentView {
-        const view = new FragmentComponentView(<FragmentComponentViewBuilder>new FragmentComponentViewBuilder()
+        return new FragmentComponentView(<FragmentComponentViewBuilder>new FragmentComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
@@ -54,8 +54,6 @@ export class DefaultItemViewFactory
             .setElement(config.element)
             .setComponent(config.data)
             .setPositionIndex(config.positionIndex));
-
-        return view;
     }
 
     private createImageView(config: CreateItemViewConfig<RegionView, ImageComponent>): ImageComponentView {

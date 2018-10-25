@@ -9,11 +9,11 @@ import eventInfo = CKEDITOR.eventInfo;
 import ContentId = api.content.ContentId;
 import AppHelper = api.util.AppHelper;
 import ActionButton = api.ui.button.ActionButton;
-import {OverrideNativeDialog} from './../OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import i18n = api.util.i18n;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
+import {OverrideNativeDialog} from './../OverrideNativeDialog';
+import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
@@ -234,15 +234,7 @@ export class ImageModalDialog
         this.image = this.createImgElForPreview(imageContentId, isNewImage);
         this.figure = new api.dom.FigureEl(this.image, 'image-preview');
     }
-/*
-    private createImgElForExistingImage(imageContent: Content) {
-        this.image = this.createImgElForPreview(imageContent.getContentId().toString(), true);
-    }
 
-    private createImgElForNewImage(imageContent: MediaTreeSelectorItem) {
-        this.image = this.createImgElForPreview(imageContent.getContentId().toString(), false);
-    }
-*/
     private createPreviewFrame() {
         const appendStylesheet = (head, cssPath) => {
             const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
@@ -481,13 +473,13 @@ export class ImageModalDialog
 
     private fetchImageCaption(imageContent: ContentSummary): wemQ.Promise<string> {
         return new GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
-            .then((content: api.content.Content) => {
+            .then((content: Content) => {
                 return this.getDescriptionFromImageContent(content) || content.getProperty('caption').getString() || '';
             });
     }
 
     private getDescriptionFromImageContent(imageContent: Content): string {
-        const imageInfoMixin = new api.schema.xdata.XDataName('media:imageInfo');
+        const imageInfoMixin = new XDataName('media:imageInfo');
         const imageInfoData = imageContent.getExtraData(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {

@@ -1,26 +1,31 @@
-import ContentIdBaseItem = api.content.ContentIdBaseItem;
-import ContentMetadata = api.content.ContentMetadata;
-import ContentIdBaseItemJson = api.content.json.ContentIdBaseItemJson;
+import {ContentMetadata} from '../content/ContentMetadata';
+import ContentSummary = api.content.ContentSummary;
+import ContentSummaryJson = api.content.json.ContentSummaryJson;
 
-export class ContentQueryResult<C extends ContentIdBaseItem, CJ extends ContentIdBaseItemJson> {
+export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON extends ContentSummaryJson> {
 
-    private contents: C[];
+    private contents: CONTENT[];
     private aggregations: api.aggregation.Aggregation[];
-    private contentsAsJson: CJ[];
+    private contentsAsJson: CONTENT_JSON[];
     private metadata: ContentMetadata;
 
-    constructor(contents: C[], aggreations: api.aggregation.Aggregation[], contentsAsJson: CJ[], metadata?: ContentMetadata) {
+    constructor(
+        contents: CONTENT[],
+        aggreations: api.aggregation.Aggregation[],
+        contentsAsJson: CONTENT_JSON[],
+        metadata?: ContentMetadata
+    ) {
         this.contents = contents;
         this.aggregations = aggreations;
         this.contentsAsJson = contentsAsJson;
         this.metadata = metadata;
     }
 
-    getContents(): C[] {
+    getContents(): CONTENT[] {
         return this.contents;
     }
 
-    getContentsAsJson(): CJ[] {
+    getContentsAsJson(): CONTENT_JSON[] {
         return this.contentsAsJson;
     }
 

@@ -9,7 +9,7 @@ const formXpath = {
     container: `//div[contains(@id,'XDataWizardStepForm')]`,
     textArea: `//div[contains(@id,'InputOccurrenceView')]//textarea`,
 };
-const textAreaForm = Object.create(page, {
+const xDataTextArea = Object.create(page, {
 
     textAreaInput: {
         get: function () {
@@ -55,4 +55,4 @@ const textAreaForm = Object.create(page, {
         }
     }
 });
-module.exports = textAreaForm;
+module.exports = xDataTextArea;

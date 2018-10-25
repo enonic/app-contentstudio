@@ -1,7 +1,7 @@
-import ContentJson = api.content.json.ContentJson;
-import Content = api.content.Content;
 import ContentPath = api.content.ContentPath;
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class GetContentByPathRequest
     extends ContentResourceRequest<ContentJson, Content> {

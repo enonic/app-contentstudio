@@ -1,8 +1,7 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../../../../content/CompareStatus';
+import {PublishStatus} from '../../../../publish/PublishStatus';
 
 export class StatusWidgetItemView extends WidgetItemView {
 

@@ -1,14 +1,14 @@
 import {Issue} from './Issue';
 import {IssueWithAssigneesJson} from './json/IssueWithAssigneesJson';
-import User = api.security.User;
+import Principal = api.security.Principal;
 
 export class IssueWithAssignees {
 
     private issue: Issue;
 
-    private assignees: User[];
+    private assignees: Principal[];
 
-    constructor(issue: Issue, assignees?: User[]) {
+    constructor(issue: Issue, assignees?: Principal[]) {
         this.issue = issue;
         this.assignees = assignees;
     }
@@ -17,13 +17,13 @@ export class IssueWithAssignees {
         return this.issue;
     }
 
-    getAssignees(): User[] {
+    getAssignees(): Principal[] {
         return this.assignees;
     }
 
     static fromJson(json: IssueWithAssigneesJson): IssueWithAssignees {
         const issue: Issue = Issue.fromJson(json.issue);
-        const assignees: User[] = json.assignees ? json.assignees.map(assignee => User.fromJson(assignee)) : null;
+        const assignees: Principal[] = json.assignees ? json.assignees.map(assignee => Principal.fromJson(assignee)) : null;
 
         return new IssueWithAssignees(issue, assignees);
     }

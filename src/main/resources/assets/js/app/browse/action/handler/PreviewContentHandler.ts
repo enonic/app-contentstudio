@@ -1,7 +1,6 @@
-import '../../../../api.ts';
 import {ContentBrowseItem} from '../../ContentBrowseItem';
 import {IsRenderableRequest} from '../../../resource/IsRenderableRequest';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
 import ContentId = api.content.ContentId;
 

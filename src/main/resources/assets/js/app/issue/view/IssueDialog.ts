@@ -6,7 +6,7 @@ import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import ContentSummary = api.content.ContentSummary;
 import ListBox = api.ui.selector.list.ListBox;
 import ModalDialog = api.ui.dialog.ModalDialog;

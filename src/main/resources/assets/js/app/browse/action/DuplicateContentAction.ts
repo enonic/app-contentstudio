@@ -1,6 +1,6 @@
-import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentDuplicatePromptEvent} from '../ContentDuplicatePromptEvent';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -10,7 +10,7 @@ export class DuplicateContentAction extends Action {
         super(i18n('action.duplicateMore'));
         this.setEnabled(false);
         this.onExecuted(() => {
-            let contents: api.content.ContentSummaryAndCompareStatus[]
+            let contents: ContentSummaryAndCompareStatus[]
                 = grid.getSelectedDataList();
             new ContentDuplicatePromptEvent(contents)
                 .setYesCallback(() => {

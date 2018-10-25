@@ -1,16 +1,16 @@
-import '../../api.ts';
 import {BaseContentModelEvent} from '../browse/BaseContentModelEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import TreeNode = api.ui.treegrid.TreeNode;
 
 export class MoveContentEvent extends BaseContentModelEvent {
-    private rootNode: TreeNode<api.content.ContentSummaryAndCompareStatus>;
+    private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
 
-    constructor(model: api.content.ContentSummaryAndCompareStatus[], rootNode?: TreeNode<api.content.ContentSummaryAndCompareStatus>) {
+    constructor(model: ContentSummaryAndCompareStatus[], rootNode?: TreeNode<ContentSummaryAndCompareStatus>) {
         super(model);
         this.rootNode = rootNode;
     }
 
-    getRootNode(): TreeNode<api.content.ContentSummaryAndCompareStatus> {
+    getRootNode(): TreeNode<ContentSummaryAndCompareStatus> {
         return this.rootNode;
     }
 

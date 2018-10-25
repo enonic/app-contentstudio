@@ -1,4 +1,5 @@
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import ContentId = api.content.ContentId;
 
 export class GetContentIdsByParentRequest
@@ -26,7 +27,7 @@ export class GetContentIdsByParentRequest
     getParams(): Object {
         return {
             parentId: this.parentId ? this.parentId.toString() : null,
-            childOrder: !!this.order ? this.order.toString() : ''
+            childOrder: this.order ? this.order.toString() : ''
         };
     }
 
@@ -36,7 +37,7 @@ export class GetContentIdsByParentRequest
 
     sendAndParse(): wemQ.Promise<ContentId[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentIdBaseItemJson[]>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentIdBaseItemJson[]>) => {
             return response.getResult().map((item => new ContentId(item.id)));
         });
     }

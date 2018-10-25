@@ -1,4 +1,4 @@
-import ContentMetadata = api.content.ContentMetadata;
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export interface ListContentResult<T> {
 

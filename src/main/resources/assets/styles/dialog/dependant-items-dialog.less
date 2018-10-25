@@ -125,7 +125,7 @@
     }
   }
   .browse-selection-item {
-    padding: 0 4px;
+    padding: 4px;
     margin: 0;
     display: flex;
     line-height: 26px;
@@ -135,7 +135,8 @@
       flex: 5;
       max-width: 75%;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .status {
@@ -178,6 +179,8 @@
         .dependant-list {
 
           .browse-selection-item {
+
+            padding: 0 4px;
 
             .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
               font-size: 12px;

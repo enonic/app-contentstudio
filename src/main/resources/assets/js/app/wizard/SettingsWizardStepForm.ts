@@ -1,7 +1,5 @@
-import '../../api.ts';
 import {ContentSettingsModel} from './ContentSettingsModel';
-
-import Content = api.content.Content;
+import {Content, ContentBuilder} from '../content/Content';
 import PrincipalType = api.security.PrincipalType;
 import PrincipalLoader = api.security.PrincipalLoader;
 import FormItemBuilder = api.ui.form.FormItemBuilder;
@@ -42,7 +40,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
         };
     }
 
-    layout(content: api.content.Content) {
+    layout(content: Content) {
         this.content = content;
 
         this.localeCombo = new LocaleComboBox(1, content.getLanguage());
@@ -72,7 +70,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
         this.setModel(new ContentSettingsModel(content));
     }
 
-    update(content: api.content.Content, unchangedOnly: boolean = true) {
+    update(content: Content, unchangedOnly: boolean = true) {
         this.updateUnchangedOnly = unchangedOnly;
         this.model.setOwner(content.getOwner()).setLanguage(content.getLanguage());
     }
@@ -119,7 +117,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
         this.model = model;
     }
 
-    apply(builder: api.content.ContentBuilder) {
+    apply(builder: ContentBuilder) {
         this.model.apply(builder);
     }
 

@@ -1,7 +1,7 @@
 import DockedPanel = api.ui.panel.DockedPanel;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import LoadMask = api.ui.mask.LoadMask;
-import User = api.security.User;
+import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import {IssuesPanel} from './IssuesPanel';
@@ -26,7 +26,7 @@ export class IssueListDialog
 
     private loadMask: LoadMask;
 
-    private currentUser: User;
+    private currentUser: Principal;
 
     private createAction: api.ui.Action;
 

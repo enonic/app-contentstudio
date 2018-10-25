@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {ContentItemViewToolbar} from './ContentItemViewToolbar';
 import {EditAction} from './EditAction';
@@ -8,10 +7,12 @@ import {ContentItemStatisticsPanel} from './ContentItemStatisticsPanel';
 import {Router} from '../Router';
 import {ShowPreviewEvent} from '../browse/ShowPreviewEvent';
 import {ShowDetailsEvent} from '../browse/ShowDetailsEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
-export class ContentItemViewPanel extends api.app.view.ItemViewPanel<api.content.ContentSummaryAndCompareStatus> {
+export class ContentItemViewPanel
+    extends api.app.view.ItemViewPanel<ContentSummaryAndCompareStatus> {
 
-    private statisticsPanel: api.app.view.ItemStatisticsPanel<api.content.ContentSummaryAndCompareStatus>;
+    private statisticsPanel: api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus>;
 
     private statisticsPanelIndex: number;
 
@@ -73,7 +74,7 @@ export class ContentItemViewPanel extends api.app.view.ItemViewPanel<api.content
         });
     }
 
-    setItem(item: api.app.view.ViewItem<api.content.ContentSummaryAndCompareStatus>) {
+    setItem(item: api.app.view.ViewItem<ContentSummaryAndCompareStatus>) {
         super.setItem(item);
         this.statisticsPanel.setItem(item);
         this.previewPanel.setItem(item);

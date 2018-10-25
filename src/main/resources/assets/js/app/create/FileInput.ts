@@ -1,5 +1,4 @@
 import InputEl = api.dom.InputEl;
-import Content = api.content.Content;
 import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 import UploadItem = api.ui.uploader.UploadItem;
 import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
@@ -7,6 +6,7 @@ import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadCompleteEvent = api.ui.uploader.UploadCompleteEvent;
 import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
 import {MediaUploaderEl, MediaUploaderElOperation} from '../inputtype/ui/upload/MediaUploaderEl';
+import {Content} from '../content/Content';
 
 export class FileInput
     extends api.dom.CompositeFormInputEl {
@@ -36,8 +36,8 @@ export class FileInput
             value: originalValue
         });
 
-        mediaUploaderEl.onUploadStarted((event: UploadStartedEvent<api.content.Content>) => {
-            let names = event.getUploadItems().map((uploadItem: UploadItem<api.content.Content>) => {
+        mediaUploaderEl.onUploadStarted((event: UploadStartedEvent<Content>) => {
+            let names = event.getUploadItems().map((uploadItem: UploadItem<Content>) => {
                 return uploadItem.getName();
             });
             this.textInput.setValue(names.join(', '));

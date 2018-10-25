@@ -1,8 +1,8 @@
 import InputTypeViewContext = api.form.inputtype.InputTypeViewContext;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
-import Site = api.content.site.Site;
 import {ContentFormContext} from '../ContentFormContext';
+import {Site} from '../content/Site';
 
 export interface ContentInputTypeViewContext
     extends InputTypeViewContext {

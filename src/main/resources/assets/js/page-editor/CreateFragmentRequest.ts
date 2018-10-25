@@ -1,13 +1,16 @@
 import {FragmentResourceRequest} from './FragmentResourceRequest';
+import {Content} from '../app/content/Content';
+import {ContentJson} from '../app/content/ContentJson';
+import {Component} from '../app/page/region/Component';
 
 export class CreateFragmentRequest
-    extends FragmentResourceRequest<api.content.json.ContentJson, api.content.Content> {
+    extends FragmentResourceRequest<ContentJson, Content> {
 
     private contentId: api.content.ContentId;
 
     private config: api.data.PropertyTree;
 
-    private component: api.content.page.region.Component;
+    private component: Component;
 
     constructor(contentId: api.content.ContentId) {
         super();
@@ -20,7 +23,7 @@ export class CreateFragmentRequest
         return this;
     }
 
-    setComponent(value: api.content.page.region.Component): CreateFragmentRequest {
+    setComponent(value: Component): CreateFragmentRequest {
         this.component = value;
         return this;
     }
@@ -37,9 +40,9 @@ export class CreateFragmentRequest
         return api.rest.Path.fromParent(super.getResourcePath(), 'create');
     }
 
-    sendAndParse(): wemQ.Promise<api.content.Content> {
+    sendAndParse(): wemQ.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.ContentJson>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
         });
     }

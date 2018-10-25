@@ -13,7 +13,6 @@ import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
 import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
 import ContentId = api.content.ContentId;
-import Content = api.content.Content;
 import AppHelper = api.util.AppHelper;
 import i18n = api.util.i18n;
 import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
@@ -28,6 +27,7 @@ import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploa
 import {ContentSummaryOptionDataLoader} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {ImageModalDialogConfig} from './image/ImageModalDialog';
+import {Content} from '../../../../content/Content';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {

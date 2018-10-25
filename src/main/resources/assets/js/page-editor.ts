@@ -1,5 +1,5 @@
-import './api.ts';
 import {LiveEditPage} from './page-editor/LiveEditPage';
+import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
 import KeyBinding = api.ui.KeyBinding;
 
 declare const CONFIG;
@@ -8,7 +8,7 @@ declare const wemjq: JQueryStatic;
 /*
  Prefix must match @_CLS_PREFIX in n web\admin\live-edit\styles\less\live-edit.less
  */
-api.StyleHelper.setCurrentPrefix(api.StyleHelper.PAGE_EDITOR_PREFIX);
+api.StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
 const liveEditPage = new LiveEditPage();
 

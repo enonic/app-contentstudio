@@ -1,7 +1,6 @@
-import '../../../../../../api.ts';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import Region = api.content.page.region.Region;
+import {Region} from '../../../../../page/region/Region';
 import i18n = api.util.i18n;
 
 export class RegionInspectionPanel

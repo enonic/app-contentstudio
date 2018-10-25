@@ -1,7 +1,6 @@
-import './../api.ts';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
-import Component = api.content.page.region.Component;
+import {Component} from '../app/page/region/Component';
 
 export class ComponentRemovedEvent
     extends api.event.Event {

@@ -1,5 +1,5 @@
 import PrincipalType = api.security.PrincipalType;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
+import {AccessControlEntry} from '../access/AccessControlEntry';
 
 export class AccessControlEntryViewer
     extends api.ui.NamesAndIconViewer<AccessControlEntry> {

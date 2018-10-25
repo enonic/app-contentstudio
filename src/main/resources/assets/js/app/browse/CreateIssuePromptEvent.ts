@@ -1,7 +1,5 @@
-import '../../api.ts';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
-
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class CreateIssuePromptEvent extends BaseContentModelEvent {
 

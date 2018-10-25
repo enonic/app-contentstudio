@@ -1,6 +1,6 @@
-import CompareStatus = api.content.CompareStatus;
-import PublishStatus = api.content.PublishStatus;
 import {CompareContentResultJson} from './json/CompareContentResultJson';
+import {CompareStatus} from '../content/CompareStatus';
+import {PublishStatus} from '../publish/PublishStatus';
 
 export class CompareContentResult
     implements api.Equitable {

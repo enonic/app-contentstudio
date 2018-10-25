@@ -205,6 +205,10 @@ export class HTMLAreaBuilder {
             this.includeTool('Fullscreen');
         }
 
+        if (this.inline) {
+            this.tools[0].push('Strike', 'Superscript', 'Subscript');
+        }
+
         this.tools.push(this.toolsToInclude);
     }
 

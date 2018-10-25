@@ -1,7 +1,6 @@
 import i18n = api.util.i18n;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import Content = api.content.Content;
 import ImgEl = api.dom.ImgEl;
 import LostConnectionDetector = api.system.ConnectionDetector;
 
@@ -51,6 +50,8 @@ import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
 import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 import {EditContentEvent} from './app/event/EditContentEvent';
+import {Content} from './app/content/Content';
+import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -368,8 +369,9 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
     wizard.onClosed(event => window.close());
 
     // TODO: Remove hack, that connects content events in `FormView`
-    api.content.event.EditContentEvent.on((event) => {
-        new EditContentEvent(event.getModels()).fire();
+    api.content.event.FormEditEvent.on((event) => {
+        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
+        new EditContentEvent([model]).fire();
     });
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
 
@@ -401,12 +403,12 @@ function startContentApplication(application: api.app.Application) {
 
         if (parentContent != null) {
             new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
-                (newParentContent: api.content.Content) => {
+                (newParentContent: Content) => {
 
                     // TODO: remove pyramid of doom
                     if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
                         new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
-                            (grandParent: api.content.Content) => {
+                            (grandParent: Content) => {
 
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();

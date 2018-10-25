@@ -1,9 +1,9 @@
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ApplicationKey = api.application.ApplicationKey;
-import XDataResourceRequest = api.schema.xdata.XDataResourceRequest;
-import XData = api.schema.xdata.XData;
-import XDataListJson = api.schema.xdata.XDataListJson;
-import XDataJson = api.schema.xdata.XDataJson;
+import {XDataResourceRequest} from './XDataResourceRequest';
+import {XDataListJson} from './json/XDataListJson';
+import {XData} from '../content/XData';
+import {XDataJson} from './json/XDataJson';
 
 export class GetApplicationXDataRequest
     extends XDataResourceRequest<XDataListJson, XData[]> {

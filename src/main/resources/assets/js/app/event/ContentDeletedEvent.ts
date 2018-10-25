@@ -1,6 +1,7 @@
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../content/CompareStatus';
 
 export class ContentDeletedEvent
     extends api.event.Event {
@@ -84,7 +85,7 @@ export class ContentDeletedItem {
         return false;
     }
 
-    public getCompareStatus(): api.content.CompareStatus {
+    public getCompareStatus(): CompareStatus {
         throw new Error('Must be overridden by inheritors');
     }
 }
@@ -94,7 +95,7 @@ export class ContentPendingDeleteItem
 
     private pending: boolean;
 
-    private compareStatus: api.content.CompareStatus;
+    private compareStatus: CompareStatus;
 
     constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
         super(contentSummary.getContentId(), contentSummary.getPath(), 'master');
@@ -107,7 +108,7 @@ export class ContentPendingDeleteItem
         return this.pending;
     }
 
-    public getCompareStatus(): api.content.CompareStatus {
+    public getCompareStatus(): CompareStatus {
         return this.compareStatus;
     }
 }

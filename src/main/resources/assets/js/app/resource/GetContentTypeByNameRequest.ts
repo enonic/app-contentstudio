@@ -1,8 +1,8 @@
-import ContentTypeResourceRequest = api.schema.content.ContentTypeResourceRequest;
-import ContentType = api.schema.content.ContentType;
-import ContentTypeJson = api.schema.content.ContentTypeJson;
-import ContentTypeCache = api.schema.content.ContentTypeCache;
 import ContentTypeName = api.schema.content.ContentTypeName;
+import {ContentTypeCache} from '../content/ContentTypeCache';
+import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
+import {ContentType} from '../inputtype/schema/ContentType';
+import {ContentTypeJson} from './json/ContentTypeJson';
 
 export class GetContentTypeByNameRequest
     extends ContentTypeResourceRequest<ContentTypeJson, ContentType> {

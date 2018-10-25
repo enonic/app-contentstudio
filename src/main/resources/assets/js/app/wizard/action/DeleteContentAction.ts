@@ -1,7 +1,6 @@
-import '../../../api.ts';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentDeletePromptEvent} from '../../browse/ContentDeletePromptEvent';
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
 
 export class DeleteContentAction extends api.ui.Action {

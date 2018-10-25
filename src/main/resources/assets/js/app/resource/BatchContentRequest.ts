@@ -1,10 +1,10 @@
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
-import ContentMetadata = api.content.ContentMetadata;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
+import {ContentMetadata} from '../content/ContentMetadata';
 
 export class BatchContentRequest
     extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentResponse<ContentSummary>> {

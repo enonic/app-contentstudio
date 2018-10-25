@@ -1,4 +1,4 @@
-import Content = api.content.Content;
+import {Content} from '../content/Content';
 
 export class RoutineContext {
 

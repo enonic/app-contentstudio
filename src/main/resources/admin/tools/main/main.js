@@ -1,5 +1,5 @@
 var admin = require('/lib/xp/admin');
-var mustache = require('/lib/xp/mustache');
+var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 
 function handleGet() {

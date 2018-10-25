@@ -1,7 +1,6 @@
-import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {CreateIssuePromptEvent} from '../CreateIssuePromptEvent';
-
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -13,8 +12,7 @@ export class CreateIssueAction extends Action {
         this.setEnabled(false);
 
         this.onExecuted(() => {
-            let contents: api.content.ContentSummaryAndCompareStatus[]
-                = grid.getSelectedDataList();
+            const contents: ContentSummaryAndCompareStatus[] = grid.getSelectedDataList();
             new CreateIssuePromptEvent(contents).fire();
         });
     }

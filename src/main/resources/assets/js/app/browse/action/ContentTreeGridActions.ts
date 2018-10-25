@@ -1,4 +1,3 @@
-import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ToggleSearchPanelAction} from './ToggleSearchPanelAction';
 import {ShowNewContentDialogAction} from './ShowNewContentDialogAction';
@@ -18,14 +17,15 @@ import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
+import {Content} from '../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentType} from '../../inputtype/schema/ContentType';
+import {Permission} from '../../access/Permission';
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
 import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import Content = api.content.Content;
-import Permission = api.security.acl.Permission;
 import i18n = api.util.i18n;
 import ManagedActionManager = api.managedaction.ManagedActionManager;
 import ManagedActionState = api.managedaction.ManagedActionState;
@@ -439,7 +439,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         let deferred = wemQ.defer<boolean>();
 
         new GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
-            .then((contentType: api.schema.content.ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
+            .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
             .fail(() => this.handleDeletedContentType(contentSummary));
 
         return deferred.promise;

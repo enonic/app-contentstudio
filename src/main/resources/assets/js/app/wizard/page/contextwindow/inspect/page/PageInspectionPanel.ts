@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {PageTemplateSelector} from './PageTemplateSelector';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {PageTemplateForm} from './PageTemplateForm';
@@ -9,15 +8,13 @@ import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageModel, SetTemplate} from '../../../../../../page-editor/PageModel';
 import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
+import {PageTemplate} from '../../../../../content/PageTemplate';
+import {PageMode} from '../../../../../page/PageMode';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import PropertyTree = api.data.PropertyTree;
 import FormContextBuilder = api.form.FormContextBuilder;
 import FormView = api.form.FormView;
 import FormContext = api.form.FormContext;
-
-import PageMode = api.content.page.PageMode;
-
-import PageTemplate = api.content.page.PageTemplate;
 import PageDescriptor = api.content.page.PageDescriptor;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ActionButton = api.ui.button.ActionButton;

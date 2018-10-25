@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid} from './ContentTreeGrid';
@@ -23,11 +22,13 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {Branch} from '../versioning/Branch';
+import {Content} from '../content/Content';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
@@ -35,7 +36,6 @@ import ContentPath = api.content.ContentPath;
 import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
 import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import Content = api.content.Content;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
@@ -46,6 +46,7 @@ export class ContentBrowsePanel
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
     private detailsSplitPanel: DetailsSplitPanel;
+    private debouncedPreviewRefresh: () => void;
 
     constructor() {
 
@@ -62,6 +63,8 @@ export class ContentBrowsePanel
         this.getBrowseActions().updateActionsEnabledState([]); // to enable/disable actions correctly
 
         this.handleGlobalEvents();
+
+        this.debouncedPreviewRefresh = api.util.AppHelper.debounce(() => this.forcePreviewRerender(), 500);
     }
 
     protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): wemQ.Promise<any> {
@@ -306,7 +309,7 @@ export class ContentBrowsePanel
 
     private getPathFromPreviewPath(contentPreviewPath: string): string {
         return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW,
-            api.content.Branch.DRAFT);
+            Branch.DRAFT);
     }
 
     private subscribeOnContentEvents() {
@@ -357,9 +360,13 @@ export class ContentBrowsePanel
         return this.doHandleContentUpdate(data).then((changed) => {
             this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
                 if (previewUpdateRequired) {
-                    this.forcePreviewRerender();
+                    this.debouncedPreviewRefresh();
                 }
             });
+
+            if (!changed.length) {
+                return;
+            }
 
             return this.treeGrid.placeContentNodes(changed);
         });
@@ -492,7 +499,9 @@ export class ContentBrowsePanel
 
         this.updateDetailsPanel(data);
 
-        this.treeGrid.invalidate();
+        if (!changed.length) {
+            return wemQ(changed);
+        }
 
         // Update since CompareStatus changed
         return ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {

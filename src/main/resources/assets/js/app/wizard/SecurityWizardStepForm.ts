@@ -2,12 +2,13 @@ import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
 import {AccessControlListView} from '../view/AccessControlListView';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
-import AccessControlList = api.security.acl.AccessControlList;
+import {Content, ContentBuilder} from '../content/Content';
+import {AccessControlList} from '../access/AccessControlList';
+import {AccessControlEntry} from '../access/AccessControlEntry';
 import DivEl = api.dom.DivEl;
 import LabelEl = api.dom.LabelEl;
 import Button = api.ui.button.Button;
 import ContentPath = api.content.ContentPath;
-import AccessControlEntry = api.security.acl.AccessControlEntry;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
 
@@ -130,7 +131,7 @@ export class SecurityWizardStepForm
         this.doLayout();
     }
 
-    layout(content: api.content.Content) {
+    layout(content: Content) {
 
         this.contentId = content.getContentId();
         this.contentPath = content.getPath();
@@ -139,12 +140,12 @@ export class SecurityWizardStepForm
         this.layoutPermissions(content.getPermissions(), content.isInheritPermissionsEnabled(), false);
     }
 
-    update(content: api.content.Content, unchangedOnly: boolean = true) {
+    update(content: Content, unchangedOnly: boolean = true) {
         //TODO: preserve changes
         this.layout(content);
     }
 
-    apply(builder: api.content.ContentBuilder) {
+    apply(builder: ContentBuilder) {
         builder.setPermissions(this.permissions);
         builder.setInheritPermissionsEnabled(this.inheritPermissions);
         builder.setOverwritePermissionsEnabled(this.overwritePermissions);

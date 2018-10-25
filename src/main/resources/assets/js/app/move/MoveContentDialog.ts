@@ -4,6 +4,7 @@ import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentIds} from '../ContentIds';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ContentPath = api.content.ContentPath;
 import ContentSummary = api.content.ContentSummary;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
@@ -25,7 +26,7 @@ export class MoveContentDialog
 
     private contentPathSubHeader: api.dom.H6El;
 
-    private rootNode: TreeNode<api.content.ContentSummaryAndCompareStatus>;
+    private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
 
     private descriptionHeader: api.dom.H6El;
 

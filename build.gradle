@@ -18,9 +18,9 @@ app {
 dependencies {
     compile "${group}:portal-api:${xpVersion}"
     include "${group}:lib-admin:${xpVersion}"
-    include "${group}:lib-mustache:${xpVersion}"
     include "${group}:lib-portal:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    include "com.enonic.lib:lib-mustache:2.0.0-A1"
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
 }
@@ -68,6 +68,11 @@ task webpack( type: NodeTask, dependsOn: lint ) {
     inputs.dir 'src/main'
     outputs.dir "${buildDir}/resources/main"
     script = file( './node_modules/webpack/bin/webpack' )
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = sourceCompatibility
 }
 
 jar {

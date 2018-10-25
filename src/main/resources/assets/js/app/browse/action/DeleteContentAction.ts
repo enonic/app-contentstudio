@@ -1,9 +1,7 @@
-import '../../../api.ts';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentDeletePromptEvent} from '../ContentDeletePromptEvent';
-
-import ContentSummaryAndCompareStatus = api.content.ContentSummaryAndCompareStatus;
-import CompareStatus = api.content.CompareStatus;
+import {CompareStatus} from '../../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -13,11 +11,11 @@ export class DeleteContentAction extends Action {
         super(i18n('action.deleteMore'), 'mod+del');
         this.setEnabled(false);
         this.onExecuted(() => {
-            let contents: api.content.ContentSummaryAndCompareStatus[]
+            let contents: ContentSummaryAndCompareStatus[]
                 = grid.getSelectedDataList();
             new ContentDeletePromptEvent(contents)
                 .setNoCallback(null)
-                .setYesCallback((exclude?: api.content.CompareStatus[]) => {
+                .setYesCallback((exclude?: CompareStatus[]) => {
 
                     let excludeStatuses = exclude ? exclude : [CompareStatus.EQUAL, CompareStatus.NEWER, CompareStatus.MOVED,
                             CompareStatus.PENDING_DELETE, CompareStatus.OLDER];

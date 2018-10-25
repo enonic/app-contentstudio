@@ -1,5 +1,5 @@
-import AccessControlEntry = api.security.acl.AccessControlEntry;
 import {AccessControlEntryView} from './AccessControlEntryView';
+import {AccessControlEntry} from '../access/AccessControlEntry';
 
 export class AccessControlListView
     extends api.ui.selector.list.ListBox<AccessControlEntry> {

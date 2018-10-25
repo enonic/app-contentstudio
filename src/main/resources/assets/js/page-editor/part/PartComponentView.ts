@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
 import {ContentView, ContentViewBuilder} from '../ContentView';
@@ -8,7 +7,7 @@ import {ItemView} from '../ItemView';
 import {ItemType} from '../ItemType';
 import {ContentItemType} from '../ContentItemType';
 import {DragAndDrop} from '../DragAndDrop';
-import PartComponent = api.content.page.region.PartComponent;
+import {PartComponent} from '../../app/page/region/PartComponent';
 
 export class PartComponentViewBuilder
     extends ComponentViewBuilder<PartComponent> {

@@ -1,16 +1,15 @@
-import ContentQuery = api.content.query.ContentQuery;
-import ContentIdBaseItemJson = api.content.json.ContentIdBaseItemJson;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentJson = api.content.json.ContentJson;
 import AggregationQueryTypeWrapperJson = api.query.aggregation.AggregationQueryTypeWrapperJson;
-import ContentIdBaseItem = api.content.ContentIdBaseItem;
-import ContentMetadata = api.content.ContentMetadata;
-import Content = api.content.Content;
+import ContentSummary = api.content.ContentSummary;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
+import {Content} from '../content/Content';
+import {ContentMetadata} from '../content/ContentMetadata';
+import {ContentJson} from '../content/ContentJson';
+import {ContentQuery} from '../content/ContentQuery';
 
-export class ContentQueryRequest<CONTENT_JSON extends ContentIdBaseItemJson, CONTENT extends ContentIdBaseItem>
+export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {
 
     private contentQuery: ContentQuery;
@@ -67,7 +66,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentIdBaseItemJson, CON
 
             let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
             let aggregations = api.aggregation.Aggregation.fromJsonArray(responseResult.aggregations);
-            let contentsAsJson: ContentIdBaseItemJson[] = responseResult.contents;
+            let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
             let metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
             let contents: CONTENT[];
 
@@ -172,12 +171,12 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentIdBaseItemJson, CON
         return array;
     }
 
-    fromJsonToContentIdBaseItem(json: ContentIdBaseItemJson): ContentIdBaseItem {
-        return ContentIdBaseItem.fromJson(json);
+    fromJsonToContentIdBaseItem(json: ContentSummaryJson): ContentSummary {
+        return ContentSummary.fromJson(json);
     }
 
-    fromJsonToContentIdBaseItemArray(jsonArray: ContentIdBaseItemJson[]): ContentIdBaseItem[] {
+    fromJsonToContentIdBaseItemArray(jsonArray: ContentSummaryJson[]): ContentSummary[] {
 
-        return ContentIdBaseItem.fromJsonArray(jsonArray);
+        return ContentSummary.fromJsonArray(jsonArray);
     }
 }

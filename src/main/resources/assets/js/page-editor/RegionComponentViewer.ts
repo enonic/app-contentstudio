@@ -1,22 +1,22 @@
-import './../api.ts';
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
+import {Region} from '../app/page/region/Region';
 
 export class RegionComponentViewer
-    extends api.ui.NamesAndIconViewer<api.content.page.region.Region> {
+    extends api.ui.NamesAndIconViewer<Region> {
 
     constructor() {
         super();
     }
 
-    resolveDisplayName(object: api.content.page.region.Region): string {
+    resolveDisplayName(object: Region): string {
         return object.getName().toString();
     }
 
-    resolveSubName(object: api.content.page.region.Region, relativePath: boolean = false): string {
+    resolveSubName(object: Region, relativePath: boolean = false): string {
         return object.getPath().toString();
     }
 
-    resolveIconClass(object: api.content.page.region.Region): string {
+    resolveIconClass(object: Region): string {
         return ItemViewIconClassResolver.resolveByType('region');
     }
 }
