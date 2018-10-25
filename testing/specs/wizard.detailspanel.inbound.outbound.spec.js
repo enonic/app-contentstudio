@@ -77,7 +77,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 }).then(() => {
                     return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                }).then(() => {
+                }).pause(3000).then(() => {
                     return contentWizard.openDetailsPanel();
                 }).then(() => {
                     console.log("details panel is opened");
