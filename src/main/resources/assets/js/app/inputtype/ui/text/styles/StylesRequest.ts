@@ -10,7 +10,7 @@ export interface GetStylesResponse {
 export class StylesRequest
     extends api.rest.ResourceRequest<GetStylesResponse, Styles> {
 
-    private static loadingContentId: string;
+    private static requests: { [key: string]:  wemQ.Promise<Styles>; } = {};
 
     private contentId: string;
 
@@ -31,16 +31,17 @@ export class StylesRequest
     }
 
     sendAndParse(): wemQ.Promise<Styles> {
-        if (!!StylesRequest.loadingContentId && StylesRequest.loadingContentId === this.contentId) {
+        if (StylesRequest.requests[this.contentId]) {
             // Avoid sending multiple requests for the same contentId,
             // for example when there are several HTML Area inputs on the same page
-            return wemQ(null);
+            return StylesRequest.requests[this.contentId];
         }
-        StylesRequest.loadingContentId = this.contentId;
-        return this.send().then((response: api.rest.JsonResponse<GetStylesResponse>) => {
-            StylesRequest.loadingContentId = null;
+        StylesRequest.requests[this.contentId] = this.send().then((response: api.rest.JsonResponse<GetStylesResponse>) => {
+            delete StylesRequest.requests[this.contentId];
             return this.fromJson(response.getResult());
         });
+
+        return StylesRequest.requests[this.contentId];
     }
 
     private fromJson(json: GetStylesResponse): Styles {
