@@ -43,6 +43,9 @@ fs.readdirSync(testDir).filter(file=>{
         path.join(testDir, file)
     );
 });
-mocha.run(result => {
+mocha.run(exitCode => {
     // stopSelenuim();
+    if (exitCode !== 0) {
+        process.exit(exitCode);
+    }
 });
