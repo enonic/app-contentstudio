@@ -179,7 +179,7 @@ export class ImageModalDialog
                 return;
             }
 
-            this.imageLoadMask.show();
+            //this.imageLoadMask.show();
 
             this.createPreviewElement(imageContent.getContentId().toString(), true);
             this.previewImage();
@@ -195,6 +195,8 @@ export class ImageModalDialog
             this.removePreview();
             this.imageToolbar.unStylesChanged();
             this.imageToolbar.remove();
+            this.previewFrame.remove();
+            this.previewFrame = null;
             this.imageCaptionField.hide();
             this.imageAltTextField.hide();
             this.imageUploaderEl.show();
@@ -280,6 +282,7 @@ export class ImageModalDialog
     }
 
     private previewImage() {
+        this.imageLoadMask.show();
         this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getValue());
         /*this.imageToolbar.onStyleSelected(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
@@ -287,6 +290,9 @@ export class ImageModalDialog
         this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
 
         this.figure.getImage().onLoaded(() => {
+            if (this.previewFrame) {
+                return;
+            }
             this.createPreviewFrame();
 
             this.imageLoadMask.hide();
