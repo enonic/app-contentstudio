@@ -17,3 +17,4 @@ generated-java
 classes/
 out/
 .xp/
+testing/allure-results

@@ -46,6 +46,7 @@ export class ContentBrowsePanel
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
     private detailsSplitPanel: DetailsSplitPanel;
+    private debouncedPreviewRefresh: () => void;
 
     constructor() {
 
@@ -62,6 +63,8 @@ export class ContentBrowsePanel
         this.getBrowseActions().updateActionsEnabledState([]); // to enable/disable actions correctly
 
         this.handleGlobalEvents();
+
+        this.debouncedPreviewRefresh = api.util.AppHelper.debounce(() => this.forcePreviewRerender(), 500);
     }
 
     protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): wemQ.Promise<any> {
@@ -357,9 +360,13 @@ export class ContentBrowsePanel
         return this.doHandleContentUpdate(data).then((changed) => {
             this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
                 if (previewUpdateRequired) {
-                    this.forcePreviewRerender();
+                    this.debouncedPreviewRefresh();
                 }
             });
+
+            if (!changed.length) {
+                return;
+            }
 
             return this.treeGrid.placeContentNodes(changed);
         });
@@ -492,7 +499,9 @@ export class ContentBrowsePanel
 
         this.updateDetailsPanel(data);
 
-        this.treeGrid.invalidate();
+        if (!changed.length) {
+            return wemQ(changed);
+        }
 
         // Update since CompareStatus changed
         return ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {
