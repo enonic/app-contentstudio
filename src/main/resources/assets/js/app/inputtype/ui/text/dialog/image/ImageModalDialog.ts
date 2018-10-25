@@ -193,6 +193,7 @@ export class ImageModalDialog
             formItem.removeClass('selected-item-preview');
             this.displayValidationErrors(false);
             this.removePreview();
+            this.imageToolbar.unStylesChanged();
             this.imageToolbar.remove();
             this.imageCaptionField.hide();
             this.imageAltTextField.hide();
@@ -233,7 +234,7 @@ export class ImageModalDialog
 
     private createPreviewElement(imageContentId: string, isNewImage: boolean) {
         this.image = this.createImgElForPreview(imageContentId, isNewImage);
-        this.figure = new api.dom.FigureEl(this.image, 'image-preview');
+        this.figure = new api.dom.FigureEl(this.image, isNewImage ? ImageDialogToolbar.defaultStyles.join(' ') : '');
     }
 
     private createPreviewFrame() {
@@ -249,27 +250,41 @@ export class ImageModalDialog
         };
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
 
-        //this.previewFrame.getEl().setHeightPx(this.image.getEl().getHeight());
-        this.previewFrame.getEl().setHeightPx(this.figure.getEl().getHeight());
+        this.previewFrame.getEl().setHeightPx(this.figure.getImage().getEl().getHeight());
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
-        //this.image.getEl().removeAttribute('style');
+        this.figure.getEl().removeAttribute('style');
 
         const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
-        //frameDocument.write(this.image.getHTMLElement().outerHTML);
         frameDocument.write(this.figure.getHTMLElement().outerHTML);
         frameDocument.getElementsByTagName('body')[0].classList.add('preview-frame-body');
         injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
 
-        //this.imagePreviewContainer.removeChild(this.image);
         this.imagePreviewContainer.removeChild(this.figure);
+    }
+
+    private refreshPreviewFrame() {
+
+        const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
+        const frameBody = frameDocument.getElementsByTagName('body')[0];
+        frameBody.innerHTML = '';
+
+        frameBody.appendChild(this.figure.getHTMLElement());
+
+        api.ui.responsive.ResponsiveManager.fireResizeEvent();
+    }
+
+    private updatePreview(styles: string) {
+        this.applyStylingToPreview(styles);
+        this.imagePreviewScrollHandler.resetScrollPosition();
     }
 
     private previewImage() {
         this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getValue());
-        this.imageToolbar.onStyleSelected(() => {
+        /*this.imageToolbar.onStyleSelected(() => {
             this.imagePreviewScrollHandler.resetScrollPosition();
-        });
+        });*/
+        this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
 
         this.figure.getImage().onLoaded(() => {
             this.createPreviewFrame();
@@ -287,10 +302,8 @@ export class ImageModalDialog
         this.imageUploaderEl.hide();
 
         this.figure.getEl().setAttribute('style', 'visibility: hidden');
-        //this.image.getEl().setAttribute('style', 'visibility: hidden');
 
         this.imagePreviewContainer.insertChild(this.figure, 0);
-        //this.imagePreviewContainer.insertChild(this.image, 0);
     }
 
     private createImgElForPreview(imageContentId: string, isNewImage: boolean): api.dom.ImgEl {
@@ -522,6 +535,12 @@ export class ImageModalDialog
     isDirty(): boolean {
         return AppHelper.isDirty(this);
     }
+
+    private applyStylingToPreview(classNames: string) {
+        this.figure.setClass(classNames);
+
+        this.refreshPreviewFrame();
+    }
 }
 
 export class ImageModalDialogConfig
@@ -532,19 +551,22 @@ export class ImageModalDialogConfig
 export class ImageDialogToolbar
     extends api.ui.toolbar.Toolbar {
 
-    //private image: api.dom.ImgEl;
-
     private previewEl: api.dom.FigureEl;
 
     private imageId: string;
 
-    private alignmentButtons: ActionButton[] = [];
+    //private alignmentButtons: ActionButton[] = [];
+    private alignmentButtons: { [key: string]: ActionButton; } = {};
 
     private keepOriginalSizeCheckbox: api.ui.Checkbox;
 
     private imageStyleSelector: ImageStyleSelector;
 
     private imageLoadMask: api.ui.mask.LoadMask;
+
+    private stylesChangeListeners: { (styles: string): void }[] = [];
+
+    static readonly defaultStyles = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
 
     constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
         super('image-toolbar');
@@ -560,13 +582,18 @@ export class ImageDialogToolbar
     }
 
     private createAlignmentButtons() {
-        const alignmentStyles = StyleHelper.getOfType(StyleType[StyleType.ALIGNMENT]);
-        const hasAlignment = alignmentStyles.some(style => this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));
+        /*const alignmentStyles = StyleHelper.getOfType(StyleType[StyleType.ALIGNMENT]);
+        const hasAlignment = alignmentStyles.some(style => this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));*/
 
-        this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY, !hasAlignment);
-        this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT);
-        this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER);
-        this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT);
+        const alignmentButtonContainer = new api.dom.DivEl('alignment-container');
+        alignmentButtonContainer.appendChildren(
+            this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY),
+            this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT),
+            this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER),
+            this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT)
+        );
+
+        super.addElement(alignmentButtonContainer);
     }
 
     private removeClassesOfTheSameType(styleClass: string) {
@@ -587,7 +614,7 @@ export class ImageDialogToolbar
         this.previewEl.addClass(styleClass);
     }
 
-    private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false) {
+    private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false): api.ui.button.ActionButton {
         const action: Action = new Action('');
 
         action.setIconClass(iconClass);
@@ -597,29 +624,31 @@ export class ImageDialogToolbar
         action.onExecuted(() => {
             this.resetActiveAlignmentButton();
             button.addClass('active');
-            this.addClassToPreview(styleClass);
-            api.ui.responsive.ResponsiveManager.fireResizeEvent();
+
+            this.notifyStylesChanged();
+            //this.addClassToPreview(styleClass);
+            //api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
-        this.alignmentButtons.push(button);
+        this.alignmentButtons[styleClass] = button;
 
-        if (this.previewEl.hasClass(styleClass) || enforceClass) {
-            action.execute();
+        if (this.previewEl.hasClass(styleClass)) {
+            button.addClass('active');
         }
 
-        super.addElement(button);
+        return button;
     }
-
+/*
     private refreshImagePreview() {
         this.imageLoadMask.show();
         this.setImageSrc();
         api.ui.responsive.ResponsiveManager.fireResizeEvent();
     }
-
+*/
     private createKeepOriginalSizeCheckbox(): api.ui.Checkbox {
         const keepOriginalSizeCheckbox = api.ui.Checkbox.create().build();
         keepOriginalSizeCheckbox.addClass('keep-size-check');
-        keepOriginalSizeCheckbox.onValueChanged(() => this.refreshImagePreview());
+        //keepOriginalSizeCheckbox.onValueChanged(() => this.refreshImagePreview());
         keepOriginalSizeCheckbox.setLabel(i18n('dialog.image.keepsize'));
 
         return keepOriginalSizeCheckbox;
@@ -629,7 +658,8 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onOptionSelected(() => this.refreshImagePreview());
+        //imageStyleSelector.onOptionSelected(() => this.refreshImagePreview());
+        imageStyleSelector.onOptionSelected(() => this.notifyStylesChanged());
 
         return imageStyleSelector;
     }
@@ -652,8 +682,30 @@ export class ImageDialogToolbar
         });
     }
 
+    private getAlignmentStyle(): string {
+
+        for (let alignment in this.alignmentButtons) {
+            if (this.alignmentButtons[alignment].hasClass('active')) {
+                return alignment.toString();
+            }
+        }
+
+        return '';
+    }
+
+    private getProcessingStyle(): string {
+        if (!!this.imageStyleSelector && !!this.imageStyleSelector.getSelectedOption()) {
+            return this.imageStyleSelector.getSelectedOption().displayValue.getName();
+        }
+
+        return '';
+    }
+
     private resetActiveAlignmentButton() {
-        this.alignmentButtons.map(button => button.removeClass('active'));
+
+        for (let alignment in this.alignmentButtons) {
+            this.alignmentButtons[alignment].removeClass('active');
+        }
     }
 
     private initKeepSizeCheckbox() {
@@ -678,8 +730,28 @@ export class ImageDialogToolbar
         imageEl.setAttribute('data-src', HTMLAreaHelper.getImageRenderUrl(imageUrlParams));
     }
 
+    private getSelectedStyles(): string {
+        return [
+            this.getAlignmentStyle(),
+            this.getProcessingStyle()
+        ].join(' ');
+    }
+
     onStyleSelected(listener: (event: OptionSelectedEvent<ImageStyleOption>) => void) {
         this.imageStyleSelector.onOptionSelected(listener);
+    }
+
+    onStylesChanged(listener: (styles: string) => void) {
+        this.stylesChangeListeners.push(listener);
+    }
+
+    unStylesChanged() {
+        this.stylesChangeListeners = [];
+    }
+
+    private notifyStylesChanged() {
+        const selectedStyles = this.getSelectedStyles();
+        this.stylesChangeListeners.forEach(listener => listener(selectedStyles));
     }
 }
 

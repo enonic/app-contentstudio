@@ -103,17 +103,28 @@
     &.image-toolbar {
       position: relative;
       border-bottom-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-      .@{_COMMON_PREFIX}button[class*="icon-paragraph-"] {
-        &[class*="icon-paragraph-"] {
-          padding: 7px 7px;
-        }
+      .alignment-container {
+        display: flex;
 
-        &[class*="icon-"] {
+        .@{_COMMON_PREFIX}button {
+          padding: 0 7px;
           font-size: 18px;
-          line-height: 24px;
-        }
+          background-color: transparent;
 
+          &:before {
+            display: block;
+          }
+
+          &:not(.active) {
+            &:before {
+              color: @admin-font-gray2;
+            }
+          }
+        }
       }
 
       .keep-size-check {
@@ -143,8 +154,6 @@
     .image-style-selector {
       height: @image-style-selector-height;
       width: 220px;
-      top: 4px;
-      float: right;
 
       .option-filter-input {
         position: absolute;
