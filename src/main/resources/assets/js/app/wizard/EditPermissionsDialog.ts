@@ -1,4 +1,3 @@
-import {ContentPermissionsApplyEvent} from './ContentPermissionsApplyEvent';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
 import {AccessControlComboBox} from './AccessControlComboBox';
@@ -32,8 +31,6 @@ export class EditPermissionsDialog
     private inheritPermissions: boolean;
 
     private overwritePermissions: boolean;
-
-    private immediateApply: boolean;
 
     private parentPermissions: AccessControlEntry[];
 
@@ -246,8 +243,6 @@ export class EditPermissionsDialog
             this.inheritPermissions = event.isInheritPermissions();
             this.overwritePermissions = event.isOverwritePermissions();
 
-            this.immediateApply = event.isImmediateApply();
-
             this.getParentPermissions().then((parentPermissions: AccessControlList) => {
                 this.parentPermissions = parentPermissions.getEntries();
 
@@ -271,23 +266,14 @@ export class EditPermissionsDialog
 
         this.subTitle.show();
 
+        const permissions = new AccessControlList(this.getEntries());
 
-        let permissions = new AccessControlList(this.getEntries());
-
-        if (this.immediateApply) {
-            let req = new ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
-                this.inheritPermissionsCheck.isChecked()).setPermissions(permissions).setOverwriteChildPermissions(
-                this.overwriteChildPermissionsCheck.isChecked());
-            req.sendAndParse().then((taskId) => {
-                this.pollTask(taskId);
-            }).done();
-        } else {
-            ContentPermissionsApplyEvent.create().setContentId(this.contentId).setPermissions(
-                permissions).setInheritPermissions(this.inheritPermissionsCheck.isChecked()).setOverwritePermissions(
-                this.overwriteChildPermissionsCheck.isChecked()).build().fire();
-
-            this.close();
-        }
+        const req = new ApplyContentPermissionsRequest().setId(this.contentId).setInheritPermissions(
+            this.inheritPermissionsCheck.isChecked()).setPermissions(permissions).setOverwriteChildPermissions(
+            this.overwriteChildPermissionsCheck.isChecked());
+        req.sendAndParse().then((taskId) => {
+            this.pollTask(taskId);
+        }).done();
     }
 }
 

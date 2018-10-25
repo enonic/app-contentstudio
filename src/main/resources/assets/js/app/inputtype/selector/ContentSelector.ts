@@ -206,6 +206,8 @@ export class ContentSelector
             if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
+            } else if (this.contentComboBox.isDirty()) {
+                this.contentComboBox.forceChangedEvent();
             }
         });
     }

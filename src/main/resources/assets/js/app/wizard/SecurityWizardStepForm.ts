@@ -74,7 +74,7 @@ export class SecurityWizardStepForm
             if (this.contentId) {
                 OpenEditPermissionsDialogEvent.create().setContentId(this.contentId).setContentPath(this.contentPath).setDisplayName(
                     this.displayName).setPermissions(this.permissions).setInheritPermissions(
-                    this.inheritPermissions).setOverwritePermissions(this.overwritePermissions).setImmediateApply(false).build().fire();
+                    this.inheritPermissions).setOverwritePermissions(this.overwritePermissions).build().fire();
             }
         });
 
