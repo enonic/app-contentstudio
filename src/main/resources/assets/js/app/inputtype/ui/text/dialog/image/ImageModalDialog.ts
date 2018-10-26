@@ -59,6 +59,7 @@ export class ImageModalDialog
     private imageSelector: ImageContentComboBox;
     private progress: api.ui.ProgressBar;
     private error: api.dom.DivEl;
+    private image: api.dom.ImgEl;
     private figure: api.dom.FigureEl;
     private imageToolbar: ImageDialogToolbar;
     private imagePreviewScrollHandler: ImagePreviewScrollHandler;
@@ -119,7 +120,6 @@ export class ImageModalDialog
 
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
-            //this.createPreviewElement(imageContent.getContentId().toString(), false);
             this.previewImage(imageContent.getContentId().toString(), false);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
@@ -222,9 +222,8 @@ export class ImageModalDialog
         this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
 
         this.imageLoadMask = new api.ui.mask.LoadMask(this.imagePreviewContainer);
-        this.figure = new api.dom.FigureEl('preview-panel-image-placeholder');
 
-        this.imagePreviewContainer.appendChildren(<api.dom.Element>this.imageLoadMask, this.figure);
+        this.imagePreviewContainer.appendChild(<api.dom.Element>this.imageLoadMask);
 
         api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, () => {
             this.imagePreviewScrollHandler.toggleScrollButtons();
@@ -244,33 +243,19 @@ export class ImageModalDialog
             }
         };
 
+        this.figure = new api.dom.FigureEl('preview-panel-image-placeholder');
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
 
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
         const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
-        frameDocument.write(this.figure.getHTMLElement().outerHTML);
-        frameDocument.getElementsByTagName('body')[0].classList.add('preview-frame-body');
-        injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
-    }
-
-    private refreshPreviewFrame() {
-        if (!this.previewFrame) {
-            this.createPreviewFrame();
-        }
-
-        const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
         const frameBody = frameDocument.getElementsByTagName('body')[0];
-        frameBody.innerHTML = '';
+        const frameBodyEl = new api.dom.Body(false, frameBody);
+        frameBodyEl.setClass('preview-frame-body');
 
-        this.previewFrame.getEl().setHeightPx(this.figure.getImage() ? this.figure.getImage().getEl().getHeight() : 0);
+        frameBodyEl.appendChild(this.figure);
 
-        const figure = this.figure.clone();
-        figure.removeClass('preview-panel-image-placeholder');
-
-        frameBody.appendChild(figure.getHTMLElement());
-
-        api.ui.responsive.ResponsiveManager.fireResizeEvent();
+        injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
     }
 
     private updatePreview(styles: string) {
@@ -279,25 +264,38 @@ export class ImageModalDialog
     }
 
     private previewImage(imageContentId: string, isNewImage: boolean) {
+        if (!this.previewFrame) {
+            this.createPreviewFrame();
+        }
+
         this.imageLoadMask.show();
 
-        const image = this.createImgElForPreview(imageContentId, isNewImage);
-        this.figure.setClass(isNewImage ? ImageDialogToolbar.defaultStyles.join(' ') : '');
+        this.image = this.createImgElForPreview(imageContentId, isNewImage);
+        if (isNewImage) {
+            this.figure.setClass(ImageDialogToolbar.defaultStyles.join(' '));
+        }
 
-        image.onLoaded(() => {
-            this.refreshPreviewFrame();
-
-            this.imageLoadMask.hide();
+        const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
             this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getValue());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
 
-
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
+
+            this.image.unLoaded(onImageFirstLoad);
+        };
+
+        this.image.onLoaded(onImageFirstLoad);
+
+        this.image.onLoaded(() => {
+            this.previewFrame.getEl().setHeightPx(this.image.getEl().getHeight());
+            this.imageLoadMask.hide();
+
+            api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
-        this.figure.setImage(image);
+        this.figure.setImage(this.image);
 
         this.hideUploadMasks();
         this.imageCaptionField.show();
@@ -324,7 +322,7 @@ export class ImageModalDialog
 
     private removePreview() {
         this.figure.removeChildren();
-        this.refreshPreviewFrame();
+        this.previewFrame.getEl().setHeightPx(0);
     }
 
     show() {
@@ -538,7 +536,7 @@ export class ImageModalDialog
     private applyStylingToPreview(classNames: string) {
         this.figure.setClass(classNames);
 
-        this.refreshPreviewFrame();
+        this.image.refresh();
     }
 }
 
