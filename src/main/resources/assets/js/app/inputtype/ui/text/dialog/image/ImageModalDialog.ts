@@ -561,7 +561,6 @@ export class ImageDialogToolbar
 
     private imageId: string;
 
-    //private alignmentButtons: ActionButton[] = [];
     private alignmentButtons: { [key: string]: ActionButton; } = {};
 
     private keepOriginalSizeCheckbox: api.ui.Checkbox;
@@ -588,9 +587,6 @@ export class ImageDialogToolbar
     }
 
     private createAlignmentButtons() {
-        /*const alignmentStyles = StyleHelper.getOfType(StyleType[StyleType.ALIGNMENT]);
-        const hasAlignment = alignmentStyles.some(style => this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY));*/
-
         const alignmentButtonContainer = new api.dom.DivEl('alignment-container');
         alignmentButtonContainer.appendChildren(
             this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY),
@@ -632,8 +628,6 @@ export class ImageDialogToolbar
             button.addClass('active');
 
             this.notifyStylesChanged();
-            //this.addClassToPreview(styleClass);
-            //api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
         this.alignmentButtons[styleClass] = button;
@@ -644,17 +638,10 @@ export class ImageDialogToolbar
 
         return button;
     }
-/*
-    private refreshImagePreview() {
-        this.imageLoadMask.show();
-        this.setImageSrc();
-        api.ui.responsive.ResponsiveManager.fireResizeEvent();
-    }
-*/
+
     private createKeepOriginalSizeCheckbox(): api.ui.Checkbox {
         const keepOriginalSizeCheckbox = api.ui.Checkbox.create().build();
         keepOriginalSizeCheckbox.addClass('keep-size-check');
-        //keepOriginalSizeCheckbox.onValueChanged(() => this.refreshImagePreview());
         keepOriginalSizeCheckbox.setLabel(i18n('dialog.image.keepsize'));
 
         return keepOriginalSizeCheckbox;
@@ -664,7 +651,6 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
 
         this.initSelectedStyle(imageStyleSelector);
-        //imageStyleSelector.onOptionSelected(() => this.refreshImagePreview());
         imageStyleSelector.onOptionSelected(() => this.notifyStylesChanged());
 
         return imageStyleSelector;
@@ -723,13 +709,14 @@ export class ImageDialogToolbar
         const imageEl = this.previewEl.getImage().getEl();
         const imageUrlParams: ImageUrlParameters = {
             id: this.imageId,
-            useOriginal: this.keepOriginalSizeCheckbox.isChecked()
+            useOriginal: false
         };
 
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
+            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(selectedOption.displayValue.getName());
             imageUrlParams.scale = selectedStyle.getAspectRatio();
-            this.addClassToPreview(selectedOption.value);
+            //this.addClassToPreview(selectedOption.value);
         }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));

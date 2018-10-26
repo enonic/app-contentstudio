@@ -6,7 +6,7 @@ export enum StyleType {
 
 export class StyleHelper {
 
-    public static STYLE = {
+    public static STYLE: any = {
         ALIGNMENT: {
             JUSTIFY: 'editor-align-justify',
             LEFT: 'editor-align-left',
@@ -22,16 +22,24 @@ export class StyleHelper {
         }
     };
 
+    public static isOriginalImage(style: string) {
+        return style.indexOf(StyleHelper.STYLE.PROCESSING.ORIGINAL) > -1;
+    }
+
     public static getStyleTypes(obj: any = StyleHelper.STYLE): Object {
         const result = {};
 
-        for (var i in obj) {
-            if (!obj.hasOwnProperty(i)) continue;
+        for (let i in obj) {
+            if (!obj.hasOwnProperty(i)) {
+                continue;
+            }
 
-            if ((typeof obj[i]) == 'object') {
+            if ((typeof obj[i]) === 'object') {
                 const flatObject = StyleHelper.getStyleTypes(obj[i]);
                 for (let x in flatObject) {
-                    if (!flatObject.hasOwnProperty(x)) continue;
+                    if (!flatObject.hasOwnProperty(x)) {
+                        continue;
+                    }
 
                     result[flatObject[x]] = flatObject[i];
                 }
@@ -52,7 +60,7 @@ export class StyleHelper {
         const types = StyleHelper.getStyleTypes();
         const result = [];
 
-        for (var style in types) {
+        for (let style in types) {
             if (types[style] === type) {
                 result.push(style);
             }
