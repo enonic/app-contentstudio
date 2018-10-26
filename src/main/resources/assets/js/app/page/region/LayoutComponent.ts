@@ -30,24 +30,30 @@ export class LayoutComponent
     constructor(builder: LayoutComponentBuilder) {
         super(builder);
 
-        if (builder.regions) {
-            builder.regions.getRegions().forEach((region: Region) => {
-                region.setParentPath(this.getPath());
-            });
-            this.setRegions(builder.regions);
-        } else {
-            this.regions = Regions.create().build();
-        }
+        this.initRegionsListeners();
+        this.initRegions(builder.regions);
+    }
 
+    private initRegionsListeners() {
         this.componentPropertyChangedEventHandler = (event: any) => this.forwardComponentPropertyChangedEvent(event);
+
         this.regionsChangedEventHandler = (event: any) => {
             if (LayoutComponent.debug) {
                 console.debug('LayoutComponent[' + this.getPath().toString() + '].onChanged: ', event);
             }
             this.notifyPropertyValueChanged('regions');
         };
+    }
 
-        this.registerRegionsListeners(this.regions);
+    private initRegions(regions: Regions) {
+        const result: Regions = !!regions ? this.updateRegionsParentPath(regions) : Regions.create().build();
+        this.setRegions(result);
+    }
+
+    private updateRegionsParentPath(regions: Regions): Regions {
+        regions.getRegions().forEach((region: Region) => region.setParentPath(this.getPath()));
+
+        return regions;
     }
 
     public getComponent(path: ComponentPath): Component {
@@ -57,12 +63,13 @@ export class LayoutComponent
 
         if (path.numberOfLevels() === 1) {
             return component;
-        } else {
-            if (!api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                throw new Error('Expected component to be a LayoutComponent: ' + api.ClassHelper.getClassName(component));
-            }
-            return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
         }
+
+        if (!api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+            throw new Error('Expected component to be a LayoutComponent: ' + api.ClassHelper.getClassName(component));
+        }
+
+        return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
     }
 
     public getRegions(): Regions {
@@ -70,14 +77,14 @@ export class LayoutComponent
     }
 
     public setRegions(value: Regions) {
+        const oldValue = this.regions;
 
-        let oldValue = this.regions;
         if (oldValue) {
-            this.unregisterRegionsListeners(oldValue);
+            this.unregisterRegionsListeners();
         }
 
         this.regions = value;
-        this.registerRegionsListeners(this.regions);
+        this.registerRegionsListeners();
 
         if (!api.ObjectHelper.equals(oldValue, value)) {
             if (LayoutComponent.debug) {
@@ -96,7 +103,7 @@ export class LayoutComponent
     }
 
     addRegions(layoutDescriptor: LayoutDescriptor) {
-        let sourceRegions = this.getRegions();
+        const sourceRegions = this.getRegions();
         const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, layoutDescriptor.getRegions(), this);
         this.setRegions(mergedRegions);
     }
@@ -106,7 +113,7 @@ export class LayoutComponent
     }
 
     public toJson(): ComponentTypeWrapperJson {
-        let json: LayoutComponentJson = <LayoutComponentJson>super.toComponentJson();
+        const json: LayoutComponentJson = <LayoutComponentJson>super.toComponentJson();
         json.regions = this.regions.toJson();
 
         return <ComponentTypeWrapperJson> {
@@ -120,7 +127,7 @@ export class LayoutComponent
             return false;
         }
 
-        let other = <LayoutComponent>o;
+        const other = <LayoutComponent>o;
 
         if (!super.equals(o)) {
             return false;
@@ -137,14 +144,14 @@ export class LayoutComponent
         return new LayoutComponentBuilder(this).build();
     }
 
-    private registerRegionsListeners(regions: Regions) {
-        regions.onChanged(this.regionsChangedEventHandler);
-        regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
+    private registerRegionsListeners() {
+        this.regions.onChanged(this.regionsChangedEventHandler);
+        this.regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 
-    private unregisterRegionsListeners(regions: Regions) {
-        regions.unChanged(this.regionsChangedEventHandler);
-        regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
+    private unregisterRegionsListeners() {
+        this.regions.unChanged(this.regionsChangedEventHandler);
+        this.regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 
     onComponentPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
