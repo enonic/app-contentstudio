@@ -69,6 +69,8 @@ export class ImageModalDialog
     private previewFrame: api.dom.IFrameEl;
     private scrollNavigationWrapperDiv: api.dom.DivEl;
 
+    static readonly defaultStyles = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
+
     constructor(config: eventInfo, content: api.content.ContentSummary) {
         super(<HtmlAreaModalDialogConfig>{
             editor: config.editor,
@@ -272,7 +274,7 @@ export class ImageModalDialog
 
         this.image = this.createImgElForPreview(imageContentId, isNewImage);
         if (isNewImage) {
-            this.figure.setClass(ImageDialogToolbar.defaultStyles.join(' '));
+            this.figure.setClass(ImageModalDialog.defaultStyles.join(' '));
         }
 
         const onImageFirstLoad = () => {
@@ -562,8 +564,6 @@ export class ImageDialogToolbar
 
     private stylesChangeListeners: { (styles: string): void }[] = [];
 
-    static readonly defaultStyles = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
-
     constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
         super('image-toolbar');
 
@@ -587,24 +587,6 @@ export class ImageDialogToolbar
         );
 
         super.addElement(alignmentButtonContainer);
-    }
-
-    private removeClassesOfTheSameType(styleClass: string) {
-        const appliedClasses = this.previewEl.getClass().split(' ');
-        (appliedClasses || []).forEach(appliedClass => {
-            if (StyleHelper.isOfSameType(appliedClass, styleClass)) {
-                this.previewEl.removeClass(appliedClass);
-            }
-        });
-    }
-
-    private addClassToPreview(styleClass: string) {
-        const imageClass = this.previewEl.getClass().trim();
-        if (imageClass) {
-            this.removeClassesOfTheSameType(styleClass);
-        }
-
-        this.previewEl.addClass(styleClass);
     }
 
     private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false): api.ui.button.ActionButton {
@@ -642,7 +624,7 @@ export class ImageDialogToolbar
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onOptionSelected(() => this.notifyStylesChanged());
+        imageStyleSelector.onOptionSelected(() => this.setImageSrc());
 
         return imageStyleSelector;
     }
@@ -677,7 +659,9 @@ export class ImageDialogToolbar
     }
 
     private getProcessingStyle(): string {
-        if (!!this.imageStyleSelector && !!this.imageStyleSelector.getSelectedOption()) {
+        if (!!this.imageStyleSelector &&
+            !!this.imageStyleSelector.getSelectedOption() &&
+            !this.imageStyleSelector.getSelectedOption().displayValue.isEmpty()) {
             return this.imageStyleSelector.getSelectedOption().displayValue.getName();
         }
 
@@ -712,6 +696,8 @@ export class ImageDialogToolbar
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
         imageEl.setAttribute('data-src', HTMLAreaHelper.getImageRenderUrl(imageUrlParams));
+
+        this.notifyStylesChanged();
     }
 
     private getSelectedStyles(): string {
@@ -719,10 +705,6 @@ export class ImageDialogToolbar
             this.getAlignmentStyle(),
             this.getProcessingStyle()
         ].join(' ');
-    }
-
-    onStyleSelected(listener: (event: OptionSelectedEvent<ImageStyleOption>) => void) {
-        this.imageStyleSelector.onOptionSelected(listener);
     }
 
     onStylesChanged(listener: (styles: string) => void) {
