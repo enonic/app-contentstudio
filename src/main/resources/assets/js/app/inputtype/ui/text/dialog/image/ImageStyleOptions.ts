@@ -6,8 +6,6 @@ export class ImageStyleOption {
 
     private style: Style;
 
-    private empty: boolean;
-
     constructor(style: Style) {
         this.style = style;
     }
@@ -25,7 +23,7 @@ export class ImageStyleOption {
     }
 
     isEmpty(): boolean {
-        return this.empty;
+        return this.style.isEmpty();
     }
 }
 
