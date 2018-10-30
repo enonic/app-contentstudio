@@ -33,7 +33,15 @@ const shortcutForm = Object.create(page, {
         value: function () {
             return this.waitForVisible(xpath.parametersFormOccurrence, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot("err_shortcut_parameters_form");
-                throw new Error("shortcut - collapse link is not visible " + err);
+                throw new Error("shortcut - parameters form should be visible " + err);
+            })
+        }
+    },
+    waitForParametersFormNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(xpath.parametersFormOccurrence, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot("err_shortcut_parameters_form");
+                throw new Error("shortcut - parameters form should not be visible " + err);
             })
         }
     },
@@ -49,7 +57,7 @@ const shortcutForm = Object.create(page, {
     },
     getParameterName: {
         value: function () {
-            return this.getTextFromInput(xpath.parameterNameInput).catch(err=>{
+            return this.getTextFromInput(xpath.parameterNameInput).catch(err => {
                 this.saveScreenshot("err_shortcut_get_parameter_name");
                 throw new Error("shortcut - getting the parameter's name " + err);
             });
@@ -57,7 +65,7 @@ const shortcutForm = Object.create(page, {
     },
     getParameterValue: {
         value: function () {
-            return this.getTextFromInput(xpath.parameterValueInput).catch(err=>{
+            return this.getTextFromInput(xpath.parameterValueInput).catch(err => {
                 this.saveScreenshot("err_shortcut_get_parameter_value");
                 throw new Error("shortcut - getting the parameter's value " + err);
             });
@@ -95,6 +103,13 @@ const shortcutForm = Object.create(page, {
             })
         }
     },
+    clickOnRemoveParameterButton: {
+        value: function () {
+            return this.doClick(xpath.stepForm + xpath.parametersFormOccurrence + elements.REMOVE_BUTTON).catch(err => {
+                throw  new Error("Error when click on `Remove` button! " + err);
+            })
+        }
+    },
     clickOnExpandLink: {
         value: function () {
             return this.doClick(xpath.stepForm + xpath.expandButton).catch(err => {
@@ -125,5 +140,3 @@ const shortcutForm = Object.create(page, {
     },
 });
 module.exports = shortcutForm;
-
-
