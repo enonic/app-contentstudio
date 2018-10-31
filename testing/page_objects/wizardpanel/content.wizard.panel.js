@@ -26,6 +26,9 @@ const wizard = {
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
+    stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
+    wizardStepByName:
+        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[child::a[text()='${name}']]`,
 
 };
 const contentWizardPanel = Object.create(page, {
@@ -113,6 +116,15 @@ const contentWizardPanel = Object.create(page, {
     waitForXdataTogglerVisible: {
         value: function () {
             return this.waitForVisible(this.showComponentViewToggler, appConst.TIMEOUT_1).catch(err => {
+                return false;
+            })
+        }
+    },
+    waitForWizardStepPresent: {
+        value: function (stepName) {
+            let stepXpath = wizard.wizardStepByName(stepName);
+            return this.waitForVisible(stepXpath, appConst.TIMEOUT_2).catch(err => {
+                console.log("Wizard step is not visible: " + err);
                 return false;
             })
         }

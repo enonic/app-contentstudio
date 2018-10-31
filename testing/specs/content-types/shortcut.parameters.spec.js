@@ -94,7 +94,7 @@ describe('Shortcut parameters specification', function () {
             });
         });
 
-    it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN expected parameter should be displayed`,
+    it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN 'Add Parameters' button should appear`,
         () => {
             return studioUtils.selectContentAndOpenWizard(displayName).then(() => {
                 return shortcutForm.clickOnRemoveParameterButton();

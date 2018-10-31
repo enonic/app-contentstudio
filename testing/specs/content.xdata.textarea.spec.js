@@ -21,6 +21,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, typ
     let SITE;
     let contentName = contentBuilder.generateRandomName('test');
     let TEST_TEXT = 'test text';
+    let X_DATA_STEP_WIZARD = 'Html Area x-data';
 
     it(`Preconditions: WHEN site with content types has been added THEN the site should be present in the grid`,
         () => {
@@ -36,6 +37,30 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, typ
             });
         });
 
+    // verifies https://github.com/enonic/app-contentstudio/issues/487
+    //Inactive optional x-data should not be visible in the Content Wizard navigation bar
+    it(`WHEN site with optional x-data has been opened THEN step for the x-data  should not be present on the navigation bar`,
+        () => {
+            return studioUtils.openContentInWizard(SITE.displayName).then(() => {
+            }).then(() => {
+                return contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
+            }).then(isDisplayed => {
+                assert.isFalse(isDisplayed, 'Inactive optional x-data should not be visible in the Content Wizard navigation bar');
+            });
+        });
+    // verifies https://github.com/enonic/app-contentstudio/issues/487
+    //Inactive optional x-data should not be visible in the Content Wizard navigation bar
+    it(`GIVEN site with optional x-data is opened WHEN x-data has been activated THEN x-data should be visible in the Content Wizard navigation bar`,
+        () => {
+            return studioUtils.openContentInWizard(SITE.displayName).then(() => {
+            }).then(()=>{
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                return contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
+            }).then(isDisplayed => {
+                assert.isTrue(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar, because it was activated');
+            });
+        });
     it(`GIVEN content with optional x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double0_0').then(() => {

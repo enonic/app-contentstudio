@@ -39,7 +39,6 @@ const panel = {
     expanderIconByName: function (name) {
         return elements.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-
     },
 }
 const contentBrowsePanel = Object.create(page, {

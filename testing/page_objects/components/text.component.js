@@ -98,7 +98,7 @@ const textComponent = Object.create(page, {
     },
     clickOnInsertLinkButton: {
         value: function () {
-            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).catch(err=>{
+            return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_text_component_open_cke');
                 throw new Error('Text Component - rich editor is not focused!');
             }).then(result => {
