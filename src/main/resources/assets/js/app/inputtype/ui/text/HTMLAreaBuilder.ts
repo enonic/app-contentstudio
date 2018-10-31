@@ -307,6 +307,8 @@ export class HTMLAreaBuilder {
             const isImageWithLinkSelected = isImageSelected &&
                                             (<CKEDITOR.dom.element>selectedElement.findOne('figure').getFirst()).is('a');
 
+            this.handleImageSelectionIssue(e);
+
             this.toogleToolbarButtonState(ckeditor, 'link', isLinkSelected || isImageWithLinkSelected);
             this.toogleToolbarButtonState(ckeditor, 'anchor', isAnchorSelected);
             this.toogleToolbarButtonState(ckeditor, 'image', isImageSelected);
@@ -315,6 +317,29 @@ export class HTMLAreaBuilder {
 
     private toogleToolbarButtonState(ckeditor: HTMLAreaEditor, name: string, isActive: boolean) {
         ckeditor.getCommand(name).setState(isActive ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
+    }
+
+    // fixing locally https://github.com/ckeditor/ckeditor-dev/issues/2517
+    private handleImageSelectionIssue(e: eventInfo) {
+        const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
+
+        // checking if selected element is image or not
+        if (!selectedElement.hasClass('cke_widget_image')) {
+            return;
+        }
+
+        // if image is selected properly it is supposed to have 'selected' class
+        if (selectedElement.hasClass('cke_widget_selected')) {
+            return;
+        }
+
+        // if improperly selected image is not first element in the editor then new image would be inserted without errors
+        if (!!selectedElement.getPrevious()) {
+            return;
+        }
+
+        // forcing image to be properly selected in editor
+        e.editor.getSelection().selectElement(selectedElement);
     }
 
     private handleTooltipForClickableElements(ckeditor: HTMLAreaEditor) {
