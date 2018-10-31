@@ -31,26 +31,30 @@ export class ContentItemPreviewPanel
 
     constructor() {
         super('content-item-preview-panel');
+
+        this.initElements();
+
+        this.setupListeners();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.image);
+            return rendered;
+        });
+    }
+
+    private initElements() {
         this.image = new api.dom.ImgEl();
+    }
+
+    private setupListeners() {
         this.image.onLoaded((event: UIEvent) => {
             this.hideMask();
-            let imgEl = this.image.getEl();
-            let myEl = this.getEl();
-            this.centerImage(imgEl.getWidth(), imgEl.getHeight(), myEl.getWidth(), myEl.getHeight());
         });
 
         this.image.onError((event: UIEvent) => {
             this.setPreviewType(PREVIEW_TYPE.FAILED);
-        });
-
-        this.appendChild(this.image);
-
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: api.ui.responsive.ResponsiveItem) => {
-            if (this.hasClass('image-preview')) {
-                let imgEl = this.image.getEl();
-                let el = this.getEl();
-                this.centerImage(imgEl.getWidth(), imgEl.getHeight(), el.getWidth(), el.getHeight());
-            }
         });
 
         this.onShown((event) => {
@@ -66,7 +70,7 @@ export class ContentItemPreviewPanel
         });
 
         this.frame.onLoaded((event: UIEvent) => {
-            let frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
 
             try {
                 if (frameWindow) {
@@ -77,16 +81,16 @@ export class ContentItemPreviewPanel
     }
 
     private frameClickHandler(event: UIEvent) {
-        let linkClicked: string = this.getLinkClicked(event);
+        const linkClicked: string = this.getLinkClicked(event);
         if (linkClicked) {
-            let frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
             if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
-                let contentPreviewPath = UriHelper.trimUrlParams(
+                const contentPreviewPath = UriHelper.trimUrlParams(
                     UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
                     frameWindow)));
                 if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
                     event.preventDefault();
-                    let clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
+                    const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
                     this.skipNextSetItemCall = true;
                     new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
                     this.showMask();
@@ -122,7 +126,7 @@ export class ContentItemPreviewPanel
     }
 
     private isNavigatingWithinSamePage(contentPreviewPath: string, frameWindow: Window): boolean {
-        let href = frameWindow.location.href;
+        const href = frameWindow.location.href;
         return contentPreviewPath === UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(href, frameWindow));
     }
 
@@ -130,19 +134,9 @@ export class ContentItemPreviewPanel
         return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
-    private centerImage(imgWidth: number, imgHeight: number, myWidth: number, myHeight: number) {
-        let imgMarginTop = 0;
-        if (imgHeight < myHeight) {
-            // image should be centered vertically
-            imgMarginTop = (myHeight - imgHeight) / 2;
-        }
-        this.image.getEl().setMarginTop(imgMarginTop + 'px');
-
-    }
-
-    public addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        let imgSize = Math.max(this.getEl().getWidth(), this.getEl().getHeight());
-        let imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
+    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
+        const imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
             item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
         this.image.setSrc(imgUrl);
     }
@@ -158,7 +152,7 @@ export class ContentItemPreviewPanel
                 if (this.isVisible()) {
                     if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
                         this.setPreviewType(PREVIEW_TYPE.SVG);
-                        let imgUrl = new ContentImageUrlResolver().setContentId(
+                        const imgUrl = new ContentImageUrlResolver().setContentId(
                             item.getModel().getContentId()).setTimestamp(
                             item.getModel().getContentSummary().getModifiedTime()).resolve();
                         this.image.setSrc(imgUrl);
@@ -176,7 +170,7 @@ export class ContentItemPreviewPanel
                 this.showMask();
                 if (item.isRenderable()) {
                     this.setPreviewType(PREVIEW_TYPE.PAGE);
-                    let src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
+                    const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
                     // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
                     wemjq.ajax({
                         type: 'HEAD',
@@ -255,7 +249,7 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private showPreviewMessage(value: string, escapeHtml: boolean = false) {
+    private showPreviewMessage(value: string) {
         this.getEl().addClass('no-preview');
 
         this.appendChild(this.previewMessageEl = new PEl('no-preview-message').setHtml(value, false));
