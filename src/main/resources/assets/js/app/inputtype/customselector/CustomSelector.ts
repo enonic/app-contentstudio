@@ -6,6 +6,8 @@ import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import StringHelper = api.util.StringHelper;
 import UriHelper = api.util.UriHelper;
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
+import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
+import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -20,8 +22,6 @@ export class CustomSelector
     private requestPath: string;
 
     private comboBox: RichComboBox<CustomSelectorItem>;
-
-    private draggingIndex: number;
 
     constructor(context: ContentInputTypeViewContext) {
         super('custom-selector');
@@ -163,38 +163,21 @@ export class CustomSelector
 
     private setupSortable() {
         this.updateSelectedOptionStyle();
-        wemjq(this.getHTMLElement()).find('.selected-options').sortable({
-            axis: 'y',
-            containment: 'parent',
-            handle: '.drag-control',
-            tolerance: 'pointer',
-            start: (_event: Event, ui: JQueryUI.SortableUIParams) => this.handleDnDStart(ui),
-            update: (_event: Event, ui: JQueryUI.SortableUIParams) => this.handleDnDUpdate(ui)
-        });
+        this.getSelectedOptionsView().onOptionMoved(this.handleMove.bind(this));
+    }
+
+    private handleMove(moved: SelectedOption<any>, fromIndex: number) {
+        this.getPropertyArray().move(fromIndex, moved.getIndex());
     }
 
     private refreshSortable() {
         this.updateSelectedOptionStyle();
-        wemjq(this.getHTMLElement()).find('.selected-options').sortable('refresh');
+        this.getSelectedOptionsView().refreshSortable();
     }
 
-    private handleDnDStart(ui: JQueryUI.SortableUIParams): void {
-
-        let draggedElement = api.dom.Element.fromHtmlElement(<HTMLElement>ui.item[0]);
-        this.draggingIndex = draggedElement.getSiblingIndex();
-
-        ui.placeholder.html('Drop form item set here');
-    }
-
-    private handleDnDUpdate(ui: JQueryUI.SortableUIParams) {
-
-        if (this.draggingIndex >= 0) {
-            let draggedElement = api.dom.Element.fromHtmlElement(<HTMLElement>ui.item[0]);
-            let draggedToIndex = draggedElement.getSiblingIndex();
-            this.getPropertyArray().move(this.draggingIndex, draggedToIndex);
-        }
-
-        this.draggingIndex = -1;
+    private getSelectedOptionsView(): SelectedOptionsView<CustomSelectorItem> {
+        this.updateSelectedOptionStyle();
+        return <SelectedOptionsView<CustomSelectorItem>> this.comboBox.getSelectedOptionView();
     }
 
     private updateSelectedOptionStyle() {
