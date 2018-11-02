@@ -101,6 +101,8 @@ export class SiteConfigurator
                 this.ignorePropertyChange = ignorePropertyChange;
                 if (!unchangedOnly || !this.comboBox.isDirty()) {
                     this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
+                } else if (this.comboBox.isDirty()) {
+                    this.comboBox.forceChangedEvent();
                 }
             });
         });

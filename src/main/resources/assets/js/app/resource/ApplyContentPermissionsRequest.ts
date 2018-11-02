@@ -1,11 +1,11 @@
 import ContentId = api.content.ContentId;
+import TaskId = api.task.TaskId;
+import TaskIdJson = api.task.TaskIdJson;
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
 import {AccessControlList} from '../access/AccessControlList';
 
 export class ApplyContentPermissionsRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<TaskIdJson, TaskId> {
 
     private id: ContentId;
 
@@ -55,10 +55,10 @@ export class ApplyContentPermissionsRequest
         return api.rest.Path.fromParent(super.getResourcePath(), 'applyPermissions');
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
+    sendAndParse(): wemQ.Promise<TaskId> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return this.fromJsonToContent(response.getResult());
+        return this.send().then((response: api.rest.JsonResponse<TaskIdJson>) => {
+            return api.task.TaskId.fromJson(response.getResult());
         });
     }
 

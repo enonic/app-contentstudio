@@ -10,9 +10,6 @@ export abstract class DependantItemsWithProgressDialog
     extends DependantItemsDialog
     implements TaskProgressInterface {
 
-    //
-    progressManager: ProgressBarManager;
-
     show() {
         super.show(this.isProgressBarEnabled());
     }
@@ -20,10 +17,11 @@ export abstract class DependantItemsWithProgressDialog
     //
     // fields
     //
-    isProgressBarEnabled: () => boolean;
+    progressManager: ProgressBarManager;
 
     //
     // methods
+    isProgressBarEnabled: () => boolean;
     pollTask: (taskId: TaskId) => void;
     onProgressComplete: (listener: (taskState: TaskState) => void) => void;
     unProgressComplete: (listener: (taskState: TaskState) => void) => void;

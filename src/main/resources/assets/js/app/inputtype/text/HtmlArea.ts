@@ -105,13 +105,11 @@ export class HtmlArea
         return textAreaWrapper;
     }
 
-    updateInputOccurrenceElement(occurrence: api.dom.Element, property: api.data.Property, unchangedOnly: boolean) {
+    protected updateFormInputElValue(occurrence: api.dom.FormInputEl, property: Property) {
         const textArea = <api.ui.text.TextArea> occurrence.getFirstChild();
         const id = textArea.getId();
 
-        if (!unchangedOnly || !textArea.isDirty()) {
-            this.setEditorContent(id, property);
-        }
+        this.setEditorContent(id, property);
     }
 
     resetInputOccurrenceElement(occurrence: api.dom.Element) {

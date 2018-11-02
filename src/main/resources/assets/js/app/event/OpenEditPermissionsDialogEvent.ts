@@ -18,8 +18,6 @@ export class OpenEditPermissionsDialogEvent
 
     private overwritePermissions: boolean;
 
-    private immediateApply: boolean;
-
     constructor(builder: Builder) {
         super();
         this.contentId = builder.contentId;
@@ -28,7 +26,6 @@ export class OpenEditPermissionsDialogEvent
         this.permissions = builder.permissions;
         this.inheritPermissions = builder.inheritPermissions;
         this.overwritePermissions = builder.overwritePermissions;
-        this.immediateApply = builder.immediateApply;
     }
 
     public getContentId(): ContentId {
@@ -53,10 +50,6 @@ export class OpenEditPermissionsDialogEvent
 
     public isOverwritePermissions(): boolean {
         return this.overwritePermissions;
-    }
-
-    public isImmediateApply(): boolean {
-        return this.immediateApply;
     }
 
     public static create(): Builder {
@@ -86,8 +79,6 @@ export class Builder {
 
     overwritePermissions: boolean = false;
 
-    immediateApply: boolean = true;
-
     public setContentId(value: ContentId): Builder {
         this.contentId = value;
         return this;
@@ -115,11 +106,6 @@ export class Builder {
 
     public setOverwritePermissions(value: boolean): Builder {
         this.overwritePermissions = value;
-        return this;
-    }
-
-    public setImmediateApply(value: boolean): Builder {
-        this.immediateApply = value;
         return this;
     }
 
