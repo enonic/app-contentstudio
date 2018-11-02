@@ -106,9 +106,18 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         Router.back();
     }
 
-    public setDependencyItem(item: ContentSummary, inbound: boolean) {
-        this.dependenciesSection.setInbound(inbound);
+    public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string) {
+        this.dependenciesSection.setInbound(inbound).setType(type);
         this.setConstraintItems(this.dependenciesSection, [ContentSummaryAndCompareStatus.fromContentSummary(item)]);
+        this.selectContentTypeBucket(type);
+    }
+
+    private selectContentTypeBucket(key: string) {
+        if (!key) {
+            return;
+        }
+
+        (<api.aggregation.BucketAggregationView>this.contentTypeAggregation.getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
     doRefresh(): wemQ.Promise<void>  {
@@ -497,6 +506,7 @@ export class DependenciesSection extends api.app.browse.filter.ConstraintSection
     private viewer: ContentSummaryViewer = new ContentSummaryViewer();
 
     private inbound: boolean = true;
+    private type: string;
 
     constructor(closeCallback: () => void) {
         super('', closeCallback);
@@ -514,6 +524,10 @@ export class DependenciesSection extends api.app.browse.filter.ConstraintSection
         return this.getItems()[0];
     }
 
+    public getType(): string {
+        return this.type;
+    }
+
     public isInbound(): boolean {
         return this.isActive() && this.inbound;
     }
@@ -522,9 +536,15 @@ export class DependenciesSection extends api.app.browse.filter.ConstraintSection
         return this.isActive() && !this.inbound;
     }
 
-    public setInbound(inbound: boolean) {
+    public setInbound(inbound: boolean): DependenciesSection {
         this.inbound = inbound;
         this.setLabel(inbound ? i18n('panel.filter.dependencies.inbound') : i18n('panel.filter.dependencies.outbound'));
+        return this;
+    }
+
+    public setType(type: string): DependenciesSection {
+        this.type = type;
+        return this;
     }
 
     public setItems(items: ContentSummaryAndCompareStatus[]) {

@@ -40,8 +40,8 @@ export class DependencyGroup implements api.Equitable {
         return this.contentType.toString();
     }
 
-    getType(): string {
-        return DependencyType[this.type];
+    getType(): DependencyType {
+        return this.type;
     }
 
     equals(o: api.Equitable): boolean {
