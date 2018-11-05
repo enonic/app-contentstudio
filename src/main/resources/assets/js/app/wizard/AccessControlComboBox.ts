@@ -191,6 +191,10 @@ class ACESelectedOptionsView
         this.list.forEach((selectedOption: SelectedOption<AccessControlEntry>, index: number) => selectedOption.setIndex(index));
     }
 
+    refreshSortable() {
+        return;
+    }
+
     private notifySelectedOptionRemoved(removed: SelectedOptionEvent<AccessControlEntry>) {
         this.selectedOptionRemovedListeners.forEach((listener) => {
             listener(removed);
