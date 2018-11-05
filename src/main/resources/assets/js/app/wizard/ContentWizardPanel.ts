@@ -909,7 +909,16 @@ export class ContentWizardPanel
     }
 
     private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+        // 3. outbound dependency content has changed
+        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
+            const viewedPage = this.assembleViewedPage();
+            const pageChanged = !api.ObjectHelper.equals(this.getPersistedItem().getPage(), viewedPage);
 
+            return outboundDependencyUpdated && !pageChanged;
+        });
+    }
+
+    private isNearestSiteChanged(content: ContentSummaryAndCompareStatus): boolean {
         const persistedContent = this.getPersistedItem();
         const isSiteUpdated = content.getType().isSite();
         const isPageTemplateUpdated = content.getType().isPageTemplate();
@@ -922,18 +931,7 @@ export class ContentWizardPanel
         // 2. nearest site was updated (app may have been added)
         const nearestSiteChanged = (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
 
-        if (nearestSiteChanged) {
-            return wemQ(true);
-        }
-
-        // 3. outbound dependency content has changed
-        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
-            const viewedPage = this.assembleViewedPage();
-
-            const pageChanged = !api.ObjectHelper.equals(persistedContent.getPage(), viewedPage);
-            return outboundDependencyUpdated && !pageChanged;
-
-        });
+        return nearestSiteChanged;
     }
 
     private createSteps(content: Content): wemQ.Promise<ContentWizardStep[]> {
@@ -986,27 +984,6 @@ export class ContentWizardPanel
 
         let serverEvents = ContentServerEventsHandler.getInstance();
 
-        const loadDefaultModelsAndUpdatePageModel = (reloadPage: boolean = true) => {
-            const item = this.getPersistedItem();
-            const site = item.isSite() ? <Site>item : this.site;
-
-            return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
-                defaultModels => {
-                    this.defaultModels = defaultModels;
-                    return this.initPageModel(this.liveEditModel, defaultModels).then(pageModel => {
-                        const livePanel = this.getLivePanel();
-                        const needsReload = !this.isSaving(); // pageModel is updated so we need reload unless we're saving already
-                        if (livePanel) {
-                            livePanel.setModel(this.liveEditModel);
-                            if (needsReload && reloadPage) {
-                                this.debouncedEditorRefresh(true);
-                            }
-                        }
-                        return needsReload;
-                    });
-                });
-        };
-
         const deleteHandler = (event: ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
                 return;
@@ -1040,7 +1017,7 @@ export class ContentWizardPanel
                 const isDefaultTemplate = defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey());
                 const isPageTemplate = pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey());
                 if (isDefaultTemplate || isPageTemplate) {
-                    loadDefaultModelsAndUpdatePageModel().done();
+                    this.loadDefaultModelsAndUpdatePageModel().done();
                     return true;
                 }
             });
@@ -1064,71 +1041,15 @@ export class ContentWizardPanel
             const contentId: ContentId = updatedContent.getContentId();
 
             if (this.isCurrentContentId(contentId)) {
-
-                this.persistedContent = this.currentContent = updatedContent;
-                this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
-                this.getMainToolbar().setItem(updatedContent);
-                this.detailsSplitPanel.setContent(updatedContent);
-
-                if (this.currentContent.getCompareStatus() != null) {
-                    this.refreshScheduleWizardStep();
-                }
-                this.fetchPersistedContent().then((content: Content) => {
-                    let isAlreadyUpdated = content.equals(this.getPersistedItem());
-
-                    if (!isAlreadyUpdated) {
-                        this.setPersistedItem(content.clone());
-                        this.updateWizard(content, true);
-
-                        if (this.isEditorEnabled()) {
-                            // also update live form panel for renderable content without asking
-                            this.updateLiveForm(content);
-                        }
-                        if (!this.isDisplayNameUpdated()) {
-                            this.getWizardHeader().resetBaseValues();
-                        }
-                        this.wizardActions.setDeleteOnlyMode(this.getPersistedItem(), false);
-                    } else {
-                        this.resetWizard();
-                    }
-                }).catch(api.DefaultErrorHandler.handle).done();
+                this.handlePersistedContentUpdate(updatedContent);
             } else {
-                const containsIdPromise: wemQ.Promise<boolean> = this.doComponentsContainId(contentId).then((contains) => {
-                    if (contains) {
-                        this.fetchPersistedContent().then((content: Content) => {
-                            this.updateWizard(content, true);
-                            if (this.isEditorEnabled()) {
-                                return true;
-                            }
-                        }).catch(api.DefaultErrorHandler.handle).done();
-                    } else {
-                        return false;
-                    }
-                });
-
-                let templateUpdatedPromise: wemQ.Promise<boolean>;
-
-                this.isUpdateOfPageModelRequired(updatedContent).then(value => {
-                    if (value) {
-                        templateUpdatedPromise = loadDefaultModelsAndUpdatePageModel(false);
-                    } else {
-                        templateUpdatedPromise = wemQ(false);
-                    }
-
-                    wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
-                        if (containsId || templateUpdated) {
-                            this.debouncedEditorRefresh(false);
-                        }
-                    });
-                });
+                this.handleOtherContentUpdate(updatedContent);
             }
 
             // checks if parent site has been modified
-            if (this.site != null && this.siteModel !== null && this.site.getContentId().equals(contentId)
-                && !this.persistedContent.getContentId().equals(contentId)) {
-                new ContentWizardDataLoader().loadSite(contentId).then(site => {
-                    this.updateSiteModel(site);
-                }).catch(api.DefaultErrorHandler.handle).done();
+            if (this.isParentSiteModified(contentId)) {
+                new ContentWizardDataLoader().loadSite(contentId).then(this.updateSiteModel.bind(this)).catch(
+                    api.DefaultErrorHandler.handle).done();
             }
         };
 
@@ -1147,7 +1068,7 @@ export class ContentWizardPanel
                 data.some(sortedItem => {
                     if (sortedItem.getType().isTemplateFolder() && sortedItem.getPath().isDescendantOf(content.getPath())) {
 
-                        loadDefaultModelsAndUpdatePageModel().done();
+                        this.loadDefaultModelsAndUpdatePageModel().done();
 
                         return true;
                     }
@@ -1212,6 +1133,119 @@ export class ContentWizardPanel
             serverEvents.unContentCreated(childrenModifiedHandler);
             serverEvents.unContentDeleted(childrenModifiedHandler);
         });
+    }
+
+    private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+        this.persistedContent = this.currentContent = updatedContent;
+        this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
+        this.getMainToolbar().setItem(updatedContent);
+        this.detailsSplitPanel.setContent(updatedContent);
+
+        if (this.currentContent.getCompareStatus() != null) {
+            this.refreshScheduleWizardStep();
+        }
+
+        this.fetchPersistedContent().then(this.updatePersistedItemIfNeeded.bind(this)).catch(api.DefaultErrorHandler.handle).done();
+    }
+
+    private updatePersistedItemIfNeeded(content: Content) {
+        const isAlreadyUpdated = content.equals(this.getPersistedItem());
+
+        if (!isAlreadyUpdated) {
+            this.setPersistedItem(content.clone());
+            this.updateWizard(content, true);
+
+            if (this.isEditorEnabled()) {
+                // also update live form panel for renderable content without asking
+                this.updateLiveForm(content);
+            }
+
+            if (!this.isDisplayNameUpdated()) {
+                this.getWizardHeader().resetBaseValues();
+            }
+
+            this.wizardActions.setDeleteOnlyMode(this.getPersistedItem(), false);
+        } else {
+            this.resetWizard();
+        }
+    }
+
+    private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+        const contentId: ContentId = updatedContent.getContentId();
+        const containsIdPromise: wemQ.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
+        const templateUpdatedPromise: wemQ.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
+
+        wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
+            if (containsId || templateUpdated) {
+                this.debouncedEditorRefresh(false);
+            }
+        }).catch(api.DefaultErrorHandler.handle).done();
+    }
+
+    private loadDefaultModelsAndUpdatePageModel(reloadPage: boolean = true) {
+        const item = this.getPersistedItem();
+        const site = item.isSite() ? <Site>item : this.site;
+
+        return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
+            defaultModels => {
+                this.defaultModels = defaultModels;
+                return this.initPageModel(this.liveEditModel, defaultModels).then(pageModel => {
+                    const livePanel = this.getLivePanel();
+                    const needsReload = !this.isSaving(); // pageModel is updated so we need reload unless we're saving already
+                    if (livePanel) {
+                        livePanel.setModel(this.liveEditModel);
+                        if (needsReload && reloadPage) {
+                            this.debouncedEditorRefresh(true);
+                        }
+                    }
+                    return needsReload;
+                });
+            });
+    }
+
+    private createComponentsContainIdPromise(contentId: ContentId): wemQ.Promise<boolean> {
+        return this.doComponentsContainId(contentId).then((contains) => {
+            if (contains) {
+                return this.fetchPersistedContent().then((content: Content) => {
+                    this.updateWizard(content, true);
+                    return this.isEditorEnabled();
+                });
+            } else {
+                return wemQ(false);
+            }
+        });
+    }
+
+    private createTemplateUpdatedPromise(updatedContent: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+        if (this.isNearestSiteChanged(updatedContent)) {
+            this.updateButtonsState();
+            return this.loadDefaultModelsAndUpdatePageModel(false);
+        }
+
+        return this.isUpdateOfPageModelRequired(updatedContent).then(value => {
+            if (value) {
+                return this.loadDefaultModelsAndUpdatePageModel(false);
+            }
+
+            return wemQ(false);
+        });
+
+    }
+
+    private isParentSiteModified(contentId: ContentId): boolean {
+        if (!this.site) {
+            return false;
+        }
+
+        if (!this.siteModel) {
+            return false;
+        }
+
+        if (!this.site.getContentId().equals(contentId)) {
+            return false;
+        }
+
+        return !this.persistedContent.getContentId().equals(contentId);
     }
 
     private doComponentsContainId(contentId: ContentId): wemQ.Promise<boolean> {
