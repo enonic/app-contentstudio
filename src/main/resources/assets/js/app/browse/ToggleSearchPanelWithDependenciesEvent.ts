@@ -7,10 +7,13 @@ export class ToggleSearchPanelWithDependenciesEvent extends api.event.Event {
 
     private inbound: boolean;
 
-    constructor(item: ContentSummary, inbound: boolean) {
+    private type: string;
+
+    constructor(item: ContentSummary, inbound: boolean, type?: string) {
         super();
         this.item = item;
         this.inbound = inbound;
+        this.type = type;
     }
 
     getContent(): ContentSummary {
@@ -19,6 +22,10 @@ export class ToggleSearchPanelWithDependenciesEvent extends api.event.Event {
 
     isInbound(): boolean {
         return this.inbound;
+    }
+
+    getType(): string {
+        return this.type;
     }
 
     static on(handler: (event: ToggleSearchPanelWithDependenciesEvent) => void, contextWindow: Window = window) {

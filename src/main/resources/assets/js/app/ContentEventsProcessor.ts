@@ -99,7 +99,8 @@ export class ContentEventsProcessor {
     static handleShowDependencies(event: ShowDependenciesEvent) {
         const mode: string = event.isInbound() ? 'inbound' : 'outbound';
         const id: string = event.getId().toString();
-        const url = `main#/${mode}/${id}`;
+        const type: string = event.getContentType() ? event.getContentType().toString() : null;
+        const url = !!type ? `main#/${mode}/${id}/${type}` : `main#/${mode}/${id}`;
 
         ContentEventsProcessor.openTab(url);
     }

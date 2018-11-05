@@ -260,7 +260,7 @@ export class ContentBrowsePanel
             }
 
             this.showFilterPanel();
-            this.filterPanel.setDependencyItem(event.getContent(), event.isInbound());
+            this.filterPanel.setDependencyItem(event.getContent(), event.isInbound(), event.getType());
         });
 
         NewMediaUploadEvent.on((event) => {
