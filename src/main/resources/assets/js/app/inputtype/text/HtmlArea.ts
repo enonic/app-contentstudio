@@ -106,7 +106,7 @@ export class HtmlArea
     }
 
     protected updateFormInputElValue(occurrence: api.dom.FormInputEl, property: Property) {
-        const textArea = <api.ui.text.TextArea> occurrence.getFirstChild();
+        const textArea = <api.ui.text.TextArea> occurrence;
         const id = textArea.getId();
 
         this.setEditorContent(id, property);
