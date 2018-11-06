@@ -15,7 +15,7 @@ module.exports = Object.freeze({
         return `Issue \"${name}\" is closed.`
     },
     permissionsAppliedNotificationMessage: function (name) {
-        return `Permissions applied to content \"${name}\".`
+        return `Permissions for \"${name}\" are applied.`
     },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
