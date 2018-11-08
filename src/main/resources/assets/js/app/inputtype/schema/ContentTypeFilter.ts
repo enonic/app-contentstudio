@@ -132,9 +132,10 @@ export class ContentTypeFilter
 
                 return this.combobox.getLoader().load().then(this.onContentTypesLoadedHandler);
             });
-        } else {
-            return superPromise;
+        } else if (this.combobox.isDirty()) {
+            this.combobox.forceChangedEvent();
         }
+        return superPromise;
     }
 
     reset() {

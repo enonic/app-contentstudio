@@ -39,7 +39,6 @@ const panel = {
     expanderIconByName: function (name) {
         return elements.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-
     },
 }
 const contentBrowsePanel = Object.create(page, {
@@ -384,7 +383,7 @@ const contentBrowsePanel = Object.create(page, {
                 return this.doClick(displayNameXpath);
             }).pause(200).catch(err => {
                 this.saveScreenshot('err_find_item');
-                throw Error(`Row with the displayName ${displayName} was not found.`)
+                throw Error(`Row with the displayName ${displayName} was not found.` + err);
             })
         }
     },

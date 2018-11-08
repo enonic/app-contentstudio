@@ -163,6 +163,8 @@ export class ImageUploader
                 }).catch((reason: any) => {
                     api.DefaultErrorHandler.handle(reason);
                 });
+        } else if (this.imageUploader.isDirty()) {
+            this.imageUploader.forceChangedEvent();
         }
         return wemQ<void>(null);
     }

@@ -65,8 +65,6 @@ export class PageComponentsView
 
     private afterActionHandler: (action: Action) => void;
 
-    private textComponentsKeyupHandlers: any = {};
-
     private writePermissions: boolean = false;
 
     constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
@@ -76,33 +74,27 @@ export class PageComponentsView
 
         this.currentUserHasCreateRights = null;
 
-        this.onHidden((event) => this.hideContextMenu());
+        this.initElements();
 
-        let closeButton = new api.ui.button.CloseButton();
-        closeButton.onClicked((event: MouseEvent) => this.hide());
+        this.setupListeners();
 
-        this.onRemoved(() => {
-            if (this.contextMenu) {
-                this.contextMenu.remove();
-            }
+        this.setModal(false).setFloating(true).setDraggable(true);
+
+        this.initKeyBoardBindings();
+
+        this.bindMouseListeners();
+    }
+
+    private initElements() {
+        const closeButton = new api.ui.button.CloseButton();
+        closeButton.onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+            event.preventDefault();
+            this.hide();
         });
 
         this.header = new api.dom.H2El('header');
         this.header.setHtml(i18n('field.components'));
-
-        this.appendChildren(<api.dom.Element>closeButton, this.header);
-
-        this.setModal(false).setFloating(true).setDraggable(true);
-
-        this.onShown(() => {
-            this.constrainToParent();
-            this.getHTMLElement().style.display = '';
-            if (this.pageView && this.pageView.isLocked()) {
-                this.addClass('locked');
-            }
-        });
-
-        this.onAdded(() => this.initLiveEditEvents());
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(api.dom.Body.get(), (item: ResponsiveItem) => {
             let smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
@@ -119,9 +111,27 @@ export class PageComponentsView
             }
         });
 
-        this.initKeyBoardBindings();
+        this.appendChildren(<api.dom.Element>closeButton, this.header);
+    }
 
-        this.bindMouseListeners();
+    private setupListeners() {
+        this.onHidden(() => this.hideContextMenu());
+
+        this.onRemoved(() => {
+            if (this.contextMenu) {
+                this.contextMenu.remove();
+            }
+        });
+
+        this.onShown(() => {
+            this.constrainToParent();
+            this.getHTMLElement().style.display = '';
+            if (this.pageView && this.pageView.isLocked()) {
+                this.addClass('locked');
+            }
+        });
+
+        this.onAdded(() => this.initLiveEditEvents());
     }
 
     show() {
@@ -639,7 +649,7 @@ export class PageComponentsView
     }
 
     private scrollToItem(dataId: string) {
-        let node = this.tree.getRoot().getCurrentRoot().findNode(dataId);
+        const node = this.tree.getRoot().getCurrentRoot().findNode(dataId);
 
         if (node) {
             node.getData().scrollComponentIntoView();

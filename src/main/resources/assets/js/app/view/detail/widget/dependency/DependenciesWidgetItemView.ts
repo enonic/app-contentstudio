@@ -9,6 +9,7 @@ import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ActionButton = api.ui.button.ActionButton;
 import Action = api.ui.Action;
+import NamesAndIconView = api.app.NamesAndIconView;
 import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
 import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
 import i18n = api.util.i18n;
@@ -58,8 +59,8 @@ export class DependenciesWidgetItemView
     }
 
     private appendButton(label: string, cls: string): ActionButton {
-        let action = new Action(label);
-        let button = new ActionButton(action);
+        const action = new Action(label);
+        const button = new ActionButton(action);
 
         button.addClass(cls);
         this.appendChild(button);
@@ -101,8 +102,9 @@ export class DependenciesWidgetItemView
     }
 
     private createDependenciesContainer(type: DependencyType, dependencies: DependencyGroup[]): api.dom.DivEl {
-        let typeAsString = DependencyType[type].toLowerCase();
-        let div = new api.dom.DivEl('dependencies-container ' + typeAsString);
+        const typeAsString = DependencyType[type].toLowerCase();
+        const div = new api.dom.DivEl('dependencies-container ' + typeAsString);
+
         if (dependencies.length === 0) {
             this.addClass('no-' + typeAsString);
             div.addClass('no-dependencies');
@@ -138,15 +140,24 @@ export class DependenciesWidgetItemView
 
     private appendDependencies(container: api.dom.DivEl, dependencies: DependencyGroup[]) {
         dependencies.forEach((dependencyGroup: DependencyGroup) => {
-            let dependencyGroupView = new api.app.NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small))
-                .setIconUrl(dependencyGroup.getIconUrl())
-                .setMainName('(' + dependencyGroup.getItemCount().toString() + ')');
+            container.appendChild(this.createDependencyGroupView(dependencyGroup));
+        });
+    }
 
-            /* Tooltip is buggy
-            dependencyGroupView.getEl().setTitle(dependencyGroup.getName());
-            */
+    private createDependencyGroupView(dependencyGroup: DependencyGroup): NamesAndIconView {
+        const dependencyGroupView = new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small))
+            .setIconUrl(dependencyGroup.getIconUrl())
+            .setMainName('(' + dependencyGroup.getItemCount().toString() + ')');
 
-            container.appendChild(dependencyGroupView);
+        this.handleDependencyGroupClick(dependencyGroupView, dependencyGroup);
+
+        return dependencyGroupView;
+    }
+
+    private handleDependencyGroupClick(dependencyGroupView: NamesAndIconView, dependencyGroup: DependencyGroup) {
+        dependencyGroupView.getIconImageEl().onClicked(() => {
+            new ShowDependenciesEvent(this.item.getContentId(), dependencyGroup.getType() === DependencyType.INBOUND,
+                dependencyGroup.getContentType()).fire();
         });
     }
 
@@ -155,7 +166,7 @@ export class DependenciesWidgetItemView
      */
     private resolveDependencies(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
 
-        let resolveDependenciesRequest = new ResolveDependenciesRequest([item.getContentId()]);
+        const resolveDependenciesRequest = new ResolveDependenciesRequest([item.getContentId()]);
 
         return resolveDependenciesRequest.sendAndParse().then((result: ResolveDependenciesResult) => {
             const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];

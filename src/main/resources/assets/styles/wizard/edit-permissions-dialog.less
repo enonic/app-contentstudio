@@ -1,5 +1,13 @@
 .edit-permissions-dialog {
 
+  &.is-processing {
+    .overwrite-child-check,
+    .inherit-perm-check,
+    .form-view {
+      display: none;
+    }
+  }
+
   .modal-dialog-header .path {
     font-size: 16px;
   }
@@ -7,6 +15,10 @@
   .modal-dialog-header {
     @media screen and (max-height: 360px) {
       margin-bottom: 5px;
+    }
+
+    .sub-title {
+      margin-top: 15px;
     }
   }
 

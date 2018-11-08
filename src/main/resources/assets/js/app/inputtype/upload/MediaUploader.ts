@@ -110,6 +110,8 @@ export class MediaUploader
             if (property.hasNonNullValue()) {
                 this.mediaUploaderEl.setFileName(this.getFileNameFromProperty(property));
             }
+        } else if (this.mediaUploaderEl.isDirty()) {
+            this.mediaUploaderEl.forceChangedEvent();
         }
         return wemQ<void>(null);
     }

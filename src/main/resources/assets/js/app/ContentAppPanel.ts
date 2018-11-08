@@ -39,6 +39,7 @@ export class ContentAppPanel
     private route(path?: api.rest.Path) {
         const action = path ? path.getElement(0) : null;
         const id = path ? path.getElement(1) : null;
+        const type = path ? path.getElement(2) : null;
 
         switch (action) {
         case 'edit':
@@ -67,10 +68,10 @@ export class ContentAppPanel
             }
             break;
         case 'inbound' :
-            this.handleDependencies(id, true);
+            this.handleDependencies(id, true, type);
             break;
         case 'outbound' :
-            this.handleDependencies(id, false);
+            this.handleDependencies(id, false, type);
             break;
         default:
             new ShowBrowsePanelEvent().fire();
@@ -108,9 +109,9 @@ export class ContentAppPanel
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
 
-    private handleDependencies(id: string, inbound: boolean) {
+    private handleDependencies(id: string, inbound: boolean, type?: string) {
         const treeGridLoadedListener = () => {
-            this.doHandleDependencies(id, inbound);
+            this.doHandleDependencies(id, inbound, type);
 
             ContentTreeGridLoadedEvent.un(treeGridLoadedListener);
         };
@@ -120,7 +121,7 @@ export class ContentAppPanel
         new ShowBrowsePanelEvent().fire();
     }
 
-    private doHandleDependencies(id: string, inbound: boolean) {
+    private doHandleDependencies(id: string, inbound: boolean, type?: string) {
         const contentId: ContentId = new ContentId(id);
 
         new ResolveDependenciesRequest([contentId]).sendAndParse().then((result: ResolveDependenciesResult) => {
@@ -131,20 +132,20 @@ export class ContentAppPanel
                 : dependencyEntry.getDependency().outbound.length > 0;
 
             if (hasDependencies) {
-                this.toggleSearchPanelWithDependencies(id, inbound);
+                this.toggleSearchPanelWithDependencies(id, inbound, type);
             } else {
                 api.notify.showFeedback(i18n('notify.dependencies.absent', id));
             }
         }).catch(reason => api.DefaultErrorHandler.handle(reason));
     }
 
-    private toggleSearchPanelWithDependencies(id: string, inbound: boolean) {
+    private toggleSearchPanelWithDependencies(id: string, inbound: boolean, type?: string) {
         ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
             (content: ContentSummaryAndCompareStatus) => {
-                new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound).fire();
+                new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
                 const mode: string = inbound ? 'inbound' : 'outbound';
-                const hash: string = `${mode}/${id}`;
+                const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
                 Router.setHash(hash);
             });

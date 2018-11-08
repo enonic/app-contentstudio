@@ -93,9 +93,10 @@ export class Tag
             return superPromise.then(() => {
                 this.tags.setValue(this.getValueFromPropertyArray(propertyArray));
             });
-        } else {
-            return superPromise;
+        } else if (this.tags.isDirty()) {
+            this.tags.forceChangedEvent();
         }
+        return superPromise;
     }
 
     reset() {
