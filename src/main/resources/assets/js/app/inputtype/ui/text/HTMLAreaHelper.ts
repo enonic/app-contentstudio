@@ -3,7 +3,7 @@ import AppHelper = api.util.AppHelper;
 import {ImagePreviewUrlResolver, ImageRenderUrlResolver, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 
 export class HTMLAreaHelper {
-    public static maxImageWidth: number = 610; // Modal dialog width (660px) minus side padding (30px + 20px)
+    public static maxImageWidth: number = 600; // Modal dialog width (660px) minus side padding (2*30px)
 
     private static getImageUrl(resolver: ImagePreviewUrlResolver, params: ImageUrlParameters): string {
         resolver
@@ -17,6 +17,10 @@ export class HTMLAreaHelper {
 
         if (params.scale) {
             resolver.setScale(params.scale);
+        }
+
+        if (params.timeStamp) {
+            resolver.setTimestamp(params.timeStamp);
         }
 
         return resolver.resolve();

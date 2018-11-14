@@ -4,6 +4,7 @@ export interface ImageUrlParameters {
     id: string;
     useOriginal?: boolean;
     scale?: string;
+    timeStamp?: Date;
 }
 
 export class ImagePreviewUrlResolver extends api.icon.IconUrlResolver {

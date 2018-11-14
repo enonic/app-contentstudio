@@ -1,6 +1,5 @@
 import FormItem = api.ui.form.FormItem;
 import Validators = api.ui.form.Validators;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import Action = api.ui.Action;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import ContentSummary = api.content.ContentSummary;
@@ -27,8 +26,7 @@ import {Styles} from '../../styles/Styles';
 import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
-import {ImageStyleOption} from './ImageStyleOptions';
-import {StyleHelper, StyleType} from '../../styles/StyleHelper';
+import {StyleHelper} from '../../styles/StyleHelper';
 
 /**
  * NB: Modifications were made for native image plugin in image2/plugin.js:
@@ -122,7 +120,7 @@ export class ImageModalDialog
 
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
-            this.previewImage(imageContent.getContentId().toString(), false);
+            this.previewImage(imageContent, false);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
@@ -181,7 +179,7 @@ export class ImageModalDialog
                 return;
             }
 
-            this.previewImage(imageContent.getContentId().toString(), true);
+            this.previewImage(imageContent.getContent(), true);
             formItem.addClass('selected-item-preview');
             this.setAltTextFieldValue(imageContent.getDisplayName());
             this.fetchImageCaption(imageContent.getContentSummary()).then(value => this.setCaptionFieldValue(value)).catch(
@@ -265,14 +263,14 @@ export class ImageModalDialog
         this.imagePreviewScrollHandler.resetScrollPosition();
     }
 
-    private previewImage(imageContentId: string, isNewImage: boolean) {
+    private previewImage(imageContent: ContentSummary, isNewImage: boolean) {
         if (!this.previewFrame) {
             this.createPreviewFrame();
         }
 
         this.imageLoadMask.show();
 
-        this.image = this.createImgElForPreview(imageContentId, isNewImage);
+        this.image = this.createImgElForPreview(imageContent, isNewImage);
         if (isNewImage) {
             this.figure.setClass(ImageModalDialog.defaultStyles.join(' '));
         }
@@ -280,7 +278,7 @@ export class ImageModalDialog
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
-            this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getValue());
+            this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask, this.imageSelector.getSelectedContent());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
 
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
@@ -305,12 +303,13 @@ export class ImageModalDialog
         this.imageUploaderEl.hide();
     }
 
-    private createImgElForPreview(imageContentId: string, isNewImage: boolean): api.dom.ImgEl {
+    private createImgElForPreview(imageContent: ContentSummary, isNewImage: boolean): api.dom.ImgEl {
+        const imageContentId: string = imageContent.getId();
         const imgSrcAttr = isNewImage ?
-                            HTMLAreaHelper.getImagePreviewUrl({id: imageContentId}) :
+                            HTMLAreaHelper.getImagePreviewUrl({id: imageContentId, timeStamp: imageContent.getModifiedTime()}) :
                             new api.dom.ElementHelper(this.imageElement).getAttribute('src');
         const imgDataSrcAttr = isNewImage ?
-                                HTMLAreaHelper.getImageRenderUrl({id: imageContentId}) :
+                                HTMLAreaHelper.getImageRenderUrl({id: imageContentId, timeStamp: imageContent.getModifiedTime()}) :
                                 new api.dom.ElementHelper(this.imageElement).getAttribute('data-src');
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
@@ -552,7 +551,7 @@ export class ImageDialogToolbar
 
     private previewEl: api.dom.FigureEl;
 
-    private imageId: string;
+    private image: ContentSummary;
 
     private alignmentButtons: { [key: string]: ActionButton; } = {};
 
@@ -564,11 +563,11 @@ export class ImageDialogToolbar
 
     private stylesChangeListeners: { (styles: string): void }[] = [];
 
-    constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask, imageId: string) {
+    constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask, image: ContentSummary) {
         super('image-toolbar');
 
         this.previewEl = previewEl;
-        this.imageId = imageId;
+        this.image = image;
         this.imageLoadMask = imageLoadMask;
 
         this.createAlignmentButtons();
@@ -683,15 +682,15 @@ export class ImageDialogToolbar
         const selectedOption = this.imageStyleSelector.getSelectedOption();
         const imageEl = this.previewEl.getImage().getEl();
         const imageUrlParams: ImageUrlParameters = {
-            id: this.imageId,
-            useOriginal: false
+            id: this.image.getId(),
+            useOriginal: false,
+            timeStamp: this.image.getModifiedTime()
         };
 
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
             imageUrlParams.useOriginal = StyleHelper.isOriginalImage(selectedOption.displayValue.getName());
             imageUrlParams.scale = selectedStyle.getAspectRatio();
-            //this.addClassToPreview(selectedOption.value);
         }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
