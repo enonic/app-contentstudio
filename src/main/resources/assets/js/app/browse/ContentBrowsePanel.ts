@@ -331,10 +331,6 @@ export class ContentBrowsePanel
 
         handler.onContentDuplicated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
-        handler.onContentPublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentPublished(data));
-
-        handler.onContentUnpublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentUnpublished(data));
-
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
             this.handleContentDeleted(oldPaths);
