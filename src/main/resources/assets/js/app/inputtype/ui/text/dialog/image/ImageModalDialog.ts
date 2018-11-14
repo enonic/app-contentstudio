@@ -691,6 +691,7 @@ export class ImageDialogToolbar
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
             imageUrlParams.useOriginal = StyleHelper.isOriginalImage(selectedOption.displayValue.getName());
             imageUrlParams.scale = selectedStyle.getAspectRatio();
+            imageUrlParams.filter = selectedStyle.getFilter();
         }
 
         imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));

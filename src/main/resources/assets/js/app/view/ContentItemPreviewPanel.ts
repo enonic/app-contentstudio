@@ -136,18 +136,19 @@ export class ContentItemPreviewPanel
 
     private setImageSrc(item: ViewItem<ContentSummaryAndCompareStatus>) {
         const content = item.getModel().getContentSummary();
-        const resolver = new ImagePreviewUrlResolver()
-            .setContentId(content.getContentId())
-            .setTimestamp(content.getModifiedTime());
+
+        const previewUrlResolver = new ImagePreviewUrlResolver()
+                                        .setId(content.getId())
+                                        .setTimestamp(content.getModifiedTime());
 
         if (content.getType().equals(ContentTypeName.MEDIA_VECTOR)) {
-            resolver.setUseOriginal(true);
+            previewUrlResolver.setUseOriginal(true);
         } else {
             const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
-            resolver.setSize(imgSize);
+            previewUrlResolver.setSize(imgSize);
         }
 
-        const imgUrl = resolver.resolve();
+        const imgUrl = previewUrlResolver.resolve();
         this.image.setSrc(imgUrl);
     }
 

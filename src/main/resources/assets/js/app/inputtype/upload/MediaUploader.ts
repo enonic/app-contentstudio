@@ -123,11 +123,13 @@ export class MediaUploader
     private manageSVGImageIfPresent(content: Content) {
         if (content.getType().isVectorMedia()) {
             this.addClass('with-svg-image');
-            let imgUrl = new ImagePreviewUrlResolver()
-                .setContentId(this.getContext().content.getContentId())
-                .setTimestamp(content.getModifiedTime())
-                .setUseOriginal(true)
-                .resolve();
+
+
+            const imgUrl = new ImagePreviewUrlResolver()
+                                .setId(this.getContext().content.getId())
+                                .setTimestamp(content.getModifiedTime())
+                                .setUseOriginal(true)
+                                .resolve();
 
             this.svgImage.setSrc(imgUrl);
         } else {
@@ -169,7 +171,7 @@ export class MediaUploader
             let content = this.config.formContext.getPersistedContent();
 
             let imgUrl = new ImagePreviewUrlResolver()
-                            .setContentId(this.getContext().content.getContentId())
+                            .setId(this.getContext().content.getId())
                             .setTimestamp(content.getModifiedTime())
                             .resolve();
 

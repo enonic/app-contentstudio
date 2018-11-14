@@ -136,7 +136,7 @@ export class ImageUploaderEl
 
     private resolveImageUrl(value: string): string {
         return new ImagePreviewUrlResolver()
-            .setContentId(new api.content.ContentId(value))
+            .setId(value)
             .setTimestamp(new Date())
             .setUseOriginal(true)
             .resolve();
