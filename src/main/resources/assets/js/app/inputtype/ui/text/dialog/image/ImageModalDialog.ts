@@ -568,7 +568,7 @@ export class ImageDialogToolbar
 
     private alignmentButtons: { [key: string]: ActionButton; } = {};
 
-    private keepOriginalSizeCheckbox: api.ui.Checkbox;
+    private customWidthCheckbox: api.ui.Checkbox;
 
     private imageStyleSelector: ImageStyleSelector;
 
@@ -585,8 +585,7 @@ export class ImageDialogToolbar
 
         this.createAlignmentButtons();
         super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
-        super.addElement(this.keepOriginalSizeCheckbox = this.createKeepOriginalSizeCheckbox());
-        this.initKeepSizeCheckbox();
+        super.addElement(this.customWidthCheckbox = this.createCustomWidthCheckbox());
     }
 
     private createAlignmentButtons() {
@@ -624,12 +623,19 @@ export class ImageDialogToolbar
         return button;
     }
 
-    private createKeepOriginalSizeCheckbox(): api.ui.Checkbox {
-        const keepOriginalSizeCheckbox = api.ui.Checkbox.create().build();
-        keepOriginalSizeCheckbox.addClass('keep-size-check');
-        keepOriginalSizeCheckbox.setLabel(i18n('dialog.image.keepsize'));
+    private createCustomWidthCheckbox(): api.ui.Checkbox {
+        const checkbox = api.ui.Checkbox.create().build();
+        checkbox.addClass('custom-width-checkbox');
+        checkbox.setLabel(i18n('dialog.image.customwidth'));
 
-        return keepOriginalSizeCheckbox;
+        /*
+        Parse style attribute of the image preview and
+        set checked to true if it has inline width
+
+        checkbox.setChecked();
+        */
+
+        return checkbox;
     }
 
     private createImageStyleSelector(): ImageStyleSelector {
@@ -685,10 +691,6 @@ export class ImageDialogToolbar
         for (let alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }
-    }
-
-    private initKeepSizeCheckbox() {
-        this.keepOriginalSizeCheckbox.setChecked(this.previewEl.getImage().getEl().getAttribute('data-src').indexOf('keepSize=true') > 0);
     }
 
     private setImageSrc() {
