@@ -6,10 +6,10 @@ import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {StylesRequest} from './styles/StylesRequest';
 import {Styles} from './styles/Styles';
 import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
+import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -427,8 +427,13 @@ export class HTMLAreaBuilder {
                 evt.cancel();
             } else {
                 const mediaContent = JSON.parse(response[0]);
-                const url: string = HTMLAreaHelper.getImagePreviewUrl(mediaContent.id);
-                data.url = url;
+
+                const urlParams: ImageUrlParameters = {
+                    id: mediaContent.id,
+                    useOriginal: true
+                };
+
+                data.url = new ImageUrlBuilder(urlParams).buildForPreview();
             }
         });
     }

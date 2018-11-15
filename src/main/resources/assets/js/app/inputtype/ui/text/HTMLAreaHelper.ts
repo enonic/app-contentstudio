@@ -1,42 +1,41 @@
 import StringHelper = api.util.StringHelper;
 import AppHelper = api.util.AppHelper;
-import {ImagePreviewUrlResolver, ImageRenderUrlResolver, ImageUrlParameters} from '../../../util/ImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 
 export class HTMLAreaHelper {
 
-    public static getImageRenderUrl(params: ImageUrlParameters): string {
-        return new ImageRenderUrlResolver(params).resolve();
-    }
-
-    public static getImagePreviewUrl(params: ImageUrlParameters): string {
-        return new ImagePreviewUrlResolver(params).resolve();
-    }
-
     private static getConvertedImageSrc(imgSrc: string): string {
-        let contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
-        let scaleValue = HTMLAreaHelper.extractScaleParamFromImgSrc(imgSrc);
-        let imageUrl = HTMLAreaHelper.getImagePreviewUrl({id: contentId, scale: scaleValue});
+        const id = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
+        const aspectRatio = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'scale');
+        const filter = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'filter');
 
-        return ` src="${imageUrl}" data-src="${imgSrc}"`;
+        const urlParams: ImageUrlParameters = {
+            id: id,
+            useOriginal: false, // or extract from src??
+            aspectRatio: aspectRatio,
+            filter: filter
+        };
+
+        return ` src="${new ImageUrlBuilder(urlParams).buildForPreview()}" data-src="${imgSrc}"`;
     }
 
     public static extractContentIdFromImgSrc(imgSrc: string): string {
         if (imgSrc.indexOf('?') !== -1) {
-            return StringHelper.substringBetween(imgSrc, ImageRenderUrlResolver.imagePrefix, '?');
+            return StringHelper.substringBetween(imgSrc, ImageUrlBuilder.RENDER.imagePrefix, '?');
         }
 
-        return imgSrc.replace(ImageRenderUrlResolver.imagePrefix, StringHelper.EMPTY_STRING);
+        return imgSrc.replace(ImageUrlBuilder.RENDER.imagePrefix, StringHelper.EMPTY_STRING);
     }
 
-    private static extractScaleParamFromImgSrc(imgSrc: string): string {
-        if (imgSrc.indexOf('scale=') !== -1) {
-            return api.util.UriHelper.decodeUrlParams(imgSrc.replace('&amp;', '&'))['scale'];
+    private static extractParamValueFromImgSrc(imgSrc: string, paramName: string): string {
+        if (imgSrc.indexOf(`${paramName}=`) !== -1) {
+            return api.util.UriHelper.decodeUrlParams(imgSrc.replace('&amp;', '&'))[paramName];
         }
 
         return null;
     }
 
-    public static prepareImgSrcsInValueForEdit(value: string): string {
+    public static convertRenderSrcToPreviewSrc(value: string): string {
         let processedContent = value;
         let regex = /<img.*?src="(.*?)"/g;
         let imgSrcs;
@@ -45,11 +44,11 @@ export class HTMLAreaHelper {
             return '';
         }
 
-        while (processedContent.search(` src="${ImageRenderUrlResolver.imagePrefix}`) > -1) {
+        while (processedContent.search(` src="${ImageUrlBuilder.RENDER.imagePrefix}`) > -1) {
             imgSrcs = regex.exec(processedContent);
             if (imgSrcs) {
                 imgSrcs.forEach((imgSrc: string) => {
-                    if (imgSrc.indexOf(ImageRenderUrlResolver.imagePrefix) === 0) {
+                    if (imgSrc.indexOf(ImageUrlBuilder.RENDER.imagePrefix) === 0) {
                         processedContent =
                             processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc));
                     }
@@ -59,14 +58,14 @@ export class HTMLAreaHelper {
         return processedContent;
     }
 
-    public static prepareEditorImageSrcsBeforeSave(editorContent: string): string {
+    public static convertPreviewSrcToRenderSrc(editorContent: string): string {
         const regex: RegExp = /<img.*?data-src="(.*?)".*?>/g;
         let processedContent: string = editorContent;
 
         AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
             const imgTag = imgTags[0];
 
-            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageRenderUrlResolver.imagePrefix) > 0) {
+            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageUrlBuilder.RENDER.imagePrefix) > 0) {
                 const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
                 const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
 

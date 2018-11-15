@@ -25,7 +25,7 @@ import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
 import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 
 /**
@@ -304,13 +304,26 @@ export class ImageModalDialog
     }
 
     private createImgElForPreview(imageContent: ContentSummary, isNewImage: boolean): api.dom.ImgEl {
-        const imageContentId: string = imageContent.getId();
-        const imgSrcAttr = isNewImage ?
-                            HTMLAreaHelper.getImagePreviewUrl({id: imageContentId, timeStamp: imageContent.getModifiedTime()}) :
-                            new api.dom.ElementHelper(this.imageElement).getAttribute('src');
-        const imgDataSrcAttr = isNewImage ?
-                                HTMLAreaHelper.getImageRenderUrl({id: imageContentId, timeStamp: imageContent.getModifiedTime()}) :
-                                new api.dom.ElementHelper(this.imageElement).getAttribute('data-src');
+        let imgSrcAttr = '';
+        let imgDataSrcAttr = '';
+
+        if (isNewImage) {
+            const imageUrlBuilder = new ImageUrlBuilder({
+                id: imageContent.getId(),
+                timeStamp: imageContent.getModifiedTime(),
+                useOriginal: false,
+                scaleWidth: true
+            });
+
+            imgSrcAttr = imageUrlBuilder.buildForPreview();
+            imgDataSrcAttr = imageUrlBuilder.buildForRender();
+        }
+        else {
+            const imgEl = new api.dom.ElementHelper(this.imageElement);
+
+            imgSrcAttr = imgEl.getAttribute('src');
+            imgDataSrcAttr = imgEl.getAttribute('data-src');
+        }
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
         imageEl.getEl().setAttribute('data-src', imgDataSrcAttr);
@@ -684,18 +697,21 @@ export class ImageDialogToolbar
         const imageUrlParams: ImageUrlParameters = {
             id: this.image.getId(),
             useOriginal: false,
-            timeStamp: this.image.getModifiedTime()
+            timeStamp: this.image.getModifiedTime(),
+            scaleWidth: true
         };
 
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
             const selectedStyle: Style = selectedOption.displayValue.getStyle();
             imageUrlParams.useOriginal = StyleHelper.isOriginalImage(selectedOption.displayValue.getName());
-            imageUrlParams.scale = selectedStyle.getAspectRatio();
+            imageUrlParams.aspectRatio = selectedStyle.getAspectRatio();
             imageUrlParams.filter = selectedStyle.getFilter();
         }
 
-        imageEl.setAttribute('src', HTMLAreaHelper.getImagePreviewUrl(imageUrlParams));
-        imageEl.setAttribute('data-src', HTMLAreaHelper.getImageRenderUrl(imageUrlParams));
+        const imageUrlBuilder = new ImageUrlBuilder(imageUrlParams);
+
+        imageEl.setAttribute('src', imageUrlBuilder.buildForPreview());
+        imageEl.setAttribute('data-src', imageUrlBuilder.buildForRender());
 
         this.notifyStylesChanged();
     }

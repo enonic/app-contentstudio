@@ -176,7 +176,7 @@ export class TextComponentView
             if (child.getEl().getTagName().toUpperCase() === 'SECTION') {
                 this.rootElement = child;
                 // convert image urls in text component for web
-                child.setHtml(HTMLAreaHelper.prepareImgSrcsInValueForEdit(child.getHtml()), false);
+                child.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(child.getHtml()), false);
                 break;
             }
         }
@@ -408,7 +408,7 @@ export class TextComponentView
         this.htmlAreaEditor = evt.editor;
 
         if (this.component.getText()) {
-            this.htmlAreaEditor.setData(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
+            this.htmlAreaEditor.setData(HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText()));
         } else {
             this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
         }
@@ -452,7 +452,7 @@ export class TextComponentView
             // copy editor raw content (without any processing!) over to the root html element
             this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getSnapshot();
             // but save processed text to the component
-            this.component.setText(HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.htmlAreaEditor.getData()));
+            this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData()));
         }
     }
 

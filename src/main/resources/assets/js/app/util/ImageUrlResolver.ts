@@ -1,83 +1,68 @@
 import ContentId = api.content.ContentId;
-/*
+
 export interface ImageUrlParameters {
     id: string;
-    useOriginal?: boolean;
-    scale?: string;
+    useOriginal: boolean; // serve original unprocessed image
+    aspectRatio?: string;
     filter?: string;
     timeStamp?: Date;
+    scaleWidth?: boolean; // if width of the image must be preferred over its height
+    size?: number;
 }
-*/
 
-export class ImagePreviewUrlResolver {
-    id: string;
-    useOriginal: boolean = false; // serve original unprocessed image
-    aspectRatio: string;
-    filter: string;
-    timeStamp: Date;
-    scaleWidth: boolean = false; // if width of the image must be preferred over its height
-    ts: string;
-    size: number; // width if scaleWidth=true, otherwise height
+interface ImageSrcAttributes {
+    useOriginalParamName: string;
+    imagePrefix: string;
+    isAbsoluteUrl: boolean;
+}
 
-    setId(value: string): ImagePreviewUrlResolver {
-        this.id = value;
-        return this;
+export class ImageUrlBuilder {
+
+    private readonly params: ImageUrlParameters;
+
+    private readonly PREVIEW: ImageSrcAttributes = {
+        useOriginalParamName: 'source',
+        imagePrefix: 'content/image/',
+        isAbsoluteUrl: true
+    };
+
+    static readonly RENDER: ImageSrcAttributes = {
+        useOriginalParamName: 'keepSize',
+        imagePrefix: 'image://',
+        isAbsoluteUrl: false
+    };
+
+    constructor(params: ImageUrlParameters) {
+        this.params = params;
     }
 
-    setScaleWidth(): ImagePreviewUrlResolver {
-        this.scaleWidth = true;
-        return this;
+    private resolve(): ImagePreviewUrlBuilder {
+        return new ImagePreviewUrlBuilder(this.params);
     }
 
-    setUseOriginal(value: boolean): ImagePreviewUrlResolver {
-        this.useOriginal = value;
-        return this;
+    buildForPreview() {
+        return this.resolve().build(this.PREVIEW);
     }
 
-    setAspectRatio(value: string): ImagePreviewUrlResolver {
-        this.aspectRatio = value;
-        return this;
+    buildForRender() {
+        return this.resolve().build(ImageUrlBuilder.RENDER, false);
     }
 
-    setFilter(value: string): ImagePreviewUrlResolver {
-        this.filter = value;
-        return this;
-    }
-
-    setTimestamp(value: Date): ImagePreviewUrlResolver {
-        this.timeStamp = value;
-        return this;
-    }
-
-    setSize(value: number): ImagePreviewUrlResolver {
-        this.size = Math.floor(value);
-        return this;
-    }
-
-    setWidth(value: number): ImagePreviewUrlResolver {
-        return this.setScaleWidth().setSize(value);
-    }
-
-    resolve(): string {
-        return new ImagePreviewUrlBuilder(this).build();
-    }
 }
 
 export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
 
     private static maxImageWidth: number = 600; // Modal dialog width (660px) minus side padding (2*30px)
 
-    protected contentId: ContentId;
-    private useOriginal: boolean;
-    private aspectRatio: string;
-    private filter: string;
-    private timeStamp: Date;
-    private scaleWidth: boolean;
-    private size: number;
+    protected readonly contentId: ContentId;
+    private readonly useOriginal: boolean;
+    private readonly aspectRatio: string;
+    private readonly filter: string;
+    private readonly timeStamp: Date;
+    private readonly scaleWidth: boolean;
+    private readonly size: number;
 
-    protected readonly useOriginalParamName: string = 'source';
-
-    constructor(params: ImagePreviewUrlResolver) {
+    constructor(params: ImageUrlParameters) {
         super();
 
         this.contentId = new api.content.ContentId(params.id);
@@ -97,29 +82,31 @@ export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
         }
     }
 
-    protected getBaseUrl(): string {
-        const url = 'content/image/' + this.contentId.toString();
+    protected getBaseUrl(srcParams: ImageSrcAttributes): string {
+        const url = srcParams.imagePrefix + this.contentId.toString();
 
-        return api.util.UriHelper.getRestUri(url);
+        return srcParams.isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
     }
 
-    build(): string {
-        let url = this.getBaseUrl();
+    build(srcParams: ImageSrcAttributes, forPreview: boolean = true): string {
+        let url = this.getBaseUrl(srcParams);
 
-        if (this.timeStamp) {
-            url = this.appendParam('ts', '' + this.timeStamp, url);
+        if (forPreview && this.timeStamp) {
+            url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
         }
 
         if (this.useOriginal) {
-            url = this.appendParam(this.useOriginalParamName, 'true', url);
+            url = this.appendParam(srcParams.useOriginalParamName, 'true', url);
         }
         else {
-            if (this.size) {
-                url = this.appendParam('size', '' + this.size, url);
-            }
+            if (forPreview) {
+                if (this.size) {
+                    url = this.appendParam('size', '' + this.size, url);
+                }
 
-            if (this.scaleWidth) {
-                url = this.appendParam('scaleWidth', 'true', url);
+                if (this.scaleWidth) {
+                    url = this.appendParam('scaleWidth', 'true', url);
+                }
             }
 
             if (this.aspectRatio) {
@@ -132,18 +119,6 @@ export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
         }
 
         return url;
-    }
-
-}
-
-export class ImageRenderUrlResolver extends ImagePreviewUrlResolver {
-
-    public static imagePrefix: string = 'image://';
-
-    protected readonly useOriginalParamName: string = 'keepSize';
-
-    protected getBaseUrl(): string {
-        return ImageRenderUrlResolver.imagePrefix + this.contentId.toString();
     }
 
 }

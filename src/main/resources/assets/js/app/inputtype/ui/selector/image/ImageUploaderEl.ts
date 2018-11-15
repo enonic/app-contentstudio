@@ -2,7 +2,7 @@ import i18n = api.util.i18n;
 import {ImageErrorEvent} from './ImageErrorEvent';
 import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
 import {ImageEditor, Point, Rect} from './ImageEditor';
-import {ImagePreviewUrlResolver} from '../../../../util/ImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../../../../util/ImageUrlResolver';
 
 export class ImageUploaderEl
     extends MediaUploaderEl {
@@ -134,12 +134,14 @@ export class ImageUploaderEl
         return imageEditor;
     }
 
-    private resolveImageUrl(value: string): string {
-        return new ImagePreviewUrlResolver()
-            .setId(value)
-            .setTimestamp(new Date())
-            .setUseOriginal(true)
-            .resolve();
+    private resolveImageUrl(id: string): string {
+        const urlParams: ImageUrlParameters = {
+            id: id,
+            timeStamp: new Date(),
+            useOriginal: true
+        };
+
+        return new ImageUrlBuilder(urlParams).buildForPreview();
     }
 
     private subscribeImageEditorOnEvents(imageEditor: ImageEditor, contentId: api.content.ContentId) {

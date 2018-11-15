@@ -9,7 +9,7 @@ import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
-import {ImagePreviewUrlResolver} from '../util/ImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../util/ImageUrlResolver';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -137,18 +137,18 @@ export class ContentItemPreviewPanel
     private setImageSrc(item: ViewItem<ContentSummaryAndCompareStatus>) {
         const content = item.getModel().getContentSummary();
 
-        const previewUrlResolver = new ImagePreviewUrlResolver()
-                                        .setId(content.getId())
-                                        .setTimestamp(content.getModifiedTime());
+        const urlParams: ImageUrlParameters = {
+            id: content.getId(),
+            timeStamp: content.getModifiedTime(),
+            useOriginal: content.getType().equals(ContentTypeName.MEDIA_VECTOR)
+        };
 
-        if (content.getType().equals(ContentTypeName.MEDIA_VECTOR)) {
-            previewUrlResolver.setUseOriginal(true);
-        } else {
+        if (!urlParams.useOriginal) {
             const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
-            previewUrlResolver.setSize(imgSize);
+            urlParams.size = imgSize;
         }
 
-        const imgUrl = previewUrlResolver.resolve();
+        const imgUrl = new ImageUrlBuilder(urlParams).buildForPreview();
         this.image.setSrc(imgUrl);
     }
 

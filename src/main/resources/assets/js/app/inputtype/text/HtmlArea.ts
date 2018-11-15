@@ -76,7 +76,7 @@ export class HtmlArea
             property.convertValueType(ValueTypes.STRING);
         }
 
-        const value = HTMLAreaHelper.prepareImgSrcsInValueForEdit(property.getString());
+        const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString());
         const textAreaEl = new api.ui.text.TextArea(this.getInput().getName() + '-' + index, value);
 
         const editorId = textAreaEl.getId();
@@ -371,7 +371,7 @@ export class HtmlArea
 
     private setEditorContent(editorId: string, property: Property): void {
         const editor = this.getEditor(editorId);
-        const content: string = property.hasNonNullValue() ? HTMLAreaHelper.prepareImgSrcsInValueForEdit(property.getString()) : '';
+        const content: string = property.hasNonNullValue() ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString()) : '';
 
         if (editor) {
             editor.setData(content);
@@ -385,7 +385,7 @@ export class HtmlArea
     }
 
     private notifyValueChanged(id: string, occurrence: api.dom.Element) {
-        const value: string = HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.getEditor(id).getData());
+        const value: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.getEditor(id).getData());
         const valueObj: api.data.Value = ValueTypes.STRING.newValue(value);
         this.notifyOccurrenceValueChanged(occurrence, valueObj);
     }
