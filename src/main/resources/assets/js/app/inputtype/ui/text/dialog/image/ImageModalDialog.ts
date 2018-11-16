@@ -243,7 +243,7 @@ export class ImageModalDialog
             }
         };
 
-        this.figure = new api.dom.FigureEl('preview-panel-image-placeholder');
+        this.figure = new api.dom.FigureEl();
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
 
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
@@ -600,7 +600,7 @@ export class ImageDialogToolbar
         super.addElement(alignmentButtonContainer);
     }
 
-    private createAlignmentButton(iconClass: string, styleClass: string, enforceClass: boolean = false): api.ui.button.ActionButton {
+    private createAlignmentButton(iconClass: string, styleClass: string): api.ui.button.ActionButton {
         const action: Action = new Action('');
 
         action.setIconClass(iconClass);
@@ -722,7 +722,7 @@ export class ImageDialogToolbar
         return [
             this.getAlignmentStyle(),
             this.getProcessingStyle()
-        ].join(' ');
+        ].join(' ').trim();
     }
 
     onStylesChanged(listener: (styles: string) => void) {
