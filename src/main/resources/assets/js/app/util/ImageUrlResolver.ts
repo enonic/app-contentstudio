@@ -1,4 +1,7 @@
 import ContentId = api.content.ContentId;
+import {Style} from '../inputtype/ui/text/styles/Style';
+import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
+import ContentSummary = api.content.ContentSummary;
 
 export interface ImageUrlParameters {
     id: string;
@@ -20,7 +23,7 @@ export class ImageUrlBuilder {
 
     private readonly params: ImageUrlParameters;
 
-    private readonly PREVIEW: ImageSrcAttributes = {
+    static readonly PREVIEW: ImageSrcAttributes = {
         useOriginalParamName: 'source',
         imagePrefix: 'content/image/',
         isAbsoluteUrl: true
@@ -36,12 +39,33 @@ export class ImageUrlBuilder {
         this.params = params;
     }
 
+    static fromImageContent(imageContent: ContentSummary, size?: number, style?: Style) {
+        const imageUrlParams: ImageUrlParameters = {
+            id: imageContent.getId(),
+            useOriginal: false,
+            timeStamp: imageContent.getModifiedTime(),
+            scaleWidth: true
+        };
+
+        if (size) {
+            imageUrlParams.size = size;
+        }
+
+        if (style) {
+            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(style.getName());
+            imageUrlParams.aspectRatio = style.getAspectRatio();
+            imageUrlParams.filter = style.getFilter();
+        }
+
+        return new ImageUrlBuilder(imageUrlParams);
+    }
+
     private resolve(): ImagePreviewUrlBuilder {
         return new ImagePreviewUrlBuilder(this.params);
     }
 
     buildForPreview() {
-        return this.resolve().build(this.PREVIEW);
+        return this.resolve().build(ImageUrlBuilder.PREVIEW);
     }
 
     buildForRender() {
@@ -52,7 +76,7 @@ export class ImageUrlBuilder {
 
 export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
 
-    private static maxImageWidth: number = 600; // Modal dialog width (660px) minus side padding (2*30px)
+    private static maxImageWidth: number = 640;
 
     protected readonly contentId: ContentId;
     private readonly useOriginal: boolean;

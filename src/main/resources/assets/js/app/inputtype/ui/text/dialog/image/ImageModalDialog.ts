@@ -25,7 +25,7 @@ import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
 import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
+import {ImageUrlBuilder} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 
 /**
@@ -66,6 +66,7 @@ export class ImageModalDialog
     private imageSelectorFormItem: FormItem;
     private previewFrame: api.dom.IFrameEl;
     private scrollNavigationWrapperDiv: api.dom.DivEl;
+    private editorWidth: number;
 
     static readonly defaultStyles = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
 
@@ -81,6 +82,8 @@ export class ImageModalDialog
                 noCallback: () => this.close(),
             }
         });
+
+        this.editorWidth = config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth;
 
         this.initLoader();
 
@@ -308,12 +311,8 @@ export class ImageModalDialog
         let imgDataSrcAttr = '';
 
         if (isNewImage) {
-            const imageUrlBuilder = new ImageUrlBuilder({
-                id: imageContent.getId(),
-                timeStamp: imageContent.getModifiedTime(),
-                useOriginal: false,
-                scaleWidth: true
-            });
+
+            const imageUrlBuilder = ImageUrlBuilder.fromImageContent(imageContent, this.imagePreviewContainer.getEl().getWidth());
 
             imgSrcAttr = imageUrlBuilder.buildForPreview();
             imgDataSrcAttr = imageUrlBuilder.buildForRender();
@@ -327,10 +326,10 @@ export class ImageModalDialog
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
         imageEl.getEl().setAttribute('data-src', imgDataSrcAttr);
-
+/*
         const imageAlignment = this.getOriginalAlignmentElem().getValue();
         imageEl.getHTMLElement().style.textAlign = imageAlignment;
-
+*/
         return imageEl;
     }
 
@@ -449,12 +448,30 @@ export class ImageModalDialog
                 this.ckeOriginalDialog.getButton('ok').click();
                 (<any>this.ckeOriginalDialog).widget.parts.image.setAttribute('data-src',
                     this.figure.getImage().getEl().getAttribute('data-src'));
-                this.setCaptionText();
+                this.updateEditorElements();
                 this.close();
             }
         }));
 
         super.initializeActions();
+    }
+
+    private updateEditorElements() {
+        const imageEl = (<any>this.ckeOriginalDialog).widget.parts.image;
+        const figureEl = imageEl.getAscendant('figure');
+        const figureCaptionEl = figureEl.findOne('figcaption');
+        const imageUrlBuilder = this.imageToolbar.getImageUrlBuilder(this.editorWidth);
+
+        figureEl.setAttribute('class', this.figure.getClass());
+        figureEl.removeAttribute('style');
+
+        imageEl.removeAttribute('class', '');
+        imageEl.removeAttribute('style', '');
+
+        imageEl.setAttribute('src', imageUrlBuilder.buildForPreview());
+        imageEl.setAttribute('data-src', imageUrlBuilder.buildForRender());
+
+        figureCaptionEl.setText(this.getCaptionFieldValue());
     }
 
     private updateOriginalDialogInputValues(): void {
@@ -477,11 +494,6 @@ export class ImageModalDialog
 
     private setCaptionFieldValue(value: string) {
         (<api.dom.InputEl>this.imageCaptionField.getInput()).setValue(value);
-    }
-
-    private setCaptionText() {
-        (<any>this.ckeOriginalDialog).widget.parts.image.getAscendant('figure').findOne('figcaption').$.textContent =
-            this.getCaptionFieldValue();
     }
 
     private getCaptionFieldValue() {
@@ -693,24 +705,21 @@ export class ImageDialogToolbar
         }
     }
 
-    private setImageSrc() {
-        const selectedOption = this.imageStyleSelector.getSelectedOption();
-        const imageEl = this.previewEl.getImage().getEl();
-        const imageUrlParams: ImageUrlParameters = {
-            id: this.image.getId(),
-            useOriginal: false,
-            timeStamp: this.image.getModifiedTime(),
-            scaleWidth: true
-        };
+    public getImageUrlBuilder(width: number) {
 
+        let style: Style = null;
+        const selectedOption = this.imageStyleSelector.getSelectedOption();
         if (!!selectedOption && !selectedOption.displayValue.isEmpty()) {
-            const selectedStyle: Style = selectedOption.displayValue.getStyle();
-            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(selectedOption.displayValue.getName());
-            imageUrlParams.aspectRatio = selectedStyle.getAspectRatio();
-            imageUrlParams.filter = selectedStyle.getFilter();
+            style = selectedOption.displayValue.getStyle();
         }
 
-        const imageUrlBuilder = new ImageUrlBuilder(imageUrlParams);
+        return ImageUrlBuilder.fromImageContent(this.image, width, style);
+    }
+
+    private setImageSrc() {
+        const imageEl = this.previewEl.getImage().getEl();
+
+        const imageUrlBuilder = this.getImageUrlBuilder(this.getEl().getWidth());
 
         imageEl.setAttribute('src', imageUrlBuilder.buildForPreview());
         imageEl.setAttribute('data-src', imageUrlBuilder.buildForRender());
