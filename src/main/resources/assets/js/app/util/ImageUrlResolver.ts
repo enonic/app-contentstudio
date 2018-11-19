@@ -1,7 +1,4 @@
 import ContentId = api.content.ContentId;
-import {Style} from '../inputtype/ui/text/styles/Style';
-import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
-import ContentSummary = api.content.ContentSummary;
 
 export interface ImageUrlParameters {
     id: string;
@@ -37,27 +34,6 @@ export class ImageUrlBuilder {
 
     constructor(params: ImageUrlParameters) {
         this.params = params;
-    }
-
-    static fromImageContent(imageContent: ContentSummary, size?: number, style?: Style) {
-        const imageUrlParams: ImageUrlParameters = {
-            id: imageContent.getId(),
-            useOriginal: false,
-            timeStamp: imageContent.getModifiedTime(),
-            scaleWidth: true
-        };
-
-        if (size) {
-            imageUrlParams.size = size;
-        }
-
-        if (style) {
-            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(style.getName());
-            imageUrlParams.aspectRatio = style.getAspectRatio();
-            imageUrlParams.filter = style.getFilter();
-        }
-
-        return new ImageUrlBuilder(imageUrlParams);
     }
 
     private resolve(): ImagePreviewUrlBuilder {
