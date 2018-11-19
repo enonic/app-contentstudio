@@ -154,7 +154,7 @@ Page.prototype.isElementDisplayed = function (selector) {
 
 Page.prototype.getTextFromElements = function (selector) {
     let json = [];
-    return this.getBrowser().elements(selector).then((result) => {
+    return this.getBrowser().elements(selector).then(result => {
         result.value.forEach((val) => {
             json.push(this.getBrowser().elementIdText(val.ELEMENT));
         });
@@ -163,7 +163,7 @@ Page.prototype.getTextFromElements = function (selector) {
         });
     }).then(responses => {
         let res = [];
-        responses.forEach((str) => {
+        responses.forEach(str => {
             return res.push(str.value);
         });
         return res;

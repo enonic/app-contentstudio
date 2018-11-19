@@ -1,5 +1,8 @@
 const page = require('./page');
 const appConst = require('../libs/app_const');
+const elements = require('../libs/elements');
+const utils = require('../libs/studio.utils');
+const comboBox = require('./components/loader.combobox');
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
     applyButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Apply')]]`,
@@ -14,8 +17,13 @@ const xpath = {
         name => `//li[contains(@id,'TabMenuItem') and child::a[text()='${name}']]`,
 };
 
-const contentPublishDialog = Object.create(page, {
+const editPermissionsDialog = Object.create(page, {
 
+    principalsOptionFilterInput: {
+        get: function () {
+            return `${xpath.container}` + elements.COMBO_BOX_OPTION_FILTER_INPUT;
+        }
+    },
     cancelButton: {
         get: function () {
             return `${xpath.container}` + `${xpath.cancelButton}`;
@@ -49,7 +57,32 @@ const contentPublishDialog = Object.create(page, {
             })
         }
     },
+    getDisplayNameOfSelectedPrincipals: {
+        value: function () {
+            let selector = xpath.container + elements.H6_DISPLAY_NAME;
+            return this.getText(selector);
+        }
+    },
+    removeAclEntry: {
+        value: function (principalName) {
+            let selector = xpath.container + xpath.aclEntryByName(principalName) + elements.REMOVE_ICON;
+            return this.doClick(selector).catch(err => {
+                this.saveScreenshot("err_remove_acl_entry");
+                throw new Error("Error when try to remove acl entry " + err);
+            }).pause(500);
+        }
+    },
 
+    //filters and select a principal
+    filterAndSelectPrincipal: {
+        value: function (principalDisplayName) {
+            return comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container).then(() => {
+             console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+            })
+        }
+    },
+
+    //finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'
     showAceMenuAndSelectItem: {
         value: function (principalName, menuItem) {
             let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
@@ -62,6 +95,8 @@ const contentPublishDialog = Object.create(page, {
             })
         }
     },
+    //Permissions Toggle appears when a selected option switched to 'custom' mode
+    //clicks on 'Read','Create', 'Modify' ....  permissions-toggles
     clickOnPermissionToggle: {
         value: function (principalName, operationName,) {
             let permToggle = xpath.permissionToggleByOperationName(operationName);
@@ -80,7 +115,7 @@ const contentPublishDialog = Object.create(page, {
             return this.doClick(this.applyButton).catch(err => {
                 this.saveScreenshot('err_click_on_apply_button_permis_dialog');
                 throw new Error('Error when clicking Apply dialog must be closed ' + err);
-            })
+            }).pause(500);
         }
     },
     isOperationAllowed: {
@@ -113,7 +148,7 @@ const contentPublishDialog = Object.create(page, {
             }).catch(err => {
                 this.saveScreenshot('err_click_on_inherit_permis_dialog');
                 throw new Error('Error when clicking on Inherit permissions ' + err);
-            })
+            }).pause(500);
         }
     },
     clickOnOverwiteChildPermissionsCheckBox: {
@@ -139,5 +174,5 @@ const contentPublishDialog = Object.create(page, {
         }
     },
 });
-module.exports = contentPublishDialog;
+module.exports = editPermissionsDialog;
 
