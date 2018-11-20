@@ -163,6 +163,18 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSe
     args = ['test']
     startSeleniumDaemon.mustRunAfter npmInstall
 }
+
+task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
+    inputs.files fileTree( dir: '.' )
+    outputs.files fileTree( dir: '/test-results' )
+    if ( project.hasProperty( "t_name" ) )
+    {
+        println( "N_A_M_E: " + t_name );
+        environment = ['t_name': t_name]
+        commandLine 'node', './tasks/test-by-name.js'
+        startSeleniumDaemon.mustRunAfter npmInstall
+    }
+}
 testContentStudioApp.finalizedBy = ['stopServer']
 
 repositories {
