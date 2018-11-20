@@ -342,7 +342,7 @@ const contentBrowsePanel = Object.create(page, {
                 return this.doClick(nameXpath);
             }).pause(400).catch((err) => {
                 this.saveScreenshot('err_find_' + name);
-                throw Error('Row with the name ' + name + ' was not found')
+                throw Error('Row with the name ' + name + ' was not found' + err);
             })
         }
     },
