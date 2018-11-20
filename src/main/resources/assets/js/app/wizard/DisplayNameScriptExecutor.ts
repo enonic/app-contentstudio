@@ -27,26 +27,19 @@ export class DisplayNameScriptExecutor implements api.app.wizard.DisplayNameGene
         return this.safeEval(this.script, this.formView);
     }
 
+    private getFormValues(formView: api.form.FormView): string {
+        return formView.getData().getStringValues().map(formValue => `var ${formValue.name} = '${formValue.value}'; `).join('');
+    }
+
     private safeEval(script: string, formView: api.form.FormView): string {
         let result = '';
-        function $() {
-            let strValue = '';
-            for (let i = 0; i < arguments.length; i++) {
-                const fieldValue = formView.getData().getString(arguments[i]);
-                if (!api.util.StringHelper.isBlank(fieldValue)) {
-                    if (strValue.length > 0) {
-                        strValue += ' ';
-                    }
-                    strValue += fieldValue;
-                }
-            }
-            return strValue;
-        }
+
         try {
             // hide eval, Function, document, window and other things from the script.
             result = eval('"strict mode"; var Function; var document; var location; ' +
                           'var window; var parent; var self; var top; ' +
-                          script);
+                          this.getFormValues(formView) +
+                          '`' + script + '`');
         } catch (e) {
             console.error('Cannot evaluate script [' + script + '].', e);
         }
