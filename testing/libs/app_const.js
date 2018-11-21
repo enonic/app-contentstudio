@@ -96,4 +96,8 @@ module.exports = Object.freeze({
     roleDisplayName: {
         CONTENT_MANAGER_APP: 'Content Manager App',
     },
+    systemUsersDisplayName: {
+        ANONYMOUS_USER: 'Anonymous User',
+        EVERYONE: 'Everyone',
+    }
 });
