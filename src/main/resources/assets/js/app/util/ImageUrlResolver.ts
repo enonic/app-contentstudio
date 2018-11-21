@@ -101,7 +101,7 @@ export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
         else {
             if (forPreview) {
                 if (this.size) {
-                    url = this.appendParam('size', '' + this.size, url);
+                    url = this.appendParam('size', '' + Math.floor(this.size), url);
                 }
 
                 if (this.scaleWidth) {
