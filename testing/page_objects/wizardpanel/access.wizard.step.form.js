@@ -23,19 +23,19 @@ const accessStepForm = Object.create(page, {
     },
     clickOnEditPermissionsButton: {
         value: function (displayName) {
-            return this.doClick(this.editPermissionsButton).pause(500).catch(err => {
+            return this.doClick(this.editPermissionsButton).catch(err => {
                 this.saveScreenshot("err_click_on_edit_permissions_button");
                 throw new Error('Error when clicking on `Edit Permissions` button! ' + err);
-            });
+            }).pause(700);
         }
     },
     clickOnEntryRow: {
         value: function (displayName) {
             let entryRow = xpath.entryRowByDisplayName(displayName);
-            return this.doClick(entryRow).pause(500).catch(err => {
+            return this.doClick(entryRow).catch(err => {
                 this.saveScreenshot("err_click_on_entry_row_wizard");
                 throw new Error('Error when clicking on entry row in wizard! ' + err);
-            });
+            }).pause(500);
         }
     },
     getPermissionOperations: {
