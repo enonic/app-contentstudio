@@ -1,6 +1,6 @@
 /**
  * Created on 15.11.2018.
- * verifies : https://github.com/enonic/xp/issues/6751
+ *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -91,8 +91,9 @@ describe('overwrite.permissions.spec: open details panel, update permissions in 
             });
         });
 
-    // verifies https://github.com/enonic/xp/issues/6751
-    it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN default permissions for 'Everyone' has been added in parent THEN permissions for child should not be changed`,
+    // Default merging strategy:
+    // if permission is set in parent entry, use the value from the parent entry
+    it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN default permissions for 'Everyone' has been added in parent THEN default permissions for 'Everyone' should  be added in child content as well`,
         () => {
             return openEditPermissionsDialog(parentFolder.displayName).then(() => {
                 //add default permissions for 'Everyone'
@@ -106,8 +107,8 @@ describe('overwrite.permissions.spec: open details panel, update permissions in 
                 studioUtils.saveScreenshot("child_content_overwrite_perm_was_not_checked_2");
                 return editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
             }).then(result => {
-                assert.isFalse(result.includes(appConstant.systemUsersDisplayName.EVERYONE),
-                    "default permissions for `Everyone` should not be present, because 'inherit' checkbox is unchecked");
+                assert.isTrue(result.includes(appConstant.systemUsersDisplayName.EVERYONE),
+                    "default permissions for 'Everyone' should  be added in child content as well, because `Default merging strategy` is applied");
             });
         });
 
