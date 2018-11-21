@@ -52,7 +52,7 @@ export class ImageModalDialog
     private imageCaptionField: FormItem;
     private imageAltTextField: FormItem;
     private imageUploaderEl: ImageUploaderEl;
-    private imageElement: HTMLImageElement;
+    private presetImageEl: HTMLElement;
     private content: api.content.ContentSummary;
     private imageSelector: ImageContentComboBox;
     private progress: api.ui.ProgressBar;
@@ -86,15 +86,30 @@ export class ImageModalDialog
 
         this.initLoader();
 
-        if (this.getOriginalUrlElem().getValue()) {
-            this.imageElement = (<any>this.getEditor().widgets).selected[0].parts.image.$;
-            this.loadImage();
-        }
+        this.initPresetImage();
 
         if (!Styles.getInstance()) {
             new StylesRequest(content.getId()).sendAndParse();
         }
 
+    }
+
+    private initPresetImage() {
+
+        const selectedElement = this.ckeOriginalDialog.getSelectedElement();
+
+        if (!this.getOriginalUrlElem().getValue() || !selectedElement) {
+            return;
+        }
+
+        const presetFigureEl = selectedElement.findOne('figure');
+
+        this.presetImageEl = !!presetFigureEl ? presetFigureEl.findOne('img').$ : selectedElement.findOne('img').$;
+
+        if (this.presetImageEl) {
+            const presetStyles = !!presetFigureEl ? presetFigureEl.getAttribute('class') : '';
+            this.presetImage(presetStyles);
+        }
     }
 
     protected initializeConfig(params: ImageModalDialogConfig) {
@@ -117,12 +132,12 @@ export class ImageModalDialog
         });
     }
 
-    private loadImage() {
+    private presetImage(presetStyles: string) {
         const imageId: string = this.extractImageId();
 
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
-            this.previewImage(imageContent, false);
+            this.previewImage(imageContent, presetStyles);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
@@ -130,13 +145,19 @@ export class ImageModalDialog
     }
 
     private extractImageId(): string {
-        const src: string = this.imageElement.getAttribute('data-src');
+        const src: string = this.presetImageEl.getAttribute('data-src');
 
         if (!src) {
             throw new Error('Incorrectly formatted URL');
         }
 
-        return HTMLAreaHelper.extractContentIdFromImgSrc(src);
+        const imageId = HTMLAreaHelper.extractContentIdFromImgSrc(src);
+
+        if (!imageId) {
+            throw new Error('Incorrectly formatted URL');
+        }
+
+        return imageId;
     }
 
     protected getMainFormItems(): FormItem[] {
@@ -181,7 +202,7 @@ export class ImageModalDialog
                 return;
             }
 
-            this.previewImage(imageContent.getContent(), true);
+            this.previewImage(imageContent.getContent());
             formItem.addClass('selected-item-preview');
             this.setAltTextFieldValue(imageContent.getDisplayName());
             this.fetchImageCaption(imageContent.getContentSummary()).then(value => this.setCaptionFieldValue(value)).catch(
@@ -268,22 +289,19 @@ export class ImageModalDialog
         this.imagePreviewScrollHandler.resetScrollPosition();
     }
 
-    private previewImage(imageContent: ContentSummary, isNewImage: boolean) {
+    private previewImage(imageContent: ContentSummary, presetStyles?: string) {
         if (!this.previewFrame) {
             this.createPreviewFrame();
         }
 
         this.imageLoadMask.show();
 
-        const image = this.createImgElForPreview(imageContent, isNewImage);
-        if (isNewImage) {
-            this.figure.setClass(ImageModalDialog.defaultStyles.join(' '));
-        }
+        this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' '));
 
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
-            this.imageToolbar = new ImageDialogToolbar(this.figure, this.imageLoadMask);
+            this.imageToolbar = new ImageDialogToolbar(this.figure);
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
 
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
@@ -291,6 +309,7 @@ export class ImageModalDialog
             image.unLoaded(onImageFirstLoad);
         };
 
+        const image = this.createImgElForPreview(imageContent);
         image.onLoaded(onImageFirstLoad);
 
         image.onLoaded(() => {
@@ -330,30 +349,24 @@ export class ImageModalDialog
         return new ImageUrlBuilder(imageUrlParams);
     }
 
-    private createImgElForPreview(imageContent: ContentSummary, isNewImage: boolean): api.dom.ImgEl {
+    private createImgElForPreview(imageContent: ContentSummary): api.dom.ImgEl {
         let imgSrcAttr = '';
         let imgDataSrcAttr = '';
 
-        if (isNewImage) {
+        if (!!this.presetImageEl) {
+            imgSrcAttr = this.presetImageEl.getAttribute('src');
+            imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
+        } else {
 
             const imageUrlBuilder = this.createImageBuilder(imageContent, this.imagePreviewContainer.getEl().getWidth());
 
             imgSrcAttr = imageUrlBuilder.buildForPreview();
             imgDataSrcAttr = imageUrlBuilder.buildForRender();
         }
-        else {
-            const imgEl = new api.dom.ElementHelper(this.imageElement);
-
-            imgSrcAttr = imgEl.getAttribute('src');
-            imgDataSrcAttr = imgEl.getAttribute('data-src');
-        }
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
         imageEl.getEl().setAttribute('data-src', imgDataSrcAttr);
-/*
-        const imageAlignment = this.getOriginalAlignmentElem().getValue();
-        imageEl.getHTMLElement().style.textAlign = imageAlignment;
-*/
+
         return imageEl;
     }
 
@@ -463,7 +476,7 @@ export class ImageModalDialog
     }
 
     protected initializeActions() {
-        const submitAction = new api.ui.Action(this.imageElement ? 'Update' : 'Insert');
+        const submitAction = new api.ui.Action(!!this.presetImageEl ? 'Update' : 'Insert');
         this.setSubmitAction(submitAction);
         this.addAction(submitAction.onExecuted(() => {
             this.displayValidationErrors(true);
@@ -579,10 +592,6 @@ export class ImageModalDialog
         return AppHelper.isDirty(this);
     }
 
-    private getImage(): api.dom.ImgEl {
-        return this.figure.getImage();
-    }
-
     private updateImageSrc(imageEl: HTMLElement, width: number) {
         const imageContent = this.imageSelector.getSelectedContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
@@ -614,15 +623,12 @@ export class ImageDialogToolbar
 
     private imageStyleSelector: ImageStyleSelector;
 
-    private imageLoadMask: api.ui.mask.LoadMask;
-
     private stylesChangeListeners: { (styles: string): void }[] = [];
 
-    constructor(previewEl: api.dom.FigureEl, imageLoadMask: api.ui.mask.LoadMask) {
+    constructor(previewEl: api.dom.FigureEl) {
         super('image-toolbar');
 
         this.previewEl = previewEl;
-        this.imageLoadMask = imageLoadMask;
 
         this.createAlignmentButtons();
         super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
@@ -689,8 +695,8 @@ export class ImageDialogToolbar
     }
 
     private initSelectedStyle(imageStyleSelector: ImageStyleSelector) {
-        const imgSrc: string = this.previewEl.getEl().getAttribute('style');
-        const stylesApplied = imgSrc ? imgSrc.split(' ') : null;
+        const previewStyles: string = this.previewEl.getClass();
+        const stylesApplied = previewStyles ? previewStyles.trim().split(' ') : null;
 
         if (!stylesApplied) {
             return;
