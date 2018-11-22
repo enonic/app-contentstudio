@@ -1588,7 +1588,9 @@
 
             // Note that widget may be wrapped in a link, which
             // does not belong to that widget (https://dev.ckeditor.com/ticket/11814).
-            this.setState(widget.data.link || widget.wrapper.getAscendant('a') ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED);
+            this.setState(widget.data.link || (widget.wrapper && widget.wrapper.getAscendant('a')) // #9...
+                          ? CKEDITOR.TRISTATE_OFF
+                          : CKEDITOR.TRISTATE_DISABLED); // ...#9
 
             evt.cancel();
         });
