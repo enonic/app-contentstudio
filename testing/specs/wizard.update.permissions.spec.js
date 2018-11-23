@@ -12,7 +12,9 @@ const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const editPermissionsDialog = require('../page_objects/edit.permissions.dialog');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const accessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form')
+const accessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form');
+const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const userAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar',
     function () {
@@ -63,6 +65,27 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 }).then(() => {
                     return assert.eventually.isTrue(contentWizard.waitForSaveButtonEnabled(),
                         "'Save' button should be enabled on the wizard-toolbar");
+                });
+            });
+
+        it(`GIVEN existing content is opened WHEN permissions for the content have been updated in browse panel (Details Panel) THEN 'Save' button should be disabled in the wizard`,
+            () => {
+                return studioUtils.openContentInWizard(displayName).then(() => {
+                    return studioUtils.doSwitchToContentBrowsePanel();
+                }).then(() => {
+                    return studioUtils.openBrowseDetailsPanel();
+                }).then(() => {
+                    return userAccessWidget.clickOnEditPermissionsLink();
+                }).then(() => {
+                    // add default permissions for 'Super User'
+                    return editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.SUPER_USER);
+                }).then(() => {
+                    return editPermissionsDialog.clickOnApplyButton();
+                }).then(() => {
+                    return studioUtils.switchToContentTabWindow(displayName)
+                }).then(() => {
+                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonVisible(),
+                        "'Save' button should be visible and disabled on the wizard-toolbar");
                 });
             });
 
