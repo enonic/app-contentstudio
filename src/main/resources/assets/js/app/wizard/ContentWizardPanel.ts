@@ -3,7 +3,7 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
 import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
 import {SecurityWizardStepForm} from './SecurityWizardStepForm';
-import {DisplayNameScriptExecutor} from './DisplayNameScriptExecutor';
+import {DisplayNameResolver} from './DisplayNameResolver';
 import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentWizardActions} from './action/ContentWizardActions';
@@ -113,7 +113,7 @@ export class ContentWizardPanel
 
     private xDataStepFormByName: { [name: string]: XDataWizardStepForm; };
 
-    private displayNameScriptExecutor: DisplayNameScriptExecutor;
+    private displayNameResolver: DisplayNameResolver;
 
     private requireValid: boolean;
 
@@ -184,7 +184,7 @@ export class ContentWizardPanel
         this.contentUpdateDisabled = false;
         this.applicationLoadCount = 0;
 
-        this.displayNameScriptExecutor = new DisplayNameScriptExecutor();
+        this.displayNameResolver = new DisplayNameResolver();
 
         this.xDataStepFormByName = {};
 
@@ -296,7 +296,7 @@ export class ContentWizardPanel
 
     protected createWizardHeader(): api.app.wizard.WizardHeader {
         let header = new WizardHeaderWithDisplayNameAndNameBuilder()
-            .setDisplayNameGenerator(this.displayNameScriptExecutor)
+            .setDisplayNameGenerator(this.displayNameResolver)
             .build();
 
         if (this.parentContent) {
@@ -397,8 +397,8 @@ export class ContentWizardPanel
                 this.getLivePanel().updateWritePermissions(this.writePermissions);
             }
 
-            if (this.contentType.hasContentDisplayNameScript()) {
-                this.displayNameScriptExecutor.setScript(this.contentType.getContentDisplayNameScript());
+            if (this.contentType.hasDisplayNameExpression()) {
+                this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
             }
 
             this.addClass('content-wizard-panel');
@@ -535,7 +535,7 @@ export class ContentWizardPanel
 
     giveInitialFocus() {
 
-        if (this.contentType.hasContentDisplayNameScript()) {
+        if (this.contentType.hasDisplayNameExpression()) {
             if (!this.contentWizardStepForm.giveFocus()) {
                 this.getWizardHeader().giveFocus();
             }
@@ -1493,9 +1493,9 @@ export class ContentWizardPanel
 
                     let formViewLayoutPromises: wemQ.Promise<void>[] = [];
                     formViewLayoutPromises.push(this.contentWizardStepForm.layout(formContext, contentData, this.contentType.getForm()));
-                    // Must pass FormView from contentWizardStepForm displayNameScriptExecutor,
+                    // Must pass FormView from contentWizardStepForm displayNameResolver,
                     // since a new is created for each call to renderExisting
-                    this.displayNameScriptExecutor.setFormView(this.contentWizardStepForm.getFormView());
+                    this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
                     this.settingsWizardStepForm.layout(content);
                     this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
                     this.scheduleWizardStepForm.layout(content);
@@ -1732,12 +1732,10 @@ export class ContentWizardPanel
 
     private enableDisplayNameScriptExecution(formView: FormView) {
 
-        if (this.displayNameScriptExecutor.hasScript()) {
+        if (this.displayNameResolver.hasExpression()) {
 
             formView.onKeyUp((event: KeyboardEvent) => {
-                if (this.displayNameScriptExecutor.hasScript()) {
-                    this.getWizardHeader().setDisplayName(this.displayNameScriptExecutor.execute());
-                }
+                this.getWizardHeader().setDisplayName(this.displayNameResolver.execute());
             });
         }
     }
