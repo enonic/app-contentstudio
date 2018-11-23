@@ -1,8 +1,16 @@
 import HTMLAreaEditor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
+import NotificationMessage = api.notify.NotificationMessage;
+import NotifyManager = api.notify.NotifyManager;
 import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
-import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
+import BrowserHelper = api.BrowserHelper;
+import ContentPath = api.content.ContentPath;
+import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
+import {ImageModalDialog} from './dialog/ImageModalDialog';
+import {ContentImageUrlResolver} from '../../../content/ContentImageUrlResolver';
+import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
+import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
