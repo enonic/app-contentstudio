@@ -1,16 +1,8 @@
 import HTMLAreaEditor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
-import NotificationMessage = api.notify.NotificationMessage;
-import NotifyManager = api.notify.NotifyManager;
 import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
-import BrowserHelper = api.BrowserHelper;
-import ContentPath = api.content.ContentPath;
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {ImageModalDialog} from './dialog/ImageModalDialog';
-import {ContentImageUrlResolver} from '../../../content/ContentImageUrlResolver';
-import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
-import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
+import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -370,9 +362,9 @@ export class HTMLAreaBuilder {
         ckeditor.on('instanceReady', function () {
             (<any>ckeditor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
                 this.replaceWith('<figure class="image">' +
-                                 '<img src="' + upload.url + '" ' +
-                                 'width="' + this.parts.img.$.naturalWidth + '" ' +
-                                 'height="' + this.parts.img.$.naturalHeight + '">' +
+                                 `<img src="${upload.url}" ` +
+                                 `width="${this.parts.img.$.naturalWidth}" ` +
+                                 `height="${this.parts.img.$.naturalHeight}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
