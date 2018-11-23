@@ -99,5 +99,6 @@ module.exports = Object.freeze({
     systemUsersDisplayName: {
         ANONYMOUS_USER: 'Anonymous User',
         EVERYONE: 'Everyone',
+        SUPER_USER: 'Super User',
     }
 });
