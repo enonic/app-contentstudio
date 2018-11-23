@@ -88,7 +88,7 @@ export class ContentBrowsePanel
         let treeGrid = new ContentTreeGrid();
 
         treeGrid.onDataChanged((event: api.ui.treegrid.DataChangedEvent<ContentSummaryAndCompareStatus>) => {
-            if (event.getType() === 'updated') {
+            if (event.getType() === DataChangedEvent.UPDATED) {
                 let browseItems = this.treeNodesToBrowseItems(event.getTreeNodes());
                 this.getBrowseItemPanel().updateItems(browseItems);
                 this.getBrowseActions().updateActionsEnabledState(this.treeNodesToBrowseItems(this.treeGrid.getRoot().getFullSelection()));
@@ -498,6 +498,8 @@ export class ContentBrowsePanel
         if (!changed.length) {
             return wemQ(changed);
         }
+
+        this.treeGrid.invalidateNodes(changed);
 
         // Update since CompareStatus changed
         return ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {
