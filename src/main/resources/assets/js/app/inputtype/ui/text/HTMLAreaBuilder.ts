@@ -2,6 +2,7 @@ import HTMLAreaEditor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
 import NotificationMessage = api.notify.NotificationMessage;
 import NotifyManager = api.notify.NotifyManager;
+import StringHelper = api.util.StringHelper;
 import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
@@ -10,6 +11,7 @@ import {StylesRequest} from './styles/StylesRequest';
 import {Styles} from './styles/Styles';
 import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
+import {StyleHelper} from './styles/StyleHelper';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -71,13 +73,6 @@ export class HTMLAreaBuilder {
 
     onCreateDialog(listener: (event: CreateHtmlAreaDialogEvent) => void) {
         this.createDialogListeners.push(listener);
-        return this;
-    }
-
-    unCreateDialog(listener: (event: CreateHtmlAreaDialogEvent) => void) {
-        this.createDialogListeners = this.createDialogListeners.filter((curr) => {
-            return curr !== listener;
-        });
         return this;
     }
 
@@ -180,9 +175,10 @@ export class HTMLAreaBuilder {
         return this.createConfig(contentId).then((config: CKEDITOR.config) => {
 
             const ckeditor: HTMLAreaEditor = this.inline ?
-                         CKEDITOR.inline(this.editorContainerId, config) :
-                         CKEDITOR.replace(this.editorContainerId, config);
+                                             CKEDITOR.inline(this.editorContainerId, config) :
+                                             CKEDITOR.replace(this.editorContainerId, config);
 
+            this.allowFigureHaveAnyClasses(ckeditor);
             this.listenCKEditorEvents(ckeditor);
             this.handleFileUpload(ckeditor);
             this.handleNativeNotifications(ckeditor);
@@ -235,7 +231,9 @@ export class HTMLAreaBuilder {
             extraAllowedContent: 'iframe code address dl dt dd script;img[data-src]',
             format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
             image2_disableResizer: true,
-            image2_captionedClass: '',
+            image2_captionedClass: 'captioned',
+            image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT, StyleHelper.STYLE.ALIGNMENT.CENTER, StyleHelper.STYLE.ALIGNMENT.RIGHT,
+                StyleHelper.STYLE.ALIGNMENT.JUSTIFY],
             disallowedContent: 'img[width,height]',
             uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
             sharedSpaces: this.inline ? {top: this.fixedToolbarContainer} : null
@@ -294,80 +292,15 @@ export class HTMLAreaBuilder {
             ckeditor.on('key', this.keydownHandler.bind(this));
         }
 
-        ckeditor.on('maximize', (e: eventInfo) => {
-            if (e.data === 2) { // fullscreen off
-                api.ui.responsive.ResponsiveManager.fireResizeEvent();
-            }
-        });
-
-        const editorEl = document.getElementById(this.editorContainerId);
-        let mousePressed: boolean = false;
-
-        editorEl.addEventListener('mousedown', () => mousePressed = true);
-        editorEl.addEventListener('mouseup', () => mousePressed = false);
-        editorEl.addEventListener('mouseleave', (e: MouseEvent) => {
-            if (this.mouseLeaveHandler) {
-                this.mouseLeaveHandler(e, mousePressed);
-            }
-        });
-        api.dom.Body.get().onMouseUp(() => {
-            if (mousePressed) {
-                mousePressed = false;
-            }
-        });
-
-        ckeditor.on('blur', (e: eventInfo) => {
-
-            if (this.hasActiveDialog) {
-                e.stop();
-                this.hasActiveDialog = false;
-            }
-            if (this.blurHandler) {
-                this.blurHandler(<any>e);
-            }
-        });
-
-        ckeditor.on('selectionChange', (e: eventInfo) => {
-            const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
-            const isAnchorSelected: boolean = selectedElement.hasClass('cke_anchor');
-            const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
-            const isLinkSelected: boolean = (selectedElement.is('a') && selectedElement.hasAttribute('href'));
-            const isImageWithLinkSelected = isImageSelected &&
-                                            (<CKEDITOR.dom.element>selectedElement.findOne('figure').getFirst()).is('a');
-
-            this.handleImageSelectionIssue(e);
-
-            this.toogleToolbarButtonState(ckeditor, 'link', isLinkSelected || isImageWithLinkSelected);
-            this.toogleToolbarButtonState(ckeditor, 'anchor', isAnchorSelected);
-            this.toogleToolbarButtonState(ckeditor, 'image', isImageSelected);
-        });
+        this.handleFullScreenModeToggled(ckeditor);
+        this.handleMouseEvents();
+        this.handleEditorBlurEvent(ckeditor);
+        this.handleElementSelection(ckeditor);
+        this.handleImageAlignButtonPressed(ckeditor);
     }
 
-    private toogleToolbarButtonState(ckeditor: HTMLAreaEditor, name: string, isActive: boolean) {
+    private toggleToolbarButtonState(ckeditor: HTMLAreaEditor, name: string, isActive: boolean) {
         ckeditor.getCommand(name).setState(isActive ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
-    }
-
-    // fixing locally https://github.com/ckeditor/ckeditor-dev/issues/2517
-    private handleImageSelectionIssue(e: eventInfo) {
-        const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
-
-        // checking if selected element is image or not
-        if (!selectedElement.hasClass('cke_widget_image')) {
-            return;
-        }
-
-        // if image is selected properly it is supposed to have 'selected' class
-        if (selectedElement.hasClass('cke_widget_selected')) {
-            return;
-        }
-
-        // if improperly selected image is not first element in the editor then new image would be inserted without errors
-        if (!!selectedElement.getPrevious()) {
-            return;
-        }
-
-        // forcing image to be properly selected in editor
-        e.editor.getSelection().selectElement(selectedElement);
     }
 
     private handleTooltipForClickableElements(ckeditor: HTMLAreaEditor) {
@@ -393,6 +326,29 @@ export class HTMLAreaBuilder {
     }
 
     private handleFileUpload(ckeditor: HTMLAreaEditor) {
+        this.handleImageDropped(ckeditor);
+        this.handleUploadRequest(ckeditor);
+        this.handleUploadResponse(ckeditor);
+    }
+
+    // Wrapping dropped image into figure element
+    private handleImageDropped(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('instanceReady', function () {
+            (<any>ckeditor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
+                const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
+                const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
+
+                this.replaceWith(`<figure class="${StyleHelper.STYLE.ALIGNMENT.JUSTIFY} captioned">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}"` +
+                                 `width="${this.parts.img.$.naturalWidth}" ` +
+                                 `height="${this.parts.img.$.naturalHeight}">` +
+                                 '<figcaption> </figcaption>' +
+                                 '</figure>');
+            };
+        });
+    }
+
+    private handleUploadRequest(ckeditor: HTMLAreaEditor) {
         ckeditor.on('fileUploadRequest', (evt: eventInfo) => {
             const fileLoader = evt.data.fileLoader;
 
@@ -410,8 +366,33 @@ export class HTMLAreaBuilder {
             // Prevented the default behavior.
             evt.stop();
         });
+    }
 
-        // parse image upload response so cke understands it
+    private fileExists(fileName: string): wemQ.Promise<boolean> {
+        return new GetContentByPathRequest(
+            new api.content.ContentPath([this.content.getPath().toString(), fileName])).sendAndParse().then(() => {
+            return true;
+        }).catch((reason: any) => {
+            if (reason.statusCode === 404) { // good, no file with such name
+                return false;
+            }
+
+            throw new Error(reason);
+        });
+    }
+
+    private uploadFile(fileLoader: any) {
+        const formData = new FormData();
+        const xhr = fileLoader.xhr;
+        xhr.open('POST', fileLoader.uploadUrl, true);
+        formData.append('file', fileLoader.file, fileLoader.fileName);
+        formData.set('parent', this.content.getPath().toString());
+        formData.set('name', fileLoader.fileName);
+        fileLoader.xhr.send(formData);
+    }
+
+    // parse image upload response so cke understands it
+    private handleUploadResponse(ckeditor: HTMLAreaEditor) {
         ckeditor.on('fileUploadResponse', (evt: eventInfo) => {
             // Prevent the default response handler.
             evt.stop();
@@ -438,27 +419,156 @@ export class HTMLAreaBuilder {
         });
     }
 
-    private fileExists(fileName: string): wemQ.Promise<boolean> {
-        return new GetContentByPathRequest(
-            new api.content.ContentPath([this.content.getPath().toString(), fileName])).sendAndParse().then(() => {
-            return true;
-        }).catch((reason: any) => {
-            if (reason.statusCode === 404) { // good, no file with such name
-                return false;
+    private handleFullScreenModeToggled(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('maximize', (e: eventInfo) => {
+            if (e.data === 2) { // fullscreen off
+                api.ui.responsive.ResponsiveManager.fireResizeEvent();
             }
-
-            throw new Error(reason);
         });
     }
 
-    private uploadFile(fileLoader: any) {
-        const formData = new FormData();
-        const xhr = fileLoader.xhr;
-        xhr.open('POST', fileLoader.uploadUrl, true);
-        formData.append('file', fileLoader.file, fileLoader.fileName);
-        formData.set('parent', this.content.getPath().toString());
-        formData.set('name', fileLoader.fileName);
-        fileLoader.xhr.send(formData);
+    private handleMouseEvents() {
+        const editorEl = document.getElementById(this.editorContainerId);
+        let mousePressed: boolean = false;
+
+        editorEl.addEventListener('mousedown', () => mousePressed = true);
+        editorEl.addEventListener('mouseup', () => mousePressed = false);
+        editorEl.addEventListener('mouseleave', (e: MouseEvent) => {
+            if (this.mouseLeaveHandler) {
+                this.mouseLeaveHandler(e, mousePressed);
+            }
+        });
+        api.dom.Body.get().onMouseUp(() => {
+            if (mousePressed) {
+                mousePressed = false;
+            }
+        });
+    }
+
+    private handleEditorBlurEvent(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('blur', (e: eventInfo) => {
+
+            if (this.hasActiveDialog) {
+                e.stop();
+                this.hasActiveDialog = false;
+            }
+
+            if (this.blurHandler) {
+                this.blurHandler(<any>e);
+            }
+        });
+    }
+
+    private handleElementSelection(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('selectionChange', (e: eventInfo) => {
+            this.toggleToolbarButtonStates(ckeditor, e);
+            this.handleImageSelectionIssue(e);
+            this.updateSelectedImageAlignment(ckeditor, e);
+        });
+    }
+
+    private toggleToolbarButtonStates(ckeditor: HTMLAreaEditor, e: eventInfo) {
+        const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
+
+        const isAnchorSelected: boolean = selectedElement.hasClass('cke_anchor');
+        const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
+        const isLinkSelected: boolean = (selectedElement.is('a') && selectedElement.hasAttribute('href'));
+        const isImageWithLinkSelected = isImageSelected &&
+                                        (<CKEDITOR.dom.element>selectedElement.findOne('figure').getFirst()).is('a');
+
+        this.toggleToolbarButtonState(ckeditor, 'link', isLinkSelected || isImageWithLinkSelected);
+        this.toggleToolbarButtonState(ckeditor, 'anchor', isAnchorSelected);
+        this.toggleToolbarButtonState(ckeditor, 'image', isImageSelected);
+    }
+
+    // fixing locally https://github.com/ckeditor/ckeditor-dev/issues/2517
+    private handleImageSelectionIssue(e: eventInfo) {
+        const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
+
+        // checking if selected element is image or not
+        if (!selectedElement.hasClass('cke_widget_image')) {
+            return;
+        }
+
+        // if image is selected properly it is supposed to have 'selected' class
+        if (selectedElement.hasClass('cke_widget_selected')) {
+            return;
+        }
+
+        // if improperly selected image is not first element in the editor then new image would be inserted without errors
+        if (!!selectedElement.getPrevious()) {
+            return;
+        }
+
+        // forcing image to be properly selected in editor
+        e.editor.getSelection().selectElement(selectedElement);
+    }
+
+    private updateSelectedImageAlignment(ckeditor: HTMLAreaEditor, e: eventInfo) {
+        const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
+        const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
+
+        if (!isImageSelected) {
+            return;
+        }
+
+        const selectionRange: any = ckeditor.getSelection().getRanges()[0];
+        const isSameElementSelected: boolean = selectionRange.startContainer.equals(selectionRange.endContainer);
+
+        if (!isSameElementSelected) { // multiple elements selected
+            return;
+        }
+
+        const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
+
+        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY)) {
+            this.toggleToolbarButtonState(ckeditor, 'justifyblock', true);
+            this.toggleToolbarButtonState(ckeditor, 'justifyleft', false);
+            this.toggleToolbarButtonState(ckeditor, 'justifyright', false);
+            this.toggleToolbarButtonState(ckeditor, 'justifycenter', false);
+        } else {
+            this.toggleToolbarButtonState(ckeditor, 'justifyblock', false);
+        }
+    }
+
+    private allowFigureHaveAnyClasses(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('widgetDefinition', (e: eventInfo) => {
+            if (e.data.name === 'image') {
+                e.data.allowedContent.figure.classes = ['*'];
+            }
+        });
+    }
+
+    private handleImageAlignButtonPressed(ckeditor: HTMLAreaEditor) {
+        ckeditor.on('afterCommandExec', (e: eventInfo) => {
+            if (e.data.name.indexOf('justify') !== 0) { // not an align command
+                return;
+            }
+
+            const selectedElement: CKEDITOR.dom.element = ckeditor.getSelection().getSelectedElement();
+
+            if (!selectedElement || !selectedElement.hasClass('cke_widget_image')) { // not an image
+                return;
+            }
+
+            this.toggleToolbarButtonState(ckeditor, 'justifyblock', false); // make justify button enabled
+
+            const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
+
+            if (e.data.name === 'justifyblock') {
+                figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY);
+                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.LEFT);
+                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.RIGHT);
+                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.CENTER);
+
+                this.toggleToolbarButtonState(ckeditor, 'justifyblock', true); // make justify button active
+                this.toggleToolbarButtonState(ckeditor, 'justifyleft', false);
+                this.toggleToolbarButtonState(ckeditor, 'justifyright', false);
+                this.toggleToolbarButtonState(ckeditor, 'justifycenter', false);
+            } else {
+                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY);
+            }
+        });
     }
 
     private handleNativeNotifications(ckeditor: HTMLAreaEditor) {
