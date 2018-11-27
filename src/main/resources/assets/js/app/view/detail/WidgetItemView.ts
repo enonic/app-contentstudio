@@ -37,6 +37,7 @@ export class WidgetItemView extends api.dom.DivEl {
                 deferred.resolve(null);
             });
 
+        this.removeChildren();
         linkEl.onLoaded(onLinkLoaded);
         document.head.appendChild(linkEl.getHTMLElement());
 
