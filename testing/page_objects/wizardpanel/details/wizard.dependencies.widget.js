@@ -37,7 +37,7 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
         value: function () {
             return this.waitForVisible(this.showInboundButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_inbound_button');
-                throw new Error('Wizard dependency panel - showInboundButton: is not visible in ' + appConst.TIMEOUT_2);
+                throw new Error('showInboundButton: is not visible in ' + appConst.TIMEOUT_2);
             });
         }
     },
@@ -50,7 +50,7 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
         value: function () {
             return this.waitForVisible(this.showOutboundButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_outbound_button');
-                throw new Error('Wizard dependency panel - showOutboundButton: is not visible in ' + appConst.TIMEOUT_2);
+                throw new Error('showOutboundButton is not visible in ' + appConst.TIMEOUT_2);
             });
         }
     },

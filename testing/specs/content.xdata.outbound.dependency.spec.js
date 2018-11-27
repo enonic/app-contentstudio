@@ -61,7 +61,7 @@ describe('content.xdata.outbound.dependency.spec:  check outbound dependency for
             }).then(() => {
                 studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
                 return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                    'Show outbound button should be present on the widget, because the fragment was created from an image');
+                    'Show outbound button should be present on the widget, because the x-data contains an image');
             }).then(() => {
                 return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
                     '`Show Inbound` button should not be present');
