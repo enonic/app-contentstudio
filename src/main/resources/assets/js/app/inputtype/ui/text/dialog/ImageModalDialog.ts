@@ -37,6 +37,7 @@ import {ContentImageUrlResolver} from '../../../../content/ContentImageUrlResolv
  * 7. updated image plugin to enable justify button on toolbar
  * 8. centered figure will have 'display: block' instead of inline-block to properly display svg. UPD: no display style to correspond
  * with tinymce styles
+ * 9. Fixing error when moving image, app-cs issue-547
  *
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
  * LINE 1279: updateDragHandlerPosition() function updated to set inline style 'display: none;' on drag handler container

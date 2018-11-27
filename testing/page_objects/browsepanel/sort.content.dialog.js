@@ -1,69 +1,67 @@
-const page = require('./page');
-const appConst = require('../libs/app_const');
-const dialog = {
-    container: `//div[contains(@id,'ContentDeleteDialog')]`,
-    deleteButton: `//button/span[contains(.,'Delete')]`,
-    cancelButton: `//button/span[text()='Cancel']`,
-    itemList: `//div[contains(@id,'DeleteDialogItemList']`,
-    itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
-    deleteItemByDisplayName: function (displayName) {
-        return `//div[contains(@id,'DeleteItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
-    },
-    inboundLink: `//a[contains(@class,'inbound-dependency')]`,
+const page = require('../page');
+const appConst = require('../../libs/app_const');
+const xpath = {
+    container: `//div[contains(@id,'SortContentDialog')]`,
+    saveButton: "//button[contains(@id,'DialogButton') and child::span[text()='Save']]",
+    cancelButton: "//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]",
+    menuButton: "//div[contains(@id,'TabMenuButton')]",
 };
 
 const sortContentDialog = Object.create(page, {
 
     cancelButton: {
         get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
-
+            return `${xpath.container}` + `${xpath.cancelButton}`;
         }
     },
-    deleteButton: {
+    saveButton: {
         get: function () {
-            return `${dialog.container}` + `${dialog.deleteButton}`;
+            return `${xpath.container}` + `${xpath.deleteButton}`;
         }
     },
-    clickOnDeleteButton: {
+    menuButton: {
+        get: function () {
+            return `${xpath.container}` + `${xpath.menuButton}`;
+        }
+    },
+    clickOnSaveButton: {
         value: function () {
-            return this.doClick(this.deleteButton).catch((err) => {
+            return this.doClick(this.saveButton).catch(err => {
                 this.saveScreenshot('err_click_on_delete_dialog');
                 throw new Error(err);
             })
         }
     },
     waitForDialogVisible: {
-        value: function (ms) {
-            return this.waitForVisible(`${dialog.deleteButton}`, ms);
+        value: function () {
+            return this.waitForVisible(`${xpath.saveButton}`, appConst.TIMEOUT_2);
         }
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot('err_close_delete_content_dialog');
-                throw new Error('Delete content dialog must be closed');
+            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
+                this.saveScreenshot('err_close_sort_content_dialog');
+                throw new Error('Sort content dialog must be closed' + err);
             })
         }
     },
-    isItemHasInboundLink: {
-        value: function (itemDisplayName) {
-            let selector = `${dialog.deleteItemByDisplayName(itemDisplayName)}` + `${dialog.inboundLink}`;
-            return this.waitForVisible(selector, appConst.TIMEOUT_1);
+    clickOnCancelButton: {
+        value: function () {
+            return this.doClick(this.cancelButtonBottom);
         }
     },
-    getNumberOfInboundDependency: {
-        value: function (itemDisplayName) {
-            let selector = `${dialog.deleteItemByDisplayName(itemDisplayName)}` + `${dialog.inboundLink}`;
+    //expand menu-options('Modified date', 'Display name'...)
+    clickOnMenuButton: {
+        value: function () {
+            return this.doClick(this.cancelButtonBottom);
+        }
+    },
+    getMenuItems:{
+        value:function(){
+            let selector = xpath.container+ "//li[contains(@id,'SortContentTabMenuItem')]//a";
             return this.getText(selector);
         }
-    },
-
-    clickOnNoButton: {
-        value: function () {
-            return this.doClick(this.noButton);
-        }
-    },
+    }
 });
 module.exports = sortContentDialog;
 

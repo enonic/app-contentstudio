@@ -19,6 +19,7 @@ const confirmContentDeleteDialog = require('../page_objects/confirm.content.dele
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const contentPublishDialog = require('../page_objects/content.publish.dialog');
 const browseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const contentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 
 module.exports = {
     xpTabs: {},
@@ -227,8 +228,25 @@ module.exports = {
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
-    }
-    ,
+    },
+    doPublishInWizard: function () {
+        return contentWizardPanel.clickOnPublishButton().then(() => {
+            return contentPublishDialog.waitForDialogVisible();
+        }).then(() => {
+            return contentPublishDialog.clickOnPublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    },
+    doUnPublishInWizard: function () {
+        return contentWizardPanel.clickOnUnpublishmenuItem().then(() => {
+            return contentUnpublishDialog.waitForDialogOpened();
+        }).then(() => {
+            return contentUnpublishDialog.clickOnUnpublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    },
     doAddArticleContent: function (siteName, article) {
         return this.findAndSelectItem(siteName).then(() => {
             return this.openContentWizard(article.contentType);

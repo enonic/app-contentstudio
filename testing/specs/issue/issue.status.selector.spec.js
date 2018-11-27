@@ -50,9 +50,9 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                     return issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
                 }).then(() => {
                     return issueDetailsDialog.waitForNotificationMessage();
-                }).then(messages => {
+                }).then(message => {
                     studioUtils.saveScreenshot('status_menu_closed_issue');
-                    assert.isTrue(messages == appConstant.ISSUE_CLOSED_MESSAGE, 'notification message should be displayed');
+                    assert.isTrue(message == appConstant.ISSUE_CLOSED_MESSAGE, 'notification message should be displayed');
                 }).then(() => {
                     return assert.eventually.isTrue(issueDetailsDialog.waitForReopenButtonLoaded(),
                         '`Reopen Issue` button should be loaded');

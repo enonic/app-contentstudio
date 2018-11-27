@@ -13,9 +13,12 @@ const wizard = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
+    toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
+    publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
+    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
@@ -23,12 +26,18 @@ const wizard = {
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
+    scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
+    scheduleForm: "//div[contains(@id,'ScheduleWizardStepForm')]",
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
+    status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
+    author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
         name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[child::a[text()='${name}']]`,
+    wizardStepByTitle:
+        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
 
 };
 const contentWizardPanel = Object.create(page, {
@@ -51,6 +60,21 @@ const contentWizardPanel = Object.create(page, {
     savedButton: {
         get: function () {
             return `${wizard.container}` + `${wizard.savedButton}`;
+        }
+    },
+    publishButton: {
+        get: function () {
+            return `${wizard.container}` + `${wizard.publishButton}`;
+        }
+    },
+    publishDropDownHandle: {
+        get: function () {
+            return `${wizard.toolbarPublish}` + elements.DROP_DOWN_HANDLE;
+        }
+    },
+    unpublishMenuItem: {
+        get: function () {
+            return `${wizard.toolbarPublish}`+`${wizard.unpublishMenuItem}`;
         }
     },
     thumbnailUploader: {
@@ -87,11 +111,27 @@ const contentWizardPanel = Object.create(page, {
             })
         }
     },
+    waitForScheduleFormVisible: {
+        value: function () {
+            return this.waitForVisible(wizard.scheduleForm, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('schedule_form_should_not_be_visible');
+                return false;
+            })
+        }
+    },
+    waitForScheduleFormNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(wizard.scheduleForm, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('schedule_form_should_not_be_visible');
+                return false;
+            })
+        }
+    },
     waitForShowComponentVewTogglerVisible: {
-        value: function (ms) {
-            return this.waitForVisible(this.showComponentViewToggler, ms).catch(err => {
+        value: function () {
+            return this.waitForVisible(this.showComponentViewToggler, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_open_component_view');
-                throw new Error('Component View is not opened in ' + ms + '  ' + err);
+                throw new Error('Component View toggler is not visible in ' + 2 + '  ' + err);
             })
         }
     },
@@ -115,8 +155,9 @@ const contentWizardPanel = Object.create(page, {
     },
     waitForXdataTogglerVisible: {
         value: function () {
-            return this.waitForVisible(this.showComponentViewToggler, appConst.TIMEOUT_1).catch(err => {
-                return false;
+            return this.waitForVisible(wizard.xDataToggler, appConst.TIMEOUT_1).catch(err => {
+                this.saveScreenshot("err_x-data_toogler");
+                throw new Error("x-data toggler is not visible on the wizard page");
             })
         }
     },
@@ -125,6 +166,24 @@ const contentWizardPanel = Object.create(page, {
             let stepXpath = wizard.wizardStepByName(stepName);
             return this.waitForVisible(stepXpath, appConst.TIMEOUT_2).catch(err => {
                 console.log("Wizard step is not visible: " + err);
+                return false;
+            })
+        }
+    },
+    isWizardStepByTitlePresent: {
+        value: function (title) {
+            let stepXpath = wizard.wizardStepByTitle(title);
+            return this.waitForVisible(stepXpath, appConst.TIMEOUT_1).catch(err => {
+                console.log("Wizard step is not visible: " + title);
+                return false;
+            })
+        }
+    },
+    waitForWizardStepByTitleNotVisible: {
+        value: function (title) {
+            let stepXpath = wizard.wizardStepByTitle(title);
+            return this.waitForNotVisible(stepXpath, appConst.TIMEOUT_1).catch(err => {
+                console.log("Wizard step is not visible: " + title);
                 return false;
             })
         }
@@ -257,8 +316,15 @@ const contentWizardPanel = Object.create(page, {
     clickOnDelete: {
         value: function () {
             return this.doClick(this.deleteButton).catch(err => {
-                console.log(err);
                 this.saveScreenshot('err_delete_wizard');
+                throw new Error('Error when Delete button has been clicked ' + err);
+            });
+        }
+    },
+    clickOnPublishButton: {
+        value: function () {
+            return this.doClick(this.publishButton).catch(err => {
+                this.saveScreenshot('err_when_click_on_publish_button');
                 throw new Error('Error when Delete button has been clicked ' + err);
             });
         }
@@ -430,6 +496,48 @@ const contentWizardPanel = Object.create(page, {
     hotKeyPublish: {
         value: function () {
             return this.getBrowser().keys(['Control', 'Alt', 'p']);
+        }
+    },
+    getContentStatus: {
+        value: function () {
+            return this.getDisplayedElements(wizard.container + wizard.status).then(result => {
+                return this.getBrowser().elementIdText(result[0].ELEMENT);
+            }).then(result => {
+                return result.value;
+            }).catch(err => {
+                this.saveScreenshot('err_wizard_status');
+                throw Error('Error when getting of content status.');
+            })
+        }
+    },
+    getContentAuthor: {
+        value: function () {
+            return this.getDisplayedElements(wizard.container + wizard.author).then(result => {
+                return this.getBrowser().elementIdText(result[0].ELEMENT);
+            }).then(result => {
+                return result.value;
+            }).catch(err => {
+                this.saveScreenshot('err_wizard_author');
+                throw Error('Error when getting of author for content.');
+            })
+        }
+    },
+    clickOnPublishDropdownHandle: {
+        value: function () {
+            return this.doClick(this.publishDropDownHandle).catch(err => {
+                return this.doCatch('err_click_on_publish_dropdown_handle', err);
+            }).pause(300);
+        }
+    },
+    clickOnUnpublishmenuItem: {
+        value: function () {
+            return this.clickOnPublishDropdownHandle().then(() => {
+                return this.waitForVisible(this.unpublishMenuItem);
+            }).then(() => {
+                return this.doClick(this.unpublishMenuItem);
+            }).catch(err => {
+                return this.doCatch('err_click_on_unpublish_item', err);
+            }).pause(300);
         }
     },
 });

@@ -5,6 +5,7 @@
   "license": "ISC",
   "scripts": {
     "test": "node ./tasks/test.js",
+    "test_by_name": "node ./tasks/test-by-name.js",
     "report": "allure generate allure-results --clean -o allure-report && allure open allure-report"
   },
   "devDependencies": {

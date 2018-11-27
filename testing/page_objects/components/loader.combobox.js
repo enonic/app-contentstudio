@@ -29,12 +29,15 @@ const loaderComboBox = Object.create(page, {
         }
     },
     typeTextAndSelectOption: {
-        value: function (optionDisplayName,xpath) {
+        value: function (optionDisplayName, xpath) {
             let optionSelector = elements.slickRowByDisplayName(`${component.container}`, optionDisplayName);
-            if (xpath === undefined){
-                xpath='';
+            if (xpath === undefined) {
+                xpath = '';
             }
-                return this.getDisplayedElements(xpath+this.optionsFilterInput).then(result => {
+            return this.getDisplayedElements(xpath + this.optionsFilterInput).then(result => {
+                if (result.length == 0) {
+                    throw new Error("Options Filter input is not visible! " + xpath + this.optionsFilterInput);
+                }
                 return this.getBrowser().elementIdValue(result[0].ELEMENT, optionDisplayName);
             }).pause(1000).then(() => {
                 return this.doClick(optionSelector).catch((err) => {

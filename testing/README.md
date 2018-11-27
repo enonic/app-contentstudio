@@ -15,6 +15,7 @@ Run tests for app-admin-home.
 go to '/testing' folder and run:
   1. `gradle testContentStudioApp
   2. `gradle testContentStudioAppLocally  ( --project-cache-dir d:/cache)
+  3. gradle runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache
   
 
 ### Reporting
