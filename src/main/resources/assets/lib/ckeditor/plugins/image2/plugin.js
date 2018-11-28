@@ -860,7 +860,7 @@
         }
     };
 
-    function setWrapperAlign(widget, alignClasses) { // #1
+    function setWrapperAlign(widget, alignClasses) { // change #1
         var wrapper = widget.wrapper.findOne('figure') || widget.wrapper.getParent() || widget.wrapper,
             align = widget.data.align,
             hasCaption = widget.data.hasCaption;

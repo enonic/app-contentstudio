@@ -28,16 +28,6 @@ import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 
-/**
- * NB: Modifications were made for native image plugin in image2/plugin.js:
- * 8. centered figure will have 'display: block' instead of inline-block to properly display svg. UPD: no display style to correspond
- * with tinymce styles NEW: update styles and remove this
- *
- * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
- * LINE 1279: updateDragHandlerPosition() function updated to set inline style 'display: none;' on drag handler container
- *
- * Update those in case ckeditor lib is updated
- */
 export class ImageModalDialog
     extends OverrideNativeDialog {
 

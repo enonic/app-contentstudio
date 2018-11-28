@@ -1,5 +1,6 @@
 import HTMLAreaEditor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
+import widget = CKEDITOR.plugins.widget;
 import NotificationMessage = api.notify.NotificationMessage;
 import NotifyManager = api.notify.NotifyManager;
 import StringHelper = api.util.StringHelper;
@@ -16,7 +17,9 @@ import {StyleHelper} from './styles/StyleHelper';
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
  * LINE 126: getFrameDocument() function updated to fix issue #542 in MS EDGE
- * LINE 1253: cke_widget_drag_handler_container initial styling updated to have display:none;
+ *
+ * NB: Modifications were made for native image plugin in image2/plugin.js:
+ * setWrapperAlign(), first line updated to use figure element for setting align classes instead of widget's wrapper div
  *
  * Update those in case ckeditor lib is updated
  */
@@ -528,6 +531,21 @@ export class HTMLAreaBuilder {
             this.toggleToolbarButtonState(ckeditor, 'justifycenter', false);
         } else {
             this.toggleToolbarButtonState(ckeditor, 'justifyblock', false);
+
+            // if image was dragged then align buttons are disabled; enabling them in that case
+            if (ckeditor.getCommand('justifyleft').state === CKEDITOR.TRISTATE_DISABLED) {
+                this.toggleToolbarButtonState(ckeditor, 'justifyleft', false);
+                this.toggleToolbarButtonState(ckeditor, 'justifyright', false);
+                this.toggleToolbarButtonState(ckeditor, 'justifycenter', false);
+
+                if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT)) {
+                    this.toggleToolbarButtonState(ckeditor, 'justifyleft', true);
+                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT)) {
+                    this.toggleToolbarButtonState(ckeditor, 'justifyright', true);
+                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER)) {
+                    this.toggleToolbarButtonState(ckeditor, 'justifycenter', true);
+                }
+            }
         }
     }
 
@@ -556,10 +574,10 @@ export class HTMLAreaBuilder {
             const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
 
             if (e.data.name === 'justifyblock') {
+                const imageWidget: widget = (<any>ckeditor.widgets).getByElement(selectedElement);
+                imageWidget.setData('align', 'none');
+
                 figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY);
-                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.LEFT);
-                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.RIGHT);
-                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.CENTER);
 
                 this.toggleToolbarButtonState(ckeditor, 'justifyblock', true); // make justify button active
                 this.toggleToolbarButtonState(ckeditor, 'justifyleft', false);
