@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -68,6 +68,12 @@
         },
 
         init: function (editor) {
+            // Abort when Easyimage is to be loaded since this plugins
+            // share the same functionality (#1791).
+            if (editor.plugins.detectConflict('image2', ['easyimage'])) {
+                return;
+            }
+
             // Adapts configuration from original image plugin. Should be removed
             // when we'll rename image2 to image.
             var config = editor.config,
@@ -609,20 +615,19 @@
                     // The caption was present, but now it's to be removed.
                     else {
                         // Unwrap <img/> or <a><img/></a> from figure.
-                        // imageOrLink.replace(shift.element);
-                        if (shift.widget.parts.caption) {
-                            shift.widget.parts.caption.remove();
-                        }
+                        imageOrLink.replace(shift.element);
 
                         // Update widget's element.
-                        // shift.element = imageOrLink;
+                        shift.element = imageOrLink;
                     }
                 },
 
                 link: function (shift, oldValue, newValue) {
                     if (shift.changed.link) {
-                        var img = shift.element.is('img') ? shift.element : shift.element.findOne('img'),
-                            link = shift.element.is('a') ? shift.element : shift.element.findOne('a'),
+                        var img = shift.element.is('img') ?
+                                  shift.element : shift.element.findOne('img'),
+                            link = shift.element.is('a') ?
+                                   shift.element : shift.element.findOne('a'),
                             // Why deflate:
                             // If element is <img/>, it will be wrapped into <a>,
                             // which becomes a new widget.element.
@@ -750,7 +755,8 @@
                 for (i = 0; i < shiftables.length; i++) {
                     name = shiftables[i];
 
-                    shift.changed[name] = shift.oldData ? shift.oldData[name] !== shift.newData[name] : false;
+                    shift.changed[name] = shift.oldData ?
+                                          shift.oldData[name] !== shift.newData[name] : false;
                 }
 
                 // Iterate over possible state variables.
@@ -860,7 +866,7 @@
         }
     };
 
-    function setWrapperAlign(widget, alignClasses) { // change #1
+    function setWrapperAlign(widget, alignClasses) {
         var wrapper = widget.wrapper.findOne('figure') || widget.wrapper.getParent() || widget.wrapper,
             align = widget.data.align,
             hasCaption = widget.data.hasCaption;
@@ -961,7 +967,7 @@
             }
 
             // No center wrapper has been found.
-            else if (name == 'figure') { ///////// alarm!!!
+            else if (name == 'figure' && el.hasClass(captionedClass)) {
                 image = el.getFirst('img') || el.getFirst('a').getFirst('img');
 
                 // Upcast linked image like <a><img/></a>.
@@ -1027,14 +1033,13 @@
                 // 		<figure class="image">...</figure>
                 // 	</div>
                 //
-                // if (align == 'center' && el.name == 'figure') { // <#2>
-                //     el = el.wrapWith(new CKEDITOR.htmlParser.element('div',
-                //         alignClasses ? {'class': alignClasses[1]} : {style: 'text-align:center'}));
-                // }
+                if (align == 'center' && el.name == 'figure') {
+                    el = el.wrapWith(new CKEDITOR.htmlParser.element('div',
+                        alignClasses ? {'class': alignClasses[1]} : {style: 'text-align:center'}));
+                }
 
                 // If left/right, add float style to the downcasted element.
-                // else
-                if (align in {left: 1, right: 1}) { // </#2>
+                else if (align in {left: 1, right: 1}) {
                     if (alignClasses) {
                         attrsHolder.addClass(alignClasses[alignmentsObj[align]]);
                     } else {
@@ -1116,8 +1121,8 @@
 
             // Centering wrapper got to be... centering. If image2_alignClasses are defined,
             // check for centering class. Otherwise, check the style.
-            if (alignClasses ? el.hasClass(alignClasses[1]) : CKEDITOR.tools.parseCssText(el.attributes.style || '', true)['text-align'] ==
-                                                              'center') {
+            if (alignClasses ? el.hasClass(alignClasses[1]) :
+                CKEDITOR.tools.parseCssText(el.attributes.style || '', true)['text-align'] == 'center') {
                 return true;
             }
 
@@ -1472,11 +1477,7 @@
             return;
         }
 
-        editor.on('contentDomUnload', function (evt) {
-            CKEDITOR.removeListener('dialogDefinition', df);
-        });
-
-        var df = function (evt) {
+        CKEDITOR.on('dialogDefinition', function (evt) {
             var dialog = evt.data;
 
             if (dialog.name == 'link') {
@@ -1526,9 +1527,7 @@
                     }
                 };
             }
-        };
-
-        CKEDITOR.on('dialogDefinition', df);
+        });
 
         // Overwrite default behaviour of unlink command.
         editor.getCommand('unlink').on('exec', function (evt) {
@@ -1559,7 +1558,8 @@
 
             // Note that widget may be wrapped in a link, which
             // does not belong to that widget (https://dev.ckeditor.com/ticket/11814).
-            this.setState(widget.data.link || widget.wrapper.getAscendant('a') ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED);
+            this.setState(widget.data.link || widget.wrapper.getAscendant('a') ?
+                          CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED);
 
             evt.cancel();
         });
@@ -1664,8 +1664,8 @@
 /**
  * A CSS class applied to the `<figure>` element of a captioned image.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        // Changes the class to "captionedImage".
  *        config.image2_captionedClass = 'captionedImage';
@@ -1679,8 +1679,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  * Determines whether dimension inputs should be automatically filled when the image URL changes in the Enhanced Image
  * plugin dialog window.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        config.image2_prefillDimensions = false;
  *
@@ -1692,8 +1692,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
 /**
  * Disables the image resizer. By default the resizer is enabled.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        config.image2_disableResizer = true;
  *
@@ -1723,10 +1723,10 @@ CKEDITOR.config.image2_captionedClass = 'image';
  * **Note**: Once this configuration option is set, corresponding style definitions
  * must be supplied to the editor:
  *
- * * For [classic editor](#!/guide/dev_framed) it can be done by defining additional
+ * * For {@glink guide/dev_framed classic editor} it can be done by defining additional
  * styles in the {@link CKEDITOR.config#contentsCss stylesheets loaded by the editor}. The same
  * styles must be provided on the target page where the content will be loaded.
- * * For [inline editor](#!/guide/dev_inline) the styles can be defined directly
+ * * For {@glink guide/dev_inline inline editor} the styles can be defined directly
  * with `<style> ... <style>` or `<link href="..." rel="stylesheet">`, i.e. within the `<head>`
  * of the page.
  *
@@ -1752,8 +1752,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  *			display: inline-block;
  *		}
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  * @since 4.4
  * @cfg {String[]} [image2_alignClasses=null]
@@ -1765,8 +1765,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  *
  *        config.image2_altRequired = true;
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  * @since 4.6.0
  * @cfg {Boolean} [image2_altRequired=false]

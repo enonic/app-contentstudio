@@ -1,5 +1,5 @@
 ﻿/*
- Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+ Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
  For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 */
 CKEDITOR.plugins.setLang("specialchar", "bg", {
@@ -19,8 +19,8 @@ CKEDITOR.plugins.setLang("specialchar", "bg", {
     sect: "Знак за секция",
     uml: "Diaeresis",
     copy: "Знак за Copyright",
-    ordf: "Feminine ordinal indicator",
-    laquo: "Left-pointing double angle quotation mark",
+    ordf: "Женски ординарен индикатор",
+    laquo: "Знак с двоен ъгъл за означаване на лява посока",
     not: "Not sign",
     reg: "Registered sign",
     macr: "Macron",
