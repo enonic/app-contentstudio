@@ -11,11 +11,8 @@ import ContentPath = api.content.ContentPath;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {StylesRequest} from './styles/StylesRequest';
 import {Styles} from './styles/Styles';
-import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 import {StyleHelper} from './styles/StyleHelper';
-import {ImageModalDialog} from './dialog/ImageModalDialog';
-import {ContentImageUrlResolver} from '../../../content/ContentImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 
