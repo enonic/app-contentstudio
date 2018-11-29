@@ -62,7 +62,7 @@ export class WidgetView extends api.dom.DivEl {
         let updateWidgetItemViewsHandler = () => {
             let containerWidth = this.detailsView.getEl().getWidth();
             if (this.detailsView.getItem() && containerWidth !== this.containerWidth) {
-                this.updateWidgetItemViews(true);
+                this.updateWidgetItemViews();
             }
         };
         this.detailsView.onPanelSizeChanged(() => {
@@ -82,31 +82,27 @@ export class WidgetView extends api.dom.DivEl {
         return UriHelper.getAdminUri(this.widget.getUrl(), '/');
     }
 
-    private getFullUrl(url: string) {
-        return url + '/' + this.detailsView.getEl().getWidth();
-    }
-
-    private updateCustomWidgetItemViews(force: boolean = false): wemQ.Promise<any>[] {
+    private updateCustomWidgetItemViews(): wemQ.Promise<any>[] {
         let promises = [];
 
         this.url = this.getWidgetUrl();
         this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
-            promises.push(widgetItemView.setUrl(this.getFullUrl(this.url), this.content.getContentId().toString(), force));
+            promises.push(widgetItemView.setUrl(this.url, this.content.getContentId().toString()));
         });
 
         return promises;
     }
 
-    public updateWidgetItemViews(force: boolean = false): wemQ.Promise<any> {
+    public updateWidgetItemViews(): wemQ.Promise<any> {
         let content = this.detailsView.getItem();
         let promises = [];
 
-        if (this.isActive() && this.widgetShouldBeUpdated(force)) {
+        if (this.isActive() && this.widgetShouldBeUpdated()) {
             this.detailsView.showLoadMask();
             this.content = content;
 
             if (this.isUrlBased()) {
-                promises = promises.concat(this.updateCustomWidgetItemViews(force));
+                promises = promises.concat(this.updateCustomWidgetItemViews());
             } else {
                 this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
                     promises.push(widgetItemView.setContentAndUpdateView(content));
