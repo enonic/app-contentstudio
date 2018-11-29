@@ -66,7 +66,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             }
         });
 
-        handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => {
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
@@ -78,7 +78,10 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             if (isDependencyItemUpdated) {
                 this.search();
             }
-        });
+        };
+
+        handler.onContentUpdated(updatedHandler);
+        handler.onContentPermissionsUpdated(updatedHandler);
     }
 
     protected getGroupViews(): api.aggregation.AggregationGroupView[] {

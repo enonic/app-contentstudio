@@ -39,6 +39,8 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
+    private contentPermissionsUpdatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+
     private static debug: boolean = false;
 
     constructor() {
@@ -64,75 +66,8 @@ export class ContentServerEventsHandler {
         }
     }
 
-    private contentServerEventHandler(event: BatchContentServerEvent) {
-        if (ContentServerEventsHandler.debug) {
-            console.debug('ContentServerEventsHandler: received server event', event);
-        }
-
-        let changes = event.getEvents().map((change) => change.getNodeChange());
-
-        if (event.getType() === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changes)) {
-            // content has already been deleted so no need to fetch summaries
-            let changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
-                return total.concat(change.getChangeItems());
-            }, []);
-
-            let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
-            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
-                d.contentId)));
-
-            this.handleContentDeleted(deletedItems);
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
-                .then((summaries) => {
-                    this.handleContentUnpublished(summaries);
-                });
-
-        } else if (event.getType() === NodeServerChangeType.MOVE) {
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(changes))
-                .then((summaries) => {
-                    this.handleContentMoved(summaries, this.extractContentPaths(changes));
-                });
-        } else {
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(changes))
-                .then((summaries) => {
-                    if (ContentServerEventsHandler.debug) {
-                        console.debug('ContentServerEventsHandler: fetched summaries', summaries);
-                    }
-                    switch (event.getType()) {
-                    case NodeServerChangeType.CREATE:
-                        this.handleContentCreated(summaries);
-                        break;
-                    case NodeServerChangeType.UPDATE:
-                        this.handleContentUpdated(summaries);
-                        break;
-                    case NodeServerChangeType.RENAME:
-                        // also supply old paths in case of rename
-                        this.handleContentRenamed(summaries, this.extractContentPaths(changes));
-                        break;
-                    case NodeServerChangeType.DELETE:
-                        // delete from draft has been handled without fetching summaries,
-                        // deleting from master is unpublish
-                        this.handleContentUnpublished(summaries);
-                        break;
-                    case NodeServerChangeType.PENDING:
-                        this.handleContentPending(summaries);
-                        break;
-                    case NodeServerChangeType.DUPLICATE:
-                        this.handleContentDuplicated(summaries);
-                        break;
-                    case NodeServerChangeType.PUBLISH:
-                        this.handleContentPublished(summaries);
-                        break;
-                    case NodeServerChangeType.SORT:
-                        this.handleContentSorted(summaries);
-                        break;
-                    case NodeServerChangeType.UNKNOWN:
-                        break;
-                    default:
-                        //
-                    }
-                });
-        }
+    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+        this.contentPermissionsUpdatedListeners.push(listener);
     }
 
     private hasDraftBranchChanges(changes: ContentServerChange[]): boolean {
@@ -272,6 +207,13 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: sorted', data);
         }
         this.notifyContentSorted(data);
+    }
+
+    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+        this.contentPermissionsUpdatedListeners =
+            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+                return currentListener !== listener;
+            });
     }
 
     onContentCreated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
@@ -442,6 +384,93 @@ export class ContentServerEventsHandler {
 
     private notifyContentSorted(data: ContentSummaryAndCompareStatus[]) {
         this.contentSortListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+            listener(data);
+        });
+    }
+
+    private contentServerEventHandler(event: BatchContentServerEvent) {
+        if (ContentServerEventsHandler.debug) {
+            console.debug('ContentServerEventsHandler: received server event', event);
+        }
+
+        let changes = event.getEvents().map((change) => change.getNodeChange());
+
+        if (event.getType() === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changes)) {
+            // content has already been deleted so no need to fetch summaries
+            let changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
+                return total.concat(change.getChangeItems());
+            }, []);
+
+            let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
+            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
+                d.contentId)));
+
+            this.handleContentDeleted(deletedItems);
+            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
+                .then((summaries) => {
+                    this.handleContentUnpublished(summaries);
+                });
+
+        } else if (event.getType() === NodeServerChangeType.MOVE) {
+            ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(changes))
+                .then((summaries) => {
+                    this.handleContentMoved(summaries, this.extractContentPaths(changes));
+                });
+        } else {
+            ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(changes))
+                .then((summaries) => {
+                    if (ContentServerEventsHandler.debug) {
+                        console.debug('ContentServerEventsHandler: fetched summaries', summaries);
+                    }
+                    switch (event.getType()) {
+                    case NodeServerChangeType.CREATE:
+                        this.handleContentCreated(summaries);
+                        break;
+                    case NodeServerChangeType.UPDATE:
+                        this.handleContentUpdated(summaries);
+                        break;
+                    case NodeServerChangeType.RENAME:
+                        // also supply old paths in case of rename
+                        this.handleContentRenamed(summaries, this.extractContentPaths(changes));
+                        break;
+                    case NodeServerChangeType.DELETE:
+                        // delete from draft has been handled without fetching summaries,
+                        // deleting from master is unpublish
+                        this.handleContentUnpublished(summaries);
+                        break;
+                    case NodeServerChangeType.PENDING:
+                        this.handleContentPending(summaries);
+                        break;
+                    case NodeServerChangeType.DUPLICATE:
+                        this.handleContentDuplicated(summaries);
+                        break;
+                    case NodeServerChangeType.PUBLISH:
+                        this.handleContentPublished(summaries);
+                        break;
+                    case NodeServerChangeType.SORT:
+                        this.handleContentSorted(summaries);
+                        break;
+                    case NodeServerChangeType.UPDATE_PERMISSIONS:
+                        this.handleContentPermissionsUpdated(summaries);
+                        break;
+                    case NodeServerChangeType.UNKNOWN:
+                        break;
+                    default:
+                        //
+                    }
+                });
+        }
+    }
+
+    private handleContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
+        if (ContentServerEventsHandler.debug) {
+            console.debug('ContentServerEventsHandler: permissions updated', data);
+        }
+        this.notifyContentPermissionsUpdated(data);
+    }
+
+    private notifyContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
+        this.contentPermissionsUpdatedListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[]) => void) => {
             listener(data);
         });
     }

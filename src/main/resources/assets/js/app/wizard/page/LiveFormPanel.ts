@@ -154,6 +154,7 @@ export class LiveFormPanel
             });
         };
         ContentServerEventsHandler.getInstance().onContentUpdated(contentUpdatedHandler);
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(contentUpdatedHandler);
 
         this.liveEditPageProxy = this.createLiveEditPageProxy();
 
