@@ -28,23 +28,6 @@ import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 
-/**
- * NB: Modifications were made for native image plugin in image2/plugin.js:
- * 1. setWrapperAlign() method updated to make image wrapper element have inline alignment styles we used to have
- * 2. align updated to behave same is in tiny
- * 3. widget's'data.lock' is used to store keepSize value; init value of 'data.lock' set by keepSize param value;
- * 4. unwrapFromCentering() updated to correctly handle image alignment with respect to figure tag
- * 5. hasCaption() updated to wrap image into figure tag on drag and drop
- * 6. figcaption related code fixed to work as in tinymce
- * 7. updated image plugin to enable justify button on toolbar
- * 8. centered figure will have 'display: block' instead of inline-block to properly display svg. UPD: no display style to correspond
- * with tinymce styles
- *
- * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
- * LINE 1279: updateDragHandlerPosition() function updated to set inline style 'display: none;' on drag handler container
- *
- * Update those in case ckeditor lib is updated
- */
 export class ImageModalDialog
     extends OverrideNativeDialog {
 
@@ -67,7 +50,7 @@ export class ImageModalDialog
     private scrollNavigationWrapperDiv: api.dom.DivEl;
     private editorWidth: number;
 
-    static readonly defaultStyles = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
+    static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
 
     constructor(config: eventInfo, content: api.content.ContentSummary) {
         super(<HtmlAreaModalDialogConfig>{
@@ -492,17 +475,17 @@ export class ImageModalDialog
     }
 
     private updateEditorElements() {
-        const imageEl = (<any>this.ckeOriginalDialog).widget.parts.image;
-        const figureEl = imageEl.getAscendant('figure');
-        const figureCaptionEl = figureEl.findOne('figcaption');
+        const imageEl: CKEDITOR.dom.element = (<any>this.ckeOriginalDialog).widget.parts.image;
+        const figureEl: CKEDITOR.dom.element = <CKEDITOR.dom.element>imageEl.getAscendant('figure');
+        const figureCaptionEl: CKEDITOR.dom.element = figureEl.findOne('figcaption');
 
-        figureEl.setAttribute('class', this.figure.getClass());
+        figureEl.setAttribute('class', `${this.figure.getClass()} captioned`);
         figureEl.removeAttribute('style');
 
-        imageEl.removeAttribute('class', '');
-        imageEl.removeAttribute('style', '');
+        imageEl.removeAttribute('class');
+        imageEl.removeAttribute('style');
 
-        this.updateImageSrc(imageEl, this.editorWidth);
+        this.updateImageSrc(imageEl.$, this.editorWidth);
 
         figureCaptionEl.setText(this.getCaptionFieldValue());
     }
@@ -511,18 +494,12 @@ export class ImageModalDialog
         const image = this.figure.getImage();
         const src: string = image.getEl().getAttribute('src');
         const altText: string = this.getAltTextFieldValue();
-        const alignment: string = image.getHTMLElement().style.textAlign;
-        const keepSize: boolean = image.getEl().getAttribute('data-src').indexOf('keepSize=true') > 0;
+        const alignment: string = this.imageToolbar.getAlignment();
 
         this.getOriginalUrlElem().setValue(src, false);
         this.getOriginalAltTextElem().setValue(altText, false);
         this.getOriginalHasCaptionElem().setValue(true, false);
         this.getOriginalAlignmentElem().setValue(alignment, false);
-        // using plugin's lock button state to tell it if keepSize is true or not
-        // plugin is modified to set required inline styles
-        if (('' + keepSize) !== this.getOriginalLockElem().$.getAttribute('aria-checked')) {
-            this.getOriginalLockElem().$.click();
-        }
     }
 
     private setCaptionFieldValue(value: string) {
@@ -723,6 +700,17 @@ export class ImageDialogToolbar
         return '';
     }
 
+    getAlignment(): string {
+
+        for (let alignment in this.alignmentButtons) {
+            if (this.alignmentButtons[alignment].hasClass('active')) {
+                return alignment.toString().replace('editor-align-', '');
+            }
+        }
+
+        return 'justify';
+    }
+
     private getProcessingStyleCls(): string {
         if (this.isProcessingStyleSelected()) {
             return this.imageStyleSelector.getSelectedOption().displayValue.getName();
@@ -733,6 +721,7 @@ export class ImageDialogToolbar
 
     private resetActiveAlignmentButton() {
 
+        // tslint:disable-next-line
         for (let alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }

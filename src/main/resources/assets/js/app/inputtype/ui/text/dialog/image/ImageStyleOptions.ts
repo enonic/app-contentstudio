@@ -40,7 +40,7 @@ export class ImageStyleOptions {
         return {
             value: imageStyleOption.getName(),
             displayValue: imageStyleOption
-        }
+        };
     }
 
     static getOptions(): Option<ImageStyleOption>[] {

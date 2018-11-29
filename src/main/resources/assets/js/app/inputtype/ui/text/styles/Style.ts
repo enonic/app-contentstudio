@@ -42,7 +42,7 @@ export class Style {
             name: 'none',
             displayName: i18n('dialog.style.none'),
             element: element
-        })
+        });
     }
 
     isEmpty(): boolean {
