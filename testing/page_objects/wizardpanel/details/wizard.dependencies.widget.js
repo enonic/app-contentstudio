@@ -54,13 +54,32 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
             });
         }
     },
-    waitForDependenciesLoaded: {
+    waitForOutboundButtonNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(this.showOutboundButton, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('err_outbound_button_should_be_hidden');
+                throw new Error('showOutboundButton still visible in ' + appConst.TIMEOUT_2);
+            });
+        }
+    },
+    waitForWidgetLoaded: {
         value: function () {
             return this.waitForVisible(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
                 throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.TIMEOUT_2);
             });
         }
     },
+    getNumberOutboundItems: {
+        value: function () {
+            return this.waitForVisible(this.showOutboundButton).then(() => {
+                return this.getText(this.showOutboundButton);
+            }).then(result => {
+                let startIndex = result.indexOf('(');
+                let endIndex = result.indexOf(')');
+                return result.substring(startIndex + 1, endIndex);
+            })
+        }
+    }
 });
 module.exports = wizardDependenciesWidget;
 

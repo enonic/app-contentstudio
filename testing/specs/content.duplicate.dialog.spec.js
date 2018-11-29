@@ -53,7 +53,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             }).then(() => {
                 return contentDuplicateDialog.getDisplayNamesToDuplicate();
             }).then(result => {
-                assert.isTrue(result.length == 2, '2 items to duplicate should be disaplayed');
+                assert.isTrue(result.length == 2, '2 items to duplicate should be displayed');
                 assert.isTrue(result[0] == appConstant.TEST_FOLDER_WITH_IMAGES, 'correct parent\'s display name should be present');
                 assert.isTrue(result[1] == appConstant.TEST_FOLDER_2_DISPLAY_NAME, 'correct parent\'s display name should be present');
             })
