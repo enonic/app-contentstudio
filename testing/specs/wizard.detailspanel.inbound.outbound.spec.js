@@ -130,6 +130,27 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 })
             });
 
+        it(`GIVEN existing site with fragment is opened WHEN fragment has been removed in 'Page Component View'  THEN 'No outgoing dependencies' should appears`,
+            () => {
+                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                    return contentWizard.openDetailsPanel();
+                }).then(() => {
+                    return wizardDetailsPanel.openDependencies();
+                }).then(() => {
+                    return contentWizard.clickOnShowComponentViewToggler();
+                }).then(() => {
+                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
+                }).then(() => {
+                    return pageComponentView.selectMenuItem(["Remove"]);
+                }).then(() => {
+                    return contentWizard.waitAndClickOnSave();
+                }).then(() => {
+                    studioUtils.saveScreenshot('fragment_removed_dependencies');
+                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonNotVisible(),
+                        'Show outbound button should disappears on the widget, because the fragment was removed in Page Editor');
+                });
+            });
+
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
         before(() => {

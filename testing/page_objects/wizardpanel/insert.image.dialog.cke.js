@@ -43,7 +43,7 @@ const insertImageModalDialog = Object.create(page, {
                 throw new Error('Insert Image Dialog, error when click on the Insert button  ' + err);
             }).then(() => {
                 return this.waitForDialogClosed();
-            })
+            }).pause(1000);
         }
     },
     waitForDialogVisible: {
@@ -63,6 +63,8 @@ const insertImageModalDialog = Object.create(page, {
         value: function (imageDisplayName) {
             return this.waitForVisible(this.imageOptionsFilterInput).then(() => {
                 return comboBox.typeTextAndSelectOption(imageDisplayName, dialog.container);
+            }).then(() => {
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
             })
         }
     }
