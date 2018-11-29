@@ -16,23 +16,19 @@ a.cke_scayt_toogle:active {
     cursor: pointer;
     margin: 0px;
 }
-
 a.cke_scayt_toogle {
     color: #316ac5;
     border-color: #fff;
 }
-
 .scayt_enabled a.cke_scayt_item {
     color: #316ac5;
     border-color: #fff;
     margin: 0px;
 }
-
 .scayt_disabled a.cke_scayt_item {
     color: gray;
     border-color: #fff;
 }
-
 .scayt_enabled a.cke_scayt_item:hover,
 .scayt_enabled a.cke_scayt_item:focus,
 .scayt_enabled a.cke_scayt_item:active {
@@ -41,7 +37,6 @@ a.cke_scayt_toogle {
     color: #000;
     cursor: pointer;
 }
-
 .scayt_disabled a.cke_scayt_item:hover,
 .scayt_disabled a.cke_scayt_item:focus,
 .scayt_disabled a.cke_scayt_item:active {
