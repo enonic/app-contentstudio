@@ -41,7 +41,7 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
                 return wizardDetailsPanel.openDependencies();
             }).then(() => {
                 studioUtils.saveScreenshot("wizard_dependencies_widget");
-                return assert.eventually.isTrue(wizardDependenciesWidget.waitForDependenciesLoaded(),
+                return assert.eventually.isTrue(wizardDependenciesWidget.waitForWidgetLoaded(),
                     "`Dependencies Widget` should be loaded");
             });
         });

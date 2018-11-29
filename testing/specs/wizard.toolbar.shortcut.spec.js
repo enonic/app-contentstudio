@@ -8,7 +8,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -41,7 +40,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
             assert.isTrue(result, 'Delete Dialog should be present');
         })
     });
-//verifies:https://github.com/enonic/app-contentstudio/issues/127
+    //verifies:https://github.com/enonic/app-contentstudio/issues/127
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, () => {
         return studioUtils.openContentInWizard(displayName).then(() => {
         }).then(() => {

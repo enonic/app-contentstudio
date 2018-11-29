@@ -1,6 +1,7 @@
 const page = require('../page');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const comboBox = require('../components/loader.combobox');
 
 const dialog = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
@@ -10,6 +11,11 @@ const dialog = {
 
 const insertImageModalDialog = Object.create(page, {
 
+    imageOptionsFilterInput: {
+        get: function () {
+            return dialog.container + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
+        }
+    },
     cancelButton: {
         get: function () {
             return `${dialog.container}` + `${dialog.cancelButton}`;
@@ -25,18 +31,6 @@ const insertImageModalDialog = Object.create(page, {
             return `${dialog.container}` + `${dialog.insertButton}`;
         }
     },
-    textInput: {
-        get: function () {
-            return `${dialog.container}` + `${elements.TEXT_INPUT}`;
-        }
-    },
-    typeInTextInput: {
-        value: function (text) {
-            return this.typeTextInInput(this.textInput, text).catch((err) => {
-                this.doCatch('site_conf_err', err);
-            })
-        }
-    },
     clickOnCancelButton: {
         value: function () {
             return this.doClick(this.cancelButton);
@@ -49,7 +43,7 @@ const insertImageModalDialog = Object.create(page, {
                 throw new Error('Insert Image Dialog, error when click on the Insert button  ' + err);
             }).then(() => {
                 return this.waitForDialogClosed();
-            })
+            }).pause(1000);
         }
     },
     waitForDialogVisible: {
@@ -61,10 +55,19 @@ const insertImageModalDialog = Object.create(page, {
         }
     },
     waitForDialogClosed: {
-        value: function (ms) {
-            return this.waitForNotVisible(`${dialog.container}`, ms);
+        value: function () {
+            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
         }
     },
+    filterAndSelectImage: {
+        value: function (imageDisplayName) {
+            return this.waitForVisible(this.imageOptionsFilterInput).then(() => {
+                return comboBox.typeTextAndSelectOption(imageDisplayName, dialog.container);
+            }).then(() => {
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
+            })
+        }
+    }
 });
 module.exports = insertImageModalDialog;
 

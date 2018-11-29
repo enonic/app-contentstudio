@@ -6,7 +6,7 @@ module.exports = Object.freeze({
         return part + Math.round(Math.random() * 1000000);
     },
     itemSavedNotificationMessage: function (name) {
-        return `\"${name}\" is saved`
+        return `Item \"${name}\" is saved.`
     },
     itemPublishedNotificationMessage: function (name) {
         return `Item \"${name}\" is published.`
@@ -99,5 +99,6 @@ module.exports = Object.freeze({
     systemUsersDisplayName: {
         ANONYMOUS_USER: 'Anonymous User',
         EVERYONE: 'Everyone',
+        SUPER_USER: 'Super User',
     }
 });

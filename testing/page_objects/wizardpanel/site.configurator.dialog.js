@@ -37,6 +37,19 @@ const siteConfiguratorDialog = Object.create(page, {
             })
         }
     },
+    showToolbarAndClickOnInsertImageButton: {
+        value: function () {
+            let areaSelector = `//div[contains(@id,'cke_api.ui.text.TextArea')]`;
+            let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
+            return this.waitForVisible(areaSelector, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(areaSelector);
+            }).then(() => {
+                return this.waitForVisible(insertImageButton, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(insertImageButton);
+            })
+        }
+    },
     clickOnCancelButton: {
         value: function () {
             return this.doClick(this.cancelButton);

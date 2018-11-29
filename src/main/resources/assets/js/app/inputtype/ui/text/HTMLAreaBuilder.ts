@@ -7,12 +7,17 @@ import StringHelper = api.util.StringHelper;
 import i18n = api.util.i18n;
 import ApplicationKey = api.application.ApplicationKey;
 import BrowserHelper = api.BrowserHelper;
+import ContentPath = api.content.ContentPath;
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {StylesRequest} from './styles/StylesRequest';
 import {Styles} from './styles/Styles';
 import {GetContentByPathRequest} from '../../../resource/GetContentByPathRequest';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
 import {StyleHelper} from './styles/StyleHelper';
+import {ImageModalDialog} from './dialog/ImageModalDialog';
+import {ContentImageUrlResolver} from '../../../content/ContentImageUrlResolver';
+import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
+import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 
 /**
  * NB: Modifications were made in ckeditor.js (VERY SORRY FOR THAT):
@@ -362,9 +367,7 @@ export class HTMLAreaBuilder {
                 } else {
                     this.uploadFile(fileLoader);
                 }
-            }).catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
-            }).done();
+            }).catch(api.DefaultErrorHandler.handle).done();
 
             // Prevented the default behavior.
             evt.stop();
@@ -372,25 +375,22 @@ export class HTMLAreaBuilder {
     }
 
     private fileExists(fileName: string): wemQ.Promise<boolean> {
-        return new GetContentByPathRequest(
-            new api.content.ContentPath([this.content.getPath().toString(), fileName])).sendAndParse().then(() => {
-            return true;
-        }).catch((reason: any) => {
-            if (reason.statusCode === 404) { // good, no file with such name
-                return false;
-            }
+        const contentPathAsString: string = new ContentPath([this.content.getPath().toString(), fileName]).toString();
 
-            throw new Error(reason);
+        return new ContentsExistByPathRequest([contentPathAsString]).sendAndParse().then((result: ContentsExistByPathResult) => {
+            return result.getContentsExistMap()[contentPathAsString];
         });
     }
 
     private uploadFile(fileLoader: any) {
         const formData = new FormData();
         const xhr = fileLoader.xhr;
+
         xhr.open('POST', fileLoader.uploadUrl, true);
         formData.append('file', fileLoader.file, fileLoader.fileName);
-        formData.set('parent', this.content.getPath().toString());
-        formData.set('name', fileLoader.fileName);
+        formData.append('parent', this.content.getPath().toString());
+        formData.append('name', fileLoader.fileName);
+
         fileLoader.xhr.send(formData);
     }
 
