@@ -79,7 +79,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
                 }).pause(3000).then(() => {
                     return contentWizard.openDetailsPanel();
-                }).then(() => {
+                }).pause(500).then(() => {
                     console.log("details panel is opened");
                     return wizardDetailsPanel.openDependencies();
                 }).then(() => {
@@ -103,7 +103,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
                         'Show outbound button should be present on the widget, because the fragment was created from an image');
                 }).then(() => {
-                    return assert.eventually.isTrue(wizardDependenciesWidget.isInboundButtonVisible(),
+                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForInboundButtonVisible(),
                         '`Show Inbound` button should be present, because the fragment has parent site');
                 })
             });
