@@ -774,8 +774,6 @@ export class ContentWizardPanel
 
                     this.onShown(shownHandler);
                 }
-
-                this.handleMissingApp();
             }
         };
 
