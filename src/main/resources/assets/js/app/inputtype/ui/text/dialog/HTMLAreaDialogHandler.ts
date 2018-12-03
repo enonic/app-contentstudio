@@ -87,7 +87,7 @@ export class HTMLAreaDialogHandler {
         return this.openDialog(new SpecialCharDialog(config));
     }
 
-    private static openFullscreenDialog(config: eventInfo): ModalDialog {
+    private static openFullscreenDialog(config: any): ModalDialog {
         const fullscreenDialog = new FullscreenDialog(config);
 
         const createHtmlAreaDialogHandler = () => {

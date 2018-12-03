@@ -48,7 +48,7 @@ export class ModalDialogFormItemBuilder {
 
 export class HtmlAreaModalDialogConfig {
 
-    editor: any; // change it to CKEDITOR.editor when cke merged
+    editor: CKEDITOR.editor;
 
     dialog?: any; // for cke backed dialogs
 
@@ -63,7 +63,7 @@ export class ModalDialog
     extends api.ui.dialog.ModalDialog {
     private fields: { [id: string]: api.dom.FormItemEl } = {};
     private validated: boolean = false;
-    private editor: any; // change it to CKEDITOR.editor when cke merged;
+    private editor: CKEDITOR.editor;
     private mainForm: Form;
     private firstFocusField: api.dom.Element;
     private submitAction: api.ui.Action;

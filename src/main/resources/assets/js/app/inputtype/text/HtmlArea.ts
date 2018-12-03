@@ -1,4 +1,3 @@
-import eventInfo = CKEDITOR.eventInfo;
 import Property = api.data.Property;
 import Value = api.data.Value;
 import ValueType = api.data.ValueType;
@@ -11,8 +10,9 @@ import ObjectHelper = api.ObjectHelper;
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
-import {HTMLAreaBuilder} from '../ui/text/HTMLAreaBuilder';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {HtmlEditor} from '../ui/text/HtmlEditor';
+import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 
 declare var CONFIG;
 
@@ -120,7 +120,7 @@ export class HtmlArea
         });
     }
 
-    private initEditor(id: string, property: Property, textAreaWrapper: Element): void {
+    private initEditor(id: string, property: Property, textAreaWrapper: Element): wemQ.Promise<HtmlEditor> {
         const focusedEditorCls = 'html-area-focused';
         const assetsUri = CONFIG.assetsUri;
 
@@ -135,7 +135,7 @@ export class HtmlArea
         };
 
         const notifyValueChanged = () => {
-            if (!this.getEditor(id)) {
+            if (!HtmlEditor.exists(id)) {
                 return;
             }
             this.notifyValueChanged(id, textAreaWrapper);
@@ -155,9 +155,7 @@ export class HtmlArea
             this.notifyBlurred(e);
         };
 
-        const keydownHandler = (ckEvent: eventInfo) => {
-            const e: KeyboardEvent = ckEvent.data.domEvent.$;
-
+        const keydownHandler = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.keyCode === 83) {  // Cmd-S or Ctrl-S
                 e.preventDefault();
 
@@ -192,7 +190,7 @@ export class HtmlArea
                     // if iframe is next focusable then it is a html area and using it's own focus method
                     if (this.isIframe(nextFocusable)) {
                         const nextId = nextFocusable.getId().replace('_ifr', '');
-                        this.getEditor(nextId).focus();
+                        HtmlEditor.focus(nextId);
                     } else {
                         nextFocusable.giveFocus();
                     }
@@ -205,15 +203,42 @@ export class HtmlArea
             textAreaWrapper.addClass(focusedEditorCls);
         };
 
-        new HTMLAreaBuilder()
+        const editorLoadedHandler = () => {
+            this.setEditorContent(id, property);
+
+            if (this.notInLiveEdit()) {
+                if (api.BrowserHelper.isIE()) {
+                    this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
+                }
+
+                this.onRemoved(() => {
+                    this.destroyEditor(id);
+                });
+            }
+
+            this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
+            this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
+
+            const removeButtonEL = wemjq(textAreaWrapper.getParentElement().getParentElement().getHTMLElement()).find(
+                '.remove-button')[0];
+            removeButtonEL.addEventListener('mouseover', () => {
+                isMouseOverRemoveOccurenceButton = true;
+            });
+            removeButtonEL.addEventListener('mouseleave', () => {
+                isMouseOverRemoveOccurenceButton = false;
+            });
+        };
+
+        const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(id)
             .setAssetsUri(assetsUri)
             .setInline(false)
-            .onCreateDialog(createDialogHandler)
+            .setCreateDialogHandler(createDialogHandler)
             .setFocusHandler(focusHandler)
             .setBlurHandler(blurHandler)
             .setKeydownHandler(keydownHandler)
             .setNodeChangeHandler(notifyValueChanged)
+            .setEditorLoadedHandler(editorLoadedHandler)
             .setContentPath(this.contentPath)
             .setContent(this.content)
             .setApplicationKeys(this.applicationKeys)
@@ -222,35 +247,10 @@ export class HtmlArea
                 exclude: this.inputConfig['exclude']
             })
             .setEditableSourceCode(this.editableSourceCode)
-            .createEditor(this.content.getId()).then(editor => {
+            .setCustomStylesToBeUsed(true)
+            .build();
 
-                editor.on('loaded', () => {
-                    this.setEditorContent(id, property);
-
-                    if (this.notInLiveEdit()) {
-                        if (api.BrowserHelper.isIE()) {
-                            this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
-                        }
-
-                        this.onRemoved(() => {
-                            this.destroyEditor(id);
-                        });
-                    }
-
-                    this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
-                    this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
-
-                    const removeButtonEL = wemjq(textAreaWrapper.getParentElement().getParentElement().getHTMLElement()).find(
-                        '.remove-button')[0];
-                    removeButtonEL.addEventListener('mouseover', () => {
-                        isMouseOverRemoveOccurenceButton = true;
-                    });
-                    removeButtonEL.addEventListener('mouseleave', () => {
-                        isMouseOverRemoveOccurenceButton = false;
-                    });
-
-                });
-            });
+        return HtmlEditor.create(htmlEditorParams);
     }
 
     private moveButtonToBottomBar(inputOccurence: Element, buttonClass: string): void {
@@ -260,9 +260,8 @@ export class HtmlArea
 
     private setFocusOnEditorAfterCreate(inputOccurence: Element, id: string): void {
         inputOccurence.giveFocus = () => {
-            const editor = this.getEditor(id);
-            if (editor) {
-                editor.focus();
+            if (HtmlEditor.exists(id)) {
+                HtmlEditor.focus(id);
                 return true;
             } else {
                 return false;
@@ -355,10 +354,6 @@ export class HtmlArea
         }
     }
 
-    private getEditor(editorId: string): CKEDITOR.editor {
-        return CKEDITOR.instances[editorId];
-    }
-
     isDirty(): boolean {
         return this.editors.some((editor: HtmlAreaOccurrenceInfo) => {
             return this.getEditorContent(editor) !== editor.textAreaEl.getValue();
@@ -366,15 +361,14 @@ export class HtmlArea
     }
 
     private getEditorContent(editor: HtmlAreaOccurrenceInfo) {
-        return this.getEditor(editor.id).getData();
+        return HtmlEditor.getData(editor.id);
     }
 
     private setEditorContent(editorId: string, property: Property): void {
-        const editor = this.getEditor(editorId);
         const content: string = property.hasNonNullValue() ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString()) : '';
 
-        if (editor) {
-            editor.setData(content);
+        if (HtmlEditor.exists(editorId)) {
+            HtmlEditor.setData(editorId, content);
         } else {
             console.log(`Editor with id '${editorId}' not found`);
         }
@@ -385,7 +379,7 @@ export class HtmlArea
     }
 
     private notifyValueChanged(id: string, occurrence: api.dom.Element) {
-        const value: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.getEditor(id).getData());
+        const value: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(HtmlEditor.getData(id));
         const valueObj: api.data.Value = ValueTypes.STRING.newValue(value);
         this.notifyOccurrenceValueChanged(occurrence, valueObj);
     }
@@ -429,9 +423,11 @@ export class HtmlArea
     handleDnDStop(ui: JQueryUI.SortableUIParams): void {
         const editorId = wemjq('textarea', ui.item)[0].id;
 
-        this.reInitEditor(editorId);
-
-        this.getEditor(editorId).focus();
+        this.reInitEditor(editorId).then((htmlEditor: HtmlEditor) => {
+            htmlEditor.onReady(() => {
+                htmlEditor.focus();
+            });
+        });
     }
 
     onFocus(listener: (event: FocusEvent) => void) {
@@ -467,18 +463,15 @@ export class HtmlArea
     }
 
     private destroyEditor(id: string): void {
-        const editor = this.getEditor(id);
-        if (editor) {
-            editor.destroy(false);
+        if (HtmlEditor.exists(id)) {
+            HtmlEditor.destroy(id);
         }
     }
 
-    private reInitEditor(id: string) {
+    private reInitEditor(id: string): wemQ.Promise<HtmlEditor> {
         const savedEditor: HtmlAreaOccurrenceInfo = this.getEditorInfo(id);
 
-        if (!!savedEditor) {
-            this.initEditor(id, savedEditor.property, savedEditor.textAreaWrapper);
-        }
+        return this.initEditor(id, savedEditor.property, savedEditor.textAreaWrapper);
     }
 
     private getEditorInfo(id: string): HtmlAreaOccurrenceInfo {

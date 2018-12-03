@@ -44,7 +44,7 @@ export class MacroModalDialog
         this.initMacroSelectorListeners();
         this.initFieldsValues();
 
-        (<CKEDITOR.editor>this.getEditor()).focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
+        this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
         this.setupResizeListener();
     }
 
@@ -206,7 +206,7 @@ export class MacroModalDialog
     private insertUpdatedMacroIntoTextArea(macroString: string) {
         this.selectedMacro.element.setText(
             this.selectedMacro.element.getText().replace(this.selectedMacro.macroText, macroString));
-        (<CKEDITOR.editor>this.getEditor()).fire('saveSnapshot'); // to trigger change event
+        this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
 
     protected validate(): boolean {
