@@ -548,5 +548,12 @@ module.exports = {
         }).catch(err => {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
+    },
+    openDependencyWidgetInBrowsePanel: function () {
+        return browsePanel.openDetailsPanel().then(() => {
+            return wizardDetailsPanel.openDependencies();
+        }).then(() => {
+            return wizardDependenciesWidget.waitForWidgetLoaded();
+        })
     }
 };

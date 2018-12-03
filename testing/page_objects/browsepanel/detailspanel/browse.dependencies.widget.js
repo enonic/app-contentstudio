@@ -1,17 +1,17 @@
 /**
- * Created on 31/07/2018.
+ * Created on 29/11/2018.
  */
 const baseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const elements = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DependenciesWidgetItemView')]`,
+    widget: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]`,
     showOutboundButton: `//button/span[contains(.,'Show Outbound')]`,
     showInboundButton: `//button/span[contains(.,'Show Inbound')]`
 
 };
-const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
+const browseDependenciesWidget = Object.create(baseDependenciesWidget, {
 
     dependenciesWidget: {
         get: function () {
@@ -41,6 +41,6 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
         }
     },
 });
-module.exports = wizardDependenciesWidget;
+module.exports = browseDependenciesWidget;
 
 

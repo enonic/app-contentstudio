@@ -74,7 +74,7 @@ const contentWizardPanel = Object.create(page, {
     },
     unpublishMenuItem: {
         get: function () {
-            return `${wizard.toolbarPublish}`+`${wizard.unpublishMenuItem}`;
+            return `${wizard.toolbarPublish}` + `${wizard.unpublishMenuItem}`;
         }
     },
     thumbnailUploader: {
@@ -140,7 +140,9 @@ const contentWizardPanel = Object.create(page, {
         value: function () {
             return detailsPanel.waitForDetailsPanelLoaded().then(result => {
                 if (!result) {
-                    return this.doClick(this.detailsPanelToggleButton).then(() => {
+                    return this.doClick(this.detailsPanelToggleButton).catch(err => {
+                        throw new Error("Error when trying to open Details Panel in Wizard");
+                    }).then(() => {
                         return detailsPanel.waitForDetailsPanelLoaded();
                     }).then(result => {
                         if (!result) {
@@ -212,7 +214,7 @@ const contentWizardPanel = Object.create(page, {
     clickOnAccessTabBarItem: {
         value: function () {
             return this.doClick(wizard.accessTabBarItem).catch(err => {
-                return this.doCatch('err_click_on_access_tabbar', err);
+                return this.doCatch('err_clicking_on_access_tabbar', err);
             }).pause(700);
         }
     },
