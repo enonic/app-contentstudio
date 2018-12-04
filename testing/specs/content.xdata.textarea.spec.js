@@ -10,12 +10,13 @@ const appConstant = require('../libs/app_const');
 const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
+const xDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
 const xDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard.step.form');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const detailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const versionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
-describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, type a text in the textarea`', function () {
+describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(htmlarea), type a text in the textarea`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
@@ -53,14 +54,51 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea, typ
     it(`GIVEN site with optional x-data is opened WHEN x-data has been activated THEN x-data should be visible in the Content Wizard navigation bar`,
         () => {
             return studioUtils.openContentInWizard(SITE.displayName).then(() => {
-            }).then(()=>{
+            }).then(() => {
                 return contentWizard.clickOnXdataToggler();
             }).then(() => {
                 return contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
             }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar, because it was activated');
+                assert.isTrue(isDisplayed,
+                    'optional x-data should be visible in the Content Wizard navigation bar, because it was activated');
             });
         });
+
+    //verifies "https://github.com/enonic/app-contentstudio/issues/467" (Incorrect validation inside X-data with ItemSet and htmlArea)
+    it(`GIVEN existing site with optional x-data(html-area) WHEN x-data has been activated AND Save button pressed THEN content is getting invalid`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                //x-data (required html-area) is added
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                //site has been saved
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                return contentWizard.waitUntilInvalidIconAppears();
+            }).then(result => {
+                studioUtils.saveScreenshot('activated_xdata_required_htmlarea_empty');
+                assert.isTrue(result, 'Red icon should be present in the site-wizard, because required html-area in x-data is empty');
+            });
+        });
+
+    it(`GIVEN existing site with optional x-data(html-area) WHEN text has been typed in x-data (required htmlarea) AND Save button pressed THEN content is getting valid`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                // text typed in x-data(htmlarea)
+                return xDataHtmlArea.typeTextInHtmlArea("Hello World");
+            }).then(() => {
+                //site has been saved
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                return contentWizard.waitUntilInvalidIconDisappears();
+            }).then(result => {
+                studioUtils.saveScreenshot('xdata_required_htmlarea_filled');
+                assert.isTrue(result,
+                    'Red icon should not be present in the site-wizard, because required html-area in x-data is not empty');
+            });
+        });
+
+
     it(`GIVEN content with optional x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double0_0').then(() => {
