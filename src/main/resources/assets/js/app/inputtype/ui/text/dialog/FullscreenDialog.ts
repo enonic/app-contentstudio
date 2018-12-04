@@ -55,6 +55,7 @@ export class FullscreenDialog
             .setApplicationKeys(this.editorParams.getApplicationKeys())
             .setTools(this.editorParams.getTools())
             .setEditableSourceCode(this.editorParams.getEditableSourceCode())
+            .setCustomStylesToBeUsed(true)
             .setFullscreenMode(true)
             .build();
 

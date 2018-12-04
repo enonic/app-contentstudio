@@ -759,9 +759,9 @@ class HtmlEditorConfigBuilder {
             keystrokes: [
                 [CKEDITOR.CTRL + 76, null], // disabling default Link keystroke to remove it's wrong tooltip
             ],
-            removePlugins: 'resize',
+            removePlugins: this.getPluginsToRemove(),
             removeButtons: this.toolsToExlcude,
-            extraPlugins: this.getExtraPlugins(),
+            extraPlugins: 'macro,image2',
             extraAllowedContent: 'iframe code address dl dt dd script;img[data-src]',
             format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
             image2_disableResizer: true,
@@ -801,16 +801,12 @@ class HtmlEditorConfigBuilder {
         return deferred.promise;
     }
 
-    private getExtraPlugins(): string {
-        if (this.editorParams.isInline()) {
-            return 'macro,autogrow,sourcedialog,image2,sharedspace,quicktable';
-        }
-
+    private getPluginsToRemove(): string {
         if (this.editorParams.isFullScreenMode()) {
-            return 'macro,sourcedialog,image2,quicktable';
+            return 'resize,autogrow';
         }
 
-        return 'macro,autogrow,sourcedialog,image2,quicktable';
+        return 'resize';
     }
 
     private includeTools(tools: any[]) {
