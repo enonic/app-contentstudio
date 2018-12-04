@@ -356,6 +356,7 @@ export class ImageModalDialog
     private removePreview() {
         this.figure.removeChildren();
         this.previewFrame.getEl().setHeightPx(0);
+        this.presetImageEl = null;
     }
 
     show() {
