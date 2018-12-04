@@ -15,7 +15,7 @@ const formXpath = {
         return `return CKEDITOR.instances['${id}'].getData()`
     }
 };
-const xDataTImageSelector = Object.create(page, {
+const xDataHtmlArea = Object.create(page, {
 
     ckeTextArea: {
         get: function () {
@@ -61,4 +61,4 @@ const xDataTImageSelector = Object.create(page, {
         }
     },
 });
-module.exports = xDataTImageSelector;
+module.exports = xDataHtmlArea;

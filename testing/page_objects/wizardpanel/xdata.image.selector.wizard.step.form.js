@@ -10,7 +10,7 @@ const loaderComboBox = require('../components/loader.combobox');
 const formXpath = {
     container: `//div[contains(@id,'XDataWizardStepForm')]`,
 };
-const xDataTImageSelector = Object.create(page, {
+const xDataImageSelector = Object.create(page, {
 
     imageOptionsFilterInput: {
         get: function () {
@@ -32,4 +32,4 @@ const xDataTImageSelector = Object.create(page, {
         }
     }
 });
-module.exports = xDataTImageSelector;
+module.exports = xDataImageSelector;
