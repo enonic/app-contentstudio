@@ -29,7 +29,7 @@ const form = {
     bulletedButton: `//a[contains(@class,'cke_button') and contains(@title,'Bulleted List')]`,
     numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
     sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and contains(@href,'Source')]`,
-    fullScreen: `//a[contains(@class,'cke_button__fullscreen_)  and contains(@href,'Fullscreen')]\``,
+    fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and contains(@href,'Fullscreen')]`,
     tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
     strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
@@ -45,6 +45,12 @@ const form = {
     }
 };
 const htmlAreaForm = Object.create(page, {
+
+    fullScreenButton: {
+        get: function () {
+            return `${elements.FORM_VIEW}` + `${form.fullScreen}`;
+        }
+    },
 
     validationRecord: {
         get: function () {
@@ -169,10 +175,12 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
-    clickOnMaximizeButton: {
+    clickOnFullScreenButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3).then(result => {
-                return this.doClick(form.sourceButton);
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(this.fullScreenButton);
             })
         }
     },
