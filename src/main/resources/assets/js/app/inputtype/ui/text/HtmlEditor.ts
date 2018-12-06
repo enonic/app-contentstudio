@@ -48,6 +48,7 @@ export class HtmlEditor {
         this.editor.on('widgetDefinition', (e: eventInfo) => {
             if (e.data.name === 'image') {
                 e.data.allowedContent.figure.classes = ['*'];
+                e.data.allowedContent.figure.styles = ['*'];
             }
         });
     }
@@ -123,7 +124,7 @@ export class HtmlEditor {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
                 const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
 
-                this.replaceWith(`<figure class="${StyleHelper.STYLE.ALIGNMENT.JUSTIFY} captioned">` +
+                this.replaceWith(`<figure class="${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS} captioned">` +
                                  `<img src="${upload.url}" data-src="${dataSrc}"` +
                                  `width="${this.parts.img.$.naturalWidth}" ` +
                                  `height="${this.parts.img.$.naturalHeight}">` +
@@ -302,7 +303,7 @@ export class HtmlEditor {
 
         const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
 
-        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY)) {
+        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS)) {
             this.toggleToolbarButtonState('justifyblock', true);
             this.toggleToolbarButtonState('justifyleft', false);
             this.toggleToolbarButtonState('justifyright', false);
@@ -316,11 +317,11 @@ export class HtmlEditor {
                 this.toggleToolbarButtonState('justifyright', false);
                 this.toggleToolbarButtonState('justifycenter', false);
 
-                if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT)) {
+                if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) {
                     this.toggleToolbarButtonState('justifyleft', true);
-                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT)) {
+                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) {
                     this.toggleToolbarButtonState('justifyright', true);
-                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER)) {
+                } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
                     this.toggleToolbarButtonState('justifycenter', true);
                 }
             }
@@ -347,14 +348,14 @@ export class HtmlEditor {
                 const imageWidget: widget = (<any>this.editor.widgets).getByElement(selectedElement);
                 imageWidget.setData('align', 'none');
 
-                figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY);
+                figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
 
                 this.toggleToolbarButtonState('justifyblock', true); // make justify button active
                 this.toggleToolbarButtonState('justifyleft', false);
                 this.toggleToolbarButtonState('justifyright', false);
                 this.toggleToolbarButtonState('justifycenter', false);
             } else {
-                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY);
+                figure.removeClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
             }
         });
     }
@@ -766,8 +767,9 @@ class HtmlEditorConfigBuilder {
             format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
-            image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT, StyleHelper.STYLE.ALIGNMENT.CENTER, StyleHelper.STYLE.ALIGNMENT.RIGHT,
-                StyleHelper.STYLE.ALIGNMENT.JUSTIFY],
+            image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
+                StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
+                StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
             uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null

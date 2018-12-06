@@ -10,6 +10,9 @@ import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
+import InputEl = api.dom.InputEl;
+import DivEl = api.dom.DivEl;
+import SpanEl = api.dom.SpanEl;
 import {Content} from '../../../../../content/Content';
 import {XDataName} from '../../../../../content/XDataName';
 import {OverrideNativeDialog} from './../OverrideNativeDialog';
@@ -31,7 +34,7 @@ import {StyleHelper} from '../../styles/StyleHelper';
 export class ImageModalDialog
     extends OverrideNativeDialog {
 
-    private imagePreviewContainer: api.dom.DivEl;
+    private imagePreviewContainer: DivEl;
     private imageCaptionField: FormItem;
     private imageAltTextField: FormItem;
     private imageUploaderEl: ImageUploaderEl;
@@ -39,7 +42,7 @@ export class ImageModalDialog
     private content: api.content.ContentSummary;
     private imageSelector: ImageContentComboBox;
     private progress: api.ui.ProgressBar;
-    private error: api.dom.DivEl;
+    private error: DivEl;
     private figure: api.dom.FigureEl;
     private imageToolbar: ImageDialogToolbar;
     private imagePreviewScrollHandler: ImagePreviewScrollHandler;
@@ -47,10 +50,10 @@ export class ImageModalDialog
     private dropzoneContainer: api.ui.uploader.DropzoneContainer;
     private imageSelectorFormItem: FormItem;
     private previewFrame: api.dom.IFrameEl;
-    private scrollNavigationWrapperDiv: api.dom.DivEl;
+    private scrollNavigationWrapperDiv: DivEl;
     private editorWidth: number;
 
-    static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY];
+    static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
     constructor(config: eventInfo, content: api.content.ContentSummary) {
         super(<HtmlAreaModalDialogConfig>{
@@ -66,6 +69,7 @@ export class ImageModalDialog
         });
 
         this.editorWidth = config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth;
+        this.figure = new api.dom.FigureEl();
 
         this.initLoader();
 
@@ -91,6 +95,9 @@ export class ImageModalDialog
 
         if (this.presetImageEl) {
             const presetStyles = !!presetFigureEl ? presetFigureEl.getAttribute('class') : '';
+            if (presetFigureEl) {
+                this.figure.getHTMLElement().style.width = presetFigureEl.getStyle('width');
+            }
             this.presetImage(presetStyles);
         }
     }
@@ -202,6 +209,7 @@ export class ImageModalDialog
             this.imageAltTextField.hide();
             this.imageUploaderEl.show();
             this.imagePreviewScrollHandler.toggleScrollButtons();
+            this.figure.getEl().removeAttribute('style');
             api.ui.responsive.ResponsiveManager.fireResizeEvent();
         });
 
@@ -217,8 +225,8 @@ export class ImageModalDialog
 
         this.createImagePreviewContainer();
 
-        this.scrollNavigationWrapperDiv = new api.dom.DivEl('preview-panel-scroll-navigation-wrapper');
-        const scrollBarWrapperDiv = new api.dom.DivEl('preview-panel-scrollbar-wrapper');
+        this.scrollNavigationWrapperDiv = new DivEl('preview-panel-scroll-navigation-wrapper');
+        const scrollBarWrapperDiv = new DivEl('preview-panel-scrollbar-wrapper');
 
         scrollBarWrapperDiv.appendChild(this.imagePreviewContainer);
         this.scrollNavigationWrapperDiv.appendChild(scrollBarWrapperDiv);
@@ -249,7 +257,6 @@ export class ImageModalDialog
             }
         };
 
-        this.figure = new api.dom.FigureEl();
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
 
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
@@ -366,12 +373,12 @@ export class ImageModalDialog
     }
 
     private createImagePreviewContainer() {
-        const imagePreviewContainer = new api.dom.DivEl('content-item-preview-panel');
+        const imagePreviewContainer = new DivEl('content-item-preview-panel');
 
         this.progress = new api.ui.ProgressBar();
         imagePreviewContainer.appendChild(this.progress);
 
-        this.error = new api.dom.DivEl('error');
+        this.error = new DivEl('error');
         imagePreviewContainer.appendChild(this.error);
 
         this.imagePreviewContainer = imagePreviewContainer;
@@ -482,6 +489,9 @@ export class ImageModalDialog
 
         figureEl.setAttribute('class', `${this.figure.getClass()} captioned`);
         figureEl.removeAttribute('style');
+        if (this.figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM)) {
+            figureEl.setStyle('width', this.figure.getHTMLElement().style.width);
+        }
 
         imageEl.removeAttribute('class');
         imageEl.removeAttribute('style');
@@ -601,6 +611,12 @@ export class ImageDialogToolbar
 
     private imageStyleSelector: ImageStyleSelector;
 
+    private customWidthRangeInput: InputEl;
+
+    private rangeInputContainer: DivEl;
+
+    private widthBoard: SpanEl;
+
     private stylesChangeListeners: { (styles: string): void }[] = [];
 
     constructor(previewEl: api.dom.FigureEl) {
@@ -608,21 +624,31 @@ export class ImageDialogToolbar
 
         this.previewEl = previewEl;
 
-        this.createAlignmentButtons();
-        super.addElement(this.imageStyleSelector = this.createImageStyleSelector());
-        super.addElement(this.customWidthCheckbox = this.createCustomWidthCheckbox());
+        this.createElements();
     }
 
-    private createAlignmentButtons() {
-        const alignmentButtonContainer = new api.dom.DivEl('alignment-container');
+    private createElements() {
+        const topLineContainer: DivEl = new DivEl('image-toolbar-top-line');
+
+        topLineContainer.appendChild(this.createAlignmentButtons());
+        topLineContainer.appendChild(this.imageStyleSelector = this.createImageStyleSelector());
+        topLineContainer.appendChild(this.customWidthCheckbox = this.createCustomWidthCheckbox());
+
+        super.addElement(topLineContainer);
+        super.addElement(this.createCustomWidthRangeInput());
+    }
+
+    private createAlignmentButtons(): DivEl {
+        const alignmentButtonContainer = new DivEl('alignment-container');
+
         alignmentButtonContainer.appendChildren(
-            this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY),
-            this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT),
-            this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER),
-            this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT)
+            this.createAlignmentButton('icon-paragraph-justify', StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS),
+            this.createAlignmentButton('icon-paragraph-left', StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS),
+            this.createAlignmentButton('icon-paragraph-center', StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS),
+            this.createAlignmentButton('icon-paragraph-right', StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)
         );
 
-        super.addElement(alignmentButtonContainer);
+        return alignmentButtonContainer;
     }
 
     private createAlignmentButton(iconClass: string, styleClass: string): api.ui.button.ActionButton {
@@ -649,25 +675,108 @@ export class ImageDialogToolbar
     }
 
     private createCustomWidthCheckbox(): api.ui.Checkbox {
-        const checkbox = api.ui.Checkbox.create().build();
+        const isChecked: boolean = this.previewEl.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
+        const checkbox = api.ui.Checkbox.create().setChecked(isChecked).build();
+
         checkbox.addClass('custom-width-checkbox');
         checkbox.setLabel(i18n('dialog.image.customwidth'));
 
-        /*
-        Parse style attribute of the image preview and
-        set checked to true if it has inline width
+        if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
+            checkbox.setDisabled(true, 'disabled');
+        }
 
-        checkbox.setChecked();
-        */
+        checkbox.onChange(() => {
+            if (checkbox.isChecked()) {
+                this.previewEl.addClass(StyleHelper.STYLE.WIDTH.CUSTOM);
+                this.rangeInputContainer.show();
+                const width: string = this.getAlignmentWidth();
+                this.customWidthRangeInput.getHTMLElement()['value'] = width;
+                this.widthBoard.setHtml(`${width}%`);
+                this.updatePreviewCustomWidth(width);
+            } else {
+                this.previewEl.removeClass(StyleHelper.STYLE.WIDTH.CUSTOM);
+                this.previewEl.getEl().removeAttribute('style');
+                this.rangeInputContainer.hide();
+            }
+        });
 
         return checkbox;
+    }
+
+    private getAlignmentWidth(): string {
+        if (this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) {
+            return StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH;
+        }
+
+        if (this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) {
+            return StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH;
+        }
+
+        if (this.previewEl.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+            return StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH;
+        }
+
+        return '100';
+    }
+
+    private createCustomWidthRangeInput(): DivEl {
+        this.customWidthRangeInput = new InputEl('custom-width-range', 'range');
+        this.widthBoard = new SpanEl('custom-width-board');
+        this.rangeInputContainer = new DivEl('custom-width-range-container');
+
+        this.customWidthRangeInput.getEl().setAttribute('min', '0');
+        this.customWidthRangeInput.getEl().setAttribute('max', '100');
+        this.customWidthRangeInput.getEl().setAttribute('step', '1');
+
+        if (this.previewEl.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM)) {
+            const value: string = this.previewEl.getHTMLElement().style.width;
+            this.customWidthRangeInput.getHTMLElement()['value'] = value.replace('%', '');
+            this.widthBoard.setHtml(value);
+        } else {
+            this.rangeInputContainer.hide();
+        }
+
+        this.customWidthRangeInput.onChange((event: Event) => {
+            const value: string = event.srcElement['value'];
+            this.updatePreviewCustomWidth(value);
+            this.widthBoard.setHtml(`${value}%`);
+        });
+
+        this.customWidthRangeInput.onInput((event: Event) => {
+            const value: string = event.srcElement['value'];
+            this.updatePreviewCustomWidth(value);
+            this.widthBoard.setHtml(`${value}%`);
+        });
+
+        this.rangeInputContainer.appendChild(this.customWidthRangeInput);
+        this.rangeInputContainer.appendChild(this.widthBoard);
+
+        if (!this.previewEl.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM)) {
+            this.rangeInputContainer.hide();
+        }
+
+        return this.rangeInputContainer;
+    }
+
+    private updatePreviewCustomWidth(value: string) {
+        this.previewEl.getEl().setWidth(`${value}%`);
     }
 
     private createImageStyleSelector(): ImageStyleSelector {
         const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
 
         this.initSelectedStyle(imageStyleSelector);
-        imageStyleSelector.onOptionSelected(() => this.notifyStylesChanged());
+        imageStyleSelector.onOptionSelected(() => {
+            if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
+                this.customWidthCheckbox.setChecked(false).setDisabled(true, 'disabled');
+                this.rangeInputContainer.hide();
+                this.previewEl.getEl().removeAttribute('style');
+            } else {
+                this.customWidthCheckbox.setDisabled(false, 'disabled');
+            }
+
+            this.notifyStylesChanged();
+        });
 
         return imageStyleSelector;
     }
@@ -743,10 +852,24 @@ export class ImageDialogToolbar
     }
 
     private getStyleCls(): string {
-        return [
-            this.getAlignmentStyleCls(),
-            this.getProcessingStyleCls()
-        ].join(' ').trim();
+        const classes: string[] = [];
+
+        const alignStyleCls: string = this.getAlignmentStyleCls();
+        const processingStyleCls: string = this.getProcessingStyleCls();
+
+        if (alignStyleCls) {
+            classes.push(alignStyleCls);
+        }
+
+        if (processingStyleCls) {
+            classes.push(processingStyleCls);
+        }
+
+        if (this.customWidthCheckbox.isChecked()) {
+            classes.push(StyleHelper.STYLE.WIDTH.CUSTOM);
+        }
+
+        return classes.join(' ').trim();
     }
 
     onStylesChanged(listener: (styles: string) => void) {
@@ -765,7 +888,7 @@ export class ImageDialogToolbar
 
 export class ImagePreviewScrollHandler {
 
-    private imagePreviewContainer: api.dom.DivEl;
+    private imagePreviewContainer: DivEl;
 
     private scrollDownButton: api.dom.Element;
     private scrollUpButton: api.dom.Element;
@@ -773,7 +896,7 @@ export class ImagePreviewScrollHandler {
     private scrollBarRemoveTimeoutId: number;
     private scrolling: boolean;
 
-    constructor(imagePreviewContainer: api.dom.DivEl) {
+    constructor(imagePreviewContainer: DivEl) {
         this.imagePreviewContainer = imagePreviewContainer;
 
         this.initializeImageScrollNavigation();
@@ -802,8 +925,8 @@ export class ImagePreviewScrollHandler {
     }
 
     private createScrollButton(direction: string): api.dom.Element {
-        const scrollAreaDiv = new api.dom.DivEl(direction === 'up' ? 'scroll-up-div' : 'scroll-down-div');
-        const arrow = new api.dom.DivEl('arrow');
+        const scrollAreaDiv = new DivEl(direction === 'up' ? 'scroll-up-div' : 'scroll-down-div');
+        const arrow = new DivEl('arrow');
         const scrollTop = (direction === 'up' ? '-=50' : '+=50');
 
         scrollAreaDiv.appendChild(arrow);
