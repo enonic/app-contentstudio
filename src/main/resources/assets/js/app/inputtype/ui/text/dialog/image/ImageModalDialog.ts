@@ -204,6 +204,7 @@ export class ImageModalDialog
             this.displayValidationErrors(false);
             this.removePreview();
             this.imageToolbar.unStylesChanged();
+            this.imageToolbar.unPreviewSizeChanged();
             this.imageToolbar.remove();
             this.imageCaptionField.hide();
             this.imageAltTextField.hide();
@@ -279,6 +280,10 @@ export class ImageModalDialog
         this.imagePreviewScrollHandler.resetScrollPosition();
     }
 
+    private adjustPreviewFrameHeight() {
+        this.previewFrame.getEl().setHeightPx(this.figure.getImage().getEl().getHeight());
+    }
+
     private previewImage(imageContent: ContentSummary, presetStyles?: string) {
         if (!this.previewFrame) {
             this.createPreviewFrame();
@@ -293,6 +298,7 @@ export class ImageModalDialog
 
             this.imageToolbar = new ImageDialogToolbar(this.figure);
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
+            this.imageToolbar.onPreviewSizeChanged(() => this.adjustPreviewFrameHeight());
 
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
 
@@ -303,7 +309,7 @@ export class ImageModalDialog
         image.onLoaded(onImageFirstLoad);
 
         image.onLoaded(() => {
-            this.previewFrame.getEl().setHeightPx(image.getEl().getHeight());
+            this.adjustPreviewFrameHeight();
             this.imageLoadMask.hide();
 
             api.ui.responsive.ResponsiveManager.fireResizeEvent();
@@ -618,6 +624,7 @@ export class ImageDialogToolbar
     private widthBoard: SpanEl;
 
     private stylesChangeListeners: { (styles: string): void }[] = [];
+    private previewSizeChangeListeners: { (): void }[] = [];
 
     constructor(previewEl: api.dom.FigureEl) {
         super('image-toolbar');
@@ -740,6 +747,7 @@ export class ImageDialogToolbar
             const value: string = event.srcElement['value'];
             this.updatePreviewCustomWidth(value);
             this.widthBoard.setHtml(`${value}%`);
+            this.notifyPreviewSizeChanged();
         });
 
         this.customWidthRangeInput.onInput((event: Event) => {
@@ -883,6 +891,18 @@ export class ImageDialogToolbar
     private notifyStylesChanged() {
         const styleClasses = this.getStyleCls();
         this.stylesChangeListeners.forEach(listener => listener(styleClasses));
+    }
+
+    onPreviewSizeChanged(listener: () => void) {
+        this.previewSizeChangeListeners.push(listener);
+    }
+
+    unPreviewSizeChanged() {
+        this.previewSizeChangeListeners = [];
+    }
+
+    private notifyPreviewSizeChanged() {
+        this.previewSizeChangeListeners.forEach(listener => listener());
     }
 }
 
