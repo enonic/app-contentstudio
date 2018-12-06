@@ -5,13 +5,12 @@ import java.util.Set;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
-import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
+import com.enonic.xp.site.Site;
 import com.enonic.xp.style.StyleDescriptorService;
 import com.enonic.xp.style.StyleDescriptors;
 
@@ -32,30 +31,27 @@ public final class StyleHandler
     {
         final ContentId contentId = ContentId.from( this.contentId );
 
-        final ApplicationKey contentTypeApp = resolveContentTypeApp( contentId );
-        final Set<ApplicationKey> keys = new LinkedHashSet<>();
-        keys.add( SYSTEM_APPLICATION_KEY );
-        if ( contentTypeApp != null && !isSystemApp( contentTypeApp ) )
-        {
-            keys.add( contentTypeApp );
-        }
+        final ApplicationKeys applicationKeys = resolveKeysFromApps( contentId );
 
-        final StyleDescriptors styles = this.styleDescriptorService.getByApplications( ApplicationKeys.from( keys ) );
+        final StyleDescriptors styles = this.styleDescriptorService.getByApplications( applicationKeys );
 
         return new StyleDescriptorMapper( styles, localeService );
     }
 
-    private ApplicationKey resolveContentTypeApp( final ContentId contentId )
+    private ApplicationKeys resolveKeysFromApps( final ContentId contentId )
     {
-        try
+        final Set<ApplicationKey> keys = new LinkedHashSet<>();
+        keys.add( SYSTEM_APPLICATION_KEY );
+
+        final Site site = this.contentService.getNearestSite( contentId );
+
+        if ( site != null )
         {
-            final Content content = this.contentService.getById( contentId );
-            return content.getType().getApplicationKey();
+            site.getSiteConfigs().stream().filter( siteConfig -> !isSystemApp( siteConfig.getApplicationKey() ) ).forEach(
+                siteConfig -> keys.add( siteConfig.getApplicationKey() ) );
         }
-        catch ( ContentNotFoundException e )
-        {
-            return null;
-        }
+
+        return ApplicationKeys.from( keys );
     }
 
     private boolean isSystemApp( final ApplicationKey key )
