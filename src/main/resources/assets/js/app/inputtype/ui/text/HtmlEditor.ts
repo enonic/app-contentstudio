@@ -15,6 +15,10 @@ import i18n = api.util.i18n;
 import BrowserHelper = api.BrowserHelper;
 import ContentPath = api.content.ContentPath;
 
+/**
+ * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
+ * in xp/styles.css, thus don't forget to update inline styles when styles.css modified
+ */
 export class HtmlEditor {
 
     private editorParams: HtmlEditorParams;
@@ -76,6 +80,18 @@ export class HtmlEditor {
             this.editor.on('instanceReady', this.editorParams.getEditorReadyHandler().bind(this));
         }
 
+        this.editor.on('dataReady', (e: eventInfo) => {
+            const rootElement: CKEDITOR.dom.element = this.editorParams.isInline() ? e.editor.container : e.editor.document.getBody();
+
+            setTimeout(() => {
+                rootElement.find('figure').toArray().forEach((figure: CKEDITOR.dom.element) => {
+                    HtmlEditor.updateFigureInlineStyle(figure);
+                    HtmlEditor.sortFigureClasses(figure);
+                });
+            }, 1);
+
+        });
+
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
         this.handleEditorBlurEvent();
@@ -124,7 +140,7 @@ export class HtmlEditor {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
                 const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
 
-                this.replaceWith(`<figure class="${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS} captioned">` +
+                this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
                                  `<img src="${upload.url}" data-src="${dataSrc}"` +
                                  `width="${this.parts.img.$.naturalWidth}" ` +
                                  `height="${this.parts.img.$.naturalHeight}">` +
@@ -243,13 +259,13 @@ export class HtmlEditor {
 
     private handleElementSelection() {
         this.editor.on('selectionChange', (e: eventInfo) => {
-            this.toggleToolbarButtonStates(e);
+            this.updateDialogButtonStates(e);
             this.handleImageSelectionIssue(e);
-            this.updateSelectedImageAlignment(e);
+            this.updateAlignmentButtonStates(e);
         });
     }
 
-    private toggleToolbarButtonStates(e: eventInfo) {
+    private updateDialogButtonStates(e: eventInfo) {
         const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
 
         const isAnchorSelected: boolean = selectedElement.hasClass('cke_anchor');
@@ -286,7 +302,7 @@ export class HtmlEditor {
         e.editor.getSelection().selectElement(selectedElement);
     }
 
-    private updateSelectedImageAlignment(e: eventInfo) {
+    private updateAlignmentButtonStates(e: eventInfo) {
         const selectedElement: CKEDITOR.dom.element = e.data.path.lastElement;
         const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
 
@@ -294,20 +310,24 @@ export class HtmlEditor {
             return;
         }
 
-        const selectionRange: any = this.editor.getSelection().getRanges()[0];
-        const isSameElementSelected: boolean = selectionRange.startContainer.equals(selectionRange.endContainer);
-
-        if (!isSameElementSelected) { // multiple elements selected
+        if (!this.isSingleElementSelected()) { // multiple elements selected
             return;
         }
 
         const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
 
+        this.doUpdateAlignmentButtonStates(figure);
+    }
+
+    private isSingleElementSelected(): boolean {
+        const selectionRange: any = this.editor.getSelection().getRanges()[0];
+
+        return selectionRange.startContainer.equals(selectionRange.endContainer);
+    }
+
+    private doUpdateAlignmentButtonStates(figure: CKEDITOR.dom.element) {
         if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS)) {
-            this.toggleToolbarButtonState('justifyblock', true);
-            this.toggleToolbarButtonState('justifyleft', false);
-            this.toggleToolbarButtonState('justifyright', false);
-            this.toggleToolbarButtonState('justifycenter', false);
+            this.setJustifyButtonActive();
         } else {
             this.toggleToolbarButtonState('justifyblock', false);
 
@@ -328,6 +348,13 @@ export class HtmlEditor {
         }
     }
 
+    private setJustifyButtonActive() {
+        this.toggleToolbarButtonState('justifyblock', true);
+        this.toggleToolbarButtonState('justifyleft', false);
+        this.toggleToolbarButtonState('justifyright', false);
+        this.toggleToolbarButtonState('justifycenter', false);
+    }
+
     private handleImageAlignButtonPressed() {
         this.editor.on('afterCommandExec', (e: eventInfo) => {
             if (e.data.name.indexOf('justify') !== 0) { // not an align command
@@ -340,7 +367,7 @@ export class HtmlEditor {
                 return;
             }
 
-            this.toggleToolbarButtonState('justifyblock', false); // make justify button enabled
+            this.toggleToolbarButtonState('justifyblock', false); // enable justify button
 
             const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
 
@@ -349,15 +376,49 @@ export class HtmlEditor {
                 imageWidget.setData('align', 'none');
 
                 figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
-
-                this.toggleToolbarButtonState('justifyblock', true); // make justify button active
-                this.toggleToolbarButtonState('justifyleft', false);
-                this.toggleToolbarButtonState('justifyright', false);
-                this.toggleToolbarButtonState('justifycenter', false);
+                this.setJustifyButtonActive();
             } else {
                 figure.removeClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
             }
+
+            HtmlEditor.updateFigureInlineStyle(figure);
+            HtmlEditor.sortFigureClasses(figure);
         });
+    }
+
+    public static updateFigureInlineStyle(figure: CKEDITOR.dom.element) {
+        const hasCustomWidth: boolean = figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
+        const customWidth: string = figure.getStyle('width');
+
+        figure.removeAttribute('style');
+
+        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) { // Left Aligned
+            figure.setStyles({
+                'float': 'left',
+                'margin-bottom': '0',
+                'margin-top': '0',
+                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH}%`
+            });
+        } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) { // Right Aligned
+            figure.setStyles({
+                'float': 'right',
+                'margin-bottom': '0',
+                'margin-top': '0',
+                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH}%`
+            });
+        } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) { // Center Aligned
+            figure.setStyles({
+                'margin': 'auto',
+                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH}%`
+            });
+        } else if (hasCustomWidth) { // Justify Aligned
+            figure.setStyle('width', customWidth);
+        }
+    }
+
+    public static sortFigureClasses(figure: CKEDITOR.dom.element) {
+        const classes: string[] = figure.$.className.split(' ').sort();
+        figure.$.className = classes.join(' ');
     }
 
     private handleNativeNotifications() {
