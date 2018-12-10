@@ -94,13 +94,18 @@ export class Tag
                 this.tags.setValue(this.getValueFromPropertyArray(propertyArray));
             });
         } else if (this.tags.isDirty()) {
-            this.tags.forceChangedEvent();
+            this.resetDirtyValue();
         }
         return superPromise;
     }
 
     reset() {
         this.tags.resetBaseValues();
+    }
+
+    resetDirtyValue() {
+        this.getPropertyArray().removeAll(true);
+        this.tags.resetDirtyValue();
     }
 
     protected getNumberOfValids(): number {

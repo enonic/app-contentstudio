@@ -207,13 +207,21 @@ export class ContentSelector
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
             } else if (this.contentComboBox.isDirty()) {
-                this.contentComboBox.forceChangedEvent();
+                this.resetDirtyValue();
             }
         });
     }
 
     reset() {
         this.contentComboBox.resetBaseValues();
+    }
+
+    resetDirtyValue() {
+        const values = this.contentComboBox.getSelectedDisplayValues();
+
+        this.getPropertyArray().removeAll(true);
+        values.forEach(value => this.contentComboBox.deselect(value, true));
+        values.forEach(value => this.contentComboBox.select(value));
     }
 
     private static doFetchSummaries() {
