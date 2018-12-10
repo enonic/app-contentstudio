@@ -141,9 +141,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}"` +
-                                 `width="${this.parts.img.$.naturalWidth}" ` +
-                                 `height="${this.parts.img.$.naturalHeight}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
