@@ -71,6 +71,7 @@ export class PageTemplateWidgetItemView
         let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
+        serverEvents.onContentPermissionsUpdated(onContentUpdated);
     }
 
     public layout(): wemQ.Promise<any> {

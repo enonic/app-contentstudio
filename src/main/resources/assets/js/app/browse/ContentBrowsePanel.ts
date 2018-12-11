@@ -319,6 +319,8 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
+        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentCreated(data, oldPaths);
         });
