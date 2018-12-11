@@ -234,7 +234,7 @@ export class Tags
         return -1;
     }
 
-    resetDirtyValue() {
+    resetPropertyValues() {
         const tags = this.doGetTags();
         if (tags.length > 0) {
 
