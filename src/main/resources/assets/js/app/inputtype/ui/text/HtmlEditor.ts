@@ -28,6 +28,8 @@ export class HtmlEditor {
 
     private hasActiveDialog: boolean = false;
 
+    private static readonly imgInlineStyle = 'max-height:100%; max-width:100%; width:100%';
+
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
@@ -137,6 +139,7 @@ export class HtmlEditor {
     // Wrapping dropped image into figure element
     private handleImageDropped() {
         const editor = this.editor;
+        const imgInlineStyle = HtmlEditor.imgInlineStyle;
 
         this.editor.on('instanceReady', function () {
             (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
@@ -144,7 +147,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}" style="max-height: 100%; max-width: 100%; width: 100%">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}" style="${imgInlineStyle}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
@@ -427,7 +430,7 @@ export class HtmlEditor {
         const img: CKEDITOR.dom.element = figure.findOne('img');
 
         if (img) {
-            img.setAttribute('style', 'max-height:100%; max-width:100%; width:100%');
+            img.setAttribute('style', HtmlEditor.imgInlineStyle);
         }
     }
 
