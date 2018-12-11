@@ -207,7 +207,7 @@ export class ContentSelector
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
             } else if (this.contentComboBox.isDirty()) {
-                this.resetDirtyValue();
+                this.resetPropertyValues();
             }
         });
     }
@@ -216,7 +216,7 @@ export class ContentSelector
         this.contentComboBox.resetBaseValues();
     }
 
-    resetDirtyValue() {
+    resetPropertyValues() {
         const values = this.contentComboBox.getSelectedDisplayValues();
 
         this.getPropertyArray().removeAll(true);
