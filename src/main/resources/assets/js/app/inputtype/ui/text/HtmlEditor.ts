@@ -18,6 +18,7 @@ import ContentPath = api.content.ContentPath;
 /**
  * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
  * in xp/styles.css, thus don't forget to update inline styles when styles.css modified
+ * NB: CKE rearranges order of entries in classes and style attributes, might trim whitespaces or semicolon
  */
 export class HtmlEditor {
 
@@ -53,6 +54,7 @@ export class HtmlEditor {
             if (e.data.name === 'image') {
                 e.data.allowedContent.figure.classes = ['*'];
                 e.data.allowedContent.figure.styles = ['*'];
+                e.data.allowedContent.img.styles = ['*'];
             }
         });
     }
@@ -86,6 +88,7 @@ export class HtmlEditor {
             setTimeout(() => {
                 rootElement.find('figure').toArray().forEach((figure: CKEDITOR.dom.element) => {
                     HtmlEditor.updateFigureInlineStyle(figure);
+                    HtmlEditor.updateImageInlineStyle(figure);
                     HtmlEditor.sortFigureClasses(figure);
                 });
             }, 1);
@@ -141,7 +144,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}" style="max-height: 100%; max-width: 100%; width: 100%">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
@@ -324,7 +327,8 @@ export class HtmlEditor {
     }
 
     private doUpdateAlignmentButtonStates(figure: CKEDITOR.dom.element) {
-        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS)) {
+        // class 'undefined' means newly inserted justified image
+        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS) || figure.hasClass('undefined')) {
             this.setJustifyButtonActive();
         } else {
             this.toggleToolbarButtonState('justifyblock', false);
@@ -417,6 +421,14 @@ export class HtmlEditor {
     public static sortFigureClasses(figure: CKEDITOR.dom.element) {
         const classes: string[] = figure.$.className.split(' ').sort();
         figure.$.className = classes.join(' ');
+    }
+
+    public static updateImageInlineStyle(figure: CKEDITOR.dom.element) {
+        const img: CKEDITOR.dom.element = figure.findOne('img');
+
+        if (img) {
+            img.setAttribute('style', 'max-height:100%; max-width:100%; width:100%');
+        }
     }
 
     private handleNativeNotifications() {

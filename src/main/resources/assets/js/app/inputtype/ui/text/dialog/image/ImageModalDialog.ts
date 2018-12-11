@@ -505,6 +505,7 @@ export class ImageModalDialog
         imageEl.removeAttribute('style');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
+        HtmlEditor.updateImageInlineStyle(figureEl);
 
         figureCaptionEl.setText(this.getCaptionFieldValue());
     }
