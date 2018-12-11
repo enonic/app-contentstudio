@@ -234,6 +234,15 @@ export class Tags
         return -1;
     }
 
+    resetDirtyValue() {
+        const tags = this.doGetTags();
+        if (tags.length > 0) {
+
+            this.doClearTags(true);
+            tags.forEach(tag => this.doAddTag(tag));
+        }
+    }
+
     countTags(): number {
         return this.tags.length;
     }
