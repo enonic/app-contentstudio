@@ -183,10 +183,12 @@ export class DialogTogglableItemList
             }
         };
         serverEvents.onContentUpdated(updatedHandler);
+        serverEvents.onContentPermissionsUpdated(updatedHandler);
         serverEvents.onContentDeleted(deletedHandler);
 
         view.onRemoved(() => {
             serverEvents.unContentUpdated(updatedHandler);
+            serverEvents.unContentPermissionsUpdated(updatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
     }

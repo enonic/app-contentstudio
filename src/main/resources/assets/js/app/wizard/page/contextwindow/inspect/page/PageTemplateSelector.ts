@@ -49,6 +49,7 @@ export class PageTemplateSelector
             }
         }, 300);
         eventsHandler.onContentUpdated(updatedHandlerDebounced);
+        eventsHandler.onContentPermissionsUpdated(updatedHandlerDebounced);
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // just delete item from list
             // default or current template deletion is handled in ContentWizardPanel because default template should be reloaded
