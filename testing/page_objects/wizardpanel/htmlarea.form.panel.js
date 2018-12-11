@@ -170,7 +170,9 @@ const htmlAreaForm = Object.create(page, {
     },
     clickOnSourceButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3).then(result => {
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3);
+            }).then(result => {
                 return this.doClick(form.sourceButton);
             })
         }
