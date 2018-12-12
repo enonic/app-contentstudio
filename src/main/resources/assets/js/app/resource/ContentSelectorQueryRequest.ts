@@ -180,6 +180,8 @@ export class ContentSelectorQueryRequest
             this.results = this.results.concat(contentSummaries);
 
             return this.results;
+        }).catch(() => {
+            return [];
         });
     }
 
