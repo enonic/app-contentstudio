@@ -60,6 +60,10 @@ export class MediaSelector
         this.allowedContentTypes = allowedMediaTypes;
     }
 
+    protected getDefaultAllowPath(): string {
+        return '';
+    }
+
     protected createOptionDataLoader() {
         return ContentSummaryOptionDataLoader.create()
             .setAllowedContentPaths(this.allowedContentPaths)

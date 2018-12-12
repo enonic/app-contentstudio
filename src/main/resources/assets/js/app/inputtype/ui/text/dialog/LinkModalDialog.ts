@@ -25,9 +25,11 @@ import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem'
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
 import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {ContentSummaryOptionDataLoader} from '../../selector/ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {Content} from '../../../../content/Content';
+import {Site} from '../../../../content/Site';
+import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
 
 export class LinkModalDialog
     extends OverrideNativeDialog {
@@ -38,6 +40,7 @@ export class LinkModalDialog
     private toolTipFormItem: FormItem;
 
     private contentId: ContentId;
+    private parentSitePath: string;
 
     private tabNames: any;
 
@@ -142,7 +145,16 @@ export class LinkModalDialog
 
     protected layout() {
         super.layout();
-        this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
+
+        new GetNearestSiteRequest(this.contentId).sendAndParse().then(
+            (parentSite: Site) => {
+
+                if (parentSite) {
+                    this.parentSitePath = parentSite.getPath().toString();
+                }
+                this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
+            }
+        );
     }
 
     private createContentPanel(): Panel {
@@ -154,7 +166,8 @@ export class LinkModalDialog
         };
 
         return this.createFormPanel([
-            this.createSelectorFormItem('contentId', i18n('dialog.link.formitem.target'), this.createContentSelector(getContentId),
+            this.createSelectorFormItem('contentId', i18n('dialog.link.formitem.target'),
+                this.createSelector(getContentId, this.createContentSelectorBuilder()),
                 true),
             this.createTargetCheckbox('contentTarget', this.isContentLink)
         ]);
@@ -169,7 +182,7 @@ export class LinkModalDialog
 
         return this.createFormPanel([
             this.createSelectorFormItem('downloadId', i18n('dialog.link.formitem.target'),
-                this.createContentSelector(getDownloadId, api.schema.content.ContentTypeName.getMediaTypes()))
+                this.createSelector(getDownloadId, this.createMediaSelectorBuilder()))
         ]);
     }
 
@@ -321,20 +334,28 @@ export class LinkModalDialog
         super.initializeActions();
     }
 
-    private createContentSelector(getValueFn: Function, contentTypeNames?: api.schema.content.ContentTypeName[]) {
-        const loaderBuilder = ContentSummaryOptionDataLoader.create();
-
-        if (contentTypeNames) {
-            loaderBuilder.setContentTypeNames(contentTypeNames.map(name => name.toString()));
-        }
-
-        const contentSelector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
+    private createSelector( getValueFn: Function,
+                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
+                            ): ContentComboBox<ContentTreeSelectorItem> {
+        const selector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
 
         this.onAdded(() => {
-            contentSelector.setValue(getValueFn.call(this));
+            selector.setValue(getValueFn.call(this));
         });
 
-        return contentSelector;
+        return selector;
+    }
+
+    private createMediaSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader
+                .create()
+                .setContentTypeNames(api.schema.content.ContentTypeName.getMediaTypes().map(name => name.toString()));
+    }
+
+    private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader
+            .create()
+            .setAllowedContentPaths([this.parentSitePath || '']);
     }
 
     private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,

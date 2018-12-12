@@ -56,7 +56,15 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         this.allowedContentTypes = allowContentTypeConfig.map((cfg) => cfg['value']).filter((val) => !!val);
 
         let allowContentPathConfig = inputConfig['allowPath'] || [];
-        this.allowedContentPaths = allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val);
+        this.allowedContentPaths =
+            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
+            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
+             ? [this.getDefaultAllowPath()]
+             : []);
+    }
+
+    protected getDefaultAllowPath(): string {
+        return '';
     }
 
     private handleContentUpdatedEvent() {
