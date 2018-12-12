@@ -30,6 +30,7 @@ import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
+import {HtmlEditor} from '../../HtmlEditor';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -95,8 +96,8 @@ export class ImageModalDialog
 
         if (this.presetImageEl) {
             const presetStyles = !!presetFigureEl ? presetFigureEl.getAttribute('class') : '';
-            if (presetFigureEl) {
-                this.figure.getHTMLElement().style.width = presetFigureEl.getStyle('width');
+            if (presetFigureEl && presetFigureEl.hasAttribute('style')) {
+                this.figure.getEl().setAttribute('style', presetFigureEl.getAttribute('style'));
             }
             this.presetImage(presetStyles);
         }
@@ -493,16 +494,18 @@ export class ImageModalDialog
         const figureEl: CKEDITOR.dom.element = <CKEDITOR.dom.element>imageEl.getAscendant('figure');
         const figureCaptionEl: CKEDITOR.dom.element = figureEl.findOne('figcaption');
 
-        figureEl.setAttribute('class', `${this.figure.getClass()} captioned`);
+        figureEl.setAttribute('class', `${this.figure.getClass()}`);
         figureEl.removeAttribute('style');
-        if (this.figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM)) {
-            figureEl.setStyle('width', this.figure.getHTMLElement().style.width);
+
+        if (this.figure.getEl().hasAttribute('style') && !!this.figure.getEl().getAttribute('style')) {
+            figureEl.setAttribute('style', this.figure.getEl().getAttribute('style'));
         }
 
         imageEl.removeAttribute('class');
         imageEl.removeAttribute('style');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
+        HtmlEditor.updateImageInlineStyle(figureEl);
 
         figureCaptionEl.setText(this.getCaptionFieldValue());
     }
@@ -578,10 +581,6 @@ export class ImageModalDialog
         return (<any>this.getElemFromOriginalDialog('info', 'alignment')).getChild(0);
     }
 
-    private getOriginalLockElem(): CKEDITOR.dom.element {
-        return (<any>this.getElemFromOriginalDialog('info', 'lock')).getElement().getChild(0);
-    }
-
     isDirty(): boolean {
         return AppHelper.isDirty(this);
     }
@@ -597,7 +596,10 @@ export class ImageModalDialog
     }
 
     private applyStylingToPreview(classNames: string) {
-        this.figure.setClass(classNames);
+        this.figure.setClass('captioned ' + classNames);
+        const ckeFigure: CKEDITOR.dom.element = new CKEDITOR.dom.element(this.figure.getHTMLElement());
+        HtmlEditor.updateFigureInlineStyle(ckeFigure);
+        HtmlEditor.sortFigureClasses(ckeFigure);
     }
 }
 
