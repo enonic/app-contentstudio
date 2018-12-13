@@ -153,6 +153,39 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+                return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
+            }).then(() => {
+                return htmlAreaForm.getFormatOptions();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_format_options');
+                assert.equal(result[0], "Normal", 'expected option should be visible');
+                assert.equal(result[1], "Heading 1", 'expected option should be visible');
+                assert.equal(result[2], "Heading 2", 'expected option should be visible');
+                assert.equal(result[3], "Heading 3", 'expected option should be visible');
+                assert.equal(result[4], "Heading 4", 'expected option should be visible');
+            });
+        });
+
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+                return htmlAreaForm.typeTextInHtmlArea("test");
+            }).then(() => {
+                return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
+            }).then(() => {
+                return htmlAreaForm.selectFormatOption('Heading 1');
+            }).then(() => {
+                return htmlAreaForm.getTextFromHtmlArea();
+            }).then(result => {
+                studioUtils.saveScreenshot('heading_1_cke');
+                assert.equal(result[0], "<h1>test</h1>", 'expected text should be in area');
+            });
+        });
+
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
 });
