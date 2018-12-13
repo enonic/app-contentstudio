@@ -35,6 +35,7 @@ const form = {
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
+    formatDropDownHandle: `//span[contains(@class,'cke_combo__format')]//span[@class='cke_combo_open']`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
@@ -42,6 +43,9 @@ const form = {
     },
     getText: function (id) {
         return `return CKEDITOR.instances['${id}'].getData()`
+    },
+    formatOptionByName: function (optionName) {
+        return `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };
 const htmlAreaForm = Object.create(page, {
@@ -128,6 +132,39 @@ const htmlAreaForm = Object.create(page, {
             }).then(result => {
                 return this.doClick(form.insertImageButton);
             })
+        }
+    },
+    //clicks on Format's dropdown handle and expands options
+    showToolbarAndClickOnFormatDropDownHandle: {
+        value: function () {
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(form.formatDropDownHandle, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(form.formatDropDownHandle);
+            })
+        }
+    },
+    getFormatOptions: {
+        value: function () {
+            let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
+            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
+                return this.frame(id);
+            }).then(() => {
+                return this.getText(selector);
+            })
+        }
+    },
+    //switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
+    selectFormatOption: {
+        value: function (optionName) {
+            let selector = form.formatOptionByName(optionName);
+            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
+                return this.frame(id);
+            }).then(() => {
+                return this.doClick(selector);
+            }).pause(1000).then(() => {
+                return this.getBrowser().frameParent();
+            });
         }
     },
     showToolbarAndClickOnInsertAnchorButton: {
