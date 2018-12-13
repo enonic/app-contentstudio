@@ -378,7 +378,7 @@ export class ContentBrowsePanel
                 }
 
                 this.treeGrid.placeContentNodes(changed);
-            })
+            });
         });
     }
 
