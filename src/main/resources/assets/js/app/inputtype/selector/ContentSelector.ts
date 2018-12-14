@@ -165,14 +165,8 @@ export class ContentSelector
             const contentId: ContentId = event.getSelectedOption().getOption().displayValue.getContentId();
 
             if (contentId) {
-                const reference = api.util.Reference.from(event.getSelectedOption().getOption().displayValue.getContentId());
+                this.setContentIdProperty(contentId);
 
-                const value = new Value(reference, ValueTypes.REFERENCE);
-                if (contentComboBox.countSelected() === 1) { // overwrite initial value
-                    this.getPropertyArray().set(0, value);
-                } else if (!this.getPropertyArray().containsValue(value)) {
-                    this.getPropertyArray().add(value);
-                }
                 this.updateSelectedOptionIsEditable(event.getSelectedOption());
                 this.getSelectedOptionsView().refreshSortable();
                 this.updateSelectedOptionStyle();
@@ -254,6 +248,22 @@ export class ContentSelector
             let contentIdsStr = contentIds.map(id => id.toString());
             return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
         });
+    }
+
+    protected setContentIdProperty(contentId: api.content.ContentId) {
+        let reference = api.util.Reference.from(contentId);
+
+        let value = new Value(reference, ValueTypes.REFERENCE);
+
+        if (!this.getPropertyArray().containsValue(value)) {
+            this.ignorePropertyChange = true;
+            if (this.contentComboBox.countSelected() === 1) { // overwrite initial value
+                this.getPropertyArray().set(0, value);
+            } else {
+                this.getPropertyArray().add(value);
+            }
+            this.ignorePropertyChange = false;
+        }
     }
 
     protected setupSortable() {

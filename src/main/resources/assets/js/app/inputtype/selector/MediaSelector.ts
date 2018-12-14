@@ -2,8 +2,6 @@ import PropertyArray = api.data.PropertyArray;
 import UploadItem = api.ui.uploader.UploadItem;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ComboBox = api.ui.selector.combobox.ComboBox;
-import ValueTypes = api.data.ValueTypes;
-import Value = api.data.Value;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
@@ -210,22 +208,6 @@ export class MediaSelector
         }
 
         return rest;
-    }
-
-    protected setContentIdProperty(contentId: api.content.ContentId) {
-        let reference = api.util.Reference.from(contentId);
-
-        let value = new Value(reference, ValueTypes.REFERENCE);
-
-        if (!this.getPropertyArray().containsValue(value)) {
-            this.ignorePropertyChange = true;
-            if (this.contentComboBox.countSelected() === 1) { // overwrite initial value
-                this.getPropertyArray().set(0, value);
-            } else {
-                this.getPropertyArray().add(value);
-            }
-            this.ignorePropertyChange = false;
-        }
     }
 }
 
