@@ -16,7 +16,12 @@ app {
 }
 
 dependencies {
-    compile "${group}:portal-api:${xpVersion}"
+    compile("${group}:core-api:${xpVersion}") {
+        force = true
+    }
+    compile ("${group}:portal-api:${xpVersion}") {
+        force = true
+    }
     include "${group}:lib-admin:${xpVersion}"
     include "${group}:lib-portal:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
