@@ -763,7 +763,7 @@ class HtmlEditorConfigBuilder {
 
     private tools: any[] = [
         ['Format', 'Bold', 'Italic', 'Underline'],
-        ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+        ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
         ['Table']
