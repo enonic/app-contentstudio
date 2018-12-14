@@ -29,12 +29,13 @@ const form = {
     bulletedButton: `//a[contains(@class,'cke_button') and contains(@title,'Bulleted List')]`,
     numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
     sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and contains(@href,'Source')]`,
-    fullScreen: `//a[contains(@class,'cke_button__fullscreen_)  and contains(@href,'Fullscreen')]\``,
+    fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and contains(@href,'Fullscreen')]`,
     tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
     strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
+    formatDropDownHandle: `//span[contains(@class,'cke_combo__format')]//span[@class='cke_combo_open']`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
@@ -42,9 +43,18 @@ const form = {
     },
     getText: function (id) {
         return `return CKEDITOR.instances['${id}'].getData()`
+    },
+    formatOptionByName: function (optionName) {
+        return `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };
 const htmlAreaForm = Object.create(page, {
+
+    fullScreenButton: {
+        get: function () {
+            return `${elements.FORM_VIEW}` + `${form.fullScreen}`;
+        }
+    },
 
     validationRecord: {
         get: function () {
@@ -124,6 +134,39 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
+    //clicks on Format's dropdown handle and expands options
+    showToolbarAndClickOnFormatDropDownHandle: {
+        value: function () {
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(form.formatDropDownHandle, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(form.formatDropDownHandle);
+            })
+        }
+    },
+    getFormatOptions: {
+        value: function () {
+            let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
+            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
+                return this.frame(id);
+            }).then(() => {
+                return this.getText(selector);
+            })
+        }
+    },
+    //switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
+    selectFormatOption: {
+        value: function (optionName) {
+            let selector = form.formatOptionByName(optionName);
+            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
+                return this.frame(id);
+            }).then(() => {
+                return this.doClick(selector);
+            }).pause(1000).then(() => {
+                return this.getBrowser().frameParent();
+            });
+        }
+    },
     showToolbarAndClickOnInsertAnchorButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {
@@ -164,15 +207,19 @@ const htmlAreaForm = Object.create(page, {
     },
     clickOnSourceButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3).then(result => {
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3);
+            }).then(result => {
                 return this.doClick(form.sourceButton);
             })
         }
     },
-    clickOnMaximizeButton: {
+    clickOnFullScreenButton: {
         value: function () {
-            return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3).then(result => {
-                return this.doClick(form.sourceButton);
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(this.fullScreenButton);
             })
         }
     },

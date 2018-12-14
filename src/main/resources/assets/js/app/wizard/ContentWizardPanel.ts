@@ -283,7 +283,7 @@ export class ContentWizardPanel
     }
 
     public getFormIcon(): ThumbnailUploaderEl {
-        return <ThumbnailUploaderEl> super.getFormIcon();
+        return <ThumbnailUploaderEl>super.getFormIcon();
     }
 
     protected createMainToolbar(): Toolbar {
@@ -291,7 +291,7 @@ export class ContentWizardPanel
     }
 
     public getMainToolbar(): ContentWizardToolbar {
-        return <ContentWizardToolbar> super.getMainToolbar();
+        return <ContentWizardToolbar>super.getMainToolbar();
     }
 
     protected createWizardHeader(): api.app.wizard.WizardHeader {
@@ -316,24 +316,11 @@ export class ContentWizardPanel
     }
 
     public getWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        return <WizardHeaderWithDisplayNameAndName> super.getWizardHeader();
+        return <WizardHeaderWithDisplayNameAndName>super.getWizardHeader();
     }
 
-    protected createLivePanel(): api.ui.panel.Panel {
-        let liveFormPanel;
-        let isSiteOrWithinSite = !!this.site || this.contentParams.createSite;
-        let isPageTemplate = this.contentType.isPageTemplate();
-        let isShortcut = this.contentType.isShortcut();
-
-        if ((isSiteOrWithinSite || isPageTemplate) && !isShortcut) {
-
-            liveFormPanel = new LiveFormPanel(<LiveFormPanelConfig> {
-                contentWizardPanel: this,
-                contentType: this.contentType.getContentTypeName(),
-                defaultModels: this.defaultModels
-            });
-        }
-        return liveFormPanel;
+    public getLivePanel(): LiveFormPanel {
+        return <LiveFormPanel>super.getLivePanel();
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: api.ui.panel.Panel): api.ui.panel.SplitPanel {
@@ -376,8 +363,21 @@ export class ContentWizardPanel
         return this.detailsSplitPanel;
     }
 
-    public getLivePanel(): LiveFormPanel {
-        return <LiveFormPanel> super.getLivePanel();
+    protected createLivePanel(): api.ui.panel.Panel {
+        let liveFormPanel;
+        let isSiteOrWithinSite = !!this.site || this.contentParams.createSite;
+        let isPageTemplate = this.contentType.isPageTemplate();
+        let isShortcut = this.contentType.isShortcut();
+
+        if ((isSiteOrWithinSite || isPageTemplate) && !isShortcut) {
+
+            liveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
+                contentWizardPanel: this,
+                contentType: this.contentType.getContentTypeName(),
+                defaultModels: this.defaultModels
+            });
+        }
+        return liveFormPanel;
     }
 
     getWizardActions(): ContentWizardActions {
@@ -774,8 +774,6 @@ export class ContentWizardPanel
 
                     this.onShown(shownHandler);
                 }
-
-                this.handleMissingApp();
             }
         };
 
@@ -1053,6 +1051,27 @@ export class ContentWizardPanel
             }
         };
 
+        const updatePermissionsHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
+            const contentId: ContentId = updatedContent.getContentId();
+
+            if (this.isCurrentContentId(contentId)) {
+                const isAlreadyUpdated = updatedContent.equals(this.getPersistedItem());
+
+                if (isAlreadyUpdated) {
+                    return;
+                }
+                this.setUpdatedContent(updatedContent);
+
+                this.fetchPersistedContent().then((content) => {
+                    this.setPersistedItem(content.clone());
+                    this.securityWizardStepForm.update(content, true);
+                });
+
+            } else {
+                this.handleOtherContentUpdate(updatedContent);
+            }
+        };
+
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             let indexOfCurrentContent;
             let wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
@@ -1094,6 +1113,14 @@ export class ContentWizardPanel
             }
         };
 
+        const contentPermissionsUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            if (!this.contentUpdateDisabled) {
+                data.forEach((updated: ContentSummaryAndCompareStatus) => {
+                    updatePermissionsHandler(updated);
+                });
+            }
+        };
+
         const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
 
         const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
@@ -1114,6 +1141,7 @@ export class ContentWizardPanel
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
         serverEvents.onContentUpdated(contentUpdatedHandler);
+        serverEvents.onContentPermissionsUpdated(contentPermissionsUpdatedHandler);
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
@@ -1127,6 +1155,7 @@ export class ContentWizardPanel
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
             serverEvents.unContentUpdated(contentUpdatedHandler);
+            serverEvents.unContentPermissionsUpdated(contentPermissionsUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
 
@@ -1135,11 +1164,15 @@ export class ContentWizardPanel
         });
     }
 
-    private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+    private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
         this.persistedContent = this.currentContent = updatedContent;
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(updatedContent);
         this.detailsSplitPanel.setContent(updatedContent);
+    }
+
+    private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+        this.setUpdatedContent(updatedContent);
 
         if (this.currentContent.getCompareStatus() != null) {
             this.refreshScheduleWizardStep();
@@ -1160,7 +1193,9 @@ export class ContentWizardPanel
                 this.updateLiveForm(content);
             }
 
-            if (!this.isDisplayNameUpdated()) {
+            if (this.isDisplayNameUpdated()) {
+                // this.getWizardHeader().forceChangedEvent();
+            } else {
                 this.getWizardHeader().resetBaseValues();
             }
 
@@ -1284,7 +1319,7 @@ export class ContentWizardPanel
                 api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSetOption)) {
                 result = result.concat(this.getHtmlAreasInForm(<any>item));
             } else if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.Input)) {
-                let input = <api.form.Input> item;
+                let input = <api.form.Input>item;
                 if (input.getInputType().getName() === 'HtmlArea') {
                     result.push(input.getPath().toString());
                 }
@@ -1648,7 +1683,7 @@ export class ContentWizardPanel
                 api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSetOption)) {
                 result = result.concat(this.getOptionSetsInForm(<any>item));
             } else if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSet)) {
-                result.push(<api.form.FormOptionSet> item);
+                result.push(<api.form.FormOptionSet>item);
                 result = result.concat(this.getOptionSetsInForm(<any>item));
             }
         });

@@ -56,6 +56,10 @@ export class ContentSelector
         super.readConfig(inputConfig);
     }
 
+    protected getDefaultAllowPath(): string {
+        return '${site}/*';
+    }
+
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
         return this.contentComboBox;
     }
@@ -207,13 +211,21 @@ export class ContentSelector
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
             } else if (this.contentComboBox.isDirty()) {
-                this.contentComboBox.forceChangedEvent();
+                this.resetPropertyValues();
             }
         });
     }
 
     reset() {
         this.contentComboBox.resetBaseValues();
+    }
+
+    resetPropertyValues() {
+        const values = this.contentComboBox.getSelectedDisplayValues();
+
+        this.getPropertyArray().removeAll(true);
+        values.forEach(value => this.contentComboBox.deselect(value, true));
+        values.forEach(value => this.contentComboBox.select(value));
     }
 
     private static doFetchSummaries() {

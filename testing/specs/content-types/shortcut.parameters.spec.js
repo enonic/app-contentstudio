@@ -21,12 +21,10 @@ describe('Shortcut parameters specification', function () {
     const PARAM_NAME = "param 1";
     const PARAM_VALUE = "value 1";
 
-    const displayName = contentBuilder.generateRandomName('shortcut');
+    const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
 
     it(`WHEN shortcut-wizard is opened THEN 'Add Parameter' button should be present`,
         () => {
-            let displayName = contentBuilder.generateRandomName('shortcut');
-            let shortcut = contentBuilder.buildShortcut(displayName, appConst.TEST_IMAGES.WHALE);
             return studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
             }).then(() => {
                 return assert.eventually.isTrue(shortcutForm.waitForAddParametersButtonVisible(),
@@ -36,7 +34,6 @@ describe('Shortcut parameters specification', function () {
 
     it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the content is getting not valid because parameter's inputs are required`,
         () => {
-
             return studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
             }).then(() => {
                 return contentWizard.typeDisplayName(contentBuilder.generateRandomName('shortcut'));
@@ -54,10 +51,9 @@ describe('Shortcut parameters specification', function () {
 
     it(`GIVEN  shortcut-wizard is opened WHEN 'Add Parameters' button has been clicked THEN 2 inputs for parameter should appear AND 'Collapse' link should be present`,
         () => {
-
             return studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
             }).then(() => {
-                return contentWizard.typeDisplayName(displayName);
+                return contentWizard.typeDisplayName(SHORTCUT_NAME);
             }).then(() => {
                 return shortcutForm.filterOptionsAndSelectTarget('whale');
             }).then(() => {
@@ -83,7 +79,7 @@ describe('Shortcut parameters specification', function () {
 
     it(`WHEN existing shortcut with parameters is opened THEN expected parameter should be displayed`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(displayName).then(() => {
+            return studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME).then(() => {
                 return shortcutForm.getParameterName();
             }).then(result => {
                 assert.isTrue(result == PARAM_NAME, "Expected parameter should be present")
@@ -96,7 +92,7 @@ describe('Shortcut parameters specification', function () {
 
     it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN 'Add Parameters' button should appear`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(displayName).then(() => {
+            return studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME).then(() => {
                 return shortcutForm.clickOnRemoveParameterButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
@@ -113,7 +109,7 @@ describe('Shortcut parameters specification', function () {
 
     it(`GIVEN existing shortcut is opened(parameter is removed) WHEN rollback the previous version THEN expected parameter should appear`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(displayName).then(() => {
+            return studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
                 return wizardDetailsPanel.openVersionHistory();

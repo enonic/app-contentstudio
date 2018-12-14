@@ -56,7 +56,15 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         this.allowedContentTypes = allowContentTypeConfig.map((cfg) => cfg['value']).filter((val) => !!val);
 
         let allowContentPathConfig = inputConfig['allowPath'] || [];
-        this.allowedContentPaths = allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val);
+        this.allowedContentPaths =
+            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
+            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
+             ? [this.getDefaultAllowPath()]
+             : []);
+    }
+
+    protected getDefaultAllowPath(): string {
+        return '';
     }
 
     private handleContentUpdatedEvent() {
@@ -83,11 +91,13 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         handler.onContentMoved(contentUpdatedOrMovedListener);
         handler.onContentRenamed(contentUpdatedOrMovedListener);
         handler.onContentUpdated(contentUpdatedOrMovedListener);
+        handler.onContentPermissionsUpdated(contentUpdatedOrMovedListener);
 
         this.onRemoved(() => {
             handler.unContentUpdated(contentUpdatedOrMovedListener);
             handler.unContentRenamed(contentUpdatedOrMovedListener);
             handler.unContentMoved(contentUpdatedOrMovedListener);
+            handler.unContentPermissionsUpdated(contentUpdatedOrMovedListener);
         });
     }
 

@@ -319,6 +319,8 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
+        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentCreated(data, oldPaths);
         });
@@ -328,6 +330,10 @@ export class ContentBrowsePanel
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
+
+        handler.onContentPublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentPublished(data));
+
+        handler.onContentUnpublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentUnpublished(data));
 
         handler.onContentDuplicated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
@@ -353,18 +359,26 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: updated', data);
         }
 
-        return this.doHandleContentUpdate(data).then((changed) => {
-            this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
-                if (previewUpdateRequired) {
-                    this.debouncedPreviewRefresh();
+        this.doHandleContentUpdate(data).then((changed) => {
+
+            // Update since CompareStatus changed
+            ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {
+
+                const changedEvent = new DataChangedEvent<ContentSummaryAndCompareStatus>(changed, DataChangedEvent.UPDATED);
+                this.treeGrid.notifyDataChanged(changedEvent);
+
+                this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
+                    if (previewUpdateRequired) {
+                        this.debouncedPreviewRefresh();
+                    }
+                });
+
+                if (!changed.length) {
+                    return;
                 }
+
+                this.treeGrid.placeContentNodes(changed);
             });
-
-            if (!changed.length) {
-                return;
-            }
-
-            return this.treeGrid.placeContentNodes(changed);
         });
     }
 
@@ -495,20 +509,9 @@ export class ContentBrowsePanel
 
         this.updateDetailsPanel(data);
 
-        if (!changed.length) {
-            return wemQ(changed);
-        }
-
         this.treeGrid.invalidateNodes(changed);
 
-        // Update since CompareStatus changed
-        return ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {
-
-            let changedEvent = new DataChangedEvent<ContentSummaryAndCompareStatus>(changed, DataChangedEvent.UPDATED);
-            this.treeGrid.notifyDataChanged(changedEvent);
-
-            return changed;
-        });
+        return wemQ(changed);
     }
 
     private updateNodes(data: ContentSummaryAndCompareStatus[]): TreeNode<ContentSummaryAndCompareStatus>[] {

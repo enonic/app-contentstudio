@@ -235,5 +235,7 @@ Page.prototype.waitUntilInvalid = function (selector) {
 Page.prototype.hasDefaultFocus = function (selector) {
     return this.hasFocus(selector);
 };
-
+Page.prototype.pressEscKey = function () {
+    return this.getBrowser().keys(['Escape']);
+};
 module.exports = new Page();

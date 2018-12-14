@@ -66,7 +66,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             }
         });
 
-        handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => {
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
@@ -78,7 +78,10 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             if (isDependencyItemUpdated) {
                 this.search();
             }
-        });
+        };
+
+        handler.onContentUpdated(updatedHandler);
+        handler.onContentPermissionsUpdated(updatedHandler);
     }
 
     protected getGroupViews(): api.aggregation.AggregationGroupView[] {
@@ -181,11 +184,13 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             .setExpand(api.rest.Expand.SUMMARY)
             .sendAndParse()
             .then((contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-                this.handleDataSearchResult(contentQuery, contentQueryResult);
+                if (this.dependenciesSection.isActive() && contentQueryResult.getAggregations().length === 0) {
+                    this.removeDependencyItem();
+                } else {
+                    return this.handleDataSearchResult(contentQuery, contentQueryResult);
+                }
             })
-            .catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
-        });
+            .catch(api.DefaultErrorHandler.handle);
     }
 
     private refreshDataAndHandleResponse(contentQuery: ContentQuery): wemQ.Promise<void>  {
@@ -199,14 +204,12 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                     this.handleNoSearchResultOnRefresh(contentQuery);
                 }
             })
-            .catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
-        });
+            .catch(api.DefaultErrorHandler.handle);
     }
 
     private handleDataSearchResult(contentQuery: ContentQuery,
                                    contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) {
-        this.getAggregations(contentQuery, contentQueryResult).then((aggregations: Aggregation[]) => {
+        return this.getAggregations(contentQuery, contentQueryResult).then((aggregations: Aggregation[]) => {
             this.updateAggregations(aggregations, true);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             this.toggleAggregationsVisibility(contentQueryResult.getAggregations());

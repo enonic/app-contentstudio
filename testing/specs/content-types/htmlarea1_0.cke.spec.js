@@ -12,7 +12,8 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const htmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const insertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const fullScreenDialog = require('../../page_objects/wizardpanel/html.full.screen.dialog');
+const sourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 
 describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -83,6 +84,69 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
             }).then(result => {
                 studioUtils.saveScreenshot('htmlarea_0_1_check_value');
                 assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
+            });
+        });
+
+    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'fullscreen' button has been pressed THEN expected text should be present in full screen`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
+                return htmlAreaForm.clickOnFullScreenButton();
+            }).then(() => {
+                return fullScreenDialog.waitForDialogLoaded();
+            }).then(() => {
+                return fullScreenDialog.getTextFromHtmlArea();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
+                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
+            });
+        });
+
+    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
+                return htmlAreaForm.clickOnSourceButton();
+            }).then(() => {
+                return sourceCodeDialog.waitForDialogLoaded();
+            }).then(() => {
+                return sourceCodeDialog.getText();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
+                assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
+            });
+        });
+
+    it(`GIVEN 'Source Code' dialog is opened WHEN text has been cleared THEN htmlArea should be cleared as well`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
+                return htmlAreaForm.clickOnSourceButton();
+            }).then(() => {
+                return sourceCodeDialog.waitForDialogLoaded();
+            }).then(() => {
+                return sourceCodeDialog.typeText("");
+            }).then(() => {
+                return sourceCodeDialog.clickOnOkButton();
+            }).then(() => {
+                return htmlAreaForm.getTextFromHtmlArea();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_0_1_cleared');
+                assert.equal(result[0], "", 'htmlArea should be cleared as well');
+            });
+        });
+
+
+    it(`GIVEN existing 'htmlArea 0:1' in full screen mode is opened WHEN 'Esc' key has been pressed THEN 'fullscreen'-dialog should be closed`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
+                return htmlAreaForm.clickOnFullScreenButton();
+            }).then(() => {
+                return fullScreenDialog.waitForDialogLoaded();
+            }).then(() => {
+                return fullScreenDialog.pressEscKey();
+            }).then(() => {
+                return fullScreenDialog.waitForDialogClosed();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_full_screen_mode_closed');
+                assert.isTrue(result, 'full screen dialog should be closed');
             });
         });
 
