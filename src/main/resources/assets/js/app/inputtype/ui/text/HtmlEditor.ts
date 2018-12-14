@@ -28,7 +28,7 @@ export class HtmlEditor {
 
     private hasActiveDialog: boolean = false;
 
-    private static readonly imgInlineStyle = 'max-height:100%; max-width:100%; width:100%';
+    private static readonly imgInlineStyle: string = 'max-height:100%; max-width:100%; width:100%';
 
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
@@ -399,22 +399,22 @@ export class HtmlEditor {
 
         if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) { // Left Aligned
             figure.setStyles({
-                'float': 'left',
+                float: 'left',
                 'margin-bottom': '0',
                 'margin-top': '0',
-                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH}%`
+                width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) { // Right Aligned
             figure.setStyles({
-                'float': 'right',
+                float: 'right',
                 'margin-bottom': '0',
                 'margin-top': '0',
-                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH}%`
+                width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) { // Center Aligned
             figure.setStyles({
-                'margin': 'auto',
-                'width': hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH}%`
+                margin: 'auto',
+                width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.CENTER.WIDTH}%`
             });
         } else if (hasCustomWidth) { // Justify Aligned
             figure.setStyle('width', customWidth);
