@@ -5,21 +5,23 @@ CKEDITOR.plugins.add('macro', {
         var selectedElement = null;
         var selectionRange = null;
 
+        var refresh = function (editor, path) {
+            selectedMacro = null;
+            selectedElement = path.lastElement;
+            selectionRange = editor.getSelection().getRanges()[0];
+
+            doRefresh();
+
+            editor.getCommand('openMacroDialogNative').setState(!!selectedMacro ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
+        };
+
         editor.addCommand('openMacroDialogNative', {
             exec: function (editor) {
                 editor.execCommand('openMacroDialog', selectedMacro);
                 return true;
             },
 
-            refresh: function (editor, path) {
-                selectedMacro = null;
-                selectedElement = path.lastElement;
-                selectionRange = editor.getSelection().getRanges()[0];
-
-                doRefresh();
-
-                this.setState(!!selectedMacro ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
-            },
+            refresh: refresh,
 
             contextSensitive: 1
         });
@@ -45,7 +47,7 @@ CKEDITOR.plugins.add('macro', {
         editor.on('instanceReady', function () {
             editor.editable().on('click', function () {
                 if (isSameElementSelected()) {
-                    triggerSelectionChange();
+                    triggerRefresh();
                 }
             });
 
@@ -58,7 +60,7 @@ CKEDITOR.plugins.add('macro', {
                 }
 
                 if (isSameElementSelected()) {
-                    triggerSelectionChange();
+                    triggerRefresh();
                 }
             });
         });
@@ -131,8 +133,8 @@ CKEDITOR.plugins.add('macro', {
             return editor.elementPath().lastElement.equals(selectedElement);
         }
 
-        function triggerSelectionChange() {
-            editor.fire("selectionChange", {selection: editor.getSelection(), path: editor.elementPath()});
+        function triggerRefresh() {
+            refresh(editor, editor.elementPath());
         }
     }
 });

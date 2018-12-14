@@ -29,6 +29,9 @@
     .input-wrapper {
       margin-left: 0 !important;
     }
+    .loader-combobox {
+      display: none;
+    }
   }
 }
 
@@ -65,7 +68,11 @@
 }
 
 .html-area-modal-dialog {
-  max-width: 600px;
+  box-sizing: content-box;
+
+  &:not(.image-modal-dialog) {
+    max-width: 600px;
+  }
 
   .modal-dialog-body {
     overflow: visible;

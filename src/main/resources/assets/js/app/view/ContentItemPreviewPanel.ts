@@ -4,12 +4,12 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
+import {ImageUrlBuilder, ImageUrlParameters} from '../util/ImageUrlResolver';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -59,7 +59,7 @@ export class ContentItemPreviewPanel
 
         this.onShown((event) => {
             if (this.item && this.hasClass('image-preview')) {
-                this.addImageSizeToUrl(this.item);
+                this.setImageSrc(this.item);
             }
         });
 
@@ -134,10 +134,21 @@ export class ContentItemPreviewPanel
         return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
-    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
-        const imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
-            item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
+    private setImageSrc(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const content = item.getModel().getContentSummary();
+
+        const urlParams: ImageUrlParameters = {
+            id: content.getId(),
+            timeStamp: content.getModifiedTime(),
+            useOriginal: content.getType().equals(ContentTypeName.MEDIA_VECTOR)
+        };
+
+        if (!urlParams.useOriginal) {
+            const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
+            urlParams.size = imgSize;
+        }
+
+        const imgUrl = new ImageUrlBuilder(urlParams).buildForPreview();
         this.image.setSrc(imgUrl);
     }
 
@@ -152,14 +163,11 @@ export class ContentItemPreviewPanel
                 if (this.isVisible()) {
                     if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
                         this.setPreviewType(PREVIEW_TYPE.SVG);
-                        const imgUrl = new ContentImageUrlResolver().setContentId(
-                            item.getModel().getContentId()).setTimestamp(
-                            item.getModel().getContentSummary().getModifiedTime()).resolve();
-                        this.image.setSrc(imgUrl);
                     } else {
-                        this.addImageSizeToUrl(item);
                         this.setPreviewType(PREVIEW_TYPE.IMAGE);
                     }
+
+                    this.setImageSrc(item);
                 } else {
                     this.setPreviewType(PREVIEW_TYPE.IMAGE);
                 }

@@ -1,8 +1,8 @@
 import TextArea = api.ui.text.TextArea;
 import i18n = api.util.i18n;
-import eventInfo = CKEDITOR.eventInfo;
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
-import {HTMLAreaBuilder} from '../HTMLAreaBuilder';
+import {HtmlEditorParams} from '../HtmlEditorParams';
+import {HtmlEditor} from '../HtmlEditor';
 
 declare var CONFIG;
 
@@ -11,73 +11,64 @@ export class FullscreenDialog
 
     private textArea: TextArea;
 
-    private config: any;
+    private editorParams: HtmlEditorParams;
 
-    private fseditor: CKEDITOR.editor;
+    private fseditor: HtmlEditor;
 
-    constructor(config: eventInfo) {
+    constructor(config: any) {
         super(<HtmlAreaModalDialogConfig>{
             editor: config.editor,
             title: i18n('dialog.fullscreen.title'),
             cls: 'fullscreen-modal-dialog'
         });
 
-        this.config = config;
+        this.editorParams = config.editorParams;
 
-        (<CKEDITOR.editor>this.getEditor()).focusManager.lock();
+        this.getEditor().focusManager.lock();
     }
 
     show() {
         super.show();
         this.initEditor();
-        this.addCKEListeners();
-        this.fseditor.setData(this.getEditor().getData());
     }
 
     hide() {
-        (<CKEDITOR.editor>this.getEditor()).focusManager.unlock();
+        this.getEditor().focusManager.unlock();
         this.getEditor().setData(this.fseditor.getData());
         this.fseditor.destroy();
         setTimeout(() => {
-            (<CKEDITOR.editor>this.getEditor()).focus();
+            this.getEditor().focus();
         }, 50);
         super.hide();
     }
 
     private initEditor() {
-        this.fseditor = new HTMLAreaBuilder()
+        const editorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.textArea.getId())
             .setAssetsUri(CONFIG.assetsUri)
             .setInline(false)
-            .onCreateDialog(this.config.createDialogListeners[0])
-            .setKeydownHandler(this.config.keydownHandler)
-            .setContentPath(this.config.contentPath)
-            .setContent(this.config.content)
-            .setApplicationKeys(this.config.applicationKeys)
-            .setTools(this.config.customToolConfig)
-            .setEditableSourceCode(this.config.editableSourceCode)
+            .setCreateDialogHandler(this.editorParams.getCreateDialogListener())
+            .setKeydownHandler(this.editorParams.getKeydownHandler())
+            .setEditorReadyHandler(this.editorReadyHandler.bind(this))
+            .setContentPath(this.editorParams.getContentPath())
+            .setContent(this.editorParams.getContent())
+            .setApplicationKeys(this.editorParams.getApplicationKeys())
+            .setTools(this.editorParams.getTools())
+            .setEditableSourceCode(this.editorParams.getEditableSourceCode())
+            .setCustomStylesToBeUsed(true)
             .setFullscreenMode(true)
-            .createEditor();
-    }
+            .build();
 
-    private addCKEListeners() {
-        this.fseditor.on('instanceReady', () => {
-            this.removeTooltip();
-            this.fseditor.focus();
-
-            this.addEscButtonHandler();
+        HtmlEditor.create(editorParams).then((htmlEditor: HtmlEditor) => {
+            this.fseditor = htmlEditor;
         });
     }
 
-    private addEscButtonHandler() {
-        this.fseditor.addCommand('esc', {
-            exec: () => {
-                this.close();
-                return true;
-            }
-        });
-
-        this.fseditor.setKeystroke(27, 'esc'); // close dialog when esc pressed inside editor
+    private editorReadyHandler() {
+        this.removeTooltip();
+        this.fseditor.focus();
+        this.fseditor.setKeystroke(27, 'esc', this.close.bind(this));
+        this.fseditor.setData(this.getEditor().getData());
     }
 
     private removeTooltip() {

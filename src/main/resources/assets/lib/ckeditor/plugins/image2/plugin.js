@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -11,7 +11,7 @@
         templateBlock = new CKEDITOR.template(
             '<figure class="{captionedClass}">' +
             template +
-            '<figcaption style="text-align:left">{captionPlaceholder}</figcaption>' + // #2 // #6
+            '<figcaption>{captionPlaceholder}</figcaption>' +
             '</figure>'),
         alignmentsObj = {left: 0, center: 1, right: 2},
         regexPercent = /^\s*(\d+\%)\s*$/i;
@@ -68,6 +68,12 @@
         },
 
         init: function (editor) {
+            // Abort when Easyimage is to be loaded since this plugins
+            // share the same functionality (#1791).
+            if (editor.plugins.detectConflict('image2', ['easyimage'])) {
+                return;
+            }
+
             // Adapts configuration from original image plugin. Should be removed
             // when we'll rename image2 to image.
             var config = editor.config,
@@ -318,10 +324,6 @@
                     this.data.align = 'none';
                 }
 
-                if (!this.data.align || this.data.align === 'none') { // #7
-                    this.data.align = 'block';
-                }
-
                 // Convert the internal form of the widget from the old state to the new one.
                 this.shiftState({
                     widget: this,
@@ -382,7 +384,7 @@
                         height: image.getAttribute('height') || '',
 
                         // Lock ratio is on by default (https://dev.ckeditor.com/ticket/10833).
-                        lock: image.getAttribute('data-src') && image.getAttribute('data-src').indexOf('keepSize=true') > 0 // change #3
+                        lock: this.ready ? helpers.checkHasNaturalRatio(image) : true
                     };
 
                 // If we used 'a' in widget#parts definition, it could happen that
@@ -399,7 +401,7 @@
                 // Note: Center alignment is detected during upcast, so only left/right cases
                 // are checked below.
                 if (!data.align) {
-                    var alignElement = image; // #2
+                    var alignElement = data.hasCaption ? this.element : image;
 
                     // Read the initial left/right alignment from the class set on element.
                     if (alignClasses) {
@@ -417,11 +419,7 @@
                     }
                     // Read initial float style from figure/image and then remove it.
                     else {
-                        var align = alignElement.getStyle('text-align') || 'block'; // <#2>
-                        if (align == 'justify') {
-                            align = 'block';
-                        }
-                        data.align = align; // </#2>
+                        data.align = alignElement.getStyle('float') || 'none';
                         alignElement.removeStyle('float');
                     }
                 }
@@ -543,38 +541,38 @@
                 align: function (shift, oldValue, newValue) {
                     var el = shift.element;
 
-                    // Alignment changed. // <#2>
-                    // if (shift.changed.align) {
-                    //     // No caption in the new state.
-                    //     if (!shift.newData.hasCaption) {
-                    //         // Changed to "center" (non-captioned).
-                    //         if (newValue == 'center') {
-                    //             shift.deflate();
-                    //             shift.element = wrapInCentering(editor, el);
-                    //         }
-                    //
-                    //         // Changed to "non-center" from "center" while caption removed.
-                    //         if (!shift.changed.hasCaption && oldValue == 'center' && newValue != 'center') {
-                    //             shift.deflate();
-                    //             shift.element = unwrapFromCentering(el);
-                    //         }
-                    //     }
-                    // }
+                    // Alignment changed.
+                    if (shift.changed.align) {
+                        // No caption in the new state.
+                        if (!shift.newData.hasCaption) {
+                            // Changed to "center" (non-captioned).
+                            if (newValue == 'center') {
+                                shift.deflate();
+                                shift.element = wrapInCentering(editor, el);
+                            }
+
+                            // Changed to "non-center" from "center" while caption removed.
+                            if (!shift.changed.hasCaption && oldValue == 'center' && newValue != 'center') {
+                                shift.deflate();
+                                shift.element = unwrapFromCentering(el);
+                            }
+                        }
+                    }
 
                     // Alignment remains and "center" removed caption.
-                    // else if (newValue == 'center' && shift.changed.hasCaption && !shift.newData.hasCaption) {
-                    //     shift.deflate();
-                    //     shift.element = wrapInCentering(editor, el);
-                    // }
+                    else if (newValue == 'center' && shift.changed.hasCaption && !shift.newData.hasCaption) {
+                        shift.deflate();
+                        shift.element = wrapInCentering(editor, el);
+                    }
 
                     // Finally set display for figure.
-                    // if (!alignClasses && el.is('figure')) {
-                    //     if (newValue == 'center') {
-                    //         el.setStyle('display', 'block'); // #8
-                    //     } else {
-                    //         el.removeStyle('display');
-                    //     }
-                    // } // </#2>
+                    if (!alignClasses && el.is('figure')) {
+                        if (newValue == 'center') {
+                            el.setStyle('display', 'inline-block');
+                        } else {
+                            el.removeStyle('display');
+                        }
+                    }
                 },
 
                 hasCaption: function (shift, oldValue, newValue) {
@@ -596,11 +594,11 @@
                     shift.deflate();
 
                     // There was no caption, but the caption is to be added.
-                    if (newValue) { // #5
+                    if (newValue) {
                         // Create new <figure> from widget template.
                         var figure = CKEDITOR.dom.element.createFromHtml(templateBlock.output({
                             captionedClass: captionedClass,
-                            captionPlaceholder: editor.lang.image2.captionPlaceholder // #5
+                            captionPlaceholder: editor.lang.image2.captionPlaceholder
                         }), doc);
 
                         // Replace element with <figure>.
@@ -617,20 +615,19 @@
                     // The caption was present, but now it's to be removed.
                     else {
                         // Unwrap <img/> or <a><img/></a> from figure.
-                        // imageOrLink.replace(shift.element);
-                        if (shift.widget.parts.caption) {
-                            shift.widget.parts.caption.remove();
-                        }
+                        imageOrLink.replace(shift.element);
 
                         // Update widget's element.
-                        // shift.element = imageOrLink;
+                        shift.element = imageOrLink;
                     }
                 },
 
                 link: function (shift, oldValue, newValue) {
                     if (shift.changed.link) {
-                        var img = shift.element.is('img') ? shift.element : shift.element.findOne('img'),
-                            link = shift.element.is('a') ? shift.element : shift.element.findOne('a'),
+                        var img = shift.element.is('img') ?
+                                  shift.element : shift.element.findOne('img'),
+                            link = shift.element.is('a') ?
+                                   shift.element : shift.element.findOne('a'),
                             // Why deflate:
                             // If element is <img/>, it will be wrapped into <a>,
                             // which becomes a new widget.element.
@@ -693,7 +690,7 @@
             }
 
             function unwrapFromCentering(element) {
-                var imageOrLink = element.findOne('a,figure'); // #4
+                var imageOrLink = element.findOne('a,img');
 
                 imageOrLink.replace(element);
 
@@ -758,7 +755,8 @@
                 for (i = 0; i < shiftables.length; i++) {
                     name = shiftables[i];
 
-                    shift.changed[name] = shift.oldData ? shift.oldData[name] !== shift.newData[name] : false;
+                    shift.changed[name] = shift.oldData ?
+                                          shift.oldData[name] !== shift.newData[name] : false;
                 }
 
                 // Iterate over possible state variables.
@@ -868,11 +866,10 @@
         }
     };
 
-    function setWrapperAlign(widget, alignClasses) { // change #1
+    function setWrapperAlign(widget, alignClasses) {
         var wrapper = widget.wrapper.findOne('figure') || widget.wrapper.getParent() || widget.wrapper,
             align = widget.data.align,
-            hasCaption = widget.data.hasCaption,
-            keepSize = widget.data.lock;
+            hasCaption = widget.data.hasCaption;
 
         if (alignClasses) {
             // Remove all align classes first.
@@ -896,44 +893,24 @@
                 wrapper.addClass(alignClasses[alignmentsObj[align]]);
             }
         } else {
-            if (align == 'none' || align == null || align == 'block') { // #7 // <#2>
-                align = 'justify';
-            }
-
-            if (!wrapper.is('figure')) {
-                wrapper.setStyle('text-align', align);
-                return;
-            }
-
-            wrapper.removeClass('center');
-            wrapper.removeClass('justify');
-            wrapper.removeStyle('float');
-            wrapper.removeStyle('margin');
-            wrapper.removeStyle('width');
-
-            if (widget.parts.image) {
-                widget.parts.image.setStyle('text-align', align);
-                widget.parts.image.setStyle('width', keepSize ? 'auto' : '100%');
-            }
-
             if (align == 'center') {
-                wrapper.setStyle('float', 'none');
-                wrapper.setStyle('margin', 'auto');
-                if (!keepSize) {
-                    wrapper.setStyle('width', '60%');
+                if (hasCaption) {
+                    wrapper.setStyle('text-align', 'center');
+                } else {
+                    wrapper.removeStyle('text-align');
                 }
-                wrapper.addClass('center');
+
+                wrapper.removeStyle('float');
             }
-            else if (align == 'justify') { // #7
-                wrapper.addClass('justify');
-            } else {
-                wrapper.setStyle('float', align);
-                wrapper.setStyle('margin', '15px');
-                if (!keepSize) {
-                    wrapper.setStyle('width', '40%');
+            else {
+                if (align == 'none') {
+                    wrapper.removeStyle('float');
+                } else {
+                    wrapper.setStyle('float', align);
                 }
+
+                wrapper.removeStyle('text-align');
             }
-            // </#2>
         }
     }
 
@@ -990,8 +967,8 @@
             }
 
             // No center wrapper has been found.
-            else if (name == 'figure') { // #6
-                image = el.getFirst('img') ? el.getFirst('img') : el.getFirst('a') ? el.getFirst('a').getFirst('img') : null;
+            else if (name == 'figure' && el.hasClass(captionedClass)) {
+                image = el.getFirst('img') || el.getFirst('a').getFirst('img');
 
                 // Upcast linked image like <a><img/></a>.
             } else if (isLinkedOrStandaloneImage(el)) {
@@ -1056,14 +1033,13 @@
                 // 		<figure class="image">...</figure>
                 // 	</div>
                 //
-                // if (align == 'center' && el.name == 'figure') { // <#2>
-                //     el = el.wrapWith(new CKEDITOR.htmlParser.element('div',
-                //         alignClasses ? {'class': alignClasses[1]} : {style: 'text-align:center'}));
-                // }
+                if (align == 'center' && el.name == 'figure') {
+                    el = el.wrapWith(new CKEDITOR.htmlParser.element('div',
+                        alignClasses ? {'class': alignClasses[1]} : {style: 'text-align:center'}));
+                }
 
                 // If left/right, add float style to the downcasted element.
-                // else
-                if (align in {left: 1, right: 1}) { // </#2>
+                else if (align in {left: 1, right: 1}) {
                     if (alignClasses) {
                         attrsHolder.addClass(alignClasses[alignmentsObj[align]]);
                     } else {
@@ -1145,8 +1121,8 @@
 
             // Centering wrapper got to be... centering. If image2_alignClasses are defined,
             // check for centering class. Otherwise, check the style.
-            if (alignClasses ? el.hasClass(alignClasses[1]) : CKEDITOR.tools.parseCssText(el.attributes.style || '', true)['text-align'] ==
-                                                              'center') {
+            if (alignClasses ? el.hasClass(alignClasses[1]) :
+                CKEDITOR.tools.parseCssText(el.attributes.style || '', true)['text-align'] == 'center') {
                 return true;
             }
 
@@ -1444,7 +1420,7 @@
                 command.refresh(editor, editor.elementPath());
             });
 
-            if (value in {right: 1, left: 1, center: 1, block: 1}) { // #7
+            if (value in {right: 1, left: 1, center: 1}) {
                 command.on('exec', function (evt) {
                     var widget = getFocusedWidget(editor);
 
@@ -1464,7 +1440,7 @@
 
             command.on('refresh', function (evt) {
                 var widget = getFocusedWidget(editor),
-                    allowed = {right: 1, left: 1, center: 1, block: 1}; // #7
+                    allowed = {right: 1, left: 1, center: 1};
 
                 if (!widget) {
                     return;
@@ -1501,11 +1477,7 @@
             return;
         }
 
-        editor.on('contentDomUnload', function (evt) {
-            CKEDITOR.removeListener('dialogDefinition', df);
-        });
-
-        var df = function (evt) {
+        CKEDITOR.on('dialogDefinition', function (evt) {
             var dialog = evt.data;
 
             if (dialog.name == 'link') {
@@ -1555,9 +1527,7 @@
                     }
                 };
             }
-        };
-
-        CKEDITOR.on('dialogDefinition', df);
+        });
 
         // Overwrite default behaviour of unlink command.
         editor.getCommand('unlink').on('exec', function (evt) {
@@ -1588,9 +1558,8 @@
 
             // Note that widget may be wrapped in a link, which
             // does not belong to that widget (https://dev.ckeditor.com/ticket/11814).
-            this.setState(widget.data.link || (widget.wrapper && widget.wrapper.getAscendant('a')) // #9...
-                          ? CKEDITOR.TRISTATE_OFF
-                          : CKEDITOR.TRISTATE_DISABLED); // ...#9
+            this.setState(widget.data.link || widget.wrapper.getAscendant('a') ?
+                          CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED);
 
             evt.cancel();
         });
@@ -1631,9 +1600,9 @@
                     attributes: '!src,alt,width,height'
                 },
                 figure: {
-                    classes: editor.config.image2_captionedClass // #6
+                    classes: '!' + editor.config.image2_captionedClass
                 },
-                figcaption: {} // #6
+                figcaption: true
             };
 
         if (alignClasses) {
@@ -1649,9 +1618,8 @@
             rules.div.styles = 'text-align';
             rules.p.styles = 'text-align';
 
-            rules.img.styles = 'float,text-align'; // #2
+            rules.img.styles = 'float';
             rules.figure.styles = 'float,display';
-            rules.figcaption.styles = 'text-align'; // #6
         }
 
         return rules;
@@ -1696,8 +1664,8 @@
 /**
  * A CSS class applied to the `<figure>` element of a captioned image.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        // Changes the class to "captionedImage".
  *        config.image2_captionedClass = 'captionedImage';
@@ -1711,8 +1679,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  * Determines whether dimension inputs should be automatically filled when the image URL changes in the Enhanced Image
  * plugin dialog window.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        config.image2_prefillDimensions = false;
  *
@@ -1724,8 +1692,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
 /**
  * Disables the image resizer. By default the resizer is enabled.
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  *        config.image2_disableResizer = true;
  *
@@ -1755,10 +1723,10 @@ CKEDITOR.config.image2_captionedClass = 'image';
  * **Note**: Once this configuration option is set, corresponding style definitions
  * must be supplied to the editor:
  *
- * * For [classic editor](#!/guide/dev_framed) it can be done by defining additional
+ * * For {@glink guide/dev_framed classic editor} it can be done by defining additional
  * styles in the {@link CKEDITOR.config#contentsCss stylesheets loaded by the editor}. The same
  * styles must be provided on the target page where the content will be loaded.
- * * For [inline editor](#!/guide/dev_inline) the styles can be defined directly
+ * * For {@glink guide/dev_inline inline editor} the styles can be defined directly
  * with `<style> ... <style>` or `<link href="..." rel="stylesheet">`, i.e. within the `<head>`
  * of the page.
  *
@@ -1784,8 +1752,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  *			display: inline-block;
  *		}
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  * @since 4.4
  * @cfg {String[]} [image2_alignClasses=null]
@@ -1797,8 +1765,8 @@ CKEDITOR.config.image2_captionedClass = 'image';
  *
  *        config.image2_altRequired = true;
  *
- * Read more in the [documentation](#!/guide/dev_captionedimage) and see the
- * [SDK sample](https://sdk.ckeditor.com/samples/captionedimage.html).
+ * Read more in the [documentation](#!/guide/dev_image2) and see the
+ * [SDK sample](https://sdk.ckeditor.com/samples/image2.html).
  *
  * @since 4.6.0
  * @cfg {Boolean} [image2_altRequired=false]

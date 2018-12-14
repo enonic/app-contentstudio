@@ -10,7 +10,7 @@ export class SpecialCharDialog
 
     constructor(config: eventInfo) {
         super(<HtmlAreaModalDialogConfig>{
-            editor: config,
+            editor: config.editor,
             title: i18n('dialog.charmap.title'),
             cls: 'special-char-modal-dialog'
         });

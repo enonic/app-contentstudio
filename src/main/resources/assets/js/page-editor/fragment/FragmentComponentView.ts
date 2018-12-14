@@ -243,7 +243,7 @@ export class FragmentComponentView
             let isTextComponent = TextItemType.get().equals(parentType);
             if (isTextComponent && childElement.getEl().getTagName().toUpperCase() === 'SECTION') {
                 // convert image urls in text component for web
-                childElement.setHtml(HTMLAreaHelper.prepareImgSrcsInValueForEdit(childElement.getHtml()), false);
+                childElement.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(childElement.getHtml()), false);
                 return;
             }
             this.parseContentViews(childElement, itemType);

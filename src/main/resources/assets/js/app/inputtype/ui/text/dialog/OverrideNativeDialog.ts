@@ -12,7 +12,7 @@ export abstract class OverrideNativeDialog
         this.ckeOriginalDialog = config.dialog;
         this.hideOriginalCKEDialog();
         this.setDialogInputValues();
-        (<CKEDITOR.editor>this.getEditor()).focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
+        this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
     }
 
     close() {

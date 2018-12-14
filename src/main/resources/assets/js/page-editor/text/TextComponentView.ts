@@ -10,9 +10,9 @@ import {DragAndDrop} from '../DragAndDrop';
 import {PageView} from '../PageView';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
-import {HTMLAreaBuilder} from '../../app/inputtype/ui/text/HTMLAreaBuilder';
 import {TextComponent} from '../../app/page/region/TextComponent';
-import eventInfo = CKEDITOR.eventInfo;
+import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
+import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import Promise = Q.Promise;
 import i18n = api.util.i18n;
 
@@ -31,7 +31,7 @@ export class TextComponentView
 
     private rootElement: api.dom.Element;
 
-    private htmlAreaEditor: CKEDITOR.editor;
+    private htmlAreaEditor: HtmlEditor;
 
     private isInitializingEditor: boolean;
 
@@ -88,7 +88,7 @@ export class TextComponentView
             this.destroyEditor();
         });
 
-        let handleDialogCreated = (event) => {
+        const handleDialogCreated = (event) => {
             if (this.currentDialogConfig === event.getConfig()) {
                 this.modalDialog = event.getModalDialog();
             }
@@ -118,7 +118,7 @@ export class TextComponentView
     private initialize() {
         this.focusOnInit = true;
         this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-        if (!this.isEditorReady()) {
+        if (!this.isEditorPresentOrInitializing()) {
             this.initEditor();
         } else if (this.htmlAreaEditor) {
             this.reInitEditor(); // on added, inline editor losses its root element of the editable area
@@ -176,7 +176,7 @@ export class TextComponentView
             if (child.getEl().getTagName().toUpperCase() === 'SECTION') {
                 this.rootElement = child;
                 // convert image urls in text component for web
-                child.setHtml(HTMLAreaHelper.prepareImgSrcsInValueForEdit(child.getHtml()), false);
+                child.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(child.getHtml()), false);
                 break;
             }
         }
@@ -194,7 +194,7 @@ export class TextComponentView
 
         this.focusOnInit = true;
         this.startPageTextEditMode();
-        if (this.htmlAreaEditor) {
+        if (this.isEditorReady()) {
             this.htmlAreaEditor.focus();
             this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
         }
@@ -206,7 +206,7 @@ export class TextComponentView
             if (this.isActive()) {
                 return;
             }
-            if (this.htmlAreaEditor) {
+            if (this.isEditorReady()) {
                 this.htmlAreaEditor.focus();
             }
             return;
@@ -273,7 +273,7 @@ export class TextComponentView
         }
 
         if (!flag) {
-            if (this.htmlAreaEditor) {
+            if (this.isEditorReady()) {
                 this.processEditorValue();
             }
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
@@ -283,16 +283,15 @@ export class TextComponentView
         this.setDraggable(!flag);
 
         if (flag) {
-            if (!this.isEditorReady()) {
+            if (!this.isEditorPresentOrInitializing()) {
                 this.initEditor();
             }
 
             if (this.component.isEmpty()) {
-                if (this.htmlAreaEditor) {
+                if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
                 this.rootElement.setHtml(TextComponentView.DEFAULT_TEXT, false);
-                this.selectText();
             }
         }
     }
@@ -356,7 +355,7 @@ export class TextComponentView
             this.doInitEditor();
         } else {
             this.authRequest.then(() => {
-                if (!this.isEditorReady()) {
+                if (!this.isEditorPresentOrInitializing()) {
                     this.doInitEditor();
                 }
             });
@@ -365,8 +364,8 @@ export class TextComponentView
 
     private doInitEditor() {
         this.isInitializingEditor = true;
-        let assetsUri = CONFIG.assetsUri;
-        let id = this.getId().replace(/\./g, '_');
+        const assetsUri = CONFIG.assetsUri;
+        const id = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
 
@@ -376,38 +375,36 @@ export class TextComponentView
             this.appendChild(this.editorContainer);
         }
 
-        const keydownHandler = (ckEvent: eventInfo) => {
-            const e: KeyboardEvent = ckEvent.data.domEvent.$;
-            this.onKeydownHandler(e);
+        const createDialogHandler = event => {
+            this.currentDialogConfig = event.getConfig();
         };
 
-        const editor: CKEDITOR.editor = new HTMLAreaBuilder()
+        const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.getId() + '_editor')
             .setAssetsUri(assetsUri)
             .setInline(true)
-            .onCreateDialog(event => {
-                this.currentDialogConfig = event.getConfig();
-            })
+            .setCreateDialogHandler(createDialogHandler)
             .setFocusHandler(this.onFocusHandler.bind(this))
             .setBlurHandler(this.onBlurHandler.bind(this))
             .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
-            .setKeydownHandler(keydownHandler)
+            .setKeydownHandler(this.onKeydownHandler.bind(this))
             .setNodeChangeHandler(this.processEditorValue.bind(this))
+            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
             .setContent(this.getContent())
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
-            .createEditor();
+            .build();
 
-        editor.on('instanceReady', this.handleEditorCreated.bind(this));
+        HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
+            this.htmlAreaEditor = htmlEditor;
+        });
     }
 
-    private handleEditorCreated(evt: eventInfo) {
-        this.htmlAreaEditor = evt.editor;
-
+    private handleEditorCreated() {
         if (this.component.getText()) {
-            this.htmlAreaEditor.setData(HTMLAreaHelper.prepareImgSrcsInValueForEdit(this.component.getText()));
+            this.htmlAreaEditor.setData(HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText()));
         } else {
             this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
         }
@@ -420,20 +417,24 @@ export class TextComponentView
     }
 
     private forceEditorFocus() {
-        if (this.htmlAreaEditor) {
+        if (this.isEditorReady()) {
             this.htmlAreaEditor.focus();
         }
         this.startPageTextEditMode();
     }
 
-    private anyEditorHasFocus(): boolean {
-        let textItemViews = (<PageView>this.getPageView()).getItemViewsByType(TextItemType.get());
+    private isEditorReady() {
+        return this.htmlAreaEditor && this.htmlAreaEditor.isReady();
+    }
 
-        let editorFocused = textItemViews.some((view: ItemView) => {
+    private anyEditorHasFocus(): boolean {
+        const textItemViews = (<PageView>this.getPageView()).getItemViewsByType(TextItemType.get());
+
+        const editorFocused = textItemViews.some((view: ItemView) => {
             return view.getEl().hasClass(TextComponentView.EDITOR_FOCUSED_CLASS);
         });
 
-        let dialogVisible = !!this.modalDialog && this.modalDialog.isVisible();
+        const dialogVisible = !!this.modalDialog && this.modalDialog.isVisible();
 
         return editorFocused || dialogVisible;
     }
@@ -449,9 +450,9 @@ export class TextComponentView
             this.rootElement.getHTMLElement().innerHTML = TextComponentView.DEFAULT_TEXT;
         } else {
             // copy editor raw content (without any processing!) over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getSnapshot();
+            this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getRawData();
             // but save processed text to the component
-            this.component.setText(HTMLAreaHelper.prepareEditorImageSrcsBeforeSave(this.htmlAreaEditor.getData()));
+            this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData()));
         }
     }
 
@@ -470,12 +471,6 @@ export class TextComponentView
             }
         }
         this.htmlAreaEditor = null;
-    }
-
-    private selectText() {
-        if (this.htmlAreaEditor) {
-            //
-        }
     }
 
     private startPageTextEditMode() {
@@ -509,14 +504,15 @@ export class TextComponentView
         ]);
     }
 
-    private isEditorReady(): boolean {
+    private isEditorPresentOrInitializing(): boolean {
         return !!this.htmlAreaEditor || this.isInitializingEditor;
     }
 
     extractText(): string {
-        if (this.htmlAreaEditor) { // that makes cke cleanup
-            this.htmlAreaEditor.getSelection().reset();
-            return this.htmlAreaEditor.element.getText().trim();
+        if (this.isEditorReady()) { // that makes editor cleanup
+            this.htmlAreaEditor.resetSelection();
+
+            return this.htmlAreaEditor.extractText();
         }
 
         return wemjq(this.getHTMLElement()).text().trim();

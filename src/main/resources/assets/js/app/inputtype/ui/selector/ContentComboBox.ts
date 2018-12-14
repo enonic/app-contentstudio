@@ -80,10 +80,18 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return <ContentSummaryOptionDataLoader<ITEM_TYPE>> super.getLoader();
     }
 
+    getSelectedContent(): ContentSummary {
+        let option = this.getOptionByValue(this.getValue());
+        if (option) {
+            return (<ITEM_TYPE>option.displayValue).getContent();
+        }
+        return null;
+    }
+
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return option.displayValue.getContent();
+            return (<ITEM_TYPE>option.displayValue).getContent();
         }
         return null;
     }

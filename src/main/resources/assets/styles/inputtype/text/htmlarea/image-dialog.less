@@ -1,4 +1,17 @@
-@image-cropping-selector-height: 26px;
+@image-style-selector-height: 26px;
+@track-color: @admin-dark-gray;
+@thumb-color: @admin-blue;
+
+@thumb-radius: 10px;
+@thumb-height: 20px;
+@thumb-width: 20px;
+
+@track-width: 93%;
+@track-height: 1px;
+@track-border-width: 1px;
+@track-border-color: @admin-dark-gray;
+
+@track-radius: 5px;
 
 .html-area-modal-dialog.image-modal-dialog {
 
@@ -20,6 +33,11 @@
     .content-item-preview-panel {
       overflow-y: auto;
       overflow-x: hidden;
+
+      .preview-frame {
+        border: none;
+        width: 100%;
+      }
 
       > .progress-bar {
         display: none;
@@ -44,7 +62,6 @@
 
       > img {
         display: block;
-        max-width: 640px;
       }
     }
 
@@ -97,66 +114,175 @@
 
   .toolbar {
     &.image-toolbar {
-      position: relative;
-      border-bottom-width: 0;
+      border-bottom: none;
+      height: auto;
 
-      .@{_COMMON_PREFIX}button[class*="icon-paragraph-"] {
-        &[class*="icon-paragraph-"] {
-          padding: 7px 7px;
+      .image-toolbar-top-line {
+
+        position: relative;
+        border-bottom-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .alignment-container {
+          display: flex;
+
+          .@{_COMMON_PREFIX}button {
+            padding: 0 7px;
+            font-size: 18px;
+            background-color: transparent;
+
+            &:before {
+              display: block;
+            }
+
+            &:not(.active) {
+              &:before {
+                color: @admin-font-gray2;
+              }
+            }
+          }
         }
 
-        &[class*="icon-"] {
-          font-size: 18px;
-          line-height: 24px;
+        .custom-width-checkbox {
+          display: inline-block;
+
+          input {
+            width: 0;
+            height: 0;
+            margin: 0;
+          }
+
+          label {
+            vertical-align: top;
+            display: inherit;
+            float: none;
+            padding-right: 0;
+          }
+
+          &.disabled {
+            opacity: 0.6;
+          }
+        }
+
+        .fold-button {
+          bottom: 3px;
         }
 
       }
 
-      .keep-size-check {
-        display: inline-block;
-        line-height: 25px;
-        margin: 11px 0 0 15px;
-
-        input {
-          width: 0;
-          height: 0;
-          margin: 0;
+      .custom-width-range-container {
+        .track() {
+          width: @track-width;
+          height: @track-height;
+          cursor: pointer;
+          animate: 0.2s;
         }
 
-        label {
-          vertical-align: top;
-          display: inherit;
-          float: none;
+        .thumb() {
+          height: @thumb-height;
+          width: @thumb-width;
+          border-radius: @thumb-radius;
+          background: @thumb-color;
+          cursor: pointer;
+        }
+
+        input[type=range] {
+          -webkit-appearance: none;
+          margin: @thumb-height/2 0;
+          width: @track-width;
+          padding-bottom: 2px;
+
+          &:focus {
+            outline: none;
+            border: none;
+          }
+
+          &:hover {
+            border: none;
+          }
+
+          &::-webkit-slider-runnable-track {
+            .track();
+            background: @track-color;
+            border-radius: @track-radius;
+            border-top: @track-border-width solid @track-border-color;
+            border-bottom: @track-border-width solid @track-border-color;
+          }
+
+          &::-webkit-slider-thumb {
+            .thumb();
+            -webkit-appearance: none;
+            margin-top: ((-@track-border-width * 2 + @track-height) / 2) - (@thumb-height / 2);
+          }
+
+          &::-moz-range-track {
+            .track();
+            background: @track-color;
+            border-radius: @track-radius;
+            border-top: @track-border-width solid @track-border-color;
+            border-bottom: @track-border-width solid @track-border-color;
+          }
+          &::-moz-range-thumb {
+            .thumb();
+          }
+
+          &::-ms-track {
+            .track();
+            background: transparent;
+            border-color: transparent;
+            border-width: @thumb-width 0;
+            color: transparent;
+          }
+
+          &::-ms-fill-lower {
+            border-top: @track-border-width solid @track-border-color;
+            border-bottom: @track-border-width solid @track-border-color;
+            border-radius: @track-radius*2;
+          }
+          &::-ms-fill-upper {
+            background: @track-color;
+            border-top: @track-border-width solid @track-border-color;
+            border-bottom: @track-border-width solid @track-border-color;
+            border-radius: @track-radius*2;
+          }
+          &::-ms-thumb {
+            .thumb();
+          }
+          &:focus::-ms-fill-lower {
+            background: @track-color;
+          }
+        }
+
+        .custom-width-board {
+          display: inline-block;
+          width: 7%;
+          text-align: right;
         }
       }
-
-      .fold-button {
-        bottom: 3px;
-      }
-
     }
 
-    .image-cropping-selector {
-      height: @image-cropping-selector-height;
+    .image-style-selector {
+      height: @image-style-selector-height;
       width: 220px;
-      top: 4px;
-      float: right;
 
       .option-filter-input {
         position: absolute;
-        height: @image-cropping-selector-height;
+        height: @image-style-selector-height;
 
         .placeholder(1em, normal);
       }
 
       .selected-option {
-        height: @image-cropping-selector-height;
-        min-height: @image-cropping-selector-height;
+        height: @image-style-selector-height;
+        min-height: @image-style-selector-height;
         position: absolute;
         padding: 4px 37px 4px 10px;
 
         .option-value {
           margin: 0;
+          width: 100%;
         }
       }
 
@@ -219,7 +345,6 @@
     }
   }
 
-  max-width: 640px;
   max-height: 100%;
 
   .scroll-up-div, .scroll-down-div {

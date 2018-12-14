@@ -1,3 +1,4 @@
+import ContentSummary = api.content.ContentSummary;
 import Property = api.data.Property;
 import Value = api.data.Value;
 import ValueType = api.data.ValueType;
@@ -6,7 +7,7 @@ import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
-import {ContentImageUrlResolver} from '../../content/ContentImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../../util/ImageUrlResolver';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -123,9 +124,8 @@ export class MediaUploader
     private manageSVGImageIfPresent(content: Content) {
         if (content.getType().isVectorMedia()) {
             this.addClass('with-svg-image');
-            let imgUrl = new ContentImageUrlResolver().setContentId(
-                this.getContext().content.getContentId()).setTimestamp(
-                content.getModifiedTime()).resolve();
+
+            const imgUrl = this.resolveImageUrl(this.getContext().content); // this.getContext().content
 
             this.svgImage.setSrc(imgUrl);
         } else {
@@ -159,16 +159,22 @@ export class MediaUploader
         return [{name: 'Media', extensions: this.getFileExtensionFromFileName(fileName)}];
     }
 
+    private resolveImageUrl(content: ContentSummary): string {
+        const urlParams: ImageUrlParameters = {
+            id: content.getId(),
+            timeStamp: new Date(),
+            useOriginal: true
+        };
+
+        return new ImageUrlBuilder(urlParams).buildForPreview();
+    }
+
     private createSvgImageWrapperIfNeeded() {
         if (this.config.formContext.getContentTypeName().isVectorMedia()) {
             this.svgImage = new api.dom.ImgEl();
             this.addClass('with-svg-image');
 
-            let content = this.config.formContext.getPersistedContent();
-
-            let imgUrl = new ContentImageUrlResolver().setContentId(
-                this.getContext().content.getContentId()).setTimestamp(
-                content.getModifiedTime()).resolve();
+            const imgUrl = this.resolveImageUrl(this.config.formContext.getPersistedContent());
 
             this.svgImage.setSrc(imgUrl);
 
