@@ -176,6 +176,27 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
+    showToolbarAndClickOnTableButton: {
+        value: function () {
+            return this.doClick(form.ckeTextArea).then(() => {
+                return this.waitForVisible(form.tableButton, appConst.TIMEOUT_3);
+            }).then(result => {
+                return this.doClick(form.tableButton);
+            })
+        }
+    },
+    isTableDropDownMenuVisible: {
+        value: function () {
+            let table = "//table";
+            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
+                return this.frame(id);
+            }).then(() => {
+                return this.waitForVisible(table, appConst.TIMEOUT_2);
+            }).catch(err => {
+                return false;
+            })
+        }
+    },
     showToolbarAndClickOnInsertSpecialCharactersButton: {
         value: function () {
             return this.doClick(form.ckeTextArea).then(() => {

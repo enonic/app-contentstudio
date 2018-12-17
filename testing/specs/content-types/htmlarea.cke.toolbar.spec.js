@@ -185,6 +185,18 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appears`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+                return htmlAreaForm.showToolbarAndClickOnTableButton();
+            }).pause(1000).then(() => {
+                return htmlAreaForm.isTableDropDownMenuVisible();
+            }).then(result => {
+                studioUtils.saveScreenshot('table_drop_down_menu_cke');
+                assert.isTrue(result, 'drop down menu with table should appears');
+            });
+        });
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
