@@ -4,17 +4,19 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
+import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
-import {ImageUrlBuilder, ImageUrlParameters} from '../util/ImageUrlResolver';
 
 enum PREVIEW_TYPE {
     IMAGE,
     SVG,
     PAGE,
+    MEDIA,
     EMPTY,
     FAILED,
     BLANK
@@ -48,6 +50,30 @@ export class ContentItemPreviewPanel
         this.image = new api.dom.ImgEl();
     }
 
+    public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
+        if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
+            if (typeof item.isRenderable() === 'undefined') {
+                return;
+            }
+
+            const contentSummary = item.getModel().getContentSummary();
+
+            if (this.isMediaForPreview(contentSummary)) {
+
+                this.setMediaPreviewMode(item);
+
+            } else if (contentSummary.getType().isImage() ||
+                       contentSummary.getType().isVectorMedia()) {
+
+                this.setImagePreviewMode(item);
+            } else {
+                this.setPagePreviewMode(item);
+            }
+        }
+        this.toolbar.setItem(item.getModel());
+        this.item = item;
+    }
+
     private setupListeners() {
         this.image.onLoaded((event: UIEvent) => {
             this.hideMask();
@@ -59,7 +85,7 @@ export class ContentItemPreviewPanel
 
         this.onShown((event) => {
             if (this.item && this.hasClass('image-preview')) {
-                this.setImageSrc(this.item);
+                this.addImageSizeToUrl(this.item);
             }
         });
 
@@ -78,30 +104,6 @@ export class ContentItemPreviewPanel
                 }
             } catch (error) { /* error */ }
         });
-    }
-
-    private frameClickHandler(event: UIEvent) {
-        const linkClicked: string = this.getLinkClicked(event);
-        if (linkClicked) {
-            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
-            if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
-                const contentPreviewPath = UriHelper.trimUrlParams(
-                    UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
-                    frameWindow)));
-                if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
-                    event.preventDefault();
-                    const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
-                    this.skipNextSetItemCall = true;
-                    new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
-                    this.showMask();
-                    setTimeout(() => {
-                        this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
-                        this.skipNextSetItemCall = false;
-                        this.frame.setSrc(clickedLinkRelativePath);
-                    }, 500);
-                }
-            }
-        }
     }
 
     createToolbar(): ContentItemPreviewToolbar {
@@ -134,66 +136,35 @@ export class ContentItemPreviewPanel
         return contentPreviewPath.indexOf('attachment/download') > 0;
     }
 
-    private setImageSrc(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        const content = item.getModel().getContentSummary();
-
-        const urlParams: ImageUrlParameters = {
-            id: content.getId(),
-            timeStamp: content.getModifiedTime(),
-            useOriginal: content.getType().equals(ContentTypeName.MEDIA_VECTOR)
-        };
-
-        if (!urlParams.useOriginal) {
-            const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
-            urlParams.size = imgSize;
+    private frameClickHandler(event: UIEvent) {
+        const linkClicked: string = this.getLinkClicked(event);
+        if (linkClicked) {
+            const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(linkClicked, frameWindow)) {
+                const contentPreviewPath = UriHelper.trimUrlParams(
+                    UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(linkClicked,
+                        frameWindow)));
+                if (!this.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) && !this.isDownloadLink(contentPreviewPath)) {
+                    event.preventDefault();
+                    const clickedLinkRelativePath = '/' + UriHelper.trimWindowProtocolAndPortFromHref(linkClicked, frameWindow);
+                    this.skipNextSetItemCall = true;
+                    new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
+                    this.showMask();
+                    setTimeout(() => {
+                        this.item = null; // we don't have ref to content under contentPreviewPath and there is no point in figuring it out
+                        this.skipNextSetItemCall = false;
+                        this.frame.setSrc(clickedLinkRelativePath);
+                    }, 500);
+                }
+            }
         }
-
-        const imgUrl = new ImageUrlBuilder(urlParams).buildForPreview();
-        this.image.setSrc(imgUrl);
     }
 
-    public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
-        if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
-            if (typeof item.isRenderable() === 'undefined') {
-                return;
-            }
-            if (item.getModel().getContentSummary().getType().isImage() ||
-                item.getModel().getContentSummary().getType().isVectorMedia()) {
-
-                if (this.isVisible()) {
-                    if (item.getModel().getContentSummary().getType().equals(ContentTypeName.MEDIA_VECTOR)) {
-                        this.setPreviewType(PREVIEW_TYPE.SVG);
-                    } else {
-                        this.setPreviewType(PREVIEW_TYPE.IMAGE);
-                    }
-
-                    this.setImageSrc(item);
-                } else {
-                    this.setPreviewType(PREVIEW_TYPE.IMAGE);
-                }
-                if (!this.image.isLoaded()) {
-                    this.showMask();
-                }
-            } else {
-                this.showMask();
-                if (item.isRenderable()) {
-                    this.setPreviewType(PREVIEW_TYPE.PAGE);
-                    const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
-                    // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
-                    wemjq.ajax({
-                        type: 'HEAD',
-                        async: true,
-                        url: src
-                    }).done(() => {
-                        this.frame.setSrc(src);
-                    }).fail(() => this.setPreviewType(PREVIEW_TYPE.FAILED));
-                } else {
-                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
-                }
-            }
-        }
-        this.toolbar.setItem(item.getModel());
-        this.item = item;
+    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
+        const imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
+            item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
+        this.image.setSrc(imgUrl);
     }
 
     public getItem(): ViewItem<ContentSummaryAndCompareStatus> {
@@ -209,7 +180,7 @@ export class ContentItemPreviewPanel
 
         if (this.previewType !== previewType) {
 
-            this.getEl().removeClass('image-preview page-preview svg-preview no-preview');
+            this.getEl().removeClass('image-preview page-preview svg-preview media-preview no-preview');
 
             if (this.previewMessageEl) {
                 this.previewMessageEl.remove();
@@ -217,33 +188,31 @@ export class ContentItemPreviewPanel
             }
 
             switch (previewType) {
-            case PREVIEW_TYPE.PAGE:
-            {
+            case PREVIEW_TYPE.PAGE: {
                 this.getEl().addClass('page-preview');
                 break;
             }
-            case PREVIEW_TYPE.IMAGE:
-            {
+            case PREVIEW_TYPE.IMAGE: {
                 this.getEl().addClass('image-preview');
                 break;
             }
-            case PREVIEW_TYPE.SVG:
-            {
+            case PREVIEW_TYPE.SVG: {
                 this.getEl().addClass('svg-preview');
                 break;
             }
-            case PREVIEW_TYPE.EMPTY:
-            {
+            case PREVIEW_TYPE.MEDIA: {
+                this.getEl().addClass('media-preview');
+                break;
+            }
+            case PREVIEW_TYPE.EMPTY: {
                 this.showPreviewMessage(i18n('field.preview.notAvailable'));
                 break;
             }
-            case PREVIEW_TYPE.FAILED:
-            {
+            case PREVIEW_TYPE.FAILED: {
                 this.showPreviewMessage(i18n('field.preview.failed'));
                 break;
             }
-            case PREVIEW_TYPE.BLANK:
-            {
+            case PREVIEW_TYPE.BLANK: {
                 this.getEl().addClass('no-preview');
                 break;
             }
@@ -257,12 +226,79 @@ export class ContentItemPreviewPanel
         }
     }
 
+    private isMediaForPreview(content: api.content.ContentSummary) {
+        if (!content) {
+            return false;
+        }
+        const type = content.getType();
+
+        return type.isAudioMedia() ||
+               type.isDocumentMedia() ||
+               type.isTextMedia() ||
+               type.isVideoMedia();
+    }
+
     private showPreviewMessage(value: string) {
         this.getEl().addClass('no-preview');
 
         this.appendChild(this.previewMessageEl = new PEl('no-preview-message').setHtml(value, false));
 
         this.frame.setSrc('about:blank');
+    }
+
+    private setMediaPreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const contentSummary = item.getModel().getContentSummary();
+
+        new MediaAllowsPreviewRequest(contentSummary.getContentId()).sendAndParse().then((allows: boolean) => {
+            if (allows) {
+                this.setPreviewType(PREVIEW_TYPE.MEDIA);
+                if (this.isVisible()) {
+                    this.frame.setSrc(api.util.UriHelper.getRestUri('content/media/preview/' + contentSummary.getId()));
+                }
+            } else {
+                this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            }
+        });
+    }
+
+    private setImagePreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        const contentSummary = item.getModel().getContentSummary();
+
+        if (this.isVisible()) {
+            if (contentSummary.getType().equals(ContentTypeName.MEDIA_VECTOR)) {
+                this.setPreviewType(PREVIEW_TYPE.SVG);
+                const imgUrl = new ContentImageUrlResolver().setContentId(
+                    contentSummary.getContentId()).setTimestamp(
+                    contentSummary.getModifiedTime()).resolve();
+                this.image.setSrc(imgUrl);
+            } else {
+                this.addImageSizeToUrl(item);
+                this.setPreviewType(PREVIEW_TYPE.IMAGE);
+            }
+        } else {
+            this.setPreviewType(PREVIEW_TYPE.IMAGE);
+        }
+        if (!this.image.isLoaded()) {
+            this.showMask();
+        }
+    }
+
+    private setPagePreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
+        this.showMask();
+        if (item.isRenderable()) {
+            this.setPreviewType(PREVIEW_TYPE.PAGE);
+            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
+            // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
+            wemjq.ajax({
+                type: 'HEAD',
+                async: true,
+                url: src
+            }).done(() => {
+                this.frame.setSrc(src);
+            }).fail(() => this.setPreviewType(PREVIEW_TYPE.FAILED));
+        } else {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        }
     }
 
     public showMask() {
