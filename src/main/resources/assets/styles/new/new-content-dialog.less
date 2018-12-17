@@ -1,6 +1,11 @@
 // NOT STABLE ENOUGH ACROSS BROWSERS YET
 // https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Flexible_boxes
 
+@types-list-max-height: 38vh;
+@file-input-height: 37px;
+@file-input-margin-bottom: 20px;
+
+
 .display-flex(@dir, @justify, @align) {
   display: -webkit-flex;
   -webkit-flex-direction: @dir;
@@ -32,11 +37,43 @@
 
   }
 
+  .modal-dialog-header {
+    .title {
+      display: inline-block;
+      width: calc(100% - 37px);
+    }
+
+    .new-content-uploader {
+      display: inline-block;
+
+      .media-uploader-el {
+        position: static;
+
+        .upload-button {
+          position: static;
+        }
+      }
+
+      @media screen and (max-width: 720px) {
+        position: absolute;
+        bottom: 10px;
+        left: 20px;
+        width: calc(100% - 40px);
+
+        .upload-button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .modal-dialog-body {
+    padding-top: 5px;
+  }
+
   .most-popular-content-types-container {
-    border: 1px solid #cccccc;
-    background-color: #F0F8FF;
-    padding-bottom: 10px;
     margin-bottom: 10px;
+    margin-top: -13px;
 
     h2 {
       font-size: 18px;
@@ -50,59 +87,63 @@
     }
   }
 
+  &.filter-visible .dialog-content .content-types-content {
+    max-height: calc(@types-list-max-height - @file-input-height - @file-input-margin-bottom);
+  }
+
   .dialog-content {
     position: relative;
+    display: flex;
 
     @media screen and (max-height: 360px) {
       height: 65%;
     }
 
-    .column {
-      height: 100%;
-      float: left;
+    .content-types-content {
+      max-height: @types-list-max-height;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: max-height 0.2s;
+    }
 
-      .content-types-content, .recent-content-types-list {
-        max-height: 38vh;
-        overflow-y: auto;
-        overflow-x: hidden;
+    .recent-content-types-list {
+      overflow-x: hidden;
+      transition: max-height 0.2s;
+    }
 
-        transition: max-height 0.2s;
+    .content-types-list-item {
+      position: relative;
+      cursor: pointer;
+      padding: 5px;
+      &:focus {
+        background-color: @admin-blue !important;
+        h6, p {
+          color: white;
+        }
       }
 
-      .content-types-list-item {
-        position: relative;
+      * {
+        // force same cursor on every child
         cursor: pointer;
-        padding: 5px;
-        &:focus {
-          background-color: @admin-blue !important;
-          h6, p {
-            color: white;
-          }
+      }
+
+      .names-and-icon-view {
+
+        .@{_COMMON_PREFIX}icon-label {
+          left: 23px;
+          padding: 0 5px;
+          line-height: 16px;
+          border-radius: 10px;
+          background: @admin-blue;
+          color: white;
+          font-size: 14px;
+          font-family: @admin-font-family;
+
         }
+      }
 
-        * {
-          // force same cursor on every child
-          cursor: pointer;
-        }
-
-        .names-and-icon-view {
-
-          .@{_COMMON_PREFIX}icon-label {
-            left: 23px;
-            padding: 0 5px;
-            line-height: 16px;
-            border-radius: 10px;
-            background: @admin-blue;
-            color: white;
-            font-size: 14px;
-            font-family: @admin-font-family;
-
-          }
-        }
-
-        &:hover {
-          background-color: #ebebeb;
-        }
+      &:hover {
+        background-color: #ebebeb;
       }
     }
 
@@ -110,40 +151,44 @@
       width: 60%;
 
       .file-input {
-        margin-bottom: 20px;
-
-        > input.text {
-          width: calc(~'100% - 37px');
-        }
+        margin-bottom: @file-input-margin-bottom;
 
         @media screen and (max-height: 360px) {
           margin-bottom: 5px;
         }
 
-      }
-    }
-
-    aside {
-      margin-left: 5%;
-      padding-left: calc(5% - 1px);
-      border-left: 1px solid @admin-medium-gray-border;
-      width: 30%;
-
-      h1 {
-        font-size: 16px;
-        color: #888;
-        margin: 0 0 20px;
-        padding: 0 5px;
-        line-height: 37px;
-
-        @media screen and (max-height: 360px) {
-          margin: 0 0 5px;
+        input {
+          height: @file-input-height;
         }
 
       }
 
+      @media screen and (max-width: 720px) {
+        width: 100%;
+      }
     }
 
+    aside {
+      margin-left: 5px;
+      padding: 0 15px;
+      border-left: 1px solid @admin-medium-gray-border;
+      max-height: @types-list-max-height;
+      overflow-y: auto;
+
+      h2 {
+        font-size: 18px;
+        color: #888;
+        padding: 0 5px;
+      }
+
+      ul {
+        padding-left: 5px;
+      }
+
+      @media screen and (max-width: 720px) {
+        display: none;
+      }
+    }
   }
 
   .dialog-buttons {
@@ -154,10 +199,10 @@
       text-align: center;
       color: @admin-font-gray1;
       content: attr(data-drop);
+    }
 
-      @media screen and (max-height: 360px) {
-        line-height: 70px;
-      }
+    @media screen and (max-width: 720px) {
+      display: none;
     }
 
   }
@@ -182,13 +227,9 @@
     .dialog-dropzone-container();
   }
 
-  &._0-240, &._240-360 {
-    section {
-      width: 100%
-    }
-
-    aside {
-      display: none;
+  .modal-dialog-footer {
+    @media screen and (max-width: 720px) {
+      height: 40px;
     }
   }
 }

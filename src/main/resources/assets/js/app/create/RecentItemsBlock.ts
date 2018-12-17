@@ -2,20 +2,28 @@ import '../../api.ts';
 import {RecentItemsList} from './RecentItemsList';
 import i18n = api.util.i18n;
 
-export class RecentItemsBlock extends api.dom.AsideEl {
+export class RecentItemsBlock
+    extends api.dom.DivEl {
 
     private recentItemsList: RecentItemsList;
 
-    private title: api.dom.H1El;
+    private title: api.dom.H2El;
 
     constructor(title: string = i18n('field.recentlyUsed')) {
         super('column');
 
-        this.title = new api.dom.H1El();
+        this.title = new api.dom.H2El();
         this.title.setHtml(title);
 
         this.recentItemsList = new RecentItemsList();
-        this.appendChildren(this.title, this.recentItemsList);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildren(this.title, this.recentItemsList);
+
+            return rendered;
+        });
     }
 
     getItemsList(): RecentItemsList {
