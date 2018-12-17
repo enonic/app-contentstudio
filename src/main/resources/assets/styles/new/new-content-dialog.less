@@ -67,8 +67,13 @@
     }
   }
 
+  .modal-dialog-body {
+    padding-top: 5px;
+  }
+
   .most-popular-content-types-container {
     margin-bottom: 10px;
+    margin-top: -13px;
 
     h2 {
       font-size: 18px;
@@ -164,10 +169,9 @@
     }
 
     aside {
-      margin-left: 5%;
-      padding-left: calc(5% - 1px);
+      margin-left: 5px;
+      padding: 0 15px;
       border-left: 1px solid @admin-medium-gray-border;
-      width: 30%;
       max-height: @types-list-max-height;
       overflow-y: auto;
 
@@ -175,6 +179,10 @@
         font-size: 18px;
         color: #888;
         padding: 0 5px;
+      }
+
+      ul {
+        padding-left: 5px;
       }
 
       @media screen and (max-width: 720px) {

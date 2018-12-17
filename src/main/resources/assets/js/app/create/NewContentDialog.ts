@@ -153,7 +153,8 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     private initKeyDownHandler() {
         this.keyDownHandler = (event: KeyboardEvent) => {
-            const isLetterOrNumber: boolean = KeyHelper.isNumber(event) || (event.keyCode >= 65 && event.keyCode <= 90);
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
+                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
 
             if (isLetterOrNumber) {
                 this.fileInput.show();
