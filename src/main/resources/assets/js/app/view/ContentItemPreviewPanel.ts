@@ -162,8 +162,13 @@ export class ContentItemPreviewPanel
 
     private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
         const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
-        const imgUrl = new ContentImageUrlResolver().setContentId(item.getModel().getContentId()).setTimestamp(
-            item.getModel().getContentSummary().getModifiedTime()).setSize(imgSize).resolve();
+        const content = item.getModel().getContentSummary();
+        const imgUrl = new ContentImageUrlResolver()
+                        .setContentId(content.getContentId())
+                        .setTimestamp(content.getModifiedTime())
+                        .setSize(imgSize)
+                        .resolve();
+
         this.image.setSrc(imgUrl);
     }
 
