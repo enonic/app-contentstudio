@@ -250,6 +250,8 @@ const contentWizardPanel = Object.create(page, {
             return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch(err => {
                 this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
                 throw new Error("Content wizard was not loaded! " + err);
+            }).then(() => {
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
             });
         }
     },

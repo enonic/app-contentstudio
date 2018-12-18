@@ -14,7 +14,7 @@ const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const textComponentCke = require('../../page_objects/components/text.component');
 
-describe.skip('Swap two Text Component - specification', function () {
+describe('Swap two Text Component - specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 

@@ -49,7 +49,9 @@ const newContentDialog = Object.create(page, {
             return this.waitForVisible(dialog.typesList, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_new_content_dialog_load');
                 throw new Error('New Content dialog was not loaded! ' + err);
-            }).pause(200);
+            }).pause(200).then(() => {
+                return true;
+            });
         }
     },
     waitForClosed: {
