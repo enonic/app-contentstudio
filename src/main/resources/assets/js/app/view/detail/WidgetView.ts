@@ -2,7 +2,6 @@ import {DetailsView} from './DetailsView';
 import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
 import Widget = api.content.Widget;
 
 export class WidgetView extends api.dom.DivEl {
@@ -97,7 +96,7 @@ export class WidgetView extends api.dom.DivEl {
         let content = this.detailsView.getItem();
         let promises = [];
 
-        if (this.isActive() && this.widgetShouldBeUpdated()) {
+        if (this.isActive() && this.detailsView.getItem()) {
             this.detailsView.showLoadMask();
             this.content = content;
 
@@ -112,12 +111,6 @@ export class WidgetView extends api.dom.DivEl {
 
         this.containerWidth = this.detailsView.getEl().getWidth();
         return wemQ.all(promises).finally(() => this.detailsView.hideLoadMask());
-    }
-
-    private widgetShouldBeUpdated(force: boolean = false): boolean {
-        let content = this.detailsView.getItem();
-        return content && ActiveDetailsPanelManager.getActiveDetailsPanel().isVisibleOrAboutToBeVisible() &&
-               (force || !api.ObjectHelper.equals(this.content, content) || (this.isUrlBased() && this.url !== this.getWidgetUrl()));
     }
 
     private createDefaultWidgetItemView() {
