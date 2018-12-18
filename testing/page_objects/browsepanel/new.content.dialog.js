@@ -8,7 +8,8 @@ const appConst = require('../../libs/app_const');
 const dialog = {
     container: `//div[contains(@id,'NewContentDialog')]`,
     searchInput: `//div[contains(@id,'FileInput')]/input`,
-    header: `//div[contains(@class,'dialog-header')`,
+    header: `//div[contains(@id,'NewContentDialogHeader')]`,
+    typesList: `//ul[contains(@id,'FilterableItemsList')]`,
     contentTypeByName: function (name) {
         return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
     },
@@ -37,18 +38,18 @@ const newContentDialog = Object.create(page, {
     },
     clickOnCancelButton: {
         value: function () {
-            return baseDialog.clickOnCancelButton().catch(err => {
-                this.saveScreenshot('err_new_content_dlg');
+            return this.clickOnCancelButton().catch(err => {
+                this.saveScreenshot('err_cancel_new_content_dlg');
                 throw new Error('Error when clicking on Cancel button ' + err);
             })
         }
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(this.searchInput, appConst.TIMEOUT_3).catch(err => {
+            return this.waitForVisible(dialog.typesList, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_new_content_dialog_load');
                 throw new Error('New Content dialog was not loaded! ' + err);
-            });
+            }).pause(200);
         }
     },
     waitForClosed: {
@@ -64,9 +65,19 @@ const newContentDialog = Object.create(page, {
             return this.getText(this.header);
         }
     },
+    typeSearchText1: {
+        value: function (text) {
+            return this.typeTextInInput(this.searchInput, text).catch(err => {
+                throw new Error("New Content Dialog- error when typing the text in search input! ");
+            });
+        }
+    },
+    //typeSearchTextInHiddenInput
     typeSearchText: {
         value: function (text) {
-            return this.typeTextInInput(this.searchInput, text);
+            return this.getBrowser().keys(text).catch(err => {
+                throw new Error("New Content Dialog- error when typing the text in search input! ");
+            });
         }
     },
     clickOnContentType: {

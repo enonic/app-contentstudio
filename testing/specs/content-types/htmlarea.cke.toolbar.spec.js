@@ -185,7 +185,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             });
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appears`,
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appear`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnTableButton();
