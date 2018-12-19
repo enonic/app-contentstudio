@@ -1,4 +1,5 @@
 import '../../api.ts';
+import i18n = api.util.i18n;
 
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 
@@ -9,6 +10,7 @@ export class NewContentDialogListItem {
     private name: string;
     private displayName: string;
     private iconUrl: string;
+    private description: string;
 
     static fromContentType(contentType: ContentTypeSummary): NewContentDialogListItem {
         return new NewContentDialogListItem(contentType);
@@ -20,6 +22,7 @@ export class NewContentDialogListItem {
         this.name = contentType.getName();
         this.displayName = contentType.getDisplayName();
         this.iconUrl = contentType.getIconUrl();
+        this.description = contentType.getDescription() ? contentType.getDescription() : `<${i18n('dialog.new.noItemDescription')}>`;
     }
 
     getContentType(): ContentTypeSummary {
@@ -40,5 +43,9 @@ export class NewContentDialogListItem {
 
     getIconUrl(): string {
         return this.iconUrl;
+    }
+
+    getDescription(): string {
+        return this.description;
     }
 }
