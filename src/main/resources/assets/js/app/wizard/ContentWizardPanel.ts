@@ -97,6 +97,8 @@ export class ContentWizardPanel
 
     private contentWizardStep: ContentWizardStep;
 
+    private securityWizardStep: ContentWizardStep;
+
     private contentWizardStepForm: ContentWizardStepForm;
 
     private settingsWizardStepForm: SettingsWizardStepForm;
@@ -964,7 +966,9 @@ export class ContentWizardPanel
                     this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
                     steps.push(this.settingsWizardStep);
 
-                    steps.push(new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm, 'icon-masks'));
+                    this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
+                        this.canEveryoneRead(content) ? 'icon-unlock' : 'icon-lock');
+                    steps.push(this.securityWizardStep);
 
                     this.setSteps(steps);
 
@@ -1065,6 +1069,7 @@ export class ContentWizardPanel
                 this.fetchPersistedContent().then((content) => {
                     this.setPersistedItem(content.clone());
                     this.securityWizardStepForm.update(content, true);
+                    this.updateSecurityWizardStepIcon(content);
                 });
 
             } else {
@@ -2301,5 +2306,17 @@ export class ContentWizardPanel
         this.dataChangedListeners.forEach((listener: () => void) => {
             listener.call(this);
         });
+    }
+
+    private updateSecurityWizardStepIcon(content: Content) {
+        const canEveryoneRead: boolean = this.canEveryoneRead(content);
+
+        this.securityWizardStep.getTabBarItem().toggleClass('icon-unlock', canEveryoneRead);
+        this.securityWizardStep.getTabBarItem().toggleClass('icon-lock', !canEveryoneRead);
+    }
+
+    private canEveryoneRead(content: Content): boolean {
+        const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
+        return !!entry && entry.isAllowed(Permission.READ);
     }
 }

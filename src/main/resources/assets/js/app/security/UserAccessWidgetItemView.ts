@@ -10,6 +10,7 @@ import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
 import {Permission} from '../access/Permission';
+import {AccessControlEntry} from '../access/AccessControlEntry';
 import ContentId = api.content.ContentId;
 import LoginResult = api.security.auth.LoginResult;
 import i18n = api.util.i18n;
@@ -27,17 +28,7 @@ export class UserAccessWidgetItemView
 
     private loginResult: LoginResult;
 
-    private everyoneAccessValue: Access;
-
     public static debug: boolean = false;
-
-    private static OPTIONS: any[] = [
-        {value: Access.FULL, name: i18n('field.access.full')},
-        {value: Access.PUBLISH, name: i18n('field.access.publish')},
-        {value: Access.WRITE, name: i18n('field.access.write')},
-        {value: Access.READ, name: i18n('field.access.read')},
-        {value: Access.CUSTOM, name: i18n('field.access.custom')}
-    ];
 
     constructor() {
         super('user-access-widget-item-view');
@@ -45,7 +36,7 @@ export class UserAccessWidgetItemView
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        let contentId = item.getContentId();
+        const contentId = item.getContentId();
         if (UserAccessWidgetItemView.debug) {
             console.debug('UserAccessWidgetItemView.setContentId: ', contentId);
         }
@@ -54,26 +45,21 @@ export class UserAccessWidgetItemView
     }
 
     private layoutHeader(content: Content) {
-        let entry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
-        this.everyoneAccessValue = null;
-
         if (this.hasChild(this.headerEl)) {
             this.removeChild(this.headerEl);
         }
 
-        if (entry) {
+        const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
+        const canEveryoneRead: boolean = !!entry && entry.isAllowed(Permission.READ);
 
-            this.everyoneAccessValue = AccessControlEntryView.getAccessValueFromEntry(entry);
-            let headerStr = `${entry.getPrincipalDisplayName()} ${this.getOptionName(this.everyoneAccessValue)} ${i18n(
-                'field.access.item')}`;
-            let headerStrEl = new api.dom.SpanEl('header-string').setHtml(headerStr);
+        const headerStr = canEveryoneRead ? i18n('widget.useraccess.everyoneCanRead') : i18n('widget.useraccess.restricted');
+        const headerStrEl = new api.dom.SpanEl('header-string').setHtml(headerStr);
 
-            this.headerEl = new api.dom.DivEl('user-access-widget-header');
+        this.headerEl = new api.dom.DivEl('user-access-widget-header');
+        this.headerEl.appendChild(new api.dom.DivEl(canEveryoneRead ? 'icon-unlock' : 'icon-lock'));
+        this.headerEl.appendChild(headerStrEl);
 
-            this.headerEl.appendChild(new api.dom.DivEl('icon-lock'));
-            this.headerEl.appendChild(headerStrEl);
-            this.prependChild(this.headerEl);
-        }
+        this.prependChild(this.headerEl);
     }
 
     private layoutBottom(content: Content) {
@@ -103,27 +89,23 @@ export class UserAccessWidgetItemView
     }
 
     private layoutList(content: Content): wemQ.Promise<boolean> {
+        const request = new GetEffectivePermissionsRequest(content.getContentId());
 
-        let deferred = wemQ.defer<boolean>();
-
-        let request = new GetEffectivePermissionsRequest(content.getContentId());
-
-        request.sendAndParse().then((results: EffectivePermission[]) => {
+        return request.sendAndParse().then((results: EffectivePermission[]) => {
 
             if (this.hasChild(this.accessListView)) {
                 this.removeChild(this.accessListView);
             }
-            let userAccessList = this.getUserAccessList(results);
+
+            const everyoneAccessValue: Access = this.getEveryoneAccessValue(content);
+            const userAccessList = this.getUserAccessList(results, everyoneAccessValue);
 
             this.accessListView = new UserAccessListView();
             this.accessListView.setItemViews(userAccessList);
             this.appendChild(this.accessListView);
 
-            deferred.resolve(true);
-        }).done();
-
-        return deferred.promise;
-
+            return wemQ.resolve(true);
+        });
     }
 
     public layout(): wemQ.Promise<any> {
@@ -151,23 +133,24 @@ export class UserAccessWidgetItemView
         });
     }
 
-    private getUserAccessList(results: EffectivePermission[]): UserAccessListItemView[] {
+    private getUserAccessList(results: EffectivePermission[], everyoneAccessValue: Access): UserAccessListItemView[] {
 
-        return results.filter(item => item.getAccess() !== this.everyoneAccessValue &&
+        return results.filter(item => item.getAccess() !== everyoneAccessValue &&
                                       item.getPermissionAccess().getCount() > 0).map((item: EffectivePermission) => {
-            let view = new UserAccessListItemView();
+            const view = new UserAccessListItemView();
             view.setObject(item);
             view.setCurrentUser(this.loginResult.getUser());
             return view;
         });
     }
 
-    private getOptionName(access: Access): string {
-        let currentOption = UserAccessWidgetItemView.OPTIONS.filter(option => {
-            return option.value === access;
-        });
-        if (currentOption && currentOption.length > 0) {
-            return currentOption[0].name;
+    private getEveryoneAccessValue(content): Access {
+        const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
+
+        if (entry) {
+            return AccessControlEntryView.getAccessValueFromEntry(entry);
         }
+
+        return null;
     }
 }
