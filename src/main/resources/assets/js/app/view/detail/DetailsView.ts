@@ -207,7 +207,6 @@ export class DetailsView extends api.dom.DivEl {
             console.debug('DetailsView.setItem: ', item);
         }
 
-        if (!api.ObjectHelper.equals(item, this.item)) {
             this.item = item;
             if (item) {
                 this.layout(false);
@@ -217,7 +216,6 @@ export class DetailsView extends api.dom.DivEl {
             } else {
                 this.layout();
             }
-        }
         return wemQ<any>(null);
     }
 
