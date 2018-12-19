@@ -293,7 +293,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         }).finally(() => {
             this.fileInput.enable();
             this.newContentUploader.enable();
-            this.fileInput.giveFocus();
+            this.allContentTypes.focusFirstElement();
             this.toggleUploadersEnabled();
             this.loadMask.hide();
             this.mostPopularContentTypes.showIfNotEmpty();
