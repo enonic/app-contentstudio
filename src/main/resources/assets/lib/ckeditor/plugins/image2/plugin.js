@@ -867,7 +867,7 @@
     };
 
     function setWrapperAlign(widget, alignClasses) {
-        var wrapper = widget.wrapper.findOne('figure') || widget.wrapper.getParent() || widget.wrapper,
+        var wrapper = widget.wrapper.findOne('figure') || widget.wrapper.getParent() || widget.wrapper, // #1
             align = widget.data.align,
             hasCaption = widget.data.hasCaption;
 
@@ -967,8 +967,8 @@
             }
 
             // No center wrapper has been found.
-            else if (name == 'figure' && el.hasClass(captionedClass)) {
-                image = el.getFirst('img') || el.getFirst('a').getFirst('img');
+            else if (name == 'figure') { // #2
+                image = el.getFirst('img') ? el.getFirst('img') : el.getFirst('a') ? el.getFirst('a').getFirst('img') : null; // #2
 
                 // Upcast linked image like <a><img/></a>.
             } else if (isLinkedOrStandaloneImage(el)) {
