@@ -4,7 +4,6 @@ import ContentSummary = api.content.ContentSummary;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
-import {Content} from '../content/Content';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {ContentJson} from '../content/ContentJson';
 import {ContentQuery} from '../content/ContentQuery';
@@ -159,16 +158,6 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     getRequestPath(): api.rest.Path {
         return api.rest.Path.fromParent(super.getResourcePath(), 'query');
-    }
-
-    fromJsonToContentArray(json: ContentJson[]): Content[] {
-
-        let array: Content[] = [];
-        json.forEach((itemJson: ContentJson) => {
-            array.push(this.fromJsonToContent(itemJson));
-        });
-
-        return array;
     }
 
     fromJsonToContentIdBaseItem(json: ContentSummaryJson): ContentSummary {

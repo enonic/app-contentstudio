@@ -1,19 +1,32 @@
 import QueryExpr = api.query.expr.QueryExpr;
 import PropertyPath = api.data.PropertyPath;
 import Property = api.data.Property;
+import ContentSummary = api.content.ContentSummary;
 import {TagSuggester} from '../ui/tag/TagSuggester';
-import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
-import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {Content} from '../../content/Content';
 import {ContentJson} from '../../content/ContentJson';
-import {ContentQuery} from '../../content/ContentQuery';
+import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 
 export class ContentTagSuggesterBuilder {
 
     dataPath: PropertyPath;
 
+    content: ContentSummary;
+
+    allowedPaths: string[];
+
     setDataPath(value: PropertyPath): ContentTagSuggesterBuilder {
         this.dataPath = value;
+        return this;
+    }
+
+    setContent(content: ContentSummary): ContentTagSuggesterBuilder {
+        this.content = content;
+        return this;
+    }
+
+    setAllowedContentPaths(paths: string[]): ContentTagSuggesterBuilder {
+        this.allowedPaths = paths;
         return this;
     }
 
@@ -27,44 +40,56 @@ export class ContentTagSuggester
 
     private propertyPath: PropertyPath;
 
+    private content: ContentSummary;
+
+    private allowedPaths: string[] = [];
+
     constructor(builder: ContentTagSuggesterBuilder) {
         this.propertyPath = builder.dataPath;
+        this.content = builder.content;
+        this.allowedPaths = builder.allowedPaths;
     }
 
-    suggest(value: string): wemQ.Promise<string[]> {
+    suggest(searchString: string): wemQ.Promise<string[]> {
 
-        let fieldName = 'data' + this.propertyPath.getParentPath().toString() + this.propertyPath.getLastElement().getName();
+        const fieldName = 'data' + this.propertyPath.getParentPath().toString() + this.propertyPath.getLastElement().getName();
 
-        let fulltextExpression: api.query.expr.Expression = new api.query.FulltextSearchExpressionBuilder().setSearchString(value).addField(
-            new api.query.QueryField(fieldName)).build();
+        const fulltextExpression: api.query.expr.Expression = new api.query.FulltextSearchExpressionBuilder()
+            .setSearchString(searchString)
+            .addField(new api.query.QueryField(fieldName))
+            .build();
 
-        let queryExpr: QueryExpr = new QueryExpr(fulltextExpression);
+        const queryExpr: QueryExpr = new QueryExpr(fulltextExpression);
 
-        let query = new ContentQuery();
-        query.setSize(10);
-        query.setQueryExpr(queryExpr);
+        return this.findTags(searchString, queryExpr);
+    }
 
-        let queryRequest = new ContentQueryRequest(query);
-        queryRequest.setExpand(api.rest.Expand.FULL);
+    private findTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {
+        const request = new ContentSelectorQueryRequest<ContentJson, Content>();
 
-        return queryRequest.sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<Content, ContentJson>) => {
+        request.setSize(10);
+        request.setContent(this.content);
+        request.setExpand(api.rest.Expand.FULL);
+        request.setAllowedContentPaths(this.allowedPaths || []);
 
-                let suggestedTags: string[] = [];
-                contentQueryResult.getContents().forEach((content: Content) => {
-                    let propertySet = this.propertyPath.getParentPath().isRoot() ?
-                                      content.getContentData().getRoot() :
-                                      content.getContentData().getPropertySet(this.propertyPath);
-                    propertySet.forEachProperty(this.propertyPath.getLastElement().getName(), (property: Property) => {
-                        if (property.hasNonNullValue()) {
-                            let suggestedTag = property.getString();
-                            if (suggestedTag.search(new RegExp(value, 'i')) === 0 && suggestedTags.indexOf(suggestedTag) < 0) {
-                                suggestedTags.push(suggestedTag);
-                            }
+        request.setQueryExpr(queryExpr);
+
+        return request.sendAndParse().then((list: Content[]) => {
+            const suggestedTags: string[] = [];
+            list.forEach((content: Content) => {
+                const propertySet = this.propertyPath.getParentPath().isRoot() ?
+                                    content.getContentData().getRoot() :
+                                    content.getContentData().getPropertySet(this.propertyPath);
+                propertySet.forEachProperty(this.propertyPath.getLastElement().getName(), (property: Property) => {
+                    if (property.hasNonNullValue()) {
+                        const suggestedTag = property.getString();
+                        if (suggestedTag.search(new RegExp(searchString, 'i')) === 0 && suggestedTags.indexOf(suggestedTag) < 0) {
+                            suggestedTags.push(suggestedTag);
                         }
-                    });
+                    }
                 });
-                return suggestedTags;
             });
+            return suggestedTags;
+        });
     }
 }
