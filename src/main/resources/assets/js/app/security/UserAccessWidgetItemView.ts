@@ -144,7 +144,7 @@ export class UserAccessWidgetItemView
         });
     }
 
-    private getEveryoneAccessValue(content): Access {
+    private getEveryoneAccessValue(content: Content): Access {
         const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
 
         if (entry) {
