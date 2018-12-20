@@ -30,6 +30,14 @@ export class UserAccessWidgetItemView
 
     public static debug: boolean = false;
 
+    private static OPTIONS: any = {
+        [Access.FULL]: i18n('field.access.full.everyone'),
+        [Access.PUBLISH]: i18n('field.access.publish.everyone'),
+        [Access.WRITE]: i18n('field.access.write.everyone'),
+        [Access.READ]: i18n('field.access.read.everyone'),
+        [Access.CUSTOM]: i18n('field.access.custom.everyone')
+    };
+
     constructor() {
         super('user-access-widget-item-view');
         this.accessListView = new UserAccessListView();
@@ -49,14 +57,14 @@ export class UserAccessWidgetItemView
             this.removeChild(this.headerEl);
         }
 
-        const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
-        const canEveryoneRead: boolean = !!entry && entry.isAllowed(Permission.READ);
+        const everyoneHasAccess: boolean = !!content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
 
-        const headerStr = canEveryoneRead ? i18n('widget.useraccess.everyoneCanRead') : i18n('widget.useraccess.restricted');
+        const headerStr = this.getEveryoneAccessDescription(content);
+
         const headerStrEl = new api.dom.SpanEl('header-string').setHtml(headerStr);
 
         this.headerEl = new api.dom.DivEl('user-access-widget-header');
-        this.headerEl.appendChild(new api.dom.DivEl(canEveryoneRead ? 'icon-unlock' : 'icon-lock'));
+        this.headerEl.addClass(everyoneHasAccess ? 'icon-unlock' : 'icon-lock');
         this.headerEl.appendChild(headerStrEl);
 
         this.prependChild(this.headerEl);
@@ -152,5 +160,12 @@ export class UserAccessWidgetItemView
         }
 
         return null;
+    }
+
+    private getEveryoneAccessDescription(content: Content): string {
+        const everyoneAccess: Access = this.getEveryoneAccessValue(content);
+
+        return everyoneAccess ? UserAccessWidgetItemView.OPTIONS[everyoneAccess] : i18n('widget.useraccess.restricted');
+
     }
 }
