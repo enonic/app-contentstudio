@@ -4,7 +4,6 @@
 
     dl {
       overflow: hidden;
-      padding: 5px;
 
       dt {
         .ellipsis();
@@ -92,12 +91,18 @@
     &.empty {
       min-width: 57px;
     }
+
     .user-access-widget-header {
-      .icon-lock {
-        display: inline-block;
-        font-size: 25px;
-        float: left;
-        margin-left: 7px;
+
+      text-align: center;
+      .ellipsis();
+
+      &.icon-lock, &.icon-unlock {
+        &:before {
+          display: inline-block;
+          font-size: 18px;
+          margin-right: 7px;
+        }
       }
       .header-string {
         line-height: 30px;
@@ -120,7 +125,7 @@
 
       .user-access-list-item-view {
 
-        padding: 3px;
+        padding: 3px 0;
         position: relative;
 
         .clearfix();
@@ -132,6 +137,7 @@
           height: 29px;
           overflow: hidden;
           padding-right: 30px;
+          text-align: left;
 
           &:after {
             position: absolute;
