@@ -1,10 +1,12 @@
 import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import BrowseItem = api.app.browse.BrowseItem;
 import ArrayHelper = api.util.ArrayHelper;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {
@@ -14,10 +16,28 @@ export class PublishDialogItemList
         super(false, 'publish-dialog-item-list');
     }
 
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): TogglableStatusSelectionItem {
+        const view = super.createItemView(item, readOnly);
+
+        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
+            if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
+                this.removeItem(item);
+            }
+        };
+
+        ContentServerEventsHandler.getInstance().onContentDeleted(deletedHandler);
+
+        view.onRemoved(() => {
+            ContentServerEventsHandler.getInstance().unContentDeleted(deletedHandler);
+        });
+
+        return view;
+    }
+
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: BrowseItem<ContentSummaryAndCompareStatus>): TogglableStatusSelectionItem {
 
-        const item = super.createSelectionItem(viewer, browseItem);
+        const item: TogglableStatusSelectionItem = super.createSelectionItem(viewer, browseItem);
         item.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
 
         item.onItemStateChanged((contentId, enabled) => {

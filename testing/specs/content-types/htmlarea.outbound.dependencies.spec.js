@@ -1,7 +1,10 @@
 /**
  * Created on 26.11.2018.
- * verifies  https://github.com/enonic/xp/issues/6768
+ * verifies
+ * https://github.com/enonic/xp/issues/6768
+ * https://github.com/enonic/xp/issues/6795
  */
+
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
 const expect = chai.expect;
@@ -71,6 +74,28 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
                 studioUtils.saveScreenshot('htmlarea_with_image');
                 return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
                     '`Show outbound` button should be present on the widget, because an image was inserted in the htmlarea');
+            }).then(() => {
+                return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
+                    '`Show Inbound` button should not be present');
+            })
+        });
+
+    // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
+    it(`GIVEN existing 'htmlArea' content is opened AND Dependencies panel is opened WHEN image in htmlArea has been removed THEN 'Outbound dependency' should be cleared as well`,
+        () => {
+            return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+                return contentWizard.openDetailsPanel();
+            }).then(() => {
+                return wizardDetailsPanel.openDependencies();
+            }).then(() => {
+                return htmlAreaForm.clearHtmlArea(0);
+            }).then(() => {
+                //save the changes!
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                studioUtils.saveScreenshot('htmlarea_image_removed');
+                return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonNotVisible(),
+                    '`Show outbound` button is getting not visible on the widget, because an image is removed');
             }).then(() => {
                 return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
                     '`Show Inbound` button should not be present');

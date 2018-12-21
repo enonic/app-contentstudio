@@ -283,8 +283,12 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
                 this.allContentTypes.createItems(contentTypes, parentSite);
 
-                this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
-                this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
+                const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
+                this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
+
+                const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
+                this.recentContentTypes.setVisible(recentItemsCount > 0);
+
 
             }).catch((reason: any) => {
 
@@ -292,11 +296,10 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
         }).finally(() => {
             this.fileInput.enable();
-            this.newContentUploader.enable();
-            this.fileInput.giveFocus();
             this.toggleUploadersEnabled();
             this.loadMask.hide();
             this.mostPopularContentTypes.showIfNotEmpty();
+            this.newContentUploader.focus();
         }).done();
     }
 
