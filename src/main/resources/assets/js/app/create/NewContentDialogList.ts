@@ -27,16 +27,17 @@ export class NewContentDialogList extends api.ui.selector.list.ListBox<NewConten
     }
 
     createItemView(item: NewContentDialogListItem): api.dom.LiEl {
-        let namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        const namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
         namesAndIconView
             .setIconUrl(item.getIconUrl())
             .setMainName(item.getDisplayName())
-            .setSubName(item.getName())
+            .setSubName(item.getDescription())
             .setDisplayIconLabel(item.isSite());
 
-        let itemEl = new api.dom.LiEl('content-types-list-item' + (item.isSite() ? ' site' : ''));
+        const itemEl = new api.dom.LiEl('content-types-list-item' + (item.isSite() ? ' site' : ''));
         itemEl.getEl().setTabIndex(0);
         itemEl.appendChild(namesAndIconView);
+        itemEl.getEl().setTitle(item.getName());
         itemEl.onClicked((event: MouseEvent) => this.notifySelected(item));
         itemEl.onKeyPressed((event: KeyboardEvent) => {
             if (event.keyCode === 13) {

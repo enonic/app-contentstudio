@@ -1,6 +1,5 @@
 import '../../api.ts';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
-
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 
 export class MostPopularItem extends NewContentDialogListItem {
@@ -13,7 +12,7 @@ export class MostPopularItem extends NewContentDialogListItem {
         this.hits = hits;
     }
 
-    getHits(): number {
-        return this.hits;
+    getDisplayName(): string {
+        return `${super.getDisplayName()} (${this.hits})`;
     }
 }
