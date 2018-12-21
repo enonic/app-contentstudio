@@ -22,7 +22,7 @@ export class NewContentDialogListItem {
         this.name = contentType.getName();
         this.displayName = contentType.getDisplayName();
         this.iconUrl = contentType.getIconUrl();
-        this.description = contentType.getDescription() ? contentType.getDescription() : `<${i18n('dialog.new.noItemDescription')}>`;
+        this.description = contentType.getDescription() ? contentType.getDescription() : `<${i18n('text.noDescription')}>`;
     }
 
     getContentType(): ContentTypeSummary {
