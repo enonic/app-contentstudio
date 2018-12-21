@@ -91,7 +91,8 @@ const htmlAreaForm = Object.create(page, {
             return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
                 return this.getIdOfHtmlAreas();
             }).then(ids => {
-                return this.execute(form.typeText(ids[index], ''));
+                const arr = [].concat(ids);
+                return this.execute(form.typeText(arr[index], ''));
             }).pause(500);
         }
     },
