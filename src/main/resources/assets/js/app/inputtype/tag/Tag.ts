@@ -17,6 +17,8 @@ export class Tag
 
     private tags: Tags;
 
+    private allowedContentPaths: string[];
+
     private tagSuggester: ContentTagSuggester;
 
     constructor(context: ContentInputTypeViewContext) {
@@ -24,16 +26,24 @@ export class Tag
         this.addClass('input-type-view');
 
         this.context = context;
+        this.readConfig(this.context.inputConfig);
 
-        this.tagSuggester = new ContentTagSuggesterBuilder().setDataPath(this.resolveDataPath(context)).build();
+        this.tagSuggester = new ContentTagSuggesterBuilder()
+            .setDataPath(this.resolveDataPath(this.context))
+            .setContent(this.context.content)
+            .setAllowedContentPaths(this.allowedContentPaths)
+            .build();
     }
 
-    private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
-        if (context.parentDataPath) {
-            return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
-        } else {
-            return new PropertyPath([PropertyPathElement.fromString(context.input.getName())], false);
-        }
+    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
+
+        const allowContentPathConfig = inputConfig['allowPath'] || [];
+
+        this.allowedContentPaths =
+            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
+            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
+             ? [this.getDefaultAllowPath()]
+             : []);
     }
 
     getValueType(): ValueType {
@@ -110,6 +120,18 @@ export class Tag
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();
+    }
+
+    protected getDefaultAllowPath(): string {
+        return '${site}/*';
+    }
+
+    private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
+        if (context.parentDataPath) {
+            return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
+        } else {
+            return new PropertyPath([PropertyPathElement.fromString(context.input.getName())], false);
+        }
     }
 
     giveFocus(): boolean {

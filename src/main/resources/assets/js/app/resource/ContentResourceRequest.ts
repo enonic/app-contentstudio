@@ -2,6 +2,8 @@ import ContentSummary = api.content.ContentSummary;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import Path = api.rest.Path;
 import {JsonResourceRequest} from './JsonResourceRequest';
+import {ContentJson} from '../content/ContentJson';
+import {Content} from '../content/Content';
 
 export class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
     extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
@@ -30,6 +32,16 @@ export class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
         let array: ContentSummary[] = [];
         json.forEach((itemJson: ContentSummaryJson) => {
             array.push(this.fromJsonToContentSummary(itemJson));
+        });
+
+        return array;
+    }
+
+    fromJsonToContentArray(json: ContentJson[]): Content[] {
+
+        let array: Content[] = [];
+        json.forEach((itemJson: ContentJson) => {
+            array.push(this.fromJsonToContent(itemJson));
         });
 
         return array;

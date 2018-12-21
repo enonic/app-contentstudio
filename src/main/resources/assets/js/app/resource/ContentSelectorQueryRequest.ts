@@ -9,9 +9,10 @@ import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
+import {ContentJson} from '../content/ContentJson';
 
-export class ContentSelectorQueryRequest
-    extends ContentResourceRequest<ContentQueryResultJson<ContentSummaryJson>, ContentSummary[]> {
+export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
+    extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, CONTENT[]> {
 
     public static DEFAULT_SIZE: number = 15;
 
@@ -43,13 +44,13 @@ export class ContentSelectorQueryRequest
 
     private loaded: boolean;
 
-    private results: ContentSummary[] = [];
+    private results: CONTENT[] = [];
 
     constructor() {
         super();
         super.setMethod('POST');
 
-        this.setQueryExpr();
+        this.setSearchString();
     }
 
     setInputName(name: string) {
@@ -62,7 +63,6 @@ export class ContentSelectorQueryRequest
 
     setContent(content: ContentSummary) {
         this.content = content;
-        this.setQueryExpr();
     }
 
     getContent(): ContentSummary {
@@ -97,10 +97,22 @@ export class ContentSelectorQueryRequest
         this.relationshipType = relationshipType;
     }
 
-    setQueryExpr(searchString: string = '') {
+    setExpand(expand: api.rest.Expand) {
+        this.expand = expand;
+    }
+
+    getExpand(): api.rest.Expand {
+        return this.expand;
+    }
+
+    setSearchString(searchString: string = '') {
         let fulltextExpression = this.createSearchExpression(searchString);
 
         this.queryExpr = new QueryExpr(fulltextExpression, ContentSelectorQueryRequest.DEFAULT_ORDER);
+    }
+
+    setQueryExpr(queryExpr: api.query.expr.QueryExpr) {
+        this.queryExpr = queryExpr;
     }
 
     private createSearchExpression(searchString: string): Expression {
@@ -154,21 +166,26 @@ export class ContentSelectorQueryRequest
         return this.from === this.loadingFrom;
     }
 
-    sendAndParse(): wemQ.Promise<ContentSummary[]> {
+    sendAndParse(): wemQ.Promise<CONTENT[]> {
 
         if (this.isConcurrentLoad()) {
             return wemQ(this.results);
         }
 
         this.loadingFrom = this.from;
-        return this.send().then((response: api.rest.JsonResponse<ContentQueryResultJson<ContentSummaryJson>>) => {
+        return this.send().then((response: api.rest.JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
 
-            let responseResult: ContentQueryResultJson<ContentSummaryJson> = response.getResult();
+            let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
 
             let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
 
-            let contentSummaries: ContentSummary[] = <any[]> this.fromJsonToContentSummaryArray(
-                <ContentSummaryJson[]>contentsAsJson);
+            let contents: CONTENT[];
+
+            if (this.expand === api.rest.Expand.SUMMARY) {
+                contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
+            } else {
+                contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+            }
 
             if (this.from === 0) {
                 this.results = [];
@@ -177,7 +194,7 @@ export class ContentSelectorQueryRequest
             this.from += responseResult.metadata['hits'];
             this.loaded = this.from >= responseResult.metadata['totalHits'];
 
-            this.results = this.results.concat(contentSummaries);
+            this.results = this.results.concat(contents);
 
             return this.results;
         }).catch(() => {

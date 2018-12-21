@@ -4,6 +4,7 @@ import OptionDataLoaderData = api.ui.selector.OptionDataLoaderData;
 import Option = api.ui.selector.Option;
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
+import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
@@ -20,7 +21,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     protected treeRequest: ContentTreeSelectorQueryRequest<DATA>;
 
-    protected flatRequest: ContentSelectorQueryRequest;
+    protected flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
 
     protected isTreeLoadMode: boolean;
 
@@ -107,7 +108,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.flatRequest.resetParams();
 
         this.flatRequest.setInputName(this.treeRequest.getInputName());
-        this.flatRequest.setQueryExpr(value);
+        this.flatRequest.setSearchString(value);
 
         return this.sendAndParseFlatRequest();
     }
