@@ -33,7 +33,7 @@ export class MostPopularItemsList extends NewContentDialogList {
         return itemEl;
     }
 
-    createItems(contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult) {
+    createItems(contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult): number {
 
         let mostPopularItems: MostPopularItem[] = [];
         let allowedContentTypeAggregations: ContentTypeAggregation[] =
@@ -47,6 +47,8 @@ export class MostPopularItemsList extends NewContentDialogList {
         }
 
         this.setItems(mostPopularItems);
+
+        return mostPopularItems.length;
     }
 
     private isAllowedContentType(contentType: ContentTypeName) {

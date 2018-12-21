@@ -39,14 +39,6 @@ export class FilterableItemsList extends NewContentDialogList {
         this.setItems(this.listItems.slice());
     }
 
-    focusFirstElement() {
-        const itemViews: any[] = this.getItemViews();
-
-        if (itemViews.length > 0) {
-            itemViews[0].giveFocus();
-        }
-    }
-
     private createListItems(contentTypes: ContentTypeSummaries): NewContentDialogListItem[] {
         let contentTypesByName: {[name: string]: ContentTypeSummary} = {};
         let items: NewContentDialogListItem[] = [];

@@ -57,6 +57,7 @@ export class NewContentUploader
 
     setEnabled(value: boolean) {
         this.mediaUploaderEl.setEnabled(value);
+        value ? this.enable() : this.disable();
     }
 
     reset(): NewContentUploader {
@@ -72,6 +73,10 @@ export class NewContentUploader
     disable() {
         this.mediaUploaderEl.getDropzone().getEl().setAttribute('disabled', 'true');
         this.mediaUploaderEl.getEl().setAttribute('disabled', 'true');
+    }
+
+    focus() {
+        this.mediaUploaderEl.getUploadButton().giveFocus();
     }
 
     onUploadStarted(listener: (event: UploadStartedEvent<Content>) => void) {
