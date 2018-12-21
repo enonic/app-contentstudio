@@ -41,7 +41,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
                 return contentWizard.typeDisplayName('test_area2_4');
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
@@ -55,7 +55,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area `,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
                 return htmlAreaForm.typeTextInHtmlArea("test text")
             }).pause(1000).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
@@ -69,8 +69,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN all data has been typed and saved THEN correct notification message should be displayed `,
         () => {
             let displayName = contentBuilder.generateRandomName('htmlarea');
-            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, ':htmlarea2_4', TEXT_1, TEXT_2);
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea2_4').pause(1000).then(() => {
+            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').pause(1000).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
             }).pause(500).then(() => {
                 return contentWizard.waitAndClickOnSave();

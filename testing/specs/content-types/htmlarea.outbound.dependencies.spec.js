@@ -44,7 +44,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
 
     it(`GIVEN new 'htmlArea' content is opened WHEN image has been inserted in 'htmlarea' THEN the content should be updated`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return contentWizard.typeDisplayName(CONTENT_NAME);
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();

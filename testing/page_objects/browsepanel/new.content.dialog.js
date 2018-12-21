@@ -11,7 +11,7 @@ const dialog = {
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul[contains(@id,'FilterableItemsList')]`,
     contentTypeByName: function (name) {
-        return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`;
     },
 };
 const newContentDialog = Object.create(page, {

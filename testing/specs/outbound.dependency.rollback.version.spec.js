@@ -16,9 +16,6 @@ const liveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.pa
 const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
 const imageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
-const siteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
-const siteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
-const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
 const wizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('Check Outbound dependencies after rollback a version of content with image-selector',

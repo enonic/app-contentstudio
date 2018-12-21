@@ -35,7 +35,7 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf').then(() => {
                 return textAreaForm.typeText('hello');
             }).pause(700).then(() => {
                 return textAreaForm.isValidationRecordingVisible();
@@ -59,7 +59,7 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN correct validation recording should be displayed`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf').then(() => {
                 return textAreaForm.typeText(string42);
             }).pause(1000).then(() => {
                 return textAreaForm.getValidationRecord();
@@ -71,7 +71,7 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 41 chars has been typed THEN validation record should not be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':textarea_conf').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf').then(() => {
                 return textAreaForm.typeText(string41);
             }).pause(1000).then(() => {
                 return textAreaForm.isValidationRecordingVisible();

@@ -41,7 +41,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert image' icon has been clicked THEN 'Insert Image Dialog' should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             }).then(() => {
                 return insertImageDialog.waitForDialogVisible();
@@ -52,7 +52,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
         });
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert anchor' icon has been clicked THEN 'Insert Anchor Dialog' should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
             }).then(() => {
                 return insertAnchorDialog.waitForDialogLoaded();
@@ -64,7 +64,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert special characters' icon has been clicked THEN 'Insert Special Characters Dialog' should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
             }).then(() => {
                 return insertSpecialDialog.waitForDialogLoaded();
@@ -76,7 +76,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert macro' icon has been clicked THEN 'Insert Macro Dialog' should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             }).then(() => {
                 return insertMacroDialog.waitForDialogVisible();
@@ -93,7 +93,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert link' icon has been clicked THEN 'Insert Link Dialog' should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             }).then(() => {
                 return insertLinkDialog.waitForDialogLoaded();
@@ -104,7 +104,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
         });
     it(`WHEN 'htmlArea' content is opened THEN bold, italic, Underline,  buttons should be present on the toolbar`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbar();
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isBoldButtonDisplayed(), 'Bold button should be present');
@@ -135,7 +135,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').pause(1000).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             }).then(() => {
                 return insertLinkDialog.typeText('test');
@@ -155,7 +155,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').pause(1000).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
             }).then(() => {
                 return htmlAreaForm.getFormatOptions();
@@ -171,7 +171,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').pause(1000).then(() => {
                 return htmlAreaForm.typeTextInHtmlArea("test");
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
@@ -187,7 +187,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appear`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':htmlarea0_1').pause(1000).then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').pause(1000).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnTableButton();
             }).pause(1000).then(() => {
                 return htmlAreaForm.isTableDropDownMenuVisible();
