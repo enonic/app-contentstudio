@@ -63,7 +63,7 @@ module.exports = Object.freeze({
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,
         SITE: 'Site',
-        PAGE_TEMPLATE: `portal:page-template`,
+        PAGE_TEMPLATE: `Page Template`,
         HTML_AREA_0_1: `htmlarea0_1`,
         HTML_AREA_2_4: `htmlarea2_4`,
         IMG_SELECTOR_0_0: 'contenttypes:imageselector0_0',
