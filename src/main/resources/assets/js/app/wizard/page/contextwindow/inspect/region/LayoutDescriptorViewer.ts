@@ -1,4 +1,5 @@
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
+import i18n = api.util.i18n;
 
 export class LayoutDescriptorViewer
     extends api.ui.NamesAndIconViewer<LayoutDescriptor> {
@@ -12,7 +13,7 @@ export class LayoutDescriptorViewer
     }
 
     resolveSubName(object: LayoutDescriptor): string {
-        return object.getKey().toString();
+        return object.getDescription() || '<' + i18n('live.view.nodescription') + '>';
     }
 
     resolveIconClass(): string {

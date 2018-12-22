@@ -1,4 +1,5 @@
 import PartDescriptor = api.content.page.region.PartDescriptor;
+import i18n = api.util.i18n;
 
 export class PartDescriptorViewer
     extends api.ui.NamesAndIconViewer<PartDescriptor> {
@@ -12,7 +13,7 @@ export class PartDescriptorViewer
     }
 
     resolveSubName(object: PartDescriptor): string {
-        return object.getKey().toString();
+        return object.getDescription() || '<' + i18n('live.view.nodescription') + '>';
     }
 
     resolveIconClass(): string {

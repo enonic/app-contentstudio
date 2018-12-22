@@ -1,4 +1,5 @@
 import PageDescriptor = api.content.page.PageDescriptor;
+import i18n = api.util.i18n;
 
 export class PageDescriptorViewer
     extends api.ui.NamesAndIconViewer<PageDescriptor> {
@@ -12,7 +13,7 @@ export class PageDescriptorViewer
     }
 
     resolveSubName(object: PageDescriptor): string {
-        return object.getKey().toString();
+        return object.getDescription() || '<' + i18n('live.view.nodescription') + '>';
     }
 
     resolveIconClass(): string {
