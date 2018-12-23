@@ -82,7 +82,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double_max').then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double_max').then(() => {
                 return doubleForm.typeDouble('3.14159');
             }).pause(1000).then(()=> {
                 return doubleForm.isValidationRecordingVisible();
