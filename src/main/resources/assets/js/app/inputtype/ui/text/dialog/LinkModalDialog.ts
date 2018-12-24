@@ -62,8 +62,6 @@ export class LinkModalDialog
             }
         });
 
-        this.createAnchorPanelIfNeeded();
-
         if (this.isOnlyTextSelected()) {
             this.setFirstFocusField(this.textFormItem.getInput());
         } else {
@@ -92,15 +90,13 @@ export class LinkModalDialog
         this.contentId = params.content.getContentId();
     }
 
-    private createAnchorPanelIfNeeded() {
+    private getAnchors(): any[] {
         const anchors: any[] = CKEDITOR.plugins.link.getEditorAnchors(this.getEditor())
             .filter((anchor: any) => !!anchor.id) // filter anchors with missing id's
             .map((anchor: any) => anchor.id)
             .filter((item, pos, self) => self.indexOf(item) === pos); // filter duplicates cke returns;
 
-        if (anchors.length > 0) {
-            this.dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
-        }
+        return anchors;
     }
 
     protected setDialogInputValues() {
@@ -293,6 +289,12 @@ export class LinkModalDialog
         dockedPanel.addItem(this.tabNames.content, true, this.createContentPanel());
         dockedPanel.addItem(this.tabNames.download, true, this.createDownloadPanel());
         dockedPanel.addItem(this.tabNames.email, true, this.createEmailPanel());
+
+        const anchors: any[] = this.getAnchors();
+
+        if (anchors.length > 0) {
+            dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
+        }
 
         this.onAdded(() => {
             dockedPanel.getDeck().getPanels().forEach((panel, index) => {
