@@ -38,7 +38,7 @@ describe('content.xdata.outbound.dependency.spec:  check outbound dependency for
 
     it(`GIVEN wizard for content with optional x-data(image-selector) is opened WHEN image has been selected THEN image should be present in the x-data form`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double1_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double1_1').then(() => {
                 return contentWizard.typeDisplayName(CONTENT_WITH_XDATA);
             }).then(() => {
                 return contentWizard.clickOnXdataToggler();

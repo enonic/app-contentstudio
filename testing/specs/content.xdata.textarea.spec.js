@@ -101,7 +101,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, ':double0_0').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0').then(() => {
                 return contentWizard.typeDisplayName(contentName);
             }).then(() => {
                 return contentWizard.waitForXdataTogglerVisible();
@@ -176,7 +176,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             })
         });
 
-    it(`GIVEN existing content with x-data is opened WHEN version of the content when text is present in the textarea has been restored THEN text should appear in the area`,
+    //verifies the https://github.com/enonic/lib-admin-ui/issues/778
+    it(`GIVEN existing content with x-data is opened WHEN version of the content with text in x-data has been restored THEN text should appear in the area`,
         () => {
             return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
                 //open details panel
