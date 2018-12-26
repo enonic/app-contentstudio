@@ -98,6 +98,27 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             });
         });
 
+    //verifies the https://github.com/enonic/lib-admin-ui/issues/778 (x-data should be disabled after the version rollback)
+    it(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                return contentWizard.openDetailsPanel();
+            }).then(() => {
+                //open versions widget
+                return detailsPanel.openVersionHistory();
+            }).then(() => {
+                return versionsWidget.waitForVersionsLoaded();
+            }).then(() => {
+                return versionsWidget.clickAndExpandVersion(2);
+            }).then(result => {
+                return versionsWidget.clickOnRestoreThisVersion();
+            }).pause(2000).then(() => {
+                studioUtils.saveScreenshot("site_x_data_rollback_test");
+                return contentWizard.waitForWizardStepByTitleNotVisible(X_DATA_STEP_WIZARD);
+            }).then(result => {
+                assert.isTrue(result, ' x-data step should be not visible on the navigation bar, because x-data was disabled');
+            });
+        });
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
