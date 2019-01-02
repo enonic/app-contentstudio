@@ -123,9 +123,10 @@ module.exports = {
             }
         }).then(() => {
             return browseDetailsPanel.waitForDetailsPanelLoaded();
+        }).then(() => {
+            return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
         })
     },
-
     openContentWizard: function (contentType) {
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
             return browsePanel.clickOnNewButton();
