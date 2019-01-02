@@ -4,6 +4,7 @@
 const page = require('../../page');
 const elements = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const editPermissionsDialog = require('../../../page_objects/edit.permissions.dialog');
 
 const xpath = {
     container: `//div[contains(@id,'DetailsView')]//div[contains(@id,'UserAccessWidgetItemView')]`,
@@ -20,6 +21,18 @@ const userAccessWidgetItemView = Object.create(page, {
         value: function () {
             return this.doClick(this.editPermissionsLink, appConst.TIMEOUT_2).pause(700).catch(err => {
                 throw new Error('Error when clicking on `Edit Permissions link` ! ' + err);
+            });
+        }
+    },
+    clickOnEditPermissionsLinkAndWaitForDialog: {
+        value: function () {
+            return this.doClick(this.editPermissionsLink, appConst.TIMEOUT_2).catch(err => {
+                throw new Error('Error when clicking on `Edit Permissions link` ! ' + err);
+            }).then(() => {
+                return editPermissionsDialog.waitForDialogLoaded();
+            }).catch(err => {
+                this.saveScreenshot("err_load_edit_perm_dialog");
+                throw new Error("editPermissionsDialog should be loaded! " + err);
             });
         }
     },

@@ -54,7 +54,7 @@ const editPermissionsDialog = Object.create(page, {
             return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_close_permissions_dialog');
                 throw new Error('Edit Permissions dialog must be closed ' + err);
-            })
+            }).pause(200);
         }
     },
     getDisplayNameOfSelectedPrincipals: {
@@ -77,7 +77,7 @@ const editPermissionsDialog = Object.create(page, {
     filterAndSelectPrincipal: {
         value: function (principalDisplayName) {
             return comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container).then(() => {
-             console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+                console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
             })
         }
     },

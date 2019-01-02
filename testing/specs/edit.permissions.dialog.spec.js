@@ -94,7 +94,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             }).then(() => {
                 return editPermissionsDialog.waitForDialogClosed();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 studioUtils.saveScreenshot("edit_perm_dlg_overwrite_checkbox");
                 return assert.eventually.isFalse(editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected(),
