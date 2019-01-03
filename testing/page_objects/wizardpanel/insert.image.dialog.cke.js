@@ -7,13 +7,32 @@ const dialog = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
+    styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
+    styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
+    imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]"
 };
 
-const insertImageModalDialog = Object.create(page, {
+const insertImageDialog = Object.create(page, {
 
     imageOptionsFilterInput: {
         get: function () {
             return dialog.container + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
+        }
+    },
+    styleSelector: {
+        get: function () {
+            return dialog.container + `${dialog.styleSelector}`;
+        }
+    },
+    customWidthCheckbox: {
+        get: function () {
+            return dialog.container + `${dialog.customWidthCheckbox}`;
+        }
+    },
+    styleSelectorDropDownHandle: {
+        get: function () {
+            return dialog.container + dialog.styleSelector + `${elements.DROP_DOWN_HANDLE}`;
         }
     },
     cancelButton: {
@@ -29,6 +48,41 @@ const insertImageModalDialog = Object.create(page, {
     insertButton: {
         get: function () {
             return `${dialog.container}` + `${dialog.insertButton}`;
+        }
+    },
+    clickOnCustomWidthCheckBox: {
+        value: function () {
+            return this.waitForVisible(this.customWidthCheckbox, appConst.TIMEOUT_2).then(() => {
+                return this.doClick(this.customWidthCheckbox);
+            }).catch(err => {
+                this.saveScreenshot("err_clicking_on_custom_width_checkbox");
+                throw new Error('Error when clicking on custom width checkbox! ' + err);
+            })
+        }
+    },
+    clickOnStyleSelectorDropDownHandle: {
+        value: function () {
+            return this.doClick(this.styleSelectorDropDownHandle).catch(() => {
+                this.saveScreenshot("err_style_selector_drop_down_handle");
+                throw new Error('Error when clicking on drop down handle! ' + err);
+            })
+        }
+    },
+    doFilterStyleAndClickOnOption: {
+        value: function (styleOption) {
+            let optionSelector = elements.slickRowByDisplayName(dialog.container, styleOption);
+            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
+                return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
+            }).then(() => {
+                return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
+            }).catch(err => {
+                throw new Error('option was not found! ' + styleOption + ' ' + err);
+            }).then(() => {
+                return this.doClick(optionSelector).catch((err) => {
+                    this.saveScreenshot('err_select_option');
+                    throw new Error('option not found!' + styleOption);
+                }).pause(500);
+            });
         }
     },
     clickOnCancelButton: {
@@ -59,6 +113,13 @@ const insertImageModalDialog = Object.create(page, {
             return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
         }
     },
+    waitForImageRangeValue: {
+        value: function () {
+            return this.waitForVisible(`${dialog.imageRangeValue}`, appConst.TIMEOUT_2).then(() => {
+                return this.getText(`${dialog.imageRangeValue}`);
+            })
+        }
+    },
     filterAndSelectImage: {
         value: function (imageDisplayName) {
             return this.waitForVisible(this.imageOptionsFilterInput).then(() => {
@@ -67,7 +128,7 @@ const insertImageModalDialog = Object.create(page, {
                 return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
             })
         }
-    }
+    },
 });
-module.exports = insertImageModalDialog;
+module.exports = insertImageDialog;
 
