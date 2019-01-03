@@ -10,12 +10,18 @@ import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {PartItemType} from '../../page-editor/part/PartItemType';
+import {PartComponentView} from '../../page-editor/part/PartComponentView';
+import {ComponentView} from '../../page-editor/ComponentView';
+import {GetPartDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetPartDescriptorByKeyRequest';
+import {GetLayoutDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorByKeyRequest';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
 import GridOptionsBuilder = api.ui.grid.GridOptionsBuilder;
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
 import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
 import i18n = api.util.i18n;
+import Descriptor = api.content.page.Descriptor;
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemView> {
@@ -124,26 +130,54 @@ export class PageComponentsTreeGrid
     }
 
     fetch(node: TreeNode<ItemView>, dataId?: string): Q.Promise<ItemView> {
-        let deferred = wemQ.defer<ItemView>();
         let itemViewId = dataId ? new ItemViewId(parseInt(dataId, 10)) : node.getData().getItemId();
-        deferred.resolve(this.pageView.getItemViewById(itemViewId));
-        return deferred.promise;
+        return wemQ(this.pageView.getItemViewById(itemViewId));
     }
 
     fetchRoot(): wemQ.Promise<ItemView[]> {
-        let deferred = wemQ.defer<ItemView[]>();
         if (this.pageView.getFragmentView()) {
-            deferred.resolve([this.pageView.getFragmentView()]);
+            return wemQ([this.pageView.getFragmentView()]);
         } else {
-            deferred.resolve([this.pageView]);
+            return wemQ([this.pageView]);
         }
-        return deferred.promise;
     }
 
     fetchChildren(parentNode: TreeNode<ItemView>): Q.Promise<ItemView[]> {
-        let deferred = wemQ.defer<ItemView[]>();
-        deferred.resolve(this.getDataChildren(parentNode.getData()));
-        return deferred.promise;
+        return wemQ.all(this.getDataChildren(parentNode.getData()).map(this.initDescriptor)).then(allItems => {
+            return allItems;
+        });
+    }
+
+    initDescriptor(itemView: ItemView): wemQ.Promise<ItemView> {
+
+        let request;
+
+        if (PartItemType.get().equals(itemView.getType())) {
+            const component = (<PartComponentView> itemView).getComponent();
+            if (component) {
+                request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptor());
+            }
+        }
+        if (LayoutItemType.get().equals(itemView.getType())) {
+            const component = (<LayoutComponentView> itemView).getComponent();
+            if (component) {
+                request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptor());
+            }
+        }
+
+        if (request) {
+            let component = (<ComponentView<any>> itemView).getComponent();
+            if (!component.getDescription() || component.hasDescriptor()) {
+                request.sendAndParse().then(
+                    (receivedDescriptor: Descriptor) => {
+                        component.setDescriptor(receivedDescriptor.getKey(), receivedDescriptor);
+
+                        return itemView;
+                    });
+            }
+        }
+
+        return wemQ(itemView);
     }
 
     private getDataChildren(data: ItemView): ItemView[] {

@@ -20,6 +20,8 @@ export class DescriptorBasedComponent
 
     private descriptor: DescriptorKey;
 
+    private description: string;
+
     private config: PropertyTree;
 
     private configChangedHandler: (event: PropertyEvent) => void;
@@ -61,6 +63,7 @@ export class DescriptorBasedComponent
         this.descriptor = descriptorKey;
 
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
+        this.description = descriptor ? descriptor.getDescription() : null;
 
         if (!api.ObjectHelper.equals(oldValue, descriptorKey)) {
             this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
@@ -84,6 +87,10 @@ export class DescriptorBasedComponent
 
     getConfig(): PropertyTree {
         return this.config;
+    }
+
+    getDescription(): string {
+        return this.description;
     }
 
     doReset() {
