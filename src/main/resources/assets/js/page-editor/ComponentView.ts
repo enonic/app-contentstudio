@@ -190,7 +190,7 @@ export class ComponentView<COMPONENT extends Component>
         component.onPropertyChanged(this.propertyChangedListener);
     }
 
-    private unregisterComponentListeners(component: COMPONENT) {
+    unregisterComponentListeners(component: COMPONENT) {
         component.unPropertyChanged(this.propertyChangedListener);
         component.unReset(this.resetListener);
     }
