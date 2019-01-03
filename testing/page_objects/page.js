@@ -83,6 +83,13 @@ Page.prototype.doClick = function (selector) {
         throw Error('Error when clicking on ' + err);
     })
 };
+Page.prototype.doDoubleClick = function (selector) {
+    return this.getBrowser().element(selector).then(result => {
+        return this.getBrowser().doubleClick(selector);
+    }).catch(err => {
+        throw Error('Error when doubleClick on the element' + err);
+    })
+};
 Page.prototype.typeTextInInput = function (selector, text) {
     return this.getBrowser().setValue(selector, text).catch(err => {
         throw new Error('text was not set in the input ' + err);

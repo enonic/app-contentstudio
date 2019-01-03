@@ -135,6 +135,14 @@ const htmlAreaForm = Object.create(page, {
             })
         }
     },
+    //double clicks on the html-area
+    doubleClickOnHtmlArea: {
+        value: function () {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+                return this.doDoubleClick(form.ckeTextArea);
+            });
+        }
+    },
     //clicks on Format's dropdown handle and expands options
     showToolbarAndClickOnFormatDropDownHandle: {
         value: function () {
