@@ -13,6 +13,8 @@ const contentBuilder = require("../libs/content.builder");
 const htmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const detailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const versionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 
 describe('insert.image.dlg.custom.width.spec:  click on the `custom width` checkbox and check `image range value`', function () {
@@ -34,6 +36,23 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
+            });
+        });
+
+    it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox should be not selected by default`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
+            }).then(() => {
+                return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            }).then(() => {
+                return insertImageDialog.waitForDialogVisible();
+            }).then(() => {
+                return insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            }).then(() => {
+                return insertImageDialog.isCustomWidthCheckBoxSelected();
+            }).then(result => {
+                studioUtils.saveScreenshot('image_dialog_custom_width_default_value');
+                assert.isFalse(result, "'Custom width' checkbox should be not selected by default");
             });
         });
 
@@ -93,6 +112,65 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
             }).then(result => {
                 studioUtils.saveScreenshot('image_dialog_custom_width_clicked_saved');
                 assert.isTrue(result == '100%');
+            }).then(() => {
+                return insertImageDialog.isCustomWidthCheckBoxSelected();
+            }).then(result => {
+                assert.isTrue(result, "`Custom Width` Checkbox should be selected");
+            });
+        });
+
+    it(`GIVEN existing htmlarea-content with inserted image(custom width) is opened WHEN 'Custom Width' has been unselected THEN image-range is getting hidden`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).pause(2000).then(() => {
+                //open 'Insert Image Dialog'
+                return htmlAreaForm.doubleClickOnHtmlArea();
+            }).then(() => {
+                return insertImageDialog.waitForDialogVisible();
+            }).then(() => {
+                return insertImageDialog.clickOnCustomWidthCheckBox();
+            }).then(() => {
+                return insertImageDialog.waitForImageRangeNotVisible();
+            }).then(result => {
+                assert.isTrue(result, "image-range is getting not visible");
+            }).pause(300).then(() => {
+                //`Custom Width` Checkbox should be unselected
+                return expect(insertImageDialog.isCustomWidthCheckBoxSelected()).to.eventually.false;
+            }).then(() => {
+                // just save the changes and create new version
+                return insertImageDialog.clickOnInsertButton();
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            });
+        });
+
+    it(`GIVEN existing htmlarea-content with inserted image is opened WHEN rollback version with 'Custom Width' THEN image-range is getting visible again`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).then(() => {
+                return contentWizard.openDetailsPanel();
+            }).then(() => {
+                //open versions widget
+                return detailsPanel.openVersionHistory();
+            }).then(() => {
+                return versionsWidget.waitForVersionsLoaded();
+            }).then(() => {
+                return versionsWidget.clickAndExpandVersion(1);
+            }).then(() => {
+                //rollback the version with 'Custom Width'
+                return versionsWidget.clickOnRestoreThisVersion();
+            }).pause(1000).then(() => {
+                //open 'Insert Image Dialog'
+                return htmlAreaForm.doubleClickOnHtmlArea();
+            }).then(() => {
+                return insertImageDialog.waitForDialogVisible();
+            }).then(() => {
+                // image-range is getting visible again(default value)
+                return insertImageDialog.waitForImageRangeValue();
+            }).then(result => {
+                studioUtils.saveScreenshot('image_dialog_custom_width_rollback');
+                assert.isTrue(result == '100%');
+            }).pause(300).then(() => {
+                //`Custom Width` Checkbox is getting selected as well
+                return expect(insertImageDialog.isCustomWidthCheckBoxSelected()).to.eventually.true;
             });
         });
 

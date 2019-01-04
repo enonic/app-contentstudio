@@ -57,6 +57,16 @@ const insertImageDialog = Object.create(page, {
             }).catch(err => {
                 this.saveScreenshot("err_clicking_on_custom_width_checkbox");
                 throw new Error('Error when clicking on custom width checkbox! ' + err);
+            }).pause(400);
+        }
+    },
+    isCustomWidthCheckBoxSelected: {
+        value: function () {
+            return this.waitForVisible(this.customWidthCheckbox, appConst.TIMEOUT_2).then(() => {
+                return this.getBrowser().isSelected(this.customWidthCheckbox + elements.CHECKBOX_INPUT);
+            }).catch(err => {
+                this.saveScreenshot("err_clicking_on_custom_width_checkbox");
+                throw new Error('Error when clicking on custom width checkbox! ' + err);
             })
         }
     },
@@ -92,12 +102,12 @@ const insertImageDialog = Object.create(page, {
     },
     clickOnInsertButton: {
         value: function () {
-            return this.doClick(this.insertButton).catch((err) => {
+            return this.doClick(this.insertButton).catch(err => {
                 this.saveScreenshot('err_click_on_insert_image_button');
                 throw new Error('Insert Image Dialog, error when click on the Insert button  ' + err);
             }).then(() => {
                 return this.waitForDialogClosed();
-            }).pause(1000);
+            }).pause(500);
         }
     },
     waitForDialogVisible: {
@@ -118,6 +128,11 @@ const insertImageDialog = Object.create(page, {
             return this.waitForVisible(`${dialog.imageRangeValue}`, appConst.TIMEOUT_2).then(() => {
                 return this.getText(`${dialog.imageRangeValue}`);
             })
+        }
+    },
+    waitForImageRangeNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(`${dialog.imageRangeValue}`, appConst.TIMEOUT_2);
         }
     },
     filterAndSelectImage: {
