@@ -77,16 +77,12 @@ Page.prototype.isSpinnerVisible = function () {
 };
 
 Page.prototype.doClick = function (selector) {
-    return this.getBrowser().element(selector).then(result => {
-        return this.getBrowser().click(selector);
-    }).catch(err => {
+    return this.getBrowser().click(selector).catch(err => {
         throw Error('Error when clicking on ' + err);
     })
 };
 Page.prototype.doDoubleClick = function (selector) {
-    return this.getBrowser().element(selector).then(result => {
-        return this.getBrowser().doubleClick(selector);
-    }).catch(err => {
+    return this.getBrowser().doubleClick(selector).catch(err => {
         throw Error('Error when doubleClick on the element' + err);
     })
 };
