@@ -130,6 +130,9 @@ export class LiveFormPanel
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
+    private componentPropertyChangedHandler: (event: ComponentPropertyChangedEvent) => void;
+    private propertyChangedHandler: (event: api.PropertyChangedEvent) => void;
+    private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
 
     private pageViewReadyListeners: { (pageView: PageView): void }[];
 
@@ -144,18 +147,6 @@ export class LiveFormPanel
 
         this.saveAsTemplateAction = new SaveAsTemplateAction();
 
-        const contentUpdatedHandler = summaryAndStatuses => {
-            // Update action with new content on save if it gets updated
-            summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
-                if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
-                    this.saveAsTemplateAction.setContentSummary(summaryAndStatuses[0].getContentSummary());
-                    return true;
-                }
-            });
-        };
-        ContentServerEventsHandler.getInstance().onContentUpdated(contentUpdatedHandler);
-        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(contentUpdatedHandler);
-
         this.liveEditPageProxy = this.createLiveEditPageProxy();
 
         this.contextWindow = this.createContextWindow(this.liveEditPageProxy, this.liveEditModel);
@@ -166,6 +157,24 @@ export class LiveFormPanel
             this.contentWizardPanel
         );
 
+        this.pageViewReadyListeners = [];
+
+        this.initEventHandlers();
+
+        ShowLiveEditEvent.on(this.showLoadMaskHandler);
+        ShowSplitEditEvent.on(this.showLoadMaskHandler);
+        ShowContentFormEvent.on(this.hideLoadMaskHandler);
+        ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentUpdatedHandler);
+    }
+
+    private initEventHandlers() {
+        this.initMaskHandlers();
+        this.initPropertyChangedHandlers();
+        this.initContentUpdatedHandler();
+    }
+
+    private initMaskHandlers() {
         this.showLoadMaskHandler = () => {
             // in case someone tries to open live edit while it's still not loaded
             if (this.pageLoading && !this.liveEditPageProxy.isPlaceholderVisible()) {
@@ -180,12 +189,89 @@ export class LiveFormPanel
                 liveEditMask.hide();
             }
         };
+    }
 
-        this.pageViewReadyListeners = [];
+    private initPropertyChangedHandlers() {
+        this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
 
-        ShowLiveEditEvent.on(this.showLoadMaskHandler);
-        ShowSplitEditEvent.on(this.showLoadMaskHandler);
-        ShowContentFormEvent.on(this.hideLoadMaskHandler);
+            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
+                if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
+
+                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (componentView) {
+                        if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
+                            const partView = <PartComponentView>componentView;
+                            const partComponent: PartComponent = partView.getComponent();
+                            if (partComponent.hasDescriptor()) {
+                                this.saveAndReloadOnlyComponent(componentView);
+                            }
+                        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+                            const layoutView = <LayoutComponentView>componentView;
+                            const layoutComponent: LayoutComponent = layoutView.getComponent();
+                            if (layoutComponent.hasDescriptor()) {
+                                this.saveAndReloadOnlyComponent(componentView);
+                            }
+                        }
+                    } else {
+                        console.debug('ComponentView by path not found: ' + event.getPath().toString());
+                    }
+                }
+            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
+                if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
+                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (componentView) {
+                        this.saveAndReloadOnlyComponent(componentView);
+                    }
+                }
+            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
+                if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
+                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (componentView) {
+                        this.saveAndReloadOnlyComponent(componentView);
+                    }
+                }
+            }
+        };
+
+        this.propertyChangedHandler = (event: api.PropertyChangedEvent) => {
+
+            // NB: To make the event.getSource() check work,
+            // all calls from this to PageModel that changes a property must done with this as eventSource argument
+            if (!api.ObjectHelper.objectEquals(this, event.getSource())) {
+
+                const oldValue = event.getOldValue();
+                const newValue = event.getNewValue();
+
+                if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !api.ObjectHelper.objectEquals(oldValue, newValue)) {
+                    this.contentWizardPanel.saveChanges();
+                    this.minimizeContentFormPanelIfNeeded();
+                }
+                if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE) {
+
+                    // do not reload page if there was no template in pageModel before and if new template is the default one -
+                    // case when switching automatic template to default
+                    // only reload when switching from customized with controller set back to template or automatic template
+                    if (!(this.pageModel.getDefaultPageTemplate().equals(this.pageModel.getTemplate()) && !oldValue &&
+                          !this.pageModel.hasController())) {
+                        this.pageInspectionPanel.refreshInspectionHandler(this.liveEditModel);
+                        this.lockPageAfterProxyLoad = true;
+                        this.contentWizardPanel.saveChanges();
+                    }
+                }
+            }
+        };
+    }
+
+    private initContentUpdatedHandler() {
+        this.contentUpdatedHandler = (summaryAndStatuses: ContentSummaryAndCompareStatus[]) => {
+            // Update action with new content on save if it gets updated
+            summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
+                if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
+                    this.saveAsTemplateAction.setContentSummary(summaryAndStatuses[0].getContentSummary());
+                    return true;
+                }
+            });
+        };
     }
 
     private createLiveEditPageProxy(): LiveEditPageProxy {
@@ -360,74 +446,10 @@ export class LiveFormPanel
 
         this.pageModel.setIgnorePropertyChanges(false);
 
-        this.pageModel.onPropertyChanged((event: api.PropertyChangedEvent) => {
-
-            // NB: To make the event.getSource() check work,
-            // all calls from this to PageModel that changes a property must done with this as eventSource argument
-            if (!api.ObjectHelper.objectEquals(this, event.getSource())) {
-
-                const oldValue = event.getOldValue();
-                const newValue = event.getNewValue();
-
-                if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !api.ObjectHelper.objectEquals(oldValue, newValue)) {
-                    this.contentWizardPanel.saveChanges();
-                    this.minimizeContentFormPanelIfNeeded();
-                }
-                if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE) {
-
-                    // do not reload page if there was no template in pageModel before and if new template is the default one -
-                    // case when switching automatic template to default
-                    // only reload when switching from customized with controller set back to template or automatic template
-                    if (!(this.pageModel.getDefaultPageTemplate().equals(this.pageModel.getTemplate()) && !oldValue &&
-                          !this.pageModel.hasController())) {
-                        this.pageInspectionPanel.refreshInspectionHandler(liveEditModel);
-                        this.lockPageAfterProxyLoad = true;
-                        this.contentWizardPanel.saveChanges();
-                    }
-                }
-            }
-        });
-
-        this.pageModel.onComponentPropertyChangedEvent((event: ComponentPropertyChangedEvent) => {
-
-            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
-                if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
-
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
-                        if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
-                            const partView = <PartComponentView>componentView;
-                            const partComponent: PartComponent = partView.getComponent();
-                            if (partComponent.hasDescriptor()) {
-                                this.saveAndReloadOnlyComponent(componentView);
-                            }
-                        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                            const layoutView = <LayoutComponentView>componentView;
-                            const layoutComponent: LayoutComponent = layoutView.getComponent();
-                            if (layoutComponent.hasDescriptor()) {
-                                this.saveAndReloadOnlyComponent(componentView);
-                            }
-                        }
-                    } else {
-                        console.debug('ComponentView by path not found: ' + event.getPath().toString());
-                    }
-                }
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
-                if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
-                        this.saveAndReloadOnlyComponent(componentView);
-                    }
-                }
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
-                if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
-                        this.saveAndReloadOnlyComponent(componentView);
-                    }
-                }
-            }
-        });
+        this.pageModel.unPropertyChanged(this.propertyChangedHandler);
+        this.pageModel.onPropertyChanged(this.propertyChangedHandler);
+        this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
+        this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
         this.pageModel.onReset(() => {
             this.contextWindow.slideOut();
