@@ -170,8 +170,8 @@ export class PageView
         this.appendChild(this.closeTextEditModeButton);
 
         // lock page by default for every content that has not been modified except for page template
-        let isCustomized = this.liveEditModel.getPageModel().isCustomized();
-        let isFragment = !!this.fragmentView;
+        const isCustomized = this.liveEditModel.getPageModel().isCustomized();
+        const isFragment = !!this.fragmentView;
         const lockable = !this.pageModel.isPageTemplate() && !isCustomized && !isFragment;
         if (lockable || !this.writePermissions) {
             this.setLocked(true);
@@ -215,7 +215,7 @@ export class PageView
         this.pageModel.onPropertyChanged(this.propertyChangedListener);
 
         this.pageModeChangedListener = (event: PageModeChangedEvent) => {
-            let resetEnabled = event.getNewMode() !== PageMode.AUTOMATIC && event.getNewMode() !== PageMode.NO_CONTROLLER;
+            const resetEnabled = event.getNewMode() !== PageMode.AUTOMATIC && event.getNewMode() !== PageMode.NO_CONTROLLER;
             if (PageView.debug) {
                 console.log('PageView.pageModeChangedListener setting reset enabled', resetEnabled);
             }
@@ -241,8 +241,8 @@ export class PageView
     }
 
     private addPageContextMenuActions() {
-        let pageModel = this.liveEditModel.getPageModel();
-        let inspectAction = new api.ui.Action(i18n('live.view.inspect')).onExecuted(() => {
+        const pageModel = this.liveEditModel.getPageModel();
+        const inspectAction = new api.ui.Action(i18n('live.view.inspect')).onExecuted(() => {
             new PageInspectedEvent().fire();
         });
 
@@ -270,7 +270,7 @@ export class PageView
 
         this.itemViewAddedListener = (event: ItemViewAddedEvent) => {
             // register the view and all its child views (i.e layout with regions)
-            let itemView = event.getView();
+            const itemView = event.getView();
             itemView.toItemViewArray().forEach((value: ItemView) => {
                 this.registerItemView(value);
             });
@@ -319,7 +319,7 @@ export class PageView
     }
 
     private createCloseTextEditModeEl(): api.dom.Element {
-        let closeButton = new api.dom.AEl('close-edit-mode-button icon-close');
+        const closeButton = new api.dom.AEl('close-edit-mode-button icon-close');
         closeButton.onClicked((event: MouseEvent) => {
             PageViewController.get().setTextEditMode(false);
             event.stopPropagation();
@@ -430,7 +430,7 @@ export class PageView
     }
 
     getLockedMenuActions(): api.ui.Action[] {
-        let unlockAction = new api.ui.Action(i18n('live.view.page.customize'));
+        const unlockAction = new api.ui.Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
             this.setLocked(false); //
@@ -552,7 +552,7 @@ export class PageView
         PageViewController.get().setHighlightingDisabled(flag);
         this.toggleClass('text-edit-mode', flag);
 
-        let textItemViews = this.getItemViewsByType(TextItemType.get());
+        const textItemViews = this.getItemViewsByType(TextItemType.get());
 
         let textView: TextComponentView;
         textItemViews.forEach((view: ItemView) => {
@@ -592,7 +592,7 @@ export class PageView
     }
 
     private updateVerticalSpaceForEditorToolbar() {
-        let result = this.getEditorToolbarWidth();
+        const result = this.getEditorToolbarWidth();
 
         if (!!result) {
             this.getEl().setTop(this.getEditorToolbarWidth() + 'px');
@@ -630,7 +630,7 @@ export class PageView
     }
 
     hasTargetWithinTextComponent(target: HTMLElement) {
-        let textItemViews = this.getItemViewsByType(TextItemType.get());
+        const textItemViews = this.getItemViewsByType(TextItemType.get());
         let result: boolean = false;
 
         let textView: TextComponentView;
@@ -666,7 +666,7 @@ export class PageView
     }
 
     getName(): string {
-        let pageTemplateDisplayName = PageTemplateDisplayName;
+        const pageTemplateDisplayName = PageTemplateDisplayName;
         if (this.pageModel.hasTemplate()) {
             return this.pageModel.getTemplate().getDisplayName();
         }
@@ -690,7 +690,7 @@ export class PageView
     }
 
     getIconClass(): string {
-        let largeIconCls = ' icon-large';
+        const largeIconCls = ' icon-large';
 
         if (this.pageModel.hasTemplate()) {
             return 'icon-newspaper' + largeIconCls;
@@ -721,7 +721,7 @@ export class PageView
     }
 
     unregisterRegionView(regionView: RegionView) {
-        let index = this.regionViews.indexOf(regionView);
+        const index = this.regionViews.indexOf(regionView);
         if (index > -1) {
             this.regionViews.splice(index, 1);
 
@@ -772,10 +772,10 @@ export class PageView
     }
 
     getItemViewsByType(type: ItemType): ItemView[] {
-        let views: ItemView[] = [];
+        const views: ItemView[] = [];
         for (let key in this.viewsById) {
             if (this.viewsById.hasOwnProperty(key)) {
-                let view = this.viewsById[key];
+                const view = this.viewsById[key];
                 if (type.equals(view.getType())) {
                     views.push(view);
                 }
@@ -787,12 +787,12 @@ export class PageView
     getItemViewByElement(element: HTMLElement): ItemView {
         api.util.assertNotNull(element, i18n('live.view.itemview.error.elementisnull'));
 
-        let itemId = ItemView.parseItemId(element);
+        const itemId = ItemView.parseItemId(element);
         if (!itemId) {
             return null;
         }
 
-        let itemView = this.getItemViewById(itemId);
+        const itemView = this.getItemViewById(itemId);
         api.util.assertNotNull(itemView, i18n('live.view.itemview.error.notfound', itemId.toString()));
 
         return itemView;
@@ -800,7 +800,7 @@ export class PageView
 
     getRegionViewByElement(element: HTMLElement): RegionView {
 
-        let itemView = this.getItemViewByElement(element);
+        const itemView = this.getItemViewByElement(element);
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, RegionView)) {
             return <RegionView>itemView;
@@ -810,7 +810,7 @@ export class PageView
 
     getComponentViewByElement(element: HTMLElement): ComponentView<Component> {
 
-        let itemView = this.getItemViewByElement(element);
+        const itemView = this.getItemViewByElement(element);
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
             return <ComponentView<Component>> itemView;
@@ -822,12 +822,12 @@ export class PageView
     getRegionViewByPath(path: RegionPath): RegionView {
 
         for (let i = 0; i < this.regionViews.length; i++) {
-            let regionView = this.regionViews[i];
+            const regionView = this.regionViews[i];
 
             if (path.hasParentComponentPath()) {
-                let componentView = this.getComponentViewByPath(path.getParentComponentPath());
+                const componentView = this.getComponentViewByPath(path.getParentComponentPath());
                 if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                    let layoutView = <LayoutComponentView>componentView;
+                    const layoutView = <LayoutComponentView>componentView;
                     layoutView.getRegionViewByName(path.getRegionName());
                 }
             } else {
@@ -845,10 +845,10 @@ export class PageView
             return this.fragmentView;
         }
 
-        let firstLevelOfPath = path.getFirstLevel();
+        const firstLevelOfPath = path.getFirstLevel();
 
         for (let i = 0; i < this.regionViews.length; i++) {
-            let regionView = this.regionViews[i];
+            const regionView = this.regionViews[i];
             if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
                 if (path.numberOfLevels() === 1) {
                     return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
@@ -915,15 +915,15 @@ export class PageView
 
     private doParseItemViews(parentElement?: api.dom.Element) {
 
-        let pageRegions = this.liveEditModel.getPageModel().getRegions();
+        const pageRegions = this.liveEditModel.getPageModel().getRegions();
         if (!pageRegions) {
             return;
         }
-        let children = parentElement ? parentElement.getChildren() : this.getChildren();
+        const children = parentElement ? parentElement.getChildren() : this.getChildren();
 
         children.forEach((childElement: api.dom.Element) => {
-            let itemType = ItemType.fromElement(childElement);
-            let isRegionView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
+            const itemType = ItemType.fromElement(childElement);
+            const isRegionView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
             let region;
             let regionName;
             let regionView;
@@ -962,19 +962,25 @@ export class PageView
 
     private doParseFragmentItemViews(parentElement?: api.dom.Element) {
 
-        let fragment = this.liveEditModel.getPageModel().getPage().getFragment();
+        const fragment = this.liveEditModel.getPageModel().getPage().getFragment();
         if (!fragment) {
             return;
         }
-        let children = parentElement ? parentElement.getChildren() : this.getChildren();
+        const children = parentElement ? parentElement.getChildren() : this.getChildren();
 
         children.forEach((childElement: api.dom.Element) => {
-            let itemType = ItemType.fromElement(childElement);
-            let component: Component = this.pageModel.getPage().getFragment();
+            const itemType = ItemType.fromElement(childElement);
+            const component: Component = this.pageModel.getPage().getFragment();
             let componentView: ComponentView<Component>;
 
             if (itemType && itemType.isComponentType()) {
                 if (component) {
+                    const isComponentView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
+                    if (isComponentView) {
+                        const oldComponentView: ComponentView<Component> = <ComponentView<Component>>childElement;
+                        oldComponentView.unregisterComponentListeners(component);
+                    }
+
                     const itemViewConfig = new CreateItemViewConfig<PageView, Component>()
                         .setParentView(this)
                         .setData(component)
@@ -1025,7 +1031,7 @@ export class PageView
     }
 
     private notifyItemViewAdded(itemView: ItemView) {
-        let event = new ItemViewAddedEvent(itemView);
+        const event = new ItemViewAddedEvent(itemView);
         this.itemViewAddedListeners.forEach((listener) => listener(event));
     }
 
@@ -1038,7 +1044,7 @@ export class PageView
     }
 
     private notifyItemViewRemoved(itemView: ItemView) {
-        let event = new ItemViewRemovedEvent(itemView);
+        const event = new ItemViewRemovedEvent(itemView);
         this.itemViewRemovedListeners.forEach((listener) => listener(event));
     }
 
