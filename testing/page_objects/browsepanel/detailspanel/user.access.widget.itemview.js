@@ -19,7 +19,9 @@ const userAccessWidgetItemView = Object.create(page, {
     },
     clickOnEditPermissionsLink: {
         value: function () {
-            return this.waitForVisible(this.editPermissionsLink, appConst.TIMEOUT_2).then(() => {
+            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2).pause(300).then(() => {
+                return this.waitForVisible(this.editPermissionsLink, appConst.TIMEOUT_2);
+            }).then(() => {
                 return this.doClick(this.editPermissionsLink);
             }).catch(err => {
                 throw new Error('Error when clicking on `Edit Permissions link` ! ' + err);

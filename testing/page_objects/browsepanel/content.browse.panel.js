@@ -130,7 +130,7 @@ const contentBrowsePanel = Object.create(page, {
             return this.getText(this.displayNames).catch(err => {
                 this.saveScreenshot('err_click_on_details_panel_toggle');
                 throw new Error(`Error when getting display names in grid` + err);
-            }).then(result=>{
+            }).then(result => {
                 return [].concat(result);
             });
         }
@@ -192,13 +192,18 @@ const contentBrowsePanel = Object.create(page, {
             })
         }
     },
+    // click on 'Duplicate button' and waits until modal dialog appears
     clickOnDuplicateButtonAndWait: {
         value: function () {
-            return this.doClick(this.duplicateButton).then(() => {
-                return contentDuplicateDialog.waitForDialogVisible();
+            return this.waitForEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(this.duplicateButton);
             }).catch(err => {
                 throw new Error('error when clicking on the Duplicate button ' + err);
-            })
+            }).then(() => {
+                return contentDuplicateDialog.waitForDialogVisible();
+            }).then(() => {
+                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+            });
         }
     },
     clickOnShowIssuesListButton: {

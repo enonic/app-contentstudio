@@ -52,7 +52,6 @@ const contentDuplicateDialog = Object.create(page, {
     isShowDependentItemsLinkDisplayed: {
         value: function () {
             return this.waitForVisible(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
-                console.log(err);
                 return false;
             })
         }

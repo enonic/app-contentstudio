@@ -64,12 +64,14 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
+                // clicks on the 'include child toggler' and exclude child
                 return contentDuplicateDialog.clickOnIncludeChildToggler();
             }).pause(300).then(() => {
                 return assert.eventually.isTrue(contentDuplicateDialog.isIncludeChildTogglerDisplayed(),
                     'Include Child toggler should be displayed');
             }).then(() => {
-                studioUtils.saveScreenshot("duplicate_child_excluded");
+                studioUtils.saveScreenshot("duplicate_dialog_child_excluded");
+                // `Show Dependent Items` link is getting hidden
                 return assert.eventually.isFalse(contentDuplicateDialog.isShowDependentItemsLinkDisplayed(),
                     '`Show Dependent Items` link should not be displayed');
             });
