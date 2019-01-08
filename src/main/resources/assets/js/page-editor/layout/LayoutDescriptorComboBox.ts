@@ -8,7 +8,7 @@ import DescriptorKey = api.content.page.DescriptorKey;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import ApplicationKey = api.application.ApplicationKey;
 import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorLoader';
-import {LayoutDescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorViewer';
+import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 
 export class LayoutDescriptorComboBox
     extends RichComboBox<LayoutDescriptor> {
@@ -16,7 +16,7 @@ export class LayoutDescriptorComboBox
     constructor() {
         super(new RichComboBoxBuilder<LayoutDescriptor>()
             .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new LayoutDescriptorViewer())
+            .setOptionDisplayValueViewer(new DescriptorViewer<LayoutDescriptor>())
             .setSelectedOptionsView(new LayoutDescriptorSelectedOptionsView())
             .setLoader(new LayoutDescriptorLoader())
             .setMaximumOccurrences(1)

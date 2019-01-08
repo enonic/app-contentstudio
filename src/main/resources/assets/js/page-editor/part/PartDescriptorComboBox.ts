@@ -7,8 +7,8 @@ import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsVie
 import DescriptorKey = api.content.page.DescriptorKey;
 import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
-import {PartDescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/region/PartDescriptorViewer';
 import {PartDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/PartDescriptorLoader';
+import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 
 export class PartDescriptorComboBox
     extends RichComboBox<PartDescriptor> {
@@ -16,7 +16,7 @@ export class PartDescriptorComboBox
     constructor() {
         super(new RichComboBoxBuilder<PartDescriptor>()
             .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new PartDescriptorViewer())
+            .setOptionDisplayValueViewer(new DescriptorViewer<PartDescriptor>())
             .setSelectedOptionsView(new PartDescriptorSelectedOptionsView())
             .setLoader(new PartDescriptorLoader())
             .setMaximumOccurrences(1).setNextInputFocusWhenMaxReached(false)

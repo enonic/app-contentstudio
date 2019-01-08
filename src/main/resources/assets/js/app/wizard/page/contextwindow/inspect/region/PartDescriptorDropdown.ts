@@ -2,7 +2,7 @@ import ApplicationKey = api.application.ApplicationKey;
 import PartDescriptor = api.content.page.region.PartDescriptor;
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {PartDescriptorLoader} from './PartDescriptorLoader';
-import {PartDescriptorViewer} from './PartDescriptorViewer';
+import {DescriptorViewer} from '../DescriptorViewer';
 
 export class PartDescriptorDropdown
     extends DescriptorBasedDropdown<PartDescriptor> {
@@ -12,7 +12,7 @@ export class PartDescriptorDropdown
     constructor() {
 
         super({
-            optionDisplayValueViewer: new PartDescriptorViewer(),
+            optionDisplayValueViewer: new DescriptorViewer<PartDescriptor>(),
             dataIdProperty: 'value',
             noOptionsText: 'No parts available'
         });

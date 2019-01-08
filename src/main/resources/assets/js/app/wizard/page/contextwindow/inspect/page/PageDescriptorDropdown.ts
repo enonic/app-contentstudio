@@ -4,8 +4,8 @@ import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {SetController} from '../../../../../../page-editor/PageModel';
 import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
 import {PageDescriptorLoader} from './PageDescriptorLoader';
-import {PageDescriptorViewer} from './PageDescriptorViewer';
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
+import {DescriptorViewer} from '../DescriptorViewer';
 
 export class PageDescriptorDropdown
     extends DescriptorBasedDropdown<PageDescriptor> {
@@ -16,7 +16,7 @@ export class PageDescriptorDropdown
 
     constructor(model: LiveEditModel) {
         super({
-            optionDisplayValueViewer: new PageDescriptorViewer(),
+            optionDisplayValueViewer: new DescriptorViewer<PageDescriptor>(),
             dataIdProperty: 'value'
         }, 'page-controller');
 
