@@ -54,7 +54,7 @@ const editPermissionsDialog = Object.create(page, {
             return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_close_permissions_dialog');
                 throw new Error('Edit Permissions dialog must be closed ' + err);
-            }).pause(200);
+            }).pause(400);
         }
     },
     getDisplayNameOfSelectedPrincipals: {
