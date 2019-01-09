@@ -36,6 +36,8 @@ module.exports = Object.freeze({
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
 
+    IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
+
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',
