@@ -22,16 +22,21 @@ export class CodeDialog
 
     }
 
-    protected setDialogInputValues() {
-        this.textArea.setValue(<string>this.ckeOriginalDialog.getValueOf('main', 'data'));
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildToContentPanel(this.textArea);
+
+            return rendered;
+        });
     }
 
-    protected layout() {
-        super.layout();
-
+    protected createElements() {
         this.textArea = new TextArea('source-textarea');
-        this.appendChildToContentPanel(this.textArea);
         this.setFirstFocusField(this.textArea);
+    }
+
+    protected setDialogInputValues() {
+        this.textArea.setValue(<string>this.ckeOriginalDialog.getValueOf('main', 'data'));
     }
 
     protected initializeActions() {

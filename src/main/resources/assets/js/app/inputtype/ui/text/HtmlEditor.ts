@@ -263,6 +263,7 @@ export class HtmlEditor {
 
     private handleElementSelection() {
         this.editor.on('selectionChange', (e: eventInfo) => {
+            console.log(e.data.path.lastElement);
             this.updateDialogButtonStates(e);
             this.handleImageSelectionIssue(e);
             this.updateAlignmentButtonStates(e);

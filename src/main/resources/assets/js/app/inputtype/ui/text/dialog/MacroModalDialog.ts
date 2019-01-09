@@ -40,12 +40,22 @@ export class MacroModalDialog
             }
         });
 
+        this.macroDockedPanel = this.createMacroDockedPanel();
+
         this.addClass('macro-selector');
         this.initMacroSelectorListeners();
         this.initFieldsValues();
 
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
         this.setupResizeListener();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildToContentPanel(this.macroDockedPanel);
+
+            return rendered;
+        });
     }
 
     private setupResizeListener() {
@@ -71,11 +81,6 @@ export class MacroModalDialog
         this.selectedMacro = !!config.macro.name ? config.macro : null;
         this.applicationKeys = config.applicationKeys;
         this.content = config.content;
-    }
-
-    protected layout() {
-        super.layout();
-        this.appendChildToContentPanel(this.macroDockedPanel = this.createMacroDockedPanel());
     }
 
     private createMacroDockedPanel(): MacroDockedPanel {

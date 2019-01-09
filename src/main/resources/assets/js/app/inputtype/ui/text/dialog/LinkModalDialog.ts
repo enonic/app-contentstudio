@@ -71,6 +71,21 @@ export class LinkModalDialog
         }
     }
 
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            return new GetNearestSiteRequest(this.contentId).sendAndParse().then((parentSite: Site) => {
+                    if (parentSite) {
+                        this.parentSitePath = parentSite.getPath().toString();
+                    }
+
+                    this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
+
+                    return rendered;
+                }
+            );
+        });
+    }
+
     private isOnlyTextSelected(): boolean {
         const selectedElement: CKEDITOR.dom.element = this.getEditor().getSelection().getSelectedElement();
 
@@ -137,20 +152,6 @@ export class LinkModalDialog
 
     private getAnchor(): string {
         return this.isAnchor() ? this.link : api.util.StringHelper.EMPTY_STRING;
-    }
-
-    protected layout() {
-        super.layout();
-
-        new GetNearestSiteRequest(this.contentId).sendAndParse().then(
-            (parentSite: Site) => {
-
-                if (parentSite) {
-                    this.parentSitePath = parentSite.getPath().toString();
-                }
-                this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
-            }
-        );
     }
 
     private createContentPanel(): Panel {
@@ -257,9 +258,7 @@ export class LinkModalDialog
         const checkbox = api.ui.Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.RIGHT).build();
 
-        this.onAdded(() => {
-            checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
-        });
+        checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
         return this.createFormItem(formItemBuilder);
@@ -296,16 +295,14 @@ export class LinkModalDialog
             dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
         }
 
-        this.onAdded(() => {
-            dockedPanel.getDeck().getPanels().forEach((panel, index) => {
-                if ((index === 1 && this.isContentLink()) ||
-                    (index === 2 && this.isDownloadLink()) ||
-                    (index === 3 && this.isEmail()) ||
-                    (index === 4 && this.isAnchor())) {
-                    dockedPanel.selectPanel(panel);
-                    return false;
-                }
-            });
+        dockedPanel.getDeck().getPanels().forEach((panel, index) => {
+            if ((index === 1 && this.isContentLink()) ||
+                (index === 2 && this.isDownloadLink()) ||
+                (index === 3 && this.isEmail()) ||
+                (index === 4 && this.isAnchor())) {
+                dockedPanel.selectPanel(panel);
+                return false;
+            }
         });
 
         return dockedPanel;
@@ -341,9 +338,7 @@ export class LinkModalDialog
                             ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
 
-        this.onAdded(() => {
-            selector.setValue(getValueFn.call(this));
-        });
+        selector.setValue(getValueFn.call(this));
 
         return selector;
     }
@@ -581,8 +576,8 @@ export class LinkModalDialog
         return (<any>this.getElemFromOriginalDialog('info', 'urlOptions')).getChild([0, 0]);
     }
 
-    protected createFormItemWithPostponedValue(id: string, label: string, getValueFn: Function,
-                                               validator?: (input: api.dom.FormInputEl) => string, placeholder?: string): FormItem {
+    private createFormItemWithPostponedValue(id: string, label: string, getValueFn: Function,
+                                             validator?: (input: api.dom.FormInputEl) => string, placeholder?: string): FormItem {
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, label);
 
@@ -596,9 +591,7 @@ export class LinkModalDialog
 
         const formItem = this.createFormItem(formItemBuilder);
 
-        this.onAdded(() => {
-            (<api.dom.InputEl>formItem.getInput()).setValue(getValueFn.call(this));
-        });
+        (<api.dom.InputEl>formItem.getInput()).setValue(getValueFn.call(this));
 
         return formItem;
     }

@@ -121,6 +121,10 @@ export class ImageModalDialog
         this.imageUploaderEl.setParams({
             parent: this.content.getContentId().toString()
         });
+
+        this.onRendered(() => {
+            this.imageUploaderEl.show();
+        });
     }
 
     private presetImage(presetStyles: string) {
@@ -371,12 +375,6 @@ export class ImageModalDialog
         this.figure.removeChildren();
         this.previewFrame.getEl().setHeightPx(0);
         this.presetImageEl = null;
-    }
-
-    show() {
-        super.show();
-
-        this.imageUploaderEl.show();
     }
 
     private createImagePreviewContainer() {
