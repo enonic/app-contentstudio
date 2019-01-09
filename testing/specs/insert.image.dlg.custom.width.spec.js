@@ -49,6 +49,9 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
             }).then(() => {
                 return insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             }).then(() => {
+                //image style selector should be present on the modal dialog
+                return expect(insertImageDialog.waitForStyleSelectorVisible()).to.eventually.true;
+            }).then(() => {
                 return insertImageDialog.isCustomWidthCheckBoxSelected();
             }).then(result => {
                 studioUtils.saveScreenshot('image_dialog_custom_width_default_value');

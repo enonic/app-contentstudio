@@ -15,6 +15,12 @@ const dialog = {
 
 const insertImageDialog = Object.create(page, {
 
+
+    styleOptionsFilterInput: {
+        get: function () {
+            return dialog.container + dialog.styleSelector + elements.DROPDOWN_OPTION_FILTER_INPUT;
+        }
+    },
     imageOptionsFilterInput: {
         get: function () {
             return dialog.container + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
@@ -70,6 +76,12 @@ const insertImageDialog = Object.create(page, {
             })
         }
     },
+    waitForCustomWidthCheckBoxDisabled: {
+        value: function () {
+            return this.waitForDisabled(this.customWidthCheckbox + elements.CHECKBOX_INPUT, appConst.TIMEOUT_2);
+        }
+    },
+
     clickOnStyleSelectorDropDownHandle: {
         value: function () {
             return this.doClick(this.styleSelectorDropDownHandle).catch(() => {
@@ -81,8 +93,8 @@ const insertImageDialog = Object.create(page, {
     doFilterStyleAndClickOnOption: {
         value: function (styleOption) {
             let optionSelector = elements.slickRowByDisplayName(dialog.container, styleOption);
-            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
-                return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
+            return this.waitForVisible(this.styleOptionsFilterInput, appConst.TIMEOUT_5).then(() => {
+                return this.typeTextInInput(this.styleOptionsFilterInput, styleOption);
             }).then(() => {
                 return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
             }).catch(err => {
@@ -137,11 +149,24 @@ const insertImageDialog = Object.create(page, {
     },
     filterAndSelectImage: {
         value: function (imageDisplayName) {
-            return this.waitForVisible(this.imageOptionsFilterInput).then(() => {
+            return this.waitForVisible(this.imageOptionsFilterInput, appConst.TIMEOUT_2).then(() => {
                 return comboBox.typeTextAndSelectOption(imageDisplayName, dialog.container);
             }).then(() => {
                 return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
             })
+        }
+    },
+    waitForStyleSelectorVisible: {
+        value: function () {
+            return this.waitForVisible(this.styleSelector, appConst.TIMEOUT_2);
+        }
+    },
+    getStyleSelectorOptions: {
+        value: function () {
+            return this.clickOnStyleSelectorDropDownHandle().pause(1000).then(() => {
+                let selector = elements.SLICK_ROW + "//div[contains(@id,'ImageStyleNameView')]" + "//h6[contains(@class,'main-name')]";
+                return this.getTextFromElements(selector);
+            });
         }
     },
 });
