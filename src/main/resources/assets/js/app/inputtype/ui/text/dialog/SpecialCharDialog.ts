@@ -18,9 +18,12 @@ export class SpecialCharDialog
         this.initEventListeners();
     }
 
-    protected layout() {
-        super.layout();
-        this.appendChildToContentPanel(this.createCharsBlock());
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildToContentPanel(this.createCharsBlock());
+
+            return rendered;
+        });
     }
 
     private createCharsBlock(): api.dom.Element {

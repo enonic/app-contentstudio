@@ -23,13 +23,18 @@ export class FullscreenDialog
         });
 
         this.editorParams = config.editorParams;
+        this.textArea = new TextArea('fullscreen-textarea');
 
         this.getEditor().focusManager.lock();
+        this.onRendered(this.initEditor.bind(this));
     }
 
-    show() {
-        super.show();
-        this.initEditor();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildToContentPanel(this.textArea);
+
+            return rendered;
+        });
     }
 
     hide() {
@@ -73,13 +78,6 @@ export class FullscreenDialog
 
     private removeTooltip() {
         this.getHTMLElement().getElementsByTagName('iframe')[0].removeAttribute('title');
-    }
-
-    protected layout() {
-        super.layout();
-
-        this.textArea = new TextArea('fullscreen-textarea');
-        this.appendChildToContentPanel(this.textArea);
     }
 
 }

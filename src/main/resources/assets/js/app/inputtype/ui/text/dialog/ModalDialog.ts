@@ -77,10 +77,19 @@ export class ModalDialog
         this.editor = config.editor;
 
         this.initializeConfig(config);
+        this.createMainForm();
+        this.createElements();
 
-        this.layout();
         this.initializeActions();
         this.initializeListeners();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChildToContentPanel(this.mainForm);
+
+            return rendered;
+        });
     }
 
     setSubmitAction(action: api.ui.Action) {
@@ -107,20 +116,16 @@ export class ModalDialog
         this.firstFocusField.giveFocus();
     }
 
-    protected layout() {
-        this.appendChildToContentPanel(<api.dom.Element>this.createMainForm());
-    }
-
     protected getMainFormItems(): FormItem[] {
         return [];
     }
 
-    protected getMainForm(): Form {
-        return this.mainForm;
-    }
-
     protected createMainForm(): Form {
         return this.mainForm = this.createForm(this.getMainFormItems());
+    }
+
+    protected createElements() {
+        //
     }
 
     protected validate(): boolean {
@@ -132,13 +137,6 @@ export class ModalDialog
     protected hasSubDialog(): boolean {
         // html area dialogs can't have sub dialogs
         return false;
-    }
-
-    show() {
-        super.show();
-        if (this.firstFocusField) {
-            this.focusFirstField();
-        }
     }
 
     protected createForm(formItems: FormItem[]): Form {
@@ -272,6 +270,12 @@ export class ModalDialog
         if (this.submitAction) {
             this.listenEnterKey();
         }
+
+        this.onRendered(() => {
+            if (this.firstFocusField) {
+                this.focusFirstField();
+            }
+        });
     }
 
     private listenEnterKey() {
