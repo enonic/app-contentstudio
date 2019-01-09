@@ -56,7 +56,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN 'Original' option has been selected THEN 'Custom Width' checkbox is getting disabled`,
         () => {
-            return studioUtils.selectSiteAndOpenNewWizard("site623854", 'htmlarea0_1').then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             }).then(() => {
