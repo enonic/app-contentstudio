@@ -7,13 +7,4 @@ export class SiteConfiguratorDialog
     protected hasSubDialog(): boolean {
         return super.hasSubDialog() || !!HTMLAreaDialogHandler.getOpenDialog();
     }
-
-    // didn't work
-    // close() {
-    //     for (var prop in CKEDITOR.instances) {
-    //         CKEDITOR.instances[prop].removeAllListeners();
-    //         CKEDITOR.instances[prop].destroy();
-    //     }
-    //     super.close();
-    // }
 }
