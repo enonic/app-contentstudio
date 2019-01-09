@@ -230,12 +230,13 @@ export class NonMobileDetailsPanelsManager {
     }
 
     private requiresFloatingPanelDueToShortWidth(): boolean {
-        let splitPanelWidth = this.splitPanelWithGridAndDetails.getEl().getWidthWithBorder();
+        const splitPanelWidth = this.splitPanelWithGridAndDetails.getEl().getWidthWithBorder();
         if (this.floatingPanelIsShown()) {
             return ( splitPanelWidth - this.floatingDetailsPanel.getActualWidth() ) < 720;
         } else {
-            let defaultDetailsPanelWidth = this.splitPanelWithGridAndDetails.getActiveWidthPxOfSecondPanel();
-            return ( splitPanelWidth - defaultDetailsPanelWidth ) < 720;
+            const defaultDetailsPanelWidth = this.splitPanelWithGridAndDetails.getActiveWidthPxOfSecondPanel();
+            const splitterThickness: number = this.splitPanelWithGridAndDetails.getSplitterThickness();
+            return (splitPanelWidth - defaultDetailsPanelWidth - splitterThickness) < 720;
         }
     }
 
