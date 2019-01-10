@@ -2,28 +2,29 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'com.enonic.defaults' version '2.0.0'
-    id 'com.enonic.xp.app' version '1.1.0'
+    id 'com.enonic.xp.app' version '1.2.0'
     id "com.moowork.node" version '1.1.1'
 }
 
 app {
-    name = 'com.enonic.xp.app.contentstudio'
-    group = 'com.enonic.xp'
+    name = 'com.enonic.app.contentstudio'
+    group = 'com.enonic.app'
     displayName = 'Content Studio'
-    systemApp = true
     systemVersion = "${version}"
+    vendorName = 'Enonic AS'
+    vendorUrl = 'http://enonic.com'
     devSourcePaths += file("$rootDir/../lib-admin-ui/src/main/resources")
 }
 
 dependencies {
-    compile("${group}:core-api:${xpVersion}") {
+    compile("com.enonic.xp:core-api:${xpVersion}") {
         force = true
     }
-    compile ("${group}:portal-api:${xpVersion}") {
+    compile ("com.enonic.xp:portal-api:${xpVersion}") {
         force = true
     }
-    include "${group}:lib-admin:${xpVersion}"
-    include "${group}:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-admin:${xpVersion}"
+    include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:2.0.0-A1"
     testCompile 'junit:junit:4.12'
@@ -129,3 +130,4 @@ def nodeEnvironment() {
     def nodeEnv = environments[hasProperty( 'env' ) ? env : 'prod']
     return nodeEnv != null ? nodeEnv : 'production'
 }
+
