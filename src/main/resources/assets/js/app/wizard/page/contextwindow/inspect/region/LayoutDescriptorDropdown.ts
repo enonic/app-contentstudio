@@ -2,7 +2,7 @@ import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import ApplicationKey = api.application.ApplicationKey;
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {LayoutDescriptorLoader} from './LayoutDescriptorLoader';
-import {LayoutDescriptorViewer} from './LayoutDescriptorViewer';
+import {DescriptorViewer} from '../DescriptorViewer';
 
 export class LayoutDescriptorDropdown
     extends DescriptorBasedDropdown<LayoutDescriptor> {
@@ -12,7 +12,7 @@ export class LayoutDescriptorDropdown
     constructor() {
 
         super({
-            optionDisplayValueViewer: new LayoutDescriptorViewer(),
+            optionDisplayValueViewer: new DescriptorViewer<LayoutDescriptor>(),
             dataIdProperty: 'value',
             noOptionsText: 'No layouts available'
         });
