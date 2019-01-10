@@ -345,8 +345,9 @@ export class LinkModalDialog
 
     private createMediaSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
-                .create()
-                .setContentTypeNames(api.schema.content.ContentTypeName.getMediaTypes().map(name => name.toString()));
+            .create()
+            .setAllowedContentPaths([this.parentSitePath || ''])
+            .setContentTypeNames(api.schema.content.ContentTypeName.getMediaTypes().map(name => name.toString()));
     }
 
     private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
