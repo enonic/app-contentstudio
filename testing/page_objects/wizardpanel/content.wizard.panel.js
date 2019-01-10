@@ -105,9 +105,9 @@ const contentWizardPanel = Object.create(page, {
     },
     waitForInspectionPanelTogglerVisible: {
         value: function () {
-            return this.waitForVisible(this.showInspectionPanelToggler, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(this.showInspectionPanelToggler, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_open_inspection_panel');
-                throw new Error('Inspection Panel is not opened in ' + appConst.TIMEOUT_2 + '  ' + err);
+                throw new Error('Inspection Panel is not opened in ' + appConst.TIMEOUT_3 + '  ' + err);
             })
         }
     },
@@ -438,6 +438,7 @@ const contentWizardPanel = Object.create(page, {
             }).then(() => {
                 return this.getBrowser().frameParent();
             }).then(() => {
+                // new button should be loaded automatically
                 return this.waitForInspectionPanelTogglerVisible();
             })
         }
