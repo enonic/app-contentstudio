@@ -9,7 +9,7 @@ export class DescriptorViewer<T extends Descriptor>
     }
 
     resolveSubName(object: T): string {
-        return object.getDescription() || '<' + i18n('live.view.nodescription') + '>';
+        return object.getDescription() || '<' + i18n('text.noDescription') + '>';
     }
 
     resolveIconClass(object: T): string {
