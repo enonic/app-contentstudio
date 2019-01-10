@@ -7,6 +7,12 @@ import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponen
 import {PageItemType} from '../../page-editor/PageItemType';
 import {Content} from '../content/Content';
 import {TextComponent} from '../page/region/TextComponent';
+import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
+import {PartItemType} from '../../page-editor/part/PartItemType';
+import {PartComponentView} from '../../page-editor/part/PartComponentView';
+import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
+import {PageView} from '../../page-editor/PageView';
+import i18n = api.util.i18n;
 
 export class PageComponentsItemViewer
     extends api.ui.NamesAndIconViewer<ItemView> {
@@ -52,7 +58,34 @@ export class PageComponentsItemViewer
             }
         }
 
+        if (PageItemType.get().equals(object.getType()) ||
+            PartItemType.get().equals(object.getType()) ||
+            LayoutItemType.get().equals(object.getType())) {
+
+            return this.resolveComponentDescription(object) || '<' + i18n('text.noDescription') + '>';
+        }
+
         return object.getType() ? object.getType().getShortName() : '';
+    }
+
+    resolveComponentDescription(object: ItemView): string {
+        if (PartItemType.get().equals(object.getType())) {
+            const partComponent = (<PartComponentView>object).getComponent();
+            return partComponent.getDescription();
+        }
+
+        if (LayoutItemType.get().equals(object.getType())) {
+            const layoutComponent = (<LayoutComponentView>object).getComponent();
+            return layoutComponent.getDescription();
+        }
+
+        if (PageItemType.get().equals(object.getType())) {
+            const pageController = (<PageView>object).getModel().getController();
+            if (pageController) {
+                return pageController.getDescription();
+            }
+        }
+        return null;
     }
 
     resolveIconUrl(object: ItemView): string {
