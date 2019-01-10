@@ -1,6 +1,6 @@
 import PrincipalListJson = api.security.PrincipalListJson;
 import PrincipalType = api.security.PrincipalType;
-import UserStoreKey = api.security.UserStoreKey;
+import IdProviderKey = api.security.IdProviderKey;
 import {FindAccessControlEntriesRequest} from '../resource/FindAccessControlEntriesRequest';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 
@@ -24,8 +24,8 @@ export class AccessControlEntryLoader
         return this.request;
     }
 
-    setUserStoreKey(key: UserStoreKey): AccessControlEntryLoader {
-        this.getRequest().setUserStoreKey(key);
+    setIdProviderKey(key: IdProviderKey): AccessControlEntryLoader {
+        this.getRequest().setIdProviderKey(key);
         return this;
     }
 
