@@ -62,7 +62,7 @@ export class PageComponentsItemViewer
             PartItemType.get().equals(object.getType()) ||
             LayoutItemType.get().equals(object.getType())) {
 
-            return this.resolveComponentDescription(object) || '<' + i18n('live.view.nodescription') + '>';
+            return this.resolveComponentDescription(object) || '<' + i18n('text.noDescription') + '>';
         }
 
         return object.getType() ? object.getType().getShortName() : '';
