@@ -44,5 +44,6 @@ module.exports = Object.freeze({
     VERSION_HISTORY_MENU_OPTION: `//div[text()='Version history']`,
     DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
     DETAILS_MENU_OPTION: `//div[text()='Details']`,
-    CHECKBOX_INPUT: "//input[@type='checkbox']"
+    CHECKBOX_INPUT: "//input[@type='checkbox']",
+    CONTENT_SELECTED_OPTION_VIEW:"//div[contains(@id,'ContentSelectedOptionView')]",
 });

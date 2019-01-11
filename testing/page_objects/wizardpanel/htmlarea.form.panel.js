@@ -178,7 +178,9 @@ const htmlAreaForm = Object.create(page, {
     },
     showToolbarAndClickOnInsertAnchorButton: {
         value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(form.ckeTextArea)
+            }).then(() => {
                 return this.waitForVisible(form.insertAnchorButton, appConst.TIMEOUT_3);
             }).then(result => {
                 return this.doClick(form.insertAnchorButton);
@@ -187,7 +189,9 @@ const htmlAreaForm = Object.create(page, {
     },
     showToolbarAndClickOnTableButton: {
         value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(form.ckeTextArea);
+            }).then(() => {
                 return this.waitForVisible(form.tableButton, appConst.TIMEOUT_3);
             }).then(result => {
                 return this.doClick(form.tableButton);
@@ -226,9 +230,17 @@ const htmlAreaForm = Object.create(page, {
     },
     showToolbarAndClickOnInsertLinkButton: {
         value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(form.insertLinkButton, appConst.TIMEOUT_3);
-            }).then(result => {
+            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(form.ckeTextArea);
+            }).then(() => {
+                //click on `Insert Link` button and wait for modal dialog is loaded
+                return this.clickOnInsertLinkButton();
+            })
+        }
+    },
+    clickOnInsertLinkButton: {
+        value: function () {
+            return this.waitForVisible(form.insertLinkButton, appConst.TIMEOUT_3).then(result => {
                 return this.doClick(form.insertLinkButton);
             }).then(() => {
                 return insertLinkDialog.waitForDialogLoaded();

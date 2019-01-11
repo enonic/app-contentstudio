@@ -12,7 +12,7 @@ const dialog = {
     emailInput: `//div[contains(@id,'FormItem') and child::label[text()='Email']]//input[@type='text']`,
 };
 
-var insertLinkDialog = Object.create(page, {
+const insertLinkDialog = Object.create(page, {
 
     textInput: {
         get: function () {
@@ -85,11 +85,10 @@ var insertLinkDialog = Object.create(page, {
     },
     selectTargetInContentTab: {
         value: function (targetDisplayName) {
-            let selector = dialog.container + elements.tabBarItemByName('Content');
-            return this.doClick(selector).then(() => {
+            return this.clickOnBarItem('Content').then(() => {
                 return this.waitForVisible(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
             }).then(() => {
-                return loaderComboBox.typeTextAndSelectOption(targetDisplayName);
+                return loaderComboBox.typeTextAndSelectOption(targetDisplayName, "//div[contains(@id,'ContentComboBox')]");
             })
         }
     },
@@ -142,6 +141,30 @@ var insertLinkDialog = Object.create(page, {
             return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
         }
     },
+    clickOnBarItem: {
+        value: function (name) {
+            let selector = dialog.container + elements.tabBarItemByName(name);
+            return this.doClick(selector).catch(err => {
+                this.saveScreenshot('err_click_on_bar_item');
+                throw new Error('Insert Link Dialog, error when click on the bar item ' + name + " " + err);
+            });
+        }
+    },
+    isTabActive: {
+        value: function (name) {
+            let barItem = dialog.container + elements.tabBarItemByName(name);
+            return this.getAttribute(barItem, "class").then(result => {
+                return result.includes('active');
+            });
+        }
+    },
+    getSelectedOptionDisplayName: {
+        value: function () {
+            let selector = dialog.container + elements.CONTENT_SELECTED_OPTION_VIEW + elements.H6_DISPLAY_NAME;
+            return this.getText(selector);
+
+        }
+    }
 });
 module.exports = insertLinkDialog;
 
