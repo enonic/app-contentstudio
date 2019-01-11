@@ -96,7 +96,7 @@ export class ContentWizardToolbar
 
     private addMobileItemStatisticsButton() {
         this.mobileItemStatisticsButton = new api.ui.button.TogglerButton();
-        this.mobileItemStatisticsButton.setEnabled(true).addClass('details-toggle');
+        this.mobileItemStatisticsButton.setEnabled(true).addClass('icon-cog details-toggle');
         super.addElement(this.mobileItemStatisticsButton);
     }
 }
