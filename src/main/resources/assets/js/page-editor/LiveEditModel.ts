@@ -246,11 +246,11 @@ export class LiveEditModelInitializer {
 
                 const config: PropertyTree = content.getPage().hasConfig()
                     ? content.getPage().getConfig().copy()
-                    : pageTemplate.getConfig().copy();
+                    : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
 
                 const regions: Regions = content.getPage().hasRegions()
                     ? content.getPage().getRegions().clone()
-                    : pageTemplate.getRegions().clone();
+                    : (pageTemplate.getRegions() ? pageTemplate.getRegions().clone() : pageTemplate.getRegions());
 
                 let setTemplate: SetTemplate = new SetTemplate(this)
                     .setTemplate(pageTemplate, pageDescriptor).setRegions(regions).setConfig(config);
