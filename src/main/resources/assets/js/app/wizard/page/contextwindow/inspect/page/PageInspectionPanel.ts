@@ -247,8 +247,8 @@ class BaseInspectionHandler {
             return;
         }
 
-        this.configForm =
-            new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), config.getRoot());
+        const root = config ? config.getRoot() : null;
+        this.configForm = new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), root);
         this.pageInspectionPanel.appendChild(this.configForm);
         this.pageModel.setIgnorePropertyChanges(true);
         this.configForm.layout().catch((reason: any) => {
