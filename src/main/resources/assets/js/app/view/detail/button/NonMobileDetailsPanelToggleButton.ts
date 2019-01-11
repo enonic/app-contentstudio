@@ -4,6 +4,6 @@ export class NonMobileDetailsPanelToggleButton extends api.dom.ButtonEl {
 
     constructor() {
         super();
-        this.addClass('non-mobile-details-panel-toggle-button');
+        this.addClass('icon-cog non-mobile-details-panel-toggle-button');
     }
 }
