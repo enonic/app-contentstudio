@@ -86,7 +86,7 @@ task copyApps( type: Copy ) {
 
     def d = new File( deployDir )
     if (d.exists(  )) {
-        Arrays.asList( d.list(  ) ).stream(  ).map( str -> logger.info( str ) )
+        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
     }
 }
 dependencies {
