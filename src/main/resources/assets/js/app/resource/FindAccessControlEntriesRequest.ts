@@ -2,7 +2,7 @@ import Principal = api.security.Principal;
 import PrincipalListJson = api.security.PrincipalListJson;
 import PrincipalJson = api.security.PrincipalJson;
 import PrincipalType = api.security.PrincipalType;
-import UserStoreKey = api.security.UserStoreKey;
+import IdProviderKey = api.security.IdProviderKey;
 import SecurityResourceRequest = api.security.SecurityResourceRequest;
 import {AccessControlEntry} from '../access/AccessControlEntry';
 
@@ -11,7 +11,7 @@ export class FindAccessControlEntriesRequest
 
     private allowedTypes: PrincipalType[];
     private searchQuery: string;
-    private userStoreKey: UserStoreKey;
+    private idProviderKey: IdProviderKey;
 
     constructor() {
         super();
@@ -21,7 +21,7 @@ export class FindAccessControlEntriesRequest
         return {
             types: this.enumToStrings(this.allowedTypes),
             query: this.searchQuery,
-            userStoreKey: this.userStoreKey ? this.userStoreKey.toString() : undefined
+            idProviderKey: this.idProviderKey ? this.idProviderKey.toString() : undefined
         };
     }
 
@@ -43,8 +43,8 @@ export class FindAccessControlEntriesRequest
         });
     }
 
-    setUserStoreKey(key: UserStoreKey): FindAccessControlEntriesRequest {
-        this.userStoreKey = key;
+    setIdProviderKey(key: IdProviderKey): FindAccessControlEntriesRequest {
+        this.idProviderKey = key;
         return this;
     }
 
