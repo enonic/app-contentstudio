@@ -147,10 +147,17 @@
       }
 
       &.page-controller-form, &.fragment-dropdown-form {
-        text-align: center; // to center the button
-
         fieldset + button {
           margin-top: @form-field-spacing;
+        }
+      }
+
+      &.page-controller-form, &.fragment-dropdown-form, &.page-template-form, &.descriptor-based-dropdown-form, &.image-content-combo-box {
+        text-align: center;
+
+        label { // aligning label with input
+          max-width: 540px;
+          margin: auto;
         }
       }
 
