@@ -55,7 +55,7 @@ ext {
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}app-contentstudio-${version}.jar"
-    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/${version}/app-contentstudio-${version}.jar"
+    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/1.0.0-SNAPSHOT/app-contentstudio-1.0.0-SNAPSHOT.jar"
 }
 task ensureScreenshotsDirectory {
     doLast {
@@ -82,6 +82,11 @@ task copyApps( type: Copy ) {
     def f = new File( contentStudioFile )
     if (!f.exists()) {
         new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
+    }
+
+    def d = new File( deployDir )
+    if (d.exists(  )) {
+        Arrays.asList( d.list(  ) ).stream(  ).map( str -> logger.info( str ) )
     }
 }
 dependencies {
