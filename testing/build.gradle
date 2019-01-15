@@ -54,7 +54,7 @@ ext {
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
-//    contentStudioFile = "$deployDir${File.separator}app-contentstudio-1.0.0-SNAPSHOT.jar"
+    contentStudioFile = "$deployDir${File.separator}app-contentstudio-1.0.0-SNAPSHOT.jar"
     contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/1.0.0-SNAPSHOT/app-contentstudio-1.0.0-SNAPSHOT.jar"
 }
 task ensureScreenshotsDirectory {
@@ -79,10 +79,8 @@ task copyApps( type: Copy ) {
     include '*.jar'
     into file( deployDir )
 
-    def f = new File( deployDir )
-    if (!f.exists()) {
-        new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
-    }
+    def f = new File( contentStudioFile )
+    new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
 
     def d = new File( deployDir )
     if (d.exists(  )) {
