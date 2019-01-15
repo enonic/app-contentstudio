@@ -49,7 +49,7 @@ describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
             }).then(()=> {
                 return contentBrowsePanel.isDeleteButtonEnabled()
             }).then(result=> {
-                assert.isFalse(result, 'Delete button is getting disabled');
+                assert.isFalse(result, 'Delete button should be disabled');
             });
         });
 
