@@ -79,6 +79,13 @@ task copyApps( type: Copy ) {
     include '*.jar'
     into file( deployDir )
 
+    def d = new File( deployDir )
+    if (d.exists(  )) {
+        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
+    } else {
+        logger.info( "There is no deploy directory." )
+    }
+
     def f = new File( contentStudioFile )
     new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
 
