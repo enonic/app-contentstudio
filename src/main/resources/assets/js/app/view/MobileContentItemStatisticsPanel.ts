@@ -1,7 +1,7 @@
-import {MobileDetailsPanel} from './detail/MobileDetailsSlidablePanel';
+import {MobileContextPanel} from './context/MobileContextPanel';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
-import {MobileDetailsPanelToggleButton} from './detail/button/MobileDetailsPanelToggleButton';
-import {DetailsView} from './detail/DetailsView';
+import {MobileContextPanelToggleButton} from './context/button/MobileContextPanelToggleButton';
+import {ContextView} from './context/ContextView';
 import {MobilePreviewFoldButton} from './MobilePreviewFoldButton';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -10,7 +10,7 @@ import ViewItem = api.app.view.ViewItem;
 import StringHelper = api.util.StringHelper;
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import Action =  api.ui.Action;
+import Action = api.ui.Action;
 
 export class MobileContentItemStatisticsPanel
     extends api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
@@ -19,15 +19,15 @@ export class MobileContentItemStatisticsPanel
     private headerLabel: api.dom.H6El = new api.dom.H6El('mobile-header-title');
 
     private previewPanel: ContentItemPreviewPanel;
-    private detailsPanel: MobileDetailsPanel;
-    private detailsToggleButton: MobileDetailsPanelToggleButton;
+    private contextPanel: MobileContextPanel;
+    private contextPanelToggleButton: MobileContextPanelToggleButton;
 
     private foldButton: MobilePreviewFoldButton;
 
     private slideOutListeners: { (): void }[] = [];
     private slideInListeners: { (): void }[] = [];
 
-    constructor(actions: Action[], detailsView: DetailsView) {
+    constructor(actions: Action[], contextView: ContextView) {
         super('mobile-content-item-statistics-panel');
 
         this.setDoOffset(false);
@@ -38,14 +38,14 @@ export class MobileContentItemStatisticsPanel
 
         this.initPreviewPanel();
 
-        this.initDetailsPanel(detailsView);
+        this.initContextPanel(contextView);
 
-        this.initDetailsPanelToggleButton();
+        this.initContextPanelToggleButton();
 
         this.initListeners();
 
         this.onRendered(() => {
-            this.detailsPanel.setOffsetTop(this.itemHeader.getEl().getHeightWithBorder());
+            this.contextPanel.setOffsetTop(this.itemHeader.getEl().getHeightWithBorder());
         });
     }
 
@@ -71,7 +71,7 @@ export class MobileContentItemStatisticsPanel
         this.onRendered(() => this.slideAllOut(true));
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            if (this.detailsPanel.isSlidedIn()) {
+            if (this.contextPanel.isSlidedIn()) {
                 this.slideAllOut();
             }
         });
@@ -84,7 +84,7 @@ export class MobileContentItemStatisticsPanel
     private initHeader() {
 
         const icon = new api.dom.IEl('icon-more_vert');
-        const backButton = new api.dom.DivEl('mobile-details-panel-back-button');
+        const backButton = new api.dom.DivEl('mobile-context-panel-back-button');
         backButton.onClicked((event) => {
             this.foldButton.collapse();
             this.slideAllOut();
@@ -95,18 +95,18 @@ export class MobileContentItemStatisticsPanel
         this.appendChild(this.itemHeader);
     }
 
-    private initDetailsPanel(detailsView: DetailsView) {
-        this.detailsPanel = new MobileDetailsPanel(detailsView);
+    private initContextPanel(contextView: ContextView) {
+        this.contextPanel = new MobileContextPanel(contextView);
 
-        this.appendChild(this.detailsPanel);
+        this.appendChild(this.contextPanel);
     }
 
-    private initDetailsPanelToggleButton() {
-        this.detailsToggleButton = new MobileDetailsPanelToggleButton(this.detailsPanel, () => {
+    private initContextPanelToggleButton() {
+        this.contextPanelToggleButton = new MobileContextPanelToggleButton(this.contextPanel, () => {
             this.foldButton.collapse();
-            this.calcAndSetDetailsPanelTopOffset();
+            this.calcAndSetContextPanelTopOffset();
         });
-        this.itemHeader.appendChild(this.detailsToggleButton);
+        this.itemHeader.appendChild(this.contextPanelToggleButton);
     }
 
     private initPreviewPanel() {
@@ -121,7 +121,7 @@ export class MobileContentItemStatisticsPanel
             super.setItem(item);
             this.toggleClass('invalid', !item.getModel().getContentSummary().isValid());
             this.foldButton.collapse();
-            this.detailsPanel.setItem(!!item ? item.getModel() : null);
+            this.contextPanel.setItem(!!item ? item.getModel() : null);
             if (item) {
                 this.setName(this.makeDisplayName(item));
             }
@@ -135,8 +135,8 @@ export class MobileContentItemStatisticsPanel
                : item.getDisplayName();
     }
 
-    getDetailsPanel(): MobileDetailsPanel {
-        return this.detailsPanel;
+    getContextPanel(): MobileContextPanel {
+        return this.contextPanel;
     }
 
     getPreviewPanel(): ContentItemPreviewPanel {
@@ -149,7 +149,7 @@ export class MobileContentItemStatisticsPanel
 
     slideAllOut(silent?: boolean) {
         this.slideOut(silent);
-        this.detailsPanel.slideOut(silent);
+        this.contextPanel.slideOut(silent);
     }
 
     // hide
@@ -194,7 +194,7 @@ export class MobileContentItemStatisticsPanel
         this.slideOutListeners.forEach(curr => curr());
     }
 
-    private calcAndSetDetailsPanelTopOffset() {
-        this.detailsPanel.getEl().setTopPx(this.itemHeader.getEl().getHeightWithMargin());
+    private calcAndSetContextPanelTopOffset() {
+        this.contextPanel.getEl().setTopPx(this.itemHeader.getEl().getHeightWithMargin());
     }
 }

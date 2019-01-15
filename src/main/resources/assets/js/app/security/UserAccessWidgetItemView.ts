@@ -1,5 +1,5 @@
 import {UserAccessListItemView} from './UserAccessListItemView';
-import {WidgetItemView} from '../view/detail/WidgetItemView';
+import {WidgetItemView} from '../view/context/WidgetItemView';
 import {UserAccessListView} from './UserAccessListView';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Content} from '../content/Content';

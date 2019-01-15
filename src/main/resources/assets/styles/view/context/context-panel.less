@@ -1,6 +1,6 @@
 @widget-selector-height: 40px;
 
-.details-panel {
+.context-panel {
   // common details panel styles
   height: 100%;
   position: absolute;
@@ -17,11 +17,11 @@
     display: none;
   }
 
-  .details-view-container {
+  .context-view-container {
     height: 100%;
   }
 
-  .details-panel-view {
+  .context-panel-view {
     &.no-selection {
       height: 100%;
       background-color: @admin-white;
@@ -104,7 +104,7 @@
 
   }
 
-  .details-container {
+  .context-container {
     position: relative;
     overflow-y: auto;
     margin-top: 2px;
@@ -120,11 +120,11 @@
     .notSelectable();
   }
 
-  .default-widget:not(.no-selection) .details-panel-label {
+  .default-widget:not(.no-selection) .context-panel-label {
     display: flex;
   }
 
-  .details-panel-label {
+  .context-panel-label {
     display: none;
     box-sizing: border-box;
     height: 50px;
@@ -233,7 +233,7 @@
     .notSelectable();
   }
 
-  &.floating-details-panel {
+  &.floating-context-panel {
 
     position: fixed;
     top: @app-header-height;

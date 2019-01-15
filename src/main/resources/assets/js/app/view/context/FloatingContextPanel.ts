@@ -1,11 +1,10 @@
-import '../../../api.ts';
 import {SlidablePanel, SlidablePanelBuilder} from './SlidablePanel';
-import {DetailsView} from './DetailsView';
-import {DETAILS_PANEL_TYPE} from './DetailsPanel';
-
+import {ContextView} from './ContextView';
+import {CONTEXT_PANEL_TYPE} from './ContextPanel';
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 
-export class FloatingDetailsPanel extends SlidablePanel {
+export class FloatingContextPanel
+    extends SlidablePanel {
 
     private splitter: api.dom.DivEl;
     private ghostDragger: api.dom.DivEl;
@@ -15,9 +14,9 @@ export class FloatingDetailsPanel extends SlidablePanel {
     private parentMinWidth: number = 15;
     private actualWidth: number;
 
-    constructor(detailsView: DetailsView) {
-        super(new SlidablePanelBuilder(), detailsView);
-        this.addClass('floating-details-panel');
+    constructor(contextView: ContextView) {
+        super(new SlidablePanelBuilder(), contextView);
+        this.addClass('floating-context-panel');
 
         this.splitter = new api.dom.DivEl('splitter');
         this.ghostDragger = new api.dom.DivEl('ghost-dragger');
@@ -58,7 +57,7 @@ export class FloatingDetailsPanel extends SlidablePanel {
     }
 
     public resetWidgetsWidth() {
-        this.detailsView.resetWidgetsWidth();
+        this.contextView.resetWidgetsWidth();
     }
 
     public setWidthPx(value: number) {
@@ -88,14 +87,14 @@ export class FloatingDetailsPanel extends SlidablePanel {
 
         setTimeout(() => {
             this.notifyPanelSizeChanged();
-            this.detailsView.getWidgetsSelectionRow().render();
+            this.contextView.getWidgetsSelectionRow().render();
         }, 800); //delay is required due to animation time
 
         this.mask.hide();
         this.mask.unMouseMove(dragListener);
     }
 
-    public getType(): DETAILS_PANEL_TYPE {
-        return DETAILS_PANEL_TYPE.FLOATING;
+    public getType(): CONTEXT_PANEL_TYPE {
+        return CONTEXT_PANEL_TYPE.FLOATING;
     }
 }

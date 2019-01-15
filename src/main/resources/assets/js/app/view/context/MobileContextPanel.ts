@@ -1,12 +1,12 @@
-import '../../../api.ts';
 import {SlidablePanel, SlidablePanelBuilder, SLIDE_FROM} from './SlidablePanel';
-import {DetailsView} from './DetailsView';
-import {DETAILS_PANEL_TYPE} from './DetailsPanel';
+import {ContextView} from './ContextView';
+import {CONTEXT_PANEL_TYPE} from './ContextPanel';
 
-export class MobileDetailsPanel extends SlidablePanel {
+export class MobileContextPanel
+    extends SlidablePanel {
 
-    constructor(detailsView: DetailsView) {
-        super(new SlidablePanelBuilder().setSlideFrom(SLIDE_FROM.BOTTOM), detailsView);
+    constructor(contextView: ContextView) {
+        super(new SlidablePanelBuilder().setSlideFrom(SLIDE_FROM.BOTTOM), contextView);
         this.addClass('mobile');
     }
 
@@ -18,7 +18,7 @@ export class MobileDetailsPanel extends SlidablePanel {
         this.getEl().setTopPx(api.BrowserHelper.isIOS() ? window.innerHeight : window.outerHeight);
     }
 
-    public getType(): DETAILS_PANEL_TYPE {
-        return DETAILS_PANEL_TYPE.MOBILE;
+    public getType(): CONTEXT_PANEL_TYPE {
+        return CONTEXT_PANEL_TYPE.MOBILE;
     }
 }

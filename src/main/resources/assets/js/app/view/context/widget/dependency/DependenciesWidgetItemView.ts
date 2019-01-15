@@ -33,9 +33,9 @@ export class DependenciesWidgetItemView
     constructor() {
         super('dependency-widget-item-view');
 
-        this.inboundButton = this.appendButton(i18n('field.details.showInbound'), 'btn-inbound');
+        this.inboundButton = this.appendButton(i18n('field.contextPanel.showInbound'), 'btn-inbound');
         this.appendMainContainer();
-        this.outboundButton = this.appendButton(i18n('field.details.showOutbound'), 'btn-outbound');
+        this.outboundButton = this.appendButton(i18n('field.contextPanel.showOutbound'), 'btn-outbound');
         this.manageButtonClick();
     }
 
