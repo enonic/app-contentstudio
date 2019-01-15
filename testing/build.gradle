@@ -71,16 +71,17 @@ task copyConfig( type: Copy ) {
 }
 
 task copyApps( type: Copy ) {
-    println '*********************************************************'
-    println '* task started:copyApps  *'
-    println '*********************************************************'
-    println appDir
+    logger.info ("*********************************************************" )
+    logger.info( "* task started:copyApps  *" )
+    logger.info ("*********************************************************" )
+    logger.info( appDir )
     from file( appDir )
     include '*.jar'
     into file( deployDir )
 
     def d = new File( deployDir )
     if (d.exists(  )) {
+        logger.info( "Deploy dir contents: ")
         Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
     } else {
         logger.info( "There is no deploy directory." )
@@ -89,7 +90,7 @@ task copyApps( type: Copy ) {
     def f = new File( contentStudioFile )
     new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
 
-    def d = new File( deployDir )
+    d = new File( deployDir )
     if (d.exists(  )) {
         Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
     }
