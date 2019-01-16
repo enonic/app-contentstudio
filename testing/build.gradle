@@ -71,28 +71,33 @@ task copyConfig( type: Copy ) {
 }
 
 task copyApps( type: Copy ) {
-    logger.info ("*********************************************************" )
-    logger.info( "* task started:copyApps  *" )
-    logger.info ("*********************************************************" )
-    logger.info( appDir )
+    println '*********************************************************'
+    println '* task started:copyApps  *'
+    println '*********************************************************'
+    println appDir
+    println deployDir
     from file( appDir )
     include '*.jar'
     into file( deployDir )
 
-//    def d = new File( deployDir )
-//    if (d.exists(  )) {
-//        logger.info( "Deploy dir contents: ")
-//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
-//    } else {
-//        logger.info( "There is no deploy directory." )
-//    }
-//
-//    def f = new File( contentStudioFile )
-//    new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
-//
+    def d = new File( deployDir )
+    if (d.exists(  )) {
+        println 'Deploy dir contents: '
+        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
+    } else {
+        println 'There is no deploy directory.  Creating:'
+        d.mkdir(  )
+    }
+
+    def f = new File( contentStudioFile )
+    new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
+
 //    d = new File( deployDir )
 //    if (d.exists(  )) {
-//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> logger.info( str ) }
+//        println 'Deploy dir contents after download: '
+//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
+//    } else {
+//        println 'There is no deploy directory.'
 //    }
 }
 dependencies {
