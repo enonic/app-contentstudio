@@ -86,10 +86,21 @@ task copyApps( type: Copy ) {
         Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
     } else {
         println 'There is no deploy directory.  Creating:'
-        d.mkdir(  )
+        def bool = d.mkdir(  )
+        if (bool) {
+            println 'Deploy dir created'
+        } else {
+            println 'Creating deploy dir failed'
+        }
     }
 
-    def f = new File( deployDir )
+    def d2 = new File( deployDir )
+    if (d2.exists(  )) {
+        println 'Deploy dir created, ready for use.'
+    } else {
+        println 'Deploy dir was not created.  WHY?'
+    }
+    
     new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
 
 //    d = new File( deployDir )
