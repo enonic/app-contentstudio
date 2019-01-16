@@ -79,37 +79,6 @@ task copyApps( type: Copy ) {
     from file( appDir )
     include '*.jar'
     into file( deployDir )
-
-    def d = new File( deployDir )
-    if (d.exists(  )) {
-        println 'Deploy dir contents: '
-        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
-    } else {
-        println 'There is no deploy directory.  Creating:'
-        def bool = d.mkdir(  )
-        if (bool) {
-            println 'Deploy dir created'
-        } else {
-            println 'Creating deploy dir failed'
-        }
-    }
-
-    def d2 = new File( deployDir )
-    if (d2.exists(  )) {
-        println 'Deploy dir created, ready for use.'
-    } else {
-        println 'Deploy dir was not created.  WHY?'
-    }
-    
-    new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
-
-//    d = new File( deployDir )
-//    if (d.exists(  )) {
-//        println 'Deploy dir contents after download: '
-//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
-//    } else {
-//        println 'There is no deploy directory.'
-//    }
 }
 dependencies {
     compile "com.enonic.xp:core-api:$xpVersion"
@@ -121,6 +90,50 @@ task unpackDistro( type: Copy ) {
         configurations.distro.collect { zipTree( it ) }
     }
     into file( unpackDir )
+}
+
+task deployContentStudio( type: DefaultTask ) {
+    doLast {
+        println 'Deploying Content Studio'
+        def d = new File( deployDir )
+        if ( d.exists() )
+        {
+            println 'Deploy dir contents: '
+            Arrays.asList( d.list() ).stream().map { str -> println str }
+        }
+        else
+        {
+            println 'There is no deploy directory.  Creating:'
+            def bool = d.mkdir()
+            if ( bool )
+            {
+                println 'Deploy dir created'
+            }
+            else
+            {
+                println 'Creating deploy dir failed'
+            }
+        }
+
+        def f = new File( contentStudioFile )
+        if ( !f.exists() )
+        {
+            new URL( contentStudioAppUrl ).withInputStream { i -> f.withOutputStream { it << i } }
+            println 'Content Studio App is downloaded.'
+        }
+        else
+        {
+            println 'Content Studio App already exists.'
+        }
+    }
+    
+//    d = new File( deployDir )
+//    if (d.exists(  )) {
+//        println 'Deploy dir contents after download: '
+//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
+//    } else {
+//        println 'There is no deploy directory.'
+//    }
 }
 
 task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
@@ -149,13 +162,14 @@ artifacts {
 
 jar.enabled = true
 
-task startServer( dependsOn: [unpackDistro, copyConfig] ) {
+task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
         xpServer.installDir = file( distroDir )
         xpServer.startupDelay = 40000
         xpServer.start()
     }
     copyConfig.mustRunAfter unpackDistro
+    deployContentStudio.mustRunAfter unpackDistro
 }
 
 task stopServer {
@@ -187,7 +201,7 @@ task testContentStudioApp( type: NpmTask,
     args = ['test']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
-    startSeleniumDaemon.mustRunAfter copyApps
+    startSeleniumDaemon.mustRunAfter deployContentStudio
 }
 
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
