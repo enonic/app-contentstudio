@@ -62,7 +62,7 @@ export class TableDialog
 
         this.headersField =
             this.createFormItem(
-                new ModalDialogFormItemBuilder('headers', i18n('dialog.link.tabname.anchor')).setInputEl(this.createHeadersDropdown()));
+                new ModalDialogFormItemBuilder('headers', i18n('dialog.table.formitem.headers')).setInputEl(this.createHeadersDropdown()));
 
         this.cellSpacingField =
             this.createFormItem(new ModalDialogFormItemBuilder('cellspacing', i18n('dialog.table.formitem.cellSpacing')).setValidator(
@@ -78,7 +78,8 @@ export class TableDialog
 
         this.alignmentField =
             this.createFormItem(
-                new ModalDialogFormItemBuilder('alignment', i18n('dialog.link.tabname.anchor')).setInputEl(this.createAlignmentDropdown()));
+                new ModalDialogFormItemBuilder('alignment', i18n('dialog.table.formitem.alignment')).setInputEl(
+                    this.createAlignmentDropdown()));
 
         return [
             this.rowsField,
