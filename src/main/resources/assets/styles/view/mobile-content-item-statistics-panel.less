@@ -109,7 +109,7 @@
 
   }
 
-  .mobile-details-panel-back-button {
+  .mobile-context-panel-back-button {
 
     left: 0;
     font-size: 20px;
@@ -118,7 +118,7 @@
   }
 
   .mobile-details-panel-toggle-button,
-  .mobile-details-panel-back-button {
+  .mobile-context-panel-back-button {
     z-index: 3;
     width: @app-header-height;
     height: @app-header-height;
@@ -175,7 +175,7 @@
     }
   }
 
-  .details-panel {
+  .context-panel {
 
     background-color: @admin-bg-almost-white;
     display: inherit;
@@ -187,7 +187,7 @@
       display: none !important;
     }
 
-    > .details-container {
+    > .context-container {
       left: 0;
     }
 
@@ -237,12 +237,12 @@
 
 // Transition when opeining content preview on a mobile
 body {
-  .appbar, .details-split-panel {
+  .appbar, .context-split-panel {
     right: 0;
     transition: right 0.3s linear;
   }
   &.mobile-statistics-panel {
-    .appbar, .details-split-panel {
+    .appbar, .context-split-panel {
       right: 110px;
     }
   }

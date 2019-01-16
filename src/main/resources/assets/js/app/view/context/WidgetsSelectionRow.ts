@@ -1,21 +1,20 @@
-import '../../../api.ts';
 import {WidgetView} from './WidgetView';
-import {DetailsView} from './DetailsView';
+import {ContextView} from './ContextView';
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 
 export class WidgetsSelectionRow extends api.dom.DivEl {
 
-    private detailsView: DetailsView;
+    private contextView: ContextView;
 
     private widgetSelectorDropdown: WidgetSelectorDropdown;
 
-    constructor(detailsView: DetailsView) {
+    constructor(contextView: ContextView) {
         super('widgets-selection-row');
 
-        this.detailsView = detailsView;
+        this.contextView = contextView;
 
-        this.widgetSelectorDropdown = new WidgetSelectorDropdown(detailsView);
+        this.widgetSelectorDropdown = new WidgetSelectorDropdown(this.contextView);
         this.widgetSelectorDropdown.addClass('widget-selector');
 
         this.widgetSelectorDropdown.onOptionSelected((event: OptionSelectedEvent<WidgetViewOption>) => {
@@ -67,7 +66,7 @@ export class WidgetsSelectionRow extends api.dom.DivEl {
 
 export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
 
-    constructor(detailsView: DetailsView) {
+    constructor(contextView: ContextView) {
         super('widgetSelector', {
             disableFilter: true,
             skipExpandOnClick: true,
@@ -75,10 +74,10 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         });
 
         this.onClicked((event) => {
-            if (this.isDefaultOptionDisplayValueViewer(event.target)) {
+            if (WidgetSelectorDropdown.isDefaultOptionDisplayValueViewer(event.target)) {
                 if (this.getSelectedOption()) {
                     let widgetView = this.getSelectedOption().displayValue.getWidgetView();
-                    if (widgetView !== detailsView.getActiveWidget()) {
+                    if (widgetView !== contextView.getActiveWidget()) {
                         widgetView.setActive();
                     }
                     this.hideDropdown();
@@ -91,7 +90,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         });
     }
 
-    private isDefaultOptionDisplayValueViewer(object: Object) {
+    private static isDefaultOptionDisplayValueViewer(object: Object) {
         if (object && object instanceof HTMLElement) {
             const elem = <HTMLElement> object;
             return elem.parentElement.className.indexOf('option-value') > -1

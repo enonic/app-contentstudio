@@ -3,43 +3,43 @@ import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ViewItem = api.app.view.ViewItem;
-import {DockedDetailsPanel} from './DockedDetailsPanel';
-import {NonMobileDetailsPanelsManager, NonMobileDetailsPanelsManagerBuilder} from './NonMobileDetailsPanelsManager';
-import {DetailsView} from './DetailsView';
-import {FloatingDetailsPanel} from './FloatingDetailsPanel';
-import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
+import {DockedContextPanel} from './DockedContextPanel';
+import {NonMobileContextPanelsManager, NonMobileContextPanelsManagerBuilder} from './NonMobileContextPanelsManager';
+import {ContextView} from './ContextView';
+import {FloatingContextPanel} from './FloatingContextPanel';
+import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {MobileContentItemStatisticsPanel} from '../MobileContentItemStatisticsPanel';
-import {MobileDetailsPanel} from './MobileDetailsSlidablePanel';
-import {DetailsPanel} from './DetailsPanel';
+import {MobileContextPanel} from './MobileContextPanel';
+import {ContextPanel} from './ContextPanel';
 import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentHelper} from '../../util/ContentHelper';
 
-export interface DetailsPanelOptions {
+export interface ContextPanelOptions {
     noPreview?: boolean;
 }
 
-export class DetailsSplitPanel
+export class ContextSplitPanel
     extends api.ui.panel.SplitPanel {
 
-    private options: DetailsPanelOptions;
+    private options: ContextPanelOptions;
     private mobileMode: boolean;
     private mobilePanelSlideListeners: { (out: boolean): void }[];
-    private detailsView: DetailsView;
-    private dockedDetailsPanel: DockedDetailsPanel;
-    private floatingDetailsPanel: FloatingDetailsPanel;
+    private contextView: ContextView;
+    private dockedContextPanel: DockedContextPanel;
+    private floatingContextPanel: FloatingContextPanel;
     private mobileContentItemStatisticsPanel: MobileContentItemStatisticsPanel;
     private actions: api.ui.Action[];
-    private nonMobileDetailsManager: NonMobileDetailsPanelsManager;
+    private nonMobileContextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: api.ui.panel.Panel;
-    private mobileDetailsPanel: MobileDetailsPanel;
+    private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], options?: DetailsPanelOptions) {
-        const detailsView = new DetailsView();
-        const dockedDetails = new DockedDetailsPanel(detailsView);
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], options?: ContextPanelOptions) {
+        const contextView = new ContextView();
+        const dockedContextPanel = new DockedContextPanel(contextView);
 
-        const builder = new SplitPanelBuilder(leftPanel, dockedDetails)
+        const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
             .setAlignment(api.ui.panel.SplitPanelAlignment.VERTICAL)
             .setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
             .setSecondPanelMinSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
@@ -47,70 +47,70 @@ export class DetailsSplitPanel
             .setSecondPanelShouldSlideRight(true);
 
         super(builder);
-        this.addClass('details-split-panel');
+        this.addClass('context-split-panel');
         this.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
 
         this.options = options || {};
         this.leftPanel = leftPanel;
-        this.detailsView = detailsView;
-        this.dockedDetailsPanel = dockedDetails;
+        this.contextView = contextView;
+        this.dockedContextPanel = dockedContextPanel;
         this.actions = actions;
         this.dockedModeChangedListeners = [];
         this.mobilePanelSlideListeners = [];
 
-        this.dockedDetailsPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
+        this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
     }
 
     private renderAfterDockedPanelReady() {
-        const nonMobileDetailsManagerBuilder = NonMobileDetailsPanelsManager.create();
-        this.initSplitPanelWithDockedDetails(nonMobileDetailsManagerBuilder);
-        this.initFloatingDetailsPanel(nonMobileDetailsManagerBuilder);
+        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
+        this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
+        this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
         if (this.options.noPreview) {
-            this.initMobileDetailsPanelOnly();
+            this.initMobileContextPanelOnly();
         } else {
             this.initMobileItemStatisticsPanel();
         }
 
-        this.nonMobileDetailsManager = nonMobileDetailsManagerBuilder.build();
-        if (this.nonMobileDetailsManager.requiresCollapsedDetailsPanel()) {
-            this.nonMobileDetailsManager.hideDockedDetailsPanel();
+        this.nonMobileContextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
+        if (this.nonMobileContextPanelsManager.requiresCollapsedContextPanel()) {
+            this.nonMobileContextPanelsManager.hideDockedContextPanel();
         }
 
-        this.nonMobileDetailsManager.ensureButtonHasCorrectState();
-        this.detailsView.appendChild(this.nonMobileDetailsManager.getToggleButton());
+        this.nonMobileContextPanelsManager.ensureButtonHasCorrectState();
+        this.contextView.appendChild(this.nonMobileContextPanelsManager.getToggleButton());
 
         this.onShown(() => {
-            if (!!this.nonMobileDetailsManager.getActivePanel().getActiveWidget()) {
-                this.nonMobileDetailsManager.getActivePanel().getActiveWidget().slideIn();
+            if (!!this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget()) {
+                this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget().slideIn();
             }
         });
 
-        this.subscribeDetailsPanelsOnEvents(this.nonMobileDetailsManager);
+        this.subscribeContextPanelsOnEvents(this.nonMobileContextPanelsManager);
     }
 
-    private initSplitPanelWithDockedDetails(nonMobileDetailsPanelsManagerBuilder: NonMobileDetailsPanelsManagerBuilder) {
+    private initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
 
-        nonMobileDetailsPanelsManagerBuilder.setSplitPanelWithGridAndDetails(this);
-        nonMobileDetailsPanelsManagerBuilder.setDefaultDetailsPanel(this.dockedDetailsPanel);
+        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
+        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
     }
 
-    private initFloatingDetailsPanel(nonMobileDetailsPanelsManagerBuilder: NonMobileDetailsPanelsManagerBuilder) {
-        this.floatingDetailsPanel = new FloatingDetailsPanel(this.detailsView);
-        nonMobileDetailsPanelsManagerBuilder.setFloatingDetailsPanel(this.floatingDetailsPanel);
-        this.floatingDetailsPanel.insertAfterEl(this);
+    private initFloatingContextPanel(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
+        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
+        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
+        this.floatingContextPanel.insertAfterEl(this);
     }
 
-    private initMobileDetailsPanelOnly() {
-        this.mobileDetailsPanel = new MobileDetailsPanel(this.detailsView);
-        this.mobileDetailsPanel.insertAfterEl(this);
-        this.mobileDetailsPanel.slideOut(true);
+    private initMobileContextPanelOnly() {
+        this.mobileContextPanel = new MobileContextPanel(this.contextView);
+        this.mobileContextPanel.insertAfterEl(this);
+        this.mobileContextPanel.slideOut(true);
 
-        this.mobileDetailsPanel.onSlidedOut(() => this.notifyMobilePanelSlide(true));
-        this.mobileDetailsPanel.onSlidedIn(() => this.notifyMobilePanelSlide(false));
+        this.mobileContextPanel.onSlidedOut(() => this.notifyMobilePanelSlide(true));
+        this.mobileContextPanel.onSlidedIn(() => this.notifyMobilePanelSlide(false));
     }
 
     private initMobileItemStatisticsPanel() {
-        this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.detailsView);
+        this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.contextView);
         this.mobileContentItemStatisticsPanel.insertAfterEl(this);
         this.mobileContentItemStatisticsPanel.slideAllOut(true);
 
@@ -118,21 +118,21 @@ export class DetailsSplitPanel
         this.mobileContentItemStatisticsPanel.onSlideIn(() => this.notifyMobilePanelSlide(false));
     }
 
-    private setActiveDetailsPanel(nonMobileDetailsPanelsManager: NonMobileDetailsPanelsManager) {
+    private setActiveContextPanel(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
         if (this.isMobileMode()) {
-            ActiveDetailsPanelManager.setActiveDetailsPanel(this.getMobileDetailsPanel());
+            ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
         } else {
-            ActiveDetailsPanelManager.setActiveDetailsPanel(nonMobileDetailsPanelsManager.getActivePanel());
+            ActiveContextPanelManager.setActiveContextPanel(nonMobileContextPanelsManager.getActivePanel());
         }
     }
 
-    private getMobileDetailsPanel(): DetailsPanel {
-        return this.options.noPreview ? this.mobileDetailsPanel : this.mobileContentItemStatisticsPanel.getDetailsPanel();
+    private getMobileContextPanel(): ContextPanel {
+        return this.options.noPreview ? this.mobileContextPanel : this.mobileContentItemStatisticsPanel.getContextPanel();
     }
 
     private getMobilePanelItem(): ContentSummaryAndCompareStatus {
         if (this.options.noPreview) {
-            return this.mobileDetailsPanel.getItem();
+            return this.mobileContextPanel.getItem();
         } else {
             const item = this.mobileContentItemStatisticsPanel.getItem();
             return item && item.getModel() || null;
@@ -141,23 +141,23 @@ export class DetailsSplitPanel
 
     private slideMobilePanelOut(silent?: boolean) {
         if (this.options.noPreview) {
-            this.mobileDetailsPanel.slideOut(silent);
+            this.mobileContextPanel.slideOut(silent);
         } else {
             this.mobileContentItemStatisticsPanel.slideAllOut(silent);
         }
     }
 
-    private subscribeDetailsPanelsOnEvents(nonMobileDetailsPanelsManager: NonMobileDetailsPanelsManager) {
+    private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            nonMobileDetailsPanelsManager.handleResizeEvent();
+            nonMobileContextPanelsManager.handleResizeEvent();
             if (this.mobileMode === undefined) {
                 this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
             }
 
             if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
-                nonMobileDetailsPanelsManager.hideActivePanel(true);
-                ActiveDetailsPanelManager.setActiveDetailsPanel(this.getMobileDetailsPanel());
+                nonMobileContextPanelsManager.hideActivePanel(true);
+                ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
                 if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
                     // transition through 720 from bigger side
                     this.mobileMode = true;
@@ -165,7 +165,7 @@ export class DetailsSplitPanel
                 }
             } else {
                 this.slideMobilePanelOut(true);
-                nonMobileDetailsPanelsManager.setActivePanel();
+                nonMobileContextPanelsManager.setActivePanel();
                 if (item.isInRangeOrBigger(ResponsiveRanges._720_960)) {
                     // transition through 720 from smaller side
                     this.mobileMode = false;
@@ -207,10 +207,10 @@ export class DetailsSplitPanel
 
     setContent(content: ContentSummaryAndCompareStatus) {
         if (!this.isMobileMode()) {
-            this.detailsView.setItem(content);
+            this.contextView.setItem(content);
         }
         if (this.options.noPreview) {
-            this.mobileDetailsPanel.setItem(content);
+            this.mobileContextPanel.setItem(content);
         } else {
             const prevItem = this.getMobilePanelItem();
             const changed = !prevItem || prevItem.getId() !== content.getId();
@@ -235,7 +235,7 @@ export class DetailsSplitPanel
 
     showMobilePanel() {
         if (this.options.noPreview) {
-            this.mobileDetailsPanel.slideIn();
+            this.mobileContextPanel.slideIn();
         } else {
             this.mobileContentItemStatisticsPanel.slideIn();
         }
@@ -243,7 +243,7 @@ export class DetailsSplitPanel
 
     hideMobilePanel() {
         if (this.options.noPreview) {
-            this.mobileDetailsPanel.slideOut();
+            this.mobileContextPanel.slideOut();
         } else {
             this.mobileContentItemStatisticsPanel.slideAllOut();
         }

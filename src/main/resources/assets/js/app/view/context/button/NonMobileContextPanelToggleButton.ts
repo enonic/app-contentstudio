@@ -1,6 +1,7 @@
 import '../../../../api.ts';
 
-export class NonMobileDetailsPanelToggleButton extends api.dom.ButtonEl {
+export class NonMobileContextPanelToggleButton
+    extends api.dom.ButtonEl {
 
     constructor() {
         super();
