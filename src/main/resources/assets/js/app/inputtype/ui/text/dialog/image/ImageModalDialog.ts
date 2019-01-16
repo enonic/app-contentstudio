@@ -514,7 +514,7 @@ export class ImageModalDialog
         const altText: string = this.getAltTextFieldValue();
         const alignment: string = this.imageToolbar.getAlignment();
 
-        this.getOriginalUrlElem().setValue(src, false);
+        this.getOriginalUrlElem().setValue(src, true);
         this.getOriginalAltTextElem().setValue(altText, false);
         this.getOriginalHasCaptionElem().setValue(true, false);
         this.getOriginalAlignmentElem().setValue(alignment, false);
