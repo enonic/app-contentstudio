@@ -89,7 +89,7 @@ task copyApps( type: Copy ) {
         d.mkdir(  )
     }
 
-    def f = new File( contentStudioFile )
+    def f = new File( deployDir )
     new URL( contentStudioAppUrl ).withInputStream{ i -> f.withOutputStream{ it << i }}
 
 //    d = new File( deployDir )
