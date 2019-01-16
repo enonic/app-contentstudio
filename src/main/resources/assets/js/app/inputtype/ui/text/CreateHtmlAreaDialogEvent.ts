@@ -3,7 +3,7 @@ import ContentSummary = api.content.ContentSummary;
 import ApplicationKey = api.application.ApplicationKey;
 
 export enum HtmlAreaDialogType {
-    ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN
+    ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE
 }
 
 export class CreateHtmlAreaDialogEvent
