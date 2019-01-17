@@ -38,6 +38,7 @@ import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import SplitPanel = api.ui.panel.SplitPanel;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -117,6 +118,23 @@ export class ContentBrowsePanel
         return filterPanel;
     }
 
+    protected createMainContentSplitPanel(gridAndItemsSplitPanel: SplitPanel): SplitPanel {
+        const browseActions = this.getBrowseActions();
+        const mobileActions = [
+            browseActions.getUnpublishAction(),
+            browseActions.getPublishAction(),
+            browseActions.getMoveAction(),
+            browseActions.getSortAction(),
+            browseActions.getDeleteAction(),
+            browseActions.getDuplicateAction(),
+            browseActions.getEditAction(),
+            browseActions.getShowNewDialogAction()
+        ];
+        this.contextSplitPanel = new ContextSplitPanel(gridAndItemsSplitPanel, mobileActions);
+
+        return this.contextSplitPanel;
+    }
+
     protected updateFilterPanelOnSelectionChange() {
         this.filterPanel.setSelectedItems(this.treeGrid.getSelectedDataList());
     }
@@ -145,8 +163,8 @@ export class ContentBrowsePanel
                 browseActions.getEditAction(),
                 browseActions.getShowNewDialogAction()
             ];
-            this.contextSplitPanel = new ContextSplitPanel(this.getFilterAndGridSplitPanel(), mobileActions);
-            this.appendChild(this.contextSplitPanel);
+
+            this.appendChild(this.getFilterAndGridSplitPanel());
 
             this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
