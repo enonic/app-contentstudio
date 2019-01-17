@@ -370,9 +370,6 @@ export class ContextView
     }
 
     private layout(empty: boolean = true) {
-        if (this.widgetsSelectionRow) {
-            this.widgetsSelectionRow.setVisible(!empty);
-        }
         this.contextContainer.setVisible(!empty);
         this.toggleClass('no-selection', empty);
     }
