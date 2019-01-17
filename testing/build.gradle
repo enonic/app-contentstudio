@@ -98,10 +98,10 @@ task unpackDistro( type: Copy ) {
 
 task deployContentStudio( type: DefaultTask ) {
     doLast {
-        println 'Deploying Content Studio:'
-        println contentStudioFile
-        println '\nFrom:'
+        println 'Retrieving Content Studio App from:'
         println contentStudioAppUrl
+        println 'Deploying to:'
+        println contentStudioFile
         
         def f = new File( contentStudioFile )
         if ( !f.exists() )
