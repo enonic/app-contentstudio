@@ -403,11 +403,13 @@ export class PageModel {
             return null;
         } else if (this.mode === PageMode.FORCED_TEMPLATE) {
 
-            let regionsUnchanged = this.defaultTemplate.getRegions().equals(this.regions);
-            let regions = regionsUnchanged ? null : this.regions;
+            const defaultRegions = this.defaultTemplate.getRegions();
+            const regionsUnchanged = defaultRegions != null && defaultRegions.equals(this.regions);
+            const regions = regionsUnchanged ? null : this.regions;
 
-            let configUnchanged = this.defaultTemplate.getConfig().equals(this.config);
-            let config = configUnchanged ? null : this.config;
+            const defaultConfig = this.defaultTemplate.getConfig();
+            const configUnchanged = defaultConfig != null && defaultConfig.equals(this.config);
+            const config = configUnchanged ? null : this.config;
 
             return new PageBuilder().setTemplate(this.getTemplateKey()).setRegions(regions).setConfig(config).setCustomized(
                 this.isCustomized()).setFragment(this.fragment).build();

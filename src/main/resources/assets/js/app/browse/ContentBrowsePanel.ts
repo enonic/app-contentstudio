@@ -174,9 +174,11 @@ export class ContentBrowsePanel
             this.updateDetailsPanelOnItemChange(fullSelection);
         });
 
-        this.getTreeGrid().onHighlightingChanged(() => {
+        const onHighlightingChanged = api.util.AppHelper.debounce(() => {
             this.updateDetailsPanelOnItemChange();
-        });
+        }, 500);
+
+        this.getTreeGrid().onHighlightingChanged(() => onHighlightingChanged());
     }
 
     private subscribeMobilePanelOnEvents() {

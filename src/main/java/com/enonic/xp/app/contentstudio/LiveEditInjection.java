@@ -76,7 +76,7 @@ public final class LiveEditInjection
     private Map<String, String> makeModelForHeadBegin( final PortalRequest portalRequest )
     {
         final Map<String, String> map = Maps.newHashMap();
-        map.put( "assetsUrl", portalRequest.rewriteUri( "/admin/_/asset/com.enonic.xp.app.contentstudio" ) );
+        map.put( "assetsUrl", portalRequest.rewriteUri( "/admin/_/asset/com.enonic.app.contentstudio" ) );
         return map;
     }
 
@@ -85,7 +85,7 @@ public final class LiveEditInjection
         final Map<String, String> map = makeModelForHeadBegin( portalRequest );
 
         final MessageBundle bundle =
-            this.localeService.getBundle( ApplicationKey.from( "com.enonic.xp.app.contentstudio" ), resolveLocale( portalRequest ),
+            this.localeService.getBundle( ApplicationKey.from( "com.enonic.app.contentstudio" ), resolveLocale( portalRequest ),
                                           "i18n/common", "i18n/phrases" );
 
         map.put( "messages", convertBundleToString( bundle ) );

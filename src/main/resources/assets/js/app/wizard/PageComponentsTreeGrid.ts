@@ -150,31 +150,33 @@ export class PageComponentsTreeGrid
 
     initDescriptor(itemView: ItemView): wemQ.Promise<ItemView> {
 
+        const isPartItemType = PartItemType.get().equals(itemView.getType());
+        const isLayoutItemType = LayoutItemType.get().equals(itemView.getType());
+
+        if (!(isPartItemType || isLayoutItemType)) {
+            return wemQ(itemView);
+        }
+
+        const component = (<ComponentView<any>> itemView).getComponent();
+
+        if (!component || !component.hasDescriptor()) {
+            return wemQ(itemView);
+        }
+
         let request;
-
-        if (PartItemType.get().equals(itemView.getType())) {
-            const component = (<PartComponentView> itemView).getComponent();
-            if (component) {
-                request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptor());
-            }
+        if (isPartItemType) {
+            request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptor());
         }
-        if (LayoutItemType.get().equals(itemView.getType())) {
-            const component = (<LayoutComponentView> itemView).getComponent();
-            if (component) {
-                request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptor());
-            }
+        if (isLayoutItemType) {
+            request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptor());
         }
 
-        if (request) {
-            let component = (<ComponentView<any>> itemView).getComponent();
-            if (!component.getDescription() || component.hasDescriptor()) {
-                request.sendAndParse().then(
-                    (receivedDescriptor: Descriptor) => {
-                        component.setDescriptor(receivedDescriptor.getKey(), receivedDescriptor);
+        if (!!request) {
+            request.sendAndParse().then((receivedDescriptor: Descriptor) => {
+                component.setDescriptor(receivedDescriptor.getKey(), receivedDescriptor);
 
-                        return itemView;
-                    });
-            }
+                return itemView;
+            });
         }
 
         return wemQ(itemView);

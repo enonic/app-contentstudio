@@ -118,11 +118,10 @@ export class ImageModalDialog
     }
 
     private initLoader() {
-        this.imageUploaderEl.setParams({
-            parent: this.content.getContentId().toString()
-        });
-
         this.onRendered(() => {
+            this.imageUploaderEl.setParams({
+                parent: this.content.getContentId().toString()
+            });
             this.imageUploaderEl.show();
         });
     }
@@ -158,8 +157,10 @@ export class ImageModalDialog
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
 
-        this.addUploaderAndPreviewControls();
-        this.setFirstFocusField(this.imageSelectorFormItem.getInput());
+        this.imageSelectorFormItem.onRendered(() => {
+            this.addUploaderAndPreviewControls();
+            this.setFirstFocusField(this.imageSelectorFormItem.getInput());
+        } );
 
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
         this.imageAltTextField = this.createFormItem(new ModalDialogFormItemBuilder('altText', i18n('dialog.image.formitem.alttext')));
@@ -237,7 +238,7 @@ export class ImageModalDialog
         scrollBarWrapperDiv.appendChild(this.imagePreviewContainer);
         this.scrollNavigationWrapperDiv.appendChild(scrollBarWrapperDiv);
 
-        wemjq(this.scrollNavigationWrapperDiv.getHTMLElement()).insertAfter(imageSelectorContainer.getHTMLElement());
+        this.scrollNavigationWrapperDiv.insertAfterEl(imageSelectorContainer);
 
         this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
 
@@ -267,14 +268,21 @@ export class ImageModalDialog
 
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
-        const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
-        const frameBody = frameDocument.getElementsByTagName('body')[0];
-        const frameBodyEl = new api.dom.Body(false, frameBody);
-        frameBodyEl.setClass('preview-frame-body');
+        this.previewFrame.onRendered(() => {
 
-        frameBodyEl.appendChild(this.figure);
+            setTimeout(() => {
 
-        injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
+                const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
+                const frameBody = frameDocument.getElementsByTagName('body')[0];
+                const frameBodyEl = new api.dom.Body(false, frameBody);
+                frameBodyEl.setClass('preview-frame-body');
+
+                frameBodyEl.appendChild(this.figure);
+
+                injectCssIntoFrame(frameDocument.getElementsByTagName('head')[0]);
+            }, 50);
+        });
+
     }
 
     private updatePreview(styles: string) {
@@ -296,7 +304,7 @@ export class ImageModalDialog
 
         this.imageLoadMask.show();
 
-        this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' '));
+        this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' ').trim());
 
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
@@ -514,7 +522,7 @@ export class ImageModalDialog
         const altText: string = this.getAltTextFieldValue();
         const alignment: string = this.imageToolbar.getAlignment();
 
-        this.getOriginalUrlElem().setValue(src, false);
+        this.getOriginalUrlElem().setValue(src, true);
         this.getOriginalAltTextElem().setValue(altText, false);
         this.getOriginalHasCaptionElem().setValue(true, false);
         this.getOriginalAlignmentElem().setValue(alignment, false);

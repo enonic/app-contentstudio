@@ -148,7 +148,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private initButtonRow() {
-        this.getButtonRow().getEl().setAttribute('data-drop', i18n('drop.file.long'));
+        this.getButtonRow().getEl().setAttribute('data-drop', i18n('dialog.new.searchTypesOrDrop'));
     }
 
     private initKeyDownHandler() {
