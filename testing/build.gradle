@@ -177,7 +177,7 @@ task testContentStudioApp( type: NpmTask,
     args = ['test']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
-    startSeleniumDaemon.mustRunAfter deployContentStudio
+    startSeleniumDaemon.mustRunAfter copyApps
 }
 
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
