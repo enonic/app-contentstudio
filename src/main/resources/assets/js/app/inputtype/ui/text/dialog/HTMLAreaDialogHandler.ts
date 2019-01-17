@@ -9,6 +9,7 @@ import {CodeDialog} from './CodeDialog';
 import {FindAndReplaceDialog} from './FindAndReplaceDialog';
 import {SpecialCharDialog} from './SpecialCharDialog';
 import {FullscreenDialog} from './FullscreenDialog';
+import {TableDialog} from './TableDialog';
 
 export class HTMLAreaDialogHandler {
 
@@ -41,6 +42,9 @@ export class HTMLAreaDialogHandler {
             break;
         case HtmlAreaDialogType.FULLSCREEN:
             modalDialog = this.openFullscreenDialog(event.getConfig());
+            break;
+        case HtmlAreaDialogType.TABLE:
+            modalDialog = this.openTableDialog(event.getConfig());
             break;
         }
 
@@ -108,6 +112,10 @@ export class HTMLAreaDialogHandler {
         });
 
         return this.openDialog(fullscreenDialog);
+    }
+
+    private static openTableDialog(config: eventInfo): ModalDialog {
+        return this.openDialog(new TableDialog(config));
     }
 
     private static openDialog(dialog: ModalDialog): ModalDialog {

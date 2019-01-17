@@ -1,6 +1,5 @@
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
-import {ImageModalDialogConfig} from './image/ImageModalDialog';
 
 export abstract class OverrideNativeDialog
     extends ModalDialog {
@@ -15,7 +14,7 @@ export abstract class OverrideNativeDialog
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
     }
 
-    protected initializeConfig(config: ImageModalDialogConfig) {
+    protected initializeConfig(config: HtmlAreaModalDialogConfig) {
         super.initializeConfig(config);
         this.ckeOriginalDialog = config.dialog;
     }

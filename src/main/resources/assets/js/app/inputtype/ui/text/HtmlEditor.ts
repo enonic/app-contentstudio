@@ -535,6 +535,10 @@ export class HtmlEditor {
             case 'image2':
                 this.notifyImageDialog(dialogShowEvent);
                 break;
+            case 'table':
+            case 'tableProperties':
+                this.notifyTableDialog(dialogShowEvent);
+                break;
             }
         });
     }
@@ -610,6 +614,7 @@ export class HtmlEditor {
 
     private removeUnwantedMenuItems() {
         this.editor.on('instanceReady', () => {
+            this.editor.removeMenuItem('tablecell_properties');
             this.editor.removeMenuItem('paste');
         });
     }
@@ -661,6 +666,12 @@ export class HtmlEditor {
     private notifyFullscreenDialog(config: any) {
         const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
             HtmlAreaDialogType.FULLSCREEN).build();
+        this.publishCreateDialogEvent(event);
+    }
+
+    private notifyTableDialog(config: any) {
+        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
+            HtmlAreaDialogType.TABLE).build();
         this.publishCreateDialogEvent(event);
     }
 
