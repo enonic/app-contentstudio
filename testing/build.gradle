@@ -22,6 +22,7 @@ plugins {
     id 'com.github.psxpaul.execfork' version '0.1.8'
 
 }
+
 group = 'com.enonic.xp.js_testing'
 version = '1.0'
 
@@ -54,7 +55,10 @@ ext {
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
+    contentStudioFile = "$deployDir${File.separator}app-contentstudio-1.0.0-SNAPSHOT.jar"
+    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/1.0.0-SNAPSHOT/app-contentstudio-1.0.0-SNAPSHOT.jar"
 }
+
 task ensureScreenshotsDirectory {
     doLast {
         mkdir screenshotsDir
@@ -73,10 +77,12 @@ task copyApps( type: Copy ) {
     println '* task started:copyApps  *'
     println '*********************************************************'
     println appDir
+    println deployDir
     from file( appDir )
     include '*.jar'
     into file( deployDir )
 }
+
 dependencies {
     compile "com.enonic.xp:core-api:$xpVersion"
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
@@ -89,11 +95,28 @@ task unpackDistro( type: Copy ) {
     into file( unpackDir )
 }
 
+task deployContentStudio( type: DefaultTask ) {
+    doLast {
+        println 'Deploying Content Studio'
+        def f = new File( contentStudioFile )
+        if ( !f.exists() )
+        {
+            new URL( contentStudioAppUrl ).withInputStream { i -> f.withOutputStream { it << i } }
+            println 'Content Studio App is downloaded.'
+        }
+        else
+        {
+            println 'Content Studio App already exists.'
+        }
+    }
+}
+
 task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
     commandLine = "${seleniumDir}${File.separator}selenium-server.sh"
     standardOutput = "${buildDir}${File.separator}selenium-daemon.log"
     errorOutput = "${buildDir}${File.separator}selenium-daemon-error.log"
 }
+
 task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
@@ -115,13 +138,14 @@ artifacts {
 
 jar.enabled = true
 
-task startServer( dependsOn: [unpackDistro, copyConfig] ) {
+task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
         xpServer.installDir = file( distroDir )
         xpServer.startupDelay = 40000
         xpServer.start()
     }
     copyConfig.mustRunAfter unpackDistro
+    deployContentStudio.mustRunAfter unpackDistro
 }
 
 task stopServer {
