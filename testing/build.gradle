@@ -44,6 +44,7 @@ enonic {
 
 ext {
     xpVersion = extProgram['xpVersion']
+    appVersion = extProgram['version']
     unpackDir = "$buildDir${File.separator}install"
     screenshotsDir = "$buildDir${File.separator}screenshots"
     reportsDir = "$buildDir${File.separator}reports"
@@ -55,8 +56,8 @@ ext {
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
-    contentStudioFile = "$deployDir${File.separator}app-contentstudio-1.0.0-SNAPSHOT.jar"
-    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/1.0.0-SNAPSHOT/app-contentstudio-1.0.0-SNAPSHOT.jar"
+    contentStudioFile = "$deployDir${File.separator}app-contentstudio-${appVersion}.jar"
+    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/${appVersion}/app-contentstudio-${appVersion}.jar"
 }
 
 task ensureScreenshotsDirectory {
@@ -97,7 +98,11 @@ task unpackDistro( type: Copy ) {
 
 task deployContentStudio( type: DefaultTask ) {
     doLast {
-        println 'Deploying Content Studio'
+        println 'Deploying Content Studio:'
+        println contentStudioFile
+        println '\nFrom:'
+        println contentStudioAppUrl
+        
         def f = new File( contentStudioFile )
         if ( !f.exists() )
         {
