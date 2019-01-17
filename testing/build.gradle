@@ -22,6 +22,7 @@ plugins {
     id 'com.github.psxpaul.execfork' version '0.1.8'
 
 }
+
 group = 'com.enonic.xp.js_testing'
 version = '1.0'
 
@@ -57,6 +58,7 @@ ext {
     contentStudioFile = "$deployDir${File.separator}app-contentstudio-1.0.0-SNAPSHOT.jar"
     contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/1.0.0-SNAPSHOT/app-contentstudio-1.0.0-SNAPSHOT.jar"
 }
+
 task ensureScreenshotsDirectory {
     doLast {
         mkdir screenshotsDir
@@ -80,6 +82,7 @@ task copyApps( type: Copy ) {
     include '*.jar'
     into file( deployDir )
 }
+
 dependencies {
     compile "com.enonic.xp:core-api:$xpVersion"
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
@@ -95,26 +98,6 @@ task unpackDistro( type: Copy ) {
 task deployContentStudio( type: DefaultTask ) {
     doLast {
         println 'Deploying Content Studio'
-        def d = new File( deployDir )
-        if ( d.exists() )
-        {
-            println 'Deploy dir contents: '
-            Arrays.asList( d.list() ).stream().map { str -> println str }
-        }
-        else
-        {
-            println 'There is no deploy directory.  Creating:'
-            def bool = d.mkdir()
-            if ( bool )
-            {
-                println 'Deploy dir created'
-            }
-            else
-            {
-                println 'Creating deploy dir failed'
-            }
-        }
-
         def f = new File( contentStudioFile )
         if ( !f.exists() )
         {
@@ -126,14 +109,6 @@ task deployContentStudio( type: DefaultTask ) {
             println 'Content Studio App already exists.'
         }
     }
-    
-//    d = new File( deployDir )
-//    if (d.exists(  )) {
-//        println 'Deploy dir contents after download: '
-//        Arrays.asList( d.list(  ) ).stream(  ).map{ str -> println str }
-//    } else {
-//        println 'There is no deploy directory.'
-//    }
 }
 
 task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
@@ -141,6 +116,7 @@ task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
     standardOutput = "${buildDir}${File.separator}selenium-daemon.log"
     errorOutput = "${buildDir}${File.separator}selenium-daemon-error.log"
 }
+
 task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
