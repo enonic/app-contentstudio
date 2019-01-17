@@ -8,17 +8,54 @@
   &.transparent {
 
     .action-button {
-      span {
-        text-transform: uppercase;
-        color: @admin-green;
-        font-weight: 500;
-        font-family: sans-serif, "Open Sans", Helvetica;
+      text-align: left;
+      padding-left: 12px;
+
+      &.main-action-button {
+        span {
+          text-transform: uppercase;
+          color: @admin-green;
+          font-weight: 600;
+          font-family: sans-serif, "Open Sans", Helvetica;
+        }
+
+        &:not([disabled]):hover {
+          span {
+            color: lighten(@admin-green, 10%);
+          }
+        }
       }
 
-      &:not([disabled]):hover {
-        span {
-          color: lighten(@admin-green, 10%);
+      &.create-issue-action-button {
+        display: none !important;
+      }
+    }
+
+    .xp-admin-common-dropdown-handle {
+      &:after {
+        border-top-color: @admin-green;
+      }
+
+      &[disabled] {
+        &:after {
+          border-top-color: @admin-green;
+          opacity: 0.5;
         }
+      }
+
+    }
+
+    &.only-create-issue:not(.minimized) {
+      .action-button.create-issue-action-button {
+        display: inline-block !important;
+      }
+
+      .action-button.main-action-button {
+        display: none !important;
+      }
+
+      .xp-admin-common-dropdown-handle {
+        display: none;
       }
     }
   }

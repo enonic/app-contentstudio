@@ -6,6 +6,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
+import ActionButton = api.ui.button.ActionButton;
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
@@ -20,6 +21,13 @@ export class ContentPublishMenuButton
     private issueActionsList: Action[];
     private issuesRequest: wemQ.Promise<void>;
 
+    private publishAction: Action;
+    private publishTreeAction: Action;
+    private unpublishAction: Action;
+    private createIssueAction: Action;
+
+    private createIssueButton: ActionButton;
+
     private item: ContentSummaryAndCompareStatus;
 
     constructor(config: ContentPublishMenuButtonConfig) {
@@ -27,6 +35,28 @@ export class ContentPublishMenuButton
         this.addClass('content-publish-menu transparent');
         this.appendChild(MenuButtonProgressBarManager.getProgressBar());
 
+        this.publishAction = config.publishAction;
+        this.publishTreeAction = config.publishTreeAction;
+        this.unpublishAction = config.unpublishAction;
+        this.createIssueAction = config.createIssueAction;
+
+        this.createIssueButton = new ActionButton(this.createIssueAction);
+
+        this.handleIssueCreatedOrUpdated();
+        this.handleActionsStateUpdated();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.getActionButton().addClass('main-action-button')
+            this.createIssueButton.addClass('create-issue-action-button');
+            this.appendChild(this.createIssueButton);
+
+            return rendered;
+        });
+    }
+
+    private handleIssueCreatedOrUpdated() {
         const reloadList = (issue: Issue) => {
             if (this.item) {
                 const nodeId = this.item.getContentSummary().getContentId();
@@ -39,6 +69,22 @@ export class ContentPublishMenuButton
 
         IssueDialogsManager.get().onIssueCreated(reloadList);
         IssueDialogsManager.get().onIssueUpdated(reloadList);
+    }
+
+    private handleActionsStateUpdated() {
+        const updateHandler: () => void = api.util.AppHelper.debounce(() => {
+            this.toggleClass('only-create-issue', this.isOnlyCreateIssueEnabled());
+        }, 200);
+
+        this.publishAction.onPropertyChanged(updateHandler);
+        this.publishTreeAction.onPropertyChanged(updateHandler);
+        this.unpublishAction.onPropertyChanged(updateHandler);
+        this.createIssueAction.onPropertyChanged(updateHandler);
+    }
+
+    private isOnlyCreateIssueEnabled(): boolean {
+        return this.createIssueAction.isEnabled() && !this.publishAction.isEnabled() && !this.publishTreeAction.isEnabled() &&
+               !this.unpublishAction.isEnabled();
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -62,7 +108,7 @@ export class ContentPublishMenuButton
             const id = highlightedOrSelected.getContentSummary().getContentId();
             this.issuesRequest =
                 new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-                    this.issueActionsList = issues.map(this.createIssueAction);
+                    this.issueActionsList = issues.map(this.setupIssueAction);
                     if (this.issueActionsList.length > 0) {
                         this.addMenuSeparator();
                         this.addMenuActions(this.issueActionsList);
@@ -75,7 +121,7 @@ export class ContentPublishMenuButton
         }
     }
 
-    private createIssueAction(issue: Issue): Action {
+    private setupIssueAction(issue: Issue): Action {
         const action = new Action(issue.getTitleWithId());
         action.onExecuted((a) => {
             IssueDialogsManager.get().openDetailsDialog(issue);
