@@ -46,7 +46,7 @@ const editPermissionsDialog = Object.create(page, {
     },
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_2);
+            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_3);
         }
     },
     waitForDialogClosed: {

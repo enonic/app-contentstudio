@@ -4,6 +4,7 @@
 
 const page = require('../../page');
 const elements = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
 const pageInspectionPanel = require('./page.inspection.panel');
 const panel = {
     container: `//div[contains(@id,'ContextWindow')]`,
@@ -31,19 +32,19 @@ const liveContextWindow = Object.create(page, {
     },
     clickOnInspectTabBarItem: {
         value: function () {
-            return this.waitForVisible(this.inspectTabBarItem).then(()=> {
+            return this.waitForVisible(this.inspectTabBarItem).then(() => {
                 return this.getDisplayedElements(this.inspectTabBarItem);
-            }).then((result)=> {
+            }).then((result) => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_inspection_link');
                 throw new Error('clickOnContentType:' + err);
             }).pause(500);
         }
     },
     waitForOpened: {
-        value: function (ms) {
-            return this.waitForVisible(panel.container, ms).catch(err=> {
+        value: function () {
+            return this.waitForVisible(panel.container, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_load_context_window');
                 throw new Error('Live Edit, Context window is not opened' + err);
             });
