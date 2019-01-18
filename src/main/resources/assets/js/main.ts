@@ -6,7 +6,6 @@ import LostConnectionDetector = api.system.ConnectionDetector;
 
 declare const CONFIG;
 // init should go before imports to correctly translate their static fields etc.
-api.util.i18nInit(CONFIG.messages);
 
 const body = api.dom.Body.get();
 
@@ -454,7 +453,7 @@ function initSearchPanelListener(panel: ContentAppPanel) {
 preLoadApplication();
 
 const renderListener = () => {
-    startApplication();
+    api.util.i18nInit(CONFIG.messages).then(() => startApplication());
     body.unRendered(renderListener);
 };
 if (body.isRendered()) {
