@@ -48,7 +48,7 @@ export class ContentPublishMenuButton
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.getActionButton().addClass('main-action-button')
+            this.getActionButton().addClass('main-action-button');
             this.createIssueButton.addClass('create-issue-action-button');
             this.appendChild(this.createIssueButton);
 
