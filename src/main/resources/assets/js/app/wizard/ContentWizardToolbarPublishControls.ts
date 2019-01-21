@@ -38,7 +38,8 @@ export class ContentWizardToolbarPublishControls
             publishAction: this.publishAction,
             publishTreeAction: this.publishTreeAction,
             unpublishAction: this.unpublishAction,
-            createIssueAction: this.createIssueAction
+            createIssueAction: this.createIssueAction,
+            showCreateIssueButtonByDefault: false
         });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 

@@ -214,7 +214,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             PUBLISH_TREE: false,
             PUBLISH: false,
             UNPUBLISH: false,
-            CREATE_ISSUE: false,
+            CREATE_ISSUE: true,
         });
 
         this.actionsMap.UNPUBLISH.setVisible(false);
