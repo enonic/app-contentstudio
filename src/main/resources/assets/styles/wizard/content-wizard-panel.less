@@ -1,3 +1,5 @@
+@toolbar-height: 41px;
+
 .content-wizard-panel {
 
   &:not(.rendered) {
@@ -235,19 +237,15 @@
     }
   }
 
-  .split-panel.context-split-panel.context-panel-expanded .content-wizard-toolbar {
-    padding-right: 0;
-  }
-
   .context-panel {
+    overflow: visible;
     &.floating-context-panel {
-      top: 0;
+      top: @toolbar-height;
       z-index: 2000;
     }
 
-    .non-mobile-details-panel-toggle-button:not(.expanded) {
+    .non-mobile-details-panel-toggle-button {
       top: 0;
-      height: 40px;
     }
 
     &.mobile {

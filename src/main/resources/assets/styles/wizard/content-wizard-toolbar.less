@@ -7,7 +7,7 @@
   justify-content: flex-start;
   align-items: flex-end;
   align-content: stretch;
-  padding-right: 1px;
+  padding-right: 40px;
   padding-left: 15px;
   height: @toolbar-height;
   line-height: @toolbar-height;
@@ -86,8 +86,6 @@
 
 @media screen and (min-width: 720px) {
   .content-wizard-toolbar {
-    padding-right: 40px;
-
     .details-toggle {
       display: none !important;
     }
@@ -96,6 +94,8 @@
 
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
+    padding-right: 1px;
+
     .details-toggle {
       text-align: center;
       padding: 6px;
