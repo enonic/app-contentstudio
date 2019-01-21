@@ -15,6 +15,7 @@ export interface ContentPublishMenuButtonConfig {
     publishTreeAction: Action;
     unpublishAction: Action;
     createIssueAction: Action;
+    showCreateIssueButtonByDefault?: boolean;
 }
 
 export class ContentPublishMenuButton
@@ -46,6 +47,7 @@ export class ContentPublishMenuButton
         this.createIssueAction = config.createIssueAction;
 
         this.createIssueButton = new ActionButton(this.createIssueAction);
+        this.toggleClass('only-create-issue', config.showCreateIssueButtonByDefault);
 
         this.initIsItemPublishableHandler();
         this.handleIssueCreatedOrUpdated();
