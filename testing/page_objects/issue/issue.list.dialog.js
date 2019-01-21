@@ -46,7 +46,10 @@ const issuesListDialog = Object.create(page, {
 
     waitForDialogVisible: {
         value: function () {
-            return this.waitForVisible(this.newIssueButton, appConst.TIMEOUT_2);
+            return this.waitForVisible(this.newIssueButton, appConst.TIMEOUT_3).catch(err=>{
+                this.saveScreenshot("err_load_issues_list_dlg");
+                throw new Error("Issues list dialog not loaded in "+appConst.TIMEOUT_3)
+            })
         }
     },
     waitForDialogClosed: {

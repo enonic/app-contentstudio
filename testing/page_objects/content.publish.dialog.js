@@ -4,16 +4,15 @@ const dialog = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     deleteButton: `//button/span[contains(.,'Delete')]`,
     publishButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish')]]`,
-    cancelButton: `//button/span[text()='Cancel']`,
+    cancelButtonBottom: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
 };
 
 const contentPublishDialog = Object.create(page, {
 
-    cancelButton: {
+    cancelButtonBottom: {
         get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
-
+            return `${dialog.container}` + `${dialog.cancelButtonBottom}`;
         }
     },
     publishButton: {
@@ -48,7 +47,20 @@ const contentPublishDialog = Object.create(page, {
             })
         }
     },
-
+    clickOnIncludeChildrenToogler: {
+        value: function () {
+            return this.doClick(this.includeChildrenToogler).catch(err => {
+                throw new Error('Error when clicking on Include Children toggler ' + err);
+            })
+        }
+    },
+    waitForCancelButtonBottomEnabled: {
+        value: function () {
+            return this.waitForEnabled(this.cancelButtonBottom,appConst.TIMEOUT_3).catch(err=>{
+                throw new Error("Publish Content Dialog - Button Cancel must be enabled!")
+            })
+        }
+    },
 });
 module.exports = contentPublishDialog;
 

@@ -156,7 +156,7 @@ module.exports = {
         }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
         }).then(() => {
-            return this.doCloseWizardAndSwitchToGrid()
+            return this.doCloseWizardAndSwitchToGrid();
         }).pause(1000);
     },
     doAddFolder: function (folder) {
