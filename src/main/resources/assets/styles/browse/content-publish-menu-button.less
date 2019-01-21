@@ -43,6 +43,10 @@
         }
       }
 
+      &:not([disabled]):hover:after {
+        border-top-color: lighten(@admin-green, 10%);
+      }
+
     }
 
     &.only-create-issue:not(.minimized) {

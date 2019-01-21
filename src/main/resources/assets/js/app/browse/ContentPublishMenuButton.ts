@@ -3,6 +3,8 @@ import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
+import {Permission} from '../access/Permission';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
@@ -29,6 +31,9 @@ export class ContentPublishMenuButton
     private createIssueButton: ActionButton;
 
     private item: ContentSummaryAndCompareStatus;
+    private isItemPublishable: boolean = false;
+    private isItemPublishableHandler: () => void;
+    private updateButtonStateHandler: () => void;
 
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction, [config.publishTreeAction, config.unpublishAction, config.createIssueAction]);
@@ -42,6 +47,7 @@ export class ContentPublishMenuButton
 
         this.createIssueButton = new ActionButton(this.createIssueAction);
 
+        this.initIsItemPublishableHandler();
         this.handleIssueCreatedOrUpdated();
         this.handleActionsStateUpdated();
     }
@@ -54,6 +60,15 @@ export class ContentPublishMenuButton
 
             return rendered;
         });
+    }
+
+    private initIsItemPublishableHandler() {
+        this.isItemPublishableHandler = api.util.AppHelper.debounce(() => {
+            this.checkItemIsPublishable().then((result: boolean) => {
+                this.isItemPublishable = result;
+                this.updateButtonStateHandler();
+            });
+        }, 200);
     }
 
     private handleIssueCreatedOrUpdated() {
@@ -72,17 +87,21 @@ export class ContentPublishMenuButton
     }
 
     private handleActionsStateUpdated() {
-        const updateHandler: () => void = api.util.AppHelper.debounce(() => {
+        this.updateButtonStateHandler = api.util.AppHelper.debounce(() => {
             this.toggleClass('only-create-issue', this.isOnlyCreateIssueEnabled());
         }, 200);
 
-        this.publishAction.onPropertyChanged(updateHandler);
-        this.publishTreeAction.onPropertyChanged(updateHandler);
-        this.unpublishAction.onPropertyChanged(updateHandler);
-        this.createIssueAction.onPropertyChanged(updateHandler);
+        this.publishAction.onPropertyChanged(this.updateButtonStateHandler);
+        this.publishTreeAction.onPropertyChanged(this.updateButtonStateHandler);
+        this.unpublishAction.onPropertyChanged(this.updateButtonStateHandler);
+        this.createIssueAction.onPropertyChanged(this.updateButtonStateHandler);
     }
 
     private isOnlyCreateIssueEnabled(): boolean {
+        if (!!this.item && this.isItemPublishable) {
+            return false;
+        }
+
         return this.createIssueAction.isEnabled() && !this.publishAction.isEnabled() && !this.publishTreeAction.isEnabled() &&
                !this.unpublishAction.isEnabled();
     }
@@ -91,7 +110,10 @@ export class ContentPublishMenuButton
         if (!!item && !item.getContentId().equals(item.getContentId())) {
             this.fetchIssues(item);
         }
+
         this.item = item;
+
+        this.isItemPublishableHandler();
     }
 
     private fetchIssues(highlightedOrSelected: ContentSummaryAndCompareStatus) {
@@ -127,5 +149,18 @@ export class ContentPublishMenuButton
             IssueDialogsManager.get().openDetailsDialog(issue);
         });
         return action;
+    }
+
+    private checkItemIsPublishable(): wemQ.Promise<boolean> {
+        if (!this.item) {
+            return wemQ(false);
+        }
+
+        return new GetPermittedActionsRequest()
+            .addContentIds(this.item.getContentId())
+            .addPermissionsToBeChecked(Permission.PUBLISH)
+            .sendAndParse().then((allowedPermissions: Permission[]) => {
+                return allowedPermissions.indexOf(Permission.PUBLISH) > -1;
+            });
     }
 }
