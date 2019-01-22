@@ -101,10 +101,11 @@
     right: -2px;
     box-sizing: border-box;
     font-size: 22px;
-    line-height: 44px;
+    line-height: @app-header-height;
 
     &.expanded {
       .icon-close();
+      line-height: @app-header-height;
     }
 
   }

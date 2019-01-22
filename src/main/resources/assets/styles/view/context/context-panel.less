@@ -155,7 +155,8 @@
       max-width: none;
 
       .option-filter-input {
-        height: @widget-selector-height + 2px;
+        border: none;
+        height: @widget-selector-height;
       }
 
       &.single-optioned {
@@ -182,23 +183,43 @@
       .selected-option {
         background: none;
         max-height: @widget-selector-height;
-        display: inline-block !important;
         border: 0;
 
         .option-value {
-          margin: 0 0 0 40px;
-          width: calc(~'100% - ' 80px);
+          margin: 0 40px 0 0;
+          width: auto;
 
-          .viewer {
+          .widget-viewer {
             line-height: @widget-selector-height;
+            padding: 4px 0 0 10px;
           }
         }
       }
 
-      .viewer {
+      .widget-viewer {
         font-size: 14px;
-        text-align: center;
         cursor: default;
+
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}main-name,
+          .@{_COMMON_PREFIX}sub-name {
+            cursor: pointer;
+          }
+
+          .@{_COMMON_PREFIX}names-view {
+            margin: 0 0 0 34px;
+          }
+
+          .@{_COMMON_PREFIX}wrapper {
+            height: 24px;
+            width: 24px;
+            margin-right: 8px;
+
+            .font-icon-default {
+              font-size: 24px;
+            }
+          }
+        }
       }
 
       .options-container {

@@ -2,6 +2,7 @@ import {WidgetView} from './WidgetView';
 import {ContextView} from './ContextView';
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
+import NamesAndIconViewer = api.ui.NamesAndIconViewer;
 
 export class WidgetsSelectionRow extends api.dom.DivEl {
 
@@ -68,19 +69,21 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
 
     constructor(contextView: ContextView) {
         super('widgetSelector', {
-            disableFilter: true,
             skipExpandOnClick: true,
-            inputPlaceholderText: ''
+            inputPlaceholderText: '',
+            optionDisplayValueViewer: new WidgetViewer()
         });
 
         this.onClicked((event) => {
             if (WidgetSelectorDropdown.isDefaultOptionDisplayValueViewer(event.target)) {
-                if (this.getSelectedOption()) {
-                    let widgetView = this.getSelectedOption().displayValue.getWidgetView();
-                    if (widgetView !== contextView.getActiveWidget()) {
-                        widgetView.setActive();
+                if (this.isDropdownShown()) {
+                    if (this.getSelectedOption()) {
+                        let widgetView = this.getSelectedOption().displayValue.getWidgetView();
+                        if (widgetView !== contextView.getActiveWidget()) {
+                            widgetView.setActive();
+                        }
+                        this.hideDropdown();
                     }
-                    this.hideDropdown();
                 }
             }
         });
@@ -116,4 +119,45 @@ export class WidgetViewOption {
         return this.widgetView.getWidgetName();
     }
 
+}
+
+export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
+
+    constructor() {
+        super('widget-viewer');
+    }
+
+    doLayout(object: WidgetViewOption) {
+        super.doLayout(object);
+
+        const view = this.getNamesAndIconView();
+        if (object && object.getWidgetView() && view) {
+            const widgetClass = object.getWidgetView().getWidgetKey() != null ? 'external-widget' : 'internal-widget';
+            view.removeClass('external-widget internal-widget');
+            view.addClass(widgetClass);
+        }
+    }
+
+    resolveDisplayName(object: WidgetViewOption): string {
+        return object.getWidgetView().getWidgetName();
+    }
+
+    resolveSubName(object: WidgetViewOption): string {
+        const name = object.getWidgetView().getWidgetName();
+        switch (name) {
+        case 'Properties': return 'Properties of the content';
+        case 'Version history': return 'History of the content\'s changes';
+        case 'Dependencies': return 'Dependencies tree of the content';
+        default: return 'No description';
+        }
+    }
+
+    resolveIconClass(object: WidgetViewOption): string {
+        const name = object.getWidgetView().getWidgetName();
+        switch (name) {
+        case 'Properties': return 'icon-info';
+        case 'Version history': return 'icon-history';
+        case 'Dependencies': return 'icon-link';
+        }
+    }
 }
