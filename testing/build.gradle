@@ -48,7 +48,7 @@ ext {
     unpackDir = "$buildDir${File.separator}install"
     screenshotsDir = "$buildDir${File.separator}screenshots"
     reportsDir = "$buildDir${File.separator}reports"
-    distroDir = "$unpackDir${File.separator}enonic-xp-$xpVersion"
+    distroDir = "$unpackDir${File.separator}enonic-xp-generic-$xpVersion"
     deployDir = "$distroDir${File.separator}home${File.separator}deploy"
     appDir = "$projectDir${File.separator}test-applications"
     seleniumDir = "$projectDir${File.separator}test-applications${File.separator}selenium"
