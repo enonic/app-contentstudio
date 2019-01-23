@@ -1,27 +1,34 @@
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
 import {ComponentPath} from '../page/region/ComponentPath';
+import {RepositoryId} from '../repository/Repository';
 
 export class UriHelper {
 
-    public static getPortalUri(path: string, renderingMode: RenderingMode, workspace: Branch): string {
-        let elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
+    public static getPortalUri(path: string, renderingMode: RenderingMode, repositoryId: RepositoryId, branch: Branch): string {
+        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
         path = api.util.UriHelper.relativePath(path);
 
-        let workspaceName: string = Branch[workspace].toLowerCase();
-        let renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
+        const repositoryName: string = repositoryId.toString();
 
-        return api.util.UriHelper.getPortalUri(renderingModeName + elementDivider + workspaceName + elementDivider + path);
+        const branchName: string = Branch[branch].toLowerCase();
+        const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
+
+        return api.util.UriHelper.addSitePrefix(
+            renderingModeName + elementDivider + repositoryName + elementDivider + branchName + elementDivider + path);
     }
 
-    public static getPathFromPortalPreviewUri(portalUri: string, renderingMode: RenderingMode, workspace: Branch): string {
-        let workspaceName: string = Branch[workspace].toLowerCase();
-        let renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
+    public static getPathFromPortalPreviewUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
+                                              workspace: Branch): string {
+        const repositoryName: string = repositoryId.toString();
 
-        let elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        let searchEntry = renderingModeName + elementDivider + workspaceName;
+        const branchName: string = Branch[workspace].toLowerCase();
+        const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
 
-        let index = portalUri.indexOf(searchEntry);
+        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
+        const searchEntry = renderingModeName + elementDivider + repositoryName + elementDivider + branchName;
+
+        const index = portalUri.indexOf(searchEntry);
         if (index > -1) {
             return portalUri.substring(index + searchEntry.length);
         } else {
@@ -29,16 +36,16 @@ export class UriHelper {
         }
     }
 
-    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode,
+    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode, repositoryId: RepositoryId,
                                   workspace: Branch): string {
-        let elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        let componentPart = elementDivider + '_' + elementDivider + 'component' + elementDivider;
-        let componentPathStr = componentPath ? componentPath.toString() : '';
-        return UriHelper.getPortalUri(contentId + componentPart + componentPathStr, renderingMode, workspace);
+        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
+        const componentPart = elementDivider + '_' + elementDivider + 'component' + elementDivider;
+        const componentPathStr = componentPath ? componentPath.toString() : '';
+        return UriHelper.getPortalUri(contentId + componentPart + componentPathStr, renderingMode, repositoryId, workspace);
     }
 
     public static getAdminUri(baseUrl: string, contentPath: string): string {
-        let adminUrl = UriHelper.getPortalUri(contentPath, RenderingMode.ADMIN, Branch.DRAFT);
+        const adminUrl = UriHelper.getPortalUri(contentPath, RenderingMode.ADMIN, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
         return adminUrl + (adminUrl.charAt(adminUrl.length - 1) === '/' ? '' : api.content.ContentPath.ELEMENT_DIVIDER) + baseUrl;
     }
 }

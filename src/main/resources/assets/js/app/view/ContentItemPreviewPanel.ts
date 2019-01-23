@@ -6,6 +6,7 @@ import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
+import {RepositoryId} from '../repository/Repository';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
@@ -292,7 +293,7 @@ export class ContentItemPreviewPanel
         this.showMask();
         if (item.isRenderable()) {
             this.setPreviewType(PREVIEW_TYPE.PAGE);
-            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, Branch.DRAFT);
+            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
             // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
             wemjq.ajax({
                 type: 'HEAD',

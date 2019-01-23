@@ -39,6 +39,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
+import {RepositoryId} from '../../repository/Repository';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
@@ -256,7 +257,7 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, Branch.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
 
         if (api.BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();
