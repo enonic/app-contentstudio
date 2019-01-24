@@ -225,7 +225,7 @@ export class ContextView
     }
 
     private getWidgetsInterfaceNames(): string[] {
-        return ['com.enonic.xp.content-manager.context-widget', 'contentstudio.detailpanel'];
+        return ['contentstudio.contextpanel'];
     }
 
     updateActiveWidget(): wemQ.Promise<any> {
