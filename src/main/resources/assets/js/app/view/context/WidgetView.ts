@@ -142,6 +142,14 @@ export class WidgetView extends api.dom.DivEl {
         return this.widget ? this.widget.getWidgetDescriptorKey().getApplicationKey().getName() : null;
     }
 
+    getWidgetDescription(): string {
+        return this.widget ? this.widget.getDescription() : null;
+    }
+
+    getWidgetIconUrl(): string {
+        return this.widget ? this.widget.getIconUrl() : null;
+    }
+
     slideOut() {
         this.getEl().setMaxHeightPx(this.getEl().getHeight()); // enables transition
         this.getEl().setMaxHeightPx(0);

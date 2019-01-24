@@ -144,12 +144,18 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
 
     resolveSubName(object: WidgetViewOption): string {
         const name = object.getWidgetView().getWidgetName();
+        const description = object.getWidgetView().getWidgetDescription() || 'No description';
         switch (name) {
         case 'Properties': return 'Properties of the content';
         case 'Version history': return 'History of the content\'s changes';
         case 'Dependencies': return 'Dependencies tree of the content';
-        default: return 'No description';
+        default:
+            return description;
         }
+    }
+
+    resolveIconUrl(object: WidgetViewOption): string {
+        return object.getWidgetView().getWidgetIconUrl();
     }
 
     resolveIconClass(object: WidgetViewOption): string {
