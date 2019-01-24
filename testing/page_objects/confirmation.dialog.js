@@ -39,7 +39,6 @@ const confirmationDialog = Object.create(page, {
     waitForDialogVisible: {
         value: function () {
             return this.waitForVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot("confirmation_dialog_was_not_loaded");
                 return false;
             })
         }
