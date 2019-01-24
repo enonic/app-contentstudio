@@ -54,7 +54,7 @@ export class IssueDetailsDialog
 
     private errorTooltip: Tooltip;
 
-    private static INSTANCE: IssueDetailsDialog = new IssueDetailsDialog();
+    private static INSTANCE: IssueDetailsDialog;
 
     private itemsTab: TabBarItem;
     private commentsTab: TabBarItem;
@@ -124,6 +124,11 @@ export class IssueDetailsDialog
     }
 
     public static get(): IssueDetailsDialog {
+
+        if (!IssueDetailsDialog.INSTANCE) {
+            IssueDetailsDialog.INSTANCE = new IssueDetailsDialog();
+        }
+
         return IssueDetailsDialog.INSTANCE;
     }
 
