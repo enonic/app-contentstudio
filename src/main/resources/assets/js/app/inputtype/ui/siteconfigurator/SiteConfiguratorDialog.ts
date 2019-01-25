@@ -19,11 +19,13 @@ export class SiteConfiguratorDialog
         const dialogElement: HTMLElement = this.getHTMLElement();
 
         for (let i in ckeInstances) {
-            const ckeInstance: CKEDITOR.editor = CKEDITOR.instances[i];
+            if (CKEDITOR.instances[i]) {
+                const ckeInstance: CKEDITOR.editor = CKEDITOR.instances[i];
 
-            if (dialogElement.contains(ckeInstance.container.$)) {
-                ckeInstance.focusManager.blur(true);
-                ckeInstance.destroy();
+                if (dialogElement.contains(ckeInstance.container.$)) {
+                    ckeInstance.focusManager.blur(true);
+                    ckeInstance.destroy();
+                }
             }
         }
     }
