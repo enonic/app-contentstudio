@@ -4,6 +4,12 @@ import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Widget = api.content.Widget;
 
+export enum WidgetViewType {
+    DETAILS,
+    VERSIONS,
+    DEPENDENCIES
+}
+
 export class WidgetView extends api.dom.DivEl {
 
     private widgetName: string;
@@ -20,6 +26,8 @@ export class WidgetView extends api.dom.DivEl {
 
     private content: ContentSummaryAndCompareStatus;
 
+    private type: WidgetViewType;
+
     private activationListeners: { (): void }[] = [];
 
     public static debug: boolean = false;
@@ -31,6 +39,7 @@ export class WidgetView extends api.dom.DivEl {
         this.widgetName = builder.name;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
+        this.type = builder.type;
         if (!this.widgetItemViews.length) {
             this.createDefaultWidgetItemView();
         }
@@ -51,7 +60,7 @@ export class WidgetView extends api.dom.DivEl {
     private applyConfig() {
         if (this.isUrlBased()) {
             let config = this.widget.getConfig();
-            if (!!config && config.hasOwnProperty('render-on-resize') && config['render-on-resize'] === 'true') {
+            if (config && config.hasOwnProperty('render-on-resize') && config['render-on-resize'] === 'true') {
                 this.handleRerenderOnResize();
             }
         }
@@ -150,6 +159,14 @@ export class WidgetView extends api.dom.DivEl {
         return this.widget ? this.widget.getIconUrl() : null;
     }
 
+    getType(): WidgetViewType {
+        return this.type;
+    }
+
+    isInternal(): boolean {
+        return this.widget == null;
+    }
+
     slideOut() {
         this.getEl().setMaxHeightPx(this.getEl().getHeight()); // enables transition
         this.getEl().setMaxHeightPx(0);
@@ -240,6 +257,8 @@ export class WidgetViewBuilder {
 
     widget: Widget;
 
+    type: WidgetViewType;
+
     public setName(name: string): WidgetViewBuilder {
         this.name = name;
         return this;
@@ -262,6 +281,11 @@ export class WidgetViewBuilder {
 
     public setWidgetItemViews(widgetItemViews: WidgetItemView[]): WidgetViewBuilder {
         this.widgetItemViews = widgetItemViews;
+        return this;
+    }
+
+    public setType(type: WidgetViewType) {
+        this.type = type;
         return this;
     }
 

@@ -1,4 +1,4 @@
-import {WidgetView} from './WidgetView';
+import {WidgetView, WidgetViewType} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
@@ -259,7 +259,8 @@ export class ContextView
 
     private initCommonWidgetViews() {
 
-        this.defaultWidgetView = WidgetView.create().setName(i18n('field.contextPanel')).setContextView(this)
+        this.defaultWidgetView = WidgetView.create().setName(i18n('field.contextPanel.details')).setContextView(this)
+            .setType(WidgetViewType.DETAILS)
             .setWidgetItemViews([
                 new StatusWidgetItemView(),
                 new UserAccessWidgetItemView(),
@@ -269,9 +270,11 @@ export class ContextView
             ]).build();
 
         const versionsWidgetView = WidgetView.create().setName(i18n('field.contextPanel.versionHistory')).setContextView(this)
+            .setType(WidgetViewType.VERSIONS)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
         const dependenciesWidgetView = WidgetView.create().setName(i18n('field.contextPanel.dependencies')).setContextView(this)
+            .setType(WidgetViewType.DEPENDENCIES)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
         dependenciesWidgetView.addClass('dependency-widget');

@@ -1,8 +1,9 @@
-import {WidgetView} from './WidgetView';
+import {WidgetView, WidgetViewType} from './WidgetView';
 import {ContextView} from './ContextView';
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import NamesAndIconViewer = api.ui.NamesAndIconViewer;
+import i18n = api.util.i18n;
 
 export class WidgetsSelectionRow extends api.dom.DivEl {
 
@@ -147,12 +148,15 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveSubName(object: WidgetViewOption): string {
-        const name = object.getWidgetView().getWidgetName();
-        const description = object.getWidgetView().getWidgetDescription() || 'No description';
-        switch (name) {
-        case 'Properties': return 'Properties of the content';
-        case 'Version history': return 'History of the content\'s changes';
-        case 'Dependencies': return 'Dependencies tree of the content';
+        const type = object.getWidgetView().getType();
+        const description = object.getWidgetView().getWidgetDescription() || i18n('field.contextPanel.noDescription');
+        switch (type) {
+        case WidgetViewType.DETAILS:
+            return i18n('field.contextPanel.details.description');
+        case WidgetViewType.VERSIONS:
+            return i18n('field.contextPanel.versionHistory.description');
+        case WidgetViewType.DEPENDENCIES:
+            return i18n('field.contextPanel.dependencies.description');
         default:
             return description;
         }
@@ -163,11 +167,14 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveIconClass(object: WidgetViewOption): string {
-        const name = object.getWidgetView().getWidgetName();
-        switch (name) {
-        case 'Properties': return 'icon-info';
-        case 'Version history': return 'icon-history';
-        case 'Dependencies': return 'icon-link';
+        const type = object.getWidgetView().getType();
+        switch (type) {
+        case WidgetViewType.DETAILS:
+            return 'icon-list';
+        case WidgetViewType.VERSIONS:
+            return 'icon-history';
+        case WidgetViewType.DEPENDENCIES:
+            return 'icon-link';
         }
     }
 }
