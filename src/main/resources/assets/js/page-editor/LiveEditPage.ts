@@ -62,43 +62,44 @@ export class LiveEditPage {
             console.debug('LiveEditPage: starting live edit initialization');
         }
 
-        api.util.i18nInit(CONFIG.messages);
+        api.util.i18nInit(CONFIG.i18nUrl).then(() => {
 
-        const liveEditModel = event.getLiveEditModel();
-        const writePermissions = event.hasWritePermissions();
+            const liveEditModel = event.getLiveEditModel();
+            const writePermissions = event.hasWritePermissions();
 
-        let body = api.dom.Body.get().loadExistingChildren();
-        try {
-            this.pageView = new PageViewBuilder()
-                .setItemViewIdProducer(new ItemViewIdProducer())
-                .setItemViewFactory(new DefaultItemViewFactory())
-                .setLiveEditModel(liveEditModel)
-                .setWritePermissions(writePermissions)
-                .setElement(body).build();
-        } catch (error) {
+            let body = api.dom.Body.get().loadExistingChildren();
+            try {
+                this.pageView = new PageViewBuilder()
+                    .setItemViewIdProducer(new ItemViewIdProducer())
+                    .setItemViewFactory(new DefaultItemViewFactory())
+                    .setLiveEditModel(liveEditModel)
+                    .setWritePermissions(writePermissions)
+                    .setElement(body).build();
+            } catch (error) {
+                if (LiveEditPage.debug) {
+                    console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
+                }
+                if (api.ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
+                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                             error.getMessage()).fire();
+                } else {
+                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                             error).fire();
+                }
+                return;
+            }
+
+            DragAndDrop.init(this.pageView);
+
+            api.ui.Tooltip.allowMultipleInstances(false);
+
+            this.registerGlobalListeners();
+
             if (LiveEditPage.debug) {
-                console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
+                console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
             }
-            if (api.ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
-                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                         error.getMessage()).fire();
-            } else {
-                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                         error).fire();
-            }
-            return;
-        }
-
-        DragAndDrop.init(this.pageView);
-
-        api.ui.Tooltip.allowMultipleInstances(false);
-
-        this.registerGlobalListeners();
-
-        if (LiveEditPage.debug) {
-            console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
-        }
-        new LiveEditPageViewReadyEvent(this.pageView).fire();
+            new LiveEditPageViewReadyEvent(this.pageView).fire();
+        });
     }
 
     public destroy(win: Window = window): void {

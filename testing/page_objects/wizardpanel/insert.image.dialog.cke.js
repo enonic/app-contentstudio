@@ -10,7 +10,8 @@ const dialog = {
     styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
     styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
-    imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]"
+    imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]",
+    selectedOptionView: "//div[contains(@id,'SelectedOptionView')]"
 };
 
 const insertImageDialog = Object.create(page, {
@@ -81,6 +82,12 @@ const insertImageDialog = Object.create(page, {
             return this.waitForDisabled(this.customWidthCheckbox + elements.CHECKBOX_INPUT, appConst.TIMEOUT_2);
         }
     },
+    waitForCustomWidthCheckBoxEnabled: {
+        value: function () {
+            return this.waitForEnabled(this.customWidthCheckbox + elements.CHECKBOX_INPUT, appConst.TIMEOUT_2);
+        }
+    },
+
 
     clickOnStyleSelectorDropDownHandle: {
         value: function () {
@@ -169,6 +176,13 @@ const insertImageDialog = Object.create(page, {
             });
         }
     },
+    getSelectedStyleName: {
+        value: function () {
+            let selectedOption = dialog.container + dialog.selectedOptionView + "//h6[contains(@class,'main-name')]";
+            return this.getText(selectedOption);
+        }
+    },
+
 });
 module.exports = insertImageDialog;
 

@@ -111,6 +111,14 @@ const contentWizardPanel = Object.create(page, {
             })
         }
     },
+    waitForContextWindowVisible: {
+        value: function () {
+            return contextWindow.waitForOpened().catch(err => {
+                this.saveScreenshot('err_open_inspection_panel');
+                throw new Error('Inspection Panel is not opened in ' + appConst.TIMEOUT_3 + '  ' + err);
+            })
+        }
+    },
     waitForScheduleFormVisible: {
         value: function () {
             return this.waitForVisible(wizard.scheduleForm, appConst.TIMEOUT_2).catch(err => {
@@ -439,7 +447,8 @@ const contentWizardPanel = Object.create(page, {
                 return this.getBrowser().frameParent();
             }).then(() => {
                 // new button should be loaded automatically
-                return this.waitForInspectionPanelTogglerVisible();
+                //return this.waitForInspectionPanelTogglerVisible();
+                return this.waitForContextWindowVisible();
             })
         }
     },

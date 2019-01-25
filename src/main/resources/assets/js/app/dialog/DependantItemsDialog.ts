@@ -137,7 +137,7 @@ export abstract class DependantItemsDialog
     }
 
     protected getDependantsHeader(listVisible: boolean): string {
-        return i18n(`dialog.${listVisible ? 'hide' : 'show' }Dependents`);
+        return i18n(`dialog.${listVisible ? 'hide' : 'show' }Dependants`);
     }
 
     protected updateDependantsHeader(header?: string) {

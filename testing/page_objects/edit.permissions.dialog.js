@@ -46,15 +46,15 @@ const editPermissionsDialog = Object.create(page, {
     },
     waitForDialogLoaded: {
         value: function () {
-            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_2);
+            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_3);
         }
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot('err_close_permissions_dialog');
-                throw new Error('Edit Permissions dialog must be closed ' + err);
-            }).pause(400);
+            let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
+            return this.getBrowser().waitUntil(() => {
+                return this.isElementNotDisplayed(`${xpath.container}`);
+            }, appConst.TIMEOUT_3, message).pause(300);
         }
     },
     getDisplayNameOfSelectedPrincipals: {

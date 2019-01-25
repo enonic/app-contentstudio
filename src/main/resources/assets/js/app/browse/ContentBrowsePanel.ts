@@ -677,7 +677,8 @@ export class ContentBrowsePanel
             publishAction: browseActions.getPublishAction(),
             publishTreeAction: browseActions.getPublishTreeAction(),
             unpublishAction: browseActions.getUnpublishAction(),
-            createIssueAction: browseActions.getCreateIssueAction()
+            createIssueAction: browseActions.getCreateIssueAction(),
+            showCreateIssueButtonByDefault: true
         });
 
         this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {

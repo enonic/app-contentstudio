@@ -116,7 +116,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     publishButton: {
         get: function () {
-            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...') or contains(.,'#action.publishMore#')]]`
         }
     },
     displayNames: {

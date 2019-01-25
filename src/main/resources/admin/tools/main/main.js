@@ -21,11 +21,11 @@ function handleGet() {
         xpVersion: app.version,
         branch: branch,
         repository: repository,
-        messages: admin.getPhrases(),
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: portal.serviceUrl({service: 'styles'})
+        stylesUrl: portal.serviceUrl({service: 'styles'}),
+        i18nUrl: portal.serviceUrl({service: 'i18n'})
     };
 
     return {
