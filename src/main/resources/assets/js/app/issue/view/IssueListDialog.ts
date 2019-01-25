@@ -14,7 +14,7 @@ import {IssueStatsJson} from '../json/IssueStatsJson';
 export class IssueListDialog
     extends ModalDialog {
 
-    private static INSTANCE: IssueListDialog = new IssueListDialog();
+    private static INSTANCE: IssueListDialog;
 
     private dockedPanel: DockedPanel;
 
@@ -50,6 +50,9 @@ export class IssueListDialog
     }
 
     public static get(): IssueListDialog {
+        if (!IssueListDialog.INSTANCE) {
+            IssueListDialog.INSTANCE = new IssueListDialog();
+        }
         return IssueListDialog.INSTANCE;
     }
 

@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": [ "dom", "es2015" ]
   },
   "files": [
     "./src/main/resources/assets/js/main.ts",

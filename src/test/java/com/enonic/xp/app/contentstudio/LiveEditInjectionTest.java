@@ -31,8 +31,6 @@ public class LiveEditInjectionTest
 
     private PortalResponse portalResponse;
 
-    private LocaleService localeService;
-
     private LiveEditInjection injection;
 
     @Before
@@ -40,11 +38,9 @@ public class LiveEditInjectionTest
     {
         this.portalRequest = new PortalRequest();
         this.portalResponse = PortalResponse.create().build();
-        this.localeService = Mockito.mock( LocaleService.class );
         mockCurrentContextHttpRequest();
 
         this.injection = new LiveEditInjection();
-        this.injection.setLocaleService( localeService );
     }
 
     @Test
@@ -84,8 +80,6 @@ public class LiveEditInjectionTest
     {
         this.portalRequest.setMode( RenderMode.EDIT );
         this.portalRequest.setRawRequest( ServletRequestHolder.getRequest() );
-        Mockito.when( localeService.getBundle( Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() ) ).thenReturn(
-            generateMessageBundle() );
 
         final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
         assertNotNull( list );
@@ -103,30 +97,6 @@ public class LiveEditInjectionTest
         Mockito.when( req.getLocalPort() ).thenReturn( 80 );
         Mockito.when( req.getLocale() ).thenReturn( Locale.forLanguageTag( "no" ) );
         ServletRequestHolder.setRequest( req );
-    }
-
-    private MessageBundle generateMessageBundle()
-    {
-        return new MessageBundle()
-        {
-            @Override
-            public Set<String> getKeys()
-            {
-                return null;
-            }
-
-            @Override
-            public String localize( final String key, final Object... args )
-            {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> asMap()
-            {
-                return Maps.newHashMap();
-            }
-        };
     }
 
     private String readResource( final String resourceName )
