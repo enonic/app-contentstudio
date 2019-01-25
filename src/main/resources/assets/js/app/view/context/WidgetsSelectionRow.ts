@@ -88,6 +88,10 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             }
         });
 
+        this.onOptionSelected(() => {
+            this.clearInput();
+        });
+
         api.util.AppHelper.focusInOut(this, () => {
             this.hideDropdown();
         });
