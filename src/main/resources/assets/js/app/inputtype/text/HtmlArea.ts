@@ -210,10 +210,6 @@ export class HtmlArea
                 if (api.BrowserHelper.isIE()) {
                     this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
                 }
-
-                this.onRemoved(() => {
-                    this.destroyEditor(id);
-                });
             }
 
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
