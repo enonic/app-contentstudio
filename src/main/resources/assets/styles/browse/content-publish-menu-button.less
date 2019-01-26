@@ -10,12 +10,13 @@
     .action-button {
       text-align: left;
       padding-left: 12px;
+      border-left: 1px solid @admin-bg-light-gray;
+      margin-left: 38px;
 
       &.main-action-button {
         span {
           text-transform: uppercase;
           color: @admin-green;
-          font-weight: 600;
           font-family: sans-serif, "Open Sans", Helvetica;
         }
 
@@ -59,7 +60,8 @@
       }
 
       .xp-admin-common-dropdown-handle {
-        display: none;
+        opacity: .5;
+        pointer-events: none;
       }
     }
   }
