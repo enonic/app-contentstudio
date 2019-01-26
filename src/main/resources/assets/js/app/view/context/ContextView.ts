@@ -176,6 +176,7 @@ export class ContextView
         this.activeWidget = widgetView;
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
+        this.toggleClass('internal', widgetView.isInternal());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -208,15 +209,16 @@ export class ContextView
             console.debug('ContextView.setItem: ', item);
         }
 
-            this.item = item;
-            if (item) {
-                this.layout(false);
-                if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget) {
-                    return this.updateActiveWidget();
-                }
-            } else {
-                this.layout();
+        this.item = item;
+        if (item) {
+            this.layout(false);
+            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && this.activeWidget) {
+                return this.updateActiveWidget();
             }
+        } else {
+            this.layout();
+        }
+
         return wemQ<any>(null);
     }
 
@@ -373,7 +375,6 @@ export class ContextView
     }
 
     private layout(empty: boolean = true) {
-        this.contextContainer.setVisible(!empty);
         this.toggleClass('no-selection', empty);
     }
 

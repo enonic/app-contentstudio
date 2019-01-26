@@ -95,17 +95,20 @@ export class WidgetView extends api.dom.DivEl {
 
         this.url = this.getWidgetUrl();
         this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
-            promises.push(widgetItemView.setUrl(this.url, this.content.getContentId().toString()));
+            const contentId = this.content ? this.content.getContentId().toString() : null;
+            promises.push(widgetItemView.setUrl(this.url, contentId));
         });
 
         return promises;
     }
 
     public updateWidgetItemViews(): wemQ.Promise<any> {
-        let content = this.contextView.getItem();
+        const content = this.contextView.getItem();
         let promises = [];
 
-        if (this.isActive() && this.contextView.getItem()) {
+        const isValidForContent = !this.isInternal() || !!content;
+
+        if (this.isActive() && isValidForContent) {
             this.contextView.showLoadMask();
             this.content = content;
 

@@ -22,10 +22,11 @@ export class WidgetItemView extends api.dom.DivEl {
 
     private getFullWidgetUrl(url: string, contentId: string) {
         const {repository, branch} = CONFIG;
-        const repositoryParam = repository ? `&repository=${repository}` : '';
-        const branchParam = branch ? `&branch=${branch}` : '';
+        const repositoryParam = repository ? `repository=${repository}&` : '';
+        const branchParam = branch ? `branch=${branch}&` : '';
+        const contentIdParam = contentId ? `contentId=${contentId}&` : '';
 
-        return `${url}?contentId=${contentId}${repositoryParam}${branchParam}&t=${new Date().getTime()}`;
+        return `${url}?${contentIdParam}${repositoryParam}${branchParam}t=${new Date().getTime()}`;
     }
 
     public setUrl(url: string, contentId: string): wemQ.Promise<void> {

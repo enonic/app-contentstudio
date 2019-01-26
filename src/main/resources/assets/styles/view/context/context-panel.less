@@ -23,8 +23,11 @@
   }
 
   .context-panel-view {
-    &.no-selection {
+    &.no-selection.internal {
       height: 100%;
+      .context-container {
+        display: none;
+      }
       .no-selection-message {
         display: block;
       }
