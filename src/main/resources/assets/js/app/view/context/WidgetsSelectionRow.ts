@@ -93,6 +93,10 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             this.clearInput();
         });
 
+        this.onExpanded(() => {
+            this.navigateToSelectedOption();
+        });
+
         api.util.AppHelper.focusInOut(this, () => {
             this.hideDropdown();
         });
