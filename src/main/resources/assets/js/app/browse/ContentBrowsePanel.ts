@@ -25,7 +25,7 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {Branch} from '../versioning/Branch';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {RepositoryId} from '../repository/Repository';
+import {RepositoryId} from '../repository/RepositoryId';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;

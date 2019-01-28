@@ -39,7 +39,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
-import {RepositoryId} from '../../repository/Repository';
+import {RepositoryId} from '../../repository/RepositoryId';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;

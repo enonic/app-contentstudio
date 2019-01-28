@@ -1,7 +1,8 @@
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {RepositoryId} from '../repository/Repository';
+import {RepositoryId} from '../repository/RepositoryId';
+import {RepositoryHelper} from '../repository/RepositoryHelper';
 
 export class UriHelper {
 
@@ -9,7 +10,7 @@ export class UriHelper {
         const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
         path = api.util.UriHelper.relativePath(path);
 
-        const repositoryName: string = repositoryId.toString();
+        const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
 
         const branchName: string = Branch[branch].toLowerCase();
         const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
@@ -20,7 +21,7 @@ export class UriHelper {
 
     public static getPathFromPortalPreviewUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
                                               workspace: Branch): string {
-        const repositoryName: string = repositoryId.toString();
+        const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
 
         const branchName: string = Branch[workspace].toLowerCase();
         const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();

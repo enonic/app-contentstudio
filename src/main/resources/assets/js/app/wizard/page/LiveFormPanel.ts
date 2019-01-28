@@ -70,7 +70,7 @@ import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
-import {RepositoryId} from '../../repository/Repository';
+import {RepositoryId} from '../../repository/RepositoryId';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;

@@ -1,7 +1,7 @@
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
-import {RepositoryId} from '../repository/Repository';
+import {RepositoryId} from '../repository/RepositoryId';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 

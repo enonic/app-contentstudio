@@ -6,7 +6,7 @@ import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
-import {RepositoryId} from '../repository/Repository';
+import {RepositoryId} from '../repository/RepositoryId';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
