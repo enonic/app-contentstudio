@@ -5,6 +5,7 @@ import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
+import {ImageUrlBuilder, ImageUrlParameters} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
@@ -163,13 +164,22 @@ export class ContentItemPreviewPanel
     private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
         const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
         const content = item.getModel().getContentSummary();
+
+        const urlParams: ImageUrlParameters = {
+            id: content.getId(),
+            timeStamp: content.getModifiedTime(),
+            crop: true
+        };
+
+        return new ImageUrlBuilder(urlParams).buildForPreview();
+
         const imgUrl = new ContentImageUrlResolver()
                         .setContentId(content.getContentId())
                         .setTimestamp(content.getModifiedTime())
                         .setSize(imgSize)
                         .resolve();
 
-        this.image.setSrc(imgUrl);
+        this.image.setSrc(new ImageUrlBuilder(urlParams).buildForPreview());
     }
 
     public getItem(): ViewItem<ContentSummaryAndCompareStatus> {

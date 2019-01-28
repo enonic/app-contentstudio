@@ -138,7 +138,7 @@ export class ImageUploaderEl
         const urlParams: ImageUrlParameters = {
             id: id,
             timeStamp: new Date(),
-            useOriginal: true
+            crop: true
         };
 
         return new ImageUrlBuilder(urlParams).buildForPreview();

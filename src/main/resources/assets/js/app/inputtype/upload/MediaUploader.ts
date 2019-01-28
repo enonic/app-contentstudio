@@ -163,7 +163,7 @@ export class MediaUploader
         const urlParams: ImageUrlParameters = {
             id: content.getId(),
             timeStamp: new Date(),
-            useOriginal: true
+            crop: true
         };
 
         return new ImageUrlBuilder(urlParams).buildForPreview();

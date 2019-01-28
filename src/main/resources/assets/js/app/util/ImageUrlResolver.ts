@@ -1,123 +1,117 @@
 import ContentId = api.content.ContentId;
+import IconUrlResolver = api.icon.IconUrlResolver;
+import UriHelper = api.util.UriHelper;
 
-export interface ImageUrlParameters {
-    id: string;
-    useOriginal: boolean; // serve original unprocessed image
-    aspectRatio?: string;
-    filter?: string;
-    timeStamp?: Date;
-    scaleWidth?: boolean; // if width of the image must be preferred over its height
-    size?: number;
-}
-
-interface ImageSrcAttributes {
-    useOriginalParamName: string;
+interface ImageUrlProperties {
     imagePrefix: string;
     isAbsoluteUrl: boolean;
 }
 
-export class ImageUrlBuilder {
+export class ImageUrlResolver
+    extends IconUrlResolver {
 
-    private readonly params: ImageUrlParameters;
-
-    static readonly PREVIEW: ImageSrcAttributes = {
-        useOriginalParamName: 'source',
+    static readonly PREVIEW: ImageUrlProperties = {
         imagePrefix: 'content/image/',
         isAbsoluteUrl: true
     };
 
-    static readonly RENDER: ImageSrcAttributes = {
-        useOriginalParamName: 'keepSize',
+    static readonly RENDER: ImageUrlProperties = {
         imagePrefix: 'image://',
         isAbsoluteUrl: false
     };
 
-    constructor(params: ImageUrlParameters) {
-        this.params = params;
+    private contentId: ContentId;
+
+    private timeStamp: Date;
+
+    private scaleWidth: boolean = true;
+
+    private crop: boolean = true;
+
+    private size: number;
+
+    private aspectRatio: string; //scale params applied to image
+
+    private filter: string;
+
+    setContentId(value: ContentId): ContentImageUrlResolver {
+        this.contentId = value;
+        return this;
     }
 
-    private resolve(): ImagePreviewUrlBuilder {
-        return new ImagePreviewUrlBuilder(this.params);
+    setSize(value: number): ContentImageUrlResolver {
+        this.size = Math.floor(value);
+        return this;
     }
 
-    buildForPreview() {
-        return this.resolve().build(ImageUrlBuilder.PREVIEW);
+    setTimestamp(value: Date): ContentImageUrlResolver {
+        this.timeStamp = value;
+        return this;
     }
 
-    buildForRender() {
-        return this.resolve().build(ImageUrlBuilder.RENDER, false);
+    setScaleWidth(value: boolean): ContentImageUrlResolver {
+        this.scaleWidth = value;
+        return this;
     }
 
-}
-
-export class ImagePreviewUrlBuilder extends api.icon.IconUrlResolver {
-
-    private static maxImageWidth: number = 640;
-
-    protected readonly contentId: ContentId;
-    private readonly useOriginal: boolean;
-    private readonly aspectRatio: string;
-    private readonly filter: string;
-    private readonly timeStamp: Date;
-    private readonly scaleWidth: boolean;
-    private readonly size: number;
-
-    constructor(params: ImageUrlParameters) {
-        super();
-
-        this.contentId = new api.content.ContentId(params.id);
-        this.useOriginal = params.useOriginal;
-        this.timeStamp = params.timeStamp;
-
-        if (!this.useOriginal) {
-            // Apply these params only if serving of the original image is not forced
-            this.size = params.size;
-            this.scaleWidth = params.scaleWidth;
-            this.aspectRatio = params.aspectRatio;
-            this.filter = params.filter;
-
-            if (this.scaleWidth && !this.size) { // if width is preferred over height but not specifically set, use a constant
-                this.size = ImagePreviewUrlBuilder.maxImageWidth;
-            }
-        }
+    setCrop(value: boolean): ContentImageUrlResolver {
+        this.crop = value;
+        return this;
     }
 
-    protected getBaseUrl(srcParams: ImageSrcAttributes): string {
-        const url = srcParams.imagePrefix + this.contentId.toString();
-
-        return srcParams.isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
+    setAspectRatio(value: string): ContentImageUrlResolver {
+        this.aspectRatio = value;
+        return this;
     }
 
-    build(srcParams: ImageSrcAttributes, forPreview: boolean = true): string {
-        let url = this.getBaseUrl(srcParams);
+    setFilter(value: string): ContentImageUrlResolver {
+        this.filter = value;
+        return this;
+    }
 
-        if (forPreview && this.timeStamp) {
+    resolveForPreview(): string {
+        return this.resolve(ContentImageUrlResolver.PREVIEW);
+    }
+
+    resolveForRender(originalSize: boolean = false): string {
+        return this.resolve(ContentImageUrlResolver.RENDER) + (originalSize ? 'keepSize=true' : '');
+    }
+
+    private getBaseUrl(urlProperties: ImageUrlProperties): string {
+        const url = urlProperties.imagePrefix + this.contentId.toString();
+
+        return urlProperties.isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
+    }
+
+    private resolve(urlProperties: ImageUrlProperties): string {
+
+        let url = this.getBaseUrl(urlProperties);
+
+        if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
         }
 
-        if (this.useOriginal) {
-            url = this.appendParam(srcParams.useOriginalParamName, 'true', url);
-        } else {
-            if (forPreview) {
-                if (this.size) {
-                    url = this.appendParam('size', '' + Math.floor(this.size), url);
-                }
-
-                if (this.scaleWidth) {
-                    url = this.appendParam('scaleWidth', 'true', url);
-                }
-            }
-
-            if (this.aspectRatio) {
-                url = this.appendParam('scale', this.aspectRatio, url);
-            }
-
-            if (this.filter) {
-                url = this.appendParam('filter', this.filter, url);
-            }
+        if (this.size) {
+            url = this.appendParam('size', '' + Math.floor(this.size), url);
         }
 
-        return url;
-    }
+        if (this.scaleWidth) {
+            url = this.appendParam('scaleWidth', 'true', url);
+        }
 
+
+        if (this.aspectRatio) {
+            url = this.appendParam('scale', this.aspectRatio, url);
+        }
+
+        if (this.filter) {
+            url = this.appendParam('filter', this.filter, url);
+        }
+
+        if (this.crop) {
+            url = this.appendParam('crop', 'true', url);
+        }
+
+        return UriHelper.getRestUri(url);
+    }
 }

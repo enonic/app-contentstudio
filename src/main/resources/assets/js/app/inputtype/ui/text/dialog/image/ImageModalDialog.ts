@@ -340,7 +340,7 @@ export class ImageModalDialog
     private createImageBuilder(imageContent: ContentSummary, size?: number, style?: Style) {
         const imageUrlParams: ImageUrlParameters = {
             id: imageContent.getId(),
-            useOriginal: false,
+            crop: true,
             timeStamp: imageContent.getModifiedTime(),
             scaleWidth: true
         };
@@ -350,7 +350,7 @@ export class ImageModalDialog
         }
 
         if (style) {
-            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(style.getName());
+            imageUrlParams.crop = !StyleHelper.isOriginalImage(style.getName());
             imageUrlParams.aspectRatio = style.getAspectRatio();
             imageUrlParams.filter = style.getFilter();
         }
