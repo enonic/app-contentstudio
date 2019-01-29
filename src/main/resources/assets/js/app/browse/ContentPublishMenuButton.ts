@@ -147,7 +147,7 @@ export class ContentPublishMenuButton
 
     private setupIssueAction(issue: Issue): Action {
         const action = new Action(issue.getTitleWithId());
-        action.onExecuted((a) => {
+        action.onExecuted(() => {
             IssueDialogsManager.get().openDetailsDialog(issue);
         });
         return action;
