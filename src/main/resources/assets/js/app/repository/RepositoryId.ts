@@ -1,8 +1,8 @@
 export class RepositoryId
     implements api.Equitable {
 
-    public static CONTENT_REPO_ID: RepositoryId = new RepositoryId('com.enonic.cms.default');
     private static VALID_REPOSITORY_ID_REGEX: RegExp = /([a-zA-Z0-9\-:])([a-zA-Z0-9_\-\.:])*/;
+    public static CONTENT_REPO_ID: RepositoryId = new RepositoryId('com.enonic.cms.default');
     private value: string;
 
     constructor(value: string) {
