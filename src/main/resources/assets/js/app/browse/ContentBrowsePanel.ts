@@ -5,7 +5,7 @@ import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
 import {Router} from '../Router';
-import {ActiveDetailsPanelManager} from '../view/detail/ActiveDetailsPanelManager';
+import {ActiveContextPanelManager} from '../view/context/ActiveContextPanelManager';
 import {ContentBrowseItem} from './ContentBrowseItem';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
@@ -14,7 +14,7 @@ import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedE
 import {ContentPublishMenuButton} from './ContentPublishMenuButton';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
-import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
+import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
@@ -39,6 +39,7 @@ import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import SplitPanel = api.ui.panel.SplitPanel;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -46,7 +47,7 @@ export class ContentBrowsePanel
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
-    private detailsSplitPanel: DetailsSplitPanel;
+    private contextSplitPanel: ContextSplitPanel;
     private debouncedPreviewRefresh: () => void;
 
     constructor() {
@@ -118,6 +119,23 @@ export class ContentBrowsePanel
         return filterPanel;
     }
 
+    protected createMainContentSplitPanel(gridAndItemsSplitPanel: SplitPanel): SplitPanel {
+        const browseActions = this.getBrowseActions();
+        const mobileActions = [
+            browseActions.getUnpublishAction(),
+            browseActions.getPublishAction(),
+            browseActions.getMoveAction(),
+            browseActions.getSortAction(),
+            browseActions.getDeleteAction(),
+            browseActions.getDuplicateAction(),
+            browseActions.getEditAction(),
+            browseActions.getShowNewDialogAction()
+        ];
+        this.contextSplitPanel = new ContextSplitPanel(gridAndItemsSplitPanel, mobileActions);
+
+        return this.contextSplitPanel;
+    }
+
     protected updateFilterPanelOnSelectionChange() {
         this.filterPanel.setSelectedItems(this.treeGrid.getSelectedDataList());
     }
@@ -146,11 +164,11 @@ export class ContentBrowsePanel
                 browseActions.getEditAction(),
                 browseActions.getShowNewDialogAction()
             ];
-            this.detailsSplitPanel = new DetailsSplitPanel(this.getFilterAndGridSplitPanel(), mobileActions);
-            this.appendChild(this.detailsSplitPanel);
+
+            this.appendChild(this.getFilterAndGridSplitPanel());
 
             this.subscribeMobilePanelOnEvents();
-            this.subscribeDetailsPanelsOnEvents();
+            this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
 
             return rendered;
@@ -160,23 +178,23 @@ export class ContentBrowsePanel
         });
     }
 
-    private updateDetailsPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        if (!this.detailsSplitPanel.isMobileMode()) {
+    private updateContextPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
+        if (!this.contextSplitPanel.isMobileMode()) {
             // no need to update on selection change in mobile mode as it opens in a separate screen
             let item = this.getFirstSelectedOrHighlightedBrowseItem(selection);
-            this.doUpdateDetailsPanel(item ? item.getModel() : null);
+            this.doUpdateContextPanel(item ? item.getModel() : null);
         }
     }
 
-    private subscribeDetailsPanelsOnEvents() {
+    private subscribeContextPanelsOnEvents() {
 
         this.getTreeGrid().onSelectionChanged((currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
                                                fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]) => {
-            this.updateDetailsPanelOnItemChange(fullSelection);
+            this.updateContextPanelOnItemChange(fullSelection);
         });
 
         const onHighlightingChanged = api.util.AppHelper.debounce(() => {
-            this.updateDetailsPanelOnItemChange();
+            this.updateContextPanelOnItemChange();
         }, 500);
 
         this.getTreeGrid().onHighlightingChanged(() => onHighlightingChanged());
@@ -185,7 +203,7 @@ export class ContentBrowsePanel
     private subscribeMobilePanelOnEvents() {
 
         // selection opens detail panel in mobile mode, so deselect it when returning back to grid
-        this.detailsSplitPanel.onMobilePanelSlide((out: boolean) => {
+        this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
             if (out) {
                 this.treeGrid.deselectAll();
                 this.getBrowseActions().updateActionsEnabledState([]);
@@ -193,9 +211,9 @@ export class ContentBrowsePanel
         });
 
         TreeGridItemClickedEvent.on((event: TreeGridItemClickedEvent) => {
-            if (this.detailsSplitPanel.isMobileMode()) {
-                this.detailsSplitPanel.setContent(event.getTreeNode().getData());
-                this.detailsSplitPanel.showMobilePanel();
+            if (this.contextSplitPanel.isMobileMode()) {
+                this.contextSplitPanel.setContent(event.getTreeNode().getData());
+                this.contextSplitPanel.showMobilePanel();
             }
         });
     }
@@ -280,7 +298,7 @@ export class ContentBrowsePanel
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
                     const fullSelection = this.treeGrid.getRoot().getFullSelection();
-                    this.updateDetailsPanelOnItemChange(fullSelection);
+                    this.updateContextPanelOnItemChange(fullSelection);
                 });
             }
         });
@@ -398,7 +416,7 @@ export class ContentBrowsePanel
         merged.forEach((node: TreeNode<ContentSummaryAndCompareStatus>) => {
             let contentSummary = node.getData().getContentSummary();
             if (node.getData() && !!contentSummary) {
-                this.doUpdateDetailsPanel(null);
+                this.doUpdateContextPanel(null);
             }
         });
 
@@ -510,7 +528,7 @@ export class ContentBrowsePanel
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
         let changed = this.updateNodes(data);
 
-        this.updateDetailsPanel(data);
+        this.updateContextPanel(data);
 
         this.treeGrid.invalidateNodes(changed);
 
@@ -619,34 +637,34 @@ export class ContentBrowsePanel
         let previewItem = this.getBrowseItemPanel().getStatisticsItem();
         (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
 
-        this.detailsSplitPanel.setMobilePreviewItem(previewItem, true);
+        this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
     }
 
-    private updateDetailsPanel(data: ContentSummaryAndCompareStatus[]) {
-        let detailsPanel = ActiveDetailsPanelManager.getActiveDetailsPanel();
-        let itemInDetailPanel = detailsPanel ? detailsPanel.getItem() : null;
+    private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
+        let contextPanel = ActiveContextPanelManager.getActiveContextPanel();
+        let itemInDetailPanel = contextPanel ? contextPanel.getItem() : null;
 
         if (!itemInDetailPanel) {
             return;
         }
 
         let content: ContentSummaryAndCompareStatus;
-        let itemInDetailsPanelUpdated = data.some((contentItem: ContentSummaryAndCompareStatus) => {
+        let itemInContextPanelUpdated = data.some((contentItem: ContentSummaryAndCompareStatus) => {
             if (contentItem.getId() === itemInDetailPanel.getId()) {
                 content = contentItem;
                 return true;
             }
         });
 
-        if (itemInDetailsPanelUpdated) {
-            this.doUpdateDetailsPanel(content);
+        if (itemInContextPanelUpdated) {
+            this.doUpdateContextPanel(content);
         }
     }
 
-    private doUpdateDetailsPanel(item: ContentSummaryAndCompareStatus) {
-        let detailsPanel = ActiveDetailsPanelManager.getActiveDetailsPanel();
-        if (detailsPanel) {
-            detailsPanel.setItem(item);
+    private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
+        let contextPanel = ActiveContextPanelManager.getActiveContextPanel();
+        if (contextPanel) {
+            contextPanel.setItem(item);
         }
     }
 
@@ -664,7 +682,7 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
             if (isMobile) {
                 contentPublishMenuButton.minimize();
             } else {

@@ -1,9 +1,14 @@
 var admin = require('/lib/xp/admin');
 var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
+var contextLib = require('/lib/xp/context');
 
 function handleGet() {
     var view = resolve('./main.html');
+
+    var context = contextLib.get();
+    var repository = context.repository;
+    var branch = context.branch;
 
     var params = {
         adminUrl: admin.getBaseUri(),
@@ -14,6 +19,8 @@ function handleGet() {
         appName: 'Content Studio',
         appId: app.name,
         xpVersion: app.version,
+        branch: branch,
+        repository: repository,
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),

@@ -1,8 +1,14 @@
-import {DetailsView} from './DetailsView';
+import {ContextView} from './ContextView';
 import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Widget = api.content.Widget;
+
+export enum WidgetViewType {
+    DETAILS,
+    VERSIONS,
+    DEPENDENCIES
+}
 
 export class WidgetView extends api.dom.DivEl {
 
@@ -10,7 +16,7 @@ export class WidgetView extends api.dom.DivEl {
 
     private widgetItemViews: WidgetItemView[];
 
-    private detailsView: DetailsView;
+    private contextView: ContextView;
 
     private widget: Widget;
 
@@ -20,17 +26,20 @@ export class WidgetView extends api.dom.DivEl {
 
     private content: ContentSummaryAndCompareStatus;
 
-    private activationListeners: {() : void}[] = [];
+    private type: WidgetViewType;
+
+    private activationListeners: { (): void }[] = [];
 
     public static debug: boolean = false;
 
     constructor(builder: WidgetViewBuilder) {
         super('widget-view ' + (builder.widget ? 'external-widget' : 'internal-widget'));
 
-        this.detailsView = builder.detailsView;
+        this.contextView = builder.contextView;
         this.widgetName = builder.name;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
+        this.type = builder.type;
         if (!this.widgetItemViews.length) {
             this.createDefaultWidgetItemView();
         }
@@ -51,7 +60,7 @@ export class WidgetView extends api.dom.DivEl {
     private applyConfig() {
         if (this.isUrlBased()) {
             let config = this.widget.getConfig();
-            if (!!config && config.hasOwnProperty('render-on-resize') && config['render-on-resize'] === 'true') {
+            if (config && config.hasOwnProperty('render-on-resize') && config['render-on-resize'] === 'true') {
                 this.handleRerenderOnResize();
             }
         }
@@ -59,12 +68,12 @@ export class WidgetView extends api.dom.DivEl {
 
     private handleRerenderOnResize() {
         let updateWidgetItemViewsHandler = () => {
-            let containerWidth = this.detailsView.getEl().getWidth();
-            if (this.detailsView.getItem() && containerWidth !== this.containerWidth) {
+            let containerWidth = this.contextView.getEl().getWidth();
+            if (this.contextView.getItem() && containerWidth !== this.containerWidth) {
                 this.updateWidgetItemViews();
             }
         };
-        this.detailsView.onPanelSizeChanged(() => {
+        this.contextView.onPanelSizeChanged(() => {
             if (this.isActive()) {
                 updateWidgetItemViewsHandler();
             } else {
@@ -86,18 +95,21 @@ export class WidgetView extends api.dom.DivEl {
 
         this.url = this.getWidgetUrl();
         this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
-            promises.push(widgetItemView.setUrl(this.url, this.content.getContentId().toString()));
+            const contentId = this.content ? this.content.getContentId().toString() : null;
+            promises.push(widgetItemView.setUrl(this.url, contentId));
         });
 
         return promises;
     }
 
     public updateWidgetItemViews(): wemQ.Promise<any> {
-        let content = this.detailsView.getItem();
+        const content = this.contextView.getItem();
         let promises = [];
 
-        if (this.isActive() && this.detailsView.getItem()) {
-            this.detailsView.showLoadMask();
+        const isValidForContent = !this.isInternal() || !!content;
+
+        if (this.isActive() && isValidForContent) {
+            this.contextView.showLoadMask();
             this.content = content;
 
             if (this.isUrlBased()) {
@@ -109,13 +121,13 @@ export class WidgetView extends api.dom.DivEl {
             }
         }
 
-        this.containerWidth = this.detailsView.getEl().getWidth();
-        return wemQ.all(promises).finally(() => this.detailsView.hideLoadMask());
+        this.containerWidth = this.contextView.getEl().getWidth();
+        return wemQ.all(promises).finally(() => this.contextView.hideLoadMask());
     }
 
     private createDefaultWidgetItemView() {
         this.widgetItemViews.push(new WidgetItemView());
-        if (this.detailsView.getItem()) {
+        if (this.contextView.getItem()) {
             this.updateWidgetItemViews();
         }
     }
@@ -142,6 +154,22 @@ export class WidgetView extends api.dom.DivEl {
         return this.widget ? this.widget.getWidgetDescriptorKey().getApplicationKey().getName() : null;
     }
 
+    getWidgetDescription(): string {
+        return this.widget ? this.widget.getDescription() : null;
+    }
+
+    getWidgetIconUrl(): string {
+        return this.widget ? this.widget.getIconUrl() : null;
+    }
+
+    getType(): WidgetViewType {
+        return this.type;
+    }
+
+    isInternal(): boolean {
+        return this.widget == null;
+    }
+
     slideOut() {
         this.getEl().setMaxHeightPx(this.getEl().getHeight()); // enables transition
         this.getEl().setMaxHeightPx(0);
@@ -166,7 +194,7 @@ export class WidgetView extends api.dom.DivEl {
         if (this.isActive()) {
             return;
         }
-        this.detailsView.setActiveWidget(this);
+        this.contextView.setActiveWidget(this);
         this.notifyActivated();
         this.slideIn();
     }
@@ -175,12 +203,12 @@ export class WidgetView extends api.dom.DivEl {
         if (WidgetView.debug) {
             console.debug('WidgetView.setInactive: ', this.getWidgetName());
         }
-        this.detailsView.resetActiveWidget();
+        this.contextView.resetActiveWidget();
         this.slideOut();
     }
 
     isActive() {
-        return this.detailsView.getActiveWidget() === this;
+        return this.contextView.getActiveWidget() === this;
     }
 
     private hasDynamicHeight(): boolean {
@@ -226,19 +254,21 @@ export class WidgetViewBuilder {
 
     name: string;
 
-    detailsView: DetailsView;
+    contextView: ContextView;
 
     widgetItemViews: WidgetItemView[] = [];
 
     widget: Widget;
+
+    type: WidgetViewType;
 
     public setName(name: string): WidgetViewBuilder {
         this.name = name;
         return this;
     }
 
-    public setDetailsView(detailsView: DetailsView): WidgetViewBuilder {
-        this.detailsView = detailsView;
+    public setContextView(contextView: ContextView): WidgetViewBuilder {
+        this.contextView = contextView;
         return this;
     }
 
@@ -254,6 +284,11 @@ export class WidgetViewBuilder {
 
     public setWidgetItemViews(widgetItemViews: WidgetItemView[]): WidgetViewBuilder {
         this.widgetItemViews = widgetItemViews;
+        return this;
+    }
+
+    public setType(type: WidgetViewType) {
+        this.type = type;
         return this;
     }
 
