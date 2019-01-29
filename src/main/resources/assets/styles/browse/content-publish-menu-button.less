@@ -14,15 +14,17 @@
       margin-left: 38px;
 
       &.main-action-button {
+        padding-top: 3px;
+
         span {
           text-transform: uppercase;
-          color: @admin-green;
+          color: lighten(@admin-green, 10%);
           font-family: sans-serif, "Open Sans", Helvetica;
         }
 
         &:not([disabled]):hover {
           span {
-            color: lighten(@admin-green, 10%);
+            color: @admin-green;
           }
         }
       }
@@ -34,18 +36,17 @@
 
     .xp-admin-common-dropdown-handle {
       &:after {
-        border-top-color: @admin-green;
+        border-top-color: lighten(@admin-green, 10%);
       }
 
       &[disabled] {
         &:after {
-          border-top-color: @admin-green;
           opacity: 0.5;
         }
       }
 
       &:not([disabled]):hover:after {
-        border-top-color: lighten(@admin-green, 10%);
+        border-top-color: @admin-green;
       }
 
     }
