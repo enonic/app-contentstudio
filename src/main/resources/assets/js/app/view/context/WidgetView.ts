@@ -5,13 +5,6 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import Widget = api.content.Widget;
 import i18n = api.util.i18n;
 
-export enum WidgetViewType {
-    DETAILS,
-    VERSIONS,
-    DEPENDENCIES,
-    EMULATOR
-}
-
 export class WidgetView extends api.dom.DivEl {
 
     private widgetName: string;
@@ -32,8 +25,6 @@ export class WidgetView extends api.dom.DivEl {
 
     private content: ContentSummaryAndCompareStatus;
 
-    private type: WidgetViewType;
-
     private activationListeners: { (): void }[] = [];
 
     public static debug: boolean = false;
@@ -49,7 +40,6 @@ export class WidgetView extends api.dom.DivEl {
         this.widgetDescription = (builder.widget ? builder.widget.getDescription() : builder.description) || noDescription;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
-        this.type = builder.type;
         if (!this.widgetItemViews.length) {
             this.createDefaultWidgetItemView();
         }
@@ -176,10 +166,6 @@ export class WidgetView extends api.dom.DivEl {
         return this.widget ? this.widget.getIconUrl() : null;
     }
 
-    getType(): WidgetViewType {
-        return this.type;
-    }
-
     isInternal(): boolean {
         return this.widget == null;
     }
@@ -276,8 +262,6 @@ export class WidgetViewBuilder {
 
     widget: Widget;
 
-    type: WidgetViewType;
-
     iconClass: string;
 
     public setName(name: string): WidgetViewBuilder {
@@ -307,11 +291,6 @@ export class WidgetViewBuilder {
 
     public setWidgetItemViews(widgetItemViews: WidgetItemView[]): WidgetViewBuilder {
         this.widgetItemViews = widgetItemViews;
-        return this;
-    }
-
-    public setType(type: WidgetViewType) {
-        this.type = type;
         return this;
     }
 

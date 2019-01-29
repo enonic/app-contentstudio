@@ -267,7 +267,6 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.details.description'))
             .setIconClass('icon-list')
             .setContextView(this)
-            .setType(WidgetViewType.DETAILS)
             .setWidgetItemViews([
                 new StatusWidgetItemView(),
                 new UserAccessWidgetItemView(),
@@ -281,7 +280,6 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
             .setIconClass('icon-history')
             .setContextView(this)
-            .setType(WidgetViewType.VERSIONS)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
         const dependenciesWidgetView = WidgetView.create()
@@ -289,7 +287,6 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.dependencies.description'))
             .setIconClass('icon-link')
             .setContextView(this)
-            .setType(WidgetViewType.DEPENDENCIES)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
         const emulatorWidgetView = WidgetView.create()
@@ -297,7 +294,6 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.emulator.description'))
             .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
             .setContextView(this)
-            .setType(WidgetViewType.EMULATOR)
             .addWidgetItemView(new EmulatorWidgetItemView()).build();
 
         dependenciesWidgetView.addClass('dependency-widget');
