@@ -1,4 +1,4 @@
-import {WidgetView} from './WidgetView';
+import {WidgetView, WidgetViewType} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
@@ -6,7 +6,7 @@ import {StatusWidgetItemView} from './widget/info/StatusWidgetItemView';
 import {PropertiesWidgetItemView} from './widget/info/PropertiesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/info/AttachmentsWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/info/PageTemplateWidgetItemView';
-import {ActiveDetailsPanelManager} from './ActiveDetailsPanelManager';
+import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -18,11 +18,12 @@ import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;
 import i18n = api.util.i18n;
 
-export class DetailsView extends api.dom.DivEl {
+export class ContextView
+    extends api.dom.DivEl {
 
     private widgetViews: WidgetView[] = [];
     private viewer: ContentSummaryViewer;
-    private detailsContainer: api.dom.DivEl = new api.dom.DivEl('details-container');
+    private contextContainer: api.dom.DivEl = new api.dom.DivEl('context-container');
     private widgetsSelectionRow: WidgetsSelectionRow;
 
     private loadMask: api.ui.mask.LoadMask;
@@ -42,17 +43,17 @@ export class DetailsView extends api.dom.DivEl {
     public static debug: boolean = false;
 
     constructor() {
-        super('details-panel-view');
+        super('context-panel-view');
 
         this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
-        this.loadMask.addClass('details-panel-mask');
+        this.loadMask.addClass('context-panel-mask');
 
         this.initCommonWidgetViews();
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
         this.initViewer();
 
-        this.appendChild(this.detailsContainer);
+        this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
 
         this.subscribeOnEvents();
@@ -68,7 +69,7 @@ export class DetailsView extends api.dom.DivEl {
 
     private subscribeOnEvents() {
         ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
-            if (ActiveDetailsPanelManager.getActiveDetailsPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
+            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
                 this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
                 this.updateActiveWidget();
             }
@@ -77,7 +78,7 @@ export class DetailsView extends api.dom.DivEl {
 
     private initDivForNoSelection() {
         this.divForNoSelection = new api.dom.DivEl('no-selection-message');
-        this.divForNoSelection.getEl().setInnerHtml(i18n('field.details.empty'));
+        this.divForNoSelection.getEl().setInnerHtml(i18n('field.contextPanel.empty'));
         this.appendChild(this.divForNoSelection);
     }
 
@@ -146,7 +147,7 @@ export class DetailsView extends api.dom.DivEl {
         }
 
         this.fetchWidgetByKey(key).then((widget: Widget) => {
-            widgetView = WidgetView.create().setName(widget.getDisplayName()).setDetailsView(this).setWidget(widget).build();
+            widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
             isUpdated ? this.updateWidget(widgetView) : this.addWidget(widgetView);
 
             updateView();
@@ -175,6 +176,7 @@ export class DetailsView extends api.dom.DivEl {
         this.activeWidget = widgetView;
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
+        this.toggleClass('internal', widgetView.isInternal());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -197,25 +199,26 @@ export class DetailsView extends api.dom.DivEl {
 
     private initViewer() {
         this.viewer = new ContentSummaryViewer();
-        this.viewer.addClass('details-panel-label');
+        this.viewer.addClass('context-panel-label');
 
-        this.detailsContainer.insertChild(this.viewer, 0);
+        this.contextContainer.insertChild(this.viewer, 0);
     }
 
     public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        if (DetailsView.debug) {
-            console.debug('DetailsView.setItem: ', item);
+        if (ContextView.debug) {
+            console.debug('ContextView.setItem: ', item);
         }
 
-            this.item = item;
-            if (item) {
-                this.layout(false);
-                if (ActiveDetailsPanelManager.getActiveDetailsPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget) {
-                    return this.updateActiveWidget();
-                }
-            } else {
-                this.layout();
+        this.item = item;
+        if (item) {
+            this.layout(false);
+            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && this.activeWidget) {
+                return this.updateActiveWidget();
             }
+        } else {
+            this.layout();
+        }
+
         return wemQ<any>(null);
     }
 
@@ -224,12 +227,12 @@ export class DetailsView extends api.dom.DivEl {
     }
 
     private getWidgetsInterfaceNames(): string[] {
-        return ['com.enonic.xp.content-manager.context-widget', 'contentstudio.detailpanel'];
+        return ['contentstudio.contextpanel'];
     }
 
     updateActiveWidget(): wemQ.Promise<any> {
-        if (DetailsView.debug) {
-            console.debug('DetailsView.updateWidgetsForItem');
+        if (ContextView.debug) {
+            console.debug('ContextView.updateWidgetsForItem');
         }
 
         if (!this.activeWidget) {
@@ -241,7 +244,7 @@ export class DetailsView extends api.dom.DivEl {
         return this.activeWidget.updateWidgetItemViews().then(() => {
             // update active widget's height
             setTimeout(() => {
-                this.setDetailsContainerHeight();
+                this.setContextContainerHeight();
             }, 400);
 
             this.activeWidget.slideIn();
@@ -258,7 +261,8 @@ export class DetailsView extends api.dom.DivEl {
 
     private initCommonWidgetViews() {
 
-        this.defaultWidgetView = WidgetView.create().setName(i18n('field.details')).setDetailsView(this)
+        this.defaultWidgetView = WidgetView.create().setName(i18n('field.contextPanel.details')).setContextView(this)
+            .setType(WidgetViewType.DETAILS)
             .setWidgetItemViews([
                 new StatusWidgetItemView(),
                 new UserAccessWidgetItemView(),
@@ -267,10 +271,12 @@ export class DetailsView extends api.dom.DivEl {
                 new AttachmentsWidgetItemView()
             ]).build();
 
-        const versionsWidgetView = WidgetView.create().setName(i18n('field.details.versionHistory')).setDetailsView(this)
+        const versionsWidgetView = WidgetView.create().setName(i18n('field.contextPanel.versionHistory')).setContextView(this)
+            .setType(WidgetViewType.VERSIONS)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
-        const dependenciesWidgetView = WidgetView.create().setName(i18n('field.details.dependencies')).setDetailsView(this)
+        const dependenciesWidgetView = WidgetView.create().setName(i18n('field.contextPanel.dependencies')).setContextView(this)
+            .setType(WidgetViewType.DEPENDENCIES)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
         dependenciesWidgetView.addClass('dependency-widget');
@@ -289,7 +295,7 @@ export class DetailsView extends api.dom.DivEl {
     private fetchAndInitCustomWidgetViews(): wemQ.Promise<any> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
             widgets.forEach((widget) => {
-                let widgetView = WidgetView.create().setName(widget.getDisplayName()).setDetailsView(this).setWidget(widget).build();
+                let widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
                 this.addWidget(widgetView);
             });
         }).catch((reason: any) => {
@@ -313,14 +319,14 @@ export class DetailsView extends api.dom.DivEl {
         });
     }
 
-    setDetailsContainerHeight() {
-        let panelHeight = ActiveDetailsPanelManager.getActiveDetailsPanel().getEl().getHeight();
-        let panelOffset = ActiveDetailsPanelManager.getActiveDetailsPanel().getEl().getOffsetToParent();
-        let containerHeight = this.detailsContainer.getEl().getHeight();
-        let containerOffset = this.detailsContainer.getEl().getOffsetToParent();
+    setContextContainerHeight() {
+        let panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
+        let panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
+        let containerHeight = this.contextContainer.getEl().getHeight();
+        let containerOffset = this.contextContainer.getEl().getOffsetToParent();
 
         if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
-            this.detailsContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
         }
     }
 
@@ -335,7 +341,7 @@ export class DetailsView extends api.dom.DivEl {
 
     private addWidget(widget: WidgetView) {
         this.widgetViews.push(widget);
-        this.detailsContainer.appendChild(widget);
+        this.contextContainer.appendChild(widget);
     }
 
     private addWidgets(widgetViews: WidgetView[]) {
@@ -369,10 +375,6 @@ export class DetailsView extends api.dom.DivEl {
     }
 
     private layout(empty: boolean = true) {
-        if (this.widgetsSelectionRow) {
-            this.widgetsSelectionRow.setVisible(!empty);
-        }
-        this.detailsContainer.setVisible(!empty);
         this.toggleClass('no-selection', empty);
     }
 

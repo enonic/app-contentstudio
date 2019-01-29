@@ -1,6 +1,7 @@
 @widget-selector-height: 40px;
+@toolbar-height: 41px;
 
-.details-panel {
+.context-panel {
   // common details panel styles
   height: 100%;
   position: absolute;
@@ -9,22 +10,24 @@
   width: 280px;
   top: 0;
   right: -280px;
-  box-shadow: 0 4px 20px -8px #000000, 0 0 0 0 rgba(0, 0, 0, 0.3);
-  background-color: rgba(250, 250, 250, 0.9);
+  box-shadow: 0 2px 20px -8px #000000, 0 0 0 0 rgba(0, 0, 0, 0.3);
+  background-color: @admin-white;
   transition: all 0.5s ease-in-out;
 
   @media screen and (max-width: 540px) {
     display: none;
   }
 
-  .details-view-container {
+  .context-view-container {
     height: 100%;
   }
 
-  .details-panel-view {
-    &.no-selection {
+  .context-panel-view {
+    &.no-selection.internal {
       height: 100%;
-      background-color: @admin-white;
+      .context-container {
+        display: none;
+      }
       .no-selection-message {
         display: block;
       }
@@ -50,7 +53,7 @@
       order: 1;
 
       display: block;
-      padding: 9px 12px 7px 12px;
+      padding: 9px 8px 7px 8px;
       border: 0 transparent;
       background-color: transparent;
 
@@ -73,24 +76,14 @@
       }
 
       &:before {
-        font-size: 16px;
+        font-size: 18px;
       }
-
-      .icon-list();
 
       animation-duration: 0.5s;
       animation-timing-function: linear;
       animation-delay: 0s;
 
       &.expanded {
-
-        position: absolute;
-        left: 0;
-        top: 0;
-        background: @admin-white;
-        z-index: 3;
-        border-bottom: none;
-
         &::before {
           color: @admin-button-blue1;
         }
@@ -104,7 +97,7 @@
 
   }
 
-  .details-container {
+  .context-container {
     position: relative;
     overflow-y: auto;
     margin-top: 2px;
@@ -120,11 +113,11 @@
     .notSelectable();
   }
 
-  .default-widget:not(.no-selection) .details-panel-label {
+  .default-widget:not(.no-selection) .context-panel-label {
     display: flex;
   }
 
-  .details-panel-label {
+  .context-panel-label {
     display: none;
     box-sizing: border-box;
     height: 50px;
@@ -155,17 +148,18 @@
 
   .widgets-selection-row {
 
-    background-color: @admin-white;
+    background-color: @admin-bg-almost-white;
     height: @widget-selector-height;
 
     .widget-selector {
 
       height: @widget-selector-height;
-      border-bottom: 1px solid @admin-medium-gray-border;
+      border-bottom: 1px solid @admin-bg-light-gray;
       max-width: none;
 
       .option-filter-input {
-        height: @widget-selector-height + 2px;
+        border: none;
+        height: @widget-selector-height;
       }
 
       &.single-optioned {
@@ -183,7 +177,6 @@
         right: 0;
         border-right: 1px solid transparent;
         max-height: @widget-selector-height;
-        background: @admin-white;
 
         &:after {
           margin: -5px 0 0 -5px;
@@ -193,27 +186,55 @@
       .selected-option {
         background: none;
         max-height: @widget-selector-height;
-        display: inline-block !important;
         border: 0;
 
         .option-value {
-          margin: 0 0 0 40px;
-          width: calc(~'100% - ' 80px);
+          margin: 0 40px 0 0;
+          width: auto;
 
-          .viewer {
+          .widget-viewer {
             line-height: @widget-selector-height;
+            padding: 4px 0 0 10px;
           }
         }
       }
 
-      .viewer {
+      .widget-viewer {
         font-size: 14px;
-        text-align: center;
         cursor: default;
+
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}main-name,
+          .@{_COMMON_PREFIX}sub-name {
+            cursor: pointer;
+          }
+
+          .@{_COMMON_PREFIX}names-view {
+            margin: 0 0 0 34px;
+          }
+
+          .@{_COMMON_PREFIX}wrapper {
+            margin-right: 8px;
+
+            img {
+              width: 26px;
+              height: 26px;
+              margin-top: -1px;
+            }
+
+            .font-icon-default {
+              font-size: 24px;
+              &.icon-list {
+                font-size: 20px;
+              }
+            }
+          }
+        }
       }
 
       .options-container {
-        border-top: 0;
+        border: none;
+        border-top: 1px solid @admin-bg-light-gray;
       }
     }
   }
@@ -233,9 +254,9 @@
     .notSelectable();
   }
 
-  &.floating-details-panel {
-
+  &.floating-context-panel {
     position: fixed;
-    top: @app-header-height;
+    top: @app-header-height + @toolbar-height;
+    outline: 1px solid @admin-bg-light-gray;
   }
 }

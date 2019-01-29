@@ -1,25 +1,26 @@
-import {DetailsView} from './DetailsView';
+import {ContextView} from './ContextView';
 import {WidgetView} from './WidgetView';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
-export class DetailsPanel extends api.ui.panel.Panel {
+export class ContextPanel
+    extends api.ui.panel.Panel {
 
     private sizeChangedListeners: {() : void}[] = [];
 
-    protected detailsView: DetailsView;
+    protected contextView: ContextView;
 
-    private detailsViewContainer: api.dom.DivEl;
+    private contextViewContainer: api.dom.DivEl;
 
-    constructor(detailsView: DetailsView) {
-        super('details-panel');
-        this.detailsView = detailsView;
+    constructor(contextView: ContextView) {
+        super('context-panel');
+        this.contextView = contextView;
         this.setDoOffset(false);
         this.subscribeOnEvents();
-        this.appendChild(this.detailsViewContainer = new api.dom.DivEl('details-view-container'));
+        this.appendChild(this.contextViewContainer = new api.dom.DivEl('context-view-container'));
     }
 
     public setActive() {
-        this.detailsViewContainer.appendChild(this.detailsView);
+        this.contextViewContainer.appendChild(this.contextView);
     }
 
     protected subscribeOnEvents() {
@@ -27,7 +28,7 @@ export class DetailsPanel extends api.ui.panel.Panel {
     }
 
     public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        return this.detailsView.setItem(item);
+        return this.contextView.setItem(item);
     }
 
     public isVisibleOrAboutToBeVisible(): boolean {
@@ -35,32 +36,32 @@ export class DetailsPanel extends api.ui.panel.Panel {
     }
 
     public getActiveWidget(): WidgetView {
-        return this.detailsView.getActiveWidget();
+        return this.contextView.getActiveWidget();
     }
 
     getItem(): ContentSummaryAndCompareStatus {
-        return this.detailsView.getItem();
+        return this.contextView.getItem();
     }
 
     public notifyPanelSizeChanged() {
         this.sizeChangedListeners.forEach((listener: ()=> void) => listener());
-        this.detailsView.notifyPanelSizeChanged();
+        this.contextView.notifyPanelSizeChanged();
     }
 
     public onPanelSizeChanged(listener: () => void) {
         this.sizeChangedListeners.push(listener);
     }
 
-    public getType(): DETAILS_PANEL_TYPE {
+    public getType(): CONTEXT_PANEL_TYPE {
         throw new Error('Must be implemented by inheritors');
     }
 
     public isMobile(): boolean {
-        return this.getType() === DETAILS_PANEL_TYPE.MOBILE;
+        return this.getType() === CONTEXT_PANEL_TYPE.MOBILE;
     }
 }
 
-export enum DETAILS_PANEL_TYPE {
+export enum CONTEXT_PANEL_TYPE {
 
     DOCKED,
     FLOATING,

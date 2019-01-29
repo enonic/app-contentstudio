@@ -1,6 +1,7 @@
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
+import {RepositoryId} from '../repository/RepositoryId';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 
@@ -53,7 +54,7 @@ export class BasePreviewAction extends Action {
 
     protected updateLocation(targetWindow: Window, content: api.content.ContentSummary, focus: boolean = true) {
         targetWindow.location.href = UriHelper.getPortalUri(content.getPath().toString(),
-            RenderingMode.PREVIEW, Branch.DRAFT);
+            RenderingMode.PREVIEW, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox
         }

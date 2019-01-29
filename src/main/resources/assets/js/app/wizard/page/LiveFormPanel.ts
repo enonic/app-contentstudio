@@ -70,6 +70,7 @@ import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
+import {RepositoryId} from '../../repository/RepositoryId';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
@@ -520,6 +521,7 @@ export class LiveFormPanel
         let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT,
+            RepositoryId.CONTENT_REPO_ID,
             Branch.DRAFT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
@@ -702,6 +704,7 @@ export class LiveFormPanel
             let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
                 fragmentView.getComponentPath(),
                 RenderingMode.EDIT,
+                RepositoryId.CONTENT_REPO_ID,
                 Branch.DRAFT);
 
             fragmentView.showLoadingSpinner();

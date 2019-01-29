@@ -29,9 +29,10 @@ function stopSelenuim() {
 // runSelenium();
 
 const mocha = new Mocha({
-    reporter: 'mocha-multi-reporters',
+    reporter: 'mochawesome',
     reporterOptions: {
-        reporterEnabled: 'mocha-allure-reporter, list'
+        reportFilename: 'results',
+        quiet: true
     }
 });
 

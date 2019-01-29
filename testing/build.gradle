@@ -52,7 +52,7 @@ ext {
     deployDir = "$distroDir${File.separator}home${File.separator}deploy"
     appDir = "$projectDir${File.separator}test-applications"
     seleniumDir = "$projectDir${File.separator}test-applications${File.separator}selenium"
-    allureResultsDir = "allure-results"
+    mochaResultsDir = "mochawesome-report"
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
@@ -130,16 +130,16 @@ task zipScreenshots( type: Zip ) {
     classifier 'screenshots'
 }
 
-task zipAllure( type: Zip ) {
-    from allureResultsDir
+task zipReport( type: Zip ) {
+    from mochaResultsDir
     include '*'
     include '*/*'
-    classifier 'allureResults'
+    classifier 'mochaReport'
 }
 
 artifacts {
     archives zipScreenshots
-    archives zipAllure
+    archives zipReport
 }
 
 jar.enabled = true
