@@ -873,10 +873,10 @@ class HtmlEditorConfigBuilder {
 
     private getPluginsToRemove(): string {
         if (this.editorParams.isFullScreenMode()) {
-            return 'resize,autogrow';
+            return 'resize,image,autogrow';
         }
 
-        return 'resize';
+        return 'resize,image';
     }
 
     private includeTools(tools: any[]) {
