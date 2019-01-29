@@ -40,6 +40,7 @@ import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import RepositoryEvent = api.content.event.RepositoryEvent;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import SplitPanel = api.ui.panel.SplitPanel;
+import DataChangedType = api.ui.treegrid.DataChangedType;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -62,7 +63,8 @@ export class ContentBrowsePanel
             this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         });
 
-        this.getBrowseActions().updateActionsEnabledState([]); // to enable/disable actions correctly
+        // Required for "enable/disable" actions correctly
+        this.getBrowseActions().updateActionsEnabledState([]);
 
         this.handleGlobalEvents();
 
@@ -90,7 +92,7 @@ export class ContentBrowsePanel
         let treeGrid = new ContentTreeGrid();
 
         treeGrid.onDataChanged((event: api.ui.treegrid.DataChangedEvent<ContentSummaryAndCompareStatus>) => {
-            if (event.getType() === DataChangedEvent.UPDATED) {
+            if (event.getType() === DataChangedType.UPDATED) {
                 let browseItems = this.treeNodesToBrowseItems(event.getTreeNodes());
                 this.getBrowseItemPanel().updateItems(browseItems);
                 this.getBrowseActions().updateActionsEnabledState(this.treeNodesToBrowseItems(this.treeGrid.getRoot().getFullSelection()));
@@ -375,18 +377,23 @@ export class ContentBrowsePanel
         this.processContentCreated(data, oldPaths);
     }
 
+    private triggerDataChangedEvent(nodes: TreeNode<ContentSummaryAndCompareStatus>[],
+                                    eventType: DataChangedType = DataChangedType.UPDATED) {
+        const changedEvent = new DataChangedEvent<ContentSummaryAndCompareStatus>(nodes, eventType);
+        this.treeGrid.notifyDataChanged(changedEvent);
+    }
+
     private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: updated', data);
         }
 
-        this.doHandleContentUpdate(data).then((changed) => {
+        this.doHandleContentUpdate(data).then((updatedNodes) => {
 
             // Update since CompareStatus changed
-            ContentSummaryAndCompareStatusFetcher.updateReadOnly(changed.map(node => node.getData())).then(() => {
+            ContentSummaryAndCompareStatusFetcher.updateReadOnly(updatedNodes.map(node => node.getData())).then(() => {
 
-                const changedEvent = new DataChangedEvent<ContentSummaryAndCompareStatus>(changed, DataChangedEvent.UPDATED);
-                this.treeGrid.notifyDataChanged(changedEvent);
+                this.triggerDataChangedEvent(updatedNodes);
 
                 this.checkIfPreviewUpdateRequired(data).then(previewUpdateRequired => {
                     if (previewUpdateRequired) {
@@ -394,11 +401,9 @@ export class ContentBrowsePanel
                     }
                 });
 
-                if (!changed.length) {
-                    return;
+                if (updatedNodes.length > 0) {
+                    this.treeGrid.placeContentNodes(updatedNodes);
                 }
-
-                this.treeGrid.placeContentNodes(changed);
             });
         });
     }
@@ -447,21 +452,21 @@ export class ContentBrowsePanel
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: pending', data);
         }
-        this.doHandleContentUpdate(data);
+        this.doHandleContentUpdate(data).then((updatedNodes) => this.triggerDataChangedEvent(updatedNodes));
     }
 
     private handleContentPublished(data: ContentSummaryAndCompareStatus[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: published', data);
         }
-        this.doHandleContentUpdate(data);
+        this.doHandleContentUpdate(data).then((updatedNodes) => this.triggerDataChangedEvent(updatedNodes));
     }
 
     private handleContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: unpublished', data);
         }
-        this.doHandleContentUpdate(data);
+        this.doHandleContentUpdate(data).then((updatedNodes) => this.triggerDataChangedEvent(updatedNodes));
     }
 
     private processContentCreated(data: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) {

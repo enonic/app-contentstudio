@@ -28,6 +28,7 @@ import i18n = api.util.i18n;
 import Action = api.ui.Action;
 import KeyBinding = api.ui.KeyBinding;
 import ObjectHelper = api.ObjectHelper;
+import DataChangedType = api.ui.treegrid.DataChangedType;
 
 export class PageComponentsView
     extends api.dom.DivEl {
@@ -408,7 +409,7 @@ export class PageComponentsView
         });
 
         this.tree.onDataChanged((event: DataChangedEvent<ItemView>) => {
-            if (event.getType() !== DataChangedEvent.UPDATED) {
+            if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
             }
         });
