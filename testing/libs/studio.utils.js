@@ -222,7 +222,9 @@ module.exports = {
         }).pause(2000);
     },
     doPublish: function () {
-        return browsePanel.clickOnPublishButton().then(() => {
+        return browsePanel.waitForPublishButtonVisible().then(() => {
+            return browsePanel.clickOnPublishButton();
+        }).then(() => {
             return contentPublishDialog.waitForDialogVisible();
         }).then(() => {
             return contentPublishDialog.clickOnPublishButton();

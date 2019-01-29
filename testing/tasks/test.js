@@ -1,8 +1,9 @@
 const path = require('path');
 const fs = require('fs');
+const globby = require('globby');
 const Mocha = require('mocha');
 const selenium = require('selenium-standalone');
-const testDir = './specs'
+const testFilesGlob = './specs/**/*.js';
 
 function runSelenium() {
     selenium.install(
@@ -34,18 +35,18 @@ const mocha = new Mocha({
     }
 });
 
-fs.readdirSync(testDir).filter(file=>{
-    // Only keep the .js files
-    return file.substr(-3) === '.js';
+(async () => {
+    const paths = await globby([testFilesGlob]);
 
-}).forEach(function(file){
-    mocha.addFile(
-        path.join(testDir, file)
-    );
-});
-mocha.run(exitCode => {
-    // stopSelenuim();
-    if (exitCode !== 0) {
-        process.exit(exitCode);
-    }
-});
+    paths.forEach(function(filePath){
+        console.log(filePath);
+        mocha.addFile(filePath);
+    });
+
+    mocha.run(exitCode => {
+        // stopSelenuim();
+        if (exitCode !== 0) {
+            process.exit(exitCode);
+        }
+    });
+})();

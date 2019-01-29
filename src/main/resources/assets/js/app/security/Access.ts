@@ -1,8 +1,5 @@
 import i18n = api.util.i18n;
 
-declare var CONFIG;
-api.util.i18nInit(CONFIG.messages);
-
 export enum Access {
     FULL,
     READ,

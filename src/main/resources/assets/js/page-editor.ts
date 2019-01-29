@@ -2,18 +2,16 @@ import {LiveEditPage} from './page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
 import KeyBinding = api.ui.KeyBinding;
 
-declare const CONFIG;
 declare const wemjq: JQueryStatic;
 
 /*
- Prefix must match @_CLS_PREFIX in n web\admin\live-edit\styles\less\live-edit.less
+ Prefix must match @_CLS_PREFIX in assets\page-editor\styles\main.less
  */
 api.StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
 const liveEditPage = new LiveEditPage();
 
-wemjq(document).ready(() => {
-    api.util.i18nInit(CONFIG.messages);
+const init = () => {
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
@@ -98,4 +96,8 @@ wemjq(document).ready(() => {
 
         return false;
     }
-});
+};
+
+const i18nPromise = (!!window.parent && window.parent['CONFIG']) ? api.util.i18nInit(window.parent['CONFIG'].i18nUrl) : null;
+
+i18nPromise ? i18nPromise.then(() => init()) : init();

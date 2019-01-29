@@ -37,7 +37,7 @@ describe('Text Component with CKE - insert download link  specification', functi
             });
         });
 
-    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'download-link' has been inserted THEN correct data should be present in the CKE`,
+    it.skip(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'download-link' has been inserted THEN correct data should be present in the CKE`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
@@ -66,7 +66,7 @@ describe('Text Component with CKE - insert download link  specification', functi
             })
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present on the page`,
+    it.skip(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present on the page`,
         () => {
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();
