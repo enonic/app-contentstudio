@@ -26,8 +26,6 @@ export class HtmlEditor {
 
     private editor: CKEDITOR.editor;
 
-    private hasActiveDialog: boolean = false;
-
     private static readonly imgInlineStyle: string = 'max-height:100%; max-width:100%; width:100%';
 
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
@@ -84,6 +82,10 @@ export class HtmlEditor {
             this.editor.on('instanceReady', this.editorParams.getEditorReadyHandler().bind(this));
         }
 
+        if (this.editorParams.hasBlurHandler()) {
+            this.editor.on('blur', this.editorParams.getBlurHandler().bind(this));
+        }
+
         this.editor.on('dataReady', (e: eventInfo) => {
             const rootElement: CKEDITOR.dom.element = this.editorParams.isInline() ? e.editor.container : e.editor.document.getBody();
 
@@ -99,7 +101,6 @@ export class HtmlEditor {
 
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
-        this.handleEditorBlurEvent();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
     }
@@ -243,20 +244,6 @@ export class HtmlEditor {
         api.dom.Body.get().onMouseUp(() => {
             if (mousePressed) {
                 mousePressed = false;
-            }
-        });
-    }
-
-    private handleEditorBlurEvent() {
-        this.editor.on('blur', (e: eventInfo) => {
-
-            if (this.hasActiveDialog) {
-                e.stop();
-                this.hasActiveDialog = false;
-            }
-
-            if (this.editorParams.hasBlurHandler()) {
-                this.editorParams.getBlurHandler()(<any>e);
             }
         });
     }
@@ -676,8 +663,6 @@ export class HtmlEditor {
     }
 
     private publishCreateDialogEvent(event: CreateHtmlAreaDialogEvent) {
-        this.hasActiveDialog = true;
-
         if (this.editorParams.hasCreateDialogListener()) {
             this.editorParams.getCreateDialogListener()(event);
         }

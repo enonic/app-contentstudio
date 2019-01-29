@@ -1,6 +1,7 @@
 .image-editor {
   .notSelectable();
   display: block;
+  position: relative; // required for the sticky-toolbar positioning
 
   &.standout {
     position: absolute; // need to have a position other than static for z-index to have effect
