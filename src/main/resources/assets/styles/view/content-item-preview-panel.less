@@ -1,10 +1,15 @@
 .content-item-preview-panel {
+  background-color: @admin-dark-gray;
+
+  > iframe {
+    margin: auto;
+    transition: width, height 0.1s;
+  }
 
   > img {
     display: none;
     margin: auto;
     max-width: 100%;
-    max-height: 100%;
     max-height: calc(100% - 41px); // 41px - is a height of a toolbar
   }
 

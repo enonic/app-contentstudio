@@ -1,11 +1,10 @@
-import '../../../../api.ts';
-
 export class EmulatorDevice {
     private id: number;
     private device: EmulatorDeviceItem;
 
-    constructor(id: number, name: string, type: string, width: number, height: number, units: string, displayUnits: boolean,
-                rotatable: boolean) {
+    constructor(id: number, name: string, type: string,
+                width: number, height: number, units: string,
+                displayUnits: boolean, rotatable: boolean) {
         this.id = id;
         this.device = new EmulatorDeviceItem(name, type, width, height, units, displayUnits, rotatable);
     }

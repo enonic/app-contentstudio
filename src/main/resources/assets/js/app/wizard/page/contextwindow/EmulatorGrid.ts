@@ -1,4 +1,3 @@
-import '../../../../api.ts';
 import {EmulatorDeviceItem} from './EmulatorDevice';
 import {FontIcon} from './FontIcon';
 
@@ -10,33 +9,38 @@ export class EmulatorGrid extends api.ui.grid.Grid<any> {
     }
 
     protected createColumns(): api.ui.grid.GridColumn<any>[] {
-        return [new api.ui.grid.GridColumnBuilder().setName('device').setField('device').setId('device').setWidth(320).setCssClass(
-            'grid-row').setFormatter((row, cell, value, columnDef, dataContext) => {
-            return this.buildRow(row, cell, value).toString();
-        }).build()
+        return [
+            new api.ui.grid.GridColumnBuilder()
+                .setName('device')
+                .setField('device')
+                .setId('device')
+                .setWidth(320)
+                .setCssClass('grid-row')
+                .setFormatter((row, cell, value) => EmulatorGrid.buildRow(value).toString())
+                .build()
         ];
     }
 
-    private buildRow(row: any, cell: any, data: EmulatorDeviceItem): api.dom.DivEl {
-        let rowEl = new api.dom.DivEl();
+    private static buildRow(data: EmulatorDeviceItem): api.dom.DivEl {
+        const rowEl = new api.dom.DivEl();
         rowEl.getEl().setData('width', data.getWidth().toString());
         rowEl.getEl().setData('height', data.getHeight().toString());
         rowEl.getEl().setData('units', data.getUnits());
 
-        let icon = new FontIcon('icon-' + data.getDeviceType());
+        const icon = new FontIcon('icon-' + data.getDeviceType());
 
-        let title = new api.dom.H5El();
+        const title = new api.dom.H5El();
         title.getEl().setInnerHtml(data.getName());
 
-        let subtitle = new api.dom.H6El();
-        let units = data.getDisplayUnits() ? data.getUnits() : '';
+        const subtitle = new api.dom.H6El();
+        const units = data.getDisplayUnits() ? data.getUnits() : '';
         subtitle.getEl().setInnerHtml(data.getWidth().toString() + units + ' &times; ' + data.getHeight().toString() + units, false);
         rowEl.appendChild(icon);
         rowEl.appendChild(title);
         rowEl.appendChild(subtitle);
 
         if (data.getRotatable() === true) {
-            let rotator = new api.dom.DivEl();
+            const rotator = new api.dom.DivEl();
             rotator.addClass('rotate');
             rotator.addClassEx('icon-loop');
             rowEl.appendChild(rotator);

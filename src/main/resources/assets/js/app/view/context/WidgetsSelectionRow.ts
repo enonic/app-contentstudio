@@ -1,9 +1,8 @@
-import {WidgetView, WidgetViewType} from './WidgetView';
+import {WidgetView} from './WidgetView';
 import {ContextView} from './ContextView';
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import NamesAndIconViewer = api.ui.NamesAndIconViewer;
-import i18n = api.util.i18n;
 
 export class WidgetsSelectionRow extends api.dom.DivEl {
 
@@ -72,6 +71,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         super('widgetSelector', {
             skipExpandOnClick: true,
             inputPlaceholderText: '',
+            listMaxHeight: 250,
             optionDisplayValueViewer: new WidgetViewer()
         });
 
@@ -152,18 +152,7 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveSubName(object: WidgetViewOption): string {
-        const type = object.getWidgetView().getType();
-        const description = object.getWidgetView().getWidgetDescription() || i18n('field.contextPanel.noDescription');
-        switch (type) {
-        case WidgetViewType.DETAILS:
-            return i18n('field.contextPanel.details.description');
-        case WidgetViewType.VERSIONS:
-            return i18n('field.contextPanel.versionHistory.description');
-        case WidgetViewType.DEPENDENCIES:
-            return i18n('field.contextPanel.dependencies.description');
-        default:
-            return description;
-        }
+        return object.getWidgetView().getWidgetDescription();
     }
 
     resolveIconUrl(object: WidgetViewOption): string {
@@ -171,14 +160,6 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveIconClass(object: WidgetViewOption): string {
-        const type = object.getWidgetView().getType();
-        switch (type) {
-        case WidgetViewType.DETAILS:
-            return 'icon-list';
-        case WidgetViewType.VERSIONS:
-            return 'icon-history';
-        case WidgetViewType.DEPENDENCIES:
-            return 'icon-link';
-        }
+        return object.getWidgetView().getWidgetIconClass();
     }
 }

@@ -20,7 +20,7 @@ export class WidgetItemView extends api.dom.DivEl {
         return wemQ<any>(null);
     }
 
-    private getFullWidgetUrl(url: string, contentId: string) {
+    private static getFullWidgetUrl(url: string, contentId: string) {
         const {repository, branch} = CONFIG;
         const repositoryParam = repository ? `repository=${repository}&` : '';
         const branchParam = branch ? `branch=${branch}&` : '';
@@ -31,7 +31,7 @@ export class WidgetItemView extends api.dom.DivEl {
 
     public setUrl(url: string, contentId: string): wemQ.Promise<void> {
         let deferred = wemQ.defer<void>();
-        let linkEl = new LinkEl(this.getFullWidgetUrl(url, contentId)).setAsync();
+        let linkEl = new LinkEl(WidgetItemView.getFullWidgetUrl(url, contentId)).setAsync();
         let el = this.getEl();
         let onLinkLoaded = ((event: UIEvent) => {
                 const mainContainer = event.target['import'].querySelector('widget');

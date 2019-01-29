@@ -11,6 +11,7 @@ import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetE
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
+import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ApplicationEvent = api.application.ApplicationEvent;
@@ -261,7 +262,11 @@ export class ContextView
 
     private initCommonWidgetViews() {
 
-        this.defaultWidgetView = WidgetView.create().setName(i18n('field.contextPanel.details')).setContextView(this)
+        this.defaultWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.details'))
+            .setDescription(i18n('field.contextPanel.details.description'))
+            .setIconClass('icon-list')
+            .setContextView(this)
             .setType(WidgetViewType.DETAILS)
             .setWidgetItemViews([
                 new StatusWidgetItemView(),
@@ -271,17 +276,33 @@ export class ContextView
                 new AttachmentsWidgetItemView()
             ]).build();
 
-        const versionsWidgetView = WidgetView.create().setName(i18n('field.contextPanel.versionHistory')).setContextView(this)
+        const versionsWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.versionHistory'))
+            .setDescription(i18n('field.contextPanel.versionHistory.description'))
+            .setIconClass('icon-history')
+            .setContextView(this)
             .setType(WidgetViewType.VERSIONS)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
-        const dependenciesWidgetView = WidgetView.create().setName(i18n('field.contextPanel.dependencies')).setContextView(this)
+        const dependenciesWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.dependencies'))
+            .setDescription(i18n('field.contextPanel.dependencies.description'))
+            .setIconClass('icon-link')
+            .setContextView(this)
             .setType(WidgetViewType.DEPENDENCIES)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
+        const emulatorWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.emulator'))
+            .setDescription(i18n('field.contextPanel.emulator.description'))
+            .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setContextView(this)
+            .setType(WidgetViewType.EMULATOR)
+            .addWidgetItemView(new EmulatorWidgetItemView()).build();
+
         dependenciesWidgetView.addClass('dependency-widget');
 
-        this.addWidgets([this.defaultWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        this.addWidgets([this.defaultWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]);
 
         this.setActiveWidget(this.defaultWidgetView);
     }

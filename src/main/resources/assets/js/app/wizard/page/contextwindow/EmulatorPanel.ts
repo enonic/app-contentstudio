@@ -1,10 +1,7 @@
-import '../../../../api.ts';
 import {LiveEditPageProxy} from '../LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import i18n = api.util.i18n;
-
-declare var CONFIG;
 
 export interface EmulatorPanelConfig {
 
@@ -62,11 +59,11 @@ export class EmulatorPanel extends api.ui.panel.Panel {
     }
 
     private initData(): void {
-        this.dataView.setItems(this.generateEmulatorDevices());
+        this.dataView.setItems(EmulatorPanel.generateEmulatorDevices());
         this.grid.setActiveCell(0, 0); // select first option
     }
 
-    private generateEmulatorDevices(): EmulatorDevice[] {
+    private static generateEmulatorDevices(): EmulatorDevice[] {
         const data: EmulatorDevice[] = [];
 
         const fullSizeDevice: EmulatorDevice = new EmulatorDevice(0, i18n(
