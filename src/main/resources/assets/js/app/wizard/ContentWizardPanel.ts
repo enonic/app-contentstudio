@@ -333,7 +333,7 @@ export class ContentWizardPanel
             wizardActions.getDeleteAction(),
             wizardActions.getDuplicateAction()
         ];
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {noPreview: true});
+        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {insideWizard: true});
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();

@@ -43,13 +43,13 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor() {
+    constructor(insideWizard: boolean = false) {
         super('context-panel-view');
 
         this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
         this.loadMask.addClass('context-panel-mask');
 
-        this.initCommonWidgetViews();
+        this.initCommonWidgetViews(insideWizard);
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
         this.initViewer();
@@ -264,9 +264,24 @@ export class ContextView
         this.loadMask.hide();
     }
 
-    private initCommonWidgetViews() {
+    private initCommonWidgetViews(insideWizard: boolean) {
 
-        this.defaultWidgetView = WidgetView.create()
+        const widgets = [];
+
+        let pageEditorWidgetView;
+
+        if (insideWizard) {
+            pageEditorWidgetView = WidgetView.create()
+                .setName(i18n('field.contextPanel.pageEditor'))
+                .setDescription(i18n('field.contextPanel.pageEditor.description'))
+                .setIconClass('icon-file')
+                .setContextView(this)
+                // .addWidgetItemView()
+                .build();
+            widgets.push(pageEditorWidgetView);
+        }
+
+        const propertiesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
             .setIconClass('icon-list')
@@ -302,7 +317,9 @@ export class ContextView
 
         dependenciesWidgetView.addClass('dependency-widget');
 
-        this.addWidgets([this.defaultWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]);
+        this.defaultWidgetView = pageEditorWidgetView || propertiesWidgetView;
+
+        this.addWidgets(widgets.concat([propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]));
 
         this.setActiveWidget(this.defaultWidgetView);
     }
