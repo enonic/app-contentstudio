@@ -1,9 +1,25 @@
 .content-item-preview-panel {
-  background-color: @admin-dark-gray;
 
-  > iframe {
-    margin: auto;
-    transition: width, height 0.1s;
+  &:not(.no-preview) {
+    background-color: @admin-dark-gray;
+  }
+
+  > .frame-wrapper {
+
+    &.emulated {
+      overflow: auto;
+      flex: 1;
+
+      iframe {
+        flex: none;
+        margin: 0 auto;
+      }
+    }
+
+    iframe {
+      transition: width 0.1s ease-in-out;
+    }
+
   }
 
   > img {
@@ -22,7 +38,7 @@
   }
 
   &.image-preview, &.svg-preview {
-    > iframe {
+    > .frame-wrapper iframe {
       display: none;
     }
     > img {

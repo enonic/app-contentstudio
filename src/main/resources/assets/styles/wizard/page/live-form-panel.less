@@ -15,7 +15,7 @@
   }
 
   .frame-container {
-    transition: width 0.1s ease-in-out;
+    transition: width .1s ease-in-out;
 
     height: 100%;
 
@@ -27,7 +27,7 @@
   }
 
   .live-edit-frame, .live-edit-frame-blank {
-    transition: width 0.1s ease-in-out;
+    transition: width .1s ease-in-out;
 
     background-color: white; //override liveFormPanels background color to get default browser background color for iframe
     -webkit-backface-visibility: hidden;
@@ -51,7 +51,7 @@
   &.no-preview {
     .no-preview-message {
       .watermark-text(21px, true);
-      margin-top: -20px;
+      margin-top: -@toolbar-with-border-height/2;
       z-index: 2;
       display: block;
     }

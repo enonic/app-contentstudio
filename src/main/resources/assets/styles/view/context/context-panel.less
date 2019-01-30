@@ -1,5 +1,4 @@
 @widget-selector-height: 40px;
-@toolbar-height: 41px;
 
 .context-panel {
   // common details panel styles
@@ -34,9 +33,10 @@
     }
 
     .no-selection-message {
-      display: none;
-
       .watermark-text();
+      display: none;
+      height: 60px;
+      margin-top: (-@toolbar-height/2 - 53px);
     }
 
     .content-summary-viewer {
@@ -256,7 +256,7 @@
 
   &.floating-context-panel {
     position: fixed;
-    top: @app-header-height + @toolbar-height;
+    top: @app-header-height + @toolbar-with-border-height;
     outline: 1px solid @admin-bg-light-gray;
   }
 }

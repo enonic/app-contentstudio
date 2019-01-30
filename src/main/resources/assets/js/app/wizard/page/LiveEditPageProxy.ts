@@ -145,10 +145,10 @@ export class LiveEditPageProxy {
             this.setWidth(event.getWidthWithUnits());
             this.setHeight(event.getHeightWithUnits());
 
-            if (event.isPixelUnits()) {
-                this.updateLiveEditFrameContainerHeight(event.getHeight());
-            } else {
+            if (event.isFullscreen()) {
                 this.resetParentHeight();
+            } else {
+                this.updateLiveEditFrameContainerHeight(event.getHeight());
             }
         });
     }
@@ -196,7 +196,7 @@ export class LiveEditPageProxy {
     }
 
     private resetParentHeight() {
-        let frameParent = this.getIFrame().getHTMLElement().parentElement;
+        const frameParent = this.getIFrame().getHTMLElement().parentElement;
         frameParent.style.height = '';
         frameParent.classList.remove('overflow');
     }

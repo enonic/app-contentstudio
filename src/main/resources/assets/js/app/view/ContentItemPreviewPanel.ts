@@ -7,6 +7,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {RepositoryId} from '../repository/RepositoryId';
+import {EmulatedEvent} from '../event/EmulatedEvent';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
@@ -104,6 +105,14 @@ export class ContentItemPreviewPanel
                     frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
                 }
             } catch (error) { /* error */ }
+        });
+
+        EmulatedEvent.on((event: EmulatedEvent) => {
+            this.frame.getEl().setWidth(event.getWidthWithUnits());
+            this.frame.getEl().setHeight(event.getHeightWithUnits());
+
+            const fullscreen = event.isFullscreen();
+            this.frameWrapper.getEl().toggleClass('emulated', !fullscreen);
         });
     }
 
@@ -259,7 +268,7 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false'`));
+                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);

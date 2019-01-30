@@ -3,7 +3,11 @@ import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {MediaAllowsPreviewRequest} from '../../../../resource/MediaAllowsPreviewRequest';
+import {IsRenderableRequest} from '../../../../resource/IsRenderableRequest';
 import i18n = api.util.i18n;
+import PEl = api.dom.PEl;
 
 export interface EmulatorWidgetItemViewConfig {
     liveEditPage?: LiveEditPageProxy;
@@ -12,9 +16,6 @@ export interface EmulatorWidgetItemViewConfig {
 export class EmulatorWidgetItemView
     extends WidgetItemView {
 
-    private dataView: api.ui.grid.DataView<any>;
-    private grid: EmulatorGrid;
-
     private liveEditPage: LiveEditPageProxy;
 
     constructor(config: EmulatorWidgetItemViewConfig) {
@@ -22,11 +23,8 @@ export class EmulatorWidgetItemView
 
         this.liveEditPage = config.liveEditPage;
 
-        this.dataView = new api.ui.grid.DataView<any>();
-        this.grid = new EmulatorGrid(this.dataView);
-        this.appendChild(this.grid);
-
-        this.initData();
+        this.initEmulationGrid();
+        this.initNoPreviewMessageContainer();
 
         // Using jQuery since grid.setOnClick fires event twice, bug in slickgrid
         wemjq(this.getHTMLElement()).on('click', '.grid-row > div', (event: JQueryEventObject) => {
@@ -40,9 +38,21 @@ export class EmulatorWidgetItemView
         });
     }
 
-    private initData(): void {
-        this.dataView.setItems(EmulatorWidgetItemView.generateEmulatorDevices());
-        this.grid.setActiveCell(0, 0); // select first option
+    private initEmulationGrid() {
+        const dataView = new api.ui.grid.DataView<any>();
+        const grid = new EmulatorGrid(dataView);
+
+        dataView.setItems(EmulatorWidgetItemView.generateEmulatorDevices());
+        // select first option
+        grid.setActiveCell(0, 0);
+
+        this.appendChild(grid);
+    }
+
+    private initNoPreviewMessageContainer() {
+        const noPreviewContainer = new PEl('no-preview-message');
+        noPreviewContainer.setHtml(i18n('field.preview.notAvailable'));
+        this.appendChild(noPreviewContainer);
     }
 
     private static generateEmulatorDevices(): EmulatorDevice[] {
@@ -68,5 +78,24 @@ export class EmulatorWidgetItemView
             highDefinitionTVDevice);
 
         return data;
+    }
+
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+        return this.isPreviewAvailable(item).then((available: boolean) => {
+            this.toggleClass('no-preview', !available);
+        });
+    }
+
+    private isPreviewAvailable(item: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+        const contentId = item.getContentId();
+        const renderableMedia = item.getType().isImage() ||
+                                item.getType().isVectorMedia() ||
+                                item.getType().isAudioMedia() ||
+                                item.getType().isTextMedia();
+
+        return renderableMedia ? wemQ(true) : wemQ.all([
+            new IsRenderableRequest(contentId).sendAndParse(),
+            new MediaAllowsPreviewRequest(contentId).sendAndParse()
+        ]).then((result: boolean[]) => result.some(v => v));
     }
 }

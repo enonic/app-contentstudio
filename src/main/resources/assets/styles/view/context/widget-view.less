@@ -30,7 +30,6 @@
 
   &.internal-widget {
     .widget-item-view {
-      position: relative;
       &.attachments-widget-item-view,
       &.page-template-widget-item-view,
       &.properties-widget-item-view,
@@ -45,6 +44,10 @@
 
     .status-widget-item-view {
       .content-status-mixin();
+    }
+
+    .dependency-widget-item-view {
+      position: relative;
     }
 
   }

@@ -2,6 +2,21 @@
 
   .emulator-widget-item-view {
 
+    &.no-preview {
+      .no-preview-message {
+        display: block;
+      }
+      .grid {
+        display: none;
+      }
+    }
+
+    .no-preview-message {
+      .watermark-text();
+      display: none;
+      margin-top: (-@toolbar-height/2 - 22px);
+    }
+
     .grid-row {
       padding-left: 15px;
       border-right: 0;
@@ -36,10 +51,6 @@
         padding: 0;
         font-size: 11px !important;
         font-weight: normal;
-      }
-
-      [data-context-window-draggable="true"] {
-        cursor: move;
       }
 
       &:hover {
