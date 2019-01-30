@@ -45,4 +45,5 @@ module.exports = Object.freeze({
     DETAILS_MENU_OPTION: `//div[text()='Details']`,
     CHECKBOX_INPUT: "//input[@type='checkbox']",
     CONTENT_SELECTED_OPTION_VIEW:"//div[contains(@id,'ContentSelectedOptionView')]",
+    DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`
 });
