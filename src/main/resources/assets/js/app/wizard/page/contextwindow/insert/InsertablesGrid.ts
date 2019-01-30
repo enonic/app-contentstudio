@@ -1,6 +1,5 @@
-import '../../../../../api.ts';
 import {Insertable} from './Insertable';
-import {FontIcon} from '../FontIcon';
+import {FontIcon} from '../../../../icon/FontIcon';
 
 export interface InsertablesGridOptions {
     draggableRows?: boolean;

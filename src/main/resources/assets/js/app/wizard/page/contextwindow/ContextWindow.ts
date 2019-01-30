@@ -1,9 +1,7 @@
-import '../../../../api.ts';
 import {LiveEditPageProxy} from '../LiveEditPageProxy';
 import {LiveFormPanel} from '../LiveFormPanel';
 import {InspectionsPanel} from './inspect/InspectionsPanel';
 import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
-import {EmulatorPanel} from './EmulatorPanel';
 import {InsertablesPanel} from './insert/InsertablesPanel';
 import {PageComponentsView} from '../../PageComponentsView';
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
@@ -18,8 +16,6 @@ export interface ContextWindowConfig {
 
     inspectionPanel: InspectionsPanel;
 
-    emulatorPanel: EmulatorPanel;
-
     insertablesPanel: InsertablesPanel;
 }
 
@@ -28,8 +24,6 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
     private insertablesPanel: InsertablesPanel;
 
     private inspectionsPanel: InspectionsPanel;
-
-    private emulatorPanel: EmulatorPanel;
 
     private liveFormPanel: LiveFormPanel;
 
@@ -57,15 +51,14 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         super();
         this.liveFormPanel = config.liveFormPanel;
         this.inspectionsPanel = config.inspectionPanel;
-        this.emulatorPanel = config.emulatorPanel;
         this.insertablesPanel = config.insertablesPanel;
 
-        this.onRendered((event) => {
+        this.onRendered(() => {
             // hide itself after all calculations have been made
             this.addClass('hidden');
         });
 
-        this.onRemoved((event) => {
+        this.onRemoved(() => {
             ResponsiveManager.unAvailableSizeChanged(this);
             ResponsiveManager.unAvailableSizeChanged(this.liveFormPanel);
         });
@@ -86,7 +79,6 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.appendChild(this.splitter);
             this.addItem(i18n('action.insert'), false, this.insertablesPanel);
             this.addItem(i18n('action.inspect'), false, this.inspectionsPanel);
-            this.addItem(i18n('action.emulator'), false, this.emulatorPanel);
 
             this.insertablesPanel.getComponentsView().onBeforeInsertAction(() => {
                 this.fixed = true;

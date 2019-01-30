@@ -1,6 +1,5 @@
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultModels} from './DefaultModels';
-import {EmulatorPanel} from './contextwindow/EmulatorPanel';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
 import {ContentInspectionPanel} from './contextwindow/inspect/ContentInspectionPanel';
@@ -109,7 +108,6 @@ export class LiveFormPanel
     private contextWindow: ContextWindow;
     private contextWindowController: ContextWindowController;
 
-    private emulatorPanel: EmulatorPanel;
     private insertablesPanel: InsertablesPanel;
     private inspectionsPanel: InspectionsPanel;
     private contentInspectionPanel: ContentInspectionPanel;
@@ -293,10 +291,6 @@ export class LiveFormPanel
     }
 
     private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow {
-        this.emulatorPanel = new EmulatorPanel({
-            liveEditPage: proxy
-        });
-
         this.inspectionsPanel = this.createInspectionsPanel(model, this.saveAsTemplateAction);
 
         this.insertablesPanel = new InsertablesPanel({
@@ -309,7 +303,6 @@ export class LiveFormPanel
             liveEditPage: proxy,
             liveFormPanel: this,
             inspectionPanel: this.inspectionsPanel,
-            emulatorPanel: this.emulatorPanel,
             insertablesPanel: this.insertablesPanel
         });
     }

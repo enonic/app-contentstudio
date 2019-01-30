@@ -1,4 +1,4 @@
-import {WidgetView, WidgetViewType} from './WidgetView';
+import {WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
@@ -294,7 +294,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.emulator.description'))
             .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
             .setContextView(this)
-            .addWidgetItemView(new EmulatorWidgetItemView()).build();
+            .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
         dependenciesWidgetView.addClass('dependency-widget');
 

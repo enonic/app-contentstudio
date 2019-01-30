@@ -1,5 +1,7 @@
 export class EmulatorDevice {
+
     private id: number;
+
     private device: EmulatorDeviceItem;
 
     constructor(id: number, name: string, type: string,
@@ -11,12 +13,19 @@ export class EmulatorDevice {
 }
 
 export class EmulatorDeviceItem {
+
     private name: string;
+
     private deviceType: string;
+
     private width: number;
+
     private height: number;
+
     private units: string;
+
     private displayUnits: boolean;
+
     private rotatable: boolean;
 
     constructor(name: string, type: string, width: number, height: number, units: string, displayUnits: boolean, rotatable: boolean) {

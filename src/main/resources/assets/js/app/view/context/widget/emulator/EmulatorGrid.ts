@@ -1,5 +1,5 @@
 import {EmulatorDeviceItem} from './EmulatorDevice';
-import {FontIcon} from './FontIcon';
+import {FontIcon} from '../../../../icon/FontIcon';
 
 export class EmulatorGrid extends api.ui.grid.Grid<any> {
 
