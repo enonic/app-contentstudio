@@ -43,7 +43,7 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.frameWrapper.appendChild(this.image);
+            this.wrapper.appendChild(this.image);
             return rendered;
         });
     }
@@ -115,7 +115,7 @@ export class ContentItemPreviewPanel
             this.image.getEl().setMaxHeight(event.getHeightWithUnits());
 
             const fullscreen = event.isFullscreen();
-            this.frameWrapper.getEl().toggleClass('emulated', !fullscreen);
+            this.wrapper.getEl().toggleClass('emulated', !fullscreen);
         });
     }
 
