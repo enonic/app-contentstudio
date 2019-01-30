@@ -27,10 +27,19 @@ const wizardVersionsWidget = Object.create(baseVersionsWidget, {
             return this.isVisible(xpath.widget);
         }
     },
+    //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
     waitForVersionsLoaded: {
         value: function () {
             return this.waitForVisible(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
                 throw new Error('Content Wizard: Version Widget was not loaded in ' + appConst.TIMEOUT_2);
+            });
+        }
+    },
+    //waits for Version Widget is loaded, returns false after the timeout exceeded
+    isWidgetLoaded: {
+        value: function () {
+            return this.waitForVisible(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
+                return false;
             });
         }
     },
@@ -41,7 +50,7 @@ const wizardVersionsWidget = Object.create(baseVersionsWidget, {
                 return this.getDisplayedElements(selector)
             }).then(result => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err=>{
+            }).catch(err => {
                 throw new Error("Version Widget - error when clicking on 'Restore Version' button " + err);
             });
         }

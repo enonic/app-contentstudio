@@ -28,7 +28,7 @@ const wizard = {
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     scheduleForm: "//div[contains(@id,'ScheduleWizardStepForm')]",
-    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
+    detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
@@ -146,16 +146,12 @@ const contentWizardPanel = Object.create(page, {
     // opens Details Panel if it is not loaded
     openDetailsPanel: {
         value: function () {
-            return detailsPanel.waitForDetailsPanelLoaded().then(result => {
+            return detailsPanel.isDetailsPanelLoaded().then(result => {
                 if (!result) {
                     return this.doClick(this.detailsPanelToggleButton).catch(err => {
                         throw new Error("Error when trying to open Details Panel in Wizard");
                     }).then(() => {
                         return detailsPanel.waitForDetailsPanelLoaded();
-                    }).then(result => {
-                        if (!result) {
-                            throw new Error("Details panel was not loaded! ");
-                        }
                     })
                 } else {
                     console.log("Content wizard is opened and Details Panel is loaded");

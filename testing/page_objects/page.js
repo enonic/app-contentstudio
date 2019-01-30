@@ -190,6 +190,9 @@ Page.prototype.saveScreenshot = function (name) {
         console.log('screenshot was not saved ' + screenshotsDir + ' ' + err);
     })
 };
+Page.prototype.getCSSProperty = function (selector, attributeName) {
+    return this.getBrowser().getCSSProperty(selector, attributeName);
+};
 
 Page.prototype.getAttribute = function (selector, attributeName) {
     return this.getBrowser().getAttribute(selector, attributeName);
