@@ -1,14 +1,17 @@
 .widget-view.internal-widget {
 
-  .emulator-widget-item-view {
-
-    &.no-preview {
+  &.active {
+    .emulator-widget-item-view.no-preview {
       .no-preview-message {
         display: block;
       }
-      .grid {
-        display: none;
-      }
+    }
+  }
+
+  .emulator-widget-item-view {
+
+    &.no-preview .grid {
+      display: none;
     }
 
     .no-preview-message {

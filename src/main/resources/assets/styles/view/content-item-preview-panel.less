@@ -4,29 +4,30 @@
     background-color: @admin-dark-gray;
   }
 
-  > .frame-wrapper {
+  .frame-wrapper {
 
     &.emulated {
       overflow: auto;
       flex: 1;
 
-      iframe {
+      > iframe {
         flex: none;
         margin: 0 auto;
       }
     }
 
-    iframe {
+    > img,
+    > iframe {
       transition: width 0.1s ease-in-out;
     }
 
-  }
+    > img {
+      display: none;
+      margin: auto;
+      max-width: 100%;
+      max-height: 100%;
+    }
 
-  > img {
-    display: none;
-    margin: auto;
-    max-width: 100%;
-    max-height: calc(100% - 41px); // 41px - is a height of a toolbar
   }
 
   &.image-preview {
@@ -38,11 +39,13 @@
   }
 
   &.image-preview, &.svg-preview {
-    > .frame-wrapper iframe {
-      display: none;
-    }
-    > img {
-      display: block;
+    .frame-wrapper {
+      > iframe {
+        display: none;
+      }
+      > img {
+        display: block;
+      }
     }
   }
 

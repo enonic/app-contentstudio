@@ -175,6 +175,7 @@ export class ContextView
         }
 
         this.activeWidget = widgetView;
+        this.activeWidget.addClass('active');
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
@@ -189,6 +190,9 @@ export class ContextView
     }
 
     resetActiveWidget() {
+        if (this.activeWidget) {
+            this.activeWidget.removeClass('active');
+        }
         this.activeWidget = null;
     }
 
