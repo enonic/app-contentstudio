@@ -15,7 +15,7 @@ const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.d
 const wizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
-describe('wizard.details.panel.spec: Open details panel in wizard and check widgets ', function () {
+describe('wizard.details.panel.spec: Open details panel in wizard and check widgets', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -24,6 +24,9 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             }).then(() => {
                 return contentWizard.openDetailsPanel();
+            }).then(() => {
+                //Version history widget should not be displayed by default!
+                return assert.eventually.isFalse(wizardVersionsWidget.isWidgetLoaded(), "`Versions Widget` should not be visible");
             }).then(() => {
                 return wizardDetailsPanel.openVersionHistory();
             }).then(() => {
@@ -38,11 +41,13 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
             }).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
+                //Version history widget should not be displayed by default!
+                return assert.eventually.isFalse(wizardDependenciesWidget.isWidgetLoaded(), "`Versions Widget` should not be visible");
+            }).then(() => {
                 return wizardDetailsPanel.openDependencies();
             }).then(() => {
                 studioUtils.saveScreenshot("wizard_dependencies_widget");
-                return assert.eventually.isTrue(wizardDependenciesWidget.waitForWidgetLoaded(),
-                    "`Dependencies Widget` should be loaded");
+                return assert.eventually.isTrue(wizardDependenciesWidget.waitForWidgetLoaded(), "`Dependencies Widget` should be loaded");
             });
         });
 
