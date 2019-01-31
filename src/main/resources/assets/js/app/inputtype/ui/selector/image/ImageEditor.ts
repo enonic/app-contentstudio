@@ -1105,13 +1105,13 @@ export class ImageEditor
     }
 
     private getRelativeScrollTop(): number {
-        let scrollEl = wemjq(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
-        let scrollElOffsetTop = scrollEl.length === 1
+        const scrollEl = wemjq(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
+        const scrollElOffsetTop = scrollEl.length === 1
                                 ? scrollEl.offset().top
                                 : 0;
-        let wizardToolbarHeight = !this.isEditMode() && scrollEl.length === 1
-                                  ? scrollEl.find(this.WIZARD_TOOLBAR_SELECTOR).innerHeight()
-                                  : 0;
+        const wizardToolbar = !this.isEditMode() && scrollEl.length === 1 ? scrollEl.find(this.WIZARD_TOOLBAR_SELECTOR) : null;
+        const wizardToolbarBorderThickness = wizardToolbar ? wizardToolbar.outerHeight() - wizardToolbar.innerHeight() : 0;
+        const wizardToolbarHeight = wizardToolbar ? wizardToolbar.innerHeight() - wizardToolbarBorderThickness : 0;
 
         return this.getEl().getOffsetTop() - scrollElOffsetTop - wizardToolbarHeight;
     }

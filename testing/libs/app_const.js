@@ -39,7 +39,10 @@ module.exports = Object.freeze({
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
-
+    WIDGET_TITLE:{
+      VERSION_HISTORY:'Version history',
+      DEPENDENCIES:'Dependencies'
+    },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',

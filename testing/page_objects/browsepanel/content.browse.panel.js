@@ -22,7 +22,6 @@ const panel = {
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
-    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -50,7 +49,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     detailsPanelToggleButton: {
         get: function () {
-            return `${panel.container}` + `${panel.detailsPanelToggleButton}`;
+            return `${panel.container}` + elements.DETAILS_PANEL_TOGGLE_BUTTON;
         }
     },
     showPublishMenuButton: {

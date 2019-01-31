@@ -23,8 +23,10 @@ const baseDetailsPanel = Object.create(page, {
     openVersionHistory: {
         value: function () {
             return this.clickOnWidgetSelectorDropdownHandle().then(() => {
-                let versionHistoryOption = this.widgetSelectorDropdown + elements.VERSION_HISTORY_MENU_OPTION;
-                return this.waitForVisible(versionHistoryOption, appConst.TIMEOUT_2).pause(500).then(() => {
+                let versionHistoryOption = this.widgetSelectorDropdown + elements.itemByDisplayName(appConst.WIDGET_TITLE.VERSION_HISTORY);
+                return this.waitForVisible(versionHistoryOption, appConst.TIMEOUT_2).catch(err => {
+                    throw new Error("Details panel, version history option was not found in the dropdown selector " + err);
+                }).then(() => {
                     return this.getDisplayedElements(versionHistoryOption);
                 }).then(result => {
                     console.log('number of elements:  ' + result.length);
@@ -40,7 +42,7 @@ const baseDetailsPanel = Object.create(page, {
                 this.saveScreenshot("err_dropdown_handle");
                 throw new Error("Error when clicking on Drop Down Handler in dependencies panel " + err);
             }).then(() => {
-                let dependenciesOption = this.widgetSelectorDropdown + elements.DEPENDENCIES_MENU_OPTION;
+                let dependenciesOption = this.widgetSelectorDropdown + elements.itemByDisplayName(appConst.WIDGET_TITLE.DEPENDENCIES);
                 return this.waitForVisible(dependenciesOption, appConst.TIMEOUT_2).then(() => {
                     return this.getDisplayedElements(dependenciesOption)
                 }).then(result => {

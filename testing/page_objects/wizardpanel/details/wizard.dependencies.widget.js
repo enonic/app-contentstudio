@@ -9,7 +9,6 @@ const xpath = {
     widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DependenciesWidgetItemView')]`,
     showOutboundButton: `//button/span[contains(.,'Show Outbound')]`,
     showInboundButton: `//button/span[contains(.,'Show Inbound')]`
-
 };
 const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
 
@@ -33,6 +32,15 @@ const wizardDependenciesWidget = Object.create(baseDependenciesWidget, {
             return this.isVisible(this.dependenciesWidget);
         }
     },
+    //waits for Dependencies Widget is loaded, returns false after the timeout exceeded
+    isWidgetLoaded: {
+        value: function () {
+            return this.waitForVisible(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
+               return false
+            });
+        }
+    },
+    //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
     waitForWidgetLoaded: {
         value: function () {
             return this.waitForVisible(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
