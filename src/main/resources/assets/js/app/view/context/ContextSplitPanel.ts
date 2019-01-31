@@ -14,15 +14,18 @@ import {ContextPanel} from './ContextPanel';
 import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentHelper} from '../../util/ContentHelper';
+import {ContentWizardPanel} from '../../wizard/ContentWizardPanel';
+import {LiveEditData} from '../../wizard/page/LiveFormPanel';
 
-export interface ContextPanelOptions {
-    insideWizard?: boolean;
+export interface ContextData
+    extends LiveEditData {
+    contentWizardPanel: ContentWizardPanel;
 }
 
 export class ContextSplitPanel
     extends api.ui.panel.SplitPanel {
 
-    private options: ContextPanelOptions;
+    private data: ContextData;
     private mobileMode: boolean;
     private mobilePanelSlideListeners: { (out: boolean): void }[];
     private contextView: ContextView;
@@ -35,8 +38,8 @@ export class ContextSplitPanel
     private leftPanel: api.ui.panel.Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], options?: ContextPanelOptions) {
-        const contextView = new ContextView((options || {}).insideWizard);
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: ContextData) {
+        const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
@@ -50,7 +53,7 @@ export class ContextSplitPanel
         this.addClass('context-split-panel');
         this.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
 
-        this.options = options || {};
+        this.data = data;
         this.leftPanel = leftPanel;
         this.contextView = contextView;
         this.dockedContextPanel = dockedContextPanel;
@@ -61,11 +64,15 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
     }
 
+    private isInsideWizard(): boolean {
+        return !!this.data;
+    }
+
     private renderAfterDockedPanelReady() {
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
         this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
         this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             this.initMobileContextPanelOnly();
         } else {
             this.initMobileItemStatisticsPanel();
@@ -80,7 +87,7 @@ export class ContextSplitPanel
         this.contextView.appendChild(this.nonMobileContextPanelsManager.getToggleButton());
 
         this.onShown(() => {
-            if (!!this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget()) {
+            if (this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget()) {
                 this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget().slideIn();
             }
         });
@@ -127,11 +134,11 @@ export class ContextSplitPanel
     }
 
     private getMobileContextPanel(): ContextPanel {
-        return this.options.insideWizard ? this.mobileContextPanel : this.mobileContentItemStatisticsPanel.getContextPanel();
+        return this.isInsideWizard() ? this.mobileContextPanel : this.mobileContentItemStatisticsPanel.getContextPanel();
     }
 
     private getMobilePanelItem(): ContentSummaryAndCompareStatus {
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             return this.mobileContextPanel.getItem();
         } else {
             const item = this.mobileContentItemStatisticsPanel.getItem();
@@ -140,7 +147,7 @@ export class ContextSplitPanel
     }
 
     private slideMobilePanelOut(silent?: boolean) {
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             this.mobileContextPanel.slideOut(silent);
         } else {
             this.mobileContentItemStatisticsPanel.slideAllOut(silent);
@@ -200,7 +207,7 @@ export class ContextSplitPanel
     }
 
     setMobilePreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>, force?: boolean) {
-        if (!this.options.insideWizard) {
+        if (!this.isInsideWizard()) {
             this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(previewItem, force);
         }
     }
@@ -209,7 +216,7 @@ export class ContextSplitPanel
         if (!this.isMobileMode()) {
             this.contextView.setItem(content);
         }
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             this.mobileContextPanel.setItem(content);
         } else {
             const prevItem = this.getMobilePanelItem();
@@ -234,7 +241,7 @@ export class ContextSplitPanel
     }
 
     showMobilePanel() {
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             this.mobileContextPanel.slideIn();
         } else {
             this.mobileContentItemStatisticsPanel.slideIn();
@@ -242,7 +249,7 @@ export class ContextSplitPanel
     }
 
     hideMobilePanel() {
-        if (this.options.insideWizard) {
+        if (this.isInsideWizard()) {
             this.mobileContextPanel.slideOut();
         } else {
             this.mobileContentItemStatisticsPanel.slideAllOut();

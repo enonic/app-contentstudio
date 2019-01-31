@@ -333,7 +333,14 @@ export class ContentWizardPanel
             wizardActions.getDeleteAction(),
             wizardActions.getDuplicateAction()
         ];
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {insideWizard: true});
+
+        const {liveEditPageProxy, liveEditModel} = this.getLivePanel().getLiveEditData();
+
+        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {
+            liveEditPageProxy,
+            liveEditModel,
+            contentWizardPanel: this
+        });
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();

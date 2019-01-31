@@ -12,6 +12,8 @@ import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterface
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
+import {ContextData} from './ContextSplitPanel';
+import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import Widget = api.content.Widget;
 import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ApplicationEvent = api.application.ApplicationEvent;
@@ -43,13 +45,13 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor(insideWizard: boolean = false) {
+    constructor(data?: ContextData) {
         super('context-panel-view');
 
         this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
         this.loadMask.addClass('context-panel-mask');
 
-        this.initCommonWidgetViews(insideWizard);
+        this.initCommonWidgetViews(data);
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
         this.initViewer();
@@ -264,19 +266,19 @@ export class ContextView
         this.loadMask.hide();
     }
 
-    private initCommonWidgetViews(insideWizard: boolean) {
+    private initCommonWidgetViews(data?: ContextData) {
 
         const widgets = [];
 
         let pageEditorWidgetView;
 
-        if (insideWizard) {
+        if (data) {
             pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
                 .setIconClass('icon-file')
                 .setContextView(this)
-                // .addWidgetItemView()
+                .addWidgetItemView(new PageEditorWidgetItemView(data))
                 .build();
             widgets.push(pageEditorWidgetView);
         }

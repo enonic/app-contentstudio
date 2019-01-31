@@ -83,6 +83,11 @@ export interface LiveFormPanelConfig {
     defaultModels: DefaultModels;
 }
 
+export interface LiveEditData {
+    liveEditPageProxy: LiveEditPageProxy;
+    liveEditModel: LiveEditModel;
+}
+
 export class LiveFormPanel
     extends api.ui.panel.Panel {
 
@@ -290,7 +295,7 @@ export class LiveFormPanel
         return liveEditPageProxy;
     }
 
-    private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow {
+    private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow { //
         this.inspectionsPanel = this.createInspectionsPanel(model, this.saveAsTemplateAction);
 
         this.insertablesPanel = new InsertablesPanel({
@@ -345,6 +350,13 @@ export class LiveFormPanel
             textInspectionPanel: this.textInspectionPanel,
             saveAction: saveAction
         });
+    }
+
+    getLiveEditData(): LiveEditData {
+        return {
+            liveEditPageProxy: this.liveEditPageProxy,
+            liveEditModel: this.liveEditModel
+        };
     }
 
     doRender(): Q.Promise<boolean> {

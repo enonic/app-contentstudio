@@ -1,0 +1,23 @@
+.widget-view.internal-widget {
+
+  &.active {
+    .page-editor-widget-item-view.no-preview {
+      .no-preview-message {
+        display: block;
+      }
+    }
+  }
+
+  .page-editor-widget-item-view {
+
+    &.no-preview .context-window {
+      display: none;
+    }
+
+    .no-preview-message {
+      .watermark-text();
+      display: none;
+      margin-top: (-@toolbar-height/2 - 22px);
+    }
+  }
+}
