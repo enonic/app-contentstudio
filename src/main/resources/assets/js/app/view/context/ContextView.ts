@@ -15,6 +15,7 @@ import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 import {ContentWidgetItemView} from './widget/info/ContentWidgetItemView';
+import {InspectEvent} from '../../event/InspectEvent';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -271,6 +272,10 @@ export class ContextView
                 .addWidgetItemView(new PageEditorWidgetItemView(data))
                 .build();
             widgets.push(pageEditorWidgetView);
+
+            InspectEvent.on(() => {
+                this.activateDefaultWidget();
+            });
         }
 
         const propertiesWidgetView = WidgetView.create()

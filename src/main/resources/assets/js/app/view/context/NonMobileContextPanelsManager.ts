@@ -3,6 +3,7 @@ import {FloatingContextPanel} from './FloatingContextPanel';
 import {DockedContextPanel} from './DockedContextPanel';
 import {NonMobileContextPanelToggleButton} from './button/NonMobileContextPanelToggleButton';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
+import {InspectEvent} from '../../event/InspectEvent';
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 
 export class NonMobileContextPanelsManager {
@@ -22,6 +23,12 @@ export class NonMobileContextPanelsManager {
 
         this.toggleButton.onClicked(() => {
             if (this.requiresAnimation()) {
+                this.doPanelAnimation();
+            }
+        });
+
+        InspectEvent.on(() => {
+            if (this.requiresAnimation() && !this.isExpanded()) {
                 this.doPanelAnimation();
             }
         });

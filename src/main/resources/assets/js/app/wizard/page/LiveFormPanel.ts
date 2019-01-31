@@ -750,7 +750,7 @@ export class LiveFormPanel
 
     private minimizeContentFormPanelIfNeeded() {
         if (/*this.contextWindow.isFloating() && */!this.contentWizardPanel.isMinimized()) {
-            this.contentWizardPanel.toggleMinimize();
+            // this.contentWizardPanel.toggleMinimize();
         }
     }
 

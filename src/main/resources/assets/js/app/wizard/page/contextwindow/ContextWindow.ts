@@ -4,6 +4,7 @@ import {InspectionsPanel} from './inspect/InspectionsPanel';
 import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
 import {InsertablesPanel} from './insert/InsertablesPanel';
 import {PageComponentsView} from '../../PageComponentsView';
+import {InspectEvent} from '../../../event/InspectEvent';
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import i18n = api.util.i18n;
 
@@ -65,8 +66,11 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
     }
 
     public showInspectionPanel(panel: BaseInspectionPanel) {
-        this.inspectionsPanel.showInspectionPanel(panel);
-        this.selectPanel(this.inspectionsPanel);
+        new InspectEvent().fire();
+        setTimeout(() => {
+            this.inspectionsPanel.showInspectionPanel(panel);
+            this.selectPanel(this.inspectionsPanel);
+        });
     }
 
     public clearSelection() {
