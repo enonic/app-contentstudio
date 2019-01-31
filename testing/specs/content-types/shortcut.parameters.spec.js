@@ -13,6 +13,7 @@ const shortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const wizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const wizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const confirmationDialog = require('../../page_objects/confirmation.dialog');
 
 
 describe('Shortcut parameters specification', function () {
@@ -95,6 +96,8 @@ describe('Shortcut parameters specification', function () {
             return studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME).then(() => {
                 return shortcutForm.clickOnRemoveParameterButton();
             }).then(() => {
+                return confirmationDialog.clickOnYesButton();
+            }).pause(700).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
                 studioUtils.saveScreenshot("shortcut_parameter_removed");
