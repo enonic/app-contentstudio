@@ -266,7 +266,7 @@ export class ContextView
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
                 .setWidgetClass('page-editor-widget')
-                .setIconClass('icon-file')
+                .setIconClass('icon-big-plus')
                 .setContextView(this)
                 .addWidgetItemView(new PageEditorWidgetItemView(data))
                 .build();
