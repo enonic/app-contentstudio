@@ -38,8 +38,12 @@ export class EmulatedEvent
         return this.units === 'px';
     }
 
+    public isPercentsUnits(): boolean {
+        return this.units === '%';
+    }
+
     public isFullscreen(): boolean {
-        const fullscreen = this.width === 100 && this.height === 100 && this.isPixelUnits();
+        const fullscreen = this.width === 100 && this.height === 100 && this.isPercentsUnits();
         const valid = this.width > 0 && this.height > 0 && !api.util.StringHelper.isBlank(this.units);
         return fullscreen || !valid;
     }
