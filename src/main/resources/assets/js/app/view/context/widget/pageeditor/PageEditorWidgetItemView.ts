@@ -1,38 +1,33 @@
-import {WidgetItemView} from '../../WidgetItemView';
-import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {IsRenderableRequest} from '../../../../resource/IsRenderableRequest';
-import {ContextData} from '../../ContextSplitPanel';
-import i18n = api.util.i18n;
+import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
+import {WidgetItemView} from '../../WidgetItemView';
 import PEl = api.dom.PEl;
-
-export interface EmulatorWidgetItemViewConfig {
-    liveEditPage?: LiveEditPageProxy;
-}
+import i18n = api.util.i18n;
 
 export class PageEditorWidgetItemView
     extends WidgetItemView {
 
-    constructor(config: ContextData) {
+    constructor(config: PageEditorData) {
         super('page-editor-widget-item-view');
 
-        this.initContextWindow();
+        this.initContextWindow(config);
         this.initNoPreviewMessageContainer();
     }
 
-    private initContextWindow() {
-
+    private initContextWindow(config: PageEditorData) {
+        this.appendChild(config.contextWindow);
     }
 
     private initNoPreviewMessageContainer() {
-        const noPreviewContainer = new PEl('no-preview-message');
-        noPreviewContainer.setHtml(i18n('field.preview.notAvailable'));
+        const noPreviewContainer = new PEl('no-controller-message');
+        noPreviewContainer.setHtml(i18n('live.view.page.nocontrollers'));
         this.appendChild(noPreviewContainer);
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
         return PageEditorWidgetItemView.isPreviewAvailable(item).then((available: boolean) => {
-            this.toggleClass('no-preview', !available);
+            this.toggleClass('no-controller', !available);
         });
     }
 

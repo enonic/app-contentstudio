@@ -12,10 +12,10 @@ import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterface
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
-import {ContextData} from './ContextSplitPanel';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
+import {PageEditorData} from '../../wizard/page/LiveFormPanel';
+import {ContentWidgetItemView} from './widget/info/ContentWidgetItemView';
 import Widget = api.content.Widget;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;
@@ -25,7 +25,6 @@ export class ContextView
     extends api.dom.DivEl {
 
     private widgetViews: WidgetView[] = [];
-    private viewer: ContentSummaryViewer;
     private contextContainer: api.dom.DivEl = new api.dom.DivEl('context-container');
     private widgetsSelectionRow: WidgetsSelectionRow;
 
@@ -45,7 +44,7 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor(data?: ContextData) {
+    constructor(data?: PageEditorData) {
         super('context-panel-view');
 
         this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
@@ -54,7 +53,6 @@ export class ContextView
         this.initCommonWidgetViews(data);
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
-        this.initViewer();
 
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
@@ -204,13 +202,6 @@ export class ContextView
         }
     }
 
-    private initViewer() {
-        this.viewer = new ContentSummaryViewer();
-        this.viewer.addClass('context-panel-label');
-
-        this.contextContainer.insertChild(this.viewer, 0);
-    }
-
     public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
@@ -246,8 +237,6 @@ export class ContextView
             return wemQ<any>(null);
         }
 
-        this.updateViewer();
-
         return this.activeWidget.updateWidgetItemViews().then(() => {
             // update active widget's height
             setTimeout(() => {
@@ -266,7 +255,7 @@ export class ContextView
         this.loadMask.hide();
     }
 
-    private initCommonWidgetViews(data?: ContextData) {
+    private initCommonWidgetViews(data?: PageEditorData) {
 
         const widgets = [];
 
@@ -276,6 +265,7 @@ export class ContextView
             pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
+                .setWidgetClass('page-editor-widget')
                 .setIconClass('icon-file')
                 .setContextView(this)
                 .addWidgetItemView(new PageEditorWidgetItemView(data))
@@ -286,9 +276,11 @@ export class ContextView
         const propertiesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
+            .setWidgetClass('properties-widget')
             .setIconClass('icon-list')
             .setContextView(this)
             .setWidgetItemViews([
+                new ContentWidgetItemView(),
                 new StatusWidgetItemView(),
                 new UserAccessWidgetItemView(),
                 new PropertiesWidgetItemView(),
@@ -299,6 +291,7 @@ export class ContextView
         const versionsWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.versionHistory'))
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
+            .setWidgetClass('versions-widget')
             .setIconClass('icon-history')
             .setContextView(this)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
@@ -306,6 +299,7 @@ export class ContextView
         const dependenciesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.dependencies'))
             .setDescription(i18n('field.contextPanel.dependencies.description'))
+            .setWidgetClass('dependency-widget')
             .setIconClass('icon-link')
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
@@ -313,11 +307,10 @@ export class ContextView
         const emulatorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.emulator'))
             .setDescription(i18n('field.contextPanel.emulator.description'))
+            .setWidgetClass('emulator-widget')
             .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
-
-        dependenciesWidgetView.addClass('dependency-widget');
 
         this.defaultWidgetView = pageEditorWidgetView || propertiesWidgetView;
 
@@ -405,12 +398,6 @@ export class ContextView
                 this.widgetViews[i] = widget;
                 break;
             }
-        }
-    }
-
-    updateViewer() {
-        if (this.item) {
-            this.viewer.setObject(this.item.getContentSummary());
         }
     }
 

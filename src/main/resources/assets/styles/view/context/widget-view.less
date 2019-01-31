@@ -3,8 +3,8 @@
   overflow: hidden;
   transition: all 0.1s ease-in-out;
 
-  .panel {
-    position: relative;
+  &:not(.active) {
+    display: none;
   }
 
   &.external-widget {
@@ -30,6 +30,7 @@
 
   &.internal-widget {
     .widget-item-view {
+      &.content-widget-item-view,
       &.attachments-widget-item-view,
       &.page-template-widget-item-view,
       &.properties-widget-item-view,

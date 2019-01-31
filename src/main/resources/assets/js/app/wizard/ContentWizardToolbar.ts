@@ -12,7 +12,6 @@ import i18n = api.util.i18n;
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
 
-    private contextWindowToggler: TogglerButton;
     private componentsViewToggler: TogglerButton;
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
@@ -34,7 +33,7 @@ export class ContentWizardToolbar
 
     private addHomeButton(application: Application) {
         let homeAction = new Action(application.getName());
-        homeAction.onExecuted((action) => {
+        homeAction.onExecuted(() => {
             let tabId;
             if (navigator.userAgent.search('Chrome') > -1) {
                 // add tab id for browsers that can focus tabs by id
@@ -67,19 +66,13 @@ export class ContentWizardToolbar
     private addTogglerButtons(actions: ContentWizardActions) {
         this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
-        this.contextWindowToggler = new TogglerButton('icon-cog', i18n('field.showInspection'));
 
         super.addElement(this.cycleViewModeButton);
-        super.addElement(this.contextWindowToggler);
         super.addElement(this.componentsViewToggler);
     }
 
     getCycleViewModeButton(): CycleButton {
         return this.cycleViewModeButton;
-    }
-
-    getContextWindowToggler(): TogglerButton {
-        return this.contextWindowToggler;
     }
 
     getComponentsViewToggler(): TogglerButton {

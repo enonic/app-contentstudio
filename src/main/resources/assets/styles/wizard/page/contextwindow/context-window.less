@@ -1,29 +1,9 @@
 .context-window {
   color: @admin-font-gray3;
-  transition: all 0.1s ease-in-out;
-  z-index: @z-index-context-window;
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
-
-  .splitter {
-    position: relative;
-    width: 5px;
-    height: 100%;
-    float: left;
-    background-color: #d3d3d3;
-    cursor: ew-resize;
-    .notSelectable();
-  }
-
-  .ghost-dragger {
-    height: 100%;
-    background-color: @admin-dark-gray;
-    opacity: 0.5;
-    position: absolute;
-    z-index: @z-index-draggable;
-    cursor: ew-resize;
-    width: 5px;
-    .notSelectable();
-  }
+  z-index: initial;
+  width: 100%;
+  right: 0;
 
   input.search {
     margin: 15px;
@@ -35,16 +15,11 @@
   }
 
   & > .tab-bar {
-    position: absolute;
-    left: 5px;
     cursor: move;
   }
 
   & > .deck-panel {
-    left: 5px;
-    right: 0;
-    top: 43px;
-    width: auto;
+    top: 44px;
   }
 
   .slick-viewport {
@@ -52,48 +27,11 @@
     overflow-x: hidden !important;
   }
 
+  .context-grid();
+
   .grid-row {
-    padding-left: 15px;
-    border-right: 0;
-    border-bottom: 1px solid @admin-almost-white;
-    padding-bottom: 10px;
-    padding-top: 5px;
-
-    img {
-      width: 30px;
-      height: 30px;
-      float: left;
-      display: block;
-      margin-right: 15px;
-      margin-top: 3px;
-    }
-
-    &.slick-cell {
-      height: auto;
-    }
-
-    h5 {
-      margin: 0;
-      padding: 0;
-      font-size: 13px !important;
-      line-height: 1.50;
-      font-weight: normal;
-      color: @admin-font-gray3;
-    }
-
-    h6 {
-      margin: 0;
-      padding: 0;
-      font-size: 11px !important;
-      font-weight: normal;
-    }
-
     [data-context-window-draggable="true"] {
       cursor: move;
-    }
-
-    &:hover {
-      background-color: @admin-almost-white;
     }
   }
 
@@ -234,9 +172,4 @@
 
 .drag-mask {
   background-color: transparent;
-}
-
-.imagePicker() {
-  margin: 15px;
-  width: auto;
 }

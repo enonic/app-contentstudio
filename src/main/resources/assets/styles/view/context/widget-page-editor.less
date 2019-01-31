@@ -1,8 +1,8 @@
 .widget-view.internal-widget {
 
   &.active {
-    .page-editor-widget-item-view.no-preview {
-      .no-preview-message {
+    .page-editor-widget-item-view.no-controller {
+      .no-controller-message {
         display: block;
       }
     }
@@ -10,11 +10,11 @@
 
   .page-editor-widget-item-view {
 
-    &.no-preview .context-window {
+    &.no-controller .context-window {
       display: none;
     }
 
-    .no-preview-message {
+    .no-controller-message {
       .watermark-text();
       display: none;
       margin-top: (-@toolbar-height/2 - 22px);

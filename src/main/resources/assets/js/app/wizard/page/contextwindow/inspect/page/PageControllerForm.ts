@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {PageControllerSelector} from './PageControllerSelector';
 import i18n = api.util.i18n;
 

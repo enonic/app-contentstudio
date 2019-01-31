@@ -334,13 +334,8 @@ export class ContentWizardPanel
             wizardActions.getDuplicateAction()
         ];
 
-        const {liveEditPageProxy, liveEditModel} = this.getLivePanel().getLiveEditData();
-
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {
-            liveEditPageProxy,
-            liveEditModel,
-            contentWizardPanel: this
-        });
+        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : null;
+        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data);
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();
@@ -673,7 +668,6 @@ export class ContentWizardPanel
         this.getCycleViewModeButton().setEnabled(!appsIsMissing);
 
         this.getComponentsViewToggler().setVisible(this.renderable && !appsIsMissing);
-        this.getContextWindowToggler().setVisible(this.renderable && !appsIsMissing);
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1979,10 +1973,6 @@ export class ContentWizardPanel
         }
     }
 
-    getContextWindowToggler(): TogglerButton {
-        return this.getMainToolbar().getContextWindowToggler();
-    }
-
     getComponentsViewToggler(): TogglerButton {
         return this.getMainToolbar().getComponentsViewToggler();
     }
@@ -2181,11 +2171,8 @@ export class ContentWizardPanel
         return this.checkIfRenderable().then(() => {
             this.wizardActions.getPreviewAction().setEnabled(this.renderable);
             this.wizardActions.refreshPendingDeleteDecorations();
-            this.getContextWindowToggler().setEnabled(this.renderable);
             this.getComponentsViewToggler().setEnabled(this.renderable);
-
             this.getComponentsViewToggler().setVisible(this.renderable);
-            this.getContextWindowToggler().setVisible(this.renderable);
         });
     }
 
@@ -2234,7 +2221,7 @@ export class ContentWizardPanel
                 this.onPageChanged(listener);
             }
 
-            this.getLivePanel().onPageViewReady((pageView) => {
+            this.getLivePanel().onPageViewReady(() => {
                 this.checkIfRenderable().then(() => {
                     this.onPageChanged(listener);
                 });

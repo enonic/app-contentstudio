@@ -1,5 +1,24 @@
 .widget-view.internal-widget {
 
+  .content-widget-item-view {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+
+    .names-and-icon-view {
+      display: inline-flex;
+      .@{_COMMON_PREFIX}wrapper {
+        margin-right: 10px;
+        flex: 1 0 auto;
+        transform: scale(0.8);
+      }
+      .@{_COMMON_PREFIX}names-view {
+        margin: 0;
+      }
+    }
+  }
+
   .properties-widget-item-view {
 
     dl {

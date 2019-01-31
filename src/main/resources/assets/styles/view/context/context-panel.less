@@ -113,35 +113,6 @@
     .notSelectable();
   }
 
-  .default-widget:not(.no-selection) .context-panel-label {
-    display: flex;
-  }
-
-  .context-panel-label {
-    display: none;
-    box-sizing: border-box;
-    height: 50px;
-    margin: 10px 10px 0;
-    padding: 5px;
-    align-items: center;
-    justify-content: center;
-    background-color: @admin-white;
-    font-size: 14px;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
-
-    .names-and-icon-view {
-      display: inline-flex;
-      .@{_COMMON_PREFIX}wrapper {
-        margin-right: 10px;
-        flex: 1 0 auto;
-        transform: scale(0.8);
-      }
-      .@{_COMMON_PREFIX}names-view {
-        margin: 0;
-      }
-    }
-  }
-
   .label {
     font-family: @admin-font-family;
   }
@@ -204,11 +175,6 @@
         cursor: default;
 
         .names-and-icon-view {
-          .@{_COMMON_PREFIX}main-name,
-          .@{_COMMON_PREFIX}sub-name {
-            cursor: pointer;
-          }
-
           .@{_COMMON_PREFIX}names-view {
             margin: 0 0 0 34px;
           }

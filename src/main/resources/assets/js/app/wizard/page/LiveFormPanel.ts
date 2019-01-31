@@ -83,9 +83,8 @@ export interface LiveFormPanelConfig {
     defaultModels: DefaultModels;
 }
 
-export interface LiveEditData {
-    liveEditPageProxy: LiveEditPageProxy;
-    liveEditModel: LiveEditModel;
+export interface PageEditorData {
+    contextWindow: ContextWindow;
 }
 
 export class LiveFormPanel
@@ -352,10 +351,9 @@ export class LiveFormPanel
         });
     }
 
-    getLiveEditData(): LiveEditData {
+    getPageEditorData(): PageEditorData {
         return {
-            liveEditPageProxy: this.liveEditPageProxy,
-            liveEditModel: this.liveEditModel
+            contextWindow: this.contextWindow
         };
     }
 
@@ -382,10 +380,9 @@ export class LiveFormPanel
             let noPreviewMessageEl = new api.dom.PEl('no-preview-message').setHtml(i18n('field.preview.failed'), false);
 
             // append mask here in order for the context window to be above
-            this.appendChildren<api.dom.Element>(this.frameContainer, this.contextWindow,
-                noPreviewMessageEl);
+            this.appendChildren<api.dom.Element>(this.frameContainer, noPreviewMessageEl);
 
-            this.contextWindow.onDisplayModeChanged(() => this.maximizeContentFormPanelIfNeeded());
+            // this.contextWindow.onDisplayModeChanged(() => this.maximizeContentFormPanelIfNeeded());
 
             this.liveEditListen();
 
@@ -458,8 +455,8 @@ export class LiveFormPanel
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
         this.pageModel.onReset(() => {
-            this.contextWindow.slideOut();
-            this.contentWizardPanel.getContextWindowToggler().removeClass('active');
+            // this.contextWindow.slideOut();
+            // this.contentWizardPanel.getContextWindowToggler().removeClass('active');
         });
 
         this.handleContentUpdatedEvent();
@@ -609,19 +606,19 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
             let itemView = event.getItemView();
-            let toggler = this.contentWizardPanel.getContextWindowToggler();
+            // let toggler = this.contentWizardPanel.getContextWindowToggler();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                 if (!this.contextWindow.isFixed()) {
-                    if (itemView.isEmpty()) {
-                        if (this.contextWindow.isFloating() && this.contextWindow.isShownOrAboutToBeShown()) {
-                            toggler.setActive(false);
-                        }
-                    } else if (event.isNew() && !toggler.isActive()) {
-                        toggler.setActive(true);
-                    }
+                    // if (itemView.isEmpty()) {
+                    //     if (this.contextWindow.isFloating() && this.contextWindow.isShownOrAboutToBeShown()) {
+                    //         toggler.setActive(false);
+                    //     }
+                    // } else if (event.isNew() && !toggler.isActive()) {
+                    //     toggler.setActive(true);
+                    // }
                 } else {
-                    this.contextWindow.setFixed(false);
+                    // this.contextWindow.setFixed(false);
                 }
                 this.inspectComponent(<ComponentView<Component>>itemView);
             }
@@ -632,12 +629,11 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            let toggler = this.contentWizardPanel.getContextWindowToggler();
-            if (!toggler.isActive() && this.contextWindow.isShownOrAboutToBeShown()) {
-                this.contextWindow.slideOut();
-            } else if (toggler.isActive() && !this.contextWindow.isShownOrAboutToBeShown()) {
-                this.contextWindow.slideIn();
-            }
+            // if (this.contextWindow.isShownOrAboutToBeShown()) {
+            // this.contextWindow.slideOut();
+            // } else if (this.contextWindow.isShownOrAboutToBeShown()) {
+            // this.contextWindow.slideIn();
+            // }
             this.clearSelection();
         });
 
@@ -674,14 +670,12 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onComponentInspected((event: ComponentInspectedEvent) => {
             let componentView = event.getComponentView();
-            this.contentWizardPanel.getContextWindowToggler().setActive(true);
-            this.contextWindow.slideIn();
+            // this.contextWindow.slideIn();
             this.inspectComponent(componentView);
         });
 
         this.liveEditPageProxy.onPageInspected((event: PageInspectedEvent) => {
-            this.contentWizardPanel.getContextWindowToggler().setActive(true);
-            this.contextWindow.slideIn();
+            // this.contextWindow.slideIn();
             this.inspectPage();
         });
 
@@ -755,16 +749,15 @@ export class LiveFormPanel
     }
 
     private minimizeContentFormPanelIfNeeded() {
-        if (this.contextWindow.isFloating() && !this.contentWizardPanel.isMinimized()) {
+        if (/*this.contextWindow.isFloating() && */!this.contentWizardPanel.isMinimized()) {
             this.contentWizardPanel.toggleMinimize();
         }
     }
 
     public maximizeContentFormPanelIfNeeded() {
         const enabled = this.contentWizardPanel.getComponentsViewToggler().isEnabled();
-        if (!this.contextWindow.isFloating() && enabled) {
-            this.contentWizardPanel.getContextWindowToggler().setActive(true);
-            this.contextWindow.slideIn();
+        if (/*!this.contextWindow.isFloating() && */enabled) {
+            // this.contextWindow.slideIn();
         }
     }
 

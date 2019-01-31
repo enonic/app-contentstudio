@@ -44,6 +44,10 @@ export class WidgetView extends api.dom.DivEl {
             this.createDefaultWidgetItemView();
         }
 
+        if (!api.util.StringHelper.isBlank(builder.widgetClass)) {
+            this.addClass(builder.widgetClass);
+        }
+
         this.layout();
 
         this.applyConfig();
@@ -262,6 +266,8 @@ export class WidgetViewBuilder {
 
     widget: Widget;
 
+    widgetClass: string;
+
     iconClass: string;
 
     public setName(name: string): WidgetViewBuilder {
@@ -291,6 +297,11 @@ export class WidgetViewBuilder {
 
     public setWidgetItemViews(widgetItemViews: WidgetItemView[]): WidgetViewBuilder {
         this.widgetItemViews = widgetItemViews;
+        return this;
+    }
+
+    public setWidgetClass(widgetClass: string) {
+        this.widgetClass = widgetClass;
         return this;
     }
 

@@ -14,18 +14,12 @@ import {ContextPanel} from './ContextPanel';
 import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentHelper} from '../../util/ContentHelper';
-import {ContentWizardPanel} from '../../wizard/ContentWizardPanel';
-import {LiveEditData} from '../../wizard/page/LiveFormPanel';
-
-export interface ContextData
-    extends LiveEditData {
-    contentWizardPanel: ContentWizardPanel;
-}
+import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 
 export class ContextSplitPanel
     extends api.ui.panel.SplitPanel {
 
-    private data: ContextData;
+    private data: PageEditorData;
     private mobileMode: boolean;
     private mobilePanelSlideListeners: { (out: boolean): void }[];
     private contextView: ContextView;
@@ -38,7 +32,7 @@ export class ContextSplitPanel
     private leftPanel: api.ui.panel.Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: ContextData) {
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: PageEditorData) {
         const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 

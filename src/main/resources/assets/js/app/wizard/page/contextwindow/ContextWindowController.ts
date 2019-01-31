@@ -1,4 +1,3 @@
-import '../../../../api.ts';
 import {ContextWindow} from './ContextWindow';
 import {ShowContentFormEvent} from '../../ShowContentFormEvent';
 import {ShowSplitEditEvent} from '../../ShowSplitEditEvent';
@@ -10,36 +9,16 @@ export class ContextWindowController {
 
     private contextWindow: ContextWindow;
 
-    private contextWindowToggler: TogglerButton;
-
     private componentsViewToggler: TogglerButton;
-
-    private togglerOverriden: boolean = false;
 
     private contentWizardPanel: ContentWizardPanel;
 
     constructor(contextWindow: ContextWindow, contentWizardPanel: ContentWizardPanel) {
         this.contextWindow = contextWindow;
         this.contentWizardPanel = contentWizardPanel;
-        this.contextWindowToggler = contentWizardPanel.getContextWindowToggler();
         this.componentsViewToggler = contentWizardPanel.getComponentsViewToggler();
 
-        let componentsView = this.contextWindow.getComponentsView();
-
-        this.contextWindowToggler.onClicked((event: MouseEvent) => {
-            // set overriden flag when toggle is on by click only
-            if (this.contextWindowToggler.isEnabled()) {
-                this.togglerOverriden = true;
-            }
-        });
-
-        this.contextWindowToggler.onActiveChanged((isActive: boolean) => {
-            if (isActive) {
-                this.contextWindow.slideIn();
-            } else {
-                this.contextWindow.slideOut();
-            }
-        });
+        const componentsView = this.contextWindow.getComponentsView();
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
             if (!componentsView.getParentElement() && isActive) {
@@ -58,13 +37,11 @@ export class ContextWindowController {
 
         let liveEditShownHandler = () => {
             if (this.contextWindow.isLiveFormShown()) {
-                this.contextWindowToggler.setEnabled(true);
                 this.componentsViewToggler.setEnabled(true);
             }
         };
 
         let liveEditHiddenHandler = () => {
-            this.contextWindowToggler.setEnabled(false);
             this.componentsViewToggler.setEnabled(false);
         };
 
