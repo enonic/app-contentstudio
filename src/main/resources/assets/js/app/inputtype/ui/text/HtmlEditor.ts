@@ -535,7 +535,6 @@ export class HtmlEditor {
 
         const commandDef: CKEDITOR.commandDefinition = {
             exec: function () {
-                console.log(this.name);
                 editor.applyStyle(new CKEDITOR.style({element: this.name}, null)); // name is command name
                 return true;
             }
@@ -552,10 +551,6 @@ export class HtmlEditor {
         this.editor.addCommand('address', commandDef);
 
         this.editor.on('instanceReady', () => {
-            // indent/outdent on tab/shift+tab removed to make native focus/blur element work;
-            // indent/outdent are available as buttons in toolbar
-            // this.editor.setKeystroke(9, 'indent'); // Indent on TAB ;
-            // this.editor.setKeystroke(CKEDITOR.SHIFT + 9, 'outdent'); // Outdent on SHIFT + TAB
             this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
