@@ -24,7 +24,7 @@ import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
-import {DetailsSplitPanel} from '../view/detail/DetailsSplitPanel';
+import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
@@ -77,7 +77,7 @@ import ObjectHelper = api.ObjectHelper;
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
 
-    private detailsSplitPanel: DetailsSplitPanel;
+    private contextSplitPanel: ContextSplitPanel;
 
     protected wizardActions: ContentWizardActions;
 
@@ -327,19 +327,19 @@ export class ContentWizardPanel
 
     protected createWizardAndDetailsSplitPanel(leftPanel: api.ui.panel.Panel): api.ui.panel.SplitPanel {
         const wizardActions = this.getWizardActions();
-        const detailsActions = [
+        const contextActions = [
             wizardActions.getUnpublishAction(),
             wizardActions.getPublishAction(),
             wizardActions.getDeleteAction(),
             wizardActions.getDuplicateAction()
         ];
-        this.detailsSplitPanel = new DetailsSplitPanel(leftPanel, detailsActions, {noPreview: true});
+        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, {noPreview: true});
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();
             const contentPublishMenuButton = mainToolbar.getContentWizardToolbarPublishControls().getPublishButton();
             const toggler = mainToolbar.getMobileItemStatisticsToggler();
-            this.detailsSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+            this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
                 if (!isMobile) {
                     contentPublishMenuButton.maximize();
                     if (toggler.isActive()) {
@@ -351,18 +351,18 @@ export class ContentWizardPanel
             });
 
             toggler.onActiveChanged((isActive) => {
-                if (this.detailsSplitPanel.isMobileMode()) {
+                if (this.contextSplitPanel.isMobileMode()) {
                     if (isActive) {
-                        this.detailsSplitPanel.setContent(this.persistedContent);
-                        this.detailsSplitPanel.showMobilePanel();
+                        this.contextSplitPanel.setContent(this.persistedContent);
+                        this.contextSplitPanel.showMobilePanel();
                     } else {
-                        this.detailsSplitPanel.hideMobilePanel();
+                        this.contextSplitPanel.hideMobilePanel();
                     }
                 }
             });
         });
 
-        return this.detailsSplitPanel;
+        return this.contextSplitPanel;
     }
 
     protected createLivePanel(): api.ui.panel.Panel {
@@ -438,7 +438,7 @@ export class ContentWizardPanel
                 thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
             }
 
-            this.detailsSplitPanel.onRendered(() => this.detailsSplitPanel.setContent(this.persistedContent));
+            this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
             return rendered;
         });
@@ -1173,7 +1173,7 @@ export class ContentWizardPanel
         this.persistedContent = this.currentContent = updatedContent;
         this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(updatedContent);
-        this.detailsSplitPanel.setContent(updatedContent);
+        this.contextSplitPanel.setContent(updatedContent);
     }
 
     private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
@@ -2120,7 +2120,7 @@ export class ContentWizardPanel
     private openLiveEdit() {
         let livePanel = this.getLivePanel();
 
-        if (this.detailsSplitPanel.isMobileMode()) {
+        if (this.contextSplitPanel.isMobileMode()) {
             this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
         }
 
@@ -2130,7 +2130,7 @@ export class ContentWizardPanel
     }
 
     private closeLiveEdit() {
-        if (this.detailsSplitPanel.isMobileMode()) {
+        if (this.contextSplitPanel.isMobileMode()) {
             this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
         }
         this.getSplitPanel().hideSecondPanel();

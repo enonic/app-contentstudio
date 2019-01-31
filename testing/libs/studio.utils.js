@@ -19,6 +19,7 @@ const confirmContentDeleteDialog = require('../page_objects/confirm.content.dele
 const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const contentPublishDialog = require('../page_objects/content.publish.dialog');
 const browseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const browseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const contentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 
 module.exports = {
@@ -222,7 +223,9 @@ module.exports = {
         }).pause(2000);
     },
     doPublish: function () {
-        return browsePanel.clickOnPublishButton().then(() => {
+        return browsePanel.waitForPublishButtonVisible().then(() => {
+            return browsePanel.clickOnPublishButton();
+        }).then(() => {
             return contentPublishDialog.waitForDialogVisible();
         }).then(() => {
             return contentPublishDialog.clickOnPublishButton();
@@ -552,9 +555,9 @@ module.exports = {
     },
     openDependencyWidgetInBrowsePanel: function () {
         return browsePanel.openDetailsPanel().then(() => {
-            return wizardDetailsPanel.openDependencies();
+            return browsePanel.openDependencies();
         }).then(() => {
-            return wizardDependenciesWidget.waitForWidgetLoaded();
+            return browseDependenciesWidget.waitForWidgetLoaded();
         })
     }
 };

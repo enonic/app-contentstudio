@@ -11,7 +11,6 @@ module.exports = Object.freeze({
     SLICK_VIEW_PORT: `//div[@class='slick-viewport']`,
     SLICK_ROW: "//div[@class='slick-viewport']//div[contains(@class,'slick-row')]",
     SLICK_ROW_BY_NAME: "//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'%s')]]",
-    SLICK_ROW_BY_DISPLAY_NAME: "//div[@class='slick-viewport']//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     TEXT_INPUT: "//input[contains(@id,'TextInput')]",
@@ -46,4 +45,5 @@ module.exports = Object.freeze({
     DETAILS_MENU_OPTION: `//div[text()='Details']`,
     CHECKBOX_INPUT: "//input[@type='checkbox']",
     CONTENT_SELECTED_OPTION_VIEW:"//div[contains(@id,'ContentSelectedOptionView')]",
+    DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`
 });

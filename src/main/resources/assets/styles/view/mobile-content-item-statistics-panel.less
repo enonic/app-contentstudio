@@ -100,22 +100,17 @@
   .mobile-details-panel-toggle-button {
     right: -2px;
     box-sizing: border-box;
-
-    &:not(.expanded) {
-      font-size: 16px;
-      .icon-list();
-      line-height: 44px;
-    }
+    font-size: 22px;
+    line-height: @app-header-height;
 
     &.expanded {
-      font-size: 24px;
       .icon-close();
-      line-height: 44px;
+      line-height: @app-header-height;
     }
 
   }
 
-  .mobile-details-panel-back-button {
+  .mobile-context-panel-back-button {
 
     left: 0;
     font-size: 20px;
@@ -124,7 +119,7 @@
   }
 
   .mobile-details-panel-toggle-button,
-  .mobile-details-panel-back-button {
+  .mobile-context-panel-back-button {
     z-index: 3;
     width: @app-header-height;
     height: @app-header-height;
@@ -181,7 +176,7 @@
     }
   }
 
-  .details-panel {
+  .context-panel {
 
     background-color: @admin-bg-almost-white;
     display: inherit;
@@ -193,7 +188,7 @@
       display: none !important;
     }
 
-    > .details-container {
+    > .context-container {
       left: 0;
     }
 
@@ -204,7 +199,6 @@
 
         .selected-option .option-value {
           margin-left: 0;
-          padding-left: 42px;
           width: calc(~'100% - 84px');
           border-left: none;
         }
@@ -243,12 +237,12 @@
 
 // Transition when opeining content preview on a mobile
 body {
-  .appbar, .details-split-panel {
+  .appbar, .context-split-panel {
     right: 0;
     transition: right 0.3s linear;
   }
   &.mobile-statistics-panel {
-    .appbar, .details-split-panel {
+    .appbar, .context-split-panel {
       right: 110px;
     }
   }

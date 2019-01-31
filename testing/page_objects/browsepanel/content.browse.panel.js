@@ -22,7 +22,6 @@ const panel = {
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
-    detailsPanelToggleButton: `//button[contains(@id,'NonMobileDetailsPanelToggleButton')]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -50,7 +49,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     detailsPanelToggleButton: {
         get: function () {
-            return `${panel.container}` + `${panel.detailsPanelToggleButton}`;
+            return `${panel.container}` + elements.DETAILS_PANEL_TOGGLE_BUTTON;
         }
     },
     showPublishMenuButton: {
@@ -116,7 +115,7 @@ const contentBrowsePanel = Object.create(page, {
     },
     publishButton: {
         get: function () {
-            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...') or contains(.,'#action.publishMore#')]]`
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
         }
     },
     displayNames: {
@@ -175,6 +174,11 @@ const contentBrowsePanel = Object.create(page, {
             return this.doClick(this.moveButton).catch(err => {
                 throw new Error('error when clicking on the Move button ' + err);
             })
+        }
+    },
+    waitForPublishButtonVisible:{
+        value: function(){
+            return this.waitForVisible(this.publishButton,appConst.TIMEOUT_3);
         }
     },
     clickOnPublishButton: {
@@ -464,9 +468,21 @@ const contentBrowsePanel = Object.create(page, {
             return this.waitUntilInvalid(xpath);
         }
     },
+    waitForShowPublishMenuClickable: {
+        value: function () {
+            return this.getBrowser().waitUntil(() => {
+                return this.getBrowser().getAttribute(`${panel.toolbar}` + `${panel.contentPublishMenuButton}`, 'class').then(result => {
+                    return result.indexOf('only-create-issue') == -1;
+                });
+            }, 3000);
+        }
+    },
+
     openShowPublishMenuAndClickOnCreateIssue: {
         value: function () {
-            return this.doClick(this.showPublishMenuButton).then(() => {
+            return this.waitForShowPublishMenuClickable().then(() => {
+                return this.doClick(this.showPublishMenuButton);
+            }).then(() => {
                 return this.waitForVisible(this.createIssueMenuItem);
             }).then(() => {
                 return this.doClick(this.createIssueMenuItem);

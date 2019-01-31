@@ -1,9 +1,8 @@
-import '../../../api.ts';
-import {DetailsPanel} from './DetailsPanel';
-import {DetailsView} from './DetailsView';
+import {ContextPanel} from './ContextPanel';
+import {ContextView} from './ContextView';
 
 export class SlidablePanel
-    extends DetailsPanel {
+    extends ContextPanel {
 
     private slideInFunction: () => void;
     private slideOutFunction: () => void;
@@ -13,12 +12,12 @@ export class SlidablePanel
     private slidedIn: boolean;
     private offsetTop: number = 0;
 
-    constructor(builder: SlidablePanelBuilder, detailsView: DetailsView) {
-        super(detailsView);
+    constructor(builder: SlidablePanelBuilder, contextView: ContextView) {
+        super(contextView);
 
         this.setDoOffset(false);
         this.initSlideFunctions(builder.getSlideFrom());
-        this.onSlidedIn(() => !!this.getItem() ? this.detailsView.updateActiveWidget() : null);
+        this.onSlidedIn(() => !!this.getItem() ? this.contextView.updateActiveWidget() : null);
     }
 
     public isVisibleOrAboutToBeVisible(): boolean {
