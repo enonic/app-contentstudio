@@ -13,6 +13,7 @@ import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
+import DivEl = api.dom.DivEl;
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -113,6 +114,9 @@ export class ContentItemPreviewPanel
 
             this.image.getEl().setMaxWidth(event.getWidthWithUnits());
             this.image.getEl().setMaxHeight(event.getHeightWithUnits());
+
+            this.previewMessageEl.getEl().setWidth(event.getWidthWithUnits());
+            this.previewMessageEl.getEl().setHeight(event.getHeightWithUnits());
 
             const fullscreen = event.isFullscreen();
             this.wrapper.getEl().toggleClass('emulated', !fullscreen);
@@ -259,7 +263,8 @@ export class ContentItemPreviewPanel
     private showPreviewMessage(value: string) {
         this.getEl().addClass('no-preview');
 
-        this.appendChild(this.previewMessageEl = new PEl('no-preview-message').setHtml(value, false));
+        this.previewMessageEl = new DivEl('no-preview-message').setHtml(value, false);
+        this.wrapper.appendChild(this.previewMessageEl);
 
         this.frame.setSrc('about:blank');
     }
