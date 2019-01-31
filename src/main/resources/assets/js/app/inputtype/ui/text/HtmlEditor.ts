@@ -531,9 +531,12 @@ export class HtmlEditor {
     }
 
     private setupKeyboardShortcuts() {
+        const editor: CKEDITOR.editor = this.editor;
+
         const commandDef: CKEDITOR.commandDefinition = {
-            exec: function (/* editor: HTMLAreaEditor */) {
-                // editor.applyStyle(new CKEDITOR.style(<any>{ element: this.name })); // name is command name
+            exec: function () {
+                console.log(this.name);
+                editor.applyStyle(new CKEDITOR.style({element: this.name}, null)); // name is command name
                 return true;
             }
         };
@@ -549,8 +552,10 @@ export class HtmlEditor {
         this.editor.addCommand('address', commandDef);
 
         this.editor.on('instanceReady', () => {
-            this.editor.setKeystroke(9, 'indent'); // Indent on TAB
-            this.editor.setKeystroke(CKEDITOR.SHIFT + 9, 'outdent'); // Outdent on SHIFT + TAB
+            // indent/outdent on tab/shift+tab removed to make native focus/blur element work;
+            // indent/outdent are available as buttons in toolbar
+            // this.editor.setKeystroke(9, 'indent'); // Indent on TAB ;
+            // this.editor.setKeystroke(CKEDITOR.SHIFT + 9, 'outdent'); // Outdent on SHIFT + TAB
             this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
