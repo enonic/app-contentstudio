@@ -1,8 +1,9 @@
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 import {ImageErrorEvent} from './ImageErrorEvent';
 import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
 import {ImageEditor, Point, Rect} from './ImageEditor';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../../util/ImageUrlResolver';
 
 export class ImageUploaderEl
     extends MediaUploaderEl {
@@ -122,26 +123,24 @@ export class ImageUploaderEl
 
     private createImageEditor(value: string): ImageEditor {
 
-        let contentId = new api.content.ContentId(value);
-        let imgUrl = this.resolveImageUrl(value);
+        const contentId = new ContentId(value);
+        const imgUrl = this.resolveImageUrl(contentId);
 
         this.togglePlaceholder(true);
 
-        let imageEditor = new ImageEditor();
+        const imageEditor = new ImageEditor();
         this.subscribeImageEditorOnEvents(imageEditor, contentId);
         imageEditor.setSrc(imgUrl);
 
         return imageEditor;
     }
 
-    private resolveImageUrl(id: string): string {
-        const urlParams: ImageUrlParameters = {
-            id: id,
-            timeStamp: new Date(),
-            crop: true
-        };
-
-        return new ImageUrlBuilder(urlParams).buildForPreview();
+    private resolveImageUrl(contentId: ContentId): string {
+        return new ImageUrlResolver()
+                    .setContentId(contentId)
+                    .disableCropping()
+                    .setTimestamp(new Date())
+                    .resolveForPreview();
     }
 
     private subscribeImageEditorOnEvents(imageEditor: ImageEditor, contentId: api.content.ContentId) {
@@ -155,6 +154,7 @@ export class ImageUploaderEl
                 api.dom.Body.get().appendChild(imageEditor.addClass(ImageUploaderEl.STANDOUT_CLASS));
                 this.positionImageEditor(imageEditor);
             } else {
+                this.resetImageEditorPosition(imageEditor);
                 this.getResultContainer().insertChild(imageEditor.removeClass(ImageUploaderEl.STANDOUT_CLASS), -1);
             }
         };
@@ -226,6 +226,10 @@ export class ImageUploaderEl
         imageEditor.getEl().setTopPx(resultOffset.top).setLeftPx(resultOffset.left);
     }
 
+    private resetImageEditorPosition(imageEditor: ImageEditor) {
+        imageEditor.getEl().setTop('').setLeft('');
+    }
+
     protected getExistingItem(value: string): api.dom.Element {
         return this.imageEditors.filter(elem => {
             return !!elem.getSrc() && elem.getSrc().indexOf(value) > -1;
@@ -233,10 +237,11 @@ export class ImageUploaderEl
     }
 
     protected refreshExistingItem(existingItem: api.dom.Element, value: string) {
+        const contentId = new ContentId(value);
         for (let i = 0; i < this.imageEditors.length; i++) {
             let editor = this.imageEditors[i];
-            if (existingItem === editor) {
-                editor.setSrc(this.resolveImageUrl(value));
+            if (existingItem === editor && editor.getSrc().indexOf(value) === -1) {
+                editor.setSrc(this.resolveImageUrl(contentId));
                 break;
             }
         }

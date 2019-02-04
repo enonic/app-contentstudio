@@ -3,7 +3,7 @@ import {Styles} from './styles/Styles';
 import {StyleHelper} from './styles/StyleHelper';
 import {StylesRequest} from './styles/StylesRequest';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import eventInfo = CKEDITOR.eventInfo;
@@ -145,7 +145,7 @@ export class HtmlEditor {
         this.editor.on('instanceReady', function () {
             (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
-                const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
+                const dataSrc: string = ImageUrlResolver.RENDER.imagePrefix + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
                                  `<img src="${upload.url}" data-src="${dataSrc}" style="${imgInlineStyle}">` +
@@ -211,12 +211,12 @@ export class HtmlEditor {
             } else {
                 const mediaContent = JSON.parse(response[0]);
 
-                const urlParams: ImageUrlParameters = {
-                    id: mediaContent.id,
-                    useOriginal: true
-                };
+                const imgUrl = new ImageUrlResolver()
+                    .setContentId(mediaContent.id)
+                    .disableCropping()
+                    .resolveForPreview();
 
-                data.url = new ImageUrlBuilder(urlParams).buildForPreview();
+                data.url = imgUrl;
             }
         });
     }

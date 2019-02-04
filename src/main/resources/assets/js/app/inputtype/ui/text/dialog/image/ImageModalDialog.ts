@@ -28,7 +28,7 @@ import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
 import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 import {HtmlEditor} from '../../HtmlEditor';
 
@@ -337,25 +337,28 @@ export class ImageModalDialog
     }
 
 
-    private createImageBuilder(imageContent: ContentSummary, size?: number, style?: Style) {
-        const imageUrlParams: ImageUrlParameters = {
-            id: imageContent.getId(),
-            crop: true,
-            timeStamp: imageContent.getModifiedTime(),
-            scaleWidth: true
-        };
+    private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
+
+        const imgUrlResolver = new ImageUrlResolver()
+            .setContentId(imageContent.getContentId())
+            .setTimestamp(imageContent.getModifiedTime());
 
         if (size) {
-            imageUrlParams.size = size;
+            imgUrlResolver.setSize(size);
         }
 
         if (style) {
-            imageUrlParams.crop = !StyleHelper.isOriginalImage(style.getName());
-            imageUrlParams.aspectRatio = style.getAspectRatio();
-            imageUrlParams.filter = style.getFilter();
+
+            if (StyleHelper.isOriginalImage(style.getName())) {
+                imgUrlResolver.disableCropping();
+            }
+
+            imgUrlResolver
+                .setAspectRatio(style.getAspectRatio())
+                .setFilter(style.getFilter());
         }
 
-        return new ImageUrlBuilder(imageUrlParams);
+        return imgUrlResolver;
     }
 
     private createImgElForPreview(imageContent: ContentSummary): api.dom.ImgEl {
@@ -367,10 +370,10 @@ export class ImageModalDialog
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
         } else {
 
-            const imageUrlBuilder = this.createImageBuilder(imageContent, this.imagePreviewContainer.getEl().getWidth());
+            const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
 
-            imgSrcAttr = imageUrlBuilder.buildForPreview();
-            imgDataSrcAttr = imageUrlBuilder.buildForRender();
+            imgSrcAttr = imageUrlBuilder.resolveForPreview();
+            imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
@@ -595,10 +598,10 @@ export class ImageModalDialog
         const imageContent = this.imageSelector.getSelectedContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
 
-        const imageUrlBuilder = this.createImageBuilder(imageContent, width, processingStyle);
+        const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
 
-        imageEl.setAttribute('src', imageUrlBuilder.buildForPreview());
-        imageEl.setAttribute('data-src', imageUrlBuilder.buildForRender());
+        imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
+        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender());
     }
 
     private applyStylingToPreview(classNames: string) {

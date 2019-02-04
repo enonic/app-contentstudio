@@ -34,47 +34,47 @@ export class ImageUrlResolver
 
     private filter: string;
 
-    setContentId(value: ContentId): ContentImageUrlResolver {
+    setContentId(value: ContentId): ImageUrlResolver {
         this.contentId = value;
         return this;
     }
 
-    setSize(value: number): ContentImageUrlResolver {
+    setSize(value: number): ImageUrlResolver {
         this.size = Math.floor(value);
         return this;
     }
 
-    setTimestamp(value: Date): ContentImageUrlResolver {
+    setTimestamp(value: Date): ImageUrlResolver {
         this.timeStamp = value;
         return this;
     }
 
-    setScaleWidth(value: boolean): ContentImageUrlResolver {
-        this.scaleWidth = value;
+    scaleByHeight(): ImageUrlResolver {
+        this.scaleWidth = false;
         return this;
     }
 
-    setCrop(value: boolean): ContentImageUrlResolver {
-        this.crop = value;
+    disableCropping(): ImageUrlResolver {
+        this.crop = false;
         return this;
     }
 
-    setAspectRatio(value: string): ContentImageUrlResolver {
+    setAspectRatio(value: string): ImageUrlResolver {
         this.aspectRatio = value;
         return this;
     }
 
-    setFilter(value: string): ContentImageUrlResolver {
+    setFilter(value: string): ImageUrlResolver {
         this.filter = value;
         return this;
     }
 
     resolveForPreview(): string {
-        return this.resolve(ContentImageUrlResolver.PREVIEW);
+        return this.resolve(ImageUrlResolver.PREVIEW);
     }
 
     resolveForRender(originalSize: boolean = false): string {
-        return this.resolve(ContentImageUrlResolver.RENDER) + (originalSize ? 'keepSize=true' : '');
+        return this.resolve(ImageUrlResolver.RENDER) + (originalSize ? 'keepSize=true' : '');
     }
 
     private getBaseUrl(urlProperties: ImageUrlProperties): string {
@@ -95,10 +95,9 @@ export class ImageUrlResolver
             url = this.appendParam('size', '' + Math.floor(this.size), url);
         }
 
-        if (this.scaleWidth) {
-            url = this.appendParam('scaleWidth', 'true', url);
+        if (!this.scaleWidth) {
+            url = this.appendParam('scaleWidth', 'false', url);
         }
-
 
         if (this.aspectRatio) {
             url = this.appendParam('scale', this.aspectRatio, url);
@@ -108,10 +107,10 @@ export class ImageUrlResolver
             url = this.appendParam('filter', this.filter, url);
         }
 
-        if (this.crop) {
-            url = this.appendParam('crop', 'true', url);
+        if (!this.crop) {
+            url = this.appendParam('crop', 'false', url);
         }
 
-        return UriHelper.getRestUri(url);
+        return url;
     }
 }

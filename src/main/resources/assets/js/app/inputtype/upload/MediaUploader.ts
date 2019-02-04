@@ -1,4 +1,5 @@
 import ContentSummary = api.content.ContentSummary;
+import ContentId = api.content.ContentId;
 import Property = api.data.Property;
 import Value = api.data.Value;
 import ValueType = api.data.ValueType;
@@ -7,7 +8,7 @@ import UploadedEvent = api.ui.uploader.UploadedEvent;
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../util/ImageUrlResolver';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -71,7 +72,12 @@ export class MediaUploader
 
             api.notify.showFeedback(`"${fileName}" uploaded`);
 
-            this.manageSVGImageIfPresent(content);
+            const isVectorMedia = content.getType().isVectorMedia();
+            if (isVectorMedia) {
+                this.setVectorMediaUrl(content);
+            }
+
+            this.toggleClass('with-svg-image', isVectorMedia);
         });
 
         this.mediaUploaderEl.onUploadFailed(() => {
@@ -94,7 +100,9 @@ export class MediaUploader
 
         this.appendChild(this.uploaderWrapper);
 
-        this.createSvgImageWrapperIfNeeded();
+        if (this.config.formContext.getContentTypeName().isVectorMedia()) {
+            this.createVectorMediaWrapper();
+        }
 
         return wemQ<void>(null);
     }
@@ -119,18 +127,6 @@ export class MediaUploader
 
     reset() {
         this.mediaUploaderEl.resetBaseValues();
-    }
-
-    private manageSVGImageIfPresent(content: Content) {
-        if (content.getType().isVectorMedia()) {
-            this.addClass('with-svg-image');
-
-            const imgUrl = this.resolveImageUrl(this.getContext().content); // this.getContext().content
-
-            this.svgImage.setSrc(imgUrl);
-        } else {
-            this.removeClass('with-svg-image');
-        }
     }
 
     private getFileNameFromProperty(property: Property): string {
@@ -159,30 +155,30 @@ export class MediaUploader
         return [{name: 'Media', extensions: this.getFileExtensionFromFileName(fileName)}];
     }
 
-    private resolveImageUrl(content: ContentSummary): string {
-        const urlParams: ImageUrlParameters = {
-            id: content.getId(),
-            timeStamp: new Date(),
-            crop: true
-        };
-
-        return new ImageUrlBuilder(urlParams).buildForPreview();
+    private resolveImageUrl(contentId: ContentId): string {
+        return new ImageUrlResolver()
+                    .setContentId(contentId)
+                    .setTimestamp(new Date())
+                    .resolveForPreview();
     }
 
-    private createSvgImageWrapperIfNeeded() {
-        if (this.config.formContext.getContentTypeName().isVectorMedia()) {
-            this.svgImage = new api.dom.ImgEl();
-            this.addClass('with-svg-image');
+    private setVectorMediaUrl(content: ContentSummary) {
 
-            const imgUrl = this.resolveImageUrl(this.config.formContext.getPersistedContent());
+        const imgUrl = this.resolveImageUrl(content.getContentId());
 
-            this.svgImage.setSrc(imgUrl);
+        this.svgImage.setSrc(imgUrl);
+    }
 
-            this.appendChild(new api.dom.DivEl('svg-image-wrapper').appendChild(this.svgImage));
+    private createVectorMediaWrapper() {
+        this.svgImage = new api.dom.ImgEl();
+        this.addClass('with-svg-image');
 
-            // need to call it manually as svg images are uploaded too quickly
-            this.svgImage.onLoaded(() => this.mediaUploaderEl.setResultVisible(true));
-        }
+        this.setVectorMediaUrl(this.config.formContext.getPersistedContent());
+
+        this.appendChild(new api.dom.DivEl('svg-image-wrapper').appendChild(this.svgImage));
+
+        // need to call it manually as svg images are uploaded too quickly
+        this.svgImage.onLoaded(() => this.mediaUploaderEl.setResultVisible(true));
     }
 
     private createUploaderWrapper(property: Property): api.dom.DivEl {
