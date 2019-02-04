@@ -397,8 +397,8 @@ function startContentApplication(application: api.app.Application) {
         const clientEventsListener = new ContentEventsListener();
         clientEventsListener.start();
 
+        appBar.onAdded(() => body.appendChild(appPanel));
         body.appendChild(appBar);
-        body.appendChild(appPanel);
 
         import('./app/create/NewContentDialog').then(def => {
 
