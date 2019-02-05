@@ -11,9 +11,9 @@ import {EmulatedEvent} from '../event/EmulatedEvent';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import PEl = api.dom.PEl;
 import i18n = api.util.i18n;
 import DivEl = api.dom.DivEl;
+import SpanEl = api.dom.SpanEl;
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -32,7 +32,8 @@ export class ContentItemPreviewPanel
     private item: ViewItem<ContentSummaryAndCompareStatus>;
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
-    private previewMessageEl: PEl;
+    private previewMessage: DivEl;
+    private noSelectionContainer: DivEl;
 
     constructor() {
         super('content-item-preview-panel');
@@ -45,12 +46,24 @@ export class ContentItemPreviewPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.wrapper.appendChild(this.image);
+            this.wrapper.appendChild(this.noSelectionContainer);
+            this.wrapper.appendChild(this.previewMessage);
             return rendered;
         });
     }
 
     private initElements() {
         this.image = new api.dom.ImgEl();
+
+        const selectorText = new SpanEl();
+        selectorText.setHtml(i18n('panel.noselection'));
+        this.noSelectionContainer = new DivEl('no-selection-container');
+        this.noSelectionContainer.appendChild(selectorText);
+
+        const previewText = new SpanEl();
+        previewText.setHtml(i18n('field.preview.notAvailable'));
+        this.previewMessage = new DivEl('no-preview-message');
+        this.previewMessage.appendChild(previewText);
     }
 
     public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
@@ -115,8 +128,15 @@ export class ContentItemPreviewPanel
             this.image.getEl().setMaxWidth(event.getWidthWithUnits());
             this.image.getEl().setMaxHeight(event.getHeightWithUnits());
 
-            this.previewMessageEl.getEl().setWidth(event.getWidthWithUnits());
-            this.previewMessageEl.getEl().setHeight(event.getHeightWithUnits());
+            if (this.previewMessage) {
+                this.previewMessage.getEl().setWidth(event.getWidthWithUnits());
+                this.previewMessage.getEl().setHeight(event.getHeightWithUnits());
+            }
+
+            if (this.noSelectionContainer) {
+                this.noSelectionContainer.getEl().setWidth(event.getWidthWithUnits());
+                this.noSelectionContainer.getEl().setHeight(event.getHeightWithUnits());
+            }
 
             const fullscreen = event.isFullscreen();
             this.wrapper.getEl().toggleClass('emulated', !fullscreen);
@@ -204,11 +224,6 @@ export class ContentItemPreviewPanel
 
             this.getEl().removeClass('image-preview page-preview svg-preview media-preview no-preview');
 
-            if (this.previewMessageEl) {
-                this.previewMessageEl.remove();
-                this.previewMessageEl = null;
-            }
-
             switch (previewType) {
             case PREVIEW_TYPE.PAGE: {
                 this.getEl().addClass('page-preview');
@@ -263,8 +278,10 @@ export class ContentItemPreviewPanel
     private showPreviewMessage(value: string) {
         this.getEl().addClass('no-preview');
 
-        this.previewMessageEl = new DivEl('no-preview-message').setHtml(value, false);
-        this.wrapper.appendChild(this.previewMessageEl);
+        const text = new SpanEl();
+        text.setHtml(value);
+        this.previewMessage.removeChildren();
+        this.previewMessage.appendChild(text);
 
         this.frame.setSrc('about:blank');
     }

@@ -5,6 +5,15 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import Widget = api.content.Widget;
 import i18n = api.util.i18n;
 
+export enum InternalWidgetType {
+    INFO,
+    HISTORY,
+    DEPENDENCIES,
+    EMULATOR,
+    COMPONENTS,
+    INTERNAL
+}
+
 export class WidgetView extends api.dom.DivEl {
 
     private widgetName: string;
@@ -23,6 +32,8 @@ export class WidgetView extends api.dom.DivEl {
 
     private url: string = '';
 
+    private type: InternalWidgetType;
+
     private content: ContentSummaryAndCompareStatus;
 
     private activationListeners: { (): void }[] = [];
@@ -40,6 +51,7 @@ export class WidgetView extends api.dom.DivEl {
         this.widgetDescription = (builder.widget ? builder.widget.getDescription() : builder.description) || noDescription;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
+        this.type = builder.type;
         if (!this.widgetItemViews.length) {
             this.createDefaultWidgetItemView();
         }
@@ -215,6 +227,10 @@ export class WidgetView extends api.dom.DivEl {
         return this.contextView.getActiveWidget() === this;
     }
 
+    isEmulator(): boolean {
+        return this.type === InternalWidgetType.EMULATOR;
+    }
+
     private hasDynamicHeight(): boolean {
         return this.isUrlBased() && this.isActive();
     }
@@ -270,6 +286,8 @@ export class WidgetViewBuilder {
 
     iconClass: string;
 
+    type: InternalWidgetType;
+
     public setName(name: string): WidgetViewBuilder {
         this.name = name;
         return this;
@@ -307,6 +325,11 @@ export class WidgetViewBuilder {
 
     public setIconClass(iconClass: string) {
         this.iconClass = iconClass;
+        return this;
+    }
+
+    public setType(type: InternalWidgetType) {
+        this.type = type;
         return this;
     }
 

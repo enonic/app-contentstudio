@@ -1,4 +1,4 @@
-import {WidgetView} from './WidgetView';
+import {InternalWidgetType, WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
@@ -180,6 +180,7 @@ export class ContextView
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
+        this.toggleClass('emulator', widgetView.isEmulator());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -267,9 +268,10 @@ export class ContextView
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
                 .setWidgetClass('page-editor-widget')
-                .setIconClass('icon-big-plus')
-                .setContextView(this)
+                .setIconClass('icon-puzzle')
                 .addWidgetItemView(new PageEditorWidgetItemView(data))
+                .setContextView(this)
+                .setType(InternalWidgetType.COMPONENTS)
                 .build();
             widgets.push(pageEditorWidgetView);
 
@@ -283,6 +285,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.details.description'))
             .setWidgetClass('properties-widget')
             .setIconClass('icon-list')
+            .setType(InternalWidgetType.INFO)
             .setContextView(this)
             .setWidgetItemViews([
                 new ContentWidgetItemView(),
@@ -298,6 +301,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
             .setWidgetClass('versions-widget')
             .setIconClass('icon-history')
+            .setType(InternalWidgetType.HISTORY)
             .setContextView(this)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
@@ -306,6 +310,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.dependencies.description'))
             .setWidgetClass('dependency-widget')
             .setIconClass('icon-link')
+            .setType(InternalWidgetType.DEPENDENCIES)
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
@@ -314,6 +319,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.emulator.description'))
             .setWidgetClass('emulator-widget')
             .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setType(InternalWidgetType.EMULATOR)
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
