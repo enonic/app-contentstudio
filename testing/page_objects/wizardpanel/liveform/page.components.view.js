@@ -19,6 +19,12 @@ const xpath = {
 
 const pageComponentView = Object.create(page, {
 
+    clickOnComponent:{
+        value: function (displayName) {
+            let selector = xpath.container+ elements.itemByDisplayName(displayName);
+            return this.doClick(selector);
+        }
+    },
     openMenu: {
         value: function (componentName) {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
