@@ -173,10 +173,6 @@ export class ContentItemPreviewPanel
             .setTimestamp(content.getModifiedTime())
             .setSize(imgSize);
 
-        if (imgHeight > imgWidth) {
-            imgUrlResolver.scaleByHeight();
-        }
-
         this.image.setSrc(imgUrlResolver.resolveForPreview());
     }
 

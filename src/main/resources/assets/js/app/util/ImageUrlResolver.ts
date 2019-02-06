@@ -1,6 +1,5 @@
 import ContentId = api.content.ContentId;
 import IconUrlResolver = api.icon.IconUrlResolver;
-import UriHelper = api.util.UriHelper;
 
 interface ImageUrlProperties {
     imagePrefix: string;
@@ -24,7 +23,7 @@ export class ImageUrlResolver
 
     private timeStamp: Date;
 
-    private scaleWidth: boolean = true;
+    private source: boolean = false;
 
     private crop: boolean = true;
 
@@ -49,13 +48,13 @@ export class ImageUrlResolver
         return this;
     }
 
-    scaleByHeight(): ImageUrlResolver {
-        this.scaleWidth = false;
+    disableCropping(): ImageUrlResolver {
+        this.crop = false;
         return this;
     }
 
-    disableCropping(): ImageUrlResolver {
-        this.crop = false;
+    disableProcessing(): ImageUrlResolver {
+        this.source = true;
         return this;
     }
 
@@ -95,8 +94,8 @@ export class ImageUrlResolver
             url = this.appendParam('size', '' + Math.floor(this.size), url);
         }
 
-        if (!this.scaleWidth) {
-            url = this.appendParam('scaleWidth', 'false', url);
+        if (this.source) {
+            url = this.appendParam('source', 'true', url);
         }
 
         if (this.aspectRatio) {

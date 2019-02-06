@@ -350,7 +350,7 @@ export class ImageModalDialog
         if (style) {
 
             if (StyleHelper.isOriginalImage(style.getName())) {
-                imgUrlResolver.disableCropping();
+                imgUrlResolver.disableProcessing();
             }
 
             imgUrlResolver
