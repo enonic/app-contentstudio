@@ -24,19 +24,24 @@ const userAccessWidgetItemView = Object.create(page, {
             }).then(() => {
                 return this.doClick(this.editPermissionsLink);
             }).catch(err => {
-                throw new Error('Error when clicking on `Edit Permissions link` ! ' + err);
+                throw new Error('Error when clicking on `Edit Permissions link`! ' + err);
             }).pause(300);
         }
     },
     clickOnEditPermissionsLinkAndWaitForDialog: {
         value: function () {
             return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3).then(() => {
+                return this.waitForEnabled(this.editPermissionsLink, appConst.TIMEOUT_2);
+            }).then(() => {
                 return this.doClick(this.editPermissionsLink);
             }).catch(err => {
-                this.saveScreenshot("err_open_edit_perm_dialog");
+                this.saveScreenshot("err_clicking_on_edit_permissions");
                 throw new Error('Error when clicking on `Edit Permissions link` ! ' + err);
             }).then(() => {
                 return editPermissionsDialog.waitForDialogLoaded();
+            }).catch(err => {
+                this.saveScreenshot("edit_perm_dlg_not_loaded");
+                throw new Error("Edit permissions dialog was not loaded in " + 3000 + "ms");
             })
         }
     },

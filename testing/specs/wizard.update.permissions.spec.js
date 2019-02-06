@@ -75,7 +75,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 }).then(() => {
                     return studioUtils.openBrowseDetailsPanel();
                 }).then(() => {
-                    return userAccessWidget.clickOnEditPermissionsLink();
+                    return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
                 }).then(() => {
                     // add default permissions for 'Super User'
                     return editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.SUPER_USER);

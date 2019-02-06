@@ -128,7 +128,7 @@ describe('overwrite.permissions.spec: open details panel, update permissions in 
         return studioUtils.findAndSelectItem(contentName).then(() => {
             return studioUtils.openBrowseDetailsPanel();
         }).then(() => {
-            return userAccessWidget.clickOnEditPermissionsLink();
+            return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
         }).then(() => {
             return editPermissionsDialog.waitForDialogLoaded();
         })

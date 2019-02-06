@@ -31,7 +31,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
             }).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             }).then(() => {
@@ -89,7 +89,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return editPermissionsDialog.clickOnPermissionToggle(appConstant.roleName.CONTENT_MANAGER_APP,
                     appConstant.permissionOperation.CREATE);
