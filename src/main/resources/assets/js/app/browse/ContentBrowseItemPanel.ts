@@ -4,6 +4,12 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 export class ContentBrowseItemPanel
     extends api.app.browse.BrowseItemPanel<ContentSummaryAndCompareStatus> {
 
+    constructor() {
+        super();
+
+        this.addClass('content-browse-item-panel');
+    }
+
     createItemStatisticsPanel(): ContentItemStatisticsPanel {
         return new ContentItemStatisticsPanel();
     }

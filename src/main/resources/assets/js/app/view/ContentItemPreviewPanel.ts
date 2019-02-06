@@ -33,7 +33,7 @@ export class ContentItemPreviewPanel
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
     private previewMessage: DivEl;
-    private noSelectionContainer: DivEl;
+    private noSelectionMessage: DivEl;
 
     constructor() {
         super('content-item-preview-panel');
@@ -46,7 +46,7 @@ export class ContentItemPreviewPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.wrapper.appendChild(this.image);
-            this.wrapper.appendChild(this.noSelectionContainer);
+            this.wrapper.appendChild(this.noSelectionMessage);
             this.wrapper.appendChild(this.previewMessage);
             return rendered;
         });
@@ -57,8 +57,8 @@ export class ContentItemPreviewPanel
 
         const selectorText = new SpanEl();
         selectorText.setHtml(i18n('panel.noselection'));
-        this.noSelectionContainer = new DivEl('no-selection-container');
-        this.noSelectionContainer.appendChild(selectorText);
+        this.noSelectionMessage = new DivEl('no-selection-message');
+        this.noSelectionMessage.appendChild(selectorText);
 
         const previewText = new SpanEl();
         previewText.setHtml(i18n('field.preview.notAvailable'));
@@ -133,9 +133,9 @@ export class ContentItemPreviewPanel
                 this.previewMessage.getEl().setHeight(event.getHeightWithUnits());
             }
 
-            if (this.noSelectionContainer) {
-                this.noSelectionContainer.getEl().setWidth(event.getWidthWithUnits());
-                this.noSelectionContainer.getEl().setHeight(event.getHeightWithUnits());
+            if (this.noSelectionMessage) {
+                this.noSelectionMessage.getEl().setWidth(event.getWidthWithUnits());
+                this.noSelectionMessage.getEl().setHeight(event.getHeightWithUnits());
             }
 
             const fullscreen = event.isFullscreen();
@@ -275,13 +275,13 @@ export class ContentItemPreviewPanel
                type.isVideoMedia();
     }
 
-    private showPreviewMessage(value: string) {
+    private showPreviewMessage(message: string) {
         this.getEl().addClass('no-preview');
 
-        const text = new SpanEl();
-        text.setHtml(value);
+        const textEl = new SpanEl();
+        textEl.setHtml(message);
         this.previewMessage.removeChildren();
-        this.previewMessage.appendChild(text);
+        this.previewMessage.appendChild(textEl);
 
         this.frame.setSrc('about:blank');
     }

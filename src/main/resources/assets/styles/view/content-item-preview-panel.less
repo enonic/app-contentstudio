@@ -27,6 +27,19 @@
 
   }
 
+  .no-selection-message {
+    display: none;
+  }
+
+  &.page-preview, &.media-preview {
+    .wrapper {
+      .no-preview-message,
+      .no-selection-message {
+        display: none;
+      }
+    }
+  }
+
   &.image-preview {
     background-color: @admin-dark-gray;
   }
@@ -44,6 +57,28 @@
         display: block;
       }
     }
+
+    .no-preview-message,
+    .no-selection-message {
+      display: none;
+    }
   }
 
+  .no-selection-message {
+    .watermark-text(21px, true);
+    display: none;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    top: 0;
+    margin: 0 auto;
+    background: @admin-white;
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
