@@ -25,7 +25,6 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(folder).then(() => {
-            }).then(() => {
                 return studioUtils.findAndSelectItem(folder.displayName);
             }).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
