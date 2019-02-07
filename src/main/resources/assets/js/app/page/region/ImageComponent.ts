@@ -124,11 +124,8 @@ export class ImageComponent
 
         if (!api.ObjectHelper.equals(this.config, other.config)) {
             const noCaptionSetOnBothComponents: boolean = !this.isCaptionSet(this.config) && !this.isCaptionSet(other.config);
-            if (noCaptionSetOnBothComponents) {
-                return true;
-            }
-
-            return false;
+            
+            return noCaptionSetOnBothComponents;
         }
 
         return true;
