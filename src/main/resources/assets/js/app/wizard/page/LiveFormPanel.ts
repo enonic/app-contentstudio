@@ -618,7 +618,7 @@ export class LiveFormPanel
                     //     toggler.setActive(true);
                     // }
                 } else {
-                    // this.contextWindow.setFixed(false);
+                    // this.contextWindow.setFixed(false); //
                 }
                 this.inspectComponent(<ComponentView<Component>>itemView);
             }

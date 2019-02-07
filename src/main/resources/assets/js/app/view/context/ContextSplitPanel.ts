@@ -234,6 +234,10 @@ export class ContextSplitPanel
         }
     }
 
+    updateRenderableStatus(renderable: boolean) {
+        this.contextView.updateRenderableStatus(renderable);
+    }
+
     showMobilePanel() {
         if (this.isInsideWizard()) {
             this.mobileContextPanel.slideIn();

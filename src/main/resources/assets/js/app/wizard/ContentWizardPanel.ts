@@ -2173,6 +2173,7 @@ export class ContentWizardPanel
             this.wizardActions.refreshPendingDeleteDecorations();
             this.getComponentsViewToggler().setEnabled(this.renderable);
             this.getComponentsViewToggler().setVisible(this.renderable);
+            this.contextSplitPanel.updateRenderableStatus(this.renderable);
         });
     }
 

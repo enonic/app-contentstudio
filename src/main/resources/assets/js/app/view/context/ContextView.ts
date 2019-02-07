@@ -37,6 +37,9 @@ export class ContextView
     private activeWidget: WidgetView;
     private defaultWidgetView: WidgetView;
 
+    private pageEditorWidgetView: WidgetView;
+    private propertiesWidgetView: WidgetView;
+
     private alreadyFetchedCustomWidgets: boolean;
 
     private sizeChangedListeners: {(): void}[] = [];
@@ -261,10 +264,8 @@ export class ContextView
 
         const widgets = [];
 
-        let pageEditorWidgetView;
-
         if (data) {
-            pageEditorWidgetView = WidgetView.create()
+            this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
                 .setWidgetClass('page-editor-widget')
@@ -273,14 +274,14 @@ export class ContextView
                 .setContextView(this)
                 .setType(InternalWidgetType.COMPONENTS)
                 .build();
-            widgets.push(pageEditorWidgetView);
+            // widgets.push(this.pageEditorWidgetView);
 
             InspectEvent.on(() => {
                 this.activateDefaultWidget();
             });
         }
 
-        const propertiesWidgetView = WidgetView.create()
+        this.propertiesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
             .setWidgetClass('properties-widget')
@@ -323,9 +324,10 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
-        this.defaultWidgetView = pageEditorWidgetView || propertiesWidgetView;
+        // this.defaultWidgetView = this.pageEditorWidgetView || this.propertiesWidgetView;
+        this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets(widgets.concat([propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]));
+        this.addWidgets(widgets.concat([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]));
 
         this.setActiveWidget(this.defaultWidgetView);
     }
@@ -383,15 +385,27 @@ export class ContextView
         return null;
     }
 
-    private addWidget(widget: WidgetView) {
-        this.widgetViews.push(widget);
-        this.contextContainer.appendChild(widget);
+    private addWidget(widget: WidgetView, prepend?: boolean) {
+        if (prepend) {
+            this.widgetViews.unshift(widget);
+            this.contextContainer.prependChild(widget);
+        } else {
+            this.widgetViews.push(widget);
+            this.contextContainer.appendChild(widget);
+        }
     }
 
     private addWidgets(widgetViews: WidgetView[]) {
         widgetViews.forEach((widget) => {
             this.addWidget(widget);
         });
+    }
+
+    private removeWidget(widget: WidgetView) {
+        if (widget) {
+            this.widgetViews = this.widgetViews.filter((view) => view !== widget);
+            widget.remove();
+        }
     }
 
     private removeWidgetByKey(key: string) {
@@ -412,6 +426,28 @@ export class ContextView
         }
     }
 
+    updateRenderableStatus(renderable: boolean) {
+        if (this.pageEditorWidgetView) {
+            const pageEditorWidgetVisible = this.widgetViews.some(widget => widget === this.pageEditorWidgetView);
+            const pageEditorWidgetActive = this.activeWidget === this.pageEditorWidgetView;
+
+            if (renderable && !pageEditorWidgetVisible) {
+                this.addWidget(this.pageEditorWidgetView, true);
+                if (!pageEditorWidgetActive) {
+                    this.defaultWidgetView = this.pageEditorWidgetView;
+                    this.activateDefaultWidget();
+                }
+            } else if (!renderable && pageEditorWidgetVisible) {
+                if (pageEditorWidgetActive) {
+                    this.defaultWidgetView = this.propertiesWidgetView;
+                    this.activateDefaultWidget();
+                }
+                this.removeWidget(this.pageEditorWidgetView);
+            }
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        }
+    }
+
     private layout(empty: boolean = true) {
         this.toggleClass('no-selection', empty);
     }
@@ -421,6 +457,6 @@ export class ContextView
     }
 
     notifyPanelSizeChanged() {
-        this.sizeChangedListeners.forEach((listener: ()=> void) => listener());
+        this.sizeChangedListeners.forEach((listener: () => void) => listener());
     }
 }
