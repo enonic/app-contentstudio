@@ -18,6 +18,7 @@ import FormContext = api.form.FormContext;
 import PageDescriptor = api.content.page.PageDescriptor;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ActionButton = api.ui.button.ActionButton;
+import i18n = api.util.i18n;
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -151,6 +152,10 @@ export class PageInspectionPanel
     private pageModeImpliesPageControllerShown(): boolean {
         return !this.pageModel.isPageTemplate() && ((this.pageModel.isCustomized() && this.pageModel.hasController()) ||
                                                     this.pageModel.getMode() === PageMode.FORCED_CONTROLLER);
+    }
+
+    getName(): string {
+        return i18n('live.view.insert.page');
     }
 }
 

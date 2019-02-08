@@ -12,7 +12,7 @@ export interface DescriptorBasedComponentInspectionPanelConfig
 
 }
 
-export class DescriptorBasedComponentInspectionPanel<COMPONENT extends DescriptorBasedComponent, DESCRIPTOR extends Descriptor>
+export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends DescriptorBasedComponent, DESCRIPTOR extends Descriptor>
     extends ComponentInspectionPanel<COMPONENT> {
 
     private formView: FormView;

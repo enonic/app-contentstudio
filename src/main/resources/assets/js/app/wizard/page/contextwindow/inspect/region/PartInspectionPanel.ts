@@ -134,4 +134,8 @@ export class PartInspectionPanel
             }
         });
     }
+
+    getName(): string {
+        return i18n('live.view.insert.part');
+    }
 }

@@ -178,4 +178,8 @@ export class ImageInspectionPanel
         }
     }
 
+    getName(): string {
+        return i18n('live.view.insert.image');
+    }
+
 }

@@ -5,8 +5,10 @@ import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
 import {InsertablesPanel} from './insert/InsertablesPanel';
 import {PageComponentsView} from '../../PageComponentsView';
 import {InspectEvent} from '../../../event/InspectEvent';
+import {NamedPanel} from './inspect/NamedPanel';
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import i18n = api.util.i18n;
+import TabBarItem = api.ui.tab.TabBarItem;
 
 export interface ContextWindowConfig {
 
@@ -26,6 +28,8 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
     private inspectionsPanel: InspectionsPanel;
 
     private liveFormPanel: LiveFormPanel;
+
+    private inspectTab: TabBarItem;
 
     private fixed: boolean = false;
 
@@ -47,7 +51,9 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.addClass('context-window');
 
             this.addItem(i18n('action.insert'), false, this.insertablesPanel);
-            this.addItem(i18n('action.inspect'), false, this.inspectionsPanel);
+            this.addItem(this.getShownPanelName(), false, this.inspectionsPanel);
+            const tabItems = this.getItems();
+            this.inspectTab = tabItems[tabItems.length - 1];
 
             this.insertablesPanel.getComponentsView().onBeforeInsertAction(() => {
                 this.fixed = true;
@@ -69,13 +75,26 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         new InspectEvent().fire();
         setTimeout(() => {
             this.inspectionsPanel.showInspectionPanel(panel);
+            if (this.inspectTab) {
+                this.inspectTab.setLabel(panel.getName());
+            }
             this.selectPanel(this.inspectionsPanel);
         });
     }
 
     public clearSelection() {
         this.inspectionsPanel.clearInspection();
+        if (this.inspectTab) {
+            this.inspectTab.setLabel(this.getShownPanelName());
+        }
         this.selectPanel(this.insertablesPanel);
+    }
+
+    private getShownPanelName(): string {
+        const shownPanel = this.inspectionsPanel ? this.inspectionsPanel.getPanelShown() : null;
+        return api.ObjectHelper.iFrameSafeInstanceOf(shownPanel, NamedPanel) ?
+               (<NamedPanel>shownPanel).getName() :
+               i18n('live.view.inspect');
     }
 
     isLiveFormShown(): boolean {

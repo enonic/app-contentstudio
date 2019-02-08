@@ -3,6 +3,7 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {TextComponentView} from '../../../../../../page-editor/text/TextComponentView';
 import {TextComponentViewer} from '../../../../../../page-editor/text/TextComponentViewer';
 import {TextComponent} from '../../../../../page/region/TextComponent';
+import i18n = api.util.i18n;
 
 export class TextInspectionPanel
     extends BaseInspectionPanel {
@@ -29,6 +30,10 @@ export class TextInspectionPanel
             this.namesAndIcon.setSubName(viewer.resolveSubName(textComponent));
             this.namesAndIcon.setIconClass(viewer.resolveIconClass(textComponent));
         }
+    }
+
+    getName(): string {
+        return i18n('live.view.insert.text');
     }
 
 }

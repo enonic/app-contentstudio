@@ -33,4 +33,8 @@ export class ContentInspectionPanel
         }
     }
 
+    getName(): string {
+        return i18n('field.content');
+    }
+
 }

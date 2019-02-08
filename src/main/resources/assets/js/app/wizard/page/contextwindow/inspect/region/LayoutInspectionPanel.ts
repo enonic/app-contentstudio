@@ -140,4 +140,8 @@ export class LayoutInspectionPanel
             }
         });
     }
+
+    getName(): string {
+        return i18n('live.view.insert.layout');
+    }
 }

@@ -209,4 +209,8 @@ export class FragmentInspectionPanel
         return this.fragmentView;
     }
 
+    getName(): string {
+        return i18n('live.view.insert.fragment');
+    }
+
 }

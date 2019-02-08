@@ -1,7 +1,8 @@
-import '../../../../../api.ts';
 import RequestError = api.rest.RequestError;
+import {NamedPanel} from './NamedPanel';
 
-export class BaseInspectionPanel extends api.ui.panel.Panel {
+export abstract class BaseInspectionPanel
+    extends NamedPanel {
 
     constructor() {
         super('inspection-panel');
