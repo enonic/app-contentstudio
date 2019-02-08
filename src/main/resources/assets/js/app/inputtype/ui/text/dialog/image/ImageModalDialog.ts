@@ -601,7 +601,7 @@ export class ImageModalDialog
         const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
 
         imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
-        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender());
+        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''));
     }
 
     private applyStylingToPreview(classNames: string) {

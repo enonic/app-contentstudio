@@ -145,7 +145,7 @@ export class HtmlEditor {
         this.editor.on('instanceReady', function () {
             (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
-                const dataSrc: string = ImageUrlResolver.RENDER.imagePrefix + imageId;
+                const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
                                  `<img src="${upload.url}" data-src="${dataSrc}" style="${imgInlineStyle}">` +

@@ -21,10 +21,10 @@ export class HTMLAreaHelper {
 
     public static extractContentIdFromImgSrc(imgSrc: string): string {
         if (imgSrc.indexOf('?') !== -1) {
-            return StringHelper.substringBetween(imgSrc, ImageUrlResolver.RENDER.imagePrefix, '?');
+            return StringHelper.substringBetween(imgSrc, ImageUrlResolver.URL_PREFIX_RENDER, '?');
         }
 
-        return imgSrc.replace(ImageUrlResolver.RENDER.imagePrefix, StringHelper.EMPTY_STRING);
+        return imgSrc.replace(ImageUrlResolver.URL_PREFIX_RENDER, StringHelper.EMPTY_STRING);
     }
 
     private static extractParamValueFromImgSrc(imgSrc: string, paramName: string): string {
@@ -44,11 +44,11 @@ export class HTMLAreaHelper {
             return '';
         }
 
-        while (processedContent.search(` src="${ImageUrlResolver.RENDER.imagePrefix}`) > -1) {
+        while (processedContent.search(` src="${ImageUrlResolver.URL_PREFIX_RENDER}`) > -1) {
             imgSrcs = regex.exec(processedContent);
             if (imgSrcs) {
                 imgSrcs.forEach((imgSrc: string) => {
-                    if (imgSrc.indexOf(ImageUrlResolver.RENDER.imagePrefix) === 0) {
+                    if (imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) === 0) {
                         processedContent =
                             processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc));
                     }
@@ -65,7 +65,7 @@ export class HTMLAreaHelper {
         AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
             const imgTag = imgTags[0];
 
-            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageUrlResolver.RENDER.imagePrefix) > 0) {
+            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) > 0) {
                 const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
                 const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
 

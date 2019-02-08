@@ -1,23 +1,13 @@
 import ContentId = api.content.ContentId;
 import IconUrlResolver = api.icon.IconUrlResolver;
-
-interface ImageUrlProperties {
-    imagePrefix: string;
-    isAbsoluteUrl: boolean;
-}
+import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
 
-    static readonly PREVIEW: ImageUrlProperties = {
-        imagePrefix: 'content/image/',
-        isAbsoluteUrl: true
-    };
-
-    static readonly RENDER: ImageUrlProperties = {
-        imagePrefix: 'image://',
-        isAbsoluteUrl: false
-    };
+    static readonly URL_PREFIX_PREVIEW: string = 'content/image/';
+    static readonly URL_PREFIX_RENDER: string = 'image://';
+    static readonly URL_PREFIX_RENDER_ORIGINAL: string = 'media://';
 
     private contentId: ContentId;
 
@@ -68,23 +58,23 @@ export class ImageUrlResolver
         return this;
     }
 
+    private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
+        const url = urlPrefix + this.contentId.toString();
+
+        return isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
+    }
+
+    resolveForRender(styleName: string = ''): string {
+        const isOriginalImageStyle = StyleHelper.isOriginalImage(styleName);
+        const urlPrefix = isOriginalImageStyle ? ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL : ImageUrlResolver.URL_PREFIX_RENDER;
+        const url = this.getBaseUrl(urlPrefix,false);
+
+        return (isOriginalImageStyle || !styleName) ? url : `${url}?style=${styleName}`;
+    }
+
     resolveForPreview(): string {
-        return this.resolve(ImageUrlResolver.PREVIEW);
-    }
 
-    resolveForRender(originalSize: boolean = false): string {
-        return this.resolve(ImageUrlResolver.RENDER) + (originalSize ? 'keepSize=true' : '');
-    }
-
-    private getBaseUrl(urlProperties: ImageUrlProperties): string {
-        const url = urlProperties.imagePrefix + this.contentId.toString();
-
-        return urlProperties.isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
-    }
-
-    private resolve(urlProperties: ImageUrlProperties): string {
-
-        let url = this.getBaseUrl(urlProperties);
+        let url = this.getBaseUrl(ImageUrlResolver.URL_PREFIX_PREVIEW, true);
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
