@@ -1,9 +1,10 @@
 .context-window {
+  width: 100%;
+  right: 0;
+  background-color: transparent;
   color: @admin-font-gray3;
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
-  width: 100%;
-  right: 0;
 
   input.search {
     margin: 15px;
@@ -15,6 +16,7 @@
   }
 
   & > .tab-bar {
+    background-color: transparent;
     cursor: move;
   }
 
