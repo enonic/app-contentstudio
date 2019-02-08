@@ -32,11 +32,12 @@ export class WidgetItemView extends api.dom.DivEl {
     public setUrl(url: string, contentId: string): wemQ.Promise<void> {
         let deferred = wemQ.defer<void>();
         let linkEl = new LinkEl(WidgetItemView.getFullWidgetUrl(url, contentId)).setAsync();
-        let el = this.getEl();
         let onLinkLoaded = ((event: UIEvent) => {
-                const mainContainer = event.target['import'].querySelector('widget');
+            const mainContainer: HTMLElement = event.target['import'].querySelector('widget');
                 if (mainContainer) {
-                    el.appendChild(mainContainer);
+                    // remove children in case setUrl was called multiple times
+                    this.removeChildren();
+                    this.getEl().appendChild(mainContainer);
                 }
                 linkEl.remove();
                 deferred.resolve(null);

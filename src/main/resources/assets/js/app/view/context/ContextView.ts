@@ -277,7 +277,9 @@ export class ContextView
             // widgets.push(this.pageEditorWidgetView);
 
             InspectEvent.on(() => {
-                this.activateDefaultWidget();
+                if (this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
+                    this.activateDefaultWidget();
+                }
             });
         }
 
@@ -403,7 +405,7 @@ export class ContextView
 
     private removeWidget(widget: WidgetView) {
         if (widget) {
-            this.widgetViews = this.widgetViews.filter((view) => view !== widget);
+            this.widgetViews = this.widgetViews.filter(view => !widget.compareByType(view));
             widget.remove();
         }
     }
@@ -428,23 +430,25 @@ export class ContextView
 
     updateRenderableStatus(renderable: boolean) {
         if (this.pageEditorWidgetView) {
-            const pageEditorWidgetVisible = this.widgetViews.some(widget => widget === this.pageEditorWidgetView);
-            const pageEditorWidgetActive = this.activeWidget === this.pageEditorWidgetView;
+            const pageEditorWidgetPresent = this.widgetViews.some(
+                widget => this.pageEditorWidgetView.compareByType(widget)
+            );
+            const pageEditorWidgetActive = this.pageEditorWidgetView.compareByType(this.activeWidget);
 
-            if (renderable && !pageEditorWidgetVisible) {
+            if (renderable && !pageEditorWidgetPresent) {
                 this.addWidget(this.pageEditorWidgetView, true);
                 if (!pageEditorWidgetActive) {
                     this.defaultWidgetView = this.pageEditorWidgetView;
                     this.activateDefaultWidget();
                 }
-            } else if (!renderable && pageEditorWidgetVisible) {
+            } else if (!renderable && pageEditorWidgetPresent) {
+                this.defaultWidgetView = this.propertiesWidgetView;
                 if (pageEditorWidgetActive) {
-                    this.defaultWidgetView = this.propertiesWidgetView;
                     this.activateDefaultWidget();
                 }
                 this.removeWidget(this.pageEditorWidgetView);
             }
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
         }
     }
 

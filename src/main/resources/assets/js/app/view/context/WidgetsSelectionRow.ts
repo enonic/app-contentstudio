@@ -36,7 +36,9 @@ export class WidgetsSelectionRow extends api.dom.DivEl {
         }
     }
 
-    updateWidgetsDropdown(widgetViews: WidgetView[]) {
+    updateWidgetsDropdown(widgetViews: WidgetView[], selectedView?: WidgetView) {
+        const previousSelection = this.widgetSelectorDropdown.getSelectedOption();
+        const previousSelectionView = previousSelection ? previousSelection.displayValue.getWidgetView() : null;
         this.widgetSelectorDropdown.removeAllOptions();
 
         widgetViews.forEach((view: WidgetView) => {
@@ -58,10 +60,24 @@ export class WidgetsSelectionRow extends api.dom.DivEl {
         if (visibleNow) {
             this.setVisible(false);
         }
-        this.widgetSelectorDropdown.selectRow(0, true);
+        this.selectOptionByWidgetView(selectedView || previousSelectionView, true);
         if (visibleNow) {
             this.setVisible(true);
         }
+    }
+
+    private selectOptionByWidgetView(view: WidgetView, silent?: boolean) {
+        const views = this.widgetSelectorDropdown.getOptions().map(option => option.displayValue.getWidgetView());
+        let i = 0;
+        if (view) {
+            for (; i < views.length; i++) {
+                if (views[i].compareByType(view)) {
+                    break;
+                }
+            }
+        }
+        const index = i < views.length ? i : 0;
+        this.widgetSelectorDropdown.selectRow(index, silent);
     }
 }
 
@@ -141,7 +157,7 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
 
         const view = this.getNamesAndIconView();
         if (object && object.getWidgetView() && view) {
-            const widgetClass = object.getWidgetView().getWidgetKey() != null ? 'external-widget' : 'internal-widget';
+            const widgetClass = object.getWidgetView().isInternal() ? 'internal-widget' : 'external-widget';
             view.removeClass('external-widget internal-widget');
             view.addClass(widgetClass);
         }

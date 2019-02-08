@@ -10,8 +10,7 @@ export enum InternalWidgetType {
     HISTORY,
     DEPENDENCIES,
     EMULATOR,
-    COMPONENTS,
-    INTERNAL
+    COMPONENTS
 }
 
 export class WidgetView extends api.dom.DivEl {
@@ -229,6 +228,26 @@ export class WidgetView extends api.dom.DivEl {
 
     isEmulator(): boolean {
         return this.type === InternalWidgetType.EMULATOR;
+    }
+
+    getType(): InternalWidgetType {
+        return this.type;
+    }
+
+    hasType(): boolean {
+        return this.type != null;
+    }
+
+    hasKey(): boolean {
+        return this.getWidgetKey() != null;
+    }
+
+    compareByType(widgetView: WidgetView): boolean {
+        return widgetView != null && (
+            this === widgetView ||
+            (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
+            (this.getWidgetKey() === widgetView.getWidgetKey() && this.hasKey() && widgetView.hasKey())
+        );
     }
 
     private hasDynamicHeight(): boolean {
