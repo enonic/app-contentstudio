@@ -25,12 +25,11 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(folder).then(() => {
-            }).then(() => {
                 return studioUtils.findAndSelectItem(folder.displayName);
             }).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
             }).then(result => {
@@ -46,7 +45,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             }).pause(1000).then(() => {
@@ -58,7 +57,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             }).then(() => {
                 return editPermissionsDialog.waitForDialogClosed();
             }).pause(1000).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 studioUtils.saveScreenshot("dlg_inherit_checkbox_should_be_unchecked");
                 return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
@@ -71,7 +70,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
                     "the checkbox should be not selected");
@@ -83,7 +82,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLink();
+                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             }).then(() => {
                 return editPermissionsDialog.clickOnOverwiteChildPermissionsCheckBox();
             }).pause(1000).then(() => {
