@@ -852,19 +852,19 @@ class HtmlEditorConfigBuilder {
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
 
-        if (!this.editorParams.isCustomStylesToBeUsed()) { // inline mode
-            return wemQ(config);
-        }
-
         if (Styles.getInstance()) {
-            injectCssIntoConfig();
+            if (this.editorParams.isCustomStylesToBeUsed()) { // inline mode
+                injectCssIntoConfig();
+            }
             return wemQ(config);
         }
 
         const deferred = wemQ.defer<CKEDITOR.config>();
 
         new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then((response) => {
-            injectCssIntoConfig();
+            if (this.editorParams.isCustomStylesToBeUsed()) { // inline mode
+                injectCssIntoConfig();
+            }
             deferred.resolve(config);
         });
 

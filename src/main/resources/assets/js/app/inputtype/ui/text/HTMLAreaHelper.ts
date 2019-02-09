@@ -22,21 +22,23 @@ export class HTMLAreaHelper {
 
     private static getConvertedImageSrc(imgSrc: string): string {
         const contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
+        const styleParameter = '?style=';
 
         const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(contentId));
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();
-        } else if (imgSrc.includes('?style=')) {
-            const styleName = imgSrc.split('?style=')[1];
+        } else if (imgSrc.includes(styleParameter)) {
+            const styleName = imgSrc.split(styleParameter)[1];
 
-            const style = Styles.getForImage().find(s => s.getName() === styleName);
+            if (Styles.getInstance()) {
+                const style = Styles.getForImage().find(s => s.getName() === styleName);
 
-            if (style) {
-                imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
+                if (style) {
+                    imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
+                }
             }
         }
-
 
         const imgUrl = imageUrlResolver.resolveForPreview();
 
