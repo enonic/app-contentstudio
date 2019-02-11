@@ -101,12 +101,11 @@ export class ContentPublishMenuButton
     private handleActionsUpdated() {
         const actionUpdatedHandler: () => void = api.util.AppHelper.debounce(() => {
             this.updateActiveState();
-        }, 200);
+        }, 500);
 
         this.publishAction.onPropertyChanged(actionUpdatedHandler);
         this.publishTreeAction.onPropertyChanged(actionUpdatedHandler);
         this.unpublishAction.onPropertyChanged(actionUpdatedHandler);
-        this.createIssueAction.onPropertyChanged(actionUpdatedHandler);
     }
 
     private updateActiveState() {
