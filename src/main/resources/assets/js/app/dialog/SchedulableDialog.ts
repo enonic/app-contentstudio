@@ -3,6 +3,7 @@ import FormItem = api.form.FormItem;
 import i18n = api.util.i18n;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
+import Action = api.ui.Action;
 
 export abstract class SchedulableDialog
     extends ModalDialog {
@@ -11,17 +12,58 @@ export abstract class SchedulableDialog
 
     formView: api.form.FormView;
 
-    confirmScheduleButton: api.ui.dialog.DialogButton;
+    confirmScheduleAction: Action;
 
     onScheduleCallback: () => void;
 
     constructor(config: ModalDialogConfig) {
         super(config);
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.initConfirmScheduleAction();
-
         this.initFormView();
-        this.layoutFormView();
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.confirmScheduleAction.onExecuted(() => {
+            let validationRecording = this.formView.validate();
+            if (validationRecording.isValid()) {
+                this.close();
+                if (this.onScheduleCallback) {
+                    this.onScheduleCallback();
+                }
+            } else {
+                this.confirmScheduleAction.setEnabled(false);
+                this.formView.displayValidationErrors(true);
+            }
+
+            this.updateTabbable(); // in case schedule button gets enabled/disabled
+        });
+
+        this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
+            this.confirmScheduleAction.setEnabled(event.isValid());
+            this.formView.displayValidationErrors(true);
+        });
+
+        this.propertySet.onChanged(() => {
+            this.formView.validate();
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            return this.formView.layout().then(() => {
+                this.appendChildToContentPanel(this.formView);
+                this.addAction(this.confirmScheduleAction, true, true);
+
+                return rendered;
+            });
+        });
     }
 
     public resetDates() {
@@ -35,12 +77,12 @@ export abstract class SchedulableDialog
     }
 
     public getFromDate(): Date {
-        let from = this.propertySet.getDateTime('from');
+        const from = this.propertySet.getDateTime('from');
         return from && from.toDate();
     }
 
     public getToDate(): Date {
-        let to = this.propertySet.getDateTime('to');
+        const to = this.propertySet.getDateTime('to');
         return to && to.toDate();
     }
 
@@ -49,45 +91,14 @@ export abstract class SchedulableDialog
     protected abstract createToFormItem(): FormItem;
 
     private initFormView() {
-        let formBuilder = new api.form.FormBuilder().addFormItem(this.createFromFormItem()).addFormItem(this.createToFormItem());
+        const formBuilder = new api.form.FormBuilder().addFormItem(this.createFromFormItem()).addFormItem(this.createToFormItem());
 
         this.propertySet = new api.data.PropertyTree().getRoot();
         this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);
-
-    }
-
-    private layoutFormView(): wemQ.Promise<boolean> {
-        return this.formView.layout().then(() => {
-            this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
-                this.confirmScheduleButton.getAction().setEnabled(event.isValid());
-                this.formView.displayValidationErrors(true);
-            });
-            this.propertySet.onChanged(() => {
-                this.formView.validate();
-            });
-            this.appendChildToContentPanel(this.formView);
-
-            return true;
-        });
     }
 
     private initConfirmScheduleAction() {
-        const confirmScheduleAction = new api.ui.Action(i18n('action.schedule'));
-
-        confirmScheduleAction.setIconClass('confirm-schedule-action');
-        confirmScheduleAction.onExecuted(() => {
-            let validationRecording = this.formView.validate();
-            if (validationRecording.isValid()) {
-                this.close();
-                if (this.onScheduleCallback) {
-                    this.onScheduleCallback();
-                }
-            } else {
-                confirmScheduleAction.setEnabled(false);
-                this.formView.displayValidationErrors(true);
-            }
-        });
-
-        this.confirmScheduleButton = this.addAction(confirmScheduleAction, true, true);
+        this.confirmScheduleAction = new Action(i18n('action.schedule'));
+        this.confirmScheduleAction.setIconClass('confirm-schedule-action');
     }
 }

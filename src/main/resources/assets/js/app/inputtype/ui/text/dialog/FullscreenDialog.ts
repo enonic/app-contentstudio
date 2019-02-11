@@ -6,6 +6,11 @@ import {HtmlEditor} from '../HtmlEditor';
 
 declare var CONFIG;
 
+export interface FullscreenDialogConfig
+    extends HtmlAreaModalDialogConfig {
+    editorParams: HtmlEditorParams;
+}
+
 export class FullscreenDialog
     extends ModalDialog {
 
@@ -15,17 +20,29 @@ export class FullscreenDialog
 
     private fseditor: HtmlEditor;
 
+    protected config: FullscreenDialogConfig;
+
     constructor(config: any) {
-        super(<HtmlAreaModalDialogConfig>{
+        super(<FullscreenDialogConfig>{
             editor: config.editor,
+            editorParams: config.editorParams,
             title: i18n('dialog.fullscreen.title'),
-            cls: 'fullscreen-modal-dialog'
+            class: 'fullscreen-modal-dialog'
         });
 
-        this.editorParams = config.editorParams;
-        this.textArea = new TextArea('fullscreen-textarea');
-
         this.getEditor().focusManager.lock();
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.editorParams = this.config.editorParams;
+        this.textArea = new TextArea('fullscreen-textarea');
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
         this.onRendered(this.initEditor.bind(this));
     }
 

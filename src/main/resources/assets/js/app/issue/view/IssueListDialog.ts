@@ -35,18 +35,12 @@ export class IssueListDialog
     private issueSelectedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
-        super(<api.ui.dialog.ModalDialogConfig>{title: i18n('text.publishingissues')});
-        this.addClass('issue-dialog issue-list-dialog grey-header');
+        super(<api.ui.dialog.ModalDialogConfig>{
+            title: i18n('text.publishingissues'),
+            class: 'issue-dialog issue-list-dialog grey-header'
+        });
 
         this.getBody().addClass('mask-wrapper');
-
-        this.createAction = new Action(i18n('action.newIssueMore'));
-
-        this.initDeboundcedReloadFunc();
-        this.handleIssueGlobalEvents();
-        this.initElements();
-
-        this.loadCurrentUser();
     }
 
     public static get(): IssueListDialog {
@@ -62,17 +56,27 @@ export class IssueListDialog
         });
     }
 
-    private initElements() {
+    protected initElements() {
+        super.initElements();
         this.loadMask = new LoadMask(this);
         this.openIssuesPanel = this.createIssuePanel(IssueStatus.OPEN);
         this.closedIssuesPanel = this.createIssuePanel(IssueStatus.CLOSED);
         this.dockedPanel = this.createDockedPanel();
+        this.createAction = new Action(i18n('action.newIssueMore'));
+        this.loadCurrentUser();
+    }
+
+    protected initListeners() {
+        super.initListeners();
+        this.initDeboundcedReloadFunc();
+        this.handleIssueGlobalEvents();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.getButtonRow().addAction(this.createAction);
+            this.getButtonRow().addAction(this.createAction, true);
             this.appendChildToContentPanel(this.dockedPanel);
+
             return rendered;
         });
     }
@@ -199,7 +203,7 @@ export class IssueListDialog
     }
 
     protected hasSubDialog(): boolean {
-        return true;
+        return this.isMasked();
     }
 
     private updateTabAndFiltersLabels() {

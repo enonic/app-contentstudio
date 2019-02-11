@@ -47,12 +47,9 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('dialog.new')
+            title: i18n('dialog.new'),
+            class: 'new-content-dialog'
         });
-
-        this.addClass('new-content-dialog');
-
-        this.initElements();
     }
 
     protected createHeader(): NewContentDialogHeader {
@@ -65,6 +62,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.fileInput.hide();
             const mainSection = new api.dom.SectionEl().setClass('column');
             this.appendChildToContentPanel(mainSection);
 
@@ -88,24 +86,39 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         });
     }
 
-    private initElements() {
+    protected initElements() {
+        super.initElements();
         this.initContentTypesLists();
         this.initFileUploader();
-        this.initFileInput();
+        this.fileInput = new FileInput('large').setPlaceholder(i18n('dialog.new.searchTypes'));
+        this.loadMask = new LoadMask(this);
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.getButtonRow().getEl().setAttribute('data-drop', i18n('dialog.new.searchTypesOrDrop'));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.allContentTypes.onSelected(this.closeAndFireEventFromContentType.bind(this));
+        this.mostPopularContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
+        this.recentContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
         this.initDragAndDropUploaderEvents();
-        this.initLoadMask();
-        this.initButtonRow();
         this.initKeyDownHandler();
+        this.initFileInputEvents();
+
+        this.onRendered(() => {
+            this.loadMask.show();
+        });
     }
 
     private initContentTypesLists() {
         this.allContentTypes = new FilterableItemsList();
         this.mostPopularContentTypes = new MostPopularItemsBlock();
         this.recentContentTypes = new RecentItemsBlock();
-
-        this.allContentTypes.onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.mostPopularContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.recentContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
     }
 
     private initFileUploader() {
@@ -115,12 +128,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.newContentUploader = new NewContentUploader()
             .setUploaderParams({parent: ContentPath.ROOT.toString()})
             .setDropzoneId(this.dropzoneContainer.getDropzone().getId());
-    }
-
-    private initFileInput() {
-        this.fileInput = new FileInput('large').setPlaceholder(i18n('dialog.new.searchTypes'));
-        this.initFileInputEvents();
-        this.fileInput.hide();
     }
 
     private initFileInputEvents() {
@@ -141,14 +148,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
             this.allContentTypes.filter(this.fileInput.getValue());
         });
-    }
-
-    private initLoadMask() {
-        this.loadMask = new LoadMask(this);
-    }
-
-    private initButtonRow() {
-        this.getButtonRow().getEl().setAttribute('data-drop', i18n('dialog.new.searchTypesOrDrop'));
     }
 
     private initKeyDownHandler() {
@@ -232,7 +231,8 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     show() {
-        this.getContentPanel().getParentElement().appendChild(this.loadMask);
+        this.appendChildToContentPanel(this.loadMask);
+
         this.updateDialogTitlePath();
 
         this.fileInput.disable();
@@ -258,10 +258,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         api.dom.Body.get().unKeyDown(this.keyDownHandler);
 
         super.hide();
-
-        if (this.getContentPanel().getParentElement().hasChild(this.loadMask)) {
-            this.getContentPanel().getParentElement().removeChild(this.loadMask);
-        }
     }
 
     close() {

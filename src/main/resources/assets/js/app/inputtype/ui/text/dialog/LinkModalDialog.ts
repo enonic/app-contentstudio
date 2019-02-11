@@ -26,10 +26,14 @@ import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
-import {ImageModalDialogConfig} from './image/ImageModalDialog';
 import {Content} from '../../../../content/Content';
 import {Site} from '../../../../content/Site';
 import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
+
+export interface LinkModalDialogConfig
+    extends HtmlAreaModalDialogConfig {
+    contentId: ContentId;
+}
 
 export class LinkModalDialog
     extends OverrideNativeDialog {
@@ -44,35 +48,59 @@ export class LinkModalDialog
 
     private tabNames: any;
 
+    protected config: LinkModalDialogConfig;
+
     private static contentPrefix: string = 'content://';
     private static downloadPrefix: string = 'media://download/';
     private static emailPrefix: string = 'mailto:';
     private static anchorPrefix: string = '#';
 
     constructor(config: eventInfo, content: ContentSummary) {
-        super(<HtmlAreaModalDialogConfig>{
+        super(<LinkModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.link.title'),
-            cls: 'link-modal-dialog',
-            content: content,
+            class: 'link-modal-dialog',
+            contentId: content.getContentId(),
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
         });
+    }
 
-        if (this.isOnlyTextSelected()) {
-            this.setFirstFocusField(this.textFormItem.getInput());
-        } else {
-            this.setFirstFocusField(this.toolTipFormItem.getInput());
-            this.textFormItem.hide();
-            this.textFormItem.removeValidator();
-        }
+    protected initElements() {
+        super.initElements();
+
+        this.contentId = this.config.contentId;
+        this.setSubmitAction(new api.ui.Action(this.link ? i18n('action.update') : i18n('action.insert')));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.submitAction.onExecuted(() => {
+            if (this.validate()) {
+                this.updateOriginalDialogInputValues();
+                this.ckeOriginalDialog.getButton('ok').click();
+                this.close();
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            if (this.isOnlyTextSelected()) {
+                this.setElementToFocusOnShow(this.textFormItem.getInput());
+            } else {
+                this.setElementToFocusOnShow(this.toolTipFormItem.getInput());
+                this.textFormItem.hide();
+                this.textFormItem.removeValidator();
+            }
+
+            this.addAction(this.submitAction);
+            this.addCancelButtonToBottom();
+
             return new GetNearestSiteRequest(this.contentId).sendAndParse().then((parentSite: Site) => {
                     if (parentSite) {
                         this.parentSitePath = parentSite.getPath().toString();
@@ -98,11 +126,6 @@ export class LinkModalDialog
         }
 
         return false;
-    }
-
-    protected initializeConfig(params: ImageModalDialogConfig) {
-        super.initializeConfig(params);
-        this.contentId = params.content.getContentId();
     }
 
     private getAnchors(): any[] {
@@ -316,21 +339,6 @@ export class LinkModalDialog
             email: i18n('dialog.link.tabname.email'),
             anchor: i18n('dialog.link.tabname.anchor')
         };
-    }
-
-    protected initializeActions() {
-        const submitAction = new api.ui.Action(this.link ? i18n('action.update') : i18n('action.insert'));
-        this.setSubmitAction(submitAction);
-
-        this.addAction(submitAction.onExecuted(() => {
-            if (this.validate()) {
-                this.updateOriginalDialogInputValues();
-                this.ckeOriginalDialog.getButton('ok').click();
-                this.close();
-            }
-        }));
-
-        super.initializeActions();
     }
 
     private createSelector( getValueFn: Function,

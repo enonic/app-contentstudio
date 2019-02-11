@@ -66,6 +66,11 @@ export class IssueDetailsDialog
     private detailsSubTitle: DetailsDialogSubTitle;
     private publishAction: ContentPublishDialogAction;
     private publishButton: api.ui.button.MenuButton;
+    private backButton: AEl;
+    private assigneesPanel: Panel;
+    private commentsPanel: Panel;
+    private itemsPanel: Panel;
+    private tabBar: TabBar;
     private itemSelector: ContentComboBox<ContentTreeSelectorItem>;
     private publishProcessor: PublishProcessor;
     private saveOnLoaded: boolean;
@@ -80,6 +85,7 @@ export class IssueDetailsDialog
     private constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
             title: i18n('dialog.issue'),
+            class: 'issue-dialog issue-details-dialog grey-header',
                 dialogSubName: i18n('dialog.issue.resolving'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
             showDependantList: false,
@@ -89,16 +95,67 @@ export class IssueDetailsDialog
                 },
             }
         );
-        this.addClass('issue-dialog issue-details-dialog grey-header');
+    }
+
+    public static get(): IssueDetailsDialog {
+        if (!IssueDetailsDialog.INSTANCE) {
+            IssueDetailsDialog.INSTANCE = new IssueDetailsDialog();
+        }
+
+        return IssueDetailsDialog.INSTANCE;
+    }
+
+    protected initElements() {
+        super.initElements();
+
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+        this.commentTextArea = new IssueCommentTextArea();
+        this.detailsSubTitle = new DetailsDialogSubTitle(this.issue);
+        this.loadCurrentUser().done(currentUser => {
+            this.commentTextArea.setUser(currentUser);
+            this.detailsSubTitle.setUser(currentUser);
+        });
+
+        this.backButton = new AEl('back-button').setTitle(i18n('dialog.issue.back'));
+        this.initTabs();
+        this.itemSelector = ContentComboBox.create()
+            .setShowStatus(true)
+            .setHideComboBoxWhenMaxReached(false)
+            .build();
+        this.tabBar = new TabBar();
+        this.tabPanel = new NavigatedDeckPanel(this.tabBar);
+    }
+
+    private initTabs() {
+        this.assigneesTab = new TabBarItemBuilder().setLabel(i18n('field.assignees')).build();
+        this.assigneesPanel = new Panel();
+        const userLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
+            [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
+        this.assigneesCombobox = new PrincipalComboBoxBuilder().setLoader(userLoader).build();
+        this.commentsTab = new TabBarItemBuilder().setLabel(i18n('field.comments')).build();
+        this.commentsPanel = new Panel();
+        this.commentsList = new IssueCommentsList();
+        this.itemsTab = new TabBarItemBuilder().setLabel(i18n('field.items')).build();
+        this.itemsPanel = new Panel();
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.addClickIgnoredElement(this.commentsList.getContextMenu());
+        this.addClickIgnoredElement(this.commentsList.getConfirmDialog());
+    }
+
+    protected initListeners() {
+        super.initListeners();
 
         this.debouncedUpdateIssue = AppHelper.debounce(this.doUpdateIssue.bind(this), 1000);
 
-        this.commentTextArea = new IssueCommentTextArea();
         this.commentTextArea.onValueChanged(event => {
             const saveAllowed = event.getNewValue().trim().length > 0;
             this.commentAction.setEnabled(saveAllowed);
         });
+
         this.commentTextArea.onKeyDown(event => {
             event.stopImmediatePropagation();
             const value = this.commentTextArea.getValue();
@@ -115,60 +172,94 @@ export class IssueDetailsDialog
                 break;
             }
         });
-        this.loadCurrentUser().done(currentUser => {
-            this.commentTextArea.setUser(currentUser);
+
+        this.detailsSubTitle.onIssueStatusChanged((event) => {
+            const newStatus = IssueStatusFormatter.fromString(event.getNewValue());
+            this.debouncedUpdateIssue(newStatus);
         });
 
+        this.backButton.onClicked(() => this.close());
+
+        const updateTabCount = (save) => {
+            let num = 0;
+            const loader = this.assigneesCombobox.getLoader();
+            if (loader.isPreLoaded() || loader.isLoaded()) {
+                num = this.assigneesCombobox.getSelectedValues().length;
+            }
+            this.assigneesTab.setHtml(i18n('field.assignees') + (num > 0 ? ` (${num})` : ''));
+            if (save) {
+                this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+            }
+        };
+
+        this.assigneesCombobox.onValueLoaded(() => updateTabCount(false));
+        this.assigneesCombobox.onOptionSelected(() => updateTabCount(true));
+        this.assigneesCombobox.onOptionDeselected(() => updateTabCount(true));
+
+        const updateCommentsCount = () => {
+            const commentCount = this.commentsList.getItemCount();
+            this.commentsTab.setLabel(i18n('field.comments') + (commentCount > 0 ? ` (${commentCount})` : ''));
+        };
+
+        this.commentsList.onItemsAdded(updateCommentsCount);
+        this.commentsList.onItemsRemoved(updateCommentsCount);
+        this.commentsList.onEditModeChanged(editMode => {
+            this.commentTextArea.setReadOnly(editMode);
+            (<IssueDetailsDialogHeader>this.header).setReadOnly(editMode);
+            this.setActionsEnabled(!editMode);
+        });
+
+        this.itemSelector.onOptionSelected(o => {
+            this.saveOnLoaded = true;
+            const ids = [o.getSelectedOption().getOption().displayValue.getContentId()];
+            ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
+                this.addListItems(result);
+            });
+        });
+        this.itemSelector.onOptionDeselected(o => {
+            this.saveOnLoaded = true;
+            const id = o.getSelectedOption().getOption().displayValue.getContentId();
+            const items = [this.getItemList().getItem(id.toString())];
+            this.removeListItems(items);
+        });
+
+        this.tabPanel.onPanelShown(event => {
+            const isAssignees = event.getPanel() === this.assigneesPanel;
+            const isComments = event.getPanel() === this.commentsPanel;
+            this.toggleClass('tab-assignees', isAssignees);
+            this.toggleClass('tab-comments', isComments);
+            this.toggleClass('tab-items', !isAssignees && !isComments);
+        });
+
+        this.initElementListeners();
+
         this.handleIssueGlobalEvents();
-        this.initActions();
-    }
-
-    public static get(): IssueDetailsDialog {
-
-        if (!IssueDetailsDialog.INSTANCE) {
-            IssueDetailsDialog.INSTANCE = new IssueDetailsDialog();
-        }
-
-        return IssueDetailsDialog.INSTANCE;
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-
-            this.createSubTitle();
-            this.createBackButton();
+            this.setSubTitleEl(this.detailsSubTitle);
+            this.prependChildToHeader(this.backButton);
             this.createAddCommentButton();
             this.createReopenButton();
             this.createCloseButton();
             this.createNoActionMessage();
+            this.assigneesPanel.appendChild(this.assigneesCombobox);
 
-            this.assigneesTab = new TabBarItemBuilder().setLabel(i18n('field.assignees')).build();
-            const assigneesPanel = this.createAssigneesPanel();
+            this.commentsPanel.appendChild(this.commentsList);
 
-            this.commentsTab = new TabBarItemBuilder().setLabel(i18n('field.comments')).build();
-            const commentsPanel = this.createCommentsPanel(this.commentsTab);
+            const itemList = this.getItemList();
+            itemList.setCanBeEmpty(true);
+            this.itemsPanel.appendChildren<api.dom.DivEl>(this.itemSelector, itemList, this.getDependantsContainer());
 
-            this.itemsTab = new TabBarItemBuilder().setLabel(i18n('field.items')).build();
-            const itemsPanel = this.createItemsPanel();
+            this.tabPanel.addNavigablePanel(this.commentsTab, this.commentsPanel, true);
+            this.tabPanel.addNavigablePanel(this.itemsTab, this.itemsPanel);
+            this.tabPanel.addNavigablePanel(this.assigneesTab, this.assigneesPanel);
 
-            const tabBar = new TabBar();
-            this.tabPanel = new NavigatedDeckPanel(tabBar);
-            this.tabPanel.onPanelShown(event => {
-                const isAssignees = event.getPanel() === assigneesPanel;
-                const isComments = event.getPanel() === commentsPanel;
-                this.toggleClass('tab-assignees', isAssignees);
-                this.toggleClass('tab-comments', isComments);
-                this.toggleClass('tab-items', !isAssignees && !isComments);
-            });
-            this.tabPanel.addNavigablePanel(this.commentsTab, commentsPanel, true);
-            this.tabPanel.addNavigablePanel(this.itemsTab, itemsPanel);
-            this.tabPanel.addNavigablePanel(this.assigneesTab, assigneesPanel);
-
-            this.appendChildToHeader(tabBar);
+            this.appendChildToHeader(this.tabBar);
             this.appendChildToContentPanel(this.tabPanel);
             this.prependChildToFooter(this.commentTextArea);
 
-            this.initElementListeners();
             this.updateItemsCountAndButtons();
 
             if (this.issue) {
@@ -192,52 +283,6 @@ export class IssueDetailsDialog
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
     }
 
-    private createAssigneesPanel() {
-        const assigneesPanel = new Panel();
-        let userLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
-            [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        this.assigneesCombobox = new PrincipalComboBoxBuilder().setLoader(userLoader).build();
-        const updateTabCount = (save) => {
-            let num = 0;
-            const loader = this.assigneesCombobox.getLoader();
-            if (loader.isPreLoaded() || loader.isLoaded()) {
-                num = this.assigneesCombobox.getSelectedValues().length;
-            }
-            this.assigneesTab.setHtml(i18n('field.assignees') + (num > 0 ? ` (${num})` : ''));
-            if (save) {
-                this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
-            }
-        };
-
-        this.assigneesCombobox.onValueLoaded(() => updateTabCount(false));
-        this.assigneesCombobox.onOptionSelected(() => updateTabCount(true));
-        this.assigneesCombobox.onOptionDeselected(() => updateTabCount(true));
-        assigneesPanel.appendChild(this.assigneesCombobox);
-        return assigneesPanel;
-    }
-
-    private createCommentsPanel(tab: TabBarItem) {
-        const commentsPanel = new Panel();
-        this.commentsList = new IssueCommentsList();
-        this.addClickIgnoredElement(this.commentsList.getContextMenu());
-        this.addClickIgnoredElement(this.commentsList.getConfirmDialog());
-
-        const updateCommentsCount = () => {
-            const commentCount = this.commentsList.getItemCount();
-            tab.setLabel(i18n('field.comments') + (commentCount > 0 ? ` (${commentCount})` : ''));
-        };
-
-        this.commentsList.onItemsAdded(updateCommentsCount);
-        this.commentsList.onItemsRemoved(updateCommentsCount);
-        this.commentsList.onEditModeChanged(editMode => {
-            this.commentTextArea.setReadOnly(editMode);
-            (<IssueDetailsDialogHeader>this.header).setReadOnly(editMode);
-            this.setActionsEnabled(!editMode);
-        });
-        commentsPanel.appendChild(this.commentsList);
-        return commentsPanel;
-    }
-
     private setActionsEnabled(flag: boolean) {
         this.getButtonRow().getActions().forEach(action => {
             if (action === this.commentAction) {
@@ -249,31 +294,6 @@ export class IssueDetailsDialog
         this.closeAction.setEnabled(flag);
     }
 
-    private createItemsPanel() {
-        const itemsPanel = new Panel();
-        this.itemSelector = ContentComboBox.create()
-            .setShowStatus(true)
-            .setHideComboBoxWhenMaxReached(false)
-            .build();
-        this.itemSelector.onOptionSelected(o => {
-            this.saveOnLoaded = true;
-            const ids = [o.getSelectedOption().getOption().displayValue.getContentId()];
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
-                this.addListItems(result);
-            });
-        });
-        this.itemSelector.onOptionDeselected(o => {
-            this.saveOnLoaded = true;
-            const id = o.getSelectedOption().getOption().displayValue.getContentId();
-            const items = [this.getItemList().getItem(id.toString())];
-            this.removeListItems(items);
-        });
-        const itemList = this.getItemList();
-        itemList.setCanBeEmpty(true);
-        itemsPanel.appendChildren<api.dom.DivEl>(this.itemSelector, itemList, this.getDependantsContainer());
-        return itemsPanel;
-    }
-
     open() {
         super.open();
         if (this.isRendered()) {
@@ -281,16 +301,6 @@ export class IssueDetailsDialog
         }
 
         Router.setHash('issue/' + this.issue.getId());
-    }
-
-    private createSubTitle() {
-        this.detailsSubTitle = new DetailsDialogSubTitle(this.issue, this.currentUser);
-        this.detailsSubTitle.onIssueStatusChanged((event) => {
-            const newStatus = IssueStatusFormatter.fromString(event.getNewValue());
-            this.debouncedUpdateIssue(newStatus);
-        });
-
-        this.setSubTitleEl(this.detailsSubTitle);
     }
 
     public reloadItemList() {
@@ -494,12 +504,6 @@ export class IssueDetailsDialog
         return header;
     }
 
-    private createBackButton() {
-        const backButton: AEl = new AEl('back-button').setTitle(i18n('dialog.issue.back'));
-        this.prependChildToHeader(backButton);
-        backButton.onClicked(() => this.close());
-    }
-
     private createCloseButton() {
         const closeButton: DialogButton = this.getButtonRow().addAction(this.closeAction);
         closeButton.addClass('close-issue force-enabled');
@@ -691,10 +695,6 @@ export class IssueDetailsDialog
 
     protected isScheduleButtonAllowed(): boolean {
         return this.areSomeItemsOffline();
-    }
-
-    protected hasSubDialog(): boolean {
-        return true;
     }
 
     public onIssueUpdated(listener: (issue: Issue) => void) {

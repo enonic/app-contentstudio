@@ -12,15 +12,28 @@ export class SpecialCharDialog
         super(<HtmlAreaModalDialogConfig>{
             editor: config.editor,
             title: i18n('dialog.charmap.title'),
-            cls: 'special-char-modal-dialog'
+            class: 'special-char-modal-dialog'
         });
+    }
 
-        this.initEventListeners();
+    protected initListeners() {
+        super.initListeners();
+
+        this.onClicked((event: any) => {
+            const isSpecialCharClicked: boolean = event.target.classList.contains('chars-block__char');
+
+            if (isSpecialCharClicked) {
+                const char: string = event.target.textContent;
+                this.getEditor().insertText(char);
+                this.close();
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChildToContentPanel(this.createCharsBlock());
+            this.addCancelButtonToBottom();
 
             return rendered;
         });
@@ -60,21 +73,9 @@ export class SpecialCharDialog
         return charsBlock;
     }
 
-    private initEventListeners() {
-        this.onClicked((event: any) => {
-            const isSpecialCharClicked: boolean = event.target.classList.contains('chars-block__char');
-
-            if (isSpecialCharClicked) {
-                const char: string = event.target.textContent;
-                this.getEditor().insertText(char);
-                this.close();
-            }
-        });
-    }
-
     addCancelButtonToBottom(buttonLabel: string = i18n('action.cancel')): DialogButton {
         const cancelButton: DialogButton = super.addCancelButtonToBottom(buttonLabel);
-        this.setFirstFocusField(cancelButton);
+        this.setElementToFocusOnShow(cancelButton);
 
         return cancelButton;
     }

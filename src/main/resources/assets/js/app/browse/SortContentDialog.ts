@@ -35,28 +35,74 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('dialog.sort')
+            title: i18n('dialog.sort'),
+            class: 'sort-content-dialog'
         });
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.initTabMenu();
+        this.sortContentMenu = new SortContentTabMenu();
+        this.contentGrid = new SortContentTreeGrid();
+        this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
+        this.sortAction = new SaveSortedContentAction(this);
+        this.saveButton = this.addAction(this.sortAction);
+    }
 
-        this.initSortContentMenu();
+    protected postInitElements() {
+        super.postInitElements();
 
-        this.getEl().addClass('sort-content-dialog');
+        this.setElementToFocusOnShow(this.sortContentMenu.getDropdownHandle());
+    }
 
-        this.initSortContentGrid();
+    protected initListeners() {
+        super.initListeners();
 
-        this.initGridDragHandler();
+        this.sortContentMenu.onSortOrderChanged(() => {
+            this.handleOnSortOrderChangedEvent();
+            this.saveButton.giveFocus();
+        });
 
-        this.populateContentPanel();
 
-        this.initSaveButtonWithAction();
+        this.contentGrid.onLoaded(() => {
+            this.notifyResize();
+            this.contentGrid.render(true);
+            if (this.contentGrid.getContentId()) {
+                this.open();
+            }
+        });
+
+        this.gridDragHandler.onPositionChanged(() => {
+            this.sortContentMenu.selectManualSortingItem();
+        });
+
+        this.sortAction.onExecuted(() => {
+            this.handleSortAction();
+        });
 
         OpenSortDialogEvent.on((event) => {
             this.handleOpenSortDialogEvent(event);
         });
+    }
 
-        this.addCancelButtonToBottom();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.saveButton.addClass('save-button');
+            this.sortContentMenu.show();
+            this.appendChildToHeader(this.sortContentMenu);
+
+            const header = new api.dom.H6El();
+            header.setHtml(i18n('dialog.sort.preface'));
+            this.appendChildToContentPanel(header);
+
+            this.contentGrid.getEl().addClass('sort-content-grid');
+            this.appendChildToContentPanel(this.contentGrid);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     open() {
@@ -65,11 +111,6 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
             super.open();
             this.isOpen = true;
         }
-    }
-
-    show() {
-        super.show();
-        this.sortContentMenu.focus();
     }
 
     close() {
@@ -84,61 +125,13 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         return this.parentContent;
     }
 
-    private initSortContentGrid() {
-        this.contentGrid = new SortContentTreeGrid();
-        this.contentGrid.getEl().addClass('sort-content-grid');
-        this.contentGrid.onLoaded(() => {
-            this.notifyResize();
-            this.contentGrid.render(true);
-            if (this.contentGrid.getContentId()) {
-                this.open();
-            }
-        });
-    }
-
-    private initGridDragHandler() {
-        this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
-        this.gridDragHandler.onPositionChanged(() => {
-            this.sortContentMenu.selectManualSortingItem();
-        });
-    }
-
     private initTabMenu() {
-        let menu = new api.ui.tab.TabMenu();
-        let tabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
+        const menu = new api.ui.tab.TabMenu();
+        const tabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
         tabMenuItem.setActive(true);
         menu.addNavigationItem(tabMenuItem);
         menu.selectNavigationItem(0);
         menu.show();
-    }
-
-    private initSortContentMenu() {
-        this.sortContentMenu = new SortContentTabMenu();
-        this.sortContentMenu.show();
-        this.appendChildToHeader(this.sortContentMenu);
-
-        this.sortContentMenu.onSortOrderChanged(() => {
-            this.handleOnSortOrderChangedEvent();
-            this.saveButton.giveFocus();
-        });
-    }
-
-    private initSaveButtonWithAction() {
-        this.sortAction = new SaveSortedContentAction(this);
-
-        this.saveButton = this.addAction(this.sortAction);
-        this.saveButton.addClass('save-button');
-
-        this.sortAction.onExecuted(() => {
-            this.handleSortAction();
-        });
-    }
-
-    private populateContentPanel() {
-        let header = new api.dom.H6El();
-        header.setHtml(i18n('dialog.sort.preface'));
-        this.appendChildToContentPanel(header);
-        this.appendChildToContentPanel(this.contentGrid);
     }
 
     private handleSortAction() {

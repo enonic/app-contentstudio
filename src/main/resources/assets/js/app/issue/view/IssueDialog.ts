@@ -31,18 +31,27 @@ export abstract class IssueDialog
     protected constructor(title: string, showDependantList?: boolean) {
         super(<DependantItemsDialogConfig>{
             title: title,
-            showDependantList: showDependantList || false
+            showDependantList: showDependantList || false,
+            class: 'issue-dialog grey-header'
         });
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
 
-        this.getEl().addClass('issue-dialog grey-header');
+        this.form = new IssueDialogForm();
+    }
 
-        this.initForm();
+    protected postInitElements() {
+        super.postInitElements();
 
-        this.initActions();
+        this.getItemList().setCanBeEmpty(true);
+    }
 
-        this.initFormView();
+    protected initListeners() {
+        super.initListeners();
 
         this.onRendered(() => {
             this.publishProcessor.reloadPublishDependencies(true).then(() => {
@@ -52,7 +61,25 @@ export abstract class IssueDialog
             });
         });
 
-        this.getItemList().setCanBeEmpty(true);
+        this.form.onContentItemsAdded((items: ContentTreeSelectorItem[]) => {
+            const contents: ContentSummary[] = items.map(item => item.getContent());
+
+            this.addNewItemsHandler(contents);
+        });
+
+        this.form.onContentItemsRemoved((items: ContentTreeSelectorItem[]) => {
+
+            const contents: ContentSummary[] = items.map(item => item.getContent());
+
+            const filteredItems = this.getItemList().getItems().filter((oldItem: ContentSummaryAndCompareStatus) => {
+                return !ArrayHelper.contains(contents, oldItem.getContentSummary());
+            });
+
+            this.setListItems(filteredItems, true);
+
+            this.publishProcessor.reloadPublishDependencies(true);
+
+        });
 
         this.publishProcessor.onLoadingStarted(() => {
             this.loadMask.show();
@@ -86,13 +113,18 @@ export abstract class IssueDialog
                 this.newItems = [];
             });
         }, 100);
+
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.prependChildToContentPanel(this.form);
+
+            return rendered;
+        });
     }
 
     static get(): IssueDialog {
-        throw new Error('must be implemented in inheritors');
-    }
-
-    protected initActions() {
         throw new Error('must be implemented in inheritors');
     }
 
@@ -139,7 +171,7 @@ export abstract class IssueDialog
             this.reset();
         }
         if (this.opener) {
-            this.opener.removeClass('masked');
+            this.opener.unmask();
         }
 
         super.close();
@@ -148,34 +180,6 @@ export abstract class IssueDialog
     private addNewItemsHandler(items: ContentSummary[]) {
         this.newItems = this.newItems.concat(items);
         this.debouncedAddItems();
-    }
-
-    private initForm() {
-        this.form = new IssueDialogForm();
-
-        this.form.onContentItemsAdded((items: ContentTreeSelectorItem[]) => {
-            const contents: ContentSummary[] = items.map(item => item.getContent());
-
-            this.addNewItemsHandler(contents);
-        });
-
-        this.form.onContentItemsRemoved((items: ContentTreeSelectorItem[]) => {
-
-            const contents: ContentSummary[] = items.map(item => item.getContent());
-
-            const filteredItems = this.getItemList().getItems().filter((oldItem: ContentSummaryAndCompareStatus) => {
-                return !ArrayHelper.contains(contents, oldItem.getContentSummary());
-            });
-
-            this.setListItems(filteredItems, true);
-
-            this.publishProcessor.reloadPublishDependencies(true);
-
-        });
-    }
-
-    private initFormView() {
-        this.prependChildToContentPanel(this.form);
     }
 
     protected displayValidationErrors(value: boolean) {

@@ -2,7 +2,7 @@ import Form = api.ui.form.Form;
 import Fieldset = api.ui.form.Fieldset;
 import FormItem = api.ui.form.FormItem;
 import FormItemBuilder = api.ui.form.FormItemBuilder;
-import ConfirmationConfig = api.ui.dialog.ConfirmationConfig;
+import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 
 export class ModalDialogFormItemBuilder {
 
@@ -46,47 +46,53 @@ export class ModalDialogFormItemBuilder {
     }
 }
 
-export class HtmlAreaModalDialogConfig {
-
+export interface HtmlAreaModalDialogConfig
+    extends ModalDialogConfig {
     editor: CKEDITOR.editor;
 
     dialog?: any; // for cke backed dialogs
-
-    title: string;
-
-    cls?: string;
-
-    confirmation?: ConfirmationConfig;
 }
 
-export class ModalDialog
+export abstract class ModalDialog
     extends api.ui.dialog.ModalDialog {
-    private fields: { [id: string]: api.dom.FormItemEl } = {};
+    private fields: { [id: string]: api.dom.FormItemEl };
     private validated: boolean = false;
     private editor: CKEDITOR.editor;
     private mainForm: Form;
-    private firstFocusField: api.dom.Element;
-    private submitAction: api.ui.Action;
+    protected submitAction: api.ui.Action;
+    protected config: HtmlAreaModalDialogConfig;
 
     public static CLASS_NAME: string = 'html-area-modal-dialog';
 
-    constructor(config: HtmlAreaModalDialogConfig) {
+    protected constructor(config: HtmlAreaModalDialogConfig) {
+        super(config);
+    }
 
-        super(<api.ui.dialog.ModalDialogConfig>{title: config.title, confirmation: config.confirmation});
+    protected initElements() {
+        super.initElements();
 
-        this.editor = config.editor;
+        this.fields = {};
+        this.editor = this.config.editor;
+    }
 
-        this.initializeConfig(config);
-        this.createMainForm();
-        this.createElements();
+    protected postInitElements() {
+        super.postInitElements();
 
-        this.initializeActions();
-        this.initializeListeners();
+        this.mainForm = this.createForm(this.getMainFormItems());
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        if (this.submitAction) {
+            this.listenEnterKey();
+        }
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChildToContentPanel(this.mainForm);
+            this.getEl().addClass(ModalDialog.CLASS_NAME);
 
             return rendered;
         });
@@ -108,24 +114,8 @@ export class ModalDialog
         this.validated = true;
     }
 
-    protected setFirstFocusField(field: api.dom.Element) {
-        this.firstFocusField = field;
-    }
-
-    private focusFirstField() {
-        this.firstFocusField.giveFocus();
-    }
-
     protected getMainFormItems(): FormItem[] {
         return [];
-    }
-
-    protected createMainForm(): Form {
-        return this.mainForm = this.createForm(this.getMainFormItems());
-    }
-
-    protected createElements() {
-        //
     }
 
     protected validate(): boolean {
@@ -140,7 +130,7 @@ export class ModalDialog
     }
 
     protected createForm(formItems: FormItem[]): Form {
-        let form = new Form();
+        const form = new Form();
         let validationCls = api.form.FormView.VALIDATION_CLASS;
 
         formItems.forEach((formItem: FormItem) => {
@@ -246,10 +236,6 @@ export class ModalDialog
         return formItem;
     }
 
-    protected initializeActions() {
-        this.addCancelButtonToBottom();
-    }
-
     protected getFieldById(id: string): api.dom.FormItemEl {
         return this.fields[id];
     }
@@ -260,22 +246,6 @@ export class ModalDialog
             this.editor.focus();
         }
         this.remove();
-    }
-
-    protected initializeConfig(config: HtmlAreaModalDialogConfig) {
-        this.getEl().addClass(ModalDialog.CLASS_NAME + (config.cls ? ' ' + config.cls : ''));
-    }
-
-    private initializeListeners() {
-        if (this.submitAction) {
-            this.listenEnterKey();
-        }
-
-        this.onRendered(() => {
-            if (this.firstFocusField) {
-                this.focusFirstField();
-            }
-        });
     }
 
     private listenEnterKey() {

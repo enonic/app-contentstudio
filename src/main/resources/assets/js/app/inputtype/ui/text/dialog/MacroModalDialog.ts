@@ -13,6 +13,13 @@ import i18n = api.util.i18n;
 import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
 
+export interface MacroModalDialogConfig
+    extends HtmlAreaModalDialogConfig {
+    applicationKeys: ApplicationKey[];
+    selectedMacro: SelectedMacro;
+    content: ContentSummary;
+}
+
 export class MacroModalDialog
     extends ModalDialog {
 
@@ -26,13 +33,15 @@ export class MacroModalDialog
 
     private content: ContentSummary;
 
+    protected config: MacroModalDialogConfig;
+
     constructor(config: any, content: ContentSummary, applicationKeys: ApplicationKey[]) {
-        super(<HtmlAreaModalDialogConfig>{
+        super(<MacroModalDialogConfig>{
             editor: config.editor,
             title: i18n('dialog.macro.title'),
-            macro: config.macro,
+            selectedMacro: !!config.macro.name ? config.macro : null,
             applicationKeys: applicationKeys,
-            cls: 'macro-modal-dialog',
+            class: 'macro-modal-dialog macro-selector',
             content: content,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
@@ -40,19 +49,38 @@ export class MacroModalDialog
             }
         });
 
-        this.macroDockedPanel = this.createMacroDockedPanel();
-
-        this.addClass('macro-selector');
-        this.initMacroSelectorListeners();
-        this.initFieldsValues();
-
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.selectedMacro = this.config.selectedMacro;
+        this.applicationKeys = this.config.applicationKeys;
+        this.content = this.config.content;
+        this.macroDockedPanel = this.createMacroDockedPanel();
+        this.initFieldsValues();
+        this.setSubmitAction(new api.ui.Action(i18n('action.insert')));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.initMacroSelectorListeners();
         this.setupResizeListener();
+        this.submitAction.onExecuted(() => {
+            this.displayValidationErrors(true);
+            if (this.validate()) {
+                this.insertMacroIntoTextArea();
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChildToContentPanel(this.macroDockedPanel);
+            this.addAction(this.submitAction);
+            this.addCancelButtonToBottom();
 
             return rendered;
         });
@@ -75,14 +103,6 @@ export class MacroModalDialog
         ResponsiveManager.onAvailableSizeChanged(this, onResize);
     }
 
-    protected initializeConfig(config: any) {
-        super.initializeConfig(config);
-
-        this.selectedMacro = !!config.macro.name ? config.macro : null;
-        this.applicationKeys = config.applicationKeys;
-        this.content = config.content;
-    }
-
     private createMacroDockedPanel(): MacroDockedPanel {
         const macroDockedPanel: MacroDockedPanel = new MacroDockedPanel();
         macroDockedPanel.setContent(this.content);
@@ -93,7 +113,7 @@ export class MacroModalDialog
     protected getMainFormItems(): FormItem[] {
         this.macroFormItem = this.createMacroFormItem();
 
-        this.setFirstFocusField(this.macroFormItem.getInput());
+        this.setElementToFocusOnShow(this.macroFormItem.getInput());
 
         return [
             this.macroFormItem
@@ -177,20 +197,6 @@ export class MacroModalDialog
         }
 
         return data;
-    }
-
-    protected initializeActions() {
-        const submitAction = new api.ui.Action(i18n('action.insert'));
-        this.setSubmitAction(submitAction);
-
-        this.addAction(submitAction.onExecuted(() => {
-            this.displayValidationErrors(true);
-            if (this.validate()) {
-                this.insertMacroIntoTextArea();
-            }
-        }));
-
-        super.initializeActions();
     }
 
     private insertMacroIntoTextArea(): void {
