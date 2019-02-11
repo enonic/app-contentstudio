@@ -13,8 +13,8 @@ import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
-import {StylesRequest} from "../ui/text/styles/StylesRequest";
-import {Styles} from "../ui/text/styles/Styles";
+import {StylesRequest} from '../ui/text/styles/StylesRequest';
+import {Styles} from '../ui/text/styles/Styles';
 
 declare var CONFIG;
 
