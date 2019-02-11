@@ -6,37 +6,20 @@ import {Styles} from './styles/Styles';
 
 export class HTMLAreaHelper {
 
-    private static getConvertedImageSrc_old(imgSrc: string): string {
-        const contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
-        const aspectRatio = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'scale');
-        const filter = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'filter');
-
-        const imgUrl = new ImageUrlResolver()
-            .setContentId(new ContentId(contentId))
-            .setAspectRatio(aspectRatio)
-            .setFilter(filter)
-            .resolveForPreview();
-
-        return ` src="${imgUrl}" data-src="${imgSrc}"`;
-    }
-
-    private static getConvertedImageSrc(imgSrc: string): string {
-        const contentId = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
+    private static getConvertedImageSrc(imgSrc: string, contentId: string): string {
+        const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
-        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(contentId));
+        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId));
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();
         } else if (imgSrc.includes(styleParameter)) {
             const styleName = imgSrc.split(styleParameter)[1];
+            const style = Styles.getForImage(contentId).find(s => s.getName() === styleName);
 
-            if (Styles.getInstance()) {
-                const style = Styles.getForImage().find(s => s.getName() === styleName);
-
-                if (style) {
-                    imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
-                }
+            if (style) {
+                imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
             }
         }
 
@@ -45,7 +28,7 @@ export class HTMLAreaHelper {
         return ` src="${imgUrl}" data-src="${imgSrc}"`;
     }
 
-    public static extractContentIdFromImgSrc(imgSrc: string): string {
+    public static extractImageIdFromImgSrc(imgSrc: string): string {
         const prefix = imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER) ?
                        ImageUrlResolver.URL_PREFIX_RENDER : ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL;
 
@@ -56,15 +39,7 @@ export class HTMLAreaHelper {
         return imgSrc.replace(prefix, StringHelper.EMPTY_STRING);
     }
 
-    private static extractParamValueFromImgSrc(imgSrc: string, paramName: string): string {
-        if (imgSrc.indexOf(`${paramName}=`) !== -1) {
-            return api.util.UriHelper.decodeUrlParams(imgSrc.replace('&amp;', '&'))[paramName];
-        }
-
-        return null;
-    }
-
-    public static convertRenderSrcToPreviewSrc(value: string): string {
+    public static convertRenderSrcToPreviewSrc(value: string, contentId: string): string {
         let processedContent = value;
         let regex = /<img.*?src="(.*?)"/g;
         let imgSrcs;
@@ -81,7 +56,7 @@ export class HTMLAreaHelper {
                     if (imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER) ||
                         imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
                         processedContent =
-                            processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc));
+                            processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
                     }
                 });
             }

@@ -76,10 +76,7 @@ export class ImageModalDialog
 
         this.initPresetImage();
 
-        if (!Styles.getInstance()) {
-            new StylesRequest(content.getId()).sendAndParse();
-        }
-
+        StylesRequest.fetchStyles(content.getId());
     }
 
     private initPresetImage() {
@@ -145,7 +142,7 @@ export class ImageModalDialog
             throw new Error('Incorrectly formatted URL');
         }
 
-        const imageId = HTMLAreaHelper.extractContentIdFromImgSrc(src);
+        const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(src);
 
         if (!imageId) {
             throw new Error('Incorrectly formatted URL');
@@ -259,9 +256,7 @@ export class ImageModalDialog
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {
-            if (Styles.getInstance()) {
-                Styles.getCssPaths().forEach(cssPath => appendStylesheet(head, cssPath));
-            }
+            Styles.getCssPaths(this.content.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
         };
 
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
@@ -309,7 +304,7 @@ export class ImageModalDialog
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
-            this.imageToolbar = new ImageDialogToolbar(this.figure);
+            this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
             this.imageToolbar.onPreviewSizeChanged(() => this.adjustPreviewFrameHeight());
 
@@ -620,6 +615,8 @@ export class ImageModalDialogConfig
 export class ImageDialogToolbar
     extends api.ui.toolbar.Toolbar {
 
+    private contentId: string;
+
     private previewEl: api.dom.FigureEl;
 
     private alignmentButtons: { [key: string]: ActionButton; } = {};
@@ -637,10 +634,11 @@ export class ImageDialogToolbar
     private stylesChangeListeners: { (styles: string): void }[] = [];
     private previewSizeChangeListeners: { (): void }[] = [];
 
-    constructor(previewEl: api.dom.FigureEl) {
+    constructor(previewEl: api.dom.FigureEl, contentId: string) {
         super('image-toolbar');
 
         this.previewEl = previewEl;
+        this.contentId = contentId;
 
         this.createElements();
     }
@@ -782,7 +780,7 @@ export class ImageDialogToolbar
     }
 
     private createImageStyleSelector(): ImageStyleSelector {
-        const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
+        const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector(this.contentId);
 
         this.initSelectedStyle(imageStyleSelector);
         imageStyleSelector.onOptionSelected(() => {
@@ -808,7 +806,7 @@ export class ImageDialogToolbar
             return;
         }
 
-        const imageStyles = Styles.getForImageAsString();
+        const imageStyles = Styles.getForImageAsString(this.contentId);
         stylesApplied.forEach(style => {
             if (imageStyles.indexOf(style) > -1) {
                 imageStyleSelector.setValue(style);

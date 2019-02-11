@@ -14,7 +14,6 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
-import {Styles} from '../ui/text/styles/Styles';
 
 declare var CONFIG;
 
@@ -73,26 +72,14 @@ export class HtmlArea
         return super.newInitialValue() || ValueTypes.STRING.newValue('');
     }
 
-    private getStyles(): wemQ.Promise<void> {
-
-        const deferred = wemQ.defer<void>();
-
-        if (!Styles.getInstance()) {
-
-            new StylesRequest(this.content.getId()).sendAndParse().then(() => deferred.resolve(null));
-        }
-
-        return deferred.promise;
-    }
-
     createInputOccurrenceElement(index: number, property: Property): api.dom.Element {
         if (!ValueTypes.STRING.equals(property.getType())) {
             property.convertValueType(ValueTypes.STRING);
         }
 
         const textAreaEl = new api.ui.text.TextArea(this.getInput().getName() + '-' + index);
-        this.getStyles().then(() => {
-            const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString());
+        StylesRequest.fetchStyles(this.content.getId()).then(() => {
+            const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId());
             textAreaEl.setValue(value, true, false);
         });
 
@@ -378,7 +365,8 @@ export class HtmlArea
     }
 
     private setEditorContent(editorId: string, property: Property): void {
-        const content: string = property.hasNonNullValue() ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString()) : '';
+        const content: string = property.hasNonNullValue() ?
+                                    HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
         if (HtmlEditor.exists(editorId)) {
             HtmlEditor.setData(editorId, content);

@@ -814,11 +814,6 @@ class HtmlEditorConfigBuilder {
     private createConfig(): wemQ.Promise<CKEDITOR.config> {
 
         const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
-        const injectCssIntoConfig = () => {
-            if (Styles.getInstance()) {
-                config.contentsCss = contentsCss.concat(Styles.getCssPaths());
-            }
-        };
 
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
@@ -851,20 +846,21 @@ class HtmlEditorConfigBuilder {
         config['qtRows'] = 10; // Count of rows
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
+/*
+        if (Styles.getInstance(this.editorParams.getContent().getId())) {
+            injectCssIntoConfig();
+            return wemQ(config);
+        }
+*/
+        const deferred = wemQ.defer<CKEDITOR.config>();
 
-        if (Styles.getInstance()) {
-            if (this.editorParams.isCustomStylesToBeUsed()) { // inline mode
-                injectCssIntoConfig();
-            }
+        if (!this.editorParams.isCustomStylesToBeUsed()) {
+            //inline mode
             return wemQ(config);
         }
 
-        const deferred = wemQ.defer<CKEDITOR.config>();
-
-        new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then((response) => {
-            if (this.editorParams.isCustomStylesToBeUsed()) { // inline mode
-                injectCssIntoConfig();
-            }
+        new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then(() => {
+            config.contentsCss = contentsCss.concat(Styles.getCssPaths(this.editorParams.getContent().getId()));
             deferred.resolve(config);
         });
 
