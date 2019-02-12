@@ -687,14 +687,6 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
-            if (isMobile) {
-                contentPublishMenuButton.minimize();
-            } else {
-                contentPublishMenuButton.maximize();
-            }
-        });
-
         this.treeGrid.onSelectionChanged(
             (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
              highlighted: boolean) => {

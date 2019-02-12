@@ -337,16 +337,12 @@ export class ContentWizardPanel
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();
-            const contentPublishMenuButton = mainToolbar.getContentWizardToolbarPublishControls().getPublishButton();
             const toggler = mainToolbar.getMobileItemStatisticsToggler();
             this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
                 if (!isMobile) {
-                    contentPublishMenuButton.maximize();
                     if (toggler.isActive()) {
                         toggler.setActive(false);
                     }
-                } else {
-                    contentPublishMenuButton.minimize();
                 }
             });
 
