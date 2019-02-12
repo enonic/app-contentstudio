@@ -8,6 +8,7 @@ export class ImageUrlResolver
     static readonly URL_PREFIX_PREVIEW: string = 'content/image/';
     static readonly URL_PREFIX_RENDER: string = 'image://';
     static readonly URL_PREFIX_RENDER_ORIGINAL: string = 'media://';
+    static readonly DEFAULT_IMAGE_SIZE: number = 768;
 
     private contentId: ContentId;
 
@@ -30,6 +31,11 @@ export class ImageUrlResolver
 
     setSize(value: number): ImageUrlResolver {
         this.size = Math.floor(value);
+        return this;
+    }
+
+    setDefaultSize(): ImageUrlResolver {
+        this.size = ImageUrlResolver.DEFAULT_IMAGE_SIZE;
         return this;
     }
 

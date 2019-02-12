@@ -14,12 +14,16 @@ export class HTMLAreaHelper {
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();
-        } else if (imgSrc.includes(styleParameter)) {
-            const styleName = imgSrc.split(styleParameter)[1];
-            const style = Styles.getForImage(contentId).find(s => s.getName() === styleName);
+        } else {
+            imageUrlResolver.setDefaultSize();
 
-            if (style) {
-                imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
+            if (imgSrc.includes(styleParameter)) {
+                const styleName = imgSrc.split(styleParameter)[1];
+                const style = Styles.getForImage(contentId).find(s => s.getName() === styleName);
+
+                if (style) {
+                    imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
+                }
             }
         }
 

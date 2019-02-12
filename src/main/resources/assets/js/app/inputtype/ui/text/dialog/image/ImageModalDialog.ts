@@ -289,7 +289,11 @@ export class ImageModalDialog
     }
 
     private adjustPreviewFrameHeight() {
-        this.previewFrame.getEl().setHeightPx(this.figure.getImage().getEl().getHeight());
+        const imageHeight = this.figure.getImage().getEl().getHeight();
+        if (imageHeight === 0) {
+            return;
+        }
+        this.previewFrame.getEl().setHeightPx(imageHeight);
     }
 
     private previewImage(imageContent: ContentSummary, presetStyles?: string) {
