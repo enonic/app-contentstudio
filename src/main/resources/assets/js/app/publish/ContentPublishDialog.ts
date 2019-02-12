@@ -1,4 +1,4 @@
-import {isContentSummaryValid, PublishDialogDependantList} from './PublishDialogDependantList';
+import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
@@ -143,15 +143,7 @@ export class ContentPublishDialog
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        let dependants = new PublishDialogDependantList();
-
-        dependants.onItemClicked((item: ContentSummaryAndCompareStatus) => {
-            if (!isContentSummaryValid(item)) {
-                this.close();
-            }
-        });
-
-        return dependants;
+        return new PublishDialogDependantList();
     }
 
     protected getDependantList(): PublishDialogDependantList {
