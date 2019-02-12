@@ -271,7 +271,7 @@ export class ContentSelector
         this.updateSelectedOptionStyle();
     }
 
-    private handleMove(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
+    protected handleMove(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
         this.getPropertyArray().move(fromIndex, moved.getIndex());
     }
 
