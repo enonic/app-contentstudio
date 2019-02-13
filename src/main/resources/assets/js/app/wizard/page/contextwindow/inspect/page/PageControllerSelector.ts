@@ -1,4 +1,3 @@
-import '../../../../../../api.ts';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageDescriptorDropdown} from './PageDescriptorDropdown';
 import {PageModel} from '../../../../../../page-editor/PageModel';
@@ -6,6 +5,7 @@ import PropertyChangedEvent = api.PropertyChangedEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import DescriptorKey = api.content.page.DescriptorKey;
 import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
+import i18n = api.util.i18n;
 
 export class PageControllerSelector
     extends PageDescriptorDropdown {
@@ -41,8 +41,7 @@ export class PageControllerSelector
 
     protected handleOptionSelected(event: api.ui.selector.OptionSelectedEvent<api.content.page.PageDescriptor>) {
         new api.ui.dialog.ConfirmationDialog()
-            .setQuestion(
-                'Changing a page controller will result in losing changes made to the page. Are you sure?')
+            .setQuestion(i18n('dialog.controller.change'))
             .setNoCallback(() => {
                 this.selectOption(event.getPreviousOption(), true); // reverting selection back
                 this.resetActiveSelection();

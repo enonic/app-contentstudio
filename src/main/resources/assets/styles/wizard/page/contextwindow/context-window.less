@@ -52,6 +52,7 @@
       &.page-controller-form,
       &.descriptor-based-dropdown-form,
       &.page-template-form,
+      &.page-template-and-controller-form,
       &.image-combobox-form,
       &.fragment-dropdown-form {
         margin-top: 0;
@@ -66,7 +67,8 @@
         }
       }
 
-      &.page-controller-form, &.fragment-dropdown-form {
+      &.page-template-and-controller-form,
+      &.fragment-dropdown-form {
         text-align: center; // to center the button
 
         fieldset + button {
@@ -144,7 +146,11 @@
     }
   }
 
-  .page-controller-form, .descriptor-based-dropdown-form, .page-template-form, .fragment-dropdown-form {
+  .page-controller-form,
+  .descriptor-based-dropdown-form,
+  .page-template-form,
+  .page-template-and-controller-form,
+  .fragment-dropdown-form {
     background-color: @admin-context-bg-grey-opal;
   }
 

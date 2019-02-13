@@ -1,24 +1,12 @@
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {PageTemplateDisplayName} from '../../../../../page/PageMode';
+import {TemplateOrControllerOption} from './TemplateOrControllerOption';
 
-export class PageTemplateOption implements api.Equitable {
-
-    private template: PageTemplate;
-
-    constructor(template?: PageTemplate) {
-        this.template = template;
-    }
-
-    getPageTemplate(): PageTemplate {
-        return this.template;
-    }
+export class PageTemplateOption
+    extends TemplateOrControllerOption<PageTemplate> {
 
     isCustom(): boolean {
-        return this.template && this.template.getDisplayName() === PageTemplateDisplayName[PageTemplateDisplayName.Custom];
-    }
-
-    isAuto(): boolean {
-        return !this.template;
+        return this.getData() && this.getData().getDisplayName() === PageTemplateDisplayName[PageTemplateDisplayName.Custom];
     }
 
     equals(o: api.Equitable): boolean {
@@ -33,6 +21,6 @@ export class PageTemplateOption implements api.Equitable {
             return true;
         }
 
-        return api.ObjectHelper.equals(this.template, other.getPageTemplate());
+        return api.ObjectHelper.equals(this.getData(), other.getData());
     }
 }

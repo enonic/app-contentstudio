@@ -20,17 +20,17 @@ export class PageTemplateOptionViewer extends api.ui.NamesAndIconViewer<PageTemp
     resolveDisplayName(object: PageTemplateOption): string {
         let pageTemplateDisplayName = PageTemplateDisplayName;
 
-        return !!object.getPageTemplate() ?
-               (object.isCustom() ? pageTemplateDisplayName[pageTemplateDisplayName.Custom] : object.getPageTemplate().getDisplayName())
-            : pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
+        return !!object.getData() ?
+               (object.isCustom() ? pageTemplateDisplayName[pageTemplateDisplayName.Custom] : object.getData().getDisplayName())
+                                  : pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
     }
 
     resolveSubName(object: PageTemplateOption, relativePath: boolean = false): string {
-        if (!!object.getPageTemplate()) {
+        if (!object.isAuto()) {
             if (object.isCustom()) {
                 return i18n('field.page.template.help');
             }
-            return object.getPageTemplate().getPath().toString();
+            return object.getData().getPath().toString();
         }
 
         if (this.defaultPageTemplate) {
@@ -41,7 +41,7 @@ export class PageTemplateOptionViewer extends api.ui.NamesAndIconViewer<PageTemp
     }
 
     resolveIconClass(object: PageTemplateOption): string {
-        let iconClass = !!object.getPageTemplate() ? (object.isCustom() ? 'icon-cog' : 'icon-newspaper') : 'icon-wand';
+        const iconClass = object.isAuto() ? 'icon-wand' : (object.isCustom() ? 'icon-cog' : 'icon-page-template');
 
         return iconClass + ' icon-large';
     }
