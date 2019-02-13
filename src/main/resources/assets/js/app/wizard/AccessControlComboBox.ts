@@ -71,6 +71,14 @@ class ACESelectedOptionsView
     private selectedOptionRemovedListeners: { (removed: SelectedOptionEvent<AccessControlEntry>): void; }[] = [];
     private selectedOptionAddedListeners: { (added: SelectedOptionEvent<AccessControlEntry>): void; }[] = [];
 
+    constructor() {
+        super();
+
+        this.setSortItemViewsFunc((a: AccessControlEntry, b: AccessControlEntry) => {
+            return a.getPrincipal().getDisplayName().localeCompare(b.getPrincipal().getDisplayName());
+        });
+    }
+
     setReadonly(readonly: boolean) {
         this.getSelectedOptions().forEach((option: SelectedOption<AccessControlEntry>) => {
             option.getOptionView().setReadonly(readonly);
