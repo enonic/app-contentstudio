@@ -26,8 +26,6 @@ export class HtmlEditor {
 
     private editor: CKEDITOR.editor;
 
-    private static readonly imgInlineStyle: string = 'max-height:100%; max-width:100%; width:100%';
-
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
@@ -92,7 +90,6 @@ export class HtmlEditor {
             setTimeout(() => {
                 rootElement.find('figure').toArray().forEach((figure: CKEDITOR.dom.element) => {
                     HtmlEditor.updateFigureInlineStyle(figure);
-                    HtmlEditor.updateImageInlineStyle(figure);
                     HtmlEditor.sortFigureClasses(figure);
                 });
             }, 1);
@@ -140,7 +137,6 @@ export class HtmlEditor {
     // Wrapping dropped image into figure element
     private handleImageDropped() {
         const editor = this.editor;
-        const imgInlineStyle = HtmlEditor.imgInlineStyle;
 
         this.editor.on('instanceReady', function () {
             (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
@@ -148,7 +144,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}" style="${imgInlineStyle}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
@@ -387,15 +383,11 @@ export class HtmlEditor {
         if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) { // Left Aligned
             figure.setStyles({
                 float: 'left',
-                'margin-bottom': '0',
-                'margin-top': '0',
                 width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) { // Right Aligned
             figure.setStyles({
                 float: 'right',
-                'margin-bottom': '0',
-                'margin-top': '0',
                 width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) { // Center Aligned
@@ -411,14 +403,6 @@ export class HtmlEditor {
     public static sortFigureClasses(figure: CKEDITOR.dom.element) {
         const classes: string[] = figure.$.className.split(' ').sort();
         figure.$.className = classes.join(' ');
-    }
-
-    public static updateImageInlineStyle(figure: CKEDITOR.dom.element) {
-        const img: CKEDITOR.dom.element = figure.findOne('img');
-
-        if (img) {
-            img.setAttribute('style', HtmlEditor.imgInlineStyle);
-        }
     }
 
     private handleNativeNotifications() {
@@ -846,12 +830,7 @@ class HtmlEditorConfigBuilder {
         config['qtRows'] = 10; // Count of rows
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
-/*
-        if (Styles.getInstance(this.editorParams.getContent().getId())) {
-            injectCssIntoConfig();
-            return wemQ(config);
-        }
-*/
+
         const deferred = wemQ.defer<CKEDITOR.config>();
 
         if (!this.editorParams.isCustomStylesToBeUsed()) {

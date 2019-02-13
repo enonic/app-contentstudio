@@ -337,18 +337,18 @@ export class ImageModalDialog
 
 
     private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
-
+        const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
         const imgUrlResolver = new ImageUrlResolver()
             .setContentId(imageContent.getContentId())
             .setTimestamp(imageContent.getModifiedTime());
 
-        if (size) {
+        if (size && !isOriginalImage) {
             imgUrlResolver.setSize(size);
         }
 
         if (style) {
 
-            if (StyleHelper.isOriginalImage(style.getName())) {
+            if (isOriginalImage) {
                 imgUrlResolver.disableProcessing();
             }
 
@@ -513,7 +513,6 @@ export class ImageModalDialog
         imageEl.removeAttribute('style');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
-        HtmlEditor.updateImageInlineStyle(figureEl);
 
         figureCaptionEl.setText(this.getCaptionFieldValue());
     }
