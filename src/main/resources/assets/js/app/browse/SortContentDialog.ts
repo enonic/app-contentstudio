@@ -29,7 +29,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     private gridDragHandler: ContentGridDragHandler;
 
-    private isOpen: boolean;
+    private gridLoadedHandler: () => void;
 
     private saveButton: DialogButton;
 
@@ -59,23 +59,18 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.addCancelButtonToBottom();
     }
 
-    open() {
-        if (!this.isOpen) {
-            this.contentGrid.getGrid().resizeCanvas();
-            super.open();
-            this.isOpen = true;
-        }
-    }
-
     show() {
+        this.contentGrid.getGrid().resizeCanvas();
         super.show();
+        this.contentGrid.onLoaded(this.gridLoadedHandler);
+        this.contentGrid.reload(this.parentContent);
         this.sortContentMenu.focus();
     }
 
     close() {
         this.remove();
+        this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
-        this.isOpen = false;
         this.contentGrid.setChildOrder(null);
         this.gridDragHandler.clearContentMovements();
     }
@@ -87,13 +82,10 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     private initSortContentGrid() {
         this.contentGrid = new SortContentTreeGrid();
         this.contentGrid.getEl().addClass('sort-content-grid');
-        this.contentGrid.onLoaded(() => {
+        this.gridLoadedHandler = () => {
             this.notifyResize();
             this.contentGrid.render(true);
-            if (this.contentGrid.getContentId()) {
-                this.open();
-            }
-        });
+        };
     }
 
     private initGridDragHandler() {
@@ -166,7 +158,6 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.prevChildOrder = null;
         this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
 
-        this.contentGrid.reload(this.parentContent);
         if (!this.parentContent.hasChildren()) {
             this.contentGrid.getEl().setAttribute('data-content', event.getContent().getPath().toString());
             this.contentGrid.addClass('no-content');
@@ -174,6 +165,8 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
             this.contentGrid.removeClass('no-content');
             this.contentGrid.getEl().removeAttribute('data-content');
         }
+
+        this.open();
     }
 
     private handleOnSortOrderChangedEvent() {
