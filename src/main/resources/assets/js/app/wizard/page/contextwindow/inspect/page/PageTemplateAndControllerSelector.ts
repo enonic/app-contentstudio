@@ -11,6 +11,7 @@ import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './
 import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {PageControllerOption} from './PageControllerOption';
 import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
+import {PageMode} from '../../../../../page/PageMode';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import Option = api.ui.selector.Option;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
@@ -38,7 +39,8 @@ export class PageTemplateAndControllerSelector
 
         this.liveEditModel = liveEditModel;
 
-        if (liveEditModel.getPageModel().isPageTemplate()) {
+        const pageModel = liveEditModel.getPageModel();
+        if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
             this.autoOption = {value: '__auto__', displayValue: new PageTemplateOption()};
         }
 

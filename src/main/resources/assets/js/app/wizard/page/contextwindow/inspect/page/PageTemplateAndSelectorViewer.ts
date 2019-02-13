@@ -45,7 +45,7 @@ export class PageTemplateAndSelectorViewer
         let iconClass = '';
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
-            iconClass = !!object.getData() ? ((<PageTemplateOption>object).isCustom() ? 'icon-cog' : 'icon-newspaper') : 'icon-wand';
+            iconClass = object.getData() ? ((<PageTemplateOption>object).isCustom() ? 'icon-cog' : 'icon-page-template') : 'icon-wand';
             return iconClass + ' icon-large';
         }
 
