@@ -86,15 +86,19 @@ export class PageTemplateAndControllerSelector
                 return;
             }
 
-            // From controller to template
+            // Selection type changes:
+            // controller -> template
             if (!previousIsTemplate && selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectTemplate(<PageTemplateOption>selectedOption);
                 this.openConfirmationDialog(i18n('dialog.template.change'), event, selectionHandler);
+                // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
                 this.doSelectTemplate(<PageTemplateOption>selectedOption);
+                // controller -> controller
             } else if (!previousIsTemplate && !selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectController(<PageControllerOption>selectedOption);
                 this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
+                // template -> controller
             } else {
                 this.doSelectController(<PageControllerOption>selectedOption);
             }
@@ -213,14 +217,6 @@ export class PageTemplateAndControllerSelector
         return deferred.promise;
     }
 
-    // protected createOption(option: PageTemplateAndControllerOption): Option<PageTemplateAndControllerOption> {
-    //     const isTemplate = api.ObjectHelper.iFrameSafeInstanceOf(option, PageTemplateOption);
-    //
-    //     return isTemplate ?
-    //            PageTemplateAndControllerSelector.createTemplateOption((<PageTemplateOption>option).getData()) :
-    //            PageTemplateAndControllerSelector.createControllerOption((<PageControllerOption>option).getData());
-    // }
-
     private static createTemplateOption(data: PageTemplate): Option<PageTemplateOption> {
         const value = data.getId().toString();
         const displayValue = new PageTemplateOption(data);
@@ -297,150 +293,4 @@ export class PageTemplateAndControllerSelector
             this.selectOption(optionToSelect, true);
         }
     }
-
-    /*
-    private loadedDataListeners: { (event: LoadedDataEvent<PageTemplateAndControllerOption>): void }[];
-
-    private liveEditModel: LiveEditModel;
-
-    constructor(liveEditModel: LiveEditModel) {
-        const optionViewer = new PageTemplateAndSelectorViewer(liveEditModel.getPageModel().getDefaultPageTemplate());
-
-        super({
-            optionDisplayValueViewer: optionViewer,
-            dataIdProperty: 'value'
-        }, 'page-controller');
-
-        this.loadedDataListeners = [];
-        this.liveEditModel = model;
-
-        this.initListeners();
-
-        const pageModel: PageModel = model.getPageModel();
-
-        this.onLoadedData((event: LoadedDataEvent<PageDescriptor>) => {
-
-            if (pageModel.hasController() && pageModel.getController().getKey().toString() !== this.getValue()) {
-                this.selectController(pageModel.getController().getKey());
-            }
-        });
-
-        pageModel.onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && this !== event.getSource()) {
-                let descriptorKey = <DescriptorKey>event.getNewValue();
-                if (descriptorKey) {
-                    this.selectController(descriptorKey);
-                }
-                // TODO: Change class to extend a PageDescriptorComboBox instead, since we then can deselect.
-            }
-        });
-
-        pageModel.onReset(() => {
-            this.reset();
-        });
-
-        this.load();
-    }
-
-    protected handleOptionSelected(event: api.ui.selector.OptionSelectedEvent<api.content.page.PageDescriptor>) {
-        new api.ui.dialog.ConfirmationDialog()
-            .setQuestion(i18n('dialog.controller.change'))
-            .setNoCallback(() => {
-                this.selectOption(event.getPreviousOption(), true); // reverting selection back
-                this.resetActiveSelection();
-            })
-            .setYesCallback(() => {
-                super.handleOptionSelected(event);
-            }).open();
-    }
-
-    private selectController(descriptorKey: DescriptorKey) {
-
-        let optionToSelect = this.getOptionByValue(descriptorKey.toString());
-        if (optionToSelect) {
-            this.selectOption(optionToSelect, true);
-        }
-    }
-
-    load() {
-        (<PageDescriptorLoader>this.loader).setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
-
-        super.load();
-    }
-
-    protected createLoader(): PageDescriptorLoader {
-        return new PageDescriptorLoader();
-    }
-
-    handleLoadedData(event: LoadedDataEvent<PageDescriptor>) {
-        super.handleLoadedData(event);
-        this.notifyLoadedData(event);
-    }
-
-    private initListeners() {
-        this.onOptionSelected(this.handleOptionSelected.bind(this));
-
-        let onApplicationAddedHandler = () => {
-            this.load();
-        };
-
-        let onApplicationRemovedHandler = (event: ApplicationRemovedEvent) => {
-
-            let currentController = this.liveEditModel.getPageModel().getController();
-            let removedApp = event.getApplicationKey();
-            if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {
-                // no need to load as current controller's app was removed
-                this.liveEditModel.getPageModel().reset();
-            } else {
-                this.load();
-            }
-        };
-
-        this.liveEditModel.getSiteModel().onApplicationAdded(onApplicationAddedHandler);
-
-        this.liveEditModel.getSiteModel().onApplicationRemoved(onApplicationRemovedHandler);
-
-        this.onRemoved(() => {
-            this.liveEditModel.getSiteModel().unApplicationAdded(onApplicationAddedHandler);
-            this.liveEditModel.getSiteModel().unApplicationRemoved(onApplicationRemovedHandler);
-        });
-    }
-
-    protected handleOptionSelected(event: api.ui.selector.OptionSelectedEvent<api.content.page.PageDescriptor>) {
-        let pageDescriptor = event.getOption().displayValue;
-        let setController = new SetController(this).setDescriptor(pageDescriptor);
-        this.liveEditModel.getPageModel().setController(setController);
-    }
-
-    onLoadedData(listener: (event: LoadedDataEvent<PageDescriptor>) => void) {
-        this.loadedDataListeners.push(listener);
-    }
-
-    unLoadedData(listener: (event: LoadedDataEvent<PageDescriptor>) => void) {
-        this.loadedDataListeners =
-            this.loadedDataListeners.filter((currentListener: (event: LoadedDataEvent<PageDescriptor>) => void) => {
-                return currentListener !== listener;
-            });
-    }
-
-    private notifyLoadedData(event: LoadedDataEvent<PageDescriptor>) {
-        this.loadedDataListeners.forEach((listener: (event: LoadedDataEvent<PageDescriptor>) => void) => {
-            listener.call(this, event);
-        });
-    }
-
-    protected createOption(descriptor: DESCRIPTOR): Option<DESCRIPTOR> {
-        let indices: string[] = [];
-        indices.push(descriptor.getDisplayName());
-        indices.push(descriptor.getName().toString());
-
-        let option = <Option<DESCRIPTOR>>{
-            value: descriptor.getKey().toString(),
-            displayValue: descriptor,
-            indices: indices
-        };
-
-        return option;
-    }
-*/
 }

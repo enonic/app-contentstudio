@@ -5,14 +5,12 @@ import {PageModel} from '../../../../../../page-editor/PageModel';
 import {PageMode} from '../../../../../page/PageMode';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
-import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import PropertyTree = api.data.PropertyTree;
 import FormContextBuilder = api.form.FormContextBuilder;
 import FormView = api.form.FormView;
 import FormContext = api.form.FormContext;
 import PageDescriptor = api.content.page.PageDescriptor;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
 
@@ -46,9 +44,8 @@ export class PageInspectionPanel
 
         this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector(this.liveEditModel);
         this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
-        // TODO: On option selected
         this.pageTemplateAndControllerForm.onShown(() => this.saveAsTemplateAction.updateVisibility());
-        this.pageTemplateAndControllerSelector.onOptionSelected((event: OptionSelectedEvent<PageTemplateAndControllerOption>) => {
+        this.pageTemplateAndControllerSelector.onOptionSelected(() => {
             this.saveAsTemplateAction.updateVisibility();
         });
         this.appendChild(this.pageTemplateAndControllerForm);
