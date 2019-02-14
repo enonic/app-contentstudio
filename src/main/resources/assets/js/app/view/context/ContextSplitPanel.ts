@@ -68,9 +68,10 @@ export class ContextSplitPanel
 
     private renderAfterDockedPanelReady() {
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        const wizardPanel: Panel = this.isInsideWizard() ? <Panel>(<SplitPanel>this.leftPanel).getFirstChild() : null;
-        nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-        nonMobileContextPanelsManagerBuilder.setWizardPanel(wizardPanel);
+        if (this.isInsideWizard()) {
+            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
+            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+        }
         this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
         this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
         if (this.isInsideWizard()) {
