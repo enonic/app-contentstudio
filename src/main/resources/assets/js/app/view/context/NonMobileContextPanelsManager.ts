@@ -27,8 +27,8 @@ export class NonMobileContextPanelsManager {
             }
         });
 
-        InspectEvent.on(() => {
-            if (this.requiresAnimation() && !this.isExpanded()) {
+        InspectEvent.on((event: InspectEvent) => {
+            if (event.isShowPanel() && this.requiresAnimation() && !this.isExpanded()) {
                 this.doPanelAnimation();
             }
         });

@@ -71,8 +71,8 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         return this.fixed;
     }
 
-    public showInspectionPanel(panel: BaseInspectionPanel) {
-        new InspectEvent().fire();
+    public showInspectionPanel(panel: BaseInspectionPanel, showPanel?: boolean) {
+        new InspectEvent(showPanel).fire();
         setTimeout(() => {
             this.inspectionsPanel.showInspectionPanel(panel);
             if (this.inspectTab) {

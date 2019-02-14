@@ -761,8 +761,8 @@ export class LiveFormPanel
         }
     }
 
-    private inspectPage() {
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel);
+    private inspectPage(showPanel?: boolean) {
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, showPanel);
     }
 
     private clearSelection(): void {
@@ -776,11 +776,11 @@ export class LiveFormPanel
         }
     }
 
-    clearPageViewSelectionAndOpenInspectPage() {
+    clearPageViewSelectionAndOpenInspectPage(showPanel?: boolean) {
         if (this.pageView && this.pageView.hasSelectedView()) {
             this.pageView.getSelectedView().deselect();
         }
-        this.inspectPage();
+        this.inspectPage(showPanel);
     }
 
     private inspectRegion(regionView: RegionView) {

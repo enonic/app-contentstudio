@@ -1487,7 +1487,7 @@ export class ContentWizardPanel
 
         if (this.isSplitEditModeActive()) {
             this.wizardActions.getShowSplitEditAction().execute();
-        } else if (!!this.getSplitPanel()) {
+        } else if (this.getSplitPanel()) {
             this.wizardActions.getShowFormAction().execute();
         }
         if (editorEnabled) {
@@ -2122,7 +2122,7 @@ export class ContentWizardPanel
         }
 
         this.getSplitPanel().showSecondPanel();
-        livePanel.clearPageViewSelectionAndOpenInspectPage();
+        livePanel.clearPageViewSelectionAndOpenInspectPage(false);
         this.showMinimizeEditButton();
     }
 
