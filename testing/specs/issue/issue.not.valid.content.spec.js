@@ -12,7 +12,7 @@ const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
-
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('issue.not.valid.content.spec: create an issue with not valid content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -22,7 +22,10 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
     it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         () => {
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_2_NAME).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                return contentBrowsePanel.waitForPublishButtonVisible();
+            }).then(()=>{
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(() => {

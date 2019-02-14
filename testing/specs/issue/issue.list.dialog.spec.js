@@ -11,7 +11,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
 
-describe('issue.list.dialog.spec: Issue List Dialog specification', function () {
+describe('issue.list.dialog.spec: Issue List modal Dialog specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
