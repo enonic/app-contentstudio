@@ -8,7 +8,6 @@ import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAnd
 import ContentId = api.content.ContentId;
 import BrowseItem = api.app.browse.BrowseItem;
 import ListBox = api.ui.selector.list.ListBox;
-import LoadMask = api.ui.mask.LoadMask;
 import DialogButton = api.ui.dialog.DialogButton;
 import DivEl = api.dom.DivEl;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
@@ -45,8 +44,6 @@ export abstract class DependantItemsDialog
 
     private dependantsHeaderText: string;
 
-    protected loadMask: LoadMask;
-
     protected loading: boolean = false;
 
     protected loadingRequested: boolean = false;
@@ -69,7 +66,6 @@ export abstract class DependantItemsDialog
         this.subTitle = new api.dom.H6El('sub-title').setHtml(this.config.dialogSubName, false);
 
         this.itemList = this.createItemList();
-        this.itemList.addClass('item-list');
         this.dependantsHeaderText = this.config.dependantsName || this.getDependantsHeader(this.config.showDependantList);
         this.dependantContainerHeader = new api.dom.H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
         this.dependantContainerBody = new api.dom.DivEl('dependants-body');
@@ -80,7 +76,6 @@ export abstract class DependantItemsDialog
         }
 
         this.dependantsContainer = new api.dom.DivEl('dependants');
-        this.loadMask = new LoadMask(this.getContentPanel());
     }
 
     protected initListeners() {
@@ -127,6 +122,7 @@ export abstract class DependantItemsDialog
         return super.doRender().then((rendered: boolean) => {
             this.addClass('dependant-dialog');
             this.getBody().addClass('mask-wrapper');
+            this.itemList.addClass('item-list');
             this.appendChildToHeader(this.subTitle);
             this.appendChildToContentPanel(this.itemList);
 
@@ -189,17 +185,7 @@ export abstract class DependantItemsDialog
     show(hideLoadMask: boolean = false) {
         this.setDependantListVisible(this.showDependantList);
         super.show();
-        if (!hideLoadMask) {
-            this.appendChildToContentPanel(this.loadMask);
-            if (this.isRendered()) {
-                this.loadMask.show();
-            } else {
-                this.onRendered(() => {
-                    this.loadMask.show();
-                });
-            }
-
-        }
+        this.showLoadMask();
     }
 
     close(clearItems: boolean = true) {
@@ -211,6 +197,18 @@ export abstract class DependantItemsDialog
         }
         this.dependantsContainer.setVisible(false);
         this.unlockControls();
+    }
+
+    protected showLoadMask() {
+        if (this.isRendered()) {
+            this.loadMask.show();
+        } else {
+            const renderedListener: () => void = () => {
+                this.loadMask.show();
+                this.unRendered(renderedListener);
+            };
+            this.onRendered(renderedListener);
+        }
     }
 
     setAutoUpdateTitle(value: boolean) {

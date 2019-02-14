@@ -22,14 +22,16 @@ export class ContentUnpublishDialog
                 },
             }
         );
-
-        this.lockControls();
     }
 
     protected initElements() {
         super.initElements();
 
         this.actionButton = this.addAction(new ContentUnpublishDialogAction(), true, true);
+    }
+
+    protected postInitElements() {
+        this.lockControls();
     }
 
     protected initListeners() {

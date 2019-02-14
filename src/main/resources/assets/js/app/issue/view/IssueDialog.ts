@@ -83,6 +83,7 @@ export abstract class IssueDialog
 
         this.publishProcessor.onLoadingStarted(() => {
             this.loadMask.show();
+            this.lockControls();
         });
 
         this.publishProcessor.onLoadingFinished(() => {
@@ -90,6 +91,7 @@ export abstract class IssueDialog
                 this.setDependantListVisible(true);
             }
             this.loadMask.hide();
+            this.unlockControls();
         });
 
         this.getItemList().onItemsRemoved((items) => {

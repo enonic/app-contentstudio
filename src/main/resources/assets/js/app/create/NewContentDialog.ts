@@ -13,7 +13,6 @@ import {Site} from '../content/Site';
 import {GetAllContentTypesRequest} from '../resource/GetAllContentTypesRequest';
 import {NewContentUploader} from './NewContentUploader';
 import ContentPath = api.content.ContentPath;
-import LoadMask = api.ui.mask.LoadMask;
 import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -40,8 +39,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     private recentContentTypes: RecentItemsBlock;
 
     private keyDownHandler: (event: KeyboardEvent) => void;
-
-    protected loadMask: LoadMask;
 
     protected header: NewContentDialogHeader;
 
@@ -91,7 +88,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.initContentTypesLists();
         this.initFileUploader();
         this.fileInput = new FileInput('large').setPlaceholder(i18n('dialog.new.searchTypes'));
-        this.loadMask = new LoadMask(this);
     }
 
     protected postInitElements() {
@@ -231,8 +227,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     show() {
-        this.appendChildToContentPanel(this.loadMask);
-
         this.updateDialogTitlePath();
 
         this.fileInput.disable();

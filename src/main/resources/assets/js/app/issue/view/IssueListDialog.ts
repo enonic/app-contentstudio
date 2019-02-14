@@ -1,6 +1,5 @@
 import DockedPanel = api.ui.panel.DockedPanel;
 import ModalDialog = api.ui.dialog.ModalDialog;
-import LoadMask = api.ui.mask.LoadMask;
 import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
@@ -23,8 +22,6 @@ export class IssueListDialog
     private closedIssuesPanel: IssuesPanel;
 
     private reload: Function;
-
-    private loadMask: LoadMask;
 
     private currentUser: Principal;
 
@@ -58,7 +55,6 @@ export class IssueListDialog
 
     protected initElements() {
         super.initElements();
-        this.loadMask = new LoadMask(this);
         this.openIssuesPanel = this.createIssuePanel(IssueStatus.OPEN);
         this.closedIssuesPanel = this.createIssuePanel(IssueStatus.CLOSED);
         this.dockedPanel = this.createDockedPanel();
@@ -100,7 +96,6 @@ export class IssueListDialog
     show() {
         api.dom.Body.get().appendChild(this);
         super.show();
-        this.appendChildToContentPanel(this.loadMask);
         if (!this.skipInitialLoad) {
             this.reload();
         } else {

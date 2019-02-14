@@ -41,8 +41,10 @@ export abstract class DependantItemsWithProgressDialog
         });
     }
 
-    show() {
-        super.show(this.isProgressBarEnabled());
+    protected showLoadMask() {
+        if (!this.isProgressBarEnabled()) {
+            super.showLoadMask();
+        }
     }
 }
 
