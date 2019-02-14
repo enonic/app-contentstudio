@@ -352,17 +352,11 @@ export abstract class DependantItemsDialog
     protected lockControls() {
         this.addClass('locked');
         this.actionButton.setEnabled(false);
-        if (this.getCancelButton()) {
-            this.getCancelButton().setEnabled(false);
-        }
     }
 
     protected unlockControls() {
         this.removeClass('locked');
         this.actionButton.setEnabled(true);
-        if (this.getCancelButton()) {
-            this.getCancelButton().setEnabled(true);
-        }
     }
 
     protected toggleControls(enable: boolean) {

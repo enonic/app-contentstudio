@@ -1,8 +1,8 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.enonic.defaults' version '2.0.0'
-    id 'com.enonic.xp.app' version '1.2.0'
+    id 'com.enonic.defaults' version '2.0.1'
+    id 'com.enonic.xp.app' version '2.0.0'
     id "com.moowork.node" version '1.1.1'
 }
 
@@ -48,7 +48,7 @@ node {
 }
 
 
-task flush( type: org.gradle.api.tasks.Delete, dependsOn: clean ) {
+task flush( type: Delete, dependsOn: clean ) {
     description = 'Clean the project from built sources and dependencies'
     delete '.xp'
 }
@@ -58,7 +58,7 @@ task npmInstallForce( type: NpmTask ) {
     args = ['install', '--force']
 }
 
-task cleanNode( type: org.gradle.api.tasks.Delete ) {
+task cleanNode( type: Delete ) {
     delete 'node_modules'
 }
 

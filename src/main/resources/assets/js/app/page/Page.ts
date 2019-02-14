@@ -121,9 +121,10 @@ export class Page
 
     public doesFragmentContainId(id: ContentId): boolean {
         let containsId = false;
-        let fragmentCmp = this.getFragment();
+        const fragmentCmp = this.getFragment();
         if (fragmentCmp && ObjectHelper.iFrameSafeInstanceOf(fragmentCmp.getType(), ImageComponentType)) {
-            containsId = (<ImageComponent>fragmentCmp).getImage().equals(id);
+            const imageCmp: ImageComponent = <ImageComponent>fragmentCmp;
+            containsId = imageCmp.hasImage() && imageCmp.getImage().equals(id);
         }
 
         return containsId;

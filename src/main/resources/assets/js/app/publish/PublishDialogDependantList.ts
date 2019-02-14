@@ -41,10 +41,11 @@ export class PublishDialogDependantList
         statusView.setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
         statusView.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
 
-        if (!isContentSummaryValid(item)) {
+        if (!this.isContentSummaryValid(item)) {
             view.addClass('invalid');
         }
-        if (isContentSummaryReadOnly(item)) {
+
+        if (this.isContentSummaryReadOnly(item)) {
             view.addClass('readonly');
             view.getEl().setTitle(i18n('field.readOnly'));
         }
@@ -88,6 +89,18 @@ export class PublishDialogDependantList
         });
     }
 
+    private isContentSummaryValid(item: ContentSummaryAndCompareStatus): boolean {
+        let status = item.getCompareStatus();
+        let summary = item.getContentSummary();
+
+        return status === CompareStatus.PENDING_DELETE ||
+               (summary.isValid() && !api.util.StringHelper.isBlank(summary.getDisplayName()) && !summary.getName().isUnnamed());
+    }
+
+    private isContentSummaryReadOnly(item: ContentSummaryAndCompareStatus): boolean {
+        return item.isReadOnly() === true; // can be undefined so thus to true
+    }
+
    onListChanged(listener: () => void) {
         this.listChangedListeners.push(listener);
     }
@@ -119,16 +132,4 @@ export class PublishDialogDependantList
             listener(item);
         });
     }
-}
-
-export function isContentSummaryValid(item: ContentSummaryAndCompareStatus): boolean {
-    let status = item.getCompareStatus();
-    let summary = item.getContentSummary();
-
-    return status === CompareStatus.PENDING_DELETE ||
-           (summary.isValid() && !api.util.StringHelper.isBlank(summary.getDisplayName()) && !summary.getName().isUnnamed());
-}
-
-export function isContentSummaryReadOnly(item: ContentSummaryAndCompareStatus): boolean {
-    return item.isReadOnly() === true; // can be undefined so thus to true
 }

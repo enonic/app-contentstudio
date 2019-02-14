@@ -208,10 +208,11 @@ export class SiteConfigurator
             }
         });
 
-        comboBox.onOptionMoved((selectedOption: SelectedOption<Application>) => {
+        comboBox.onOptionMoved((selectedOption: SelectedOption<Application>, fromIndex: number) => {
             this.ignorePropertyChange = true;
 
-            saveAndForceValidate(selectedOption);
+            this.getPropertyArray().move(fromIndex, selectedOption.getIndex());
+            forcedValidate();
         });
 
         comboBox.onSiteConfigFormDisplayed((applicationKey: ApplicationKey, formView: FormView) => {
