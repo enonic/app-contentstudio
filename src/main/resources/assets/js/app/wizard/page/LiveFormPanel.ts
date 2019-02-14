@@ -261,7 +261,6 @@ export class LiveFormPanel
                         this.contentWizardPanel.saveChanges().catch((error: any) => {
                             api.DefaultErrorHandler.handle(error);
                         });
-                        ;
                     }
                 }
             }
