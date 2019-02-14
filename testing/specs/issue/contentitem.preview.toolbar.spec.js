@@ -14,9 +14,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 const contentBuilder = require("../../libs/content.builder");
 const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('contentItem.preview.toolbar.spec: create an issue and check the toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -48,10 +48,14 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             });
         });
 
-    it(`GIVEN existing folder is selected WHEN new issue has been created THEN menu button with the issue-name should appear`,
+    it(`GIVEN existing 'published' folder is selected WHEN new issue has been created THEN menu button with the issue-name should appear on the ContentItemPreviewToolbar`,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                // Publish button is getting visible, because the content is 'New' and valid
+                return contentBrowsePanel.waitForUnPublishButtonVisible();
+            }).then(() => {
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(firstIssueTitle);
             }).then(result => {
@@ -66,7 +70,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             })
         });
 
-    it(`GIVEN existing folder is selected WHEN the second issue has been created THEN issue-name should be updated in the menu button`,
+    it(`GIVEN existing 'published' folder is selected WHEN the second issue has been created THEN issue-name should be updated in the menu button(ContentItemPreviewToolbar)`,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return studioUtils.openPublishMenuAndClickOnCreateIssue();
@@ -113,7 +117,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 return issueDetailsDialog.getIssueTitle();
             }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_item_clicked");
-                assert.isTrue(result == firstIssueTitle,"required issue should be loaded in the modal dialog");
+                assert.isTrue(result == firstIssueTitle, "required issue should be loaded in the modal dialog");
             })
         });
 //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar

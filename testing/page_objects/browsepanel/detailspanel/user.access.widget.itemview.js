@@ -30,7 +30,7 @@ const userAccessWidgetItemView = Object.create(page, {
     },
     clickOnEditPermissionsLinkAndWaitForDialog: {
         value: function () {
-            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3).then(() => {
+            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_7).then(() => {
                 return this.waitForEnabled(this.editPermissionsLink, appConst.TIMEOUT_2);
             }).then(() => {
                 return this.doClick(this.editPermissionsLink);

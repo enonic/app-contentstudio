@@ -3,6 +3,7 @@
  */
 const page = require('../page');
 const contentDuplicateDialog = require('../content.duplicate.dialog');
+const createIssueDialog = require('../issue/create.issue.dialog');
 const elements = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
@@ -24,6 +25,9 @@ const panel = {
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+    },
+    publishMenuItemByName: function (name) {
+        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -118,6 +122,11 @@ const contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
         }
     },
+    unpublishButton: {
+        get: function () {
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
+        }
+    },
     displayNames: {
         get: function () {
             return `${panel.treeGrid}` + elements.H6_DISPLAY_NAME;
@@ -162,6 +171,35 @@ const contentBrowsePanel = Object.create(page, {
             });
         }
     },
+    waitForPublishButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.publishButton, appConst.TIMEOUT_2);
+        }
+    },
+    waitForUnPublishButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.unpublishButton, appConst.TIMEOUT_2);
+        }
+    },
+
+    //clicks on dropdown handle in ContentPublishMenuButton and select menu item
+    openPublishMenuSelectItem: {
+        value: function (menuItem) {
+            return this.waitForShowPublishMenuButtonVisible().then(() => {
+                return this.doClick(this.showPublishMenuButton);
+            }).then(() => {
+                return this.waitForVisible(this.createIssueMenuItem);
+            }).then(() => {
+                let selector = panel.toolbar + panel.publishMenuItemByName(menuItem);
+                return this.doClick(selector);
+            }).catch(err => {
+                this.saveScreenshot("err_click_issue_menuItem");
+                throw new Error('error when try to click on publish menu item, ' + err);
+            }).then(() => {
+                return createIssueDialog.waitForDialogLoaded();
+            })
+        }
+    },
     waitForPanelVisible: {
         value: function (ms) {
             return this.waitForVisible(`${panel.toolbar}`, ms).catch(err => {
@@ -174,11 +212,6 @@ const contentBrowsePanel = Object.create(page, {
             return this.doClick(this.moveButton).catch(err => {
                 throw new Error('error when clicking on the Move button ' + err);
             })
-        }
-    },
-    waitForPublishButtonVisible:{
-        value: function(){
-            return this.waitForVisible(this.publishButton,appConst.TIMEOUT_3);
         }
     },
     clickOnPublishButton: {
@@ -407,7 +440,6 @@ const contentBrowsePanel = Object.create(page, {
             })
         }
     },
-
     getNumberOfSelectedRows: {
         value: function () {
             return this.elements(panel.selectedRows).then(result => {
@@ -468,19 +500,14 @@ const contentBrowsePanel = Object.create(page, {
             return this.waitUntilInvalid(xpath);
         }
     },
-    waitForShowPublishMenuClickable: {
+    waitForShowPublishMenuButtonVisible: {
         value: function () {
-            return this.getBrowser().waitUntil(() => {
-                return this.getBrowser().getAttribute(`${panel.toolbar}` + `${panel.contentPublishMenuButton}`, 'class').then(result => {
-                    return result.indexOf('only-create-issue') == -1;
-                });
-            }, 3000);
+            return this.waitForVisible(this.showPublishMenuButton, appConst.TIMEOUT_3);
         }
     },
-
-    openShowPublishMenuAndClickOnCreateIssue: {
+    openPublishMenuAndClickOnCreateIssue: {
         value: function () {
-            return this.waitForShowPublishMenuClickable().then(() => {
+            return this.waitForShowPublishMenuButtonVisible().then(() => {
                 return this.doClick(this.showPublishMenuButton);
             }).then(() => {
                 return this.waitForVisible(this.createIssueMenuItem);
@@ -489,8 +516,9 @@ const contentBrowsePanel = Object.create(page, {
             }).catch(err => {
                 this.saveScreenshot("err_click_create_issue_menuItem");
                 throw new Error('error when try to click on Create Issue menu item, ' + err);
+            }).then(() => {
+                return createIssueDialog.waitForDialogLoaded();
             })
-
         }
     },
     hotKeyPublish: {
