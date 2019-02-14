@@ -274,7 +274,6 @@ export class ContextView
                 .setContextView(this)
                 .setType(InternalWidgetType.COMPONENTS)
                 .build();
-            // widgets.push(this.pageEditorWidgetView);
 
             InspectEvent.on(() => {
                 if (this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
@@ -326,7 +325,6 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
-        // this.defaultWidgetView = this.pageEditorWidgetView || this.propertiesWidgetView;
         this.defaultWidgetView = this.propertiesWidgetView;
 
         this.addWidgets(widgets.concat([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]));
