@@ -4,22 +4,36 @@ import {DockedContextPanel} from './DockedContextPanel';
 import {NonMobileContextPanelToggleButton} from './button/NonMobileContextPanelToggleButton';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {InspectEvent} from '../../event/InspectEvent';
+import {LiveFormPanel} from '../../wizard/page/LiveFormPanel';
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
+import Panel = api.ui.panel.Panel;
 
 export class NonMobileContextPanelsManager {
 
     private splitPanelWithGridAndContext: api.ui.panel.SplitPanel;
+
     private dockedContextPanel: DockedContextPanel;
+
     private floatingContextPanel: FloatingContextPanel;
+
     private resizeEventMonitorLocked: boolean = false;
+
     private toggleButton: api.dom.ButtonEl = new NonMobileContextPanelToggleButton();
+
     private debouncedResizeHandler: () => void = api.util.AppHelper.debounce(this.doHandleResizeEvent, 300, false);
+
+    private pageEditor: LiveFormPanel;
+
+    private wizardPanel: Panel;
 
     constructor(builder: NonMobileContextPanelsManagerBuilder) {
 
         this.splitPanelWithGridAndContext = builder.getSplitPanelWithGridAndContext();
         this.dockedContextPanel = builder.getDefaultContextPanel();
         this.floatingContextPanel = builder.getFloatingContextPanel();
+
+        this.pageEditor = builder.getPageEditor();
+        this.wizardPanel = builder.getWizardPanel();
 
         this.toggleButton.onClicked(() => {
             if (this.requiresAnimation()) {
@@ -210,11 +224,11 @@ export class NonMobileContextPanelsManager {
     }
 
     private needsSwitchToFloatingMode(): boolean {
-        return this.requiresFloatingPanelDueToShortWidth() && !this.splitPanelWithGridAndContext.isSecondPanelHidden();
+        return !this.splitPanelWithGridAndContext.isSecondPanelHidden() && this.requiresFloatingPanelDueToShortWidth();
     }
 
     private needsSwitchToDockedMode(): boolean {
-        return !this.requiresFloatingPanelDueToShortWidth() && this.splitPanelWithGridAndContext.isSecondPanelHidden() && this.isExpanded();
+        return this.splitPanelWithGridAndContext.isSecondPanelHidden() && this.isExpanded() && !this.requiresFloatingPanelDueToShortWidth();
     }
 
     private requiresAnimation(): boolean {
@@ -236,14 +250,27 @@ export class NonMobileContextPanelsManager {
     }
 
     private requiresFloatingPanelDueToShortWidth(): boolean {
-        const splitPanelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
+        const panelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
+
+        const maximumThreshold = this.isPageEditorShown() ?
+                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._960_1200) :
+                                 ResponsiveRanges._540_720;
+
         if (this.floatingPanelIsShown()) {
-            return (splitPanelWidth - this.floatingContextPanel.getActualWidth()) < 720;
+            return maximumThreshold.isFitOrSmaller(panelWidth - this.floatingContextPanel.getActualWidth());
         } else {
             const defaultContextPanelWidth = this.splitPanelWithGridAndContext.getActiveWidthPxOfSecondPanel();
             const splitterThickness: number = this.splitPanelWithGridAndContext.getSplitterThickness();
-            return (splitPanelWidth - defaultContextPanelWidth - splitterThickness) < 720;
+            return maximumThreshold.isFitOrSmaller(panelWidth - defaultContextPanelWidth - splitterThickness);
         }
+    }
+
+    private isPageEditorShown(): boolean {
+        return this.pageEditor && this.pageEditor.isShown();
+    }
+
+    private isWizardPanelMaximized(): boolean {
+        return this.wizardPanel && !this.wizardPanel.hasClass('minimized');
     }
 
     requiresCollapsedContextPanel(): boolean {
@@ -263,9 +290,16 @@ export class NonMobileContextPanelsManager {
 }
 
 export class NonMobileContextPanelsManagerBuilder {
+
     private splitPanelWithGridAndContext: api.ui.panel.SplitPanel;
+
     private dockedContextPanel: DockedContextPanel;
+
     private floatingContextPanel: FloatingContextPanel;
+
+    private pageEditor: LiveFormPanel;
+
+    private wizardPanel: Panel;
 
     setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: api.ui.panel.SplitPanel) {
         this.splitPanelWithGridAndContext = splitPanelWithGridAndContext;
@@ -279,6 +313,14 @@ export class NonMobileContextPanelsManagerBuilder {
         this.floatingContextPanel = floatingContextPanel;
     }
 
+    setPageEditor(pageEditor: LiveFormPanel) {
+        this.pageEditor = pageEditor;
+    }
+
+    setWizardPanel(wizardPanel: Panel) {
+        this.wizardPanel = wizardPanel;
+    }
+
     getSplitPanelWithGridAndContext(): api.ui.panel.SplitPanel {
         return this.splitPanelWithGridAndContext;
     }
@@ -289,6 +331,14 @@ export class NonMobileContextPanelsManagerBuilder {
 
     getFloatingContextPanel(): FloatingContextPanel {
         return this.floatingContextPanel;
+    }
+
+    getPageEditor(): LiveFormPanel {
+        return this.pageEditor;
+    }
+
+    getWizardPanel(): Panel {
+        return this.wizardPanel;
     }
 
     build(): NonMobileContextPanelsManager {

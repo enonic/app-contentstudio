@@ -3,6 +3,10 @@ import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
 import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 import ViewItem = api.app.view.ViewItem;
+import SplitPanel = api.ui.panel.SplitPanel;
+import SplitPanelAlignment = api.ui.panel.SplitPanelAlignment;
+import SplitPanelUnit = api.ui.panel.SplitPanelUnit;
+import Panel = api.ui.panel.Panel;
 import {DockedContextPanel} from './DockedContextPanel';
 import {NonMobileContextPanelsManager, NonMobileContextPanelsManagerBuilder} from './NonMobileContextPanelsManager';
 import {ContextView} from './ContextView';
@@ -17,7 +21,7 @@ import {ContentHelper} from '../../util/ContentHelper';
 import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 
 export class ContextSplitPanel
-    extends api.ui.panel.SplitPanel {
+    extends SplitPanel {
 
     private data: PageEditorData;
     private mobileMode: boolean;
@@ -37,15 +41,15 @@ export class ContextSplitPanel
         const dockedContextPanel = new DockedContextPanel(contextView);
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
-            .setAlignment(api.ui.panel.SplitPanelAlignment.VERTICAL)
-            .setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
-            .setSecondPanelMinSize(280, api.ui.panel.SplitPanelUnit.PIXEL)
+            .setAlignment(SplitPanelAlignment.VERTICAL)
+            .setSecondPanelSize(280, SplitPanelUnit.PIXEL)
+            .setSecondPanelMinSize(280, SplitPanelUnit.PIXEL)
             .setAnimationDelay(600)
             .setSecondPanelShouldSlideRight(true);
 
         super(builder);
         this.addClass('context-split-panel');
-        this.setSecondPanelSize(280, api.ui.panel.SplitPanelUnit.PIXEL);
+        this.setSecondPanelSize(280, SplitPanelUnit.PIXEL);
 
         this.data = data;
         this.leftPanel = leftPanel;
@@ -64,6 +68,9 @@ export class ContextSplitPanel
 
     private renderAfterDockedPanelReady() {
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
+        const wizardPanel: Panel = this.isInsideWizard() ? <Panel>(<SplitPanel>this.leftPanel).getFirstChild() : null;
+        nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
+        nonMobileContextPanelsManagerBuilder.setWizardPanel(wizardPanel);
         this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
         this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
         if (this.isInsideWizard()) {

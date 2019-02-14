@@ -85,6 +85,7 @@ export interface LiveFormPanelConfig {
 
 export interface PageEditorData {
     contextWindow: ContextWindow;
+    liveFormPanel: LiveFormPanel;
 }
 
 export class LiveFormPanel
@@ -353,7 +354,8 @@ export class LiveFormPanel
 
     getPageEditorData(): PageEditorData {
         return {
-            contextWindow: this.contextWindow
+            contextWindow: this.contextWindow,
+            liveFormPanel: this
         };
     }
 
