@@ -28,7 +28,7 @@ import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
 import {Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 import {HtmlEditor} from '../../HtmlEditor';
 
@@ -76,10 +76,7 @@ export class ImageModalDialog
 
         this.initPresetImage();
 
-        if (!Styles.getInstance()) {
-            new StylesRequest(content.getId()).sendAndParse();
-        }
-
+        StylesRequest.fetchStyles(content.getId());
     }
 
     private initPresetImage() {
@@ -145,7 +142,7 @@ export class ImageModalDialog
             throw new Error('Incorrectly formatted URL');
         }
 
-        const imageId = HTMLAreaHelper.extractContentIdFromImgSrc(src);
+        const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(src);
 
         if (!imageId) {
             throw new Error('Incorrectly formatted URL');
@@ -259,9 +256,7 @@ export class ImageModalDialog
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {
-            if (Styles.getInstance()) {
-                Styles.getCssPaths().forEach(cssPath => appendStylesheet(head, cssPath));
-            }
+            Styles.getCssPaths(this.content.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
         };
 
         this.previewFrame = new api.dom.IFrameEl('preview-frame');
@@ -294,7 +289,11 @@ export class ImageModalDialog
     }
 
     private adjustPreviewFrameHeight() {
-        this.previewFrame.getEl().setHeightPx(this.figure.getImage().getEl().getHeight());
+        const imageHeight = this.figure.getImage().getEl().getHeight();
+        if (imageHeight === 0) {
+            return;
+        }
+        this.previewFrame.getEl().setHeightPx(imageHeight);
     }
 
     private previewImage(imageContent: ContentSummary, presetStyles?: string) {
@@ -309,7 +308,7 @@ export class ImageModalDialog
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
-            this.imageToolbar = new ImageDialogToolbar(this.figure);
+            this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
             this.imageToolbar.onPreviewSizeChanged(() => this.adjustPreviewFrameHeight());
 
@@ -337,25 +336,28 @@ export class ImageModalDialog
     }
 
 
-    private createImageBuilder(imageContent: ContentSummary, size?: number, style?: Style) {
-        const imageUrlParams: ImageUrlParameters = {
-            id: imageContent.getId(),
-            useOriginal: false,
-            timeStamp: imageContent.getModifiedTime(),
-            scaleWidth: true
-        };
+    private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
+        const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
+        const imgUrlResolver = new ImageUrlResolver()
+            .setContentId(imageContent.getContentId())
+            .setTimestamp(imageContent.getModifiedTime());
 
-        if (size) {
-            imageUrlParams.size = size;
+        if (size && !isOriginalImage) {
+            imgUrlResolver.setSize(size);
         }
 
         if (style) {
-            imageUrlParams.useOriginal = StyleHelper.isOriginalImage(style.getName());
-            imageUrlParams.aspectRatio = style.getAspectRatio();
-            imageUrlParams.filter = style.getFilter();
+
+            if (isOriginalImage) {
+                imgUrlResolver.disableProcessing();
+            }
+
+            imgUrlResolver
+                .setAspectRatio(style.getAspectRatio())
+                .setFilter(style.getFilter());
         }
 
-        return new ImageUrlBuilder(imageUrlParams);
+        return imgUrlResolver;
     }
 
     private createImgElForPreview(imageContent: ContentSummary): api.dom.ImgEl {
@@ -367,10 +369,10 @@ export class ImageModalDialog
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
         } else {
 
-            const imageUrlBuilder = this.createImageBuilder(imageContent, this.imagePreviewContainer.getEl().getWidth());
+            const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
 
-            imgSrcAttr = imageUrlBuilder.buildForPreview();
-            imgDataSrcAttr = imageUrlBuilder.buildForRender();
+            imgSrcAttr = imageUrlBuilder.resolveForPreview();
+            imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
 
         const imageEl = new api.dom.ImgEl(imgSrcAttr);
@@ -511,7 +513,6 @@ export class ImageModalDialog
         imageEl.removeAttribute('style');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
-        HtmlEditor.updateImageInlineStyle(figureEl);
 
         figureCaptionEl.setText(this.getCaptionFieldValue());
     }
@@ -595,10 +596,10 @@ export class ImageModalDialog
         const imageContent = this.imageSelector.getSelectedContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
 
-        const imageUrlBuilder = this.createImageBuilder(imageContent, width, processingStyle);
+        const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
 
-        imageEl.setAttribute('src', imageUrlBuilder.buildForPreview());
-        imageEl.setAttribute('data-src', imageUrlBuilder.buildForRender());
+        imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
+        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''));
     }
 
     private applyStylingToPreview(classNames: string) {
@@ -617,6 +618,8 @@ export class ImageModalDialogConfig
 export class ImageDialogToolbar
     extends api.ui.toolbar.Toolbar {
 
+    private contentId: string;
+
     private previewEl: api.dom.FigureEl;
 
     private alignmentButtons: { [key: string]: ActionButton; } = {};
@@ -634,10 +637,11 @@ export class ImageDialogToolbar
     private stylesChangeListeners: { (styles: string): void }[] = [];
     private previewSizeChangeListeners: { (): void }[] = [];
 
-    constructor(previewEl: api.dom.FigureEl) {
+    constructor(previewEl: api.dom.FigureEl, contentId: string) {
         super('image-toolbar');
 
         this.previewEl = previewEl;
+        this.contentId = contentId;
 
         this.createElements();
     }
@@ -779,7 +783,7 @@ export class ImageDialogToolbar
     }
 
     private createImageStyleSelector(): ImageStyleSelector {
-        const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector();
+        const imageStyleSelector: ImageStyleSelector = new ImageStyleSelector(this.contentId);
 
         this.initSelectedStyle(imageStyleSelector);
         imageStyleSelector.onOptionSelected(() => {
@@ -805,7 +809,7 @@ export class ImageDialogToolbar
             return;
         }
 
-        const imageStyles = Styles.getForImageAsString();
+        const imageStyles = Styles.getForImageAsString(this.contentId);
         stylesApplied.forEach(style => {
             if (imageStyles.indexOf(style) > -1) {
                 imageStyleSelector.setValue(style);

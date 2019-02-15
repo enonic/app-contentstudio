@@ -15,6 +15,7 @@ import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import Promise = Q.Promise;
 import i18n = api.util.i18n;
+import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 
 declare var CONFIG;
 
@@ -176,7 +177,9 @@ export class TextComponentView
             if (child.getEl().getTagName().toUpperCase() === 'SECTION') {
                 this.rootElement = child;
                 // convert image urls in text component for web
-                child.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(child.getHtml()), false);
+                StylesRequest.fetchStyles(this.getContent().getId()).then(() =>
+                    child.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(child.getHtml(), this.getContent().getId()), false)
+                );
                 break;
             }
         }
@@ -404,7 +407,7 @@ export class TextComponentView
 
     private handleEditorCreated() {
         if (this.component.getText()) {
-            this.htmlAreaEditor.setData(HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText()));
+            this.htmlAreaEditor.setData(HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId()));
         } else {
             this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
         }

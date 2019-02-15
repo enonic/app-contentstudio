@@ -1,41 +1,49 @@
+import ContentId = api.content.ContentId;
 import StringHelper = api.util.StringHelper;
 import AppHelper = api.util.AppHelper;
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
+import {Styles} from './styles/Styles';
 
 export class HTMLAreaHelper {
 
-    private static getConvertedImageSrc(imgSrc: string): string {
-        const id = HTMLAreaHelper.extractContentIdFromImgSrc(imgSrc);
-        const aspectRatio = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'scale');
-        const filter = HTMLAreaHelper.extractParamValueFromImgSrc(imgSrc, 'filter');
+    private static getConvertedImageSrc(imgSrc: string, contentId: string): string {
+        const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
+        const styleParameter = '?style=';
 
-        const urlParams: ImageUrlParameters = {
-            id: id,
-            useOriginal: false, // or extract from src??
-            aspectRatio: aspectRatio,
-            filter: filter
-        };
+        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId));
 
-        return ` src="${new ImageUrlBuilder(urlParams).buildForPreview()}" data-src="${imgSrc}"`;
-    }
+        if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
+            imageUrlResolver.disableProcessing();
+        } else {
+            imageUrlResolver.setDefaultSize();
 
-    public static extractContentIdFromImgSrc(imgSrc: string): string {
-        if (imgSrc.indexOf('?') !== -1) {
-            return StringHelper.substringBetween(imgSrc, ImageUrlBuilder.RENDER.imagePrefix, '?');
+            if (imgSrc.includes(styleParameter)) {
+                const styleName = imgSrc.split(styleParameter)[1];
+                const style = Styles.getForImage(contentId).find(s => s.getName() === styleName);
+
+                if (style) {
+                    imageUrlResolver.setFilter(style.getFilter()).setAspectRatio(style.getAspectRatio());
+                }
+            }
         }
 
-        return imgSrc.replace(ImageUrlBuilder.RENDER.imagePrefix, StringHelper.EMPTY_STRING);
+        const imgUrl = imageUrlResolver.resolveForPreview();
+
+        return ` src="${imgUrl}" data-src="${imgSrc}"`;
     }
 
-    private static extractParamValueFromImgSrc(imgSrc: string, paramName: string): string {
-        if (imgSrc.indexOf(`${paramName}=`) !== -1) {
-            return api.util.UriHelper.decodeUrlParams(imgSrc.replace('&amp;', '&'))[paramName];
+    public static extractImageIdFromImgSrc(imgSrc: string): string {
+        const prefix = imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER) ?
+                       ImageUrlResolver.URL_PREFIX_RENDER : ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL;
+
+        if (imgSrc.includes('?')) {
+            return StringHelper.substringBetween(imgSrc, prefix, '?');
         }
 
-        return null;
+        return imgSrc.replace(prefix, StringHelper.EMPTY_STRING);
     }
 
-    public static convertRenderSrcToPreviewSrc(value: string): string {
+    public static convertRenderSrcToPreviewSrc(value: string, contentId: string): string {
         let processedContent = value;
         let regex = /<img.*?src="(.*?)"/g;
         let imgSrcs;
@@ -44,13 +52,15 @@ export class HTMLAreaHelper {
             return '';
         }
 
-        while (processedContent.search(` src="${ImageUrlBuilder.RENDER.imagePrefix}`) > -1) {
+        while (processedContent.includes(` src="${ImageUrlResolver.URL_PREFIX_RENDER}`) ||
+               processedContent.includes(` src="${ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL}`)) {
             imgSrcs = regex.exec(processedContent);
             if (imgSrcs) {
                 imgSrcs.forEach((imgSrc: string) => {
-                    if (imgSrc.indexOf(ImageUrlBuilder.RENDER.imagePrefix) === 0) {
+                    if (imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER) ||
+                        imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
                         processedContent =
-                            processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc));
+                            processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
                     }
                 });
             }
@@ -65,7 +75,8 @@ export class HTMLAreaHelper {
         AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
             const imgTag = imgTags[0];
 
-            if (imgTag.indexOf('<img ') === 0 && imgTag.indexOf(ImageUrlBuilder.RENDER.imagePrefix) > 0) {
+            if (imgTag.startsWith('<img ') &&
+                (imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER) || imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL))) {
                 const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
                 const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
 

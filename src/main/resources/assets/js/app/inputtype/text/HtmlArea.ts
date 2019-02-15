@@ -13,6 +13,7 @@ import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
+import {StylesRequest} from '../ui/text/styles/StylesRequest';
 
 declare var CONFIG;
 
@@ -76,8 +77,11 @@ export class HtmlArea
             property.convertValueType(ValueTypes.STRING);
         }
 
-        const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString());
-        const textAreaEl = new api.ui.text.TextArea(this.getInput().getName() + '-' + index, value);
+        const textAreaEl = new api.ui.text.TextArea(this.getInput().getName() + '-' + index);
+        StylesRequest.fetchStyles(this.content.getId()).then(() => {
+            const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId());
+            textAreaEl.setValue(value, true, false);
+        });
 
         const editorId = textAreaEl.getId();
 
@@ -361,7 +365,8 @@ export class HtmlArea
     }
 
     private setEditorContent(editorId: string, property: Property): void {
-        const content: string = property.hasNonNullValue() ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString()) : '';
+        const content: string = property.hasNonNullValue() ?
+                                    HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
         if (HtmlEditor.exists(editorId)) {
             HtmlEditor.setData(editorId, content);

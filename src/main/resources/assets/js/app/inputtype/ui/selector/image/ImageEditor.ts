@@ -855,8 +855,8 @@ export class ImageEditor
     }
 
     private setToolbarButtonsEnabled(value: boolean) {
-        console.debug('ImageEditor.setToolbarButtonsEnabled = ' + value + ' at ' + new Date().toLocaleTimeString());
         if (ImageEditor.debug) {
+            console.debug('ImageEditor.setToolbarButtonsEnabled = ' + value + ' at ' + new Date().toLocaleTimeString());
             console.debug('ImageEditor.setToolbarButtonsEnabled', value);
         }
         if (!value) {

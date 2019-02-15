@@ -9,11 +9,16 @@ import {ImageStyleOptionViewer} from './ImageStyleOptionViewer';
 export class ImageStyleSelector
     extends Dropdown<ImageStyleOption> {
 
-    constructor() {
+    private contentId: string;
+
+    constructor(contentId: string) {
         super('imageSelector', <DropdownConfig<ImageStyleOption>>{
             optionDisplayValueViewer: new ImageStyleOptionViewer(),
             inputPlaceholderText: i18n('dialog.image.style.apply')
         });
+
+        this.contentId = contentId;
+
         this.addClass('image-style-selector');
 
         this.initDropdown();
@@ -30,7 +35,7 @@ export class ImageStyleSelector
     }
 
     private addOptions() {
-        ImageStyleOptions.getOptions().forEach((option: Option<ImageStyleOption>) => {
+        ImageStyleOptions.getOptions(this.contentId).forEach((option: Option<ImageStyleOption>) => {
             this.addOption(option);
         });
     }
