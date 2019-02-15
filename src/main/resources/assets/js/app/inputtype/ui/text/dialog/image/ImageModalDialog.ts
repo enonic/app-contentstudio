@@ -74,8 +74,6 @@ export class ImageModalDialog
         this.editorWidth = config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth;
         this.figure = new api.dom.FigureEl();
 
-        this.initLoader();
-
         this.initPresetImage();
 
         StylesRequest.fetchStyles(content.getId());
