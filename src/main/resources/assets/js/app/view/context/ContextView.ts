@@ -23,16 +23,18 @@ import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;
 import i18n = api.util.i18n;
+import LoadMask = api.ui.mask.LoadMask;
+import DivEl = api.dom.DivEl;
 
 export class ContextView
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private widgetViews: WidgetView[] = [];
-    private contextContainer: api.dom.DivEl = new api.dom.DivEl('context-container');
+    private contextContainer: DivEl;
     private widgetsSelectionRow: WidgetsSelectionRow;
 
-    private loadMask: api.ui.mask.LoadMask;
-    private divForNoSelection: api.dom.DivEl;
+    private loadMask: LoadMask;
+    private divForNoSelection: DivEl;
 
     private item: ContentSummaryAndCompareStatus;
 
@@ -58,8 +60,11 @@ export class ContextView
 
         this.data = data;
 
-        this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
+        this.contextContainer = new DivEl('context-container');
+
+        this.loadMask = new LoadMask(this);
         this.loadMask.addClass('context-panel-mask');
+        this.appendChild(this.loadMask);
 
         this.initCommonWidgetViews();
         this.initDivForNoSelection();
@@ -73,6 +78,13 @@ export class ContextView
         this.layout();
 
         this.getCustomWidgetViewsAndUpdateDropdown();
+
+        this.onRendered(() => {
+            // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
+            this.layout(false);
+            this.updateContextContainerHeight();
+            this.layout(!this.item);
+        });
 
         const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
         ApplicationEvent.on(handleWidgetsUpdate);
@@ -89,7 +101,7 @@ export class ContextView
     }
 
     private initDivForNoSelection() {
-        this.divForNoSelection = new api.dom.DivEl('no-selection-message');
+        this.divForNoSelection = new DivEl('no-selection-message');
         this.divForNoSelection.getEl().setInnerHtml(i18n('field.contextPanel.empty'));
         this.appendChild(this.divForNoSelection);
     }
@@ -218,15 +230,19 @@ export class ContextView
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
+        const itemSelected = item != null;
+        const selectionChanged = this.item == null && item != null ||
+                                 this.item != null && item == null;
 
         this.item = item;
-        if (item) {
-            this.layout(false);
-            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && this.activeWidget) {
-                return this.updateActiveWidget();
-            }
-        } else {
-            this.layout();
+
+        const widgetVisible = ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible();
+        const externalWidgetSelected = this.activeWidget != null && !this.activeWidget.isInternal();
+        const selectionChangedForExternalWidget = selectionChanged && externalWidgetSelected;
+
+        this.layout(!itemSelected);
+        if (widgetVisible && this.activeWidget && (itemSelected || selectionChangedForExternalWidget)) {
+            return this.updateActiveWidget();
         }
 
         return wemQ<any>(null);
@@ -252,7 +268,7 @@ export class ContextView
         return this.activeWidget.updateWidgetItemViews().then(() => {
             // update active widget's height
             setTimeout(() => {
-                this.setContextContainerHeight();
+                this.updateContextContainerHeight();
             }, 400);
 
             this.activeWidget.slideIn();
@@ -377,14 +393,17 @@ export class ContextView
         });
     }
 
-    setContextContainerHeight() {
-        let panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
-        let panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
-        let containerHeight = this.contextContainer.getEl().getHeight();
-        let containerOffset = this.contextContainer.getEl().getOffsetToParent();
+    updateContextContainerHeight() {
+        const activeContextPanelEl = ActiveContextPanelManager.getActiveContextPanel().getEl();
+        if (activeContextPanelEl) {
+            const panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
+            const panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
+            const containerHeight = this.contextContainer.getEl().getHeight();
+            const containerOffset = this.contextContainer.getEl().getOffsetToParent();
 
-        if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
-            this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
+                this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            }
         }
     }
 
