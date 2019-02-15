@@ -140,7 +140,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
                 return expect(insertImageDialog.isCustomWidthCheckBoxSelected()).to.eventually.false;
             }).then(() => {
                 // just save the changes and create new version
-                return insertImageDialog.clickOnInsertButton();
+                return insertImageDialog.clickOnUpdateButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
             });

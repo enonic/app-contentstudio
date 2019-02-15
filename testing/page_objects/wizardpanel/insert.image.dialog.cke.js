@@ -6,6 +6,7 @@ const comboBox = require('../components/loader.combobox');
 const dialog = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
+    updateButton: `//button[contains(@id,'DialogButton') and child::span[text()='Update']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
     styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
@@ -55,6 +56,11 @@ const insertImageDialog = Object.create(page, {
     insertButton: {
         get: function () {
             return `${dialog.container}` + `${dialog.insertButton}`;
+        }
+    },
+    updateButton: {
+        get: function () {
+            return `${dialog.container}` + `${dialog.updateButton}`;
         }
     },
     clickOnCustomWidthCheckBox: {
@@ -129,9 +135,20 @@ const insertImageDialog = Object.create(page, {
             }).pause(500);
         }
     },
+
+    clickOnUpdateButton: {
+        value: function () {
+            return this.doClick(this.updateButton).catch(err => {
+                this.saveScreenshot('err_click_on_update_image_button');
+                throw new Error('Insert Image Dialog, error when click on the Update button  ' + err);
+            }).then(() => {
+                return this.waitForDialogClosed();
+            }).pause(500);
+        }
+    },
     waitForDialogVisible: {
         value: function () {
-            return this.waitForVisible(this.insertButton, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_open_insert_image_dialog');
                 throw new Error('Insert Image Dialog should be opened!' + err);
             });

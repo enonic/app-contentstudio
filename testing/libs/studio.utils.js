@@ -110,7 +110,7 @@ module.exports = {
             return issueListDialog.clickOnNewIssueButton();
         }).then(() => {
             return createIssueDialog.waitForDialogLoaded();
-        });
+        }).pause(200);
     },
     openPublishMenuAndClickOnCreateIssue: function () {
         return browsePanel.openPublishMenuAndClickOnCreateIssue().then(() => {
