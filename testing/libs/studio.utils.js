@@ -113,7 +113,7 @@ module.exports = {
         });
     },
     openPublishMenuAndClickOnCreateIssue: function () {
-        return browsePanel.openShowPublishMenuAndClickOnCreateIssue().then(() => {
+        return browsePanel.openPublishMenuAndClickOnCreateIssue().then(() => {
             return createIssueDialog.waitForDialogLoaded();
         })
     },

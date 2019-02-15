@@ -12,7 +12,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-;
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
@@ -30,7 +30,10 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             }).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                return contentBrowsePanel.waitForPublishButtonVisible();
+            }).then(()=>{
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {

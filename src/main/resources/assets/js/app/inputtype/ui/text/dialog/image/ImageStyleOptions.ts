@@ -43,11 +43,11 @@ export class ImageStyleOptions {
         };
     }
 
-    static getOptions(): Option<ImageStyleOption>[] {
+    static getOptions(contentId: string): Option<ImageStyleOption>[] {
 
         const options: Option<ImageStyleOption>[] = [ImageStyleOptions.getEmptyOption()];
 
-        Styles.getForImage().forEach((imageStyle: Style) => {
+        Styles.getForImage(contentId).forEach((imageStyle: Style) => {
             options.push(ImageStyleOptions.getOption(imageStyle));
         });
 
