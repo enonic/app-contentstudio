@@ -18,7 +18,6 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     it(`GIVEN 'Issues List' dialog is opened WHEN 'New Issue...' button has been clicked THEN 'Create Issue Dialog' should be loaded `,
         () => {
-            //this.bail(1);
             return studioUtils.openIssuesListDialog().then(()=> {
                 return issueListDialog.clickOnNewIssueButton();
             }).then(()=> {
@@ -56,8 +55,9 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             return studioUtils.openCreateIssueDialog().then(()=> {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(()=> {
+                studioUtils.saveScreenshot("check_validation_message");
                 return createIssueDialog.getValidationMessageForTitleInput()
-            }).then((result)=> {
+            }).then(result=> {
                 return assert.isTrue(result == 'This field is required');
             })
         });

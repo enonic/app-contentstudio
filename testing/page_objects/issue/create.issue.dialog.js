@@ -73,7 +73,7 @@ const createIssueDialog = Object.create(page, {
     clickOnCreateIssueButton: {
         value: function () {
             return this.doClick(this.createIssueButton).pause(500)
-                .catch((err) => {
+                .catch(err => {
                     this.saveScreenshot('err_click_create_issue');
                     throw new Error('create issue dialog ' + err);
                 })
