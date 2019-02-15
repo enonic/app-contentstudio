@@ -126,7 +126,7 @@ module.exports = {
             return browseDetailsPanel.waitForDetailsPanelLoaded();
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
-        }).pause(700);
+        }).pause(1700);
     },
     openContentWizard: function (contentType) {
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {

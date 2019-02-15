@@ -141,8 +141,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
                 return webDriverHelper.browser.getText("//div[@class='frontpage-get-started__container']//h3")
             }).then(result => {
                 studioUtils.saveScreenshot('enonic_loaded_in_preview_panel');
-                assert.equal(result, 'DELIVER DIGITAL EXPERIENCES FASTER WITH ENONIC XP',
-                    'expected text should be loaded');
+                assert.equal(result, 'FASTER DIGITAL PROJECTS WITH THE ENONIC PLATFORM', 'expected text should be loaded');
             })
         });
 
