@@ -3,14 +3,20 @@ import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
-import i18n = api.util.i18n;
 
 export interface EmulatorWidgetItemViewConfig {
     liveEditPage?: LiveEditPageProxy;
 }
 
+export interface EmulatorDeviceRow {
+    id: number;
+    device: EmulatorDevice;
+}
+
 export class EmulatorWidgetItemView
     extends WidgetItemView {
+
+    private devicesRows: EmulatorDeviceRow[];
 
     private liveEditPage: LiveEditPageProxy;
 
@@ -19,6 +25,7 @@ export class EmulatorWidgetItemView
 
         this.liveEditPage = config.liveEditPage;
 
+        this.generateEmulatorDevicesRows();
         this.initEmulationGrid();
 
         // Using jQuery since grid.setOnClick fires event twice, bug in slickgrid
@@ -29,43 +36,60 @@ export class EmulatorWidgetItemView
             const height = el.data('height');
             const units = el.data('units');
 
-            new EmulatedEvent(width, height, units).fire();
+            const deviceRow = this.findRowBySize(width, height, units);
+            if (deviceRow) {
+                new EmulatedEvent(deviceRow.device).fire();
+            }
         });
+    }
+
+    private generateEmulatorDevicesRows() {
+        this.devicesRows = [
+            EmulatorDevice.FULLSCREEN,
+            EmulatorDevice.SMALL_PHONE,
+            EmulatorDevice.MEDIUM_PHONE,
+            EmulatorDevice.LARGE_PHONE,
+            EmulatorDevice.TABDLET,
+            EmulatorDevice.NOTEBOOK_13,
+            EmulatorDevice.NOTEBOOK_15,
+            EmulatorDevice.HDTV
+        ].map((device: EmulatorDevice, id: number) => ({id, device}));
     }
 
     private initEmulationGrid() {
         const dataView = new api.ui.grid.DataView<any>();
         const grid = new EmulatorGrid(dataView);
 
-        dataView.setItems(EmulatorWidgetItemView.generateEmulatorDevices());
-        // select first option
+        dataView.setItems(this.devicesRows);
         grid.setActiveCell(0, 0);
+
+        EmulatedEvent.on((event: EmulatedEvent) => {
+            if (!event.isEmulator()) {
+                // sync selected device with external event
+                this.devicesRows.some((row: EmulatorDeviceRow, index: number) => {
+                    if (row.device.equals(event.getDevice())) {
+                        grid.setActiveCell(index, 0);
+                        return true;
+                    }
+                    return false;
+                });
+            }
+        });
 
         this.appendChild(grid);
     }
 
-    private static generateEmulatorDevices(): EmulatorDevice[] {
-        const data: EmulatorDevice[] = [];
+    private findRowBySize(width: number, height: number, units: string): EmulatorDeviceRow {
+        let row: EmulatorDeviceRow = null;
 
-        const fullSizeDevice: EmulatorDevice = new EmulatorDevice(0, i18n(
-            'live.view.device.fullsize'), 'monitor', 100, 100, '%', true, false);
-        const smallPhoneDevice: EmulatorDevice = new EmulatorDevice(1, i18n(
-            'live.view.device.smallphone'), 'mobile', 320, 480, 'px', false, true);
-        const mediumPhoneDevice: EmulatorDevice = new EmulatorDevice(2, i18n(
-            'live.view.device.mediumphone'), 'mobile', 375, 667, 'px', false, true);
-        const largePhoneDevice: EmulatorDevice = new EmulatorDevice(3, i18n(
-            'live.view.device.largephone'), 'mobile', 414, 736, 'px', false, true);
-        const tabletDevice: EmulatorDevice = new EmulatorDevice(4, i18n('live.view.device.tablet'), 'tablet', 768, 1024, 'px', false, true);
-        const notebook13Device: EmulatorDevice = new EmulatorDevice(5, i18n(
-            'live.view.device.notebook13'), 'monitor', 1280, 800, 'px', false, false);
-        const notebook15Device: EmulatorDevice = new EmulatorDevice(6, i18n(
-            'live.view.device.notebook15'), 'monitor', 1366, 768, 'px', false, false);
-        const highDefinitionTVDevice: EmulatorDevice = new EmulatorDevice(7, i18n(
-            'live.view.device.highDefinitionTV'), 'monitor', 1920, 1080, 'px', false, false);
+        this.devicesRows.some((deviceRow: EmulatorDeviceRow) => {
+            if (deviceRow.device.equalsBySize(width, height, units)) {
+                row = deviceRow;
+                return true;
+            }
+            return false;
+        });
 
-        data.push(fullSizeDevice, smallPhoneDevice, mediumPhoneDevice, largePhoneDevice, tabletDevice, notebook13Device, notebook15Device,
-            highDefinitionTVDevice);
-
-        return data;
+        return row;
     }
 }

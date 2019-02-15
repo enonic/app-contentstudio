@@ -1,4 +1,4 @@
-import {EmulatorDeviceItem} from './EmulatorDevice';
+import {EmulatorDevice} from './EmulatorDevice';
 import {FontIcon} from '../../../../icon/FontIcon';
 
 export class EmulatorGrid extends api.ui.grid.Grid<any> {
@@ -21,13 +21,13 @@ export class EmulatorGrid extends api.ui.grid.Grid<any> {
         ];
     }
 
-    private static buildRow(data: EmulatorDeviceItem): api.dom.DivEl {
+    private static buildRow(data: EmulatorDevice): api.dom.DivEl {
         const rowEl = new api.dom.DivEl();
         rowEl.getEl().setData('width', data.getWidth().toString());
         rowEl.getEl().setData('height', data.getHeight().toString());
         rowEl.getEl().setData('units', data.getUnits());
 
-        const icon = new FontIcon('icon-' + data.getDeviceType());
+        const icon = new FontIcon('icon-' + data.getDeviceTypeAsString());
 
         const title = new api.dom.H5El();
         title.getEl().setInnerHtml(data.getName());

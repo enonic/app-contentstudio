@@ -148,7 +148,7 @@ export class LiveEditPageProxy {
             if (event.isFullscreen()) {
                 this.resetParentHeight();
             } else {
-                this.updateLiveEditFrameContainerHeight(event.getHeight());
+                this.updateLiveEditFrameContainerHeight(event.getDevice().getHeight());
             }
         });
     }

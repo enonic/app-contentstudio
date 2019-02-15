@@ -16,6 +16,8 @@ import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItem
 import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 import {ContentWidgetItemView} from './widget/info/ContentWidgetItemView';
 import {InspectEvent} from '../../event/InspectEvent';
+import {EmulatedEvent} from '../../event/EmulatedEvent';
+import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -39,6 +41,9 @@ export class ContextView
 
     private pageEditorWidgetView: WidgetView;
     private propertiesWidgetView: WidgetView;
+    private emulatorWidgetView: WidgetView;
+
+    private data: PageEditorData;
 
     private alreadyFetchedCustomWidgets: boolean;
 
@@ -51,10 +56,12 @@ export class ContextView
     constructor(data?: PageEditorData) {
         super('context-panel-view');
 
+        this.data = data;
+
         this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
         this.loadMask.addClass('context-panel-mask');
 
-        this.initCommonWidgetViews(data);
+        this.initCommonWidgetViews();
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
 
@@ -260,17 +267,15 @@ export class ContextView
         this.loadMask.hide();
     }
 
-    private initCommonWidgetViews(data?: PageEditorData) {
+    private initCommonWidgetViews() {
 
-        const widgets = [];
-
-        if (data) {
+        if (this.isInsideWizard()) {
             this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
                 .setWidgetClass('page-editor-widget')
                 .setIconClass('icon-puzzle')
-                .addWidgetItemView(new PageEditorWidgetItemView(data))
+                .addWidgetItemView(new PageEditorWidgetItemView(this.data))
                 .setContextView(this)
                 .setType(InternalWidgetType.COMPONENTS)
                 .build();
@@ -316,7 +321,7 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
-        const emulatorWidgetView = WidgetView.create()
+        this.emulatorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.emulator'))
             .setDescription(i18n('field.contextPanel.emulator.description'))
             .setWidgetClass('emulator-widget')
@@ -327,9 +332,16 @@ export class ContextView
 
         this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets(widgets.concat([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, emulatorWidgetView]));
+        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        if (!this.isInsideWizard()) {
+            this.addWidget(this.emulatorWidgetView);
+        }
 
         this.setActiveWidget(this.defaultWidgetView);
+    }
+
+    private isInsideWizard(): boolean {
+        return this.data != null;
     }
 
     private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {
@@ -385,14 +397,23 @@ export class ContextView
         return null;
     }
 
-    private addWidget(widget: WidgetView, prepend?: boolean) {
-        if (prepend) {
-            this.widgetViews.unshift(widget);
-            this.contextContainer.prependChild(widget);
-        } else {
-            this.widgetViews.push(widget);
-            this.contextContainer.appendChild(widget);
+    private addWidget(widget: WidgetView) {
+        this.widgetViews.push(widget);
+        this.contextContainer.appendChild(widget);
+    }
+
+    private insertWidget(widget: WidgetView, index: number) {
+        this.widgetViews.splice(index, 0, widget);
+        this.contextContainer.insertChild(widget, index);
+    }
+
+    private getIndexOfLastInternalWidget(): number {
+        for (let index = 0; index < this.widgetViews.length; index++) {
+            if (!this.widgetViews[index].isInternal()) {
+                return index - 1;
+            }
         }
+        return this.widgetViews.length - 1;
     }
 
     private addWidgets(widgetViews: WidgetView[]) {
@@ -427,25 +448,51 @@ export class ContextView
     }
 
     updateRenderableStatus(renderable: boolean) {
+        const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
+        const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
+
+        let widgetsUpdated = false;
+
         if (this.pageEditorWidgetView) {
-            const pageEditorWidgetPresent = this.widgetViews.some(
-                widget => this.pageEditorWidgetView.compareByType(widget)
-            );
-            const pageEditorWidgetActive = this.pageEditorWidgetView.compareByType(this.activeWidget);
+            const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
+            const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
 
             if (renderable && !pageEditorWidgetPresent) {
-                this.addWidget(this.pageEditorWidgetView, true);
+                this.insertWidget(this.pageEditorWidgetView, 0);
                 if (!pageEditorWidgetActive) {
                     this.defaultWidgetView = this.pageEditorWidgetView;
                     this.activateDefaultWidget();
                 }
+                widgetsUpdated = true;
             } else if (!renderable && pageEditorWidgetPresent) {
                 this.defaultWidgetView = this.propertiesWidgetView;
                 if (pageEditorWidgetActive) {
                     this.activateDefaultWidget();
                 }
                 this.removeWidget(this.pageEditorWidgetView);
+                widgetsUpdated = true;
             }
+        }
+
+        if (this.isInsideWizard()) {
+            const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
+            const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
+
+            if (renderable && !emulatorWidgetPresent) {
+                const index = this.getIndexOfLastInternalWidget() + 1;
+                this.insertWidget(this.emulatorWidgetView, index);
+                widgetsUpdated = true;
+            } else if (!renderable && emulatorWidgetPresent) {
+                if (emulatorWidgetActive) {
+                    this.activateDefaultWidget();
+                }
+                this.removeWidget(this.emulatorWidgetView);
+                new EmulatedEvent(EmulatorDevice.FULLSCREEN, false).fire();
+                widgetsUpdated = true;
+            }
+        }
+
+        if (widgetsUpdated) {
             this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
         }
     }

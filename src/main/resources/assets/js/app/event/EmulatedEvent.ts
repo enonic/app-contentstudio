@@ -1,51 +1,38 @@
+import {EmulatorDevice} from '../view/context/widget/emulator/EmulatorDevice';
+
 export class EmulatedEvent
     extends api.event.Event {
 
-    private width: number;
+    private device: EmulatorDevice;
 
-    private height: number;
+    private emulator: boolean;
 
-    private units: string;
-
-    constructor(width: number = 0, height: number = 0, units: string = 'px') {
+    constructor(device: EmulatorDevice, emulator: boolean = true) {
         super();
-        this.width = width;
-        this.height = height;
-        this.units = units;
+        this.device = device;
+        this.emulator = emulator;
     }
 
-    public getWidth(): number {
-        return this.width;
+    public getDevice(): EmulatorDevice {
+        return this.device;
     }
 
     public getWidthWithUnits(): string {
-        return `${this.width}${this.units}`;
-    }
-
-    public getHeight(): number {
-        return this.height;
+        return this.device.getWidthWithUnits();
     }
 
     public getHeightWithUnits(): string {
-        return `${this.height}${this.units}`;
-    }
-
-    public getUnits(): string {
-        return this.units;
-    }
-
-    public isPixelUnits(): boolean {
-        return this.units === 'px';
-    }
-
-    public isPercentsUnits(): boolean {
-        return this.units === '%';
+        return this.device.getHeightWithUnits();
     }
 
     public isFullscreen(): boolean {
-        const fullscreen = this.width === 100 && this.height === 100 && this.isPercentsUnits();
-        const valid = this.width > 0 && this.height > 0 && !api.util.StringHelper.isBlank(this.units);
+        const fullscreen = this.device.equals(EmulatorDevice.FULLSCREEN);
+        const valid = this.device.isValid();
         return fullscreen || !valid;
+    }
+
+    public isEmulator(): boolean {
+        return this.emulator;
     }
 
     static on(handler: (event: EmulatedEvent) => void) {

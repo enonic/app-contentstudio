@@ -63,7 +63,7 @@ export class ContextSplitPanel
     }
 
     private isInsideWizard(): boolean {
-        return !!this.data;
+        return this.data != null;
     }
 
     private renderAfterDockedPanelReady() {
