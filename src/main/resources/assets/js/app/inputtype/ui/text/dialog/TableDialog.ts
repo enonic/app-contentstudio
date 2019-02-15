@@ -12,7 +12,7 @@ enum DialogType {
     TABLE, TABLEPROPERTIES
 }
 
-export class TableModalDialogConfig
+export interface TableModalDialogConfig
     extends HtmlAreaModalDialogConfig {
     dialogType: DialogType;
 }
@@ -36,18 +36,58 @@ export class TableDialog
 
     private dialogType: DialogType;
 
+    protected config: TableModalDialogConfig;
+
     constructor(config: eventInfo) {
 
         super(<TableModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
-            cls: 'table-modal-dialog',
+            class: 'table-modal-dialog',
             title: i18n('dialog.table.title'),
             dialogType: config.data.getName() === 'table' ? DialogType.TABLE : DialogType.TABLEPROPERTIES,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
+        });
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.dialogType = this.config.dialogType;
+        this.setSubmitAction(new api.ui.Action(i18n('action.ok')));
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        if (this.rowsField.getInput().getEl().isDisabled()) {
+            this.setElementToFocusOnShow(this.headersField.getInput());
+        } else {
+            this.setElementToFocusOnShow(this.rowsField.getInput());
+        }
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.submitAction.onExecuted(() => {
+            if (this.validate()) {
+                this.updateOriginalDialogInputValues();
+                this.ckeOriginalDialog.getButton('ok').click();
+                this.close();
+            }
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addAction(this.submitAction);
+            this.addCancelButtonToBottom();
+
+            return rendered;
         });
     }
 
@@ -124,29 +164,6 @@ export class TableDialog
         this.cellPaddingField.getInput().getEl().setValue(this.getOriginalCellPaddingElem().getValue());
         this.borderField.getInput().getEl().setValue(this.getOriginalBorderElem().getValue());
         (<Dropdown<string>>this.alignmentField.getInput()).setValue(this.getOriginalAlignmentElem().getValue());
-    }
-
-    protected initializeActions() {
-        const submitAction = new api.ui.Action(i18n('action.ok'));
-        this.setSubmitAction(submitAction);
-
-        this.addAction(submitAction.onExecuted(() => {
-            if (this.validate()) {
-                this.updateOriginalDialogInputValues();
-                this.ckeOriginalDialog.getButton('ok').click();
-                this.close();
-            }
-        }));
-
-        super.initializeActions();
-
-        this.setFirstFocusField(this.getCancelButton());
-    }
-
-    protected initializeConfig(config: TableModalDialogConfig) {
-        super.initializeConfig(config);
-
-        this.dialogType = config.dialogType;
     }
 
     private updateOriginalDialogInputValues() {

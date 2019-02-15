@@ -8,7 +8,6 @@ import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAnd
 import ContentId = api.content.ContentId;
 import BrowseItem = api.app.browse.BrowseItem;
 import ListBox = api.ui.selector.list.ListBox;
-import LoadMask = api.ui.mask.LoadMask;
 import DialogButton = api.ui.dialog.DialogButton;
 import DivEl = api.dom.DivEl;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
@@ -45,8 +44,6 @@ export abstract class DependantItemsDialog
 
     private dependantsHeaderText: string;
 
-    protected loadMask: LoadMask;
-
     protected loading: boolean = false;
 
     protected loadingRequested: boolean = false;
@@ -57,55 +54,50 @@ export abstract class DependantItemsDialog
 
     private showDependantList: boolean = true;
 
+    protected config: DependantItemsDialogConfig;
+
     constructor(config: DependantItemsDialogConfig) {
         super(config);
+    }
 
-        this.addClass('dependant-dialog');
+    protected initElements() {
+        super.initElements();
 
-        this.getBody().addClass('mask-wrapper');
-
-        this.subTitle = new api.dom.H6El('sub-title').setHtml(config.dialogSubName, false);
-        this.appendChildToHeader(this.subTitle);
+        this.subTitle = new api.dom.H6El('sub-title').setHtml(this.config.dialogSubName, false);
 
         this.itemList = this.createItemList();
-        this.itemList.addClass('item-list');
-        this.appendChildToContentPanel(this.itemList);
+        this.dependantsHeaderText = this.config.dependantsName || this.getDependantsHeader(this.config.showDependantList);
+        this.dependantContainerHeader = new api.dom.H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
+        this.dependantContainerBody = new api.dom.DivEl('dependants-body');
+        this.dependantList = this.createDependantList();
 
-        let itemsChangedListener = () => {
-            let count = this.itemList.getItemCount();
+        if (this.config.showDependantList !== undefined) {
+            this.showDependantList = this.config.showDependantList;
+        }
+
+        this.dependantsContainer = new api.dom.DivEl('dependants');
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        const itemsChangedListener = () => {
+            const count: number = this.itemList.getItemCount();
             if (this.autoUpdateTitle) {
-                this.setTitle(config.title + (count > 1 ? 's' : ''));
+                this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
 
-        this.dependantsHeaderText = config.dependantsName || this.getDependantsHeader(config.showDependantList);
-        this.dependantContainerHeader = new api.dom.H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
         this.dependantContainerHeader.onClicked(() => {
             const doShow = !this.dependantList.isVisible();
             this.setDependantListVisible(doShow);
             this.notifyResize();
         });
 
-        this.dependantContainerBody = new api.dom.DivEl('dependants-body');
-        if (config.dependantsDescription) {
-            const desc = new api.dom.PEl('dependants-desc').setHtml(config.dependantsDescription, false);
-            this.dependantContainerBody.appendChild(desc);
-        }
-
-        this.dependantList = this.createDependantList();
-        this.dependantList.addClass('dependant-list');
-        if (config.showDependantList !== undefined) {
-            this.showDependantList = config.showDependantList;
-        }
-        this.dependantContainerBody.appendChild(this.dependantList);
-
-        this.dependantsContainer = new api.dom.DivEl('dependants');
-        this.dependantsContainer.appendChildren(this.dependantContainerHeader, this.dependantContainerBody);
-
-        let dependantsChangedListener = () => {
-            let doShow = this.countDependantItems() > 0;
+        const dependantsChangedListener = () => {
+            const doShow: boolean = this.countDependantItems() > 0;
             this.dependantsContainer.setVisible(doShow);
 
             if (doShow) {
@@ -117,10 +109,6 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsRemoved(dependantsChangedListener);
         this.dependantList.onItemsAdded(dependantsChangedListener);
 
-        this.appendChildToContentPanel(this.dependantsContainer);
-
-        this.initLoadMask();
-
         this.getBody().onScrolled(() => {
             this.doPostLoad();
         });
@@ -128,7 +116,28 @@ export abstract class DependantItemsDialog
         this.getBody().onScroll(() => {
             this.doPostLoad();
         });
+    }
 
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('dependant-dialog');
+            this.getBody().addClass('mask-wrapper');
+            this.itemList.addClass('item-list');
+            this.appendChildToHeader(this.subTitle);
+            this.appendChildToContentPanel(this.itemList);
+
+            if (this.config.dependantsDescription) {
+                const desc = new api.dom.PEl('dependants-desc').setHtml(this.config.dependantsDescription, false);
+                this.dependantContainerBody.appendChild(desc);
+            }
+
+            this.dependantList.addClass('dependant-list');
+            this.dependantContainerBody.appendChild(this.dependantList);
+            this.dependantsContainer.appendChildren(this.dependantContainerHeader, this.dependantContainerBody);
+            this.appendChildToContentPanel(this.dependantsContainer);
+
+            return rendered;
+        });
     }
 
     public setDependantListVisible(visible: boolean) {
@@ -143,10 +152,6 @@ export abstract class DependantItemsDialog
     protected updateDependantsHeader(header?: string) {
         const count = this.countDependantItems();
         this.dependantContainerHeader.setHtml((header || this.dependantsHeaderText) + ` (${count})`, false);
-    }
-
-    private initLoadMask() {
-        this.loadMask = new LoadMask(this.getContentPanel());
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -180,10 +185,7 @@ export abstract class DependantItemsDialog
     show(hideLoadMask: boolean = false) {
         this.setDependantListVisible(this.showDependantList);
         super.show();
-        if (!hideLoadMask) {
-            this.appendChildToContentPanel(this.loadMask);
-            this.loadMask.show();
-        }
+        this.showLoadMask();
     }
 
     close(clearItems: boolean = true) {
@@ -195,6 +197,18 @@ export abstract class DependantItemsDialog
         }
         this.dependantsContainer.setVisible(false);
         this.unlockControls();
+    }
+
+    protected showLoadMask() {
+        if (this.isRendered()) {
+            this.loadMask.show();
+        } else {
+            const renderedListener: () => void = () => {
+                this.loadMask.show();
+                this.unRendered(renderedListener);
+            };
+            this.onRendered(renderedListener);
+        }
     }
 
     setAutoUpdateTitle(value: boolean) {

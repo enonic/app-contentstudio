@@ -37,23 +37,61 @@ export class MoveContentDialog
     private moveAction: Action;
 
     constructor() {
-        super();
+        super({class: 'move-content-dialog'});
+    }
 
-        this.addClass('move-content-dialog');
+    protected initElements() {
+        super.initElements();
 
         this.contentPathSubHeader = new api.dom.H6El().addClass('content-path');
         this.descriptionHeader = new api.dom.H6El().addClass('desc-message');
         this.initMoveConfirmationDialog();
         this.initProgressManager();
-        this.initSearchInput();
-        this.initMoveAction();
+        this.destinationSearchInput = new ContentMoveComboBox();
+        this.moveAction = new Action(i18n('action.move'), '');
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.destinationSearchInput);
+        this.addClickIgnoredElement(this.moveConfirmationDialog);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.destinationSearchInput.onOptionSelected(() => {
+            this.getButtonRow().focusDefaultAction();
+        });
+
+        this.moveAction.onExecuted(() => {
+            this.checkContentWillMoveOutOfSite().then((isContentToBeMovedOutOfSite: boolean) => {
+                if (isContentToBeMovedOutOfSite) {
+                    this.showConfirmationDialog();
+                } else {
+                    this.doMove();
+                }
+            }).catch((reason) => {
+                api.DefaultErrorHandler.handle(reason);
+            }).done();
+
+        });
 
         this.listenOpenMoveDialogEvent();
+    }
 
-        this.appendChildToHeader(this.contentPathSubHeader);
-        this.appendChildToContentPanel(this.descriptionHeader);
-        this.appendChildToContentPanel(this.destinationSearchInput);
-        this.addCancelButtonToBottom();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.destinationSearchInput.addClass('content-selector');
+            this.appendChildToHeader(this.contentPathSubHeader);
+            this.appendChildToContentPanel(this.descriptionHeader);
+            this.appendChildToContentPanel(this.destinationSearchInput);
+            this.addAction(this.moveAction, true);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     private updateHeaderAndDescription() {
@@ -89,32 +127,6 @@ export class MoveContentDialog
             .setNoCallback(() => {
                 this.open(false);
             });
-    }
-
-    private initSearchInput() {
-        this.destinationSearchInput = new ContentMoveComboBox();
-        this.destinationSearchInput.addClass('content-selector');
-        this.destinationSearchInput.onOptionSelected(() => {
-            this.getButtonRow().focusDefaultAction();
-        });
-    }
-
-    private initMoveAction() {
-        this.addClickIgnoredElement(this.moveConfirmationDialog);
-        this.moveAction = new Action(i18n('action.move'), '')
-            .onExecuted(() => {
-                this.checkContentWillMoveOutOfSite().then((isContentToBeMovedOutOfSite: boolean) => {
-                    if (isContentToBeMovedOutOfSite) {
-                        this.showConfirmationDialog();
-                    } else {
-                        this.doMove();
-                    }
-                }).catch((reason) => {
-                    api.DefaultErrorHandler.handle(reason);
-                }).done();
-
-            });
-        this.addAction(this.moveAction, true);
     }
 
     private initProgressManager() {

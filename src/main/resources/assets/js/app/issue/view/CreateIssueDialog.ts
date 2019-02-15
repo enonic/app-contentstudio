@@ -17,15 +17,12 @@ export class CreateIssueDialog
 
     private backButton: AEl;
 
+    private createAction: CreateIssueAction;
+
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
         super(i18n('dialog.newIssue'));
-
-        this.getEl().addClass('create-issue-dialog');
-
-        this.initElements();
-        this.initElementsListeners();
     }
 
     static get(): CreateIssueDialog {
@@ -35,32 +32,41 @@ export class CreateIssueDialog
         return CreateIssueDialog.INSTANCE;
     }
 
-    private initElements() {
-        this.addCancelButtonToBottom();
+    protected initElements() {
+        super.initElements();
+
         this.itemsLabel = new LabelEl(i18n('field.items'), this.getItemList());
         this.backButton = this.createBackButton();
+        this.createAction = new CreateIssueAction(this.countTotal());
+        this.actionButton = this.addAction(this.createAction, true);
     }
 
-    private initElementsListeners() {
-        let onItemsChanged = (items) => {
-            (<CreateIssueAction>this.actionButton.getAction()).updateLabel(this.getItemList().getItemCount());
-        };
+    protected initListeners() {
+        super.initListeners();
 
+        const onItemsChanged = (items) => {
+            (<CreateIssueAction>this.createAction).updateLabel(this.getItemList().getItemCount());
+        };
         this.getItemList().onItemsAdded(onItemsChanged);
         this.getItemList().onItemsRemoved(onItemsChanged);
+
+        this.createAction.onExecuted(this.doCreateIssue.bind(this));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.getEl().addClass('create-issue-dialog');
             this.itemsLabel.insertBeforeEl(this.getItemList());
             this.prependChildToHeader(this.backButton);
+            this.addCancelButtonToBottom();
+
             return rendered;
         });
     }
 
     public setItems(items: ContentSummaryAndCompareStatus[]): CreateIssueDialog {
         super.setItems(items);
-        (<CreateIssueAction>this.actionButton.getAction()).updateLabel(this.countTotal());
+        this.createAction.updateLabel(this.countTotal());
 
         return this;
     }
@@ -118,12 +124,6 @@ export class CreateIssueDialog
     public unlockPublishItems() {
         this.itemsLabel.hide();
         super.unlockPublishItems();
-    }
-
-    protected initActions() {
-        const createAction = new CreateIssueAction(this.countTotal());
-        createAction.onExecuted(this.doCreateIssue.bind(this));
-        this.actionButton = this.addAction(createAction, true);
     }
 
     public enableBackButton() {

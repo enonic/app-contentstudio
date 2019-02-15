@@ -60,13 +60,13 @@ export class IssueDialogsManager {
             dialog.addClickIgnoredElement(this.createDialog);
         });
         dialog.onIssueSelected(issue => {
-            dialog.addClass('masked');
+            dialog.mask();
             new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
                 this.openDetailsDialog(issueWithComments);
             });
         });
         dialog.onCreateButtonClicked(action => {
-            dialog.addClass('masked');
+            dialog.mask();
             this.openCreateDialog();
         });
     }
@@ -79,12 +79,12 @@ export class IssueDialogsManager {
     }
 
     private closeDialog(dialog: ModalDialog) {
-        dialog.removeClass('masked');
+        dialog.unmask();
         dialog.close();
     }
 
     private revealDialog(dialog: ModalDialog) {
-        dialog.removeClass('masked');
+        dialog.unmask();
         if (dialog.isVisible()) {
             dialog.getEl().focus();
         }
@@ -93,7 +93,7 @@ export class IssueDialogsManager {
     openDetailsDialog(issue: Issue) {
         if (!this.listDialog.isVisible()) {
             this.listDialog.open();
-            this.listDialog.addClass('masked');
+            this.listDialog.mask();
         }
 
         this.detailsDialog.setIssue(issue).open();

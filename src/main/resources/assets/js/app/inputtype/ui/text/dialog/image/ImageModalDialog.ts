@@ -53,16 +53,18 @@ export class ImageModalDialog
     private previewFrame: api.dom.IFrameEl;
     private scrollNavigationWrapperDiv: DivEl;
     private editorWidth: number;
+    protected config: ImageModalDialogConfig;
 
     static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
     constructor(config: eventInfo, content: api.content.ContentSummary) {
-        super(<HtmlAreaModalDialogConfig>{
+        super(<ImageModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
             content: content,
+            editorWidth: config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth,
             title: i18n('dialog.image.title'),
-            cls: 'image-modal-dialog',
+            class: 'image-modal-dialog',
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
@@ -72,11 +74,49 @@ export class ImageModalDialog
         this.editorWidth = config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth;
         this.figure = new api.dom.FigureEl();
 
-        this.initLoader();
-
         this.initPresetImage();
 
         StylesRequest.fetchStyles(content.getId());
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.editorWidth = this.config.editorWidth;
+        this.content = this.config.content;
+        this.figure = new api.dom.FigureEl();
+        this.initPresetImage();
+        this.setSubmitAction(new api.ui.Action(!!this.presetImageEl ? 'Update' : 'Insert'));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.onRendered(() => {
+            this.imageUploaderEl.setParams({
+                parent: this.content.getContentId().toString()
+            });
+            this.imageUploaderEl.show();
+        });
+
+        this.submitAction.onExecuted(() => {
+            this.displayValidationErrors(true);
+            if (this.validate()) {
+                this.updateOriginalDialogInputValues();
+                this.ckeOriginalDialog.getButton('ok').click();
+                this.updateEditorElements();
+                this.close();
+            }
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addAction(this.submitAction);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     private initPresetImage() {
@@ -100,27 +140,12 @@ export class ImageModalDialog
         }
     }
 
-    protected initializeConfig(params: ImageModalDialogConfig) {
-        super.initializeConfig(params);
-
-        this.content = params.content;
-    }
-
     protected setDialogInputValues() {
         const caption: string = !!this.ckeOriginalDialog.getSelectedElement()
                                 ? this.ckeOriginalDialog.getSelectedElement().getText()
                                 : '';
         (<api.dom.InputEl>this.imageCaptionField.getInput()).setValue(caption);
         (<api.dom.InputEl>this.imageAltTextField.getInput()).setValue(this.getOriginalAltTextElem().getValue());
-    }
-
-    private initLoader() {
-        this.onRendered(() => {
-            this.imageUploaderEl.setParams({
-                parent: this.content.getContentId().toString()
-            });
-            this.imageUploaderEl.show();
-        });
     }
 
     private presetImage(presetStyles: string) {
@@ -156,7 +181,7 @@ export class ImageModalDialog
 
         this.imageSelectorFormItem.onRendered(() => {
             this.addUploaderAndPreviewControls();
-            this.setFirstFocusField(this.imageSelectorFormItem.getInput());
+            this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
         } );
 
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
@@ -481,22 +506,6 @@ export class ImageModalDialog
         this.error.show();
     }
 
-    protected initializeActions() {
-        const submitAction = new api.ui.Action(!!this.presetImageEl ? 'Update' : 'Insert');
-        this.setSubmitAction(submitAction);
-        this.addAction(submitAction.onExecuted(() => {
-            this.displayValidationErrors(true);
-            if (this.validate()) {
-                this.updateOriginalDialogInputValues();
-                this.ckeOriginalDialog.getButton('ok').click();
-                this.updateEditorElements();
-                this.close();
-            }
-        }));
-
-        super.initializeActions();
-    }
-
     private updateEditorElements() {
         const imageEl: CKEDITOR.dom.element = (<any>this.ckeOriginalDialog).widget.parts.image;
         const figureEl: CKEDITOR.dom.element = <CKEDITOR.dom.element>imageEl.getAscendant('figure');
@@ -610,9 +619,10 @@ export class ImageModalDialog
     }
 }
 
-export class ImageModalDialogConfig
+export interface ImageModalDialogConfig
     extends HtmlAreaModalDialogConfig {
     content: api.content.ContentSummary;
+    editorWidth: number;
 }
 
 export class ImageDialogToolbar

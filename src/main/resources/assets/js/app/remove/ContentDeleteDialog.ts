@@ -30,6 +30,7 @@ export class ContentDeleteDialog
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
                 title: i18n('dialog.delete'),
+            class: 'delete-dialog',
                 dialogSubName: i18n('dialog.delete.subname'),
                 dependantsDescription: i18n('dialog.delete.dependants'),
                 processingLabel: `${i18n('field.progress.deleting')}...`,
@@ -38,21 +39,30 @@ export class ContentDeleteDialog
                 },
             }
         );
+    }
 
-        this.addClass('delete-dialog');
+    protected initElements() {
+        super.initElements();
+
+        this.actionButton = this.addAction(new ContentDeleteDialogAction(), true, true);
+        this.instantDeleteCheckbox = api.ui.Checkbox.create().setLabelText(i18n('dialog.delete.instantly')).build();
+    }
+
+    protected initListeners() {
+        super.initListeners();
 
         this.getItemList().onItemsRemoved(this.onListItemsRemoved.bind(this));
+        this.actionButton.getAction().onExecuted(this.doDelete.bind(this, false));
+    }
 
-        let deleteAction = new ContentDeleteDialogAction();
-        deleteAction.onExecuted(this.doDelete.bind(this, false));
-        this.actionButton = this.addAction(deleteAction, true, true);
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addCancelButtonToBottom();
+            this.instantDeleteCheckbox.addClass('instant-delete-check');
+            this.appendChild(this.instantDeleteCheckbox);
 
-        this.addCancelButtonToBottom();
-
-        this.instantDeleteCheckbox = api.ui.Checkbox.create().setLabelText(i18n('dialog.delete.instantly')).build();
-        this.instantDeleteCheckbox.addClass('instant-delete-check');
-
-        this.appendChild(this.instantDeleteCheckbox);
+            return rendered;
+        });
     }
 
     private onListItemsRemoved() {
@@ -190,7 +200,7 @@ export class ContentDeleteDialog
 
             this.close();
 
-            new ConfirmContentDeleteDialog({totalItemsToDelete, deleteRequest, yesCallback}).open();
+            new ConfirmContentDeleteDialog({totalItemsToDelete, deleteRequest, yesCallback, title: i18n('dialog.confirmDelete')}).open();
         } else {
             if (this.yesCallback) {
                 this.instantDeleteCheckbox.isChecked() ? this.yesCallback([]) : this.yesCallback();
