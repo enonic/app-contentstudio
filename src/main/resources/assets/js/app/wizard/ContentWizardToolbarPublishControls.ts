@@ -1,10 +1,7 @@
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
-import {PermissionHelper} from './PermissionHelper';
-import {Content} from '../content/Content';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Permission} from '../access/Permission';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
@@ -89,9 +86,9 @@ export class ContentWizardToolbarPublishControls
             return;
         }
 
-        let canBePublished = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
-        let canTreeBePublished = !this.leafContent && this.contentCanBePublished && this.userCanPublish;
-        let canBeUnpublished = this.content.isPublished() && this.userCanPublish;
+        const canBePublished = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
+        const canTreeBePublished = !this.leafContent && this.contentCanBePublished && this.userCanPublish;
+        const canBeUnpublished = this.content.isPublished() && this.userCanPublish;
 
         this.publishAction.setEnabled(canBePublished);
         this.publishTreeAction.setEnabled(canTreeBePublished);
@@ -110,13 +107,6 @@ export class ContentWizardToolbarPublishControls
 
     public isPendingDelete(): boolean {
         return !!this.content && this.content.isPendingDelete();
-    }
-
-    public enableActionsForExisting(existing: Content) {
-        new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            let hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
-            this.setUserCanPublish(hasPublishPermission);
-        });
     }
 
     public getPublishButtonForMobile(): ActionButton {

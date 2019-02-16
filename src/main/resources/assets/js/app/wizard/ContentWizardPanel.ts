@@ -51,6 +51,7 @@ import {ContentType} from '../inputtype/schema/ContentType';
 import {Page} from '../page/Page';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
+import {PermissionHelper} from './PermissionHelper';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -556,11 +557,9 @@ export class ContentWizardPanel
 
             this.updateThumbnailWithContent(persistedContent);
 
-            let publishControls = this.getContentWizardToolbarPublishControls();
             let wizardHeader = this.getWizardHeader();
 
             wizardHeader.setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
-            publishControls.enableActionsForExisting(persistedContent);
 
             if (this.isRendered()) {
 
@@ -1066,6 +1065,9 @@ export class ContentWizardPanel
                     this.setPersistedItem(content.clone());
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
+                    this.isContentPublishableByUser().then((canPublish: boolean) => {
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(canPublish);
+                    });
                 });
 
             } else {
@@ -1365,8 +1367,16 @@ export class ContentWizardPanel
 
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
-            this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
-                !this.getPersistedItem().hasChildren());
+            this.isContentPublishableByUser().then((canPublish: boolean) => {
+                this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
+                    !this.getPersistedItem().hasChildren()).setUserCanPublish(canPublish);
+            });
+        });
+    }
+
+    private isContentPublishableByUser(): wemQ.Promise<boolean> {
+        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
         });
     }
 

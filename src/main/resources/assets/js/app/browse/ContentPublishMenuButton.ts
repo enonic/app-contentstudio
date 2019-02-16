@@ -106,6 +106,7 @@ export class ContentPublishMenuButton
         this.publishAction.onPropertyChanged(actionUpdatedHandler);
         this.publishTreeAction.onPropertyChanged(actionUpdatedHandler);
         this.unpublishAction.onPropertyChanged(actionUpdatedHandler);
+        this.createIssueAction.onPropertyChanged(actionUpdatedHandler);
     }
 
     private updateActiveState() {
