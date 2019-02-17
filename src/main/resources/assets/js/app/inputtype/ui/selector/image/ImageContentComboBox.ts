@@ -5,12 +5,14 @@ import OptionDataHelper = api.ui.selector.OptionDataHelper;
 import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
+import ComboBoxConfig = api.ui.selector.combobox.ComboBoxConfig;
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
 import {ImageOptionDataLoader} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
 import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsView';
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
@@ -64,6 +66,13 @@ export class ImageContentComboBox
         }
 
         return option;
+    }
+
+    protected createComboboxConfig(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>): ComboBoxConfig<ContentTreeSelectorItem> {
+        const config = super.createComboboxConfig(builder);
+        config.treegridDropdownAllowed = true; // to make use DropdownTreeGrid for displaying options
+
+        return config;
     }
 
     getLoader(): ImageOptionDataLoader {
