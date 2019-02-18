@@ -806,8 +806,10 @@ export class ContentWizardPanel
         });
 
 
-        InspectEvent.on(() => {
-            const minimizeWizard = ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
+        InspectEvent.on((event: InspectEvent) => {
+            const minimizeWizard = event.isShowPanel() &&
+                                   !this.contextSplitPanel.isMobileMode() &&
+                                   ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
             if (minimizeWizard) {
                 this.toggleMinimize();
             }

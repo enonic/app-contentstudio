@@ -17,7 +17,7 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
 
         this.componentGridOptions = options;
 
-        this.onRendered((event) => {
+        this.onRendered(() => {
             if (this.componentGridOptions.onClick) {
                 this.setOnClick(this.componentGridOptions.onClick);
             }
@@ -25,16 +25,23 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
     }
 
     protected createOptions(): api.ui.grid.GridOptions<any> {
-        return new api.ui.grid.GridOptionsBuilder().setHideColumnHeaders(true).setRowHeight(50).setHeight('400px').setWidth(
-            '320px').build();
+        return new api.ui.grid.GridOptionsBuilder()
+            .setHideColumnHeaders(true)
+            .setRowHeight(50)
+            .build();
     }
 
     protected createColumns(): api.ui.grid.GridColumn<Insertable>[] {
         return [
-            new api.ui.grid.GridColumnBuilder().setName('component').setField('component').setId('component').setWidth(320).setCssClass(
-                'grid-row').setFormatter((row, cell, value, columnDef, dataContext) => {
-                return this.buildRow(row, cell, value, columnDef, <Insertable>dataContext).toString();
-            }).build()
+            new api.ui.grid.GridColumnBuilder()
+                .setName('component')
+                .setField('component')
+                .setId('component')
+                .setBoundaryWidth(150, 9999)
+                .setCssClass('grid-row')
+                .setFormatter((row, cell, value, columnDef, dataContext) => {
+                    return this.buildRow(row, cell, value, columnDef, <Insertable>dataContext).toString();
+                }).build()
         ];
     }
 

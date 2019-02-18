@@ -71,6 +71,9 @@ export class ContextSplitPanel
         if (this.isInsideWizard()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
             nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
+                return this.isMobileMode();
+            });
         }
         this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
         this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
@@ -160,7 +163,8 @@ export class ContextSplitPanel
 
         const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
-            if (this.mobileMode == null) {
+            // Do not replace with non-strict equality!
+            if (this.mobileMode === undefined) {
                 this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
             }
 

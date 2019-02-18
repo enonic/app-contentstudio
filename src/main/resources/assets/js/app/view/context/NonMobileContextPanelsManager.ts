@@ -41,8 +41,10 @@ export class NonMobileContextPanelsManager {
             }
         });
 
+        const isMobileMode = builder.getIsMobileMode() || (() => false);
+
         InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowPanel() && this.requiresAnimation() && !this.isExpanded()) {
+            if (event.isShowPanel() && !isMobileMode() && this.requiresAnimation() && !this.isExpanded()) {
                 this.doPanelAnimation();
             }
         });
@@ -307,6 +309,8 @@ export class NonMobileContextPanelsManagerBuilder {
 
     private wizardPanel: Panel;
 
+    private isMobileMode: () => boolean;
+
     setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: api.ui.panel.SplitPanel) {
         this.splitPanelWithGridAndContext = splitPanelWithGridAndContext;
     }
@@ -327,6 +331,10 @@ export class NonMobileContextPanelsManagerBuilder {
         this.wizardPanel = wizardPanel;
     }
 
+    setIsMobileMode(isMobileMode: () => boolean) {
+        this.isMobileMode = isMobileMode;
+    }
+
     getSplitPanelWithGridAndContext(): api.ui.panel.SplitPanel {
         return this.splitPanelWithGridAndContext;
     }
@@ -345,6 +353,10 @@ export class NonMobileContextPanelsManagerBuilder {
 
     getWizardPanel(): Panel {
         return this.wizardPanel;
+    }
+
+    getIsMobileMode(): () => boolean {
+        return this.isMobileMode;
     }
 
     build(): NonMobileContextPanelsManager {
