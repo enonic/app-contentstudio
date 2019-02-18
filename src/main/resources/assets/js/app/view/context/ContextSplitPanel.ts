@@ -160,7 +160,7 @@ export class ContextSplitPanel
 
         const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
-            if (this.mobileMode === undefined) {
+            if (this.mobileMode == null) {
                 this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
             }
 
