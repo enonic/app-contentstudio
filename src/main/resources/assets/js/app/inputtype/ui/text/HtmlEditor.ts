@@ -209,7 +209,6 @@ export class HtmlEditor {
 
                 const imgUrl = new ImageUrlResolver()
                     .setContentId(mediaContent.id)
-                    .disableCropping()
                     .resolveForPreview();
 
                 data.url = imgUrl;

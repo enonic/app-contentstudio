@@ -325,6 +325,10 @@ export class ImageModalDialog
 
         this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' ').trim());
 
+        if (!StyleHelper.getAlignmentStyles().some(style => this.figure.hasClass(style))) {
+            this.figure.setClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
+        }
+
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
