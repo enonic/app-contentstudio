@@ -4,7 +4,9 @@ import {FontIcon} from '../../../../icon/FontIcon';
 export class EmulatorGrid extends api.ui.grid.Grid<any> {
 
     protected createOptions(): api.ui.grid.GridOptions<any> {
-        return new api.ui.grid.GridOptionsBuilder().setHideColumnHeaders(true).setRowHeight(50).setHeight('450px').setWidth('320px')
+        return new api.ui.grid.GridOptionsBuilder()
+            .setHideColumnHeaders(true)
+            .setRowHeight(50)
             .build();
     }
 
@@ -14,7 +16,7 @@ export class EmulatorGrid extends api.ui.grid.Grid<any> {
                 .setName('device')
                 .setField('device')
                 .setId('device')
-                .setWidth(320)
+                .setBoundaryWidth(150, 9999)
                 .setCssClass('grid-row')
                 .setFormatter((row, cell, value) => EmulatorGrid.buildRow(value).toString())
                 .build()
