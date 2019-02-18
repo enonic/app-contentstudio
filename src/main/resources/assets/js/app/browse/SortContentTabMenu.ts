@@ -189,4 +189,8 @@ export class SortContentTabMenu extends api.ui.tab.TabMenu {
         return this.dropdownHandle.giveFocus();
     }
 
+    getDropdownHandle(): DropdownHandle {
+        return this.dropdownHandle;
+    }
+
 }

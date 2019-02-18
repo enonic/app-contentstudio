@@ -4,7 +4,7 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentImageUrlResolver} from '../content/ContentImageUrlResolver';
+import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {RepositoryId} from '../repository/RepositoryId';
 import {EmulatedEvent} from '../event/EmulatedEvent';
@@ -78,12 +78,14 @@ export class ContentItemPreviewPanel
 
                 this.setMediaPreviewMode(item);
 
-            } else if (contentSummary.getType().isImage() ||
-                       contentSummary.getType().isVectorMedia()) {
+            } else if (contentSummary.getType().isImage() || contentSummary.getType().isVectorMedia()) {
 
                 this.setImagePreviewMode(item);
+
             } else {
+
                 this.setPagePreviewMode(item);
+
             }
         }
         this.toolbar.setItem(item.getModel());
@@ -198,15 +200,17 @@ export class ContentItemPreviewPanel
     }
 
     private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        const imgSize = Math.max(this.getEl().getWidth(), (this.getEl().getHeight() - this.toolbar.getEl().getHeight()));
+        const imgWidth = this.getEl().getWidth();
+        const imgHeight = this.getEl().getHeight() - this.toolbar.getEl().getHeight();
+        const imgSize = Math.max(imgWidth, imgHeight);
         const content = item.getModel().getContentSummary();
-        const imgUrl = new ContentImageUrlResolver()
-                        .setContentId(content.getContentId())
-                        .setTimestamp(content.getModifiedTime())
-                        .setSize(imgSize)
-                        .resolve();
 
-        this.image.setSrc(imgUrl);
+        const imgUrlResolver = new ImageUrlResolver()
+            .setContentId(content.getContentId())
+            .setTimestamp(content.getModifiedTime())
+            .setSize(imgSize);
+
+        this.image.setSrc(imgUrlResolver.resolveForPreview());
     }
 
     public getItem(): ViewItem<ContentSummaryAndCompareStatus> {
@@ -305,11 +309,14 @@ export class ContentItemPreviewPanel
         const contentSummary = item.getModel().getContentSummary();
 
         if (this.isVisible()) {
-            if (contentSummary.getType().equals(ContentTypeName.MEDIA_VECTOR)) {
+            if (contentSummary.getType().isVectorMedia()) {
                 this.setPreviewType(PREVIEW_TYPE.SVG);
-                const imgUrl = new ContentImageUrlResolver().setContentId(
-                    contentSummary.getContentId()).setTimestamp(
-                    contentSummary.getModifiedTime()).resolve();
+
+                const imgUrl = new ImageUrlResolver()
+                    .setContentId(contentSummary.getContentId())
+                    .setTimestamp(contentSummary.getModifiedTime())
+                    .resolveForPreview();
+
                 this.image.setSrc(imgUrl);
             } else {
                 this.addImageSizeToUrl(item);

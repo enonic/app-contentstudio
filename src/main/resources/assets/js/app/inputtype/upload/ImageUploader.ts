@@ -37,7 +37,8 @@ export class ImageUploader
             operation: MediaUploaderElOperation.update,
             name: config.input.getName(),
             maximumOccurrences: 1,
-            hideDefaultDropZone: true
+            hideDefaultDropZone: true,
+            selfIsDropzone: false
         });
 
         this.imageUploader.getUploadButton().hide();

@@ -10,9 +10,9 @@ export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
 
     constructor() {
-
         super(<DependantItemsWithProgressDialogConfig> {
             title: i18n('dialog.unpublish'),
+            class: 'unpublish-dialog',
                 dialogSubName: i18n('dialog.unpublish.subname'),
             dependantsName: i18n('dialog.showDependants'),
             dependantsDescription: i18n('dialog.unpublish.dependants'),
@@ -22,15 +22,22 @@ export class ContentUnpublishDialog
                 },
             }
         );
+    }
 
-        this.getEl().addClass('unpublish-dialog');
+    protected initElements() {
+        super.initElements();
 
-        const unpublishAction = new ContentUnpublishDialogAction();
-        unpublishAction.onExecuted(this.doUnpublish.bind(this));
-        this.actionButton = this.addAction(unpublishAction, true, true);
+        this.actionButton = this.addAction(new ContentUnpublishDialogAction(), true, true);
+    }
+
+    protected postInitElements() {
         this.lockControls();
+    }
 
-        this.addCancelButtonToBottom();
+    protected initListeners() {
+        super.initListeners();
+
+        this.actionButton.getAction().onExecuted(this.doUnpublish.bind(this));
 
         this.getItemList().onItemsRemoved((items: ContentSummaryAndCompareStatus[]) => {
             if (!this.isIgnoreItemsChanged()) {
@@ -41,8 +48,19 @@ export class ContentUnpublishDialog
         this.onProgressComplete(() => this.setSubTitle(i18n('dialog.unpublish.subname'), false));
     }
 
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
+    }
+
     open() {
-        this.reloadUnpublishDependencies();
+        this.reloadUnpublishDependencies().then(() => {
+            this.updateTabbable();
+            this.getButtonRow().focusDefaultAction();
+        });
 
         super.open();
     }
@@ -56,7 +74,7 @@ export class ContentUnpublishDialog
         this.lockControls();
 
         return this.loadDescendantIds([CompareStatus.EQUAL, CompareStatus.NEWER, CompareStatus.PENDING_DELETE]).then(() => {
-            this.loadDescendants(0, 20).then((items: ContentSummaryAndCompareStatus[]) => {
+            return this.loadDescendants(0, 20).then((items: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(items);
 
                 // do not set requested contents as they are never going to change
@@ -64,6 +82,7 @@ export class ContentUnpublishDialog
                 this.unlockControls();
             }).finally(() => {
                 this.loadMask.hide();
+                return wemQ(null);
             });
         });
 

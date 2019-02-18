@@ -28,10 +28,51 @@ export class FindAndReplaceDialog
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.search.title'),
-            cls: 'search-and-replace-modal-dialog'
+            class: 'search-and-replace-modal-dialog search-and-replace-modal-dialog-cke'
+        });
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.findAction = new Action(i18n('dialog.search.find'));
+        this.replaceAction = new Action(i18n('action.replace'));
+        this.replaceAllAction = new Action(i18n('action.replaceall'));
+        this.setSubmitAction(this.findAction);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.findAction.onExecuted(() => {
+            this.getElementFromOriginalDialog('find', 'txtFindFind').setValue(this.findInput.getValue(), false);
+            this.setCheckboxesValuesToOriginalDialogFind();
+            (<button>this.getElementFromOriginalDialog('find', 'btnFind')).click();
         });
 
-        this.addClass('search-and-replace-modal-dialog-cke');
+        this.replaceAction.onExecuted(() => {
+            this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
+            this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
+            this.setCheckboxesValuesToOriginalDialogReplace();
+            (<button>this.getElementFromOriginalDialog('replace', 'btnFindReplace')).click();
+        });
+
+        this.replaceAllAction.onExecuted(() => {
+            this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
+            this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
+            this.setCheckboxesValuesToOriginalDialogReplace();
+            (<button>this.getElementFromOriginalDialog('replace', 'btnReplaceAll')).click();
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addAction(this.findAction);
+            this.addAction(this.replaceAction);
+            this.addAction(this.replaceAllAction);
+
+            return rendered;
+        });
     }
 
     protected getMainFormItems(): FormItem[] {
@@ -47,7 +88,7 @@ export class FindAndReplaceDialog
         this.wholeWordsCheckbox = <Checkbox>wholeWordsCheckbox.getInput();
         this.matchCyclicCheckbox = <Checkbox>matchCyclicCheckbox.getInput();
 
-        this.setFirstFocusField(findField.getInput());
+        this.setElementToFocusOnShow(findField.getInput());
 
         return [
             findField,
@@ -59,7 +100,7 @@ export class FindAndReplaceDialog
     }
 
     private createCheckbox(id: string, label: string, checked?: boolean): FormItem {
-        let checkbox: Checkbox = Checkbox.create().setLabelText(label).setChecked(checked).setInputAlignment(
+        const checkbox: Checkbox = Checkbox.create().setLabelText(label).setChecked(checked).setInputAlignment(
             InputAlignment.RIGHT).build();
 
         checkbox.onValueChanged(() => {
@@ -75,25 +116,6 @@ export class FindAndReplaceDialog
         //
     }
 
-    protected initializeActions() {
-        this.addAction(this.createFindAction());
-        this.addAction(this.createReplaceAction());
-        this.addAction(this.createReplaceAllAction());
-
-        this.setSubmitAction(this.findAction);
-    }
-
-    private createFindAction(): Action {
-        this.findAction = new Action(i18n('dialog.search.find'));
-        this.findAction.onExecuted(() => {
-            this.getElementFromOriginalDialog('find', 'txtFindFind').setValue(this.findInput.getValue(), false);
-            this.setCheckboxesValuesToOriginalDialogFind();
-            (<button>this.getElementFromOriginalDialog('find', 'btnFind')).click();
-        });
-
-        return this.findAction;
-    }
-
     private getElementFromOriginalDialog(pageId: string, elementId: string) {
         return this.ckeOriginalDialog.getContentElement(pageId, elementId);
     }
@@ -104,35 +126,9 @@ export class FindAndReplaceDialog
         this.ckeOriginalDialog.getContentElement('find', 'txtFindCyclic').setValue(this.matchCyclicCheckbox.isChecked(), false);
     }
 
-    private createReplaceAction(): Action {
-        this.replaceAction = new Action(i18n('action.replace'));
-
-        this.replaceAction.onExecuted(() => {
-            this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
-            this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
-            this.setCheckboxesValuesToOriginalDialogReplace();
-            (<button>this.getElementFromOriginalDialog('replace', 'btnFindReplace')).click();
-        });
-
-        return this.replaceAction;
-    }
-
     private setCheckboxesValuesToOriginalDialogReplace() {
         this.ckeOriginalDialog.getContentElement('replace', 'txtReplaceCaseChk').setValue(this.matchCaseCheckbox.isChecked(), false);
         this.ckeOriginalDialog.getContentElement('replace', 'txtReplaceWordChk').setValue(this.wholeWordsCheckbox.isChecked(), false);
         this.ckeOriginalDialog.getContentElement('replace', 'txtReplaceCyclic').setValue(this.matchCyclicCheckbox.isChecked(), false);
-    }
-
-    private createReplaceAllAction(): Action {
-        this.replaceAllAction = new Action(i18n('action.replaceall'));
-
-        this.replaceAllAction.onExecuted(() => {
-            this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
-            this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
-            this.setCheckboxesValuesToOriginalDialogReplace();
-            (<button>this.getElementFromOriginalDialog('replace', 'btnReplaceAll')).click();
-        });
-
-        return this.replaceAllAction;
     }
 }

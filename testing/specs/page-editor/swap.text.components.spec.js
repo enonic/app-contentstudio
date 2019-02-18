@@ -59,7 +59,7 @@ describe('Swap two Text Component - specification', function () {
                 return contentWizard.switchToMainFrame();
             }).then(() => {
                 return contentWizard.hotKeySave();
-            }).pause(1000).then(() => {
+            }).pause(1500).then(() => {
                 return pageComponentView.swapComponents("component2", "component1");
             }).then(() => {
                 studioUtils.saveScreenshot('text_components_swapped');

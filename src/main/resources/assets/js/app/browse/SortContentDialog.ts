@@ -29,53 +29,91 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
     private gridDragHandler: ContentGridDragHandler;
 
-    private isOpen: boolean;
+    private gridLoadedHandler: () => void;
 
     private saveButton: DialogButton;
 
     constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('dialog.sort')
+            title: i18n('dialog.sort'),
+            class: 'sort-content-dialog'
         });
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.initTabMenu();
+        this.sortContentMenu = new SortContentTabMenu();
+        this.contentGrid = new SortContentTreeGrid();
+        this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
+        this.sortAction = new SaveSortedContentAction(this);
+        this.saveButton = this.addAction(this.sortAction);
+    }
 
-        this.initSortContentMenu();
+    protected postInitElements() {
+        super.postInitElements();
 
-        this.getEl().addClass('sort-content-dialog');
+        this.setElementToFocusOnShow(this.sortContentMenu.getDropdownHandle());
+    }
 
-        this.initSortContentGrid();
+    protected initListeners() {
+        super.initListeners();
 
-        this.initGridDragHandler();
+        this.sortContentMenu.onSortOrderChanged(() => {
+            this.handleOnSortOrderChangedEvent();
+            this.saveButton.giveFocus();
+        });
 
-        this.populateContentPanel();
 
-        this.initSaveButtonWithAction();
+        this.gridDragHandler.onPositionChanged(() => {
+            this.sortContentMenu.selectManualSortingItem();
+        });
+
+        this.sortAction.onExecuted(() => {
+            this.handleSortAction();
+        });
+
+        this.gridLoadedHandler = () => {
+            this.notifyResize();
+            this.contentGrid.render(true);
+        };
 
         OpenSortDialogEvent.on((event) => {
             this.handleOpenSortDialogEvent(event);
         });
-
-        this.addCancelButtonToBottom();
     }
 
-    open() {
-        if (!this.isOpen) {
-            this.contentGrid.getGrid().resizeCanvas();
-            super.open();
-            this.isOpen = true;
-        }
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.saveButton.addClass('save-button');
+            this.sortContentMenu.show();
+            this.appendChildToHeader(this.sortContentMenu);
+
+            const header = new api.dom.H6El();
+            header.setHtml(i18n('dialog.sort.preface'));
+            this.appendChildToContentPanel(header);
+
+            this.contentGrid.getEl().addClass('sort-content-grid');
+            this.appendChildToContentPanel(this.contentGrid);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     show() {
+        this.contentGrid.getGrid().resizeCanvas();
         super.show();
+        this.contentGrid.onLoaded(this.gridLoadedHandler);
+        this.contentGrid.reload(this.parentContent);
         this.sortContentMenu.focus();
     }
 
     close() {
         this.remove();
+        this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
-        this.isOpen = false;
         this.contentGrid.setChildOrder(null);
         this.gridDragHandler.clearContentMovements();
     }
@@ -84,61 +122,13 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         return this.parentContent;
     }
 
-    private initSortContentGrid() {
-        this.contentGrid = new SortContentTreeGrid();
-        this.contentGrid.getEl().addClass('sort-content-grid');
-        this.contentGrid.onLoaded(() => {
-            this.notifyResize();
-            this.contentGrid.render(true);
-            if (this.contentGrid.getContentId()) {
-                this.open();
-            }
-        });
-    }
-
-    private initGridDragHandler() {
-        this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
-        this.gridDragHandler.onPositionChanged(() => {
-            this.sortContentMenu.selectManualSortingItem();
-        });
-    }
-
     private initTabMenu() {
-        let menu = new api.ui.tab.TabMenu();
-        let tabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
+        const menu = new api.ui.tab.TabMenu();
+        const tabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
         tabMenuItem.setActive(true);
         menu.addNavigationItem(tabMenuItem);
         menu.selectNavigationItem(0);
         menu.show();
-    }
-
-    private initSortContentMenu() {
-        this.sortContentMenu = new SortContentTabMenu();
-        this.sortContentMenu.show();
-        this.appendChildToHeader(this.sortContentMenu);
-
-        this.sortContentMenu.onSortOrderChanged(() => {
-            this.handleOnSortOrderChangedEvent();
-            this.saveButton.giveFocus();
-        });
-    }
-
-    private initSaveButtonWithAction() {
-        this.sortAction = new SaveSortedContentAction(this);
-
-        this.saveButton = this.addAction(this.sortAction);
-        this.saveButton.addClass('save-button');
-
-        this.sortAction.onExecuted(() => {
-            this.handleSortAction();
-        });
-    }
-
-    private populateContentPanel() {
-        let header = new api.dom.H6El();
-        header.setHtml(i18n('dialog.sort.preface'));
-        this.appendChildToContentPanel(header);
-        this.appendChildToContentPanel(this.contentGrid);
     }
 
     private handleSortAction() {
@@ -166,7 +156,6 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.prevChildOrder = null;
         this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
 
-        this.contentGrid.reload(this.parentContent);
         if (!this.parentContent.hasChildren()) {
             this.contentGrid.getEl().setAttribute('data-content', event.getContent().getPath().toString());
             this.contentGrid.addClass('no-content');
@@ -174,6 +163,8 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
             this.contentGrid.removeClass('no-content');
             this.contentGrid.getEl().removeAttribute('data-content');
         }
+
+        this.open();
     }
 
     private handleOnSortOrderChangedEvent() {

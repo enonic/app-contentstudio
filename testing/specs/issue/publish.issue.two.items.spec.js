@@ -45,7 +45,10 @@ describe('publish.issue.details.dialog.items.spec: 2 item added and published', 
             return studioUtils.findContentAndClickCheckBox(folder1.displayName).then(() => {
                 return studioUtils.findContentAndClickCheckBox(folder2.displayName)
             }).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                return contentBrowsePanel.waitForPublishButtonVisible();
+            }).then(() => {
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(() => {
@@ -74,7 +77,7 @@ describe('publish.issue.details.dialog.items.spec: 2 item added and published', 
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
                 return issueDetailsDialogItemsTab.clickOnPublishAndCloseIssueButton();
-            }).then(() => {
+            }).pause(1500).then(() => {
                 return issueDetailsDialog.waitForNotificationMessage();
             }).then(messages => {
                 let expected = appConstant.issueClosedNotificationMessage(issueTitle);

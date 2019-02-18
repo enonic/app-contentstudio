@@ -28,25 +28,40 @@ export class ContentDuplicateDialog
 
     private openTabAfterDuplicate: boolean;
 
+    private duplicateAction: ContentDuplicateDialogAction;
+
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
                 title: i18n('dialog.duplicate'),
+            class: 'content-duplicate-dialog',
                 showDependantList: false,
                 dependantsDescription: i18n('dialog.duplicate.dependants'),
                 processingLabel: `${i18n('field.progress.duplicating')}...`,
                 processHandler: () => new ContentDuplicatePromptEvent([]).fire()
             }
         );
+    }
 
-        this.addClass('content-duplicate-dialog');
+    protected initElements() {
+        super.initElements();
 
-        const duplicateAction = new ContentDuplicateDialogAction();
-        duplicateAction.onExecuted(this.doDuplicate.bind(this, false));
-        this.actionButton = this.addAction(duplicateAction, true, true);
+        this.duplicateAction = new ContentDuplicateDialogAction();
+        this.actionButton = this.addAction(this.duplicateAction, true, true);
+    }
 
-        this.addCancelButtonToBottom();
+    protected initListeners() {
+        super.initListeners();
 
+        this.duplicateAction.onExecuted(this.doDuplicate.bind(this, false));
         this.initItemListListeners();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     private initItemListListeners() {
@@ -167,7 +182,7 @@ export class ContentDuplicateDialog
 
     private checkFinished(): wemQ.Promise<Boolean> {
 
-        let deferred = wemQ.defer<Boolean>();
+        const deferred = wemQ.defer<Boolean>();
 
         const handler = (taskState: TaskState) => {
             if (taskState === TaskState.FINISHED) {
@@ -183,7 +198,7 @@ export class ContentDuplicateDialog
 
     private checkDuplicated(itemToDuplicate: ContentSummary) {
 
-        let deferred = wemQ.defer<ContentSummary>();
+        const deferred = wemQ.defer<ContentSummary>();
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 
@@ -214,9 +229,9 @@ export class ContentDuplicateDialog
     }
 
     private openTab(content: ContentSummary) {
-        let tabId = AppBarTabId.forEdit(content.getContentId().toString());
+        const tabId = AppBarTabId.forEdit(content.getContentId().toString());
 
-        let wizardParams = new ContentWizardPanelParams()
+        const wizardParams = new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(content.getType())
             .setContentId(content.getContentId());

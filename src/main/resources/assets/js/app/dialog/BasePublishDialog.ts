@@ -13,7 +13,28 @@ export abstract class BasePublishDialog
 
     constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
-        this.addClass('schedulable-dialog');
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.initActions();
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        if (!this.showScheduleAction) {
+            this.showScheduleAction.onExecuted(this.showScheduleDialog.bind(this));
+        }
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('schedulable-dialog');
+
+            return rendered;
+        });
     }
 
     getButtonRow(): DropdownButtonRow {
@@ -67,14 +88,14 @@ export abstract class BasePublishDialog
     }
 
     protected hasSubDialog(): boolean {
-        return true;
+        return this.isMasked();
     }
 
     private showScheduleDialog() {
         if (!this.scheduleDialog) {
             this.scheduleDialog = new SchedulePublishDialog();
             this.scheduleDialog.onClose(() => {
-                this.removeClass('masked');
+                this.unmask();
                 this.getEl().focus();
             });
             this.scheduleDialog.onSchedule(() => {
@@ -84,7 +105,7 @@ export abstract class BasePublishDialog
             this.addClickIgnoredElement(this.scheduleDialog);
         }
         this.scheduleDialog.open();
-        this.addClass('masked');
+        this.mask();
     }
 
     private countToPublish(summaries: ContentSummaryAndCompareStatus[]): number {

@@ -1,4 +1,4 @@
-import {isContentSummaryValid, PublishDialogDependantList} from './PublishDialogDependantList';
+import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
@@ -41,6 +41,7 @@ export class ContentPublishDialog
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
             title: i18n('dialog.publish'),
+            class: 'publish-dialog',
                 dialogSubName: i18n('dialog.publish.resolving'),
             dependantsDescription: i18n('dialog.publish.dependants'),
             showDependantList: false,
@@ -51,8 +52,24 @@ export class ContentPublishDialog
                 buttonRow: new ContentPublishDialogButtonRow(),
             }
         );
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+        this.loadCurrentUser();
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.getButtonRow().getActionMenu().getDropdownHandle());
+        this.addClickIgnoredElement(CreateIssueDialog.get());
+    }
+
+    protected initListeners() {
+        super.initListeners();
 
         this.publishProcessor.onLoadingStarted(() => {
             this.lockControls();
@@ -90,14 +107,15 @@ export class ContentPublishDialog
             this.updateSubTitleShowScheduleAndButtonCount();
         });
 
-        this.getEl().addClass('publish-dialog');
-
-        this.initActions();
-        this.addCancelButtonToBottom();
-        this.loadCurrentUser();
         this.handleIssueGlobalEvents();
+    }
 
-        this.addClickIgnoredElement(CreateIssueDialog.get());
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
     }
 
     private loadCurrentUser() {
@@ -143,15 +161,7 @@ export class ContentPublishDialog
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        let dependants = new PublishDialogDependantList();
-
-        dependants.onItemClicked((item: ContentSummaryAndCompareStatus) => {
-            if (!isContentSummaryValid(item)) {
-                this.close();
-            }
-        });
-
-        return dependants;
+        return new PublishDialogDependantList();
     }
 
     protected getDependantList(): PublishDialogDependantList {
@@ -180,7 +190,7 @@ export class ContentPublishDialog
     }
 
     private updateSubTitleShowScheduleAndButtonCount() {
-        let count = this.countTotal();
+        const count = this.countTotal();
 
         this.updateSubTitle(count);
         this.updateShowScheduleDialogButton();
@@ -246,7 +256,7 @@ export class ContentPublishDialog
     }
 
     private showCreateIssueDialog() {
-        let createIssueDialog = CreateIssueDialog.get();
+        const createIssueDialog = CreateIssueDialog.get();
 
         createIssueDialog.enableBackButton();
         createIssueDialog.setItems(this.getItemList().getItems()/*idsToPublish, this.getItemList().getExcludeChildrenIds()*/);
@@ -256,7 +266,7 @@ export class ContentPublishDialog
         createIssueDialog.lockPublishItems();
         createIssueDialog.open(this);
 
-        this.addClass('masked');
+        this.mask();
     }
 
     private createIssue() {
@@ -352,10 +362,6 @@ export class ContentPublishDialog
 
     private areItemsAndDependantsValid(): boolean {
         return !this.publishProcessor.containsInvalidItems();
-    }
-
-    protected hasSubDialog(): boolean {
-        return true;
     }
 
     protected lockControls() {

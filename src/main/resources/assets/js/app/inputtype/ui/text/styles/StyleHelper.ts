@@ -31,4 +31,13 @@ export class StyleHelper {
     public static isOriginalImage(style: string) {
         return style.indexOf(StyleHelper.STYLE.PROCESSING.ORIGINAL) > -1;
     }
+
+    public static getAlignmentStyles(): string[] {
+        return [
+            StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS,
+            StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS,
+            StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
+            StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS
+        ];
+    }
 }

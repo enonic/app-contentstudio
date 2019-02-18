@@ -247,7 +247,9 @@ export class LiveFormPanel
                 const newValue = event.getNewValue();
 
                 if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !api.ObjectHelper.objectEquals(oldValue, newValue)) {
-                    this.contentWizardPanel.saveChanges();
+                    this.contentWizardPanel.saveChanges().catch((error: any) => {
+                        api.DefaultErrorHandler.handle(error);
+                    });
                     this.minimizeContentFormPanelIfNeeded();
                 }
                 if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE) {
@@ -259,7 +261,9 @@ export class LiveFormPanel
                           !this.pageModel.hasController())) {
                         this.pageInspectionPanel.refreshInspectionHandler(this.liveEditModel);
                         this.lockPageAfterProxyLoad = true;
-                        this.contentWizardPanel.saveChanges();
+                        this.contentWizardPanel.saveChanges().catch((error: any) => {
+                            api.DefaultErrorHandler.handle(error);
+                        });
                     }
                 }
             }
@@ -325,7 +329,9 @@ export class LiveFormPanel
                 }
             }
 
-            this.contentWizardPanel.saveChanges();
+            this.contentWizardPanel.saveChanges().catch((error: any) => {
+                api.DefaultErrorHandler.handle(error);
+            });
         });
 
         this.contentInspectionPanel = new ContentInspectionPanel();
@@ -522,7 +528,7 @@ export class LiveFormPanel
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
         this.pageSkipReload = true;
-        let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
+        const componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT,
             RepositoryId.CONTENT_REPO_ID,
@@ -532,12 +538,12 @@ export class LiveFormPanel
             this.pageSkipReload = false;
             componentView.showLoadingSpinner();
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl);
-        }).catch((errorMessage: any) => {
+        }).catch((error: any) => {
 
-            api.DefaultErrorHandler.handle(errorMessage);
+            api.DefaultErrorHandler.handle(error);
 
             componentView.hideLoadingSpinner();
-            componentView.showRenderingError(componentUrl, errorMessage);
+            componentView.showRenderingError(componentUrl, error.message);
         }).done();
     }
 

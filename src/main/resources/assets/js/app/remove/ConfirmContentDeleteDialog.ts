@@ -1,8 +1,10 @@
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {CompareStatus} from '../content/CompareStatus';
+import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import i18n = api.util.i18n;
 
-export interface ConfirmContentDeleteDialogConfig {
+export interface ConfirmContentDeleteDialogConfig
+    extends ModalDialogConfig {
 
     totalItemsToDelete: number;
 
@@ -20,55 +22,35 @@ export class ConfirmContentDeleteDialog
 
     private input: api.ui.text.TextInput;
 
-    private deleteConfig: ConfirmContentDeleteDialogConfig;
+    protected config: ConfirmContentDeleteDialogConfig;
 
     constructor(deleteConfig: ConfirmContentDeleteDialogConfig) {
-        super(<api.ui.dialog.ModalDialogConfig>{title: i18n('dialog.confirmDelete')});
-
-        this.deleteConfig = deleteConfig;
+        super(deleteConfig);
 
         this.getEl().addClass('confirm-delete-dialog');
+    }
 
-        this.addSubtitle();
+    protected initElements() {
+        super.initElements();
 
         this.initConfirmDeleteAction();
-
         this.initConfirmationInput();
-
-        this.initConfirmationBlock();
-
-        this.addCancelButtonToBottom();
     }
 
-    show() {
-        super.show();
-        this.input.giveFocus();
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.input);
     }
 
-    close() {
-        super.close();
-        this.remove();
-    }
+    protected initListeners() {
+        super.initListeners();
 
-    private addSubtitle() {
-        this.appendChildToHeader(new api.dom.H6El('confirm-delete-subtitle').setHtml(i18n('dialog.confirmDelete.subname')));
-    }
-
-    private initConfirmDeleteAction() {
-        this.confirmDeleteAction = new api.ui.Action(i18n('action.confirm'));
-
-        this.confirmDeleteAction.setIconClass('confirm-delete-action');
-        this.confirmDeleteAction.setEnabled(false);
         this.confirmDeleteAction.onExecuted(() => {
             this.close();
-            this.deleteConfig.yesCallback();
+            this.config.yesCallback();
         });
 
-        this.confirmDeleteButton = this.addAction(this.confirmDeleteAction, true, true);
-    }
-
-    private initConfirmationInput() {
-        this.input = api.ui.text.TextInput.middle('text').setForbiddenCharsRe(/[^0-9]/);
         this.input.onValueChanged((event: api.ValueChangedEvent) => {
             if (this.isInputEmpty()) {
                 this.input.removeClass('invalid valid');
@@ -90,14 +72,41 @@ export class ConfirmContentDeleteDialog
         });
     }
 
-    private initConfirmationBlock() {
-        let confirmationText = new api.dom.PEl('confirm-delete-text')
-            .setHtml(i18n('dialog.confirmDelete.enterAmount', this.deleteConfig.totalItemsToDelete), false);
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildToHeader(new api.dom.H6El('confirm-delete-subtitle').setHtml(i18n('dialog.confirmDelete.subname')));
 
-        let confirmationDiv = new api.dom.DivEl('confirm-delete-block')
-            .appendChildren(confirmationText, this.input);
+            const confirmationText = new api.dom.PEl('confirm-delete-text')
+                .setHtml(i18n('dialog.confirmDelete.enterAmount', this.config.totalItemsToDelete), false);
+            const confirmationDiv = new api.dom.DivEl('confirm-delete-block').appendChildren(confirmationText, this.input);
+            this.appendChildToContentPanel(confirmationDiv);
 
-        this.appendChildToContentPanel(confirmationDiv);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
+    }
+
+    show() {
+        super.show();
+        this.input.giveFocus();
+    }
+
+    close() {
+        super.close();
+        this.remove();
+    }
+
+    private initConfirmDeleteAction() {
+        this.confirmDeleteAction = new api.ui.Action(i18n('action.confirm'));
+        this.confirmDeleteAction.setIconClass('confirm-delete-action');
+        this.confirmDeleteAction.setEnabled(false);
+
+        this.confirmDeleteButton = this.addAction(this.confirmDeleteAction, true, true);
+    }
+
+    private initConfirmationInput() {
+        this.input = api.ui.text.TextInput.middle('text').setForbiddenCharsRe(/[^0-9]/);
     }
 
     private isInputEmpty(): boolean {
@@ -105,6 +114,6 @@ export class ConfirmContentDeleteDialog
     }
 
     private isCorrectNumberEntered(): boolean {
-        return this.input.getValue() === this.deleteConfig.totalItemsToDelete.toString();
+        return this.input.getValue() === this.config.totalItemsToDelete.toString();
     }
 }

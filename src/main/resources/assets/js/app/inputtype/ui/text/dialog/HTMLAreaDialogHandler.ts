@@ -98,10 +98,10 @@ export class HTMLAreaDialogHandler {
             if (HTMLAreaDialogHandler.getOpenDialog() === fullscreenDialog) {
                 return;
             }
-            fullscreenDialog.addClass('masked');
+            fullscreenDialog.mask();
 
             HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
-                fullscreenDialog.removeClass('masked');
+                fullscreenDialog.unmask();
             });
         };
 
