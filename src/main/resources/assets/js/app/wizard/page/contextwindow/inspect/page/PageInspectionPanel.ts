@@ -1,23 +1,18 @@
-import {PageTemplateSelector} from './PageTemplateSelector';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {PageTemplateForm} from './PageTemplateForm';
-import {PageControllerForm} from './PageControllerForm';
-import {PageControllerSelector} from './PageControllerSelector';
-import {PageTemplateOption} from './PageTemplateOption';
 import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageModel, SetTemplate} from '../../../../../../page-editor/PageModel';
-import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
-import {PageTemplate} from '../../../../../content/PageTemplate';
+import {PageModel} from '../../../../../../page-editor/PageModel';
 import {PageMode} from '../../../../../page/PageMode';
+import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
+import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import PropertyChangedEvent = api.PropertyChangedEvent;
 import PropertyTree = api.data.PropertyTree;
 import FormContextBuilder = api.form.FormContextBuilder;
 import FormView = api.form.FormView;
 import FormContext = api.form.FormContext;
 import PageDescriptor = api.content.page.PageDescriptor;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ActionButton = api.ui.button.ActionButton;
+import i18n = api.util.i18n;
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -26,13 +21,9 @@ export class PageInspectionPanel
 
     private pageModel: PageModel;
 
-    private pageTemplateSelector: PageTemplateSelector;
+    private pageTemplateAndControllerSelector: PageTemplateAndControllerSelector;
 
-    private pageTemplateForm: PageTemplateForm;
-
-    private pageControllerForm: PageControllerForm;
-
-    private pageControllerSelector: PageControllerSelector;
+    private pageTemplateAndControllerForm: PageTemplateAndControllerForm;
 
     private inspectionHandler: BaseInspectionHandler;
 
@@ -49,108 +40,36 @@ export class PageInspectionPanel
     }
 
     private layout() {
-
-        this.pageModel.unReset(this.handlePageModelReset.bind(this));
-
         this.removeChildren();
 
-        this.pageTemplateSelector = new PageTemplateSelector(this.liveEditModel);
-        this.pageTemplateSelector.onOptionSelected(this.handleTemplateSelected.bind(this));
-        this.pageTemplateForm = new PageTemplateForm(this.pageTemplateSelector);
-        this.pageTemplateForm.hide();
-        this.appendChild(this.pageTemplateForm);
-
-        this.pageControllerSelector = new PageControllerSelector(this.liveEditModel);
-        this.pageControllerForm = new PageControllerForm(this.pageControllerSelector);
-        this.pageControllerForm.onShown(event => this.saveAsTemplateAction.updateVisibility());
-        this.pageControllerForm.hide();
-        this.appendChild(this.pageControllerForm);
+        this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector(this.liveEditModel);
+        this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
+        this.pageTemplateAndControllerForm.onShown(() => this.saveAsTemplateAction.updateVisibility());
+        this.pageTemplateAndControllerSelector.onOptionSelected(() => {
+            this.saveAsTemplateAction.updateVisibility();
+        });
+        this.appendChild(this.pageTemplateAndControllerForm);
 
         const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
         saveAsTemplateButton.addClass('blue large save-as-template');
-        this.pageControllerForm.appendChild(saveAsTemplateButton);
+        this.pageTemplateAndControllerForm.appendChild(saveAsTemplateButton);
+        this.saveAsTemplateAction.updateVisibility();
 
         this.inspectionHandler = new BaseInspectionHandler();
 
-        this.inspectionHandler.setPageModel(this.pageModel).setPageInspectionPanel(this).setPageControllerForm(
-            this.pageControllerForm).setPageTemplateForm(this.pageTemplateForm).setModel(this.liveEditModel);
-
-        if (this.pageModeImpliesPageControllerShown()) {
-            this.pageControllerForm.show();
-        }
-
-        this.pageModel.onReset(this.handlePageModelReset.bind(this));
-    }
-
-    private handlePageModelReset() {
-        if (!this.pageModel.isPageTemplate() && !(this.pageModel.isCustomized() && this.pageModel.hasController())) {
-            this.pageControllerForm.hide();
-        }
-    }
-
-    private handleTemplateSelected(event: OptionSelectedEvent<PageTemplateOption>) {
-        const selectedOption: PageTemplateOption = event.getOption().displayValue;
-        const previousOption: PageTemplateOption = event.getPreviousOption() ? event.getPreviousOption().displayValue : null;
-
-        if (selectedOption.equals(previousOption)) {
-            return;
-        }
-
-        if (previousOption && previousOption.isCustom()) { // show confirmation dialog
-            new api.ui.dialog.ConfirmationDialog()
-                .setQuestion(
-                    'Switching to a page template will discard all of the custom changes made to the page. Are you sure?')
-                .setNoCallback(() => {
-                    this.pageTemplateSelector.selectOption(event.getPreviousOption(), true); // reverting selection back
-                    this.pageTemplateSelector.resetActiveSelection();
-                })
-                .setYesCallback(() => {
-                    this.doSelectTemplate(selectedOption);
-                }).open();
-        } else {
-            this.doSelectTemplate(selectedOption);
-        }
-    }
-
-    private doSelectTemplate(selectedOption: PageTemplateOption) {
-        this.pageModel.setCustomized(false);
-
-        if (selectedOption.isCustom()) {
-            this.pageControllerSelector.reset();
-            this.pageControllerForm.show();
-
-            this.pageModel.setCustomized(true);
-            this.pageModel.setTemplateContoller();
-            return;
-        }
-
-        const pageTemplate: PageTemplate = selectedOption.getPageTemplate();
-
-        if (pageTemplate) {
-            this.pageControllerForm.hide();
-            new GetPageDescriptorByKeyRequest(pageTemplate.getController())
-                .sendAndParse()
-                .then((pageDescriptor: PageDescriptor) => {
-                    let setTemplate = new SetTemplate(this.pageTemplateSelector).setTemplate(pageTemplate, pageDescriptor);
-                    this.pageModel.setTemplate(setTemplate, true);
-                }).catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
-            }).done();
-        } else if (this.pageModel.hasDefaultPageTemplate()) {
-            this.pageControllerForm.hide();
-            this.pageModel.setAutomaticTemplate(this.pageTemplateSelector, true);
-        } else {
-            this.pageModel.reset(this.pageTemplateSelector);
-        }
+        this.inspectionHandler
+            .setPageModel(this.pageModel)
+            .setPageInspectionPanel(this)
+            .setPageTemplateAndControllerForm(this.pageTemplateAndControllerForm)
+            .setModel(this.liveEditModel);
     }
 
     refreshInspectionHandler(liveEditModel: LiveEditModel) {
         this.inspectionHandler.refreshConfigView(liveEditModel);
     }
 
-    private pageModeImpliesPageControllerShown(): boolean {
-        return !this.pageModel.isPageTemplate() && ((this.pageModel.isCustomized() && this.pageModel.hasController()) ||
-                                                    this.pageModel.getMode() === PageMode.FORCED_CONTROLLER);
+    getName(): string {
+        return i18n('live.view.insert.page');
     }
 }
 
@@ -162,11 +81,7 @@ class BaseInspectionHandler {
 
     configForm: FormView;
 
-    pageControllerForm: PageControllerForm;
-
-    pageTemplateForm: PageTemplateForm;
-
-    private pageDescriptorForm: api.ui.form.Form;
+    pageTemplateAndControllerForm: PageTemplateAndControllerForm;
 
     private propertyChangedListener: (event: PropertyChangedEvent) => void;
 
@@ -180,19 +95,8 @@ class BaseInspectionHandler {
         return this;
     }
 
-    setPageControllerForm(value: PageControllerForm): BaseInspectionHandler {
-        this.pageControllerForm = value;
-        if (this.pageModel.isPageTemplate()) {
-            this.pageDescriptorForm = value;
-        }
-        return this;
-    }
-
-    setPageTemplateForm(value: PageTemplateForm): BaseInspectionHandler {
-        this.pageTemplateForm = value;
-        if (!this.pageModel.isPageTemplate()) {
-            this.pageDescriptorForm = value;
-        }
+    setPageTemplateAndControllerForm(value: PageTemplateAndControllerForm): BaseInspectionHandler {
+        this.pageTemplateAndControllerForm = value;
         return this;
     }
 
@@ -200,10 +104,6 @@ class BaseInspectionHandler {
         this.initListener(liveEditModel);
 
         this.showPageConfig(liveEditModel.getPageModel(), liveEditModel.getFormContext());
-
-        if (liveEditModel.getPageModel().getMode() !== PageMode.FRAGMENT) {
-            this.pageDescriptorForm.show();
-        }
     }
 
     private initListener(liveEditModel: LiveEditModel) {
@@ -223,9 +123,7 @@ class BaseInspectionHandler {
             }
 
             if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER) {
-                this.pageControllerForm.show();
-            } else {
-                this.pageDescriptorForm.show();
+                // empty
             }
 
             let controller = pageModel.getController();

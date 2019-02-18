@@ -7,10 +7,13 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {RepositoryId} from '../repository/RepositoryId';
+import {EmulatedEvent} from '../event/EmulatedEvent';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
-import PEl = api.dom.PEl;
+import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
+import DivEl = api.dom.DivEl;
+import SpanEl = api.dom.SpanEl;
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -29,7 +32,8 @@ export class ContentItemPreviewPanel
     private item: ViewItem<ContentSummaryAndCompareStatus>;
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
-    private previewMessageEl: PEl;
+    private previewMessage: DivEl;
+    private noSelectionMessage: DivEl;
 
     constructor() {
         super('content-item-preview-panel');
@@ -41,13 +45,25 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.appendChild(this.image);
+            this.wrapper.appendChild(this.image);
+            this.wrapper.appendChild(this.noSelectionMessage);
+            this.wrapper.appendChild(this.previewMessage);
             return rendered;
         });
     }
 
     private initElements() {
         this.image = new api.dom.ImgEl();
+
+        const selectorText = new SpanEl();
+        selectorText.setHtml(i18n('panel.noselection'));
+        this.noSelectionMessage = new DivEl('no-selection-message');
+        this.noSelectionMessage.appendChild(selectorText);
+
+        const previewText = new SpanEl();
+        previewText.setHtml(i18n('field.preview.notAvailable'));
+        this.previewMessage = new DivEl('no-preview-message');
+        this.previewMessage.appendChild(previewText);
     }
 
     public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
@@ -105,6 +121,27 @@ export class ContentItemPreviewPanel
                     frameWindow.addEventListener('click', this.frameClickHandler.bind(this));
                 }
             } catch (error) { /* error */ }
+        });
+
+        EmulatedEvent.on((event: EmulatedEvent) => {
+            this.frame.getEl().setWidth(event.getWidthWithUnits());
+            this.frame.getEl().setHeight(event.getHeightWithUnits());
+
+            this.image.getEl().setMaxWidth(event.getWidthWithUnits());
+            this.image.getEl().setMaxHeight(event.getHeightWithUnits());
+
+            if (this.previewMessage) {
+                this.previewMessage.getEl().setWidth(event.getWidthWithUnits());
+                this.previewMessage.getEl().setHeight(event.getHeightWithUnits());
+            }
+
+            if (this.noSelectionMessage) {
+                this.noSelectionMessage.getEl().setWidth(event.getWidthWithUnits());
+                this.noSelectionMessage.getEl().setHeight(event.getHeightWithUnits());
+            }
+
+            const fullscreen = event.isFullscreen();
+            this.wrapper.getEl().toggleClass('emulated', !fullscreen);
         });
     }
 
@@ -191,11 +228,6 @@ export class ContentItemPreviewPanel
 
             this.getEl().removeClass('image-preview page-preview svg-preview media-preview no-preview');
 
-            if (this.previewMessageEl) {
-                this.previewMessageEl.remove();
-                this.previewMessageEl = null;
-            }
-
             switch (previewType) {
             case PREVIEW_TYPE.PAGE: {
                 this.getEl().addClass('page-preview');
@@ -247,10 +279,13 @@ export class ContentItemPreviewPanel
                type.isVideoMedia();
     }
 
-    private showPreviewMessage(value: string) {
+    private showPreviewMessage(message: string) {
         this.getEl().addClass('no-preview');
 
-        this.appendChild(this.previewMessageEl = new PEl('no-preview-message').setHtml(value, false));
+        const textEl = new SpanEl();
+        textEl.setHtml(message);
+        this.previewMessage.removeChildren();
+        this.previewMessage.appendChild(textEl);
 
         this.frame.setSrc('about:blank');
     }
@@ -262,7 +297,7 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false'`));
+                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);

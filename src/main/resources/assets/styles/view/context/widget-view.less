@@ -3,8 +3,8 @@
   overflow: hidden;
   transition: all 0.1s ease-in-out;
 
-  .panel {
-    position: relative;
+  &:not(.active) {
+    display: none;
   }
 
   &.external-widget {
@@ -29,17 +29,26 @@
   }
 
   &.internal-widget {
-    .widget-item-view:not(.version-widget-item-view) {
-      // common styles for all widget items
-      position: relative;
-      margin: 10px;
-      padding: 10px;
-      background-color: @admin-white;
-      box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+    .widget-item-view {
+      &.content-widget-item-view,
+      &.attachments-widget-item-view,
+      &.page-template-widget-item-view,
+      &.properties-widget-item-view,
+      &.status-widget-item-view,
+      &.user-access-widget-item-view {
+        margin: 10px;
+        padding: 10px;
+        background-color: @admin-white;
+        box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+      }
     }
 
     .status-widget-item-view {
       .content-status-mixin();
+    }
+
+    .dependency-widget-item-view {
+      position: relative;
     }
 
   }

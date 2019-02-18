@@ -1,4 +1,3 @@
-import '../../../../../api.ts';
 import {ContentInspectionPanel} from './ContentInspectionPanel';
 import {FragmentInspectionPanel} from './region/FragmentInspectionPanel';
 import {TextInspectionPanel} from './region/TextInspectionPanel';
@@ -83,6 +82,10 @@ export class InspectionsPanel extends api.ui.panel.Panel {
 
     public isInspecting(): boolean {
         return this.deck.getPanelShown() !== this.noSelectionPanel;
+    }
+
+    public getPanelShown(): api.ui.panel.Panel {
+        return this.deck.getPanelShown();
     }
 
 }

@@ -33,4 +33,8 @@ export class RegionInspectionPanel
         }
     }
 
+    getName(): string {
+        return i18n('live.view.insert.region');
+    }
+
 }

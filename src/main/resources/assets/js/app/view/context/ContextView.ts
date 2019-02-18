@@ -1,4 +1,4 @@
-import {WidgetView, WidgetViewType} from './WidgetView';
+import {InternalWidgetType, WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
@@ -11,28 +11,41 @@ import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetE
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
+import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
+import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
+import {PageEditorData} from '../../wizard/page/LiveFormPanel';
+import {ContentWidgetItemView} from './widget/info/ContentWidgetItemView';
+import {InspectEvent} from '../../event/InspectEvent';
+import {EmulatedEvent} from '../../event/EmulatedEvent';
+import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import Widget = api.content.Widget;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
 import AppHelper = api.util.AppHelper;
 import i18n = api.util.i18n;
+import LoadMask = api.ui.mask.LoadMask;
+import DivEl = api.dom.DivEl;
 
 export class ContextView
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private widgetViews: WidgetView[] = [];
-    private viewer: ContentSummaryViewer;
-    private contextContainer: api.dom.DivEl = new api.dom.DivEl('context-container');
+    private contextContainer: DivEl;
     private widgetsSelectionRow: WidgetsSelectionRow;
 
-    private loadMask: api.ui.mask.LoadMask;
-    private divForNoSelection: api.dom.DivEl;
+    private loadMask: LoadMask;
+    private divForNoSelection: DivEl;
 
     private item: ContentSummaryAndCompareStatus;
 
     private activeWidget: WidgetView;
     private defaultWidgetView: WidgetView;
+
+    private pageEditorWidgetView: WidgetView;
+    private propertiesWidgetView: WidgetView;
+    private emulatorWidgetView: WidgetView;
+
+    private data: PageEditorData;
 
     private alreadyFetchedCustomWidgets: boolean;
 
@@ -42,16 +55,20 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor() {
+    constructor(data?: PageEditorData) {
         super('context-panel-view');
 
-        this.appendChild(this.loadMask = new api.ui.mask.LoadMask(this));
+        this.data = data;
+
+        this.contextContainer = new DivEl('context-container');
+
+        this.loadMask = new LoadMask(this);
         this.loadMask.addClass('context-panel-mask');
+        this.appendChild(this.loadMask);
 
         this.initCommonWidgetViews();
         this.initDivForNoSelection();
         this.initWidgetsSelectionRow();
-        this.initViewer();
 
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
@@ -61,6 +78,13 @@ export class ContextView
         this.layout();
 
         this.getCustomWidgetViewsAndUpdateDropdown();
+
+        this.onRendered(() => {
+            // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
+            this.layout(false);
+            this.updateContextContainerHeight();
+            this.layout(!this.item);
+        });
 
         const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
         ApplicationEvent.on(handleWidgetsUpdate);
@@ -77,7 +101,7 @@ export class ContextView
     }
 
     private initDivForNoSelection() {
-        this.divForNoSelection = new api.dom.DivEl('no-selection-message');
+        this.divForNoSelection = new DivEl('no-selection-message');
         this.divForNoSelection.getEl().setInnerHtml(i18n('field.contextPanel.empty'));
         this.appendChild(this.divForNoSelection);
     }
@@ -174,9 +198,11 @@ export class ContextView
         }
 
         this.activeWidget = widgetView;
+        this.activeWidget.addClass('active');
 
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
+        this.toggleClass('emulator', widgetView.isEmulator());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -188,6 +214,9 @@ export class ContextView
     }
 
     resetActiveWidget() {
+        if (this.activeWidget) {
+            this.activeWidget.removeClass('active');
+        }
         this.activeWidget = null;
     }
 
@@ -197,26 +226,23 @@ export class ContextView
         }
     }
 
-    private initViewer() {
-        this.viewer = new ContentSummaryViewer();
-        this.viewer.addClass('context-panel-label');
-
-        this.contextContainer.insertChild(this.viewer, 0);
-    }
-
     public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
+        const itemSelected = item != null;
+        const selectionChanged = this.item == null && item != null ||
+                                 this.item != null && item == null;
 
         this.item = item;
-        if (item) {
-            this.layout(false);
-            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && this.activeWidget) {
-                return this.updateActiveWidget();
-            }
-        } else {
-            this.layout();
+
+        const widgetVisible = ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible();
+        const externalWidgetSelected = this.activeWidget != null && !this.activeWidget.isInternal();
+        const selectionChangedForExternalWidget = selectionChanged && externalWidgetSelected;
+
+        this.layout(!itemSelected);
+        if (widgetVisible && this.activeWidget && (itemSelected || selectionChangedForExternalWidget)) {
+            return this.updateActiveWidget();
         }
 
         return wemQ<any>(null);
@@ -239,12 +265,10 @@ export class ContextView
             return wemQ<any>(null);
         }
 
-        this.updateViewer();
-
         return this.activeWidget.updateWidgetItemViews().then(() => {
             // update active widget's height
             setTimeout(() => {
-                this.setContextContainerHeight();
+                this.updateContextContainerHeight();
             }, 400);
 
             this.activeWidget.slideIn();
@@ -261,9 +285,33 @@ export class ContextView
 
     private initCommonWidgetViews() {
 
-        this.defaultWidgetView = WidgetView.create().setName(i18n('field.contextPanel.details')).setContextView(this)
-            .setType(WidgetViewType.DETAILS)
+        if (this.isInsideWizard()) {
+            this.pageEditorWidgetView = WidgetView.create()
+                .setName(i18n('field.contextPanel.pageEditor'))
+                .setDescription(i18n('field.contextPanel.pageEditor.description'))
+                .setWidgetClass('page-editor-widget')
+                .setIconClass('icon-puzzle')
+                .addWidgetItemView(new PageEditorWidgetItemView(this.data))
+                .setContextView(this)
+                .setType(InternalWidgetType.COMPONENTS)
+                .build();
+
+            InspectEvent.on(() => {
+                if (this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
+                    this.activateDefaultWidget();
+                }
+            });
+        }
+
+        this.propertiesWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.details'))
+            .setDescription(i18n('field.contextPanel.details.description'))
+            .setWidgetClass('properties-widget')
+            .setIconClass('icon-list')
+            .setType(InternalWidgetType.INFO)
+            .setContextView(this)
             .setWidgetItemViews([
+                new ContentWidgetItemView(),
                 new StatusWidgetItemView(),
                 new UserAccessWidgetItemView(),
                 new PropertiesWidgetItemView(),
@@ -271,19 +319,45 @@ export class ContextView
                 new AttachmentsWidgetItemView()
             ]).build();
 
-        const versionsWidgetView = WidgetView.create().setName(i18n('field.contextPanel.versionHistory')).setContextView(this)
-            .setType(WidgetViewType.VERSIONS)
+        const versionsWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.versionHistory'))
+            .setDescription(i18n('field.contextPanel.versionHistory.description'))
+            .setWidgetClass('versions-widget')
+            .setIconClass('icon-history')
+            .setType(InternalWidgetType.HISTORY)
+            .setContextView(this)
             .addWidgetItemView(new VersionsWidgetItemView()).build();
 
-        const dependenciesWidgetView = WidgetView.create().setName(i18n('field.contextPanel.dependencies')).setContextView(this)
-            .setType(WidgetViewType.DEPENDENCIES)
+        const dependenciesWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.dependencies'))
+            .setDescription(i18n('field.contextPanel.dependencies.description'))
+            .setWidgetClass('dependency-widget')
+            .setIconClass('icon-link')
+            .setType(InternalWidgetType.DEPENDENCIES)
+            .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
-        dependenciesWidgetView.addClass('dependency-widget');
+        this.emulatorWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.emulator'))
+            .setDescription(i18n('field.contextPanel.emulator.description'))
+            .setWidgetClass('emulator-widget')
+            .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setType(InternalWidgetType.EMULATOR)
+            .setContextView(this)
+            .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
-        this.addWidgets([this.defaultWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        this.defaultWidgetView = this.propertiesWidgetView;
+
+        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        if (!this.isInsideWizard()) {
+            this.addWidget(this.emulatorWidgetView);
+        }
 
         this.setActiveWidget(this.defaultWidgetView);
+    }
+
+    private isInsideWizard(): boolean {
+        return this.data != null;
     }
 
     private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {
@@ -319,14 +393,17 @@ export class ContextView
         });
     }
 
-    setContextContainerHeight() {
-        let panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
-        let panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
-        let containerHeight = this.contextContainer.getEl().getHeight();
-        let containerOffset = this.contextContainer.getEl().getOffsetToParent();
+    updateContextContainerHeight() {
+        const activeContextPanelEl = ActiveContextPanelManager.getActiveContextPanel().getEl();
+        if (activeContextPanelEl) {
+            const panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
+            const panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
+            const containerHeight = this.contextContainer.getEl().getHeight();
+            const containerOffset = this.contextContainer.getEl().getOffsetToParent();
 
-        if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
-            this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
+                this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            }
         }
     }
 
@@ -344,10 +421,31 @@ export class ContextView
         this.contextContainer.appendChild(widget);
     }
 
+    private insertWidget(widget: WidgetView, index: number) {
+        this.widgetViews.splice(index, 0, widget);
+        this.contextContainer.insertChild(widget, index);
+    }
+
+    private getIndexOfLastInternalWidget(): number {
+        for (let index = 0; index < this.widgetViews.length; index++) {
+            if (!this.widgetViews[index].isInternal()) {
+                return index - 1;
+            }
+        }
+        return this.widgetViews.length - 1;
+    }
+
     private addWidgets(widgetViews: WidgetView[]) {
         widgetViews.forEach((widget) => {
             this.addWidget(widget);
         });
+    }
+
+    private removeWidget(widget: WidgetView) {
+        if (widget) {
+            this.widgetViews = this.widgetViews.filter(view => !widget.compareByType(view));
+            widget.remove();
+        }
     }
 
     private removeWidgetByKey(key: string) {
@@ -368,9 +466,53 @@ export class ContextView
         }
     }
 
-    updateViewer() {
-        if (this.item) {
-            this.viewer.setObject(this.item.getContentSummary());
+    updateRenderableStatus(renderable: boolean) {
+        const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
+        const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
+
+        let widgetsUpdated = false;
+
+        if (this.pageEditorWidgetView) {
+            const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
+            const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
+
+            if (renderable && !pageEditorWidgetPresent) {
+                this.insertWidget(this.pageEditorWidgetView, 0);
+                if (!pageEditorWidgetActive) {
+                    this.defaultWidgetView = this.pageEditorWidgetView;
+                    this.activateDefaultWidget();
+                }
+                widgetsUpdated = true;
+            } else if (!renderable && pageEditorWidgetPresent) {
+                this.defaultWidgetView = this.propertiesWidgetView;
+                if (pageEditorWidgetActive) {
+                    this.activateDefaultWidget();
+                }
+                this.removeWidget(this.pageEditorWidgetView);
+                widgetsUpdated = true;
+            }
+        }
+
+        if (this.isInsideWizard()) {
+            const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
+            const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
+
+            if (renderable && !emulatorWidgetPresent) {
+                const index = this.getIndexOfLastInternalWidget() + 1;
+                this.insertWidget(this.emulatorWidgetView, index);
+                widgetsUpdated = true;
+            } else if (!renderable && emulatorWidgetPresent) {
+                if (emulatorWidgetActive) {
+                    this.activateDefaultWidget();
+                }
+                this.removeWidget(this.emulatorWidgetView);
+                new EmulatedEvent(EmulatorDevice.FULLSCREEN, false).fire();
+                widgetsUpdated = true;
+            }
+        }
+
+        if (widgetsUpdated) {
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
         }
     }
 
@@ -383,6 +525,6 @@ export class ContextView
     }
 
     notifyPanelSizeChanged() {
-        this.sizeChangedListeners.forEach((listener: ()=> void) => listener());
+        this.sizeChangedListeners.forEach((listener: () => void) => listener());
     }
 }

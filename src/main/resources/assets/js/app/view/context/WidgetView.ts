@@ -3,16 +3,23 @@ import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Widget = api.content.Widget;
+import i18n = api.util.i18n;
 
-export enum WidgetViewType {
-    DETAILS,
-    VERSIONS,
-    DEPENDENCIES
+export enum InternalWidgetType {
+    INFO,
+    HISTORY,
+    DEPENDENCIES,
+    EMULATOR,
+    COMPONENTS
 }
 
 export class WidgetView extends api.dom.DivEl {
 
     private widgetName: string;
+
+    private widgetDescription: string;
+
+    private widgetIconClass: string;
 
     private widgetItemViews: WidgetItemView[];
 
@@ -24,9 +31,9 @@ export class WidgetView extends api.dom.DivEl {
 
     private url: string = '';
 
-    private content: ContentSummaryAndCompareStatus;
+    private type: InternalWidgetType;
 
-    private type: WidgetViewType;
+    private content: ContentSummaryAndCompareStatus;
 
     private activationListeners: { (): void }[] = [];
 
@@ -35,13 +42,21 @@ export class WidgetView extends api.dom.DivEl {
     constructor(builder: WidgetViewBuilder) {
         super('widget-view ' + (builder.widget ? 'external-widget' : 'internal-widget'));
 
+        const noDescription = i18n('field.contextPanel.noDescription');
+
         this.contextView = builder.contextView;
         this.widgetName = builder.name;
+        this.widgetIconClass = builder.iconClass;
+        this.widgetDescription = (builder.widget ? builder.widget.getDescription() : builder.description) || noDescription;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
         this.type = builder.type;
         if (!this.widgetItemViews.length) {
             this.createDefaultWidgetItemView();
+        }
+
+        if (!api.util.StringHelper.isBlank(builder.widgetClass)) {
+            this.addClass(builder.widgetClass);
         }
 
         this.layout();
@@ -150,20 +165,20 @@ export class WidgetView extends api.dom.DivEl {
         return this.widgetName;
     }
 
+    getWidgetDescription(): string {
+        return this.widgetDescription;
+    }
+
+    getWidgetIconClass(): string {
+        return this.widgetIconClass;
+    }
+
     getWidgetKey(): string {
         return this.widget ? this.widget.getWidgetDescriptorKey().getApplicationKey().getName() : null;
     }
 
-    getWidgetDescription(): string {
-        return this.widget ? this.widget.getDescription() : null;
-    }
-
     getWidgetIconUrl(): string {
         return this.widget ? this.widget.getIconUrl() : null;
-    }
-
-    getType(): WidgetViewType {
-        return this.type;
     }
 
     isInternal(): boolean {
@@ -211,6 +226,30 @@ export class WidgetView extends api.dom.DivEl {
         return this.contextView.getActiveWidget() === this;
     }
 
+    isEmulator(): boolean {
+        return this.type === InternalWidgetType.EMULATOR;
+    }
+
+    getType(): InternalWidgetType {
+        return this.type;
+    }
+
+    hasType(): boolean {
+        return this.type != null;
+    }
+
+    hasKey(): boolean {
+        return this.getWidgetKey() != null;
+    }
+
+    compareByType(widgetView: WidgetView): boolean {
+        return widgetView != null && (
+            this === widgetView ||
+            (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
+            (this.getWidgetKey() === widgetView.getWidgetKey() && this.hasKey() && widgetView.hasKey())
+        );
+    }
+
     private hasDynamicHeight(): boolean {
         return this.isUrlBased() && this.isActive();
     }
@@ -254,16 +293,27 @@ export class WidgetViewBuilder {
 
     name: string;
 
+    description: string;
+
     contextView: ContextView;
 
     widgetItemViews: WidgetItemView[] = [];
 
     widget: Widget;
 
-    type: WidgetViewType;
+    widgetClass: string;
+
+    iconClass: string;
+
+    type: InternalWidgetType;
 
     public setName(name: string): WidgetViewBuilder {
         this.name = name;
+        return this;
+    }
+
+    public setDescription(description: string): WidgetViewBuilder {
+        this.description = description;
         return this;
     }
 
@@ -287,7 +337,17 @@ export class WidgetViewBuilder {
         return this;
     }
 
-    public setType(type: WidgetViewType) {
+    public setWidgetClass(widgetClass: string) {
+        this.widgetClass = widgetClass;
+        return this;
+    }
+
+    public setIconClass(iconClass: string) {
+        this.iconClass = iconClass;
+        return this;
+    }
+
+    public setType(type: InternalWidgetType) {
         this.type = type;
         return this;
     }

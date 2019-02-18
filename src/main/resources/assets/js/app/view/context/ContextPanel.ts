@@ -16,7 +16,8 @@ export class ContextPanel
         this.contextView = contextView;
         this.setDoOffset(false);
         this.subscribeOnEvents();
-        this.appendChild(this.contextViewContainer = new api.dom.DivEl('context-view-container'));
+        this.contextViewContainer = new api.dom.DivEl('context-view-container');
+        this.appendChild(this.contextViewContainer);
     }
 
     public setActive() {

@@ -693,13 +693,13 @@ export class PageView
         const largeIconCls = ' icon-large';
 
         if (this.pageModel.hasTemplate()) {
-            return 'icon-newspaper' + largeIconCls;
+            return 'icon-page-template' + largeIconCls;
         }
         if (this.pageModel.isPageTemplate() && this.pageModel.getController()) {
             return 'icon-file' + largeIconCls;
         }
         if (this.pageModel.isCustomized()) {
-            return 'icon-cog' + largeIconCls;
+            return 'icon-file' + largeIconCls;
         }
 
         return 'icon-wand' + largeIconCls;

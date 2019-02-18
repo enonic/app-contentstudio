@@ -40,6 +40,7 @@ import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {RepositoryId} from '../../repository/RepositoryId';
+import {EmulatedEvent} from '../../event/EmulatedEvent';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
@@ -139,6 +140,17 @@ export class LiveEditPageProxy {
             }
             this.pageView = event.getPageView();
         });
+
+        EmulatedEvent.on((event: EmulatedEvent) => {
+            this.setWidth(event.getWidthWithUnits());
+            this.setHeight(event.getHeightWithUnits());
+
+            if (event.isFullscreen()) {
+                this.resetParentHeight();
+            } else {
+                this.updateLiveEditFrameContainerHeight(event.getDevice().getHeight());
+            }
+        });
     }
 
     private createLiveEditIFrame(): api.dom.IFrameEl {
@@ -163,6 +175,55 @@ export class LiveEditPageProxy {
         });
 
         return placeholderIFrame;
+    }
+
+    // this helps to put horizontal scrollbar in the bottom of live edit frame
+    private updateLiveEditFrameContainerHeight(height: number) {
+        let body = document.body;
+        let html = document.documentElement;
+
+        let pageHeight = Math.max(body.scrollHeight, body.offsetHeight,
+            html.clientHeight, html.scrollHeight, html.offsetHeight);
+
+        let frameParent = this.getIFrame().getHTMLElement().parentElement;
+        if (height > pageHeight) {
+            frameParent.style.height = '';
+            frameParent.classList.add('overflow');
+        } else {
+            frameParent.style.height = `${height + LiveEditPageProxy.getScrollbarWidth()}px`;
+            frameParent.classList.remove('overflow');
+        }
+    }
+
+    private resetParentHeight() {
+        const frameParent = this.getIFrame().getHTMLElement().parentElement;
+        frameParent.style.height = '';
+        frameParent.classList.remove('overflow');
+    }
+
+    private static getScrollbarWidth(): number {
+        let outer = document.createElement('div');
+        outer.style.visibility = 'hidden';
+        outer.style.width = '100px';
+        outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+
+        document.body.appendChild(outer);
+
+        let widthNoScroll = outer.offsetWidth;
+        // force scrollbars
+        outer.style.overflow = 'scroll';
+
+        // add inner div
+        let inner = document.createElement('div');
+        inner.style.width = '100%';
+        outer.appendChild(inner);
+
+        let widthWithScroll = inner.offsetWidth;
+
+        // remove divs
+        outer.parentNode.removeChild(outer);
+
+        return widthNoScroll - widthWithScroll;
     }
 
     public setModel(liveEditModel: LiveEditModel) {

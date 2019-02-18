@@ -1,9 +1,8 @@
-import {WidgetView, WidgetViewType} from './WidgetView';
+import {WidgetView} from './WidgetView';
 import {ContextView} from './ContextView';
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import NamesAndIconViewer = api.ui.NamesAndIconViewer;
-import i18n = api.util.i18n;
 
 export class WidgetsSelectionRow extends api.dom.DivEl {
 
@@ -37,7 +36,9 @@ export class WidgetsSelectionRow extends api.dom.DivEl {
         }
     }
 
-    updateWidgetsDropdown(widgetViews: WidgetView[]) {
+    updateWidgetsDropdown(widgetViews: WidgetView[], selectedView?: WidgetView) {
+        const previousSelection = this.widgetSelectorDropdown.getSelectedOption();
+        const previousSelectionView = previousSelection ? previousSelection.displayValue.getWidgetView() : null;
         this.widgetSelectorDropdown.removeAllOptions();
 
         widgetViews.forEach((view: WidgetView) => {
@@ -59,10 +60,24 @@ export class WidgetsSelectionRow extends api.dom.DivEl {
         if (visibleNow) {
             this.setVisible(false);
         }
-        this.widgetSelectorDropdown.selectRow(0, true);
+        this.selectOptionByWidgetView(selectedView || previousSelectionView, true);
         if (visibleNow) {
             this.setVisible(true);
         }
+    }
+
+    private selectOptionByWidgetView(view: WidgetView, silent?: boolean) {
+        const views = this.widgetSelectorDropdown.getOptions().map(option => option.displayValue.getWidgetView());
+        let i = 0;
+        if (view) {
+            for (; i < views.length; i++) {
+                if (views[i].compareByType(view)) {
+                    break;
+                }
+            }
+        }
+        const index = i < views.length ? i : 0;
+        this.widgetSelectorDropdown.selectRow(index, silent);
     }
 }
 
@@ -72,6 +87,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         super('widgetSelector', {
             skipExpandOnClick: true,
             inputPlaceholderText: '',
+            listMaxHeight: 250,
             optionDisplayValueViewer: new WidgetViewer()
         });
 
@@ -141,7 +157,7 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
 
         const view = this.getNamesAndIconView();
         if (object && object.getWidgetView() && view) {
-            const widgetClass = object.getWidgetView().getWidgetKey() != null ? 'external-widget' : 'internal-widget';
+            const widgetClass = object.getWidgetView().isInternal() ? 'internal-widget' : 'external-widget';
             view.removeClass('external-widget internal-widget');
             view.addClass(widgetClass);
         }
@@ -152,18 +168,7 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveSubName(object: WidgetViewOption): string {
-        const type = object.getWidgetView().getType();
-        const description = object.getWidgetView().getWidgetDescription() || i18n('field.contextPanel.noDescription');
-        switch (type) {
-        case WidgetViewType.DETAILS:
-            return i18n('field.contextPanel.details.description');
-        case WidgetViewType.VERSIONS:
-            return i18n('field.contextPanel.versionHistory.description');
-        case WidgetViewType.DEPENDENCIES:
-            return i18n('field.contextPanel.dependencies.description');
-        default:
-            return description;
-        }
+        return object.getWidgetView().getWidgetDescription();
     }
 
     resolveIconUrl(object: WidgetViewOption): string {
@@ -171,14 +176,6 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     }
 
     resolveIconClass(object: WidgetViewOption): string {
-        const type = object.getWidgetView().getType();
-        switch (type) {
-        case WidgetViewType.DETAILS:
-            return 'icon-list';
-        case WidgetViewType.VERSIONS:
-            return 'icon-history';
-        case WidgetViewType.DEPENDENCIES:
-            return 'icon-link';
-        }
+        return object.getWidgetView().getWidgetIconClass();
     }
 }

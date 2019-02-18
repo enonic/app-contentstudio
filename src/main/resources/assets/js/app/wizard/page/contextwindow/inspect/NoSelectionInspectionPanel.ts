@@ -1,7 +1,8 @@
-import '../../../../../api.ts';
 import i18n = api.util.i18n;
+import {NamedPanel} from './NamedPanel';
 
-export class NoSelectionInspectionPanel extends api.ui.panel.Panel {
+export class NoSelectionInspectionPanel
+    extends NamedPanel {
 
     private header: api.app.NamesView;
 
@@ -11,5 +12,9 @@ export class NoSelectionInspectionPanel extends api.ui.panel.Panel {
         this.header = new api.app.NamesView().setMainName(i18n('field.inspection.empty'));
 
         this.appendChild(this.header);
+    }
+
+    getName(): string {
+        return i18n('live.view.inspect');
     }
 }

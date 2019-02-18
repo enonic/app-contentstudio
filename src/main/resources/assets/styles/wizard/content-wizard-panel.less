@@ -1,5 +1,3 @@
-@toolbar-height: 41px;
-
 .content-wizard-panel {
 
   &:not(.rendered) {
@@ -240,12 +238,18 @@
   .context-panel {
     overflow: visible;
     &.floating-context-panel {
-      top: @toolbar-height;
+      top: @toolbar-with-border-height;
       z-index: 2000;
     }
 
     .non-mobile-details-panel-toggle-button {
       top: 0;
+      padding: 6px;
+
+      &::before {
+        font-size: 24px;
+        line-height: 27px;
+      }
     }
 
     &.mobile {

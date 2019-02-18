@@ -283,7 +283,7 @@ class PageTemplateViewer {
             if (this.pageMode === PageMode.AUTOMATIC) {
                 pageTemplateView.setIconClass('icon-wand');
             } else if (this.pageMode === PageMode.FORCED_TEMPLATE) {
-                pageTemplateView.setIconClass('icon-newspaper');
+                pageTemplateView.setIconClass('icon-page-template');
             } else if (this.pageMode === PageMode.FORCED_CONTROLLER) {
                 pageTemplateView.setIconClass('icon-cog');
             }

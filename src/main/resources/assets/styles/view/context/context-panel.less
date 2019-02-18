@@ -1,5 +1,5 @@
-@widget-selector-height: 40px;
-@toolbar-height: 41px;
+@widget-filter-height: 40px;
+@widget-selector-height: 49px;
 
 .context-panel {
   // common details panel styles
@@ -23,7 +23,7 @@
   }
 
   .context-panel-view {
-    &.no-selection.internal {
+    &.no-selection.internal:not(.emulator) {
       height: 100%;
       .context-container {
         display: none;
@@ -34,9 +34,10 @@
     }
 
     .no-selection-message {
-      display: none;
-
       .watermark-text();
+      display: none;
+      height: 60px;
+      margin-top: (-@toolbar-height/2 - 53px);
     }
 
     .content-summary-viewer {
@@ -113,53 +114,19 @@
     .notSelectable();
   }
 
-  .default-widget:not(.no-selection) .context-panel-label {
-    display: flex;
-  }
-
-  .context-panel-label {
-    display: none;
-    box-sizing: border-box;
-    height: 50px;
-    margin: 10px 10px 0;
-    padding: 5px;
-    align-items: center;
-    justify-content: center;
-    background-color: @admin-white;
-    font-size: 14px;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
-
-    .names-and-icon-view {
-      display: inline-flex;
-      .@{_COMMON_PREFIX}wrapper {
-        margin-right: 10px;
-        flex: 1 0 auto;
-        transform: scale(0.8);
-      }
-      .@{_COMMON_PREFIX}names-view {
-        margin: 0;
-      }
-    }
-  }
-
   .label {
     font-family: @admin-font-family;
   }
 
   .widgets-selection-row {
 
-    background-color: @admin-bg-almost-white;
-    height: @widget-selector-height;
-
     .widget-selector {
 
-      height: @widget-selector-height;
-      border-bottom: 1px solid @admin-bg-light-gray;
-      max-width: none;
+      min-height: @widget-selector-height;
 
       .option-filter-input {
         border: none;
-        height: @widget-selector-height;
+        height: @widget-filter-height;
       }
 
       &.single-optioned {
@@ -173,10 +140,9 @@
 
       .@{_COMMON_PREFIX}dropdown-handle {
         box-sizing: border-box;
-        width: 40px;
+        width: @widget-filter-height;
+        height: @widget-filter-height;
         right: 0;
-        border-right: 1px solid transparent;
-        max-height: @widget-selector-height;
 
         &:after {
           margin: -5px 0 0 -5px;
@@ -185,16 +151,15 @@
 
       .selected-option {
         background: none;
-        max-height: @widget-selector-height;
         border: 0;
 
         .option-value {
-          margin: 0 40px 0 0;
+          margin: 0 @widget-selector-height 0 0;
           width: auto;
 
           .widget-viewer {
             line-height: @widget-selector-height;
-            padding: 4px 0 0 10px;
+            padding: 8px 0 8px 8px;
           }
         }
       }
@@ -204,11 +169,6 @@
         cursor: default;
 
         .names-and-icon-view {
-          .@{_COMMON_PREFIX}main-name,
-          .@{_COMMON_PREFIX}sub-name {
-            cursor: pointer;
-          }
-
           .@{_COMMON_PREFIX}names-view {
             margin: 0 0 0 34px;
           }
@@ -223,7 +183,7 @@
             }
 
             .font-icon-default {
-              font-size: 24px;
+              font-size: 21px;
               &.icon-list {
                 font-size: 20px;
               }
@@ -256,7 +216,8 @@
 
   &.floating-context-panel {
     position: fixed;
-    top: @app-header-height + @toolbar-height;
+    top: @app-header-height + @toolbar-with-border-height;
     outline: 1px solid @admin-bg-light-gray;
+    background-color: rgba(255, 255, 255, 0.9);
   }
 }
