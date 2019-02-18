@@ -158,7 +158,7 @@ export class ContextSplitPanel
 
     private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
 
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+        const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
             if (this.mobileMode === undefined) {
                 this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
@@ -181,6 +181,10 @@ export class ContextSplitPanel
                     this.notifyMobileModeChanged(false);
                 }
             }
+        }, 50);
+        ResponsiveManager.onAvailableSizeChanged(this, debouncedResponsiveHandler);
+        this.onRemoved(() => {
+            ResponsiveManager.unAvailableSizeChanged(this);
         });
     }
 
