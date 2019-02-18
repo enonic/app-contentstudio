@@ -256,8 +256,8 @@ export class NonMobileContextPanelsManager {
     private requiresFloatingPanelDueToShortWidth(): boolean {
         const panelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
 
-        const maximumThreshold = (this.isPageEditorShown() && this.isWizardPanelMaximized()) ?
-                                 ResponsiveRanges._1380_1620 :
+        const maximumThreshold = this.isPageEditorShown() ?
+                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._540_720) :
                                  ResponsiveRanges._960_1200;
 
         if (this.floatingPanelIsShown()) {
