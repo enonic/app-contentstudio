@@ -1,3 +1,4 @@
+@widget-filter-height: 40px;
 @widget-selector-height: 49px;
 
 .context-panel {
@@ -125,7 +126,7 @@
 
       .option-filter-input {
         border: none;
-        height: @widget-selector-height;
+        height: @widget-filter-height;
       }
 
       &.single-optioned {
@@ -139,7 +140,8 @@
 
       .@{_COMMON_PREFIX}dropdown-handle {
         box-sizing: border-box;
-        width: @widget-selector-height;
+        width: @widget-filter-height;
+        height: @widget-filter-height;
         right: 0;
 
         &:after {
