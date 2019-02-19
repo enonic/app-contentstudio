@@ -19,7 +19,7 @@ const siteForm = Object.create(page, {
 
     applicationsOptionsFilterInput: {
         get: function () {
-            return `${form.wizardSteps}`+`${elements.FORM_VIEW}`  + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
+            return `${form.wizardSteps}` + `${elements.FORM_VIEW}` + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
         }
     },
     descriptionInput: {
@@ -29,7 +29,7 @@ const siteForm = Object.create(page, {
     },
     type: {
         value: function (siteData) {
-            return this.typeDescription(siteData.description).then(()=> {
+            return this.typeDescription(siteData.description).then(() => {
                 return this.addApplications(siteData.applications);
             });
         }
@@ -42,7 +42,7 @@ const siteForm = Object.create(page, {
     addApplications: {
         value: function (appDisplayNames) {
             let result = Promise.resolve();
-            appDisplayNames.forEach((displayName)=> {
+            appDisplayNames.forEach((displayName) => {
                 result = result.then(() => {
                     return this.filterOptionsAndSelectApplication(displayName)
                 });
@@ -52,9 +52,9 @@ const siteForm = Object.create(page, {
     },
     filterOptionsAndSelectApplication: {
         value: function (displayName) {
-            return this.typeTextInInput(this.applicationsOptionsFilterInput, displayName).then(()=> {
+            return this.typeTextInInput(this.applicationsOptionsFilterInput, displayName).then(() => {
                 return loaderComboBox.selectOption(displayName);
-            }).catch(err=> {
+            }).catch(err => {
                 this.saveScreenshot(appConst.generateRandomName('err_option'));
                 throw new Error('application selector :' + err);
             });
@@ -75,9 +75,9 @@ const siteForm = Object.create(page, {
     openSiteConfiguratorDialog: {
         value: function (displayName) {
             let selector = `${form.selectedAppByDisplayName(displayName)}` + `//a[@class='edit']`;
-            return this.waitForVisible(selector,2000).then(()=>{
+            return this.waitForVisible(selector, 2000).then(() => {
                 return this.doClick(selector);
-            }).then(()=> {
+            }).then(() => {
                 return siteConfigDialog.waitForDialogVisible();
             })
         }
@@ -85,9 +85,9 @@ const siteForm = Object.create(page, {
     isSiteConfiguratorViewInvalid: {
         value: function (displayName) {
             let selector = `${form.selectedAppByDisplayName(displayName)}`;
-            return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+            return this.getBrowser().getAttribute(selector, 'class').then(result => {
                 return result.includes("invalid");
-            }).catch(err=> {
+            }).catch(err => {
                 throw new Error('error when try to find selected application view: ' + err);
             });
         }
@@ -95,13 +95,13 @@ const siteForm = Object.create(page, {
     waitUntilSiteConfiguratorViewValid: {
         value: function (displayName) {
             let selector = `${form.selectedAppByDisplayName(displayName)}`;
-            return this.getBrowser().waitUntil(()=> {
-                return this.getBrowser().getAttribute(selector, 'class').then(result=> {
+            return this.getBrowser().waitUntil(() => {
+                return this.getBrowser().getAttribute(selector, 'class').then(result => {
                     return !result.includes('invalid');
                 })
-            }, 2000).then(()=> {
+            }, 2000).then(() => {
                 return true;
-            }).catch((err)=> {
+            }).catch(err => {
                 throw new Error(err);
             });
         }

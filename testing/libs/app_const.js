@@ -57,7 +57,8 @@ module.exports = Object.freeze({
         RENAULT: 'renault',
         SPUMANS: 'spumans',
         BOOK: 'book',
-        POP_03: 'Pop_03'
+        POP_03: 'Pop_03',
+        KOTEY:'kotey'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',
