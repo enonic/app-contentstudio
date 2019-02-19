@@ -39,6 +39,7 @@ import {AggregatedServerEventsListener} from './app/event/AggregatedServerEvents
 import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
+import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -182,9 +183,9 @@ function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
     return contentTypeName.isImage() || navigator.userAgent.search('Chrome') === -1;
 }
 
-let faviconCache: { [url: string]: Element } = {};
+const faviconCache: { [url: string]: Element } = {};
 
-let iconUrlResolver = new ContentIconUrlResolver();
+const iconUrlResolver = new ContentIconUrlResolver();
 
 let dataPreloaded: boolean;
 
@@ -197,8 +198,8 @@ function clearFavicon() {
     });
 }
 
-function updateFavicon(content: Content, urlResolver: ContentIconUrlResolver) {
-    let resolver = urlResolver.setContent(content).setCrop(false);
+function updateFavicon(content: Content) {
+    let resolver = iconUrlResolver.setContent(content).setCrop(false);
     let shouldUpdate = shouldUpdateFavicon(content.getType());
     for (let href in faviconCache) {
         if (faviconCache.hasOwnProperty(href)) {
@@ -219,6 +220,11 @@ function updateFavicon(content: Content, urlResolver: ContentIconUrlResolver) {
     }
 }
 
+const refreshTab = function(content: Content) {
+    updateFavicon(content);
+    updateTabTitle(content.getDisplayName());
+};
+
 function preLoadApplication() {
     let application: api.app.Application = getApplication();
     let wizardParams = ContentWizardPanelParams.fromApp(application);
@@ -229,9 +235,12 @@ function preLoadApplication() {
             dataPreloaded = true;
             // body is not rendered if the tab is in background
             if (wizardParams.contentId) {
-                new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content) => {
-                    updateFavicon(content, iconUrlResolver);
-                    updateTabTitle(content.getDisplayName());
+                new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content: Content) => {
+                    refreshTab(content);
+
+                    if (shouldUpdateFavicon(content.getType())) {
+                        refreshTabOnContentUpdate(content);
+                    }
 
                 });
             } else {
@@ -324,19 +333,31 @@ function startApplication() {
     IssueServerEventsHandler.getInstance().start();
 }
 
+const refreshTabOnContentUpdate = (content: Content) => {
+    ContentUpdatedEvent.on((event: ContentUpdatedEvent) => {
+        if (event.getContentId().equals(content.getContentId())) {
+            clearFavicon();
+            refreshTab(content);
+        }
+    });
+};
+
 function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: LostConnectionDetector) {
 
     import('./app/wizard/ContentWizardPanel').then(def => {
 
         let wizard = new def.ContentWizardPanel(wizardParams);
 
-        // initSearchPanelListener(wizard);
-
-        wizard.onDataLoaded(content => {
+        wizard.onDataLoaded((content: Content) => {
             let contentType = wizard.getContentType();
             if (!wizardParams.contentId || !dataPreloaded) {
                 // update favicon for new wizard after content has been created or in case data hasn't been preloaded
-                updateFavicon(content, iconUrlResolver);
+                updateFavicon(content);
+
+                if (shouldUpdateFavicon(content.getType())) {
+                    refreshTabOnContentUpdate(content);
+                }
+
             }
             if (!dataPreloaded) {
                 updateTabTitle(content.getDisplayName() || api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));

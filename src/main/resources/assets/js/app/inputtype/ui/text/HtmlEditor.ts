@@ -3,7 +3,7 @@ import {Styles} from './styles/Styles';
 import {StyleHelper} from './styles/StyleHelper';
 import {StylesRequest} from './styles/StylesRequest';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {ImageUrlBuilder, ImageUrlParameters} from '../../../util/ImageUrlResolver';
+import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import eventInfo = CKEDITOR.eventInfo;
@@ -25,8 +25,6 @@ export class HtmlEditor {
     private editorParams: HtmlEditorParams;
 
     private editor: CKEDITOR.editor;
-
-    private static readonly imgInlineStyle: string = 'max-height:100%; max-width:100%; width:100%';
 
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
@@ -92,7 +90,6 @@ export class HtmlEditor {
             setTimeout(() => {
                 rootElement.find('figure').toArray().forEach((figure: CKEDITOR.dom.element) => {
                     HtmlEditor.updateFigureInlineStyle(figure);
-                    HtmlEditor.updateImageInlineStyle(figure);
                     HtmlEditor.sortFigureClasses(figure);
                 });
             }, 1);
@@ -140,15 +137,14 @@ export class HtmlEditor {
     // Wrapping dropped image into figure element
     private handleImageDropped() {
         const editor = this.editor;
-        const imgInlineStyle = HtmlEditor.imgInlineStyle;
 
         this.editor.on('instanceReady', function () {
             (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
-                const dataSrc: string = ImageUrlBuilder.RENDER.imagePrefix + imageId;
+                const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}" style="${imgInlineStyle}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
             };
@@ -211,12 +207,11 @@ export class HtmlEditor {
             } else {
                 const mediaContent = JSON.parse(response[0]);
 
-                const urlParams: ImageUrlParameters = {
-                    id: mediaContent.id,
-                    useOriginal: true
-                };
+                const imgUrl = new ImageUrlResolver()
+                    .setContentId(mediaContent.id)
+                    .resolveForPreview();
 
-                data.url = new ImageUrlBuilder(urlParams).buildForPreview();
+                data.url = imgUrl;
             }
         });
     }
@@ -387,15 +382,11 @@ export class HtmlEditor {
         if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) { // Left Aligned
             figure.setStyles({
                 float: 'left',
-                'margin-bottom': '0',
-                'margin-top': '0',
                 width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.LEFT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) { // Right Aligned
             figure.setStyles({
                 float: 'right',
-                'margin-bottom': '0',
-                'margin-top': '0',
                 width: hasCustomWidth ? customWidth : `${StyleHelper.STYLE.ALIGNMENT.RIGHT.WIDTH}%`
             });
         } else if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) { // Center Aligned
@@ -411,14 +402,6 @@ export class HtmlEditor {
     public static sortFigureClasses(figure: CKEDITOR.dom.element) {
         const classes: string[] = figure.$.className.split(' ').sort();
         figure.$.className = classes.join(' ');
-    }
-
-    public static updateImageInlineStyle(figure: CKEDITOR.dom.element) {
-        const img: CKEDITOR.dom.element = figure.findOne('img');
-
-        if (img) {
-            img.setAttribute('style', HtmlEditor.imgInlineStyle);
-        }
     }
 
     private handleNativeNotifications() {
@@ -814,11 +797,6 @@ class HtmlEditorConfigBuilder {
     private createConfig(): wemQ.Promise<CKEDITOR.config> {
 
         const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
-        const injectCssIntoConfig = () => {
-            if (Styles.getInstance()) {
-                config.contentsCss = contentsCss.concat(Styles.getCssPaths());
-            }
-        };
 
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
@@ -852,19 +830,15 @@ class HtmlEditorConfigBuilder {
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
 
-        if (!this.editorParams.isCustomStylesToBeUsed()) { // inline mode
-            return wemQ(config);
-        }
-
-        if (Styles.getInstance()) {
-            injectCssIntoConfig();
-            return wemQ(config);
-        }
-
         const deferred = wemQ.defer<CKEDITOR.config>();
 
-        new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then((response) => {
-            injectCssIntoConfig();
+        if (!this.editorParams.isCustomStylesToBeUsed()) {
+            //inline mode
+            return wemQ(config);
+        }
+
+        new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then(() => {
+            config.contentsCss = contentsCss.concat(Styles.getCssPaths(this.editorParams.getContent().getId()));
             deferred.resolve(config);
         });
 

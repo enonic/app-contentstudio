@@ -20,6 +20,21 @@ export class StylesRequest
         this.contentId = contentId;
     }
 
+    static fetchStyles(contentId: string): wemQ.Promise<Styles> {
+
+        const deferred = wemQ.defer<Styles>();
+
+        if (Styles.getInstance(contentId)) {
+            deferred.resolve(Styles.getInstance(contentId));
+
+            return deferred.promise;
+        }
+
+        new StylesRequest(contentId).sendAndParse().then((styles: Styles) => deferred.resolve(styles));
+
+        return deferred.promise;
+    }
+
     getRequestPath(): api.rest.Path {
         return CONFIG.stylesUrl;
     }
@@ -36,15 +51,25 @@ export class StylesRequest
             // for example when there are several HTML Area inputs on the same page
             return StylesRequest.requests[this.contentId];
         }
+
+        if (Styles.getInstance(this.contentId)) {
+            // If styles are already fetched for this contentId,
+            // return them without sending a new request
+            const deferred = wemQ.defer<Styles>();
+            deferred.resolve(Styles.getInstance(this.contentId));
+
+            return deferred.promise;
+        }
+
         StylesRequest.requests[this.contentId] = this.send().then((response: api.rest.JsonResponse<GetStylesResponse>) => {
             delete StylesRequest.requests[this.contentId];
-            return this.fromJson(response.getResult());
+            return this.fromJson(this.contentId, response.getResult());
         });
 
         return StylesRequest.requests[this.contentId];
     }
 
-    private fromJson(json: GetStylesResponse): Styles {
-        return new Styles(json);
+    private fromJson(contentId: string, json: GetStylesResponse): Styles {
+        return new Styles(contentId, json);
     }
 }

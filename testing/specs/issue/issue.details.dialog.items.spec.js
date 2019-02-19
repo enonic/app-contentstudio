@@ -12,7 +12,7 @@ const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
-
+const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('issue.details.dialog.items.spec: add items and check it on ItemsTabItem', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -22,7 +22,11 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
     it(`GIVEN existing folder with images is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '1' number should be in 'Items' on IssueDetailsDialog`,
         () => {
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                // Publish button is getting visible, because the content is 'New' and valid
+                return contentBrowsePanel.waitForPublishButtonVisible();
+            }).then(()=>{
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {

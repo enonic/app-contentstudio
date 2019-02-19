@@ -1,3 +1,33 @@
+.figure-mixin {
+
+  figure {
+    margin: 0;
+
+    img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    &.editor-style-original img {
+      width: auto;
+    }
+
+    &.editor-align-center img {
+      margin: 0 auto;
+    }
+
+    &.editor-align-left img {
+      margin-right: auto;
+    }
+
+    &.editor-align-right img {
+      margin-left: auto;
+    }
+  }
+
+}
 .@{_CLS_PREFIX}text-view {
 
   overflow: auto;
@@ -58,6 +88,7 @@
         pointer-events: auto;
         cursor: auto;
       }
+      .figure-mixin;
     }
 
     &.editor-focused {
@@ -94,6 +125,8 @@
     & > *:last-child {
       margin-bottom: 0;
     }
+
+    .figure-mixin;
   }
 
 }

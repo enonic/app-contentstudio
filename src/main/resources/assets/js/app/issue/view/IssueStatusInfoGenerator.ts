@@ -57,7 +57,7 @@ export class IssueStatusInfoGenerator {
     private getModifiedBy(): string {
         const lastModifiedBy: string = !!this.issue.getModifier() ? this.issue.getModifier() : this.issue.getCreator();
 
-        if (lastModifiedBy === this.currentUser.getKey().toString()) {
+        if (this.currentUser && (lastModifiedBy === this.currentUser.getKey().toString())) {
             return i18n('field.me');
         }
 

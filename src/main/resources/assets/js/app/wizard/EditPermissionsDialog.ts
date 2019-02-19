@@ -50,10 +50,148 @@ export class EditPermissionsDialog
 
     protected header: EditPermissionsDialogHeader;
 
-    //
+    pollTask: (taskId: TaskId) => void;
+
     progressManager: ProgressBarManager;
-    //
+
     isProgressBarEnabled: () => boolean;
+
+    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
+
+    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
+
+    isExecuting: () => boolean;
+
+    private subTitle: api.dom.H6El;
+
+    constructor() {
+        super(<ModalDialogConfig>{
+            confirmation: {
+                yesCallback: () => this.applyAction.execute(),
+                noCallback: () => this.close(),
+            },
+            class: 'edit-permissions-dialog'
+        });
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        TaskProgressInterface.prototype.constructor.call(this, {
+            processingLabel: `${i18n('field.progress.applying')}...`,
+            managingElement: this
+        });
+
+        this.subTitle = new api.dom.H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
+        this.inheritPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
+        this.inheritPermissionsCheck.addClass('inherit-perm-check');
+        this.comboBox = new AccessControlComboBox();
+        this.comboBox.addClass('principal-combobox');
+        this.overwriteChildPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
+        this.overwriteChildPermissionsCheck.addClass('overwrite-child-check');
+        this.applyAction = new api.ui.Action(i18n('action.apply'));
+        this.parentPermissions = [];
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.inheritPermissionsCheck);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.onProgressComplete(() => {
+            this.subTitle.hide();
+        });
+
+        const comboBoxChangeListener = () => {
+            const currentEntries: AccessControlEntry[] = this.getEntries().sort();
+
+            const permissionsModified: boolean = !api.ObjectHelper.arrayEquals(currentEntries, this.originalValues);
+            const inheritCheckModified: boolean = this.inheritPermissionsCheck.isChecked() !== this.originalInherit;
+            const overwriteModified: boolean = this.overwriteChildPermissionsCheck.isChecked() !== this.originalOverwrite;
+            const isNotEmpty: boolean = currentEntries && currentEntries.length > 0;
+
+            this.applyAction.setEnabled((permissionsModified || inheritCheckModified || overwriteModified) && isNotEmpty);
+            this.notifyResize();
+        };
+
+        const changeListener = () => {
+            this.inheritPermissions = this.inheritPermissionsCheck.isChecked();
+
+            this.comboBox.toggleClass('disabled', this.inheritPermissions);
+            if (this.inheritPermissions) {
+                this.layoutInheritedPermissions();
+            } else {
+                this.layoutOriginalPermissions();
+            }
+
+            this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
+            this.comboBox.setReadOnly(this.inheritPermissions);
+
+            comboBoxChangeListener();
+        };
+
+        this.inheritPermissionsCheck.onValueChanged(changeListener);
+
+        this.applyAction.onExecuted(() => {
+            this.applyPermissions();
+        });
+
+        this.comboBox.onOptionValueChanged(comboBoxChangeListener);
+        this.comboBox.onOptionSelected(comboBoxChangeListener);
+        this.comboBox.onOptionDeselected(comboBoxChangeListener);
+        this.overwriteChildPermissionsCheck.onValueChanged(comboBoxChangeListener);
+
+        OpenEditPermissionsDialogEvent.on((event) => {
+            this.contentId = event.getContentId();
+            this.contentPath = event.getContentPath();
+            this.displayName = event.getDisplayName();
+            this.permissions = event.getPermissions();
+            this.inheritPermissions = event.isInheritPermissions();
+            this.overwritePermissions = event.isOverwritePermissions();
+
+            this.getParentPermissions().then((parentPermissions: AccessControlList) => {
+                this.parentPermissions = parentPermissions.getEntries();
+
+                this.open();
+
+                this.setUpDialog();
+
+                this.overwriteChildPermissionsCheck.setChecked(this.overwritePermissions, true);
+
+                changeListener();
+
+            }).catch(() => {
+                api.notify.showWarning(i18n('notify.permissions.inheritError', this.displayName));
+            }).done();
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildToHeader(this.subTitle);
+            this.subTitle.hide();
+
+            this.appendChildToContentPanel(this.inheritPermissionsCheck);
+
+            const section = new api.dom.SectionEl();
+            this.appendChildToContentPanel(section);
+
+            const form = new api.ui.form.Form();
+            section.appendChild(form);
+            form.appendChild(this.comboBox);
+
+            this.appendChildToContentPanel(this.overwriteChildPermissionsCheck);
+
+            this.addAction(this.applyAction, true);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
+    }
 
     protected createHeader(): EditPermissionsDialogHeader {
         return new EditPermissionsDialogHeader(i18n('dialog.permissions'), '');
@@ -62,8 +200,6 @@ export class EditPermissionsDialog
     protected getHeader(): EditPermissionsDialogHeader {
         return this.header;
     }
-
-    pollTask: (taskId: TaskId) => void;
 
     private setUpDialog() {
         this.overwriteChildPermissionsCheck.setChecked(false);
@@ -140,126 +276,6 @@ export class EditPermissionsDialog
 
     isDirty(): boolean {
         return this.applyAction.isEnabled();
-    }
-
-    //
-    // fields
-    onProgressComplete: (listener: (taskState: TaskState) => void) => void;
-
-    //
-    // methods
-    unProgressComplete: (listener: (taskState: TaskState) => void) => void;
-    isExecuting: () => boolean;
-    private subTitle: api.dom.H6El;
-
-    constructor() {
-        super(<ModalDialogConfig>{
-            confirmation: {
-                yesCallback: () => this.applyAction.execute(),
-                noCallback: () => this.close(),
-            }
-        });
-
-        TaskProgressInterface.prototype.constructor.call(this, {
-            processingLabel: `${i18n('field.progress.applying')}...`,
-            managingElement: this
-        });
-
-        this.subTitle = new api.dom.H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
-        this.appendChildToHeader(this.subTitle);
-        this.subTitle.hide();
-
-        this.onProgressComplete(() => {
-            this.subTitle.hide();
-        });
-
-        this.addClass('edit-permissions-dialog');
-
-        this.inheritPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
-        this.inheritPermissionsCheck.addClass('inherit-perm-check');
-        this.appendChildToContentPanel(this.inheritPermissionsCheck);
-
-        let section = new api.dom.SectionEl();
-        this.appendChildToContentPanel(section);
-
-        let form = new api.ui.form.Form();
-        section.appendChild(form);
-
-        this.comboBox = new AccessControlComboBox();
-        this.comboBox.addClass('principal-combobox');
-        form.appendChild(this.comboBox);
-
-        let comboBoxChangeListener = () => {
-            const currentEntries: AccessControlEntry[] = this.getEntries().sort();
-
-            const permissionsModified: boolean = !api.ObjectHelper.arrayEquals(currentEntries, this.originalValues);
-            const inheritCheckModified: boolean = this.inheritPermissionsCheck.isChecked() !== this.originalInherit;
-            const overwriteModified: boolean = this.overwriteChildPermissionsCheck.isChecked() !== this.originalOverwrite;
-            const isNotEmpty: boolean = currentEntries && currentEntries.length > 0;
-
-            this.applyAction.setEnabled((permissionsModified || inheritCheckModified || overwriteModified) && isNotEmpty);
-            this.notifyResize();
-        };
-
-        let changeListener = () => {
-            this.inheritPermissions = this.inheritPermissionsCheck.isChecked();
-
-            this.comboBox.toggleClass('disabled', this.inheritPermissions);
-            if (this.inheritPermissions) {
-                this.layoutInheritedPermissions();
-            } else {
-                this.layoutOriginalPermissions();
-            }
-
-            this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
-            this.comboBox.setReadOnly(this.inheritPermissions);
-
-            comboBoxChangeListener();
-        };
-        this.inheritPermissionsCheck.onValueChanged(changeListener);
-
-        this.overwriteChildPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
-        this.overwriteChildPermissionsCheck.addClass('overwrite-child-check');
-        this.appendChildToContentPanel(this.overwriteChildPermissionsCheck);
-
-        this.applyAction = new api.ui.Action(i18n('action.apply'));
-        this.applyAction.onExecuted(() => {
-            this.applyPermissions();
-        });
-        this.addAction(this.applyAction, true);
-
-        this.comboBox.onOptionValueChanged(comboBoxChangeListener);
-        this.comboBox.onOptionSelected(comboBoxChangeListener);
-        this.comboBox.onOptionDeselected(comboBoxChangeListener);
-        this.overwriteChildPermissionsCheck.onValueChanged(comboBoxChangeListener);
-
-        this.parentPermissions = [];
-
-        OpenEditPermissionsDialogEvent.on((event) => {
-            this.contentId = event.getContentId();
-            this.contentPath = event.getContentPath();
-            this.displayName = event.getDisplayName();
-            this.permissions = event.getPermissions();
-            this.inheritPermissions = event.isInheritPermissions();
-            this.overwritePermissions = event.isOverwritePermissions();
-
-            this.getParentPermissions().then((parentPermissions: AccessControlList) => {
-                this.parentPermissions = parentPermissions.getEntries();
-
-                this.open();
-
-                this.setUpDialog();
-
-                this.overwriteChildPermissionsCheck.setChecked(this.overwritePermissions, true);
-
-                changeListener();
-
-            }).catch(() => {
-                api.notify.showWarning(i18n('notify.permissions.inheritError', this.displayName));
-            }).done();
-        });
-
-        this.addCancelButtonToBottom();
     }
 
     private applyPermissions() {

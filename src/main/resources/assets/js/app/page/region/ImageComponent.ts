@@ -123,10 +123,21 @@ export class ImageComponent
         }
 
         if (!api.ObjectHelper.equals(this.config, other.config)) {
-            return false;
+            const noCaptionSetOnBothComponents: boolean = !this.isCaptionSet(this.config) && !this.isCaptionSet(other.config);
+
+            return noCaptionSetOnBothComponents;
         }
 
         return true;
+    }
+
+
+    private isCaptionSet(config: PropertyTree): boolean {
+        if (!config) {
+            return false;
+        }
+
+        return !!config.getString('caption');
     }
 
     clone(): ImageComponent {

@@ -15,20 +15,27 @@ export class DetailsDialogSubTitle
     private issueStatusSelector: IssueStatusSelector;
     private statusSpan: api.dom.SpanEl;
 
-    constructor(issue: Issue, currentUser: Principal) {
+    constructor(issue: Issue) {
         super('issue-details-sub-title');
         this.issue = issue;
-        this.currentUser = currentUser;
+        this.issueStatusSelector = new IssueStatusSelector();
+        this.statusSpan = new SpanEl('status-info');
     }
 
     setIssue(issue: Issue, silent?: boolean) {
-        if (this.issueStatusSelector) {
-            this.setStatus(issue.getIssueStatus(), silent);
-        }
-        if (this.statusSpan) {
-            this.statusSpan.setHtml(this.makeStatusInfo(issue), false);
-        }
         this.issue = issue;
+
+        this.setStatus(issue.getIssueStatus(), silent);
+        this.updateStatusInfo();
+    }
+
+    private updateStatusInfo() {
+        this.statusSpan.setHtml(this.makeStatusInfo(), false);
+    }
+
+    setUser(user: Principal) {
+        this.currentUser = user;
+        this.updateStatusInfo();
     }
 
     setStatus(status: IssueStatus, silent?: boolean) {
@@ -38,11 +45,9 @@ export class DetailsDialogSubTitle
     doRender(): wemQ.Promise<boolean> {
 
         return super.doRender().then(() => {
-            this.issueStatusSelector = new IssueStatusSelector();
             this.issueStatusSelector.onValueChanged((event) => {
                 this.notifyIssueStatusChanged(event);
             });
-            this.statusSpan = new SpanEl('status-info');
             this.appendChildren<api.dom.Element>(this.issueStatusSelector, this.statusSpan);
             if (this.issue) {
                 this.setIssue(this.issue, true);
@@ -67,8 +72,8 @@ export class DetailsDialogSubTitle
         });
     }
 
-    private makeStatusInfo(issue: Issue): string {
-        return issue ? IssueStatusInfoGenerator.create().setIssue(issue).setIssueStatus(issue.getIssueStatus()).setCurrentUser(
-            this.currentUser).generate() : '';
+    private makeStatusInfo(): string {
+        return this.issue ? IssueStatusInfoGenerator.create().setIssue(this.issue).setIssueStatus(
+            this.issue.getIssueStatus()).setCurrentUser(this.currentUser).generate() : '';
     }
 }

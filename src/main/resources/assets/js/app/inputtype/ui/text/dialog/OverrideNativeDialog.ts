@@ -6,17 +6,23 @@ export abstract class OverrideNativeDialog
 
     protected ckeOriginalDialog: CKEDITOR.dialog;
 
-    constructor(config: HtmlAreaModalDialogConfig) {
+    protected constructor(config: HtmlAreaModalDialogConfig) {
         super(config);
 
         this.hideOriginalCKEDialog();
-        this.setDialogInputValues();
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
     }
 
-    protected initializeConfig(config: HtmlAreaModalDialogConfig) {
-        super.initializeConfig(config);
-        this.ckeOriginalDialog = config.dialog;
+    protected initElements() {
+        super.initElements();
+
+        this.ckeOriginalDialog = this.config.dialog;
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setDialogInputValues();
     }
 
     close() {

@@ -59,7 +59,7 @@ export class ImageSelectorSelectedOptionsView
 
     private addOptionMovedEventHandler() {
         //when dragging selected image in chrome it looses focus; bringing focus back
-        this.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>) => {
+        this.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>, fromIndex: number) => {
             let selectedOptionMoved: boolean = moved.getOptionView().hasClass('editing');
 
             if (selectedOptionMoved) {

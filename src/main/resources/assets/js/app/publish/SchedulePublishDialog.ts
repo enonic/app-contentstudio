@@ -8,23 +8,43 @@ import {SchedulableDialog} from '../dialog/SchedulableDialog';
 export class SchedulePublishDialog
     extends SchedulableDialog {
 
+    private backButton: AEl;
     private onCloseCallback: () => void;
 
     constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('dialog.schedule')
+            title: i18n('dialog.schedule'),
+            class: 'schedule-publish-dialog'
         });
-        this.getEl().addClass('schedule-publish-dialog');
+    }
 
-        this.addSubtitle();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addSubtitle();
+            this.prependChildToHeader(this.backButton);
 
-        this.createBackButton();
+            return rendered;
+        });
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.backButton = new AEl('back-button').setTitle(i18n('action.back'));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.backButton.onClicked(() => {
+            this.close();
+        });
     }
 
     show() {
         this.resetDates();
         this.formView.displayValidationErrors(false);
-        this.confirmScheduleButton.getAction().setEnabled(true);
+        this.confirmScheduleAction.setEnabled(true);
         super.show();
     }
 
@@ -52,20 +72,6 @@ export class SchedulePublishDialog
             i18n('field.onlineTo')).setHelpText(i18n('field.onlineTo.help')).setOccurrences(
             new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).setInputTypeConfig({}).setMaximizeUIInputWidth(
             true).build();
-    }
-
-    protected hasSubDialog(): boolean {
-        return true;
-    }
-
-    private createBackButton() {
-        const backButton: AEl = new AEl('back-button').setTitle(i18n('action.back'));
-
-        this.prependChildToHeader(backButton);
-
-        backButton.onClicked(() => {
-            this.close();
-        });
     }
 
     private addSubtitle() {

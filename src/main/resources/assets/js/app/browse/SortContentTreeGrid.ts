@@ -34,6 +34,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
                 behavior: 'selectAndMove'
             }])
             .setPartialLoadEnabled(true)
+            .setAutoLoad(false)
             .setCheckableRows(false)
             .setShowToolbar(false)
             .setDragAndDrop(true)

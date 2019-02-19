@@ -31,7 +31,10 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             }).then(() => {
-                return studioUtils.openPublishMenuAndClickOnCreateIssue();
+                return contentBrowsePanel.waitForPublishButtonVisible();
+            }).then(()=>{
+                //open 'Create Issue' dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {
@@ -51,7 +54,7 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
                 return issueDetailsDialogItemsTab.clickOnPublishAndCloseIssueButton();
-            }).then(() => {
+            }).pause(1500).then(() => {
                 return issueDetailsDialog.waitForNotificationMessage();
             }).then(messages => {
                 let expected1 = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);

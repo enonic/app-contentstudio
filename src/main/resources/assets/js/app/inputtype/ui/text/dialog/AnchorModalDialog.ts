@@ -3,6 +3,7 @@ import Validators = api.ui.form.Validators;
 import i18n = api.util.i18n;
 import TextInput = api.ui.text.TextInput;
 import eventInfo = CKEDITOR.eventInfo;
+import Action = api.ui.Action;
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 
@@ -25,12 +26,39 @@ export class AnchorModalDialog
         });
     }
 
+    protected initElements() {
+        super.initElements();
+
+        this.setSubmitAction(new Action(i18n('action.insert')));
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.submitAction.onExecuted(() => {
+            if (this.validate()) {
+                this.ckeOriginalDialog.setValueOf('info', 'txtName', this.nameField.getInput().getEl().getValue());
+                this.ckeOriginalDialog.getButton('ok').click();
+                this.close();
+            }
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addAction(this.submitAction);
+            this.addCancelButtonToBottom();
+
+            return rendered;
+        });
+    }
+
     protected getMainFormItems(): FormItem[] {
         const formItemBuilder = new ModalDialogFormItemBuilder('name', i18n('dialog.anchor.formitem.name')).setValidator(
             AnchorModalDialog.validationRequiredAnchor);
         this.nameField = this.createFormItem(formItemBuilder);
 
-        this.setFirstFocusField(this.nameField.getInput());
+        this.setElementToFocusOnShow(this.nameField.getInput());
 
         return [this.nameField];
     }
@@ -47,21 +75,6 @@ export class AnchorModalDialog
 
     protected setDialogInputValues() {
         this.nameField.getInput().getEl().setValue(<string>this.ckeOriginalDialog.getValueOf('info', 'txtName'));
-    }
-
-    protected initializeActions() {
-        const submitAction = new api.ui.Action(i18n('action.insert'));
-        this.setSubmitAction(submitAction);
-
-        this.addAction(submitAction.onExecuted(() => {
-            if (this.validate()) {
-                this.ckeOriginalDialog.setValueOf('info', 'txtName', this.nameField.getInput().getEl().getValue());
-                this.ckeOriginalDialog.getButton('ok').click();
-                this.close();
-            }
-        }));
-
-        super.initializeActions();
     }
 
     isDirty(): boolean {

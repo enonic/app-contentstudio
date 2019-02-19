@@ -12,62 +12,99 @@
       padding-left: 12px;
       border-left: 1px solid @admin-bg-light-gray;
       margin-left: 38px;
-
-      &.main-action-button {
-
-        span {
-          line-height: @toolbar-height - 1px;
-          text-transform: uppercase;
-          color: @admin-green;
-          font-family: sans-serif, "Open Sans", Helvetica;
-        }
-
-        &:not([disabled]):hover {
-          span {
-            color: darken(@admin-green, 10%);
-          }
-        }
-      }
-
-      &.create-issue-action-button {
-        display: none !important;
-      }
+      display: none !important;
     }
 
-    .xp-admin-common-dropdown-handle {
-      &:after {
-        border-top-color: @admin-green;
-      }
-
-      &[disabled] {
-        &:after {
-          opacity: 0.5;
-        }
-      }
-
-      &:not([disabled]):hover:after {
-        border-top-color: darken(@admin-green, 10%);
-      }
-
-    }
-
-    &.only-create-issue:not(.minimized) {
+    &.no-item {
       .action-button.create-issue-action-button {
-        display: inline-block !important;
+        border-left: none;
+        .menu-action-button(@admin-button-blue2);
       }
 
-      .action-button.main-action-button {
-        display: none !important;
-      }
+      .dropdown-toggler(@admin-button-blue2);
 
       .xp-admin-common-dropdown-handle {
-        opacity: .5;
-        pointer-events: none;
+        display: none;
       }
+    }
+
+    &.publish {
+      .action-button.publish-action-button {
+        .menu-action-button(@admin-green);
+      }
+
+      .dropdown-toggler(@admin-green);
+    }
+
+    &.publish-tree {
+      .action-button.publish-tree-action-button {
+        .menu-action-button(@admin-green);
+      }
+
+      .dropdown-toggler(@admin-green);
+    }
+
+    &.unpublish {
+      .action-button.unpublish-action-button {
+        .menu-action-button(@admin-font-gray2);
+      }
+
+      .dropdown-toggler(@admin-font-gray2);
+    }
+
+    &.create-issue {
+      .action-button.create-issue-action-button {
+        .menu-action-button(@admin-button-blue2);
+      }
+
+      .dropdown-toggler(@admin-button-blue2);
+    }
+
+    .menu {
+      right: 0;
     }
   }
 
   .progress-bar {
     display: none;
+  }
+}
+
+.menu-action-button(@color) {
+  display: inline-block !important;
+
+  @media screen and (max-width: 720px) {
+    display: none !important;
+  }
+
+  span {
+    line-height: @toolbar-height - 1px;
+    text-transform: uppercase;
+    color: @color;
+    font-family: sans-serif, "Open Sans", Helvetica;
+  }
+
+  &:not([disabled]):hover {
+    span {
+      color: darken(@color, 10%);
+      color: @color;
+    }
+  }
+}
+
+.dropdown-toggler(@color) {
+  .xp-admin-common-dropdown-handle {
+    &:after {
+      border-top-color: @color;
+    }
+
+    &:not([disabled]):hover:after {
+      border-top-color: darken(@color, 10%);
+    }
+
+    @media screen and (max-width: 720px) {
+      position: static;
+      display: inline-block;
+    }
   }
 }
