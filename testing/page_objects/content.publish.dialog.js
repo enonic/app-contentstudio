@@ -4,7 +4,7 @@ const dialog = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     deleteButton: `//button/span[contains(.,'Delete')]`,
     publishButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish')]]`,
-    cancelButtonBottom: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']`,
+    cancelButtonBottom: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
 };
 
@@ -25,7 +25,6 @@ const contentPublishDialog = Object.create(page, {
             return `${dialog.container}` + `${dialog.includeChildrenToogler}`;
         }
     },
-
     waitForDialogVisible: {
         value: function () {
             return this.waitForVisible(this.publishButton, appConst.TIMEOUT_2);
@@ -56,9 +55,13 @@ const contentPublishDialog = Object.create(page, {
     },
     waitForCancelButtonBottomEnabled: {
         value: function () {
-            return this.waitForEnabled(this.cancelButtonBottom,appConst.TIMEOUT_3).catch(err=>{
-                throw new Error("Publish Content Dialog - Button Cancel must be enabled!")
-            })
+            return this.getBrowser().waitUntil(() => {
+                return this.getBrowser().getAttribute(this.cancelButtonBottom, 'class').then(result => {
+                    return result.includes('enabled');
+                })
+            }, 2000).catch(err => {
+                throw new Error("Publish Dialog, Button Cancel is disabled in ms: " + 2000);
+            });
         }
     },
 });

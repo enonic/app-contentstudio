@@ -64,7 +64,13 @@ Page.prototype.waitForVisible = function (selector, ms) {
 };
 
 Page.prototype.waitForNotVisible = function (selector, ms) {
-    return this.getBrowser().waitForVisible(selector, ms, true);
+    return this.getBrowser().waitUntil(() => {
+        return this.getDisplayedElements(selector).then(result => {
+            return result.length == 0;
+        })
+    }, 2000).catch(err => {
+        throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
+    });
 };
 Page.prototype.waitForSpinnerNotVisible = function (ms) {
     let message = "Spinner still displayed! timeout is " + ms;

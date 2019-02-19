@@ -38,6 +38,16 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 return expect(contentItemPreviewPanel.getContentAuthor()).to.eventually.equal('by Super User');
             });
         });
+//verifies "https://github.com/enonic/app-contentstudio/issues/190"
+// Preview Panel - status should not be visible when no content is selected
+    it(`GIVEN existing folder is selected WHEN the folder has been unselected THEN preview toolbar gets not visible`, () => {
+        return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).pause(1000).then(() => {
+            return contentBrowsePanel.clickOnRowByName(TEST_FOLDER.displayName);
+        }).then(() => {
+            //Preview Toolbar is getting hidden
+            return contentItemPreviewPanel.waitForToolbarNotVisible();
+        });
+    });
 
     it(`GIVEN existing folder WHEN the folder is selected and published THEN 'Published' status should be displayed on the toolbar`,
         () => {
@@ -145,4 +155,5 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-});
+})
+;

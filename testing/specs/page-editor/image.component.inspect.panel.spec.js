@@ -81,7 +81,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     return contentWizard.clickOnShowComponentViewToggler();
                 }).then(() => {
-                    return pageComponentView.clickOnComponent("kotey");
+                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME);
                 }).then(() => {
                     // image inspection panel should be loaded automatically
                     return imageInspectPanel.waitForOpened();

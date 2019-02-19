@@ -18,6 +18,7 @@ const panel = {
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
+    createIssueButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Issue...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentPublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
@@ -64,6 +65,11 @@ const contentBrowsePanel = Object.create(page, {
     createIssueMenuItem: {
         get: function () {
             return `${panel.toolbar}` + `${panel.createIssueMenuItem}`;
+        }
+    },
+    createIssueButton: {
+        get: function () {
+            return `${panel.toolbar}` + `${panel.createIssueButton}`;
         }
     },
     showIssuesListButton: {
@@ -173,7 +179,10 @@ const contentBrowsePanel = Object.create(page, {
     },
     waitForPublishButtonVisible: {
         value: function () {
-            return this.waitForVisible(this.publishButton, appConst.TIMEOUT_2);
+            return this.waitForVisible(this.publishButton, appConst.TIMEOUT_3).catch(err => {
+                this.saveScreenshot("err_publish_button");
+                throw new Error("Publish button is not visible! " + err);
+            })
         }
     },
     waitForUnPublishButtonVisible: {
@@ -382,10 +391,10 @@ const contentBrowsePanel = Object.create(page, {
             let nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
-            }).pause(400).catch((err) => {
+            }).catch((err) => {
                 this.saveScreenshot('err_find_' + name);
                 throw Error('Row with the name ' + name + ' was not found' + err);
-            })
+            }).pause(400);
         }
     },
     clickOnRowByDisplayName: {
@@ -503,6 +512,14 @@ const contentBrowsePanel = Object.create(page, {
     waitForShowPublishMenuButtonVisible: {
         value: function () {
             return this.waitForVisible(this.showPublishMenuButton, appConst.TIMEOUT_3);
+        }
+    },
+    waitForCreateIssueButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.createIssueButton, appConst.TIMEOUT_5).catch(err => {
+                this.saveScreenshot("err_create_issue_button");
+                throw new Error("Create issue button is not visible on the toolbar! " + err);
+            });
         }
     },
     openPublishMenuAndClickOnCreateIssue: {
