@@ -71,6 +71,9 @@ export class ContextSplitPanel
         if (this.isInsideWizard()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
             nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
+                return this.isMobileMode();
+            });
         }
         this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
         this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
@@ -158,8 +161,9 @@ export class ContextSplitPanel
 
     private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
 
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+        const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
+            // Do not replace with non-strict equality!
             if (this.mobileMode === undefined) {
                 this.mobileMode = item.isInRangeOrSmaller(ResponsiveRanges._540_720);
             }
@@ -181,6 +185,10 @@ export class ContextSplitPanel
                     this.notifyMobileModeChanged(false);
                 }
             }
+        }, 50);
+        ResponsiveManager.onAvailableSizeChanged(this, debouncedResponsiveHandler);
+        this.onRemoved(() => {
+            ResponsiveManager.unAvailableSizeChanged(this);
         });
     }
 

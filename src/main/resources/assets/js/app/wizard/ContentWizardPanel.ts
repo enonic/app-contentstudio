@@ -51,6 +51,7 @@ import {ContentType} from '../inputtype/schema/ContentType';
 import {Page} from '../page/Page';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
+import {InspectEvent} from '../event/InspectEvent';
 import {PermissionHelper} from './PermissionHelper';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
@@ -796,6 +797,16 @@ export class ContentWizardPanel
         api.app.wizard.MaskContentWizardPanelEvent.on(event => {
             if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
                 this.wizardActions.suspendActions(event.isMask());
+            }
+        });
+
+
+        InspectEvent.on((event: InspectEvent) => {
+            const minimizeWizard = event.isShowPanel() &&
+                                   !this.contextSplitPanel.isMobileMode() &&
+                                   ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
+            if (minimizeWizard) {
+                this.toggleMinimize();
             }
         });
 

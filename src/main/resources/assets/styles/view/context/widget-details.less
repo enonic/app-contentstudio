@@ -8,14 +8,19 @@
 
     .names-and-icon-view {
       display: inline-flex;
+      justify-content: center;
       .@{_COMMON_PREFIX}wrapper {
         margin-right: 10px;
-        flex: 1 0 auto;
         transform: scale(0.8);
       }
       .@{_COMMON_PREFIX}names-view {
         margin: 0;
       }
+    }
+
+    .content-summary-viewer,
+    .names-and-icon-view {
+      width: 100%;
     }
   }
 

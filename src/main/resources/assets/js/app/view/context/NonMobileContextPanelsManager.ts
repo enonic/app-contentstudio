@@ -41,8 +41,10 @@ export class NonMobileContextPanelsManager {
             }
         });
 
+        const isMobileMode = builder.getIsMobileMode() || (() => false);
+
         InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowPanel() && this.requiresAnimation() && !this.isExpanded()) {
+            if (event.isShowPanel() && !isMobileMode() && this.requiresAnimation() && !this.isExpanded()) {
                 this.doPanelAnimation();
             }
         });
@@ -212,15 +214,19 @@ export class NonMobileContextPanelsManager {
     }
 
     private dockedToFloatingSync() {
+        // Add half splitter, since in docked mode, this value will be subtracted by split panel hanlders,
+        // when showing hidden panel
+        const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
         let activePanelWidth = this.splitPanelWithGridAndContext.getActiveWidthPxOfSecondPanel();
         this.hideDockedContextPanel();
-        this.floatingContextPanel.setWidthPx(activePanelWidth);
+        this.floatingContextPanel.setWidthPx(activePanelWidth + halfSplitter);
     }
 
     private floatingToDockedSync() {
+        const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
         this.floatingContextPanel.slideOut();
         let activePanelWidth: number = this.floatingContextPanel.getActualWidth();
-        this.splitPanelWithGridAndContext.setActiveWidthPxOfSecondPanel(activePanelWidth);
+        this.splitPanelWithGridAndContext.setActiveWidthPxOfSecondPanel(activePanelWidth - halfSplitter);
     }
 
     private needsSwitchToFloatingMode(): boolean {
@@ -253,15 +259,17 @@ export class NonMobileContextPanelsManager {
         const panelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
 
         const maximumThreshold = this.isPageEditorShown() ?
-                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._960_1200) :
-                                 ResponsiveRanges._540_720;
+                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._540_720) :
+                                 ResponsiveRanges._960_1200;
 
         if (this.floatingPanelIsShown()) {
             return maximumThreshold.isFitOrSmaller(panelWidth - this.floatingContextPanel.getActualWidth());
         } else {
             const defaultContextPanelWidth = this.splitPanelWithGridAndContext.getActiveWidthPxOfSecondPanel();
-            const splitterThickness: number = this.splitPanelWithGridAndContext.getSplitterThickness();
-            return maximumThreshold.isFitOrSmaller(panelWidth - defaultContextPanelWidth - splitterThickness);
+            const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
+            // Calculate context panel with half width of the splitter, since context panel in floating mode
+            // is bigger on that value.
+            return maximumThreshold.isFitOrSmaller(panelWidth - (defaultContextPanelWidth + halfSplitter));
         }
     }
 
@@ -301,6 +309,8 @@ export class NonMobileContextPanelsManagerBuilder {
 
     private wizardPanel: Panel;
 
+    private isMobileMode: () => boolean;
+
     setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: api.ui.panel.SplitPanel) {
         this.splitPanelWithGridAndContext = splitPanelWithGridAndContext;
     }
@@ -321,6 +331,10 @@ export class NonMobileContextPanelsManagerBuilder {
         this.wizardPanel = wizardPanel;
     }
 
+    setIsMobileMode(isMobileMode: () => boolean) {
+        this.isMobileMode = isMobileMode;
+    }
+
     getSplitPanelWithGridAndContext(): api.ui.panel.SplitPanel {
         return this.splitPanelWithGridAndContext;
     }
@@ -339,6 +353,10 @@ export class NonMobileContextPanelsManagerBuilder {
 
     getWizardPanel(): Panel {
         return this.wizardPanel;
+    }
+
+    getIsMobileMode(): () => boolean {
+        return this.isMobileMode;
     }
 
     build(): NonMobileContextPanelsManager {

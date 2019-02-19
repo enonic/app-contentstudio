@@ -17,17 +17,13 @@
       margin-top: 65px !important;
     }
 
-    &.no-inbound .main-container:before {
-      top: 47px;
+    &.no-inbound .main-container::before {
+      top: 46px;
+      height: calc(~'50% - 100px');
     }
 
-    .main-container:before,
-    &.no-inbound.no-outbound .main-container:before {
-      height: calc(~'100% - 92px');
-    }
-
-    &.no-inbound .main-container:before, &.no-outbound .main-container:before {
-      height: calc(~'100% - 81px');
+    &.no-outbound .main-container::after {
+      bottom: 46px;
     }
 
     padding: 20px 0 !important;
@@ -47,7 +43,7 @@
       bottom: -52px;
     }
 
-    &:before {
+    &::before {
       content: '';
       display: inline-block;
       height: 100%;
@@ -62,16 +58,25 @@
       display: inline-block;
       vertical-align: middle;
 
-      &:before {
+      &::before {
         content: '';
         position: absolute;
         left: calc(~'50% - 2px');
         border-left: 2px solid #ccc;
-        height: calc(~'100% - 68px');
+        height: calc(~'50% - 87px');
         top: 34px;
       }
 
-      &.no-outbound:before {
+      &::after {
+        content: '';
+        position: absolute;
+        left: calc(50% - 2px);
+        border-left: 2px solid #ccc;
+        height: calc(50% - 100px);
+        bottom: 34px;
+      }
+
+      &.no-outbound::before {
         height: calc(~'100% - 92px');
       }
 
@@ -107,7 +112,7 @@
             margin-top: 20px;
             padding-left: 35px;
 
-            .@{_COMMON_PREFIX}wrapper:before {
+            .@{_COMMON_PREFIX}wrapper::before {
               content: '';
               position: absolute;
               left: 0;
@@ -200,7 +205,6 @@
         .@{_COMMON_PREFIX}wrapper {
           margin: 0 auto;
           float: none;
-          background-color: @admin-white;
           height: 54px;
           padding-top: 10px;
         }
@@ -208,7 +212,6 @@
         .@{_COMMON_PREFIX}names-view {
           margin: 0 auto;
           text-align: center;
-          background-color: @admin-white;
           padding-bottom: 8px;
         }
       }
