@@ -803,6 +803,7 @@ export class ContentWizardPanel
 
         InspectEvent.on((event: InspectEvent) => {
             const minimizeWizard = event.isShowPanel() &&
+                                   !this.isMinimized() &&
                                    !this.contextSplitPanel.isMobileMode() &&
                                    ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
             if (minimizeWizard) {
