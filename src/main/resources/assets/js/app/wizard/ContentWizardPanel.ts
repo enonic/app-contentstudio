@@ -1037,13 +1037,15 @@ export class ContentWizardPanel
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
-                    this.getContentWizardToolbarPublishControls().setContent(content);
+                    this.getContentWizardToolbarPublishControls().setContent(content, false);
                     this.getMainToolbar().setItem(content);
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
+
+            this.getContentWizardToolbarPublishControls().refreshState();
         };
 
         const updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
@@ -1224,6 +1226,8 @@ export class ContentWizardPanel
         const contentId: ContentId = updatedContent.getContentId();
         const containsIdPromise: wemQ.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
         const templateUpdatedPromise: wemQ.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
+
+        this.getContentWizardToolbarPublishControls().refreshState();
 
         wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
             if (containsId || templateUpdated) {
