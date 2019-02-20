@@ -147,6 +147,8 @@ export class HtmlEditor {
                                  `<img src="${upload.url}" data-src="${dataSrc}">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
+
+                editor.fire('change');
             };
         });
     }
