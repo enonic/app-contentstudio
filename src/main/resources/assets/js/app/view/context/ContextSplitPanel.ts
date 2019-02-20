@@ -36,8 +36,8 @@ export class ContextSplitPanel
     private leftPanel: api.ui.panel.Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: PageEditorData) {
-        const contextView = new ContextView(data);
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], insideWizard: boolean = false, data?: PageEditorData) {
+        const contextView = new ContextView(insideWizard, data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)

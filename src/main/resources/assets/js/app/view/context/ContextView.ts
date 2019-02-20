@@ -47,6 +47,8 @@ export class ContextView
 
     private data: PageEditorData;
 
+    private insideWizard: boolean;
+
     private alreadyFetchedCustomWidgets: boolean;
 
     private sizeChangedListeners: {(): void}[] = [];
@@ -55,9 +57,10 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor(data?: PageEditorData) {
+    constructor(insideWizard: boolean, data?: PageEditorData) {
         super('context-panel-view');
 
+        this.insideWizard = insideWizard;
         this.data = data;
 
         this.contextContainer = new DivEl('context-container');
@@ -285,7 +288,7 @@ export class ContextView
 
     private initCommonWidgetViews() {
 
-        if (this.isInsideWizard()) {
+        if (this.isPageEditorPresent()) {
             this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
@@ -357,7 +360,11 @@ export class ContextView
     }
 
     private isInsideWizard(): boolean {
-        return this.data != null;
+        return this.insideWizard;
+    }
+
+    private isPageEditorPresent(): boolean {
+        return this.insideWizard && this.data != null;
     }
 
     private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {
@@ -493,7 +500,7 @@ export class ContextView
             }
         }
 
-        if (this.isInsideWizard()) {
+        if (this.isPageEditorPresent()) {
             const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
             const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
 
