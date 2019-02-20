@@ -79,8 +79,10 @@ export class IssueDialogsManager {
     }
 
     private closeDialog(dialog: ModalDialog) {
-        dialog.unmask();
-        dialog.close();
+        if (dialog.isVisible()) {
+            dialog.unmask();
+            dialog.close();
+        }
     }
 
     private revealDialog(dialog: ModalDialog) {
