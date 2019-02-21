@@ -16,7 +16,7 @@ buildscript {
 plugins {
     id 'java'
     id 'maven'
-    id 'com.enonic.defaults' version '1.0.3'
+    id 'com.enonic.defaults' version '2.0.1'
     id 'com.moowork.node' version '0.13'
     id 'com.moowork.gulp' version '0.13'
     id 'com.github.psxpaul.execfork' version '0.1.8'
