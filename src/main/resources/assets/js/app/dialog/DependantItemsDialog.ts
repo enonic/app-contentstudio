@@ -44,15 +44,15 @@ export abstract class DependantItemsDialog
 
     private dependantsHeaderText: string;
 
-    protected loading: boolean = false;
+    protected loading: boolean;
 
-    protected loadingRequested: boolean = false;
+    protected loadingRequested: boolean;
 
     protected previousScrollTop: number;
 
-    protected dependantIds: ContentId[] = [];
+    protected dependantIds: ContentId[];
 
-    private showDependantList: boolean = true;
+    private showDependantList: boolean;
 
     protected config: DependantItemsDialogConfig;
 
@@ -63,6 +63,10 @@ export abstract class DependantItemsDialog
     protected initElements() {
         super.initElements();
 
+        this.showDependantList = true;
+        this.dependantIds = [];
+        this.loading = false;
+        this.loadingRequested = false;
         this.subTitle = new api.dom.H6El('sub-title').setHtml(this.config.dialogSubName, false);
 
         this.itemList = this.createItemList();
