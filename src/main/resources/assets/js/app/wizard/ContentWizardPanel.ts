@@ -805,6 +805,7 @@ export class ContentWizardPanel
             const minimizeWizard = event.isShowPanel() &&
                                    !this.isMinimized() &&
                                    this.renderable &&
+                                   this.getLivePanel().isShown() &&
                                    !this.contextSplitPanel.isMobileMode() &&
                                    ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
             if (minimizeWizard) {
