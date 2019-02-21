@@ -133,6 +133,11 @@ const contentBrowsePanel = Object.create(page, {
             return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
         }
     },
+    publishTreeButton: {
+        get: function () {
+            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`
+        }
+    },
     displayNames: {
         get: function () {
             return `${panel.treeGrid}` + elements.H6_DISPLAY_NAME;
@@ -188,6 +193,11 @@ const contentBrowsePanel = Object.create(page, {
     waitForUnPublishButtonVisible: {
         value: function () {
             return this.waitForVisible(this.unpublishButton, appConst.TIMEOUT_2);
+        }
+    },
+    waitForPublishTreeButtonVisible: {
+        value: function () {
+            return this.waitForVisible(this.publishTreeButton, appConst.TIMEOUT_3);
         }
     },
 
