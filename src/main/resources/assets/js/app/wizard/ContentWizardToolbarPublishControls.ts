@@ -2,8 +2,6 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
-import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import Action = api.ui.Action;
@@ -120,23 +118,17 @@ export class ContentWizardToolbarPublishControls
             return wemQ(false);
         }
 
-        const resolvePublishDependenciesPromise: wemQ.Promise<ResolvePublishDependenciesResult> =
-            ResolvePublishDependenciesRequest.create().setIds([this.content.getContentId()]).build().sendAndParse();
+        /*const resolvePublishDependenciesPromise: wemQ.Promise<ResolvePublishDependenciesResult> =
+            ResolvePublishDependenciesRequest.create().setIds([this.content.getContentId()]).build().sendAndParse();*/
         const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
             new HasUnpublishedChildrenRequest([this.content.getContentId()]).sendAndParse();
 
-        return wemQ.all([resolvePublishDependenciesPromise, hasUnpublishedChildrenPromise]).spread(
-            (resolvePublishDependenciesResult: ResolvePublishDependenciesResult,
-             hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
-                const hasUnpublishedChildren: boolean =
-                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
+        return hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+            const hasUnpublishedChildren: boolean =
+                hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
 
-                if (!hasUnpublishedChildren || resolvePublishDependenciesResult.isContainsInvalid()) {
-                    return wemQ(false);
-                }
-
-                return wemQ(true);
-            });
+            return wemQ(hasUnpublishedChildren);
+        });
     }
 
     public isOnline(): boolean {

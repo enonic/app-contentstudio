@@ -23,8 +23,6 @@ import {ContentType} from '../../inputtype/schema/ContentType';
 import {Permission} from '../../access/Permission';
 import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildrenRequest';
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
-import {ResolvePublishDependenciesRequest} from '../../resource/ResolvePublishDependenciesRequest';
-import {ResolvePublishDependenciesResult} from '../../resource/ResolvePublishDependenciesResult';
 import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
@@ -444,22 +442,16 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private updatePublishTreeAction(contentIds: ContentId[]) {
-        const resolvePublishDependenciesPromise: wemQ.Promise<ResolvePublishDependenciesResult> =
-            ResolvePublishDependenciesRequest.create().setIds(contentIds).build().sendAndParse();
         const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
             new HasUnpublishedChildrenRequest(contentIds).sendAndParse();
 
-        wemQ.all([resolvePublishDependenciesPromise, hasUnpublishedChildrenPromise]).spread(
-            (resolvePublishDependenciesResult: ResolvePublishDependenciesResult,
-             hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+        hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
                 const hasUnpublishedChildren: boolean =
                     hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
 
-                if (!hasUnpublishedChildren || resolvePublishDependenciesResult.isContainsInvalid()) {
-                    this.enableActions({
-                        PUBLISH_TREE: false
-                    });
-                }
+                this.enableActions({
+                    PUBLISH_TREE: hasUnpublishedChildren
+                });
             }).catch(reason => api.DefaultErrorHandler.handle(reason));
     }
 
