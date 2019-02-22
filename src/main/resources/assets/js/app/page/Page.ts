@@ -168,7 +168,7 @@ export class PageBuilder {
         if (source) {
             this.controller = source.getController();
             this.template = source.getTemplate();
-            this.regions = source.getRegions() ? source.getRegions().clone() : null;
+            this.regions = source.getRegions() ? source.getRegions().clone() : Regions.create().build();
             this.config = source.getConfig() ? source.getConfig().copy() : null;
             this.customized = source.isCustomized();
             this.fragment = source.isFragment() ? source.getFragment().clone() : null;
@@ -178,7 +178,7 @@ export class PageBuilder {
     public fromJson(json: PageJson): PageBuilder {
         this.setController(json.controller ? DescriptorKey.fromString(json.controller) : null);
         this.setTemplate(json.template ? PageTemplateKey.fromString(json.template) : null);
-        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : null);
+        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : Regions.create().build());
         this.setConfig(json.config != null
                        ? PropertyTree.fromJson(json.config)
                        : null);
