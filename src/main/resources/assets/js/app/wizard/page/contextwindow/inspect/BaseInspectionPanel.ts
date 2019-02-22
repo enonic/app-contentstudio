@@ -9,7 +9,8 @@ export abstract class BaseInspectionPanel
 
         this.onRendered(() => {
             wemjq(this.getHTMLElement()).slimScroll({
-                height: '100%'
+                height: '100%',
+                size: '10px',
             });
         });
     }

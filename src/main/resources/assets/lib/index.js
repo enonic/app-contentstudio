@@ -1,1 +1,2 @@
-import './ckeditor/ckeditor'
+import './ckeditor/ckeditor';
+import 'jquery-slimscroll';
