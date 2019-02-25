@@ -16,7 +16,7 @@ export abstract class ComponentInspectionPanel<COMPONENT extends Component>
 
     formContext: ContentFormContext;
 
-    private component: COMPONENT;
+    protected component: COMPONENT;
 
     constructor(config: ComponentInspectionPanelConfig) {
         super();
