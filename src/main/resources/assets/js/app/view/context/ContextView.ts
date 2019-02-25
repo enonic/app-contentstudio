@@ -50,8 +50,6 @@ export class ContextView
 
     private data: PageEditorData;
 
-    private insideWizard: boolean;
-
     private alreadyFetchedCustomWidgets: boolean;
 
     private contentRenderable: boolean;
@@ -64,10 +62,9 @@ export class ContextView
 
     public static debug: boolean = false;
 
-    constructor(insideWizard: boolean, data?: PageEditorData) {
+    constructor(data?: PageEditorData) {
         super('context-panel-view');
 
-        this.insideWizard = insideWizard;
         this.data = data;
 
         this.contentRenderable = false;
@@ -379,11 +376,11 @@ export class ContextView
     }
 
     private isInsideWizard(): boolean {
-        return this.insideWizard;
+        return this.data != null;
     }
 
     private isPageEditorPresent(): boolean {
-        return this.insideWizard && this.data != null;
+        return this.isInsideWizard() && this.data.liveFormPanel != null;
     }
 
     private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {

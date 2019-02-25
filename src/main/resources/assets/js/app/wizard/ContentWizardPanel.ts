@@ -336,8 +336,8 @@ export class ContentWizardPanel
             wizardActions.getDuplicateAction()
         ];
 
-        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : null;
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, true, data);
+        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : LiveFormPanel.createEmptyPageEditorData();
+        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data);
 
         this.onRendered(() => {
             const mainToolbar = this.getMainToolbar();

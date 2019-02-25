@@ -36,8 +36,8 @@ export class ContextSplitPanel
     private leftPanel: api.ui.panel.Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], insideWizard: boolean = false, data?: PageEditorData) {
-        const contextView = new ContextView(insideWizard, data);
+    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: PageEditorData) {
+        const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
@@ -66,9 +66,13 @@ export class ContextSplitPanel
         return this.data != null;
     }
 
+    private isPageEditorPresent(): boolean {
+        return this.isInsideWizard() && this.data.liveFormPanel != null;
+    }
+
     private renderAfterDockedPanelReady() {
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        if (this.isInsideWizard()) {
+        if (this.isPageEditorPresent()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
             nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
             nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
