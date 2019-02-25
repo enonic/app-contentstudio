@@ -34,7 +34,6 @@ export class ContentDuplicateDialog
         super(<DependantItemsWithProgressDialogConfig> {
                 title: i18n('dialog.duplicate'),
             class: 'content-duplicate-dialog',
-                showDependantList: false,
                 dependantsDescription: i18n('dialog.duplicate.dependants'),
                 processingLabel: `${i18n('field.progress.duplicating')}...`,
                 processHandler: () => new ContentDuplicatePromptEvent([]).fire()

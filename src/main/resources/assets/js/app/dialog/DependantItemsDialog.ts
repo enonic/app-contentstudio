@@ -63,7 +63,7 @@ export abstract class DependantItemsDialog
     protected initElements() {
         super.initElements();
 
-        this.showDependantList = true;
+        this.showDependantList = false;
         this.dependantIds = [];
         this.loading = false;
         this.loadingRequested = false;
@@ -119,6 +119,10 @@ export abstract class DependantItemsDialog
 
         this.getBody().onScroll(() => {
             this.doPostLoad();
+        });
+
+        this.onRendered(() => {
+            this.setDependantListVisible(this.showDependantList);
         });
     }
 
@@ -187,8 +191,8 @@ export abstract class DependantItemsDialog
     }
 
     show(hideLoadMask: boolean = false) {
-        this.setDependantListVisible(this.showDependantList);
         super.show();
+        this.setDependantListVisible(this.showDependantList);
         this.showLoadMask();
     }
 
