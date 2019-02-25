@@ -287,7 +287,8 @@ const contentWizardPanel = Object.create(page, {
     waitForSavedButtonVisible: {
         value: function () {
             return this.waitForVisible(this.savedButton, appConst.TIMEOUT_3).catch(err => {
-                return this.doCatch('err_saved_button_vivsible', err);
+                this.saveScreenshot('err_saved_button_not_visible');
+                throw new Error("Saved button is not visible in 3 seconds");
             });
         }
     },
