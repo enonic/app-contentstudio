@@ -515,7 +515,7 @@ export class ContextView
                     this.activateDefaultWidget();
                 }
                 widgetsUpdated = true;
-            } else if (pageEditorWidgetPresent) {
+            } else if (!shouldPageEditorWidgetBePresent && pageEditorWidgetPresent) {
                 this.defaultWidgetView = this.propertiesWidgetView;
                 if (pageEditorWidgetActive) {
                     this.activateDefaultWidget();
@@ -534,7 +534,7 @@ export class ContextView
                 const index = this.getIndexOfLastInternalWidget() + 1;
                 this.insertWidget(this.emulatorWidgetView, index);
                 widgetsUpdated = true;
-            } else if (emulatorWidgetPresent) {
+            } else if (!shouldEmulatorWidgetBePresent && emulatorWidgetPresent) {
                 if (emulatorWidgetActive) {
                     this.activateDefaultWidget();
                 }
