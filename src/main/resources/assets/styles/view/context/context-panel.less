@@ -122,7 +122,14 @@
     font-family: @admin-font-family;
   }
 
+  .context-panel-mask {
+    z-index: @z-index-mask - 2;
+  }
+
   .widgets-selection-row {
+
+    position: relative;
+    z-index: @z-index-mask - 1;
 
     .widget-selector {
 
