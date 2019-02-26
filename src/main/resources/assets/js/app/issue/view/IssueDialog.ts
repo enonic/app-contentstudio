@@ -28,10 +28,9 @@ export abstract class IssueDialog
 
     private newItems: ContentSummary[] = [];
 
-    protected constructor(title: string, showDependantList?: boolean) {
+    protected constructor(title: string) {
         super(<DependantItemsDialogConfig>{
             title: title,
-            showDependantList: showDependantList || false,
             class: 'issue-dialog grey-header'
         });
     }
