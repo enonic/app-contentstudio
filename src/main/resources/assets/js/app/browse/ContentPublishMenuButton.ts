@@ -111,7 +111,11 @@ export class ContentPublishMenuButton
 
     private updateActiveState() {
         if (!this.item) {
-            this.setState(ButtonState.NO_ITEM);
+            if (this.publishAction.isEnabled()) {
+                this.setState(ButtonState.PUBLISH); // when multiple items selected
+            } else {
+                this.setState(ButtonState.NO_ITEM);
+            }
         } else if (this.publishAction.isEnabled()) {
             this.setState(ButtonState.PUBLISH);
         } else if (this.publishTreeAction.isEnabled()) {
