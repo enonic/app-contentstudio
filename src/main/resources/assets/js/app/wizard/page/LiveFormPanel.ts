@@ -84,8 +84,8 @@ export interface LiveFormPanelConfig {
 }
 
 export interface PageEditorData {
-    contextWindow: ContextWindow;
-    liveFormPanel: LiveFormPanel;
+    contextWindow?: ContextWindow;
+    liveFormPanel?: LiveFormPanel;
 }
 
 export class LiveFormPanel
@@ -363,6 +363,10 @@ export class LiveFormPanel
             contextWindow: this.contextWindow,
             liveFormPanel: this
         };
+    }
+
+    static createEmptyPageEditorData(): PageEditorData {
+        return {};
     }
 
     doRender(): Q.Promise<boolean> {
@@ -806,10 +810,10 @@ export class LiveFormPanel
             this.imageInspectionPanel.setImageComponent(<ImageComponentView>componentView);
             this.contextWindow.showInspectionPanel(this.imageInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
-            this.partInspectionPanel.setPartComponent(<PartComponentView>componentView);
+            this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
             this.contextWindow.showInspectionPanel(this.partInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-            this.layoutInspectionPanel.setLayoutComponent(<LayoutComponentView>componentView);
+            this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
             this.contextWindow.showInspectionPanel(this.layoutInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);

@@ -24,6 +24,7 @@ import {ComponentPropertyValueChangedEvent} from '../../app/page/region/Componen
 import {Component} from '../../app/page/region/Component';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -200,7 +201,7 @@ export class FragmentComponentView
     }
 
     private loadFragmentContent() {
-        let contentId = this.component.getFragment();
+        const contentId = this.component.getFragment();
         if (contentId) {
             if (!this.fragmentContent || !contentId.equals(this.fragmentContent.getContentId())) {
                 new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
@@ -240,16 +241,17 @@ export class FragmentComponentView
                 htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
             }
 
-            let isTextComponent = TextItemType.get().equals(parentType);
-            if (isTextComponent && childElement.getEl().getTagName().toUpperCase() === 'SECTION') {
+            const isTextComponent = TextItemType.get().equals(parentType);
+            const isSection = childElement.getEl().getTagName().toUpperCase() === 'SECTION';
+            const contentId: ContentId = this.component.getFragment();
+
+            if (contentId && isTextComponent && isSection) {
                 // convert image urls in text component for web
-                childElement.setHtml(
-                    HTMLAreaHelper.convertRenderSrcToPreviewSrc(childElement.getHtml(), this.fragmentContent.getId()),
-                    false
-                );
-                return;
+                const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(childElement.getHtml(), contentId.toString());
+                childElement.setHtml(text, false);
+            } else {
+                this.parseContentViews(childElement, itemType);
             }
-            this.parseContentViews(childElement, itemType);
         });
     }
 

@@ -11,6 +11,9 @@
     "fix:ts": "tslint -p tsconfig.build.json -c tslint.json --fix",
     "fix:js": "eslint . --fix"
   },
+  "dependencies": {
+    "jquery-slimscroll": "^1.3.8"
+  },
   "devDependencies": {
     "@types/ckeditor": "^4.9.1",
     "autoprefixer": "^8.1.0",

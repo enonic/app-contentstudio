@@ -1,1 +1,3 @@
 rootProject.name = 'app-contentstudio'
+
+enableFeaturePreview('STABLE_PUBLISHING')

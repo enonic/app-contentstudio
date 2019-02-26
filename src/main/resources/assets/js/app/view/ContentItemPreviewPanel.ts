@@ -10,7 +10,6 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import ViewItem = api.app.view.ViewItem;
 import UriHelper = api.util.UriHelper;
-import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import DivEl = api.dom.DivEl;
 import SpanEl = api.dom.SpanEl;
@@ -283,7 +282,7 @@ export class ContentItemPreviewPanel
         this.getEl().addClass('no-preview');
 
         const textEl = new SpanEl();
-        textEl.setHtml(message);
+        textEl.setHtml(message, false);
         this.previewMessage.removeChildren();
         this.previewMessage.appendChild(textEl);
 

@@ -32,7 +32,7 @@ const contentPublishDialog = Object.create(page, {
     },
     waitForDialogClosed: {
         value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err => {
+            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_10).catch(err => {
                 this.saveScreenshot('err_close_publish_dialog');
                 throw new Error('Publish dialog must be closed ' + err);
             })

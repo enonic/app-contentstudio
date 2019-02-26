@@ -44,7 +44,6 @@ export class ContentPublishDialog
             class: 'publish-dialog',
                 dialogSubName: i18n('dialog.publish.resolving'),
             dependantsDescription: i18n('dialog.publish.dependants'),
-            showDependantList: false,
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
                     new ContentPublishPromptEvent([]).fire();

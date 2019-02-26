@@ -18,6 +18,9 @@ import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
 import {InspectEvent} from '../../event/InspectEvent';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
+import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
+import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
+import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -49,6 +52,10 @@ export class ContextView
 
     private alreadyFetchedCustomWidgets: boolean;
 
+    private contentRenderable: boolean;
+
+    private pageEditorVisible: boolean;
+
     private sizeChangedListeners: {(): void}[] = [];
 
     private widgetsUpdateList: {[key: string]: (key: string, type: ApplicationEventType) => void } = {};
@@ -59,6 +66,9 @@ export class ContextView
         super('context-panel-view');
 
         this.data = data;
+
+        this.contentRenderable = false;
+        this.pageEditorVisible = false;
 
         this.contextContainer = new DivEl('context-container');
 
@@ -78,7 +88,9 @@ export class ContextView
         this.layout();
 
         this.getCustomWidgetViewsAndUpdateDropdown();
+    }
 
+    private subscribeOnEvents() {
         this.onRendered(() => {
             // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
             this.layout(false);
@@ -89,15 +101,22 @@ export class ContextView
         const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
         ApplicationEvent.on(handleWidgetsUpdate);
         this.onRemoved(() => ApplicationEvent.un(handleWidgetsUpdate));
-    }
 
-    private subscribeOnEvents() {
-        ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
+        ActiveContentVersionSetEvent.on(() => {
             if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
                 this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
                 this.updateActiveWidget();
             }
         });
+
+        const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
+            this.pageEditorVisible = visible;
+            this.updateWidgetsVisibility();
+        };
+
+        ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
+        ShowSplitEditEvent.on(createPageEditorVisibilityChangedHandler(true));
+        ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
     }
 
     private initDivForNoSelection() {
@@ -285,7 +304,7 @@ export class ContextView
 
     private initCommonWidgetViews() {
 
-        if (this.isInsideWizard()) {
+        if (this.isPageEditorPresent()) {
             this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
                 .setDescription(i18n('field.contextPanel.pageEditor.description'))
@@ -358,6 +377,10 @@ export class ContextView
 
     private isInsideWizard(): boolean {
         return this.data != null;
+    }
+
+    private isPageEditorPresent(): boolean {
+        return this.isInsideWizard() && this.data.liveFormPanel != null;
     }
 
     private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {
@@ -467,23 +490,32 @@ export class ContextView
     }
 
     updateRenderableStatus(renderable: boolean) {
+        this.contentRenderable = renderable;
+        this.updateWidgetsVisibility();
+    }
+
+    updateWidgetsVisibility() {
         const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
         const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
 
         let widgetsUpdated = false;
 
-        if (this.pageEditorWidgetView) {
+        const canAddPageEditorWidget = this.isPageEditorPresent() && this.pageEditorWidgetView != null;
+        const canAddEmulatorWidget = this.isPageEditorPresent();
+
+        if (canAddPageEditorWidget) {
             const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
             const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
+            const shouldPageEditorWidgetBePresent = this.contentRenderable && this.pageEditorVisible;
 
-            if (renderable && !pageEditorWidgetPresent) {
+            if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
                 this.insertWidget(this.pageEditorWidgetView, 0);
                 if (!pageEditorWidgetActive) {
                     this.defaultWidgetView = this.pageEditorWidgetView;
                     this.activateDefaultWidget();
                 }
                 widgetsUpdated = true;
-            } else if (!renderable && pageEditorWidgetPresent) {
+            } else if (pageEditorWidgetPresent) {
                 this.defaultWidgetView = this.propertiesWidgetView;
                 if (pageEditorWidgetActive) {
                     this.activateDefaultWidget();
@@ -493,15 +525,16 @@ export class ContextView
             }
         }
 
-        if (this.isInsideWizard()) {
+        if (canAddEmulatorWidget) {
             const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
             const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
+            const shouldEmulatorWidgetBePresent = this.contentRenderable && this.pageEditorVisible;
 
-            if (renderable && !emulatorWidgetPresent) {
+            if (shouldEmulatorWidgetBePresent && !emulatorWidgetPresent) {
                 const index = this.getIndexOfLastInternalWidget() + 1;
                 this.insertWidget(this.emulatorWidgetView, index);
                 widgetsUpdated = true;
-            } else if (!renderable && emulatorWidgetPresent) {
+            } else if (emulatorWidgetPresent) {
                 if (emulatorWidgetActive) {
                     this.activateDefaultWidget();
                 }

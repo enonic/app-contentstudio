@@ -15,8 +15,8 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'maven'
-    id 'com.enonic.defaults' version '1.0.3'
+    id 'maven-publish'
+    id 'com.enonic.defaults' version '2.0.1'
     id 'com.moowork.node' version '0.13'
     id 'com.moowork.gulp' version '0.13'
     id 'com.github.psxpaul.execfork' version '0.1.8'
@@ -97,13 +97,13 @@ task unpackDistro( type: Copy ) {
 }
 
 task deployContentStudio( type: DefaultTask ) {
-    outputs.files(contentStudioFile)
+    outputs.files( contentStudioFile )
     doLast {
         println 'Retrieving Content Studio App from:'
         println contentStudioAppUrl
         println 'Deploying to:'
         println contentStudioFile
-        
+
         def f = new File( contentStudioFile )
         if ( !f.exists() )
         {
@@ -137,9 +137,13 @@ task zipReport( type: Zip ) {
     classifier 'mochaReport'
 }
 
-artifacts {
-    archives zipScreenshots
-    archives zipReport
+publishing {
+    publications {
+        mavenJava( MavenPublication ) {
+            artifact zipScreenshots
+            artifact zipReport
+        }
+    }
 }
 
 jar.enabled = true

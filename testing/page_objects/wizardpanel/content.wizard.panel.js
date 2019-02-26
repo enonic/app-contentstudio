@@ -231,7 +231,11 @@ const contentWizardPanel = Object.create(page, {
     },
     typeData: {
         value: function (content) {
-            return this.typeDisplayName(content.displayName).then(() => {
+            return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_2).catch(err => {
+                return this.clickOnMinimizeEditIcon();
+            }).pause(700).then(() => {
+                return this.typeDisplayName(content.displayName);
+            }).then(() => {
                 if (content.data != null) {
                     return contentStepForm.type(content.data, content.contentType);
                 }
@@ -251,7 +255,7 @@ const contentWizardPanel = Object.create(page, {
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(this.displayNameInput, appConst.TIMEOUT_10).catch(err => {
+            return this.waitForVisible(this.deleteButton, appConst.TIMEOUT_10).catch(err => {
                 this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
                 throw new Error("Content wizard was not loaded! " + err);
             }).then(() => {
@@ -283,7 +287,8 @@ const contentWizardPanel = Object.create(page, {
     waitForSavedButtonVisible: {
         value: function () {
             return this.waitForVisible(this.savedButton, appConst.TIMEOUT_3).catch(err => {
-                return this.doCatch('err_saved_button_vivsible', err);
+                this.saveScreenshot('err_saved_button_not_visible');
+                throw new Error("Saved button is not visible in 3 seconds");
             });
         }
     },
@@ -547,6 +552,14 @@ const contentWizardPanel = Object.create(page, {
                 return this.doClick(this.unpublishMenuItem);
             }).catch(err => {
                 return this.doCatch('err_click_on_unpublish_item', err);
+            }).pause(300);
+        }
+    },
+    clickOnMinimizeEditIcon: {
+        value: function () {
+            let minimizeEditIcon = wizard.container + "//div[@class='minimize-edit']";
+            return this.doClick(minimizeEditIcon).catch(err => {
+                return this.doCatch('err_click_on_minimize_icon', err);
             }).pause(300);
         }
     },

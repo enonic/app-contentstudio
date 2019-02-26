@@ -2,38 +2,12 @@ import ApplicationKey = api.application.ApplicationKey;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import LayoutDescriptorsJson = api.content.page.region.LayoutDescriptorsJson;
 import {GetLayoutDescriptorsByApplicationRequest} from '../../../../../resource/GetLayoutDescriptorsByApplicationRequest';
-import {LayoutDescriptorResourceRequest} from '../../../../../resource/LayoutDescriptorResourceRequest';
+import {GetComponentDescriptorsByApplicationsRequest} from './GetComponentDescriptorsByApplicationsRequest';
 
 export class GetLayoutDescriptorsByApplicationsRequest
-    extends LayoutDescriptorResourceRequest<LayoutDescriptorsJson, LayoutDescriptor[]> {
+    extends GetComponentDescriptorsByApplicationsRequest<LayoutDescriptorsJson, LayoutDescriptor> {
 
-    private applicationKeys: api.application.ApplicationKey[];
-
-    setApplicationKeys(applicationKeys: api.application.ApplicationKey[]) {
-        this.applicationKeys = applicationKeys;
-    }
-
-    getParams(): Object {
-        throw new Error('Unexpected call');
-    }
-
-    getRequestPath(): api.rest.Path {
-        throw new Error('Unexpected call');
-    }
-
-    sendAndParse(): wemQ.Promise<LayoutDescriptor[]> {
-
-        const req = (applicationKey: ApplicationKey) => new GetLayoutDescriptorsByApplicationRequest(applicationKey).sendAndParse();
-
-        let promises = this.applicationKeys.map(req);
-
-        return wemQ.all(promises).
-        then((results: LayoutDescriptor[][]) => {
-            let all: LayoutDescriptor[] = [];
-            results.forEach((result: LayoutDescriptor[]) => {
-                Array.prototype.push.apply(all, result);
-            });
-            return all;
-        });
+    protected createGetDescriptorsByApplicationRequest(applicationKey: ApplicationKey): GetLayoutDescriptorsByApplicationRequest {
+        return new GetLayoutDescriptorsByApplicationRequest(applicationKey);
     }
 }
