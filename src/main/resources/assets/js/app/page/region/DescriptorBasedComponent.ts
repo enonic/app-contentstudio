@@ -18,7 +18,7 @@ export class DescriptorBasedComponent
 
     private disableEventForwarding: boolean;
 
-    private descriptor: DescriptorKey;
+    private descriptorKey: DescriptorKey;
 
     private description: string;
 
@@ -30,7 +30,7 @@ export class DescriptorBasedComponent
 
         super(builder);
 
-        this.descriptor = builder.descriptor;
+        this.descriptorKey = builder.descriptor;
         this.config = builder.config;
 
         this.configChangedHandler = (event: PropertyEvent) => {
@@ -50,22 +50,21 @@ export class DescriptorBasedComponent
     }
 
     hasDescriptor(): boolean {
-        return !!this.descriptor;
+        return !!this.descriptorKey;
     }
 
-    getDescriptor(): DescriptorKey {
-        return this.descriptor;
+    getDescriptorKey(): DescriptorKey {
+        return this.descriptorKey;
     }
 
-    setDescriptor(descriptorKey: DescriptorKey, descriptor: Descriptor) {
-
-        let oldValue = this.descriptor;
-        this.descriptor = descriptorKey;
+    setDescriptor(descriptor: Descriptor) {
+        const oldDescriptorKeyValue = this.descriptorKey;
+        this.descriptorKey = descriptor ? descriptor.getKey() : null;
 
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
         this.description = descriptor ? descriptor.getDescription() : null;
 
-        if (!api.ObjectHelper.equals(oldValue, descriptorKey)) {
+        if (!api.ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
         }
 
@@ -93,15 +92,19 @@ export class DescriptorBasedComponent
         return this.description;
     }
 
+    setDescription(value: string) {
+        this.description = value;
+    }
+
     doReset() {
-        this.setDescriptor(null, null);
+        this.setDescriptor(null);
     }
 
     toComponentJson(): DescriptorBasedComponentJson {
 
         return <DescriptorBasedComponentJson>{
             name: this.getName() ? this.getName().toString() : null,
-            descriptor: this.descriptor != null ? this.descriptor.toString() : null,
+            descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
             config: this.config != null ? this.config.toJson() : null
         };
     }
@@ -117,7 +120,7 @@ export class DescriptorBasedComponent
         }
         let other = <DescriptorBasedComponent>o;
 
-        if (!api.ObjectHelper.equals(this.descriptor, other.descriptor)) {
+        if (!api.ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
             return false;
         }
 
@@ -143,7 +146,7 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
     constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
-            this.descriptor = source.getDescriptor();
+            this.descriptor = source.getDescriptorKey();
             this.config = source.getConfig() ? source.getConfig().copy() : null;
         } else {
             this.config = new PropertyTree();

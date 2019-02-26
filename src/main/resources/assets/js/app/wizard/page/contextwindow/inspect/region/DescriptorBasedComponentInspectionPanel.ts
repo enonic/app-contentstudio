@@ -9,7 +9,6 @@ import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
 import FormView = api.form.FormView;
 import Descriptor = api.content.page.Descriptor;
 import DescriptorKey = api.content.page.DescriptorKey;
-import Option = api.ui.selector.Option;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import ResourceRequest = api.rest.ResourceRequest;
 
@@ -139,7 +138,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
         this.setComponent(component);
 
-        const key: DescriptorKey = this.component.getDescriptor();
+        const key: DescriptorKey = this.component.getDescriptorKey();
         if (key) {
             const descriptor: Descriptor = this.selector.getDescriptor(key);
             if (descriptor) {
@@ -165,9 +164,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initSelectorListeners() {
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             if (this.handleSelectorEvents) {
-                let option: Option<Descriptor> = event.getOption();
-                let selectedDescriptorKey: DescriptorKey = option.displayValue.getKey();
-                this.component.setDescriptor(selectedDescriptorKey, option.displayValue);
+                const descriptor: Descriptor = event.getOption().displayValue;
+                this.component.setDescriptor(descriptor);
             }
         });
     }

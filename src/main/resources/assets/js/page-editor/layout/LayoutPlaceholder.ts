@@ -25,10 +25,10 @@ export class LayoutPlaceholder
 
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<LayoutDescriptor>) => {
             this.layoutComponentView.showLoadingSpinner();
-            let descriptor = event.getSelectedOption().getOption().displayValue;
+            const descriptor = event.getSelectedOption().getOption().displayValue;
 
-            let layoutComponent: LayoutComponent = this.layoutComponentView.getComponent();
-            layoutComponent.setDescriptor(descriptor.getKey(), descriptor);
+            const layoutComponent: LayoutComponent = this.layoutComponentView.getComponent();
+            layoutComponent.setDescriptor(descriptor);
         });
 
         let siteModel = layoutView.getLiveEditModel().getSiteModel();
