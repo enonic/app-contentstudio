@@ -336,7 +336,7 @@ export class ContentWizardPanel
             wizardActions.getDuplicateAction()
         ];
 
-        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : null;
+        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : LiveFormPanel.createEmptyPageEditorData();
         this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data);
 
         this.onRendered(() => {
@@ -805,6 +805,7 @@ export class ContentWizardPanel
             const minimizeWizard = event.isShowPanel() &&
                                    !this.isMinimized() &&
                                    this.renderable &&
+                                   this.getLivePanel().isShown() &&
                                    !this.contextSplitPanel.isMobileMode() &&
                                    ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
             if (minimizeWizard) {

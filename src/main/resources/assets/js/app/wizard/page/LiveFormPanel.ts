@@ -84,8 +84,8 @@ export interface LiveFormPanelConfig {
 }
 
 export interface PageEditorData {
-    contextWindow: ContextWindow;
-    liveFormPanel: LiveFormPanel;
+    contextWindow?: ContextWindow;
+    liveFormPanel?: LiveFormPanel;
 }
 
 export class LiveFormPanel
@@ -363,6 +363,10 @@ export class LiveFormPanel
             contextWindow: this.contextWindow,
             liveFormPanel: this
         };
+    }
+
+    static createEmptyPageEditorData(): PageEditorData {
+        return {};
     }
 
     doRender(): Q.Promise<boolean> {

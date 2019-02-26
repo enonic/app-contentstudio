@@ -66,9 +66,13 @@ export class ContextSplitPanel
         return this.data != null;
     }
 
+    private isPageEditorPresent(): boolean {
+        return this.isInsideWizard() && this.data.liveFormPanel != null;
+    }
+
     private renderAfterDockedPanelReady() {
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        if (this.isInsideWizard()) {
+        if (this.isPageEditorPresent()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
             nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
             nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
