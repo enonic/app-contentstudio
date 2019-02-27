@@ -21,6 +21,9 @@ import {Content} from '../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {Permission} from '../../access/Permission';
+import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildrenRequest';
+import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
+import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
 import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
@@ -400,16 +403,17 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[],
                                                             contentTypesAllowChildren: boolean = true): wemQ.Promise<any> {
-        return new GetPermittedActionsRequest().addContentIds(
-            ...contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId())).addPermissionsToBeChecked(
+        const contentIds: ContentId[] = contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId());
+
+        return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
             Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse().then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsMultipleItemsSelected(contentBrowseItems);
 
-            let canCreate = allowedPermissions.indexOf(Permission.CREATE) > -1;
+            const canCreate = allowedPermissions.indexOf(Permission.CREATE) > -1;
 
-            let canDelete = allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
+            const canDelete = allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
 
-            let canPublish = allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
+            const canPublish = allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
 
             if (!contentTypesAllowChildren || !canCreate) {
                 this.enableActions({
@@ -431,8 +435,24 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                     PUBLISH_TREE: false,
                     UNPUBLISH: false
                 });
+            } else {
+                this.updatePublishTreeAction(contentIds);
             }
         });
+    }
+
+    private updatePublishTreeAction(contentIds: ContentId[]) {
+        const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
+            new HasUnpublishedChildrenRequest(contentIds).sendAndParse();
+
+        hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+                const hasUnpublishedChildren: boolean =
+                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
+
+                this.enableActions({
+                    PUBLISH_TREE: hasUnpublishedChildren
+                });
+            }).catch(reason => api.DefaultErrorHandler.handle(reason));
     }
 
     private checkIsChildrenAllowedByContentType(contentSummary: ContentSummary): wemQ.Promise<Boolean> {
