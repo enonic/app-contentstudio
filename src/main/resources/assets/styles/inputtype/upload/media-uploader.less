@@ -16,12 +16,6 @@
       width: 100%;
     }
 
-    .uploader-el {
-      display: table-cell;
-      white-space: nowrap;
-      vertical-align: middle;
-    }
-
     .upload-button {
       width: 38px;
       float: right;
@@ -48,7 +42,11 @@
 
     .uploader-el {
 
-      width: calc(~'100% - 50px');
+      //width: calc(~'100% - 50px');
+      width: 100%;
+      display: table-cell;
+      white-space: nowrap;
+      vertical-align: middle;
       position: relative;
       .progress-bar {
         margin: 0 0 25px 0;
@@ -58,6 +56,13 @@
         display: block;
         line-height: inherit;
       }
+    }
+
+    &.uploading {
+      .upload-button {
+        display: none;
+      }
+
     }
   }
 

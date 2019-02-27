@@ -50,6 +50,7 @@ export class MediaUploader
         this.updateProperty(property).done();
 
         this.mediaUploaderEl.onUploadStarted(() => {
+            this.uploaderWrapper.addClass('uploading');
             this.uploaderWrapper.removeClass('empty');
         });
 
@@ -78,24 +79,18 @@ export class MediaUploader
             }
 
             this.toggleClass('with-svg-image', isVectorMedia);
+            this.uploaderWrapper.removeClass('uploading');
         });
 
         this.mediaUploaderEl.onUploadFailed(() => {
             this.mediaUploaderEl.setProgressVisible(false);
             this.uploaderWrapper.addClass('empty');
+            this.uploaderWrapper.removeClass('uploading');
         });
 
         this.mediaUploaderEl.onUploadReset(() => {
             this.mediaUploaderEl.setFileName('');
-
-            switch (property.getType()) {
-            case ValueTypes.DATA:
-                property.getPropertySet().setProperty('attachment', 0, ValueTypes.STRING.newNullValue());
-                break;
-            case ValueTypes.STRING:
-                property.setValue(ValueTypes.STRING.newNullValue());
-                break;
-            }
+            this.uploaderWrapper.removeClass('uploading');
         });
 
         this.appendChild(this.uploaderWrapper);

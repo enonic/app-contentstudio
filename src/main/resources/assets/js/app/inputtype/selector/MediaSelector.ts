@@ -1,14 +1,11 @@
 import PropertyArray = api.data.PropertyArray;
-import UploadItem = api.ui.uploader.UploadItem;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ComboBox = api.ui.selector.combobox.ComboBox;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
 import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
 import {ContentSelector} from './ContentSelector';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
-import {MediaSelectorDisplayValue} from '../ui/selector/media/MediaSelectorDisplayValue';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
@@ -103,33 +100,19 @@ export class MediaSelector
 
     protected doInitUploader(uploader: MediaUploaderEl): MediaUploaderEl {
 
-        uploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
-            event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
-                const value = new MediaTreeSelectorItem(null).setDisplayValue(
-                    MediaSelectorDisplayValue.fromUploadItem(uploadItem));
-
-                const option = <api.ui.selector.Option<MediaTreeSelectorItem>>{
-                    value: value.getId(),
-                    displayValue: value
-                };
-                this.contentComboBox.selectOption(option);
-            });
-        });
-
         uploader.onUploadProgress(() => {
             uploader.setMaximumOccurrences(this.getRemainingOccurrences());
         });
 
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let item = event.getUploadItem();
-            let createdContent = item.getModel();
+            const createdContent = event.getUploadItem().getModel();
 
-            let selectedOption = this.getSelectedOptionsView().getById(item.getId());
-            let option = selectedOption.getOption();
-            option.displayValue = new MediaTreeSelectorItem(createdContent);
-            option.value = createdContent.getContentId().toString();
-
-            selectedOption.getOptionView().setOption(option);
+            const option = <api.ui.selector.Option<MediaTreeSelectorItem>>{
+                value: createdContent.getContentId().toString(),
+                displayValue: new MediaTreeSelectorItem(createdContent)
+            };
+            this.contentComboBox.selectOption(option);
+            const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 
             this.selectedOptionHandler(selectedOption);
 
