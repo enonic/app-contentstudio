@@ -31,12 +31,14 @@ describe('site.controller.spec: verifies the wizard-validation when the dialog c
             }).then(()=> {
                 return contentWizard.selectPageDescriptor('Page');
             }).pause(500).then(()=> {
-                return contextWindow.clickOnInspectTabBarItem();
+                return contextWindow.clickOnTabBarItem('Page');
             }).then(()=> {
                 return pageInspectionPanel.getPageTemplateDropdownOptions();
             }).then(result=> {
                 let expectedOption = `( no default template found )`;
                 assert.isTrue(result[0] == expectedOption, 'correct name for automatic template should be displayed');
+                assert.isTrue(result[1] == "test region", 'correct name for automatic template should be displayed');
+                assert.isTrue(result[2] == "home page", 'correct name for automatic template should be displayed');
             })
         });
 
