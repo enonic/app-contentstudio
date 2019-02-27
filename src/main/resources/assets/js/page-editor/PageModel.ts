@@ -223,7 +223,7 @@ export class PageModel {
         }
     }
 
-    setController(setController: SetController): PageModel {
+    setController(setController: SetController, silent?: boolean): PageModel {
         let oldControllerKey = this.controller ? this.controller.getKey() : null;
         let newControllerKey = setController.descriptor ? setController.descriptor.getKey() : null;
         let controllerChanged = !api.ObjectHelper.equals(oldControllerKey, newControllerKey);
@@ -242,7 +242,7 @@ export class PageModel {
 
         this.template = null;
 
-        if (controllerChanged) {
+        if (controllerChanged && !silent) {
             this.setIgnorePropertyChanges(true);
             this.notifyPropertyChanged(PageModel.PROPERTY_CONTROLLER, oldControllerKey, newControllerKey, setController.eventSource);
             this.setIgnorePropertyChanges(false);
@@ -278,10 +278,9 @@ export class PageModel {
         }
     }
 
-    setTemplateContoller() {
-        this.setController(
-            new SetController(this).setDescriptor(this.templateDescriptor || this.getDefaultPageDescriptor())
-        );
+    setTemplateContoller(silent?: boolean) {
+        const setController = new SetController(this).setDescriptor(this.templateDescriptor || this.getDefaultPageDescriptor());
+        this.setController(setController, silent);
     }
 
     setAutomaticTemplate(eventSource?: any, ignoreRegionChanges: boolean = false): PageModel {

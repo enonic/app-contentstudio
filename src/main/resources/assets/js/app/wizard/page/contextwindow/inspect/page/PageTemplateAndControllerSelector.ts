@@ -100,6 +100,7 @@ export class PageTemplateAndControllerSelector
                 this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
                 // template -> controller
             } else {
+                this.doResetTemplate();
                 this.doSelectController(<PageControllerOption>selectedOption);
             }
         });
@@ -142,14 +143,16 @@ export class PageTemplateAndControllerSelector
         }
     }
 
-    private doSelectController(selectedOption: PageControllerOption) {
+    doResetTemplate() {
         const pageModel = this.liveEditModel.getPageModel();
 
+        pageModel.setTemplateContoller(true);
+    }
+
+    private doSelectController(selectedOption: PageControllerOption) {
         const pageDescriptor: PageDescriptor = selectedOption.getData();
-
-        pageModel.setTemplateContoller();
-
         const setController = new SetController(this).setDescriptor(pageDescriptor);
+
         this.liveEditModel.getPageModel().setController(setController);
     }
 
