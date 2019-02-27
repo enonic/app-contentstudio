@@ -38,6 +38,7 @@ import {PartComponentType} from '../app/page/region/PartComponentType';
 import {PartComponentBuilder} from '../app/page/region/PartComponent';
 import {TextComponentType} from '../app/page/region/TextComponentType';
 import {TextComponentBuilder} from '../app/page/region/TextComponent';
+import {PageView} from './PageView';
 import PropertyTree = api.data.PropertyTree;
 import i18n = api.util.i18n;
 import ObjectHelper = api.ObjectHelper;
@@ -1009,12 +1010,12 @@ export class ItemView
         return this.getParentItemView();
     }
 
-    getPageView(): ItemView {
+    getPageView(): PageView {
         let itemView: ItemView = this;
         while (!PageItemType.get().equals(itemView.getType())) {
             itemView = itemView.getParentItemView();
         }
-        return itemView;
+        return <PageView>itemView;
     }
 
     protected createInsertAction(): api.ui.Action {

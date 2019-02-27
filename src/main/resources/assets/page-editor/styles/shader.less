@@ -1,8 +1,7 @@
 .@{_CLS_PREFIX}shader {
   position: absolute;
   display: none;
-  background-color: #000;
-  opacity: .2;
+  background-color: @admin-black;
   z-index: @z-index-shader;
   pointer-events: none;
 
@@ -20,11 +19,12 @@
       text-align: center;
     }
 
-    .@{_CLS_PREFIX}page-view.locked.force-locked & {
+    .@{_CLS_PREFIX}page-view.locked.lock-visible & {
       opacity: .2;
     }
 
     .@{_CLS_PREFIX}page-view.locked & {
+      display: block;
       opacity: 0;
       transition: all 50ms;
 

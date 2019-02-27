@@ -517,10 +517,10 @@ export class PageView
     }
 
     setLockVisible(visible: boolean) {
-        this.toggleClass('force-locked', visible);
+        this.toggleClass('lock-visible', visible);
     }
 
-    setLocked(locked: boolean) { //
+    setLocked(locked: boolean) {
         this.toggleClass('locked', locked);
 
         this.hideContextMenu();
