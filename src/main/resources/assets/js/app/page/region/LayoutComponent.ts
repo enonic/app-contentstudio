@@ -1,5 +1,4 @@
 import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import {Regions} from './Regions';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
@@ -94,9 +93,9 @@ export class LayoutComponent
         }
     }
 
-    setDescriptor(descriptorKey: DescriptorKey, descriptor?: LayoutDescriptor) {
+    setDescriptor(descriptor: LayoutDescriptor) {
+        super.setDescriptor(descriptor);
 
-        super.setDescriptor(descriptorKey, descriptor);
         if (descriptor) {
             this.addRegions(descriptor);
         }

@@ -15,6 +15,7 @@ import {PartComponentView} from '../../page-editor/part/PartComponentView';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {GetPartDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetPartDescriptorByKeyRequest';
 import {GetLayoutDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorByKeyRequest';
+import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
 import GridOptionsBuilder = api.ui.grid.GridOptionsBuilder;
 import TreeGrid = api.ui.treegrid.TreeGrid;
@@ -143,21 +144,21 @@ export class PageComponentsTreeGrid
     }
 
     fetchChildren(parentNode: TreeNode<ItemView>): Q.Promise<ItemView[]> {
-        return wemQ.all(this.getDataChildren(parentNode.getData()).map(this.initDescriptor)).then(allItems => {
+        return wemQ.all(this.getDataChildren(parentNode.getData()).map(this.fetchDescriptions)).then(allItems => {
             return allItems;
         });
     }
 
-    initDescriptor(itemView: ItemView): wemQ.Promise<ItemView> {
+    fetchDescriptions(itemView: ItemView): wemQ.Promise<ItemView> {
 
-        const isPartItemType = PartItemType.get().equals(itemView.getType());
-        const isLayoutItemType = LayoutItemType.get().equals(itemView.getType());
+        const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
+        const isLayoutItemType: boolean = LayoutItemType.get().equals(itemView.getType());
 
         if (!(isPartItemType || isLayoutItemType)) {
             return wemQ(itemView);
         }
 
-        const component = (<ComponentView<any>> itemView).getComponent();
+        const component: DescriptorBasedComponent = (<ComponentView<any>> itemView).getComponent();
 
         if (!component || !component.hasDescriptor()) {
             return wemQ(itemView);
@@ -165,15 +166,15 @@ export class PageComponentsTreeGrid
 
         let request;
         if (isPartItemType) {
-            request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptor());
+            request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptorKey());
         }
         if (isLayoutItemType) {
-            request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptor());
+            request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptorKey());
         }
 
         if (!!request) {
             request.sendAndParse().then((receivedDescriptor: Descriptor) => {
-                component.setDescriptor(receivedDescriptor.getKey(), receivedDescriptor);
+                component.setDescription(receivedDescriptor.getDescription());
 
                 return itemView;
             });
