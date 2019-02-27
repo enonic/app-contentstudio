@@ -346,15 +346,17 @@ const issueDetailsDialog = Object.create(page, {
     clickOnDeleteCommentMenuItem: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.doClick(selector).pause(500).then(() => {
+            this.waitForVisible(selector,appConst.TIMEOUT_2).then(()=>{
+                return this.doClick(selector);
+            }).pause(500).then(() => {
                 let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
                 return this.getDisplayedElements(deleteMenuItem);
-            }).then((result) => {
+            }).then(result => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).pause(500).catch(err => {
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_delete_comment');
-                throw new Error('error when click on delete the issue comment: ' + err)
-            })
+                throw new Error('error when clicking on delete the issue comment: ' + err)
+            }).pause(500);
         }
     },
     updateComment: {

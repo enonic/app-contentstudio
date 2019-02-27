@@ -101,7 +101,7 @@ module.exports = {
     openIssuesListDialog: function () {
         return browsePanel.clickOnShowIssuesListButton().then(() => {
             return issueListDialog.waitForDialogVisible();
-        })
+        }).pause(500);
     },
     openCreateIssueDialog: function () {
         return browsePanel.clickOnShowIssuesListButton().then(() => {
@@ -126,7 +126,7 @@ module.exports = {
             return browseDetailsPanel.waitForDetailsPanelLoaded();
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
-        }).pause(1700);
+        }).pause(2000);
     },
     openContentWizard: function (contentType) {
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {

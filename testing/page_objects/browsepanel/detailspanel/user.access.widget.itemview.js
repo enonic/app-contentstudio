@@ -41,7 +41,7 @@ const userAccessWidgetItemView = Object.create(page, {
                 return editPermissionsDialog.waitForDialogLoaded();
             }).catch(err => {
                 this.saveScreenshot("edit_perm_dlg_not_loaded");
-                throw new Error("Edit permissions dialog was not loaded in " + 3000 + "ms");
+                throw new Error("Edit permissions dialog was not loaded in " + 3000 + "ms" +" " + err);
             })
         }
     },

@@ -6,34 +6,27 @@ const page = require('../../page');
 const elements = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const pageInspectionPanel = require('./page.inspection.panel');
-const panel = {
+const xpath = {
     container: `//div[contains(@id,'ContextWindow')]`,
     insertTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='Insert']`,
     inspectTabBarItem: `//li[contains(@id,'TabBarItem') and child::a[text()='Inspect']]`,
     emulatorTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='Emulator']`,
+    tabBarItemByName:
+        name => `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']]`,
 };
 
 const liveContextWindow = Object.create(page, {
 
     insertTabBarItem: {
         get: function () {
-            return `${panel.container}` + `${panel.insertTabBarItem}`;
+            return `${xpath.container}` + `${xpath.insertTabBarItem}`;
         }
     },
-    inspectTabBarItem: {
-        get: function () {
-            return `${panel.container}` + `${panel.inspectTabBarItem}`;
-        }
-    },
-    emulatorTabBarItem: {
-        get: function () {
-            return `${panel.container}` + `${panel.emulatorTabBarItem}`;
-        }
-    },
-    clickOnInspectTabBarItem: {
-        value: function () {
-            return this.waitForVisible(this.inspectTabBarItem).then(() => {
-                return this.getDisplayedElements(this.inspectTabBarItem);
+    clickOnTabBarItem: {
+        value: function (name) {
+            let selector = xpath.container + xpath.tabBarItemByName(name);
+            return this.waitForVisible(selector).then(() => {
+                return this.getDisplayedElements(selector);
             }).then((result) => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
             }).catch(err => {
@@ -44,7 +37,7 @@ const liveContextWindow = Object.create(page, {
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(panel.container, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(xpath.container, appConst.TIMEOUT_2).catch(err => {
                 this.saveScreenshot('err_load_context_window');
                 throw new Error('Live Edit, Context window is not opened' + err);
             });

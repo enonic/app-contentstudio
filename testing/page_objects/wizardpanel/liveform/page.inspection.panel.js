@@ -6,8 +6,7 @@ const page = require('../../page');
 const elements = require('../../../libs/elements');
 const panel = {
     container: "//div[contains(@id,'PageInspectionPanel')]",
-    pageControllerSelector: "//div[contains(@id,'PageControllerSelector')]",
-    pageTemplateSelector: `//div[contains(@id,'PageTemplateSelector')]`,
+    pageTemplateSelector: `//div[contains(@id,'PageTemplateAndControllerSelector')]`,
 
 };
 
@@ -29,7 +28,7 @@ const pageInspectionPanel = Object.create(page, {
     getPageTemplateDropdownOptions: {
         value: function () {
             return this.clickOnPageTemplateDropdownHandle().pause(1000).then(()=> {
-                let selector = elements.SLICK_ROW + "//div[contains(@id,'PageTemplateOptionViewer')]" + elements.P_SUB_NAME;
+                let selector = elements.SLICK_ROW + "//div[contains(@id,'PageTemplateAndSelectorViewer')]" + elements.P_SUB_NAME;
                 return this.getTextFromElements(selector);
             });
         }
