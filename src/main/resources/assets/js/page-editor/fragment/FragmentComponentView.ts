@@ -25,6 +25,7 @@ import {Component} from '../../app/page/region/Component';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
+import Element = api.dom.Element;
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -68,7 +69,12 @@ export class FragmentComponentView
         });
         this.loadFragmentContent();
 
-        this.parseContentViews(this);
+        if (this.isTextComponent(this)) {
+            this.doParseFragmentComponents(this, TextItemType.get());
+        } else {
+            this.parseFragmentComponents(this);
+        }
+
         this.disableLinks();
 
         this.handleContentRemovedEvent();
@@ -221,38 +227,56 @@ export class FragmentComponentView
         }
     }
 
-    private parseContentViews(parentElement?: api.dom.Element, parentType?: ItemType) {
-        let children = parentElement.getChildren();
-        children.forEach((childElement: api.dom.Element) => {
-            let itemType = ItemType.fromElement(childElement);
-            if (itemType) {
-                if (LayoutItemType.get().equals(itemType)) {
-                    this.fragmentContainsLayout = true;
-                }
+    private parseFragmentComponents(parentElement: Element, parentType?: ItemType) {
+        parentElement.getChildren().forEach((childElement: Element) => this.doParseFragmentComponents(childElement, parentType));
+    }
 
-                // remove component-type attributes to avoid inner components of fragment to be affected by d&d sorting
-                let htmlElement = childElement.getHTMLElement();
-                let hasErrors = !!htmlElement.getAttribute('data-portal-placeholder-error');
-                if (hasErrors) {
-                    this.getEl().setAttribute('data-portal-placeholder-error', 'true');
-                }
+    private doParseFragmentComponents(element: Element, parentType?: ItemType) {
+        const itemType = ItemType.fromElement(element);
+        if (itemType) {
+            // remove component-type attributes to avoid inner components of fragment to be affected by d&d sorting
+            this.removeComponentTypeAttrs(element);
 
-                htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_TYPE);
-                htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
+            if (LayoutItemType.get().equals(itemType)) {
+                this.fragmentContainsLayout = true;
             }
+        }
 
-            const isTextComponent = TextItemType.get().equals(parentType);
-            const isSection = childElement.getEl().getTagName().toUpperCase() === 'SECTION';
-            const contentId: ContentId = this.component.getFragment();
+        if (this.isTextComponentSection(element, parentType)) {
+            this.convertTextComponentImageUrls(element);
+        } else {
+            this.parseFragmentComponents(element, itemType);
+        }
+    }
 
-            if (contentId && isTextComponent && isSection) {
-                // convert image urls in text component for web
-                const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(childElement.getHtml(), contentId.toString());
-                childElement.setHtml(text, false);
-            } else {
-                this.parseContentViews(childElement, itemType);
-            }
-        });
+    private removeComponentTypeAttrs(element: Element) {
+        const htmlElement: HTMLElement = element.getHTMLElement();
+        const hasErrors: boolean = !!htmlElement.getAttribute('data-portal-placeholder-error');
+        if (hasErrors) {
+            this.getEl().setAttribute('data-portal-placeholder-error', 'true');
+        }
+
+        htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_TYPE);
+        htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
+    }
+
+    private isTextComponentSection(element: Element, parentType: ItemType): boolean {
+        const isTextComponent = TextItemType.get().equals(parentType);
+        const isSection = element.getEl().getTagName().toUpperCase() === 'SECTION';
+        const contentId: ContentId = this.component.getFragment();
+
+        return contentId && isTextComponent && isSection;
+    }
+
+    private convertTextComponentImageUrls(element: Element) {
+        const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(element.getHtml(), this.component.getFragment().toString());
+        element.setHtml(text, false);
+    }
+
+    private isTextComponent(element: Element): boolean {
+        const itemType = ItemType.fromElement(element);
+
+        return !!itemType && TextItemType.get().equals(itemType);
     }
 
     getContentId(): api.content.ContentId {
