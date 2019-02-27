@@ -2,67 +2,60 @@
   margin-left: auto;
 
   .action-button {
-    display: inline-block !important;
+    text-align: left;
+    padding-left: 12px;
+    border-left: 1px solid @admin-bg-light-gray;
+    margin-left: 38px;
+    display: none !important;
   }
 
-  &.transparent {
-
-    .action-button {
-      text-align: left;
-      padding-left: 12px;
-      border-left: 1px solid @admin-bg-light-gray;
-      margin-left: 38px;
-      display: none !important;
+  &.no-item {
+    .action-button.create-issue-action-button {
+      border-left: none;
+      .menu-action-button(@admin-button-blue2);
     }
 
-    &.no-item {
-      .action-button.create-issue-action-button {
-        border-left: none;
-        .menu-action-button(@admin-button-blue2);
-      }
+    .dropdown-toggler(@admin-button-blue2);
 
-      .dropdown-toggler(@admin-button-blue2);
+    .xp-admin-common-dropdown-handle {
+      display: none;
+    }
+  }
 
-      .xp-admin-common-dropdown-handle {
-        display: none;
-      }
+  &.publish {
+    .publish-action-button {
+      .menu-action-button(@admin-green);
     }
 
-    &.publish {
-      .action-button.publish-action-button {
-        .menu-action-button(@admin-green);
-      }
+    .dropdown-toggler(@admin-green);
+  }
 
-      .dropdown-toggler(@admin-green);
+  &.publish-tree {
+    .publish-tree-action-button {
+      .menu-action-button(@admin-green);
     }
 
-    &.publish-tree {
-      .action-button.publish-tree-action-button {
-        .menu-action-button(@admin-green);
-      }
+    .dropdown-toggler(@admin-green);
+  }
 
-      .dropdown-toggler(@admin-green);
+  &.unpublish {
+    .unpublish-action-button {
+      .menu-action-button(@admin-font-gray2);
     }
 
-    &.unpublish {
-      .action-button.unpublish-action-button {
-        .menu-action-button(@admin-font-gray2);
-      }
+    .dropdown-toggler(@admin-font-gray2);
+  }
 
-      .dropdown-toggler(@admin-font-gray2);
+  &.create-issue {
+    .create-issue-action-button {
+      .menu-action-button(@admin-button-blue2);
     }
 
-    &.create-issue {
-      .action-button.create-issue-action-button {
-        .menu-action-button(@admin-button-blue2);
-      }
+    .dropdown-toggler(@admin-button-blue2);
+  }
 
-      .dropdown-toggler(@admin-button-blue2);
-    }
-
-    .menu {
-      right: 0;
-    }
+  .menu {
+    right: 0;
   }
 
   .progress-bar {
@@ -106,5 +99,20 @@
       position: static;
       display: inline-block;
     }
+  }
+}
+
+.is-processing {
+  .content-publish-menu {
+    cursor: default;
+    pointer-events: none;
+
+    .@{_COMMON_PREFIX}dropdown-handle, .action-button {
+      display: none !important;
+    }
+  }
+
+  .mobile-edit-publish-button {
+    display: none !important;
   }
 }
