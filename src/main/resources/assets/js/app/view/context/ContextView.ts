@@ -250,17 +250,16 @@ export class ContextView
             console.debug('ContextView.setItem: ', item);
         }
         const itemSelected = item != null;
-        const selectionChanged = this.item == null && item != null ||
-                                 this.item != null && item == null;
+        const selectionChanged = !api.ObjectHelper.equals(this.item, item);
 
         this.item = item;
 
-        const widgetVisible = ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible();
-        const externalWidgetSelected = this.activeWidget != null && !this.activeWidget.isInternal();
-        const selectionChangedForExternalWidget = selectionChanged && externalWidgetSelected;
+        const activeWidgetVisible = this.activeWidget != null &&
+                                    ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible();
+        const externalWidgetActive = this.activeWidget != null && !this.activeWidget.isInternal();
 
         this.layout(!itemSelected);
-        if (widgetVisible && this.activeWidget && (itemSelected || selectionChangedForExternalWidget)) {
+        if (activeWidgetVisible && selectionChanged && (externalWidgetActive || itemSelected)) {
             return this.updateActiveWidget();
         }
 
