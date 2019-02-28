@@ -6,6 +6,14 @@
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
 
+  &.fragment {
+    .inspections-panel {
+      .page-template-and-controller-form {
+        display: none;
+      }
+    }
+  }
+
   input.search {
     margin: 15px;
     padding: 5px 3px;

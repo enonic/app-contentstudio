@@ -443,6 +443,9 @@ export class LiveFormPanel
                                ? this.liveEditModel.getSiteModel().getSite()
                                : null;
 
+        const isFragment: boolean = this.pageModel.getMode() === PageMode.FRAGMENT;
+        this.contextWindow.toggleClass('fragment', isFragment);
+
         this.saveAsTemplateAction
             .setContentSummary(this.content)
             .setPageModel(this.pageModel)
