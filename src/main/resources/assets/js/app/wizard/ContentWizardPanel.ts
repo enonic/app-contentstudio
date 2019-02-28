@@ -501,7 +501,7 @@ export class ContentWizardPanel
             return persistedItem;
         }).finally(() => {
             this.contentUpdateDisabled = false;
-            this.updateButtonsState().then(() => this.getLivePanel().maximizeContentFormPanelIfNeeded());
+            this.updateButtonsState();
         });
     }
 
