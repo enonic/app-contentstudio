@@ -21,6 +21,7 @@ import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -117,6 +118,21 @@ export class ContextView
         ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
         ShowSplitEditEvent.on(createPageEditorVisibilityChangedHandler(true));
         ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
+
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
+            const itemSelected = this.item != null;
+            const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
+            const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+
+            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
+                const selectedItemPermissionsUpdated = data.some((content: ContentSummaryAndCompareStatus) => {
+                    return this.item.getId() === content.getId();
+                });
+                if (selectedItemPermissionsUpdated) {
+                    this.updateActiveWidget();
+                }
+            }
+        });
     }
 
     private initDivForNoSelection() {
