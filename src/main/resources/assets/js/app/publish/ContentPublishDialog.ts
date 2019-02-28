@@ -173,6 +173,7 @@ export class ContentPublishDialog
 
     open() {
         this.publishProcessor.resetExcludedIds();
+        this.publishProcessor.setIgnoreDependantItemsChanged(false);
 
         CreateIssueDialog.get().reset();
 
@@ -280,6 +281,7 @@ export class ContentPublishDialog
     private doPublish(scheduled: boolean = false) {
 
         this.lockControls();
+        this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
         this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
 
