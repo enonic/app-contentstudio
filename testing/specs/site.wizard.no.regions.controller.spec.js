@@ -1,5 +1,5 @@
 /**
- * Created on 17.01.2019.
+ * Created on 27.02.2019.
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -7,20 +7,21 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const siteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../libs/app_const');
 
-describe('site.wizard.no.regions.controller.spec: apply a custom style to an image', function () {
+describe('site.wizard.no.regions.controller.spec: checks Ssave button after selecting a template with `no region` ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
 
-    it(`Preconditions: site should be added`,
+//verifies https://github.com/enonic/app-contentstudio/issues/210
+//"Save" button doesn't get disabled after save when assigning a template with no regions to a site
+    it(`GIVEN new site wizard is opened AND name has been typed WHEN template with 'no regions' has been selected THEN Save button gets disabled`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
@@ -29,12 +30,15 @@ describe('site.wizard.no.regions.controller.spec: apply a custom style to an ima
             }).then(() => {
                 return siteFormPanel.addApplications([appConstant.SIMPLE_SITE_APP]);
             }).then(() => {
+                //site should be automatically saved after selecting a controller
                 return contentWizard.selectPageDescriptor("no regions");
             }).then(() => {
-                return contentWizard.waitForSavedButtonVisible();
+                // Save button gets disabled
+                return contentWizard.waitForSaveButtonDisabled();
+            }).then(result => {
+                assert.isTrue(result, "Save button gets disabled after selecting 'no regions' ")
             })
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

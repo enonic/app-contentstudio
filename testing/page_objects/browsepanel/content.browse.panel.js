@@ -401,10 +401,10 @@ const contentBrowsePanel = Object.create(page, {
             let nameXpath = panel.treeGrid + elements.itemByName(name);
             return this.waitForVisible(nameXpath, 3000).then(() => {
                 return this.doClick(nameXpath);
-            }).catch((err) => {
+            }).catch(err => {
                 this.saveScreenshot('err_find_' + name);
                 throw Error('Row with the name ' + name + ' was not found' + err);
-            }).pause(400);
+            }).pause(500);
         }
     },
     clickOnRowByDisplayName: {

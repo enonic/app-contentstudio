@@ -263,9 +263,11 @@ const contentWizardPanel = Object.create(page, {
             });
         }
     },
+    //return false if Save button is disabled
     waitForSaveButtonEnabled: {
         value: function () {
-            return this.waitForEnabled(this.saveButton, appConst.TIMEOUT_3).catch(() => {
+            return this.waitForEnabled(this.saveButton, appConst.TIMEOUT_3).catch(err => {
+                console.log("Wizard, Save button " + err);
                 return false;
             })
         }

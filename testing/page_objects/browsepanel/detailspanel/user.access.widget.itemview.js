@@ -31,7 +31,7 @@ const userAccessWidgetItemView = Object.create(page, {
     clickOnEditPermissionsLinkAndWaitForDialog: {
         value: function () {
             return this.waitForSpinnerNotVisible(appConst.TIMEOUT_7).then(() => {
-                return this.waitForEnabled(this.editPermissionsLink, appConst.TIMEOUT_2);
+                return this.waitForVisible(this.editPermissionsLink, appConst.TIMEOUT_3);
             }).then(() => {
                 return this.doClick(this.editPermissionsLink);
             }).catch(err => {
@@ -41,13 +41,13 @@ const userAccessWidgetItemView = Object.create(page, {
                 return editPermissionsDialog.waitForDialogLoaded();
             }).catch(err => {
                 this.saveScreenshot("edit_perm_dlg_not_loaded");
-                throw new Error("Edit permissions dialog was not loaded in " + 3000 + "ms" +" " + err);
+                throw new Error("Edit permissions dialog was not loaded!  "  + err);
             })
         }
     },
     waitForLoaded: {
         value: function () {
-            return this.waitForNotVisible(this.editPermissionsLink, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(this.editPermissionsLink, appConst.TIMEOUT_2).catch(err => {
                 throw new Error('Access widget was not loaded! ' + err);
             });
         }
