@@ -323,32 +323,39 @@ const issueDetailsDialog = Object.create(page, {
     },
     clickOnItemsTabBarItem: {
         value: function (text) {
-            return this.doClick(this.itemsTabBarItem).pause(500).catch(err => {
+            return this.waitForVisible(this.itemsTabBarItem, appConst.TIMEOUT_2).then(() => {
+                return this.doClick(this.itemsTabBarItem);
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_items_tabbar_item');
                 throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
-            })
+            }).pause(500);
         }
     },
     clickOnEditCommentMenuItem: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.doClick(selector).pause(500).then(() => {
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                //clicks on menu and opens menu items
+                return this.doClick(selector);
+            }).pause(500).then(() => {
+                this.saveScreenshot('issue_details_comment_menu');
                 let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
                 return this.getDisplayedElements(editMenuItem);
-            }).then((result) => {
+            }).then(result => {
                 return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).pause(500).catch(err => {
+            }).catch(err => {
                 this.saveScreenshot('err_click_on_edit_comment_issue');
                 throw new Error('error when click on edit the issue comment: ' + err)
-            })
+            }).pause(500);
         }
     },
     clickOnDeleteCommentMenuItem: {
         value: function (text) {
             let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            this.waitForVisible(selector,appConst.TIMEOUT_2).then(()=>{
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(selector);
             }).pause(500).then(() => {
+                this.saveScreenshot('issue_details_comment_menu2');
                 let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
                 return this.getDisplayedElements(deleteMenuItem);
             }).then(result => {
