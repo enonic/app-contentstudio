@@ -25,6 +25,8 @@ export class PublishProcessor {
 
     private ignoreItemsChanged: boolean;
 
+    private ignoreDependantItemsChanged: boolean;
+
     private loadingStartedListeners: { (): void }[] = [];
 
     private loadingFinishedListeners: { (): void }[] = [];
@@ -73,7 +75,9 @@ export class PublishProcessor {
         });
 
         this.dependantList.onListChanged(() => {
-            this.reloadDependenciesDebounced(true);
+            if (!this.ignoreDependantItemsChanged) {
+                this.reloadDependenciesDebounced(true);
+            }
         });
     }
 
@@ -197,6 +201,10 @@ export class PublishProcessor {
 
     public setIgnoreItemsChanged(value: boolean) {
         this.ignoreItemsChanged = value;
+    }
+
+    public setIgnoreDependantItemsChanged(value: boolean) {
+        this.ignoreDependantItemsChanged = value;
     }
 
     private countToPublish(summaries: ContentSummaryAndCompareStatus[]): number {
