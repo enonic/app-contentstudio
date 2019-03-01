@@ -2146,7 +2146,8 @@ export class ContentWizardPanel
         }
 
         this.getSplitPanel().showSecondPanel();
-        livePanel.clearPageViewSelectionAndOpenInspectPage(false);
+        const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
+        livePanel.clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
     }
 

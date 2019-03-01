@@ -24,8 +24,6 @@ import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewR
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
 import {PartComponentView} from '../../../page-editor/part/PartComponentView';
 import {LayoutComponentView} from '../../../page-editor/layout/LayoutComponentView';
-import {PageLockedEvent} from '../../../page-editor/PageLockedEvent';
-import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
 import {RegionView} from '../../../page-editor/RegionView';
 import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
@@ -563,11 +561,11 @@ export class LiveFormPanel
     }
 
     private liveEditListen() {
-        this.liveEditPageProxy.onPageLocked((event: PageLockedEvent) => {
-            this.inspectPage();
+        this.liveEditPageProxy.onPageLocked(() => {
+            this.inspectPage(false);
         });
 
-        this.liveEditPageProxy.onPageUnlocked((event: PageUnlockedEvent) => {
+        this.liveEditPageProxy.onPageUnlocked(() => {
             //this.contextWindow.clearSelection();
             this.minimizeContentFormPanelIfNeeded();
         });
