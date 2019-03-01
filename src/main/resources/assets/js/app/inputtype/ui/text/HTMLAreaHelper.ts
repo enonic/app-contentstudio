@@ -33,7 +33,7 @@ export class HTMLAreaHelper {
         const src = imgSrc.replace(/&amp;/g, '&');
         const params = api.util.UriHelper.decodeUrlParams(src);
         if (params.scale) {
-            imgUrl = api.util.UriHelper.appendUrlParams(imgUrl, {'scale': params.scale}, false);
+            imgUrl = api.util.UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
         }
 
         return ` src="${imgUrl}" data-src="${imgSrc}"`;
