@@ -36,6 +36,17 @@ describe('Swap two Text Component - specification', function () {
             });
         });
 
+    it(`GIVEN existing site is opened WHEN Page Component View has been opened THEN expected component's description should be displayed`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                return contentWizard.clickOnShowComponentViewToggler();
+            }).then(() => {
+                return pageComponentView.getComponentDescription("main region");
+            }).then(description=>{
+                assert.isTrue(description === "test region", "Expected description should be displayed");
+            })
+        });
+
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
         () => {
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
@@ -59,7 +70,7 @@ describe('Swap two Text Component - specification', function () {
                 return contentWizard.switchToMainFrame();
             }).then(() => {
                 return contentWizard.hotKeySave();
-            }).pause(1500).then(() => {
+            }).pause(2000).then(() => {
                 return pageComponentView.swapComponents("component2", "component1");
             }).then(() => {
                 studioUtils.saveScreenshot('text_components_swapped');
