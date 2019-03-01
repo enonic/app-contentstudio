@@ -177,7 +177,7 @@ module.exports = {
     doAddSite: function (site) {
         return this.openContentWizard(appConst.contentTypes.SITE).then(() => {
             return contentWizardPanel.typeData(site);
-        }).then(() => {
+        }).pause(400).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
         }).pause(1000).then(() => {
             if (site.data.controller) {

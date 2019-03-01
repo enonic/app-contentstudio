@@ -15,13 +15,17 @@ const xpath = {
     componentByName: function (name) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]`
     },
+    componentDescriptionByName: function (name) {
+        return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]` +
+               elements.P_SUB_NAME;
+    },
 };
 
 const pageComponentView = Object.create(page, {
 
-    clickOnComponent:{
+    clickOnComponent: {
         value: function (displayName) {
-            let selector = xpath.container+ elements.itemByDisplayName(displayName);
+            let selector = xpath.container + elements.itemByDisplayName(displayName);
             return this.doClick(selector);
         }
     },
@@ -87,6 +91,14 @@ const pageComponentView = Object.create(page, {
             }).pause(1000).then(() => {
                 console.log("Items are swapped: " + sourceName + " " + destinationName);
             });
+        }
+    },
+    getComponentDescription: {
+        value: function (name) {
+            let selector = xpath.container + xpath.componentDescriptionByName(name);
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.getText(selector);
+            })
         }
     }
 });

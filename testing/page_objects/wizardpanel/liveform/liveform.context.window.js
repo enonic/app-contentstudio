@@ -7,7 +7,7 @@ const elements = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const pageInspectionPanel = require('./page.inspection.panel');
 const xpath = {
-    container: `//div[contains(@id,'ContextWindow')]`,
+    container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'ContextWindow')]`,
     insertTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='Insert']`,
     inspectTabBarItem: `//li[contains(@id,'TabBarItem') and child::a[text()='Inspect']]`,
     emulatorTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='Emulator']`,
@@ -37,8 +37,8 @@ const liveContextWindow = Object.create(page, {
     },
     waitForOpened: {
         value: function () {
-            return this.waitForVisible(xpath.container, appConst.TIMEOUT_2).catch(err => {
-                this.saveScreenshot('err_load_context_window');
+            return this.waitForVisible(xpath.container, appConst.TIMEOUT_3).catch(err => {
+                this.saveScreenshot('err_open_context_window');
                 throw new Error('Live Edit, Context window is not opened' + err);
             });
         }
