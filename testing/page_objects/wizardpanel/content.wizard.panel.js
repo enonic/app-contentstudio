@@ -113,10 +113,7 @@ const contentWizardPanel = Object.create(page, {
     },
     waitForContextWindowVisible: {
         value: function () {
-            return contextWindow.waitForOpened().catch(err => {
-                this.saveScreenshot('err_open_inspection_panel');
-                throw new Error('Inspection Panel is not opened in ' + appConst.TIMEOUT_3 + '  ' + err);
-            })
+            return contextWindow.waitForOpened();
         }
     },
     waitForScheduleFormVisible: {
@@ -435,7 +432,7 @@ const contentWizardPanel = Object.create(page, {
             }).catch(err => {
                 throw new Error('option was not found! ' + pageControllerDisplayName + ' ' + err);
             }).then(() => {
-                return this.doClick(optionSelector).catch((err) => {
+                return this.doClick(optionSelector).catch(err => {
                     this.saveScreenshot('err_select_option');
                     throw new Error('option not found!' + pageControllerDisplayName);
                 }).pause(500);
@@ -446,11 +443,10 @@ const contentWizardPanel = Object.create(page, {
         value: function (pageControllerDisplayName) {
             return this.switchToLiveEditFrame().then(() => {
                 return this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-            }).then(() => {
+            }).pause(700).then(() => {
                 return this.getBrowser().frameParent();
             }).then(() => {
-                // new button should be loaded automatically
-                //return this.waitForInspectionPanelTogglerVisible();
+                this.saveScreenshot('controller_selected');
                 return this.waitForContextWindowVisible();
             })
         }
