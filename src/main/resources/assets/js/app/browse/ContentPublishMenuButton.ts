@@ -10,14 +10,31 @@ import ActionButton = api.ui.button.ActionButton;
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
-    publishTreeAction: Action;
     unpublishAction: Action;
     createIssueAction: Action;
     showCreateIssueButtonByDefault?: boolean;
 }
 
-enum ButtonState {
-    PUBLISH, PUBLISH_TREE, UNPUBLISH, CREATE_ISSUE, NO_ITEM
+export class ContentPublishMenuAction {
+    private action: Action;
+    private actionClass: string;
+
+    constructor(action: Action, actionClass: string) {
+        this.action = action;
+        this.actionClass = actionClass;
+    }
+
+    isEnabled(): boolean {
+        return this.action.isEnabled();
+    }
+
+    getAction(): Action {
+        return this.action;
+    }
+
+    getActionClass(): string {
+        return this.actionClass;
+    }
 }
 
 export class ContentPublishMenuButton
@@ -25,54 +42,64 @@ export class ContentPublishMenuButton
 
     private issueActionsList: Action[];
     private issuesRequest: wemQ.Promise<void>;
-    private state: ButtonState;
 
-    private publishAction: Action;
-    private publishTreeAction: Action;
-    private unpublishAction: Action;
-    private createIssueAction: Action;
+    private activeClass: string;
 
-    private publishTreeButton: ActionButton;
-    private unpublishButton: ActionButton;
-    private createIssueButton: ActionButton;
+    protected publishAction: ContentPublishMenuAction;
+    protected unpublishAction: ContentPublishMenuAction;
+    protected createIssueAction: ContentPublishMenuAction;
 
-    private item: ContentSummaryAndCompareStatus;
+    protected unpublishButton: ActionButton;
+    protected createIssueButton: ActionButton;
+
+    protected item: ContentSummaryAndCompareStatus;
 
     constructor(config: ContentPublishMenuButtonConfig) {
-        super(config.publishAction, [config.publishAction, config.publishTreeAction, config.unpublishAction, config.createIssueAction]);
+        super(config.publishAction);
         this.addClass('content-publish-menu transparent');
-        this.appendChild(MenuButtonProgressBarManager.getProgressBar());
 
-        this.publishAction = config.publishAction;
-        this.publishTreeAction = config.publishTreeAction;
-        this.unpublishAction = config.unpublishAction;
-        this.createIssueAction = config.createIssueAction;
-
-        this.publishTreeButton = new ActionButton(this.publishTreeAction);
-        this.unpublishButton = new ActionButton(this.unpublishAction);
-        this.createIssueButton = new ActionButton(this.createIssueAction);
+        this.initMenuActions(config);
+        this.addMenuActions(this.getActions());
+        this.initButtons();
 
         if (config.showCreateIssueButtonByDefault) {
-            this.setState(ButtonState.NO_ITEM);
+            this.setActiveClass('no-item');
         }
 
         this.handleIssueCreatedOrUpdated();
         this.handleActionsUpdated();
     }
 
+    protected initMenuActions(config: ContentPublishMenuButtonConfig) {
+        this.publishAction = new ContentPublishMenuAction(config.publishAction, 'publish');
+        this.unpublishAction = new ContentPublishMenuAction(config.unpublishAction, 'unpublish');
+        this.createIssueAction = new ContentPublishMenuAction(config.createIssueAction, 'create-issue');
+    }
+
+    protected getActions(): Action[] {
+        return [this.publishAction.getAction(), this.unpublishAction.getAction(), this.createIssueAction.getAction()];
+    }
+
+    protected initButtons() {
+        this.unpublishButton = new ActionButton(this.unpublishAction.getAction());
+        this.createIssueButton = new ActionButton(this.createIssueAction.getAction());
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.appendChild(MenuButtonProgressBarManager.getProgressBar());
             this.getActionButton().addClass('publish-action-button');
-            this.publishTreeButton.addClass('publish-tree-action-button');
             this.unpublishButton.addClass('unpublish-action-button');
             this.createIssueButton.addClass('create-issue-action-button');
 
-            this.appendChild(this.publishTreeButton);
-            this.appendChild(this.unpublishButton);
-            this.appendChild(this.createIssueButton);
+            this.appendChildren(...this.getButtons());
 
             return rendered;
         });
+    }
+
+    protected getButtons(): ActionButton[] {
+        return [this.unpublishButton, this.createIssueButton];
     }
 
     minimize() {
@@ -100,48 +127,39 @@ export class ContentPublishMenuButton
 
     private handleActionsUpdated() {
         const actionUpdatedHandler: () => void = api.util.AppHelper.debounce(() => {
-            this.updateActiveState();
+            this.updateActiveClass();
         }, 500);
 
-        this.publishAction.onPropertyChanged(actionUpdatedHandler);
-        this.publishTreeAction.onPropertyChanged(actionUpdatedHandler);
-        this.unpublishAction.onPropertyChanged(actionUpdatedHandler);
-        this.createIssueAction.onPropertyChanged(actionUpdatedHandler);
+        this.getActions().forEach((action: Action) => action.onPropertyChanged(actionUpdatedHandler));
     }
 
-    private updateActiveState() {
+    protected updateActiveClass() {
         if (!this.item) {
             if (this.publishAction.isEnabled()) {
-                this.setState(ButtonState.PUBLISH); // when multiple items selected
+                this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
             } else {
-                this.setState(ButtonState.NO_ITEM);
+                this.setActiveClass('no-item');
             }
         } else if (this.publishAction.isEnabled()) {
-            this.setState(ButtonState.PUBLISH);
-        } else if (this.publishTreeAction.isEnabled()) {
-            this.setState(ButtonState.PUBLISH_TREE);
+            this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
-            this.setState(ButtonState.UNPUBLISH);
+            this.setActiveClass(this.unpublishAction.getActionClass());
         } else {
-            this.setState(ButtonState.CREATE_ISSUE);
+            this.setActiveClass(this.createIssueAction.getActionClass());
         }
     }
 
-    private setState(state: ButtonState) {
-        if (state === this.state) {
+    protected setActiveClass(value: string) {
+        if (this.hasClass(value)) {
             return;
         }
 
-        if (ButtonState[this.state]) {
-            this.removeClass(this.currentStateAsString());
+        if (this.activeClass) {
+            this.removeClass(this.activeClass);
         }
 
-        this.state = state;
-        this.addClass(this.currentStateAsString());
-    }
-
-    private currentStateAsString(): string {
-        return ButtonState[this.state].toLowerCase().replace('_', '-');
+        this.activeClass = value;
+        this.addClass(value);
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
