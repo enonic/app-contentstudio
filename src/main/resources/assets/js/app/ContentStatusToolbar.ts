@@ -50,6 +50,20 @@ export class ContentStatusToolbar
         }
     }
 
+    clearItem() {
+        super.setItem(null);
+        this.clearStatus();
+        this.clearAuthor();
+    }
+
+    private clearStatus() {
+        this.status.setHtml('');
+    }
+
+    private clearAuthor() {
+        this.author.setHtml('');
+    }
+
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
         if (content && content.getContentSummary()) {
             const name = content.getContentSummary().getModifier();
@@ -61,7 +75,7 @@ export class ContentStatusToolbar
                     this.author.setHtml(name);
                 });
         } else {
-            this.author.setHtml('');
+            this.clearAuthor();
         }
     }
 }

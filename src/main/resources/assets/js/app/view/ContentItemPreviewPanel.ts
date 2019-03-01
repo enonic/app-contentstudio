@@ -91,6 +91,10 @@ export class ContentItemPreviewPanel
         this.item = item;
     }
 
+    public clearItem() {
+        (<ContentItemPreviewToolbar>this.toolbar).clearItem();
+    }
+
     private setupListeners() {
         this.image.onLoaded((event: UIEvent) => {
             this.hideMask();
