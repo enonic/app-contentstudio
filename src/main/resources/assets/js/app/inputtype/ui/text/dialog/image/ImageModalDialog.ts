@@ -334,7 +334,7 @@ export class ImageModalDialog
 
             this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
-            this.imageToolbar.onPreviewSizeChanged(() => this.adjustPreviewFrameHeight());
+            this.imageToolbar.onPreviewSizeChanged(() => setTimeout(this.adjustPreviewFrameHeight(), 100));
 
             wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
 
@@ -384,13 +384,29 @@ export class ImageModalDialog
         return imgUrlResolver;
     }
 
+    private getImagePreviewSrc(): string {
+        let imgSrcAttr = this.presetImageEl.getAttribute('src');
+
+        const src = imgSrcAttr.replace(/&amp;/g, '&');
+        const params = api.util.UriHelper.decodeUrlParams(src);
+        if (params.size) {
+            const plainUrl = api.util.UriHelper.trimUrlParams(src);
+            params.size = this.imagePreviewContainer.getEl().getWidth().toString();
+            imgSrcAttr = api.util.UriHelper.appendUrlParams(plainUrl, params, false);
+        }
+
+        return imgSrcAttr;
+    }
+
     private createImgElForPreview(imageContent: ContentSummary): api.dom.ImgEl {
         let imgSrcAttr = '';
         let imgDataSrcAttr = '';
 
         if (!!this.presetImageEl) {
-            imgSrcAttr = this.presetImageEl.getAttribute('src');
+
+            imgSrcAttr = this.getImagePreviewSrc();
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
+
         } else {
 
             const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
@@ -726,6 +742,7 @@ export class ImageDialogToolbar
                 this.previewEl.getEl().removeAttribute('style');
                 this.rangeInputContainer.hide();
             }
+            this.notifyPreviewSizeChanged();
         });
 
         return checkbox;

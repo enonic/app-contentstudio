@@ -10,7 +10,7 @@ export class HTMLAreaHelper {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
-        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId));
+        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId)).setTimestamp(new Date());
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();
@@ -27,7 +27,14 @@ export class HTMLAreaHelper {
             }
         }
 
-        const imgUrl = imageUrlResolver.resolveForPreview();
+        let imgUrl = imageUrlResolver.resolveForPreview();
+
+        // Support scale parameter from the old content
+        const src = imgSrc.replace(/&amp;/g, '&');
+        const params = api.util.UriHelper.decodeUrlParams(src);
+        if (params.scale) {
+            imgUrl = api.util.UriHelper.appendUrlParams(imgUrl, {'scale': params.scale}, false);
+        }
 
         return ` src="${imgUrl}" data-src="${imgSrc}"`;
     }
