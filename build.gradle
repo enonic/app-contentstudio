@@ -4,6 +4,8 @@ plugins {
     id 'com.enonic.defaults' version '2.0.1'
     id 'com.enonic.xp.app' version '2.0.0'
     id "com.moowork.node" version '1.1.1'
+    id 'org.asciidoctor.convert' version '1.5.7'
+    id 'org.aim42.htmlSanityCheck' version '1.0.0-RC-1'
 }
 
 app {
@@ -40,6 +42,9 @@ repositories {
     mavenLocal()
     jcenter()
     xp.enonicRepo()
+    maven {
+    	  url 'https://plugins.gradle.org/m2/'
+    }
 }
 
 node {
@@ -85,12 +90,10 @@ compileTestJava {
 jar {
     exclude 'assets/**/*.ts'
     exclude 'assets/**/*.less'
-
     exclude 'assets/styles/*.js'
     exclude 'assets/page-editor/styles/*.js'
     exclude 'assets/page-editor/lib/_include.js'
     exclude 'assets/page-editor/lib/jquery*.js'
-
     exclude 'assets/icons/fonts/*.*'
 
     dependsOn += webpack
@@ -132,3 +135,30 @@ def nodeEnvironment() {
     return nodeEnv != null ? nodeEnv : 'production'
 }
 
+
+asciidoctor {
+    sourceDir = file('docs')
+    outputDir = file('build/docs')
+    requires project.file('verbose-mode.rb')
+    attributes 'source-highlighter': 'coderay'
+    resources {
+        from(sourceDir) {
+            include '**/images/**'
+        }
+    }
+}
+
+htmlSanityCheck {
+    dependsOn asciidoctor
+    sourceDir = new File( "$buildDir/docs/html5" )
+
+    // files to check - in Set-notation
+    sourceDocuments = [ "index.html"]
+
+    // where to put results of sanityChecks...
+    checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
+    //checkExternalLinks = false
+
+    // fail build on errors?
+    failOnErrors = true
+}

@@ -1,0 +1,7 @@
+= Permissions
+:toc: right
+:imagesdir: release/images
+
+== TODO
+
+Roles, groups and content permissions

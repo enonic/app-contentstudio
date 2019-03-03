@@ -1,0 +1,46 @@
+{
+  "menuItems": [
+    {
+      "title": "Content Navigator",
+      "document": "navigator"
+    },
+    {
+      "title": "Issues",
+      "document": "issues"
+    },
+    {
+      "title": "Content Editor",
+      "document": "editor",
+      "menuItems": [
+        {
+            "title": "Content Form",
+            "document" : "content-form"
+        },
+        {
+            "title": "Page Editor",
+            "document" : "page-editor"
+        },
+        {
+            "title": "Rich Text Editor",
+            "document" : "rich-text"
+        }
+      ]
+    },
+    {
+      "title": "Content Types",
+      "document": "content-types"
+    },
+    {
+      "title": "Widgets",
+      "document": "widgets",
+    },
+    {
+      "title": "Permissions",
+      "document": "permissions"
+    },
+    {
+      "title": "Release Notes",
+      "document" : "release"
+    }
+  ]
+}
