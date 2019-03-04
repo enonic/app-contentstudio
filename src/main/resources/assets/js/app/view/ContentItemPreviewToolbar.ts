@@ -58,6 +58,12 @@ export class ContentItemPreviewToolbar
         super.setItem(item);
     }
 
+    clearItem() {
+        super.clearItem();
+
+        this.issueButton.getActionButton().setEnabled(false);
+    }
+
     protected foldOrExpand() {
         // Disable fold in the Content preview toolbar
         return false;

@@ -21,6 +21,12 @@ export class ContentItemStatisticsPanel
         }
     }
 
+    clearItem() {
+        super.clearItem();
+
+        this.previewPanel.clearItem();
+    }
+
     getPreviewPanel(): ContentItemPreviewPanel {
         return this.previewPanel;
     }
