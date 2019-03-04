@@ -24,8 +24,6 @@ import i18n = api.util.i18n;
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
 
-    private fragmentComponent: FragmentComponent;
-
     private fragmentView: FragmentComponentView;
 
     private fragmentSelector: FragmentDropdown;
@@ -67,7 +65,7 @@ export class FragmentInspectionPanel
         this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
             // Ensure displayed selector option is removed when fragment is removed
             if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
-                if (!this.fragmentComponent.hasFragment()) {
+                if (!this.component.hasFragment()) {
                     // this.fragmentSelector.setContent(null);
                     this.fragmentSelector.setSelection(null);
                 }
@@ -86,7 +84,7 @@ export class FragmentInspectionPanel
         this.editFragmentButton.addClass('blue large');
 
         this.editFragmentButton.onClicked(() => {
-            const fragmentId: ContentId = this.fragmentComponent.getFragment();
+            const fragmentId: ContentId = this.component.getFragment();
             if (fragmentId) {
                 const fragment: ContentSummary = this.fragmentSelector.getSelection(fragmentId);
                 const fragmentContent: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(fragment);
@@ -102,7 +100,7 @@ export class FragmentInspectionPanel
         if (!this.contentUpdatedListener) {
             this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
                 // update currently selected option if this is the one updated
-                if (this.fragmentComponent && event.getContentId().equals(this.fragmentComponent.getFragment())) {
+                if (this.component && event.getContentId().equals(this.component.getFragment())) {
                     this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
                 }
             };
@@ -114,16 +112,21 @@ export class FragmentInspectionPanel
         }
     }
 
-    setFragmentComponent(fragmentView: FragmentComponentView) {
+    setFragmentComponentView(fragmentView: FragmentComponentView) {
         this.fragmentView = fragmentView;
-        if (this.fragmentComponent) {
-            this.unregisterComponentListeners(this.fragmentComponent);
-        }
+    }
 
-        this.fragmentComponent = fragmentView.getComponent();
-        this.setComponent(this.fragmentComponent);
+    setFragmentComponent(fragment: FragmentComponent) {
+        this.unregisterComponentListeners();
 
-        const contentId: ContentId = this.fragmentComponent.getFragment();
+        this.setComponent(fragment);
+        this.updateSelectorValue();
+
+        this.registerComponentListeners();
+    }
+
+    private updateSelectorValue() {
+        const contentId: ContentId = this.component.getFragment();
         if (contentId) {
             const fragment: ContentSummary = this.fragmentSelector.getSelection(contentId);
             if (fragment) {
@@ -142,16 +145,18 @@ export class FragmentInspectionPanel
         } else {
             this.setSelectorValue(null);
         }
-
-        this.registerComponentListeners(this.fragmentComponent);
     }
 
-    private registerComponentListeners(component: FragmentComponent) {
-        component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+    private registerComponentListeners() {
+        if (this.component) {
+            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
-    private unregisterComponentListeners(component: FragmentComponent) {
-        component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+    private unregisterComponentListeners() {
+        if (this.component) {
+            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
     private setSelectorValue(fragment: ContentSummary) {
@@ -183,11 +188,11 @@ export class FragmentInspectionPanel
                             api.notify.showWarning(i18n('notify.nestedLayouts'));
 
                         } else {
-                            this.fragmentComponent.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                            this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
                         }
                     });
                 } else {
-                    this.fragmentComponent.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                    this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
                 }
             }
         });
@@ -205,8 +210,9 @@ export class FragmentInspectionPanel
         return api.ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
     }
 
-    getComponentView(): FragmentComponentView {
-        return this.fragmentView;
+    cleanUp() {
+        this.unregisterComponentListeners();
+        this.component = null;
     }
 
     getName(): string {

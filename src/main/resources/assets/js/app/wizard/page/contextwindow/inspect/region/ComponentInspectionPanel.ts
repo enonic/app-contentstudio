@@ -1,6 +1,5 @@
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {ComponentView} from '../../../../../../page-editor/ComponentView';
 import {ContentFormContext} from '../../../../../ContentFormContext';
 import {Component} from '../../../../../page/region/Component';
 
@@ -30,10 +29,6 @@ export abstract class ComponentInspectionPanel<COMPONENT extends Component>
 
     setComponent(component: COMPONENT) {
         this.component = component;
-    }
-
-    getComponentView(): ComponentView<Component> {
-        throw new Error('Must be implemented by inheritors');
     }
 
     getComponent(): COMPONENT {
