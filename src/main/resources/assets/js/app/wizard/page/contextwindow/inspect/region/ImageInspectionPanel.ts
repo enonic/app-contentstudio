@@ -19,10 +19,6 @@ import i18n = api.util.i18n;
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
 
-    private imageComponent: ImageComponent;
-
-    private imageView: ImageComponentView;
-
     private formView: api.form.FormView;
 
     private imageSelector: ImageContentComboBox;
@@ -49,8 +45,8 @@ export class ImageInspectionPanel
         this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
             // Ensure displayed config form and selector option are removed when image is removed
             if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE) {
-                if (!this.imageComponent.hasImage()) {
-                    this.setupComponentForm(this.imageComponent);
+                if (!this.component.hasImage()) {
+                    this.setupComponentForm(this.component);
                     this.imageSelector.setContent(null);
                 }
             }
@@ -64,23 +60,21 @@ export class ImageInspectionPanel
         super.setModel(liveEditModel);
     }
 
-    setComponent(component: ImageComponent) {
-        super.setComponent(component);
+    setImageComponentView(imageView: ImageComponentView) {
+        (/*<any>*/this.imageSelector.getLoader()).setContent(imageView.getLiveEditModel().getContent());
     }
 
-    setImageComponent(imageView: ImageComponentView) {
-        this.imageView = imageView;
+    setImageComponent(component: ImageComponent) {
+        this.unregisterComponentListeners();
 
-        (/*<any>*/this.imageSelector.getLoader()).setContent(this.imageView.getLiveEditModel().getContent());
+        this.setComponent(component);
+        this.updateImage();
 
-        if (this.imageComponent) {
-            this.unregisterComponentListeners(this.imageComponent);
-        }
+        this.registerComponentListeners();
+    }
 
-        this.imageComponent = imageView.getComponent();
-        this.setComponent(this.imageComponent);
-
-        const contentId: ContentId = this.imageComponent.getImage();
+    private updateImage() {
+        const contentId: ContentId = this.component.getImage();
         if (contentId) {
             const image: ContentSummary = this.imageSelector.getContent(contentId);
             if (image) {
@@ -91,7 +85,7 @@ export class ImageInspectionPanel
                 }).catch((reason: any) => {
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
-                        this.setupComponentForm(this.imageComponent);
+                        this.setupComponentForm(this.component);
                     } else {
                         api.DefaultErrorHandler.handle(reason);
                     }
@@ -99,18 +93,20 @@ export class ImageInspectionPanel
             }
         } else {
             this.setSelectorValue(null);
-            this.setupComponentForm(this.imageComponent);
+            this.setupComponentForm(this.component);
         }
-
-        this.registerComponentListeners(this.imageComponent);
     }
 
-    private registerComponentListeners(component: ImageComponent) {
-        component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+    private registerComponentListeners() {
+        if (this.component) {
+            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
-    private unregisterComponentListeners(component: ImageComponent) {
-        component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+    private unregisterComponentListeners() {
+        if (this.component) {
+            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
     private setSelectorValue(image: ContentSummary) {
@@ -129,7 +125,7 @@ export class ImageInspectionPanel
         this.formView = new api.form.FormView(this.formContext, configForm, configData.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
-        this.formView.setVisible(this.imageComponent.hasImage());
+        this.formView.setVisible(this.component.hasImage());
         imageComponent.setDisableEventForwarding(true);
         this.formView.layout().catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
@@ -144,29 +140,25 @@ export class ImageInspectionPanel
             if (this.handleSelectorEvents) {
                 let option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
                 let imageContent = option.displayValue;
-                this.imageComponent.setImage(imageContent.getContentId(), imageContent.getDisplayName());
+                this.component.setImage(imageContent.getContentId(), imageContent.getDisplayName());
             }
         });
 
         this.imageSelector.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
-                this.imageComponent.reset();
+                this.component.reset();
             }
         });
     }
 
     private setImage(image: ContentSummary) {
         this.setSelectorValue(image);
-        this.setupComponentForm(this.imageComponent);
-    }
-
-    getComponentView(): ImageComponentView {
-        return this.imageView;
+        this.setupComponentForm(this.component);
     }
 
     refresh() {
-        if (this.imageComponent) {
-            const contentId: ContentId = this.imageComponent.getImage();
+        if (this.component) {
+            const contentId: ContentId = this.component.getImage();
             if (contentId) {
                 const image: ContentSummary = this.imageSelector.getContent(contentId);
                 if (image) {
@@ -177,6 +169,11 @@ export class ImageInspectionPanel
                 }
             }
         }
+    }
+
+    cleanUp() {
+        this.unregisterComponentListeners();
+        this.component = null;
     }
 
     getName(): string {

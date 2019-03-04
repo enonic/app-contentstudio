@@ -41,6 +41,7 @@ import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
+import {Regions} from '../../page/region/Regions';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
@@ -62,6 +63,8 @@ export class LiveEditPageProxy {
     private livejq: JQueryStatic;
 
     private dragMask: api.ui.mask.DragMask;
+
+    private beforeLoadListeners: { (): void; }[] = [];
 
     private loadedListeners: { (): void; }[] = [];
 
@@ -304,6 +307,8 @@ export class LiveEditPageProxy {
     }
 
     public load() {
+        this.notifyBeforeLoad();
+
         let scrollTop;
         if (this.pageView) {
 
@@ -597,6 +602,23 @@ export class LiveEditPageProxy {
 
     private notifyLoaded() {
         this.loadedListeners.forEach((listener) => {
+            listener();
+        });
+    }
+
+    onBeforeLoad(listener: { (): void; }) {
+        this.beforeLoadListeners.push(listener);
+    }
+
+    unBeforeLoad(listener: { (): void; }) {
+        this.beforeLoadListeners = this.beforeLoadListeners
+            .filter(function (curr: { (): void; }) {
+                return curr !== listener;
+            });
+    }
+
+    private notifyBeforeLoad() {
+        this.beforeLoadListeners.forEach((listener) => {
             listener();
         });
     }
@@ -935,15 +957,16 @@ export class LiveEditPageProxy {
     }
 
     private copyControllerForIE() {
-        let controller = this.liveEditModel.getPageModel().getController();
+        const controller = this.liveEditModel.getPageModel().getController();
         if (controller) {
             this.controllerCopyForIE = JSON.parse(JSON.stringify(controller));
             this.controllerCopyForIE.key = controller.getKey().toString();
+            this.controllerCopyForIE.config = JSON.parse(JSON.stringify(controller.getConfig().toJson()));
         }
     }
 
     private copyRegionsForIE() {
-        let regions = this.liveEditModel.getPageModel().getRegions();
+        const regions: Regions = this.liveEditModel.getPageModel().getRegions();
         if (regions) {
             this.regionsCopyForIE = JSON.parse(JSON.stringify(regions.toJson()));
         }
@@ -956,14 +979,14 @@ export class LiveEditPageProxy {
 
     private resetControllerForIE() {
         if (this.controllerCopyForIE) {
-            let controller = PageDescriptor.fromJson(this.controllerCopyForIE);
+            const controller: PageDescriptor = PageDescriptor.fromJson(this.controllerCopyForIE);
             this.liveEditModel.getPageModel().setControllerDescriptor(controller);
         }
     }
 
     private resetRegionsForIE() {
         if (this.regionsCopyForIE) {
-            let regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
+            const regions: Regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
             this.liveEditModel.getPageModel().setRegions(regions);
         }
     }

@@ -99,12 +99,16 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    private registerComponentListeners(component: COMPONENT) {
-        component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+    private registerComponentListeners() {
+        if (this.component) {
+            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
-    private unregisterComponentListeners(component: COMPONENT) {
-        component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+    private unregisterComponentListeners() {
+        if (this.component) {
+            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+        }
     }
 
     setComponent(component: COMPONENT, descriptor?: Descriptor) {
@@ -131,13 +135,15 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     setDescriptorBasedComponent(component: COMPONENT) {
-
-        if (this.component) {
-            this.unregisterComponentListeners(this.component);
-        }
+        this.unregisterComponentListeners();
 
         this.setComponent(component);
+        this.updateSelectorValue();
 
+        this.registerComponentListeners();
+    }
+
+    private updateSelectorValue() {
         const key: DescriptorKey = this.component.getDescriptorKey();
         if (key) {
             const descriptor: Descriptor = this.selector.getDescriptor(key);
@@ -157,8 +163,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         } else {
             this.setSelectorValue(null);
         }
-
-        this.registerComponentListeners(this.component);
     }
 
     private initSelectorListeners() {
@@ -192,5 +196,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }).finally(() => {
             component.setDisableEventForwarding(false);
         }).done();
+    }
+
+    cleanUp() {
+        this.unregisterComponentListeners();
+        this.component = null;
     }
 }

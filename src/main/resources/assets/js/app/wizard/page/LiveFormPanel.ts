@@ -70,6 +70,7 @@ import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
 import {RepositoryId} from '../../repository/RepositoryId';
+import {RegionPath} from '../../page/region/RegionPath';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
@@ -295,6 +296,15 @@ export class LiveFormPanel
 
             this.imageInspectionPanel.refresh();
         });
+
+        if (api.BrowserHelper.isIE()) { // have to cleanup objects loaded by current live edit frame so IE won't fail after frame reload
+            liveEditPageProxy.onBeforeLoad(() => {
+                this.fragmentInspectionPanel.cleanUp();
+                this.imageInspectionPanel.cleanUp();
+                this.partInspectionPanel.cleanUp();
+                this.layoutInspectionPanel.cleanUp();
+            });
+        }
 
         return liveEditPageProxy;
     }
@@ -573,6 +583,8 @@ export class LiveFormPanel
         });
 
         let path;
+        let isComponentView: boolean = false;
+
         BeforeContentSavedEvent.on(() => {
             path = null;
             if (!this.pageView) {
@@ -581,13 +593,21 @@ export class LiveFormPanel
             const selected = this.pageView.getSelectedView();
             if (api.ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
                 path = (<ComponentView<any>>selected).getComponentPath();
+                isComponentView = true;
             } else if (api.ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
                 path = (<RegionView>selected).getRegionPath();
+            }
+
+            if (path && api.BrowserHelper.isIE()) {
+                path = path.toString();
             }
         });
 
         const restoreSelection = () => {
             if (path) {
+                if (api.BrowserHelper.isIE()) {
+                    path = isComponentView ? ComponentPath.fromString(path) : RegionPath.fromString(path);
+                }
                 const selected = api.ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
                     ? this.pageView.getComponentViewByPath(path)
                     : this.pageView.getRegionViewByPath(path);
@@ -807,7 +827,8 @@ export class LiveFormPanel
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
-            this.imageInspectionPanel.setImageComponent(<ImageComponentView>componentView);
+            this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
+            this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
             this.contextWindow.showInspectionPanel(this.imageInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
             this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
@@ -819,7 +840,8 @@ export class LiveFormPanel
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
             this.contextWindow.showInspectionPanel(this.textInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
-            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponentView>componentView);
+            this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
+            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
             this.contextWindow.showInspectionPanel(this.fragmentInspectionPanel);
         } else {
             throw new Error('ComponentView cannot be selected: ' + api.ClassHelper.getClassName(componentView));
