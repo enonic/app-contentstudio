@@ -6,9 +6,12 @@ import {InsertablesPanel} from './insert/InsertablesPanel';
 import {PageComponentsView} from '../../PageComponentsView';
 import {InspectEvent} from '../../../event/InspectEvent';
 import {NamedPanel} from './inspect/NamedPanel';
+import {PageMode} from '../../../page/PageMode';
+import {PageInspectionPanel} from './inspect/page/PageInspectionPanel';
 import ResponsiveManager = api.ui.responsive.ResponsiveManager;
 import i18n = api.util.i18n;
 import TabBarItem = api.ui.tab.TabBarItem;
+import Panel = api.ui.panel.Panel;
 
 export interface ContextWindowConfig {
 
@@ -54,6 +57,7 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.addItem(this.getShownPanelName(), false, this.inspectionsPanel);
             const tabItems = this.getItems();
             this.inspectTab = tabItems[tabItems.length - 1];
+            this.inspectTab.addClass('inspect-tab');
 
             this.insertablesPanel.getComponentsView().onBeforeInsertAction(() => {
                 this.fixed = true;
@@ -71,19 +75,31 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         return this.fixed;
     }
 
+    private isPanelSelectable(panel: Panel): boolean {
+        return !api.ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
+    }
+
     public showInspectionPanel(panel: BaseInspectionPanel, showPanel?: boolean) {
-        new InspectEvent(showPanel).fire();
-        setTimeout(() => {
-            this.inspectionsPanel.showInspectionPanel(panel);
-            if (this.inspectTab) {
-                this.inspectTab.setLabel(panel.getName());
-            }
-            this.selectPanel(this.inspectionsPanel);
-        });
+        const canSelectPanel = this.isPanelSelectable(panel);
+        this.toggleClass('no-inspection', !canSelectPanel);
+        if (canSelectPanel) {
+            new InspectEvent(showPanel).fire();
+            setTimeout(() => {
+                this.inspectionsPanel.showInspectionPanel(panel);
+                if (this.inspectTab) {
+                    this.inspectTab.setLabel(panel.getName());
+                }
+                this.selectPanel(this.inspectionsPanel);
+            });
+        }
     }
 
     public clearSelection() {
         this.inspectionsPanel.clearInspection();
+
+        const isPageInspectionPanelSelectable = this.isPanelSelectable(this.inspectionsPanel.getPanelShown());
+        this.toggleClass('no-inspection', !isPageInspectionPanelSelectable);
+
         if (this.inspectTab) {
             this.inspectTab.setLabel(this.getShownPanelName());
         }

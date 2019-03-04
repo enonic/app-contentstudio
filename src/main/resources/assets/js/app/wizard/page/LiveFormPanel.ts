@@ -423,6 +423,10 @@ export class LiveFormPanel
         return this.pageModel ? this.pageModel.getPage() : null;
     }
 
+    public getPageMode(): PageMode {
+        return this.pageModel ? this.pageModel.getMode() : null;
+    }
+
     public getPageView(): PageView {
         return this.pageView;
     }
@@ -442,9 +446,6 @@ export class LiveFormPanel
             : liveEditModel.getSiteModel()
                                ? this.liveEditModel.getSiteModel().getSite()
                                : null;
-
-        const isFragment: boolean = this.pageModel.getMode() === PageMode.FRAGMENT;
-        this.contextWindow.toggleClass('fragment', isFragment);
 
         this.saveAsTemplateAction
             .setContentSummary(this.content)

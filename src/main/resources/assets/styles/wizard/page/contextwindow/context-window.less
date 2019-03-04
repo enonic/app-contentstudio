@@ -6,10 +6,12 @@
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
 
-  &.fragment {
-    .inspections-panel {
-      .page-template-and-controller-form {
-        display: none;
+  &.no-inspection {
+    .tab-bar {
+      cursor: initial;
+      .inspect-tab {
+        pointer-events: none;
+        color: @form-button-font-disabled;
       }
     }
   }
