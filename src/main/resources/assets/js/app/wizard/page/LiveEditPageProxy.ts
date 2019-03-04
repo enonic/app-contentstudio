@@ -962,6 +962,8 @@ export class LiveEditPageProxy {
             this.controllerCopyForIE = JSON.parse(JSON.stringify(controller));
             this.controllerCopyForIE.key = controller.getKey().toString();
             this.controllerCopyForIE.config = JSON.parse(JSON.stringify(controller.getConfig().toJson()));
+        } else {
+            this.controllerCopyForIE = null;
         }
     }
 
@@ -969,6 +971,8 @@ export class LiveEditPageProxy {
         const regions: Regions = this.liveEditModel.getPageModel().getRegions();
         if (regions) {
             this.regionsCopyForIE = JSON.parse(JSON.stringify(regions.toJson()));
+        } else {
+            this.regionsCopyForIE = null;
         }
     }
 
