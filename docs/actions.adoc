@@ -1,0 +1,66 @@
+= Actions
+:toc: right
+:imagesdir: actions
+
+Depending on permissions, users may perform the following actions on selected content items
+
+== New
+
+The ``New`` action will launch the *New Content* dialog.
+
+There are three ways to open the *New Content* dialogue in the Content Studio.
+
+* The first method is with the shortcut - ``alt + n``.
+* By clicking the ``New`` button in the toolbar
+* By Clicking ``New``in the context menu, which is accessible by right-clicking an item
+
+image::new-content-dialog.png[New content dialog,683,520]
+
+NOTE: The content dialogue will use the context of the selected content to create the new item. If no context is set, item will be created on root level
+
+=== New by Type
+
+The dialog lets you choose from available content types, based on the context of the selected item.
+
+* Select from the list of all content types
+* Select from the "Popular" list (Most used content types in your current context)
+* Select from the "Recent" list (Based on users recent actions)
+
+TIP: To filter the list of items - simply start typing on your keyboard to filter the list of available content types
+
+image::new-content-search.png[New content dialog with search activated,681,379]
+
+Once a content type is selected, a new item is created, and the content editor is launched in a new tab.
+
+=== New by Uploading
+
+Create file-based content aka "media" from the new content dialog by uploading.
+There are two ways to upload files:
+
+* Click the upload icon placed in the top right of the dialog.
+* Drag'n drop - also supports bulk uploading
+
+image::new-content-media.png[Drag'n drop creation of content,684,522]
+
+NOTE: When uploading files, the underlying content type is automatically detected from the file type file uploaded.
+
+
+
+
+== Edit
+
+== Delete
+
+== Duplicate
+
+== Move
+
+== Sort
+
+== Preview
+
+== Publish
+
+== Unpublish
+
+== New Issue

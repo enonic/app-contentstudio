@@ -31,6 +31,10 @@
       "document": "content-types"
     },
     {
+      "title": "Actions",
+      "document": "actions"
+    },
+    {
       "title": "Widgets",
       "document": "widgets"
     },
