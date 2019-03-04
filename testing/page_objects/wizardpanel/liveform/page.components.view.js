@@ -26,7 +26,9 @@ const pageComponentView = Object.create(page, {
     clickOnComponent: {
         value: function (displayName) {
             let selector = xpath.container + elements.itemByDisplayName(displayName);
-            return this.doClick(selector);
+            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+                return this.doClick(selector);
+            }).pause(400);
         }
     },
     openMenu: {

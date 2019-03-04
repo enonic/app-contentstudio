@@ -207,7 +207,9 @@ const contentWizardPanel = Object.create(page, {
     },
     clickOnShowComponentViewToggler: {
         value: function () {
-            return this.doClick(this.showComponentViewToggler).catch(err => {
+            return this.waitForVisible(this.showComponentViewToggler, appConst.TIMEOUT_2).then(() => {
+                return this.doClick(this.showComponentViewToggler);
+            }).catch(err => {
                 return this.doCatch('err_click_on_show_component_view', err);
             }).pause(700);
         }
