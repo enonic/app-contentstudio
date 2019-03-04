@@ -2,8 +2,6 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
@@ -13,7 +11,6 @@ export class ContentWizardToolbarPublishControls
 
     private publishButton: ContentPublishMenuButton;
     private publishAction: Action;
-    private publishTreeAction: Action;
     private createIssueAction: Action;
     private unpublishAction: Action;
     private publishMobileAction: Action;
@@ -29,14 +26,12 @@ export class ContentWizardToolbarPublishControls
 
         this.publishAction = actions.getPublishAction();
         this.publishAction.setIconClass('publish-action');
-        this.publishTreeAction = actions.getPublishTreeAction();
         this.createIssueAction = actions.getCreateIssueAction();
         this.unpublishAction = actions.getUnpublishAction();
         this.publishMobileAction = actions.getPublishMobileAction();
 
         this.publishButton = new ContentPublishMenuButton({
             publishAction: this.publishAction,
-            publishTreeAction: this.publishTreeAction,
             unpublishAction: this.unpublishAction,
             createIssueAction: this.createIssueAction,
             showCreateIssueButtonByDefault: false
@@ -99,9 +94,6 @@ export class ContentWizardToolbarPublishControls
         const canBeUnpublished = this.content.isPublished() && this.userCanPublish;
 
         this.publishAction.setEnabled(canBePublished);
-        this.isPublishTreeEnabled()
-            .then((result: boolean) => this.publishTreeAction.setEnabled(result))
-            .catch(reason => api.DefaultErrorHandler.handle(reason));
         this.createIssueAction.setEnabled(true);
         this.unpublishAction.setEnabled(canBeUnpublished);
         this.publishMobileAction.setEnabled(canBePublished);
@@ -109,26 +101,6 @@ export class ContentWizardToolbarPublishControls
 
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));
-    }
-
-    private isPublishTreeEnabled(): wemQ.Promise<boolean> {
-        const canTreeBePublished = !this.leafContent && this.contentCanBePublished && this.userCanPublish;
-
-        if (!canTreeBePublished) {
-            return wemQ(false);
-        }
-
-        /*const resolvePublishDependenciesPromise: wemQ.Promise<ResolvePublishDependenciesResult> =
-            ResolvePublishDependenciesRequest.create().setIds([this.content.getContentId()]).build().sendAndParse();*/
-        const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
-            new HasUnpublishedChildrenRequest([this.content.getContentId()]).sendAndParse();
-
-        return hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
-            const hasUnpublishedChildren: boolean =
-                hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
-
-            return wemQ(hasUnpublishedChildren);
-        });
     }
 
     public isOnline(): boolean {

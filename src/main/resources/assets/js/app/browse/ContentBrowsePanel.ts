@@ -11,7 +11,6 @@ import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
-import {ContentPublishMenuButton} from './ContentPublishMenuButton';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
@@ -26,6 +25,7 @@ import {Branch} from '../versioning/Branch';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {RepositoryId} from '../repository/RepositoryId';
+import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -679,7 +679,7 @@ export class ContentBrowsePanel
 
     private createContentPublishMenuButton() {
         const browseActions = this.getBrowseActions();
-        let contentPublishMenuButton = new ContentPublishMenuButton({
+        const contentPublishMenuButton = new ContentBrowsePublishMenuButton({
             publishAction: browseActions.getPublishAction(),
             publishTreeAction: browseActions.getPublishTreeAction(),
             unpublishAction: browseActions.getUnpublishAction(),
