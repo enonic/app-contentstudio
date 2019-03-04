@@ -86,8 +86,34 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 })
             });
 
+        //checks alert after clicking on Close icon(nothing was changed)
+        it(`GIVEN existing fragment is opened AND Components View is opened WHEN image has been clicked in Components View  AND close browser tab has been clicked THEN Alert with warning about unsaved changes should not appear`,
+            () => {
+                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1).then(() => {
+                    return contentWizard.clickOnShowComponentViewToggler();
+                }).then(() => {
+                    // just click on the image (nothing is changing)
+                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME2);
+                }).then(() => {
+                    //`Close tab` has been clicked
+                    return contentWizard.doClickOnCloseInBrowser();
+                }).then(() => {
+                    return contentWizard.isAlertPresent();
+                }).then(result => {
+                    assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
+                })
+            });
+
         beforeEach(() => studioUtils.navigateToContentStudioApp());
-        afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+        afterEach(() => {
+            return contentWizard.isAlertPresent().then(result => {
+                if (result) {
+                    return contentWizard.alertAccept();
+                }
+            }).pause(500).then(() => {
+                return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            })
+        });
         before(() => {
             return console.log('specification starting: ' + this.title);
         });
