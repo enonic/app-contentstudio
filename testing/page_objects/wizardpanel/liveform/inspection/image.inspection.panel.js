@@ -57,9 +57,11 @@ const imageInspectionPanel = Object.create(page, {
     clickOnRemoveIcon: {
         value: function () {
             let selector = xpath.container + elements.CONTENT_SELECTED_OPTION_VIEW + elements.REMOVE_ICON;
-            return this.typeTextInInput(selector).catch(err => {
-                this.saveScreenshot('err_type_text_in_caption');
-                throw new Error('error- Image Inspect Panel, type text in Caption text area: ' + err)
+            return this.waitForVisible(selector).then(()=>{
+                return this.doClick(selector);
+            }).catch(err => {
+                this.saveScreenshot('err_clicking_remove_inspection_panel');
+                throw new Error('Image Inspect Panel, error when remove-icon has been clicked: ' + err)
             })
         }
     },
