@@ -160,6 +160,10 @@ Page.prototype.execute = function (script) {
     return this.getBrowser().execute(script);
 };
 
+Page.prototype.doClickOnCloseInBrowser = function () {
+    return this.getBrowser().execute("window.close();");
+};
+
 Page.prototype.isElementDisplayed = function (selector) {
     return this.getDisplayedElements(selector).then(result => {
         return result.length > 0;
