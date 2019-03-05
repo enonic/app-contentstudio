@@ -38,14 +38,17 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 return expect(contentItemPreviewPanel.getContentAuthor()).to.eventually.equal('by Super User');
             });
         });
-//verifies "https://github.com/enonic/app-contentstudio/issues/190"
-// Preview Panel - status should not be visible when no content is selected
+    //verifies "https://github.com/enonic/app-contentstudio/issues/190"
+    //Preview Panel - status should not be visible when no content is selected
     it(`GIVEN existing folder is selected WHEN the folder has been unselected THEN preview toolbar gets not visible`, () => {
         return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).pause(1000).then(() => {
             return contentBrowsePanel.clickOnRowByName(TEST_FOLDER.displayName);
         }).then(() => {
-            //Preview Toolbar is getting hidden
-            return contentItemPreviewPanel.waitForToolbarNotVisible();
+            //content-status on the Preview Toolbar is cleared
+            return contentItemPreviewPanel.waitForStatusCleared();
+        }).then(() => {
+            //content-author on the Preview Toolbar is cleared
+            return contentItemPreviewPanel.waitForAuthorCleared();
         });
     });
 
@@ -61,9 +64,6 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
     it(`GIVEN existing 'published' folder is selected WHEN new issue has been created THEN menu button with the issue-name should appear on the ContentItemPreviewToolbar`,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                // Publish button is getting visible, because the content is 'New' and valid
-                return contentBrowsePanel.waitForUnPublishButtonVisible();
-            }).then(() => {
                 //open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
@@ -130,7 +130,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 assert.isTrue(result == firstIssueTitle, "required issue should be loaded in the modal dialog");
             })
         });
-//verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
+    //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
     it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {

@@ -134,7 +134,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
                 return issueDetailsDialog.waitForDialogLoaded();
-            }).then(() => {
+            }).pause(300).then(() => {
                 return issueDetailsDialog.clickOnDeleteCommentMenuItem(newText);
             }).then(() => {
                 return confirmationDialog.waitForDialogVisible();

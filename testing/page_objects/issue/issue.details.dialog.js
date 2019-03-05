@@ -337,7 +337,7 @@ const issueDetailsDialog = Object.create(page, {
             return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
                 //clicks on menu and opens menu items
                 return this.doClick(selector);
-            }).pause(500).then(() => {
+            }).pause(700).then(() => {
                 this.saveScreenshot('issue_details_comment_menu');
                 let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
                 return this.getDisplayedElements(editMenuItem);
