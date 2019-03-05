@@ -28,7 +28,9 @@ const confirmationDialog = Object.create(page, {
     },
     clickOnYesButton: {
         value: function () {
-            return this.doClick(this.yesButton).then(() => {
+            return this.waitForVisible(this.yesButton, 1000).then(() => {
+                return this.doClick(this.yesButton);
+            }).then(() => {
                 return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
             }).catch(err => {
                 this.saveScreenshot('err_close_confirmation');

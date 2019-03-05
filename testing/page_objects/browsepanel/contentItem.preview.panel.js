@@ -38,12 +38,17 @@ const contentItemPreviewPanel = Object.create(page, {
             });
         }
     },
-    //wait for ContentItemPreviewToolbar is not visible
-    waitForToolbarNotVisible: {
+    //wait for content status cleared
+    waitForStatusCleared: {
         value: function () {
-            return this.waitForNotVisible(xpath.toolbar, appConst.TIMEOUT_3).catch(err => {
-                throw new Error("Timeout exception: Item Preview Toolbar is visible in " + appConst.TIMEOUT_3);
-            })
+            let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'status')]";
+            return this.waitForNotVisible(selector, appConst.TIMEOUT_2);
+        }
+    },
+    waitForAuthorCleared: {
+        value: function () {
+            let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'author')]";
+            return this.waitForNotVisible(selector, appConst.TIMEOUT_2);
         }
     },
     clickOnIssueMenuDropDownHandle: {

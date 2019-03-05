@@ -101,8 +101,6 @@ const siteForm = Object.create(page, {
                 })
             }, 2000).then(() => {
                 return true;
-            }).catch(err => {
-                throw new Error(err);
             });
         }
     },
