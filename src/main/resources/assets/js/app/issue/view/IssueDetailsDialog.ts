@@ -115,7 +115,7 @@ export class IssueDetailsDialog
             this.detailsSubTitle.setUser(currentUser);
         });
 
-        this.backButton = new AEl('back-button').setTitle(i18n('dialog.issue.back'));
+        this.backButton = new AEl('back-button');
         this.initTabs();
         this.itemSelector = ContentComboBox.create()
             .setShowStatus(true)
@@ -123,6 +123,11 @@ export class IssueDetailsDialog
             .build();
         this.tabBar = new TabBar();
         this.tabPanel = new NavigatedDeckPanel(this.tabBar);
+
+        this.publishButton = this.createPublishButton();
+        this.actionButton = this.publishButton.getActionButton();
+
+        this.errorTooltip = new Tooltip(this.publishButton, i18n('dialog.publish.invalidError'), 500);
     }
 
     private initTabs() {
@@ -143,6 +148,10 @@ export class IssueDetailsDialog
 
         this.addClickIgnoredElement(this.commentsList.getContextMenu());
         this.addClickIgnoredElement(this.commentsList.getConfirmDialog());
+
+        this.commentAction.setEnabled(false);
+        this.errorTooltip.setActive(false);
+        this.backButton.setTitle(i18n('dialog.issue.back'));
     }
 
     protected initListeners() {
@@ -228,6 +237,19 @@ export class IssueDetailsDialog
             this.toggleClass('tab-assignees', isAssignees);
             this.toggleClass('tab-comments', isComments);
             this.toggleClass('tab-items', !isAssignees && !isComments);
+        });
+
+        this.closeAction.onExecuted(() => {
+            this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+        });
+
+        this.reopenAction.onExecuted(() => {
+            this.detailsSubTitle.setStatus(IssueStatus.OPEN);
+        });
+
+        this.commentAction.onExecuted(action => {
+            const comment = this.commentTextArea.getValue();
+            this.saveComment(comment, action);
         });
 
         this.initElementListeners();
@@ -477,26 +499,9 @@ export class IssueDetailsDialog
         super.initActions();
 
         this.closeAction = new Action(i18n('action.closeIssue'));
-        this.closeAction.onExecuted(action => {
-            this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
-        });
         this.reopenAction = new Action(i18n('action.reopenIssue'));
-        this.reopenAction.onExecuted(action => {
-            this.detailsSubTitle.setStatus(IssueStatus.OPEN);
-        });
         this.publishAction = new ContentPublishDialogAction(this.doPublishAndClose.bind(this, false), i18n('action.publishAndCloseIssue'));
-
         this.commentAction = new Action(i18n('action.commentIssue'));
-        this.commentAction.setEnabled(false).onExecuted(action => {
-            const comment = this.commentTextArea.getValue();
-            this.saveComment(comment, action);
-        });
-
-        this.publishButton = this.createPublishButton();
-        this.actionButton = this.publishButton.getActionButton();
-
-        this.errorTooltip = new Tooltip(this.publishButton, i18n('dialog.publish.invalidError'), 500);
-        this.errorTooltip.setActive(false);
     }
 
     protected createHeader(title: string): api.ui.dialog.ModalDialogHeader {
