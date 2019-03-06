@@ -1246,17 +1246,20 @@ export class ContentWizardPanel
         return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
             defaultModels => {
                 this.defaultModels = defaultModels;
-                return this.initPageModel(this.liveEditModel, defaultModels).then(pageModel => {
-                    const livePanel = this.getLivePanel();
-                    const needsReload = !this.isSaving(); // pageModel is updated so we need reload unless we're saving already
-                    if (livePanel) {
-                        livePanel.setModel(this.liveEditModel);
-                        if (needsReload && reloadPage) {
-                            this.debouncedEditorRefresh(true);
-                        }
-                    }
-                    return needsReload;
-                });
+                const livePanel = this.getLivePanel();
+                return !this.liveEditModel ?
+                       wemQ(false) :
+                       this.initPageModel(this.liveEditModel, defaultModels).then(() => {
+                           // pageModel is updated so we need reload unless we're saving already
+                           const needsReload = !this.isSaving();
+                           if (livePanel) {
+                               livePanel.setModel(this.liveEditModel);
+                               if (needsReload && reloadPage) {
+                                   this.debouncedEditorRefresh(true);
+                               }
+                           }
+                           return needsReload;
+                       });
             });
     }
 
