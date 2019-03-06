@@ -25,22 +25,34 @@ export class ItemViewContextMenu
 
     private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
 
-    constructor(menuTitle: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true, listenToWizard: boolean = true) {
+    constructor(title: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true, listenToWizard: boolean = true) {
         super('menu item-view-context-menu');
 
-        let dragListener;
-        let upListener;
-
         if (showArrow) {
-            this.arrow = new ItemViewContextMenuArrow();
-            this.appendChild(this.arrow);
+            this.createArrow();
         }
 
-        this.title = menuTitle;
+        this.createTitle(title);
+
+        this.createMenu(actions);
+
+        this.initListeners(listenToWizard);
+
+        api.dom.Body.get().appendChild(this);
+    }
+
+    createArrow() {
+        this.arrow = new ItemViewContextMenuArrow();
+        this.appendChild(this.arrow);
+    }
+
+    createTitle(title: ItemViewContextMenuTitle) {
+        this.title = title;
+
         if (this.title) {
             let lastPosition: Coordinates;
 
-            dragListener = (e: MouseEvent) => {
+            const dragListener = (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const x = e.pageX;
@@ -50,7 +62,7 @@ export class ItemViewContextMenu
                 lastPosition = {x, y};
             };
 
-            upListener = (e: MouseEvent) => {
+            const upListener = (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -67,13 +79,23 @@ export class ItemViewContextMenu
 
                 this.startDrag(dragListener, upListener);
             });
+
+            this.onHidden(() => {
+                // stop drag if the element was hidden while dragging
+                this.stopDrag(dragListener, upListener);
+            });
+
             this.appendChild(this.title);
         }
+    }
 
+    createMenu(actions: Action[]) {
         this.menu = new api.ui.menu.TreeContextMenu(actions, false);
+
         this.menu.onItemClicked(() => {
             this.hide();
         });
+
         this.menu.onItemExpanded((heightChange: number) => {
             const isDown = this.orientation === ItemViewContextMenuOrientation.DOWN;
             const el = this.getEl();
@@ -84,17 +106,15 @@ export class ItemViewContextMenu
 
             this.showAt(x, y);
         });
-        this.appendChild(this.menu);
 
+        this.appendChild(this.menu);
+    }
+
+    initListeners(listenToWizard: boolean) {
         this.onClicked((e: MouseEvent) => {
             // menu itself was clicked so do nothing
             e.preventDefault();
             e.stopPropagation();
-        });
-
-        this.onHidden((e: api.dom.ElementHiddenEvent) => {
-            // stop drag if the element was hidden while dragging
-            this.stopDrag(dragListener, upListener);
         });
 
         let minimizeHandler = () => {
@@ -106,8 +126,6 @@ export class ItemViewContextMenu
         }
 
         this.onRemoved(() => MinimizeWizardPanelEvent.un(minimizeHandler));
-
-        api.dom.Body.get().appendChild(this);
     }
 
     showAt(x: number, y: number, notClicked: boolean = false) {
