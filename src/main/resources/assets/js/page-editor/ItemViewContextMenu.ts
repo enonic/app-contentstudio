@@ -99,9 +99,12 @@ export class ItemViewContextMenu
         this.menu.onItemExpanded((heightChange: number) => {
             const isDown = this.orientation === ItemViewContextMenuOrientation.DOWN;
             const el = this.getEl();
+            const arrowHeight = this.arrow ? this.arrow.getHeight() : 0;
 
             // Cursor is positioned 1px above/below the menu
-            const y = isDown ? (el.getTopPx() - 1) : (el.getTopPx() + el.getHeightWithBorder() - heightChange + 1);
+            const y = isDown ?
+                      (el.getTopPx() - arrowHeight - 1) :
+                      (el.getTopPx() + el.getHeightWithBorder() - heightChange + arrowHeight + 1);
             const x = el.getLeftPx() + el.getWidth() / 2;
 
             this.showAt(x, y);
