@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import Action = api.ui.Action;
@@ -8,12 +7,20 @@ export enum ItemViewContextMenuOrientation {
     DOWN
 }
 
+interface Coordinates {
+    x: number;
+    y: number;
+}
+
 export class ItemViewContextMenu
     extends api.dom.DivEl {
 
     private title: ItemViewContextMenuTitle;
+
     private menu: api.ui.menu.TreeContextMenu;
+
     private arrow: ItemViewContextMenuArrow;
+
     private orientation: ItemViewContextMenuOrientation = ItemViewContextMenuOrientation.DOWN;
 
     private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
@@ -31,7 +38,7 @@ export class ItemViewContextMenu
 
         this.title = menuTitle;
         if (this.title) {
-            let lastPosition: { x: number, y: number };
+            let lastPosition: Coordinates;
 
             dragListener = (e: MouseEvent) => {
                 e.preventDefault();
@@ -66,6 +73,16 @@ export class ItemViewContextMenu
         this.menu = new api.ui.menu.TreeContextMenu(actions, false);
         this.menu.onItemClicked(() => {
             this.hide();
+        });
+        this.menu.onItemExpanded((heightChange: number) => {
+            const isDown = this.orientation === ItemViewContextMenuOrientation.DOWN;
+            const el = this.getEl();
+
+            // Cursor is positioned 1px above/below the menu
+            const y = isDown ? (el.getTopPx() - 1) : (el.getTopPx() + el.getHeightWithBorder() - heightChange + 1);
+            const x = el.getLeftPx() + el.getWidth() / 2;
+
+            this.showAt(x, y);
         });
         this.appendChild(this.menu);
 
