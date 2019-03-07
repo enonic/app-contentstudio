@@ -17,24 +17,25 @@ const pageInspectionPanel = require('../page_objects/wizardpanel/liveform/page.i
 const contextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
 
 
-describe('site.controller.spec: verifies the wizard-validation when the dialog contains required input', function () {
+describe('site.controller.spec: checks options in selector for Page Templates and Controllers', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
-    it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN  required options should be present in the Inspection Panel`,
+    it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN required options should be present in the Inspection Panel`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doOpenSiteWizard().then(()=> {
+            return studioUtils.doOpenSiteWizard().then(() => {
                 return contentWizard.typeData(SITE);
-            }).then(()=> {
+            }).then(() => {
                 return contentWizard.selectPageDescriptor('Page');
-            }).pause(500).then(()=> {
+            }).pause(500).then(() => {
                 return contextWindow.clickOnTabBarItem('Page');
-            }).then(()=> {
+            }).then(() => {
                 return pageInspectionPanel.getPageTemplateDropdownOptions();
-            }).then(result=> {
+            }).then(result => {
+                studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
                 let expectedOption = `( no default template found )`;
                 assert.isTrue(result[0] == expectedOption, 'correct name for automatic template should be displayed');
                 assert.isTrue(result[1] == "test region", 'correct name for automatic template should be displayed');
@@ -44,7 +45,7 @@ describe('site.controller.spec: verifies the wizard-validation when the dialog c
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification is starting: ' + this.title);
     });
 });
