@@ -244,11 +244,11 @@ export class LiveEditModelInitializer {
             const pageDescriptorPromise: wemQ.Promise<PageDescriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
 
-                const config: PropertyTree = content.getPage().hasConfig()
+                const config: PropertyTree = content.getPage().hasNonEmptyConfig()
                     ? content.getPage().getConfig().copy()
                     : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
 
-                const regions: Regions = content.getPage().hasRegions()
+                const regions: Regions = content.getPage().hasNonEmptyRegions()
                     ? content.getPage().getRegions().clone()
                     : (pageTemplate.getRegions() ? pageTemplate.getRegions().clone() : pageTemplate.getRegions());
 
