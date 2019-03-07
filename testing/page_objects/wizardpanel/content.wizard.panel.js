@@ -198,6 +198,17 @@ const contentWizardPanel = Object.create(page, {
             })
         }
     },
+    //Gets titles of all x-data forms
+    getXdataTitles: {
+        value: function () {
+            let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
+            return this.getText(selector).catch(err => {
+               throw new Error("Error when getting title from x-data " + err);
+            }).then(result=>{
+                return [].concat(result);
+            })
+        }
+    },
     clickOnShowInspectionPanelToggler: {
         value: function () {
             return this.doClick(this.showInspectionPanelToggler).catch(err => {

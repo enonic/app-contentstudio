@@ -24,7 +24,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     let TEST_TEXT = 'test text';
     let X_DATA_STEP_WIZARD = 'Html Area x-data';
 
-    it(`Preconditions: WHEN site with content types has been added THEN the site should be present in the grid`,
+    it(`Preconditions: site should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
@@ -118,6 +118,21 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             }).then(result => {
                 assert.isTrue(result, ' x-data step should be not visible on the navigation bar, because x-data was disabled');
             });
+        });
+    //verifies Incorrect order of x-data in Content Wizard(xp/issues/6728)
+    //x-data forms in the Content Wizard - should follow the same order in which they are included in the XML schema
+    it(`WHEN content with optional two x-data is opened THEN expected order of x-data forms should be present on the wizard`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1').then(() => {
+                return contentWizard.typeDisplayName(contentName);
+            }).then(() => {
+                return contentWizard.waitForXdataTogglerVisible();
+            }).then(() => {
+                return contentWizard.getXdataTitles();
+            }).then(result => {
+                assert.isTrue(result[0] === 'Text Area x-data')
+                assert.isTrue(result[1] === 'X-data (image selector)')
+            })
         });
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
