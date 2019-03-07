@@ -35,7 +35,7 @@ const confirmationDialog = Object.create(page, {
             }).catch(err => {
                 this.saveScreenshot('err_close_confirmation');
                 throw new Error('Confirmation dialog must be closed!')
-            })
+            }).pause(700);
         }
     },
     waitForDialogVisible: {

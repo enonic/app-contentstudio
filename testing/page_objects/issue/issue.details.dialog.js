@@ -172,7 +172,7 @@ const issueDetailsDialog = Object.create(page, {
                 return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
             }).then(() => {
                 return this.doClick(menuItemSelector);
-            })
+            }).pause(300);
         }
     },
     clickOnIssueStatusSelectorAndOpenIssue: {
@@ -182,7 +182,7 @@ const issueDetailsDialog = Object.create(page, {
                 return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
             }).then(() => {
                 return this.doClick(menuItemSelector);
-            })
+            }).pause(300);
         }
     },
     waitForReopenButtonLoaded: {
@@ -217,7 +217,7 @@ const issueDetailsDialog = Object.create(page, {
             return this.doClick(this.reopenIssueButton).catch(err => {
                 this.saveScreenshot('err_click_reopen_issue_button');
                 throw  new Error('Error when clicking on the `Close Issue`  ' + err);
-            })
+            }).pause(300);
         }
     },
     pressEscKey: {
@@ -238,7 +238,7 @@ const issueDetailsDialog = Object.create(page, {
             return this.doClick(this.addCommentButton).catch(err => {
                 this.saveScreenshot('err_click_add_comment_button');
                 throw  new Error('Error when clicking on the `Add Comment`  ' + err);
-            })
+            }).pause(300);
         }
     },
     isAddCommentButtonDisplayed: {
@@ -377,9 +377,9 @@ const issueDetailsDialog = Object.create(page, {
     clickOnSaveCommentButton: {
         value: function (text) {
             let saveButton = xpath.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
-            return this.doClick(saveButton).pause(500).catch(err => {
+            return this.doClick(saveButton).catch(err => {
                 throw new Error('error when save the issue comment: ' + err)
-            })
+            }).pause(500);
         }
     },
     getNumberOfItemsInTabMenuBar: {

@@ -191,7 +191,9 @@ Page.prototype.getTextFromElements = function (selector) {
 Page.prototype.getTextFromInput = function (selector) {
     return this.getBrowser().getAttribute(selector, 'value');
 };
-
+Page.prototype.switchToParentFrame = function () {
+    return this.getBrowser().frameParent();
+};
 Page.prototype.saveScreenshot = function (name) {
     let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
     return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {

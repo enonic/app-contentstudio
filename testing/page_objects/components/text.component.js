@@ -80,11 +80,6 @@ const textComponent = Object.create(page, {
             })
         }
     },
-    switchToParentFrame: {
-        value: function () {
-            return this.getBrowser().frameParent();
-        }
-    },
     clickOnInsertTableButton: {
         value: function () {
             return this.waitForVisible(elements.RICH_TEXT_EDITOR, appConst.TIMEOUT_3).then(result => {

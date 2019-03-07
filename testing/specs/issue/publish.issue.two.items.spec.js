@@ -16,7 +16,7 @@ const contentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const contentBuilder = require("../../libs/content.builder");
 const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
-describe('publish.issue.details.dialog.items.spec: 2 item added and published', function () {
+describe('publish.issue.two.items.spec: 2 item added and published', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let issueTitle = appConstant.generateRandomName('issue');

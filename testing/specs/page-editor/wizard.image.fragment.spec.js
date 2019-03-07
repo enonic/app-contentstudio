@@ -78,7 +78,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     // new image has been selected
                     return imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
                 }).then(() => {
-                    //clicks on Save button
+                    //clicks on 'Save' button
                     return contentWizard.waitAndClickOnSave();
                 }).then(() => {
                     return assert.eventually.isTrue(contentWizard.waitForSavedButtonVisible(),
