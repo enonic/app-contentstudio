@@ -15,6 +15,7 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
+import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -57,7 +58,7 @@ export class ContentSelector
     }
 
     protected getDefaultAllowPath(): string {
-        return '${site}/*';
+        return ContentSelectorQueryRequest.DAFULT_ALLOWED_PATH;
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {

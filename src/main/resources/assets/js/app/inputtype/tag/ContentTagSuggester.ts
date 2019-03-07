@@ -6,6 +6,8 @@ import {TagSuggester} from '../ui/tag/TagSuggester';
 import {Content} from '../../content/Content';
 import {ContentJson} from '../../content/ContentJson';
 import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
+import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
+import {Site} from '../../content/Site';
 
 export class ContentTagSuggesterBuilder {
 
@@ -61,7 +63,19 @@ export class ContentTagSuggester
 
         const queryExpr: QueryExpr = new QueryExpr(fulltextExpression);
 
-        return this.findTags(searchString, queryExpr);
+        return this.checkAndFindTags(searchString, queryExpr);
+    }
+
+    private checkAndFindTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {
+        const restrictedToSite = api.ObjectHelper.anyArrayEquals([ContentSelectorQueryRequest.DAFULT_ALLOWED_PATH], this.allowedPaths);
+
+        return (restrictedToSite ? this.hasNearestSite() : wemQ(true)).then((canFind: boolean) => {
+            return canFind ? this.findTags(searchString, queryExpr) : wemQ([]);
+        });
+    }
+
+    private hasNearestSite(): wemQ.Promise<boolean> {
+        return new GetNearestSiteRequest(this.content.getContentId()).sendAndParse().then((site: Site) => !!site);
     }
 
     private findTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {

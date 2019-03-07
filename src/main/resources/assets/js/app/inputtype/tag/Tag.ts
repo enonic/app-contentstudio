@@ -9,6 +9,7 @@ import {Tags, TagsBuilder} from '../ui/tag/Tags';
 import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
 import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 
 export class Tag
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
@@ -123,7 +124,7 @@ export class Tag
     }
 
     protected getDefaultAllowPath(): string {
-        return '${site}/*';
+        return ContentSelectorQueryRequest.DAFULT_ALLOWED_PATH;
     }
 
     private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
