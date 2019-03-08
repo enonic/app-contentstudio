@@ -12,7 +12,6 @@ export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
     unpublishAction: Action;
     createIssueAction: Action;
-    showCreateIssueButtonByDefault?: boolean;
 }
 
 export class ContentPublishMenuAction {
@@ -61,10 +60,6 @@ export class ContentPublishMenuButton
         this.initMenuActions(config);
         this.addMenuActions(this.getActions());
         this.initButtons();
-
-        if (config.showCreateIssueButtonByDefault) {
-            this.setActiveClass('no-item');
-        }
 
         this.handleIssueCreatedOrUpdated();
         this.handleActionsUpdated();
@@ -134,13 +129,7 @@ export class ContentPublishMenuButton
     }
 
     protected updateActiveClass() {
-        if (!this.item) {
-            if (this.publishAction.isEnabled()) {
-                this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
-            } else {
-                this.setActiveClass('no-item');
-            }
-        } else if (this.publishAction.isEnabled()) {
+        if (this.publishAction.isEnabled()) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());

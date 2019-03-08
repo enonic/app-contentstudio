@@ -5,6 +5,7 @@ import ActionButton = api.ui.button.ActionButton;
 export interface ContentBrowsePublishMenuButtonConfig
     extends ContentPublishMenuButtonConfig {
     publishTreeAction: Action;
+    showCreateIssueButtonByDefault?: boolean;
 }
 
 export class ContentBrowsePublishMenuButton
@@ -16,6 +17,10 @@ export class ContentBrowsePublishMenuButton
 
     constructor(config: ContentBrowsePublishMenuButtonConfig) {
         super(config);
+
+        if (config.showCreateIssueButtonByDefault) {
+            this.setActiveClass('no-item');
+        }
     }
 
     protected initMenuActions(config: ContentBrowsePublishMenuButtonConfig) {
@@ -52,7 +57,13 @@ export class ContentBrowsePublishMenuButton
     }
 
     protected updateActiveClass() {
-        if (this.publishAction.isEnabled()) {
+        if (!this.item) {
+            if (this.publishAction.isEnabled()) {
+                this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
+            } else {
+                this.setActiveClass('no-item');
+            }
+        } else if (this.publishAction.isEnabled()) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.publishTreeAction.isEnabled()) {
             this.setActiveClass(this.publishTreeAction.getActionClass());

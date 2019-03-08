@@ -33,8 +33,7 @@ export class ContentWizardToolbarPublishControls
         this.publishButton = new ContentPublishMenuButton({
             publishAction: this.publishAction,
             unpublishAction: this.unpublishAction,
-            createIssueAction: this.createIssueAction,
-            showCreateIssueButtonByDefault: false
+            createIssueAction: this.createIssueAction
         });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
