@@ -6,6 +6,16 @@
   overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
   z-index: initial;
 
+  &.no-inspection {
+    .tab-bar {
+      cursor: initial;
+      .inspect-tab {
+        pointer-events: none;
+        color: @form-button-font-disabled;
+      }
+    }
+  }
+
   input.search {
     margin: 15px;
     padding: 5px 3px;

@@ -29,7 +29,6 @@ import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
 import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
-import {ComponentAddedEvent} from '../../../page-editor/ComponentAddedEvent';
 import {TextComponentView} from '../../../page-editor/text/TextComponentView';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
@@ -249,7 +248,6 @@ export class LiveFormPanel
                     this.contentWizardPanel.saveChanges().catch((error: any) => {
                         api.DefaultErrorHandler.handle(error);
                     });
-                    this.minimizeContentFormPanelIfNeeded();
                 }
                 if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE) {
 
@@ -402,8 +400,6 @@ export class LiveFormPanel
             // append mask here in order for the context window to be above
             this.appendChildren<api.dom.Element>(this.frameContainer, noPreviewMessageEl);
 
-            // this.contextWindow.onDisplayModeChanged(() => this.maximizeContentFormPanelIfNeeded());
-
             this.liveEditListen();
 
             // delay rendered event until live edit page is fully loaded
@@ -433,6 +429,10 @@ export class LiveFormPanel
 
     public getPage(): Page {
         return this.pageModel ? this.pageModel.getPage() : null;
+    }
+
+    public getPageMode(): PageMode {
+        return this.pageModel ? this.pageModel.getMode() : null;
     }
 
     public getPageView(): PageView {
@@ -473,11 +473,6 @@ export class LiveFormPanel
         this.pageModel.onPropertyChanged(this.propertyChangedHandler);
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
-
-        this.pageModel.onReset(() => {
-            // this.contextWindow.slideOut();
-            // this.contentWizardPanel.getContextWindowToggler().removeClass('active');
-        });
 
         this.handleContentUpdatedEvent();
     }
@@ -577,7 +572,6 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onPageUnlocked(() => {
             //this.contextWindow.clearSelection();
-            this.minimizeContentFormPanelIfNeeded();
         });
 
         let path;
@@ -639,41 +633,12 @@ export class LiveFormPanel
             // let toggler = this.contentWizardPanel.getContextWindowToggler();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                if (!this.contextWindow.isFixed()) {
-                    // if (itemView.isEmpty()) {
-                    //     if (this.contextWindow.isFloating() && this.contextWindow.isShownOrAboutToBeShown()) {
-                    //         toggler.setActive(false);
-                    //     }
-                    // } else if (event.isNew() && !toggler.isActive()) {
-                    //     toggler.setActive(true);
-                    // }
-                } else {
-                    // this.contextWindow.setFixed(false); //
-                }
                 this.inspectComponent(<ComponentView<Component>>itemView);
-            }
-
-            if (!this.pageView.isLocked() && !event.isRightClicked()) {
-                this.minimizeContentFormPanelIfNeeded();
             }
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            // if (this.contextWindow.isShownOrAboutToBeShown()) {
-            // this.contextWindow.slideOut();
-            // } else if (this.contextWindow.isShownOrAboutToBeShown()) {
-            // this.contextWindow.slideIn();
-            // }
             this.clearSelection();
-        });
-
-        this.liveEditPageProxy.onComponentAdded((event: ComponentAddedEvent) => {
-            // do something when component is added
-            // onItemViewSelected() is not called on adding TextComponentView
-            // thus calling minimizeContentFormPanelIfNeeded() for it from here
-            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
-                this.minimizeContentFormPanelIfNeeded();
-            }
         });
 
         this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -769,26 +734,6 @@ export class LiveFormPanel
             let modalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
         });
-
-        this.liveEditPageProxy.onPageTextModeStarted(() => {
-            // Collapse the panel with a delay to give HTML editor time to initialize
-            setTimeout(() => {
-                this.minimizeContentFormPanelIfNeeded();
-            }, 200);
-        });
-    }
-
-    private minimizeContentFormPanelIfNeeded() {
-        if (/*this.contextWindow.isFloating() && */!this.contentWizardPanel.isMinimized()) {
-            // this.contentWizardPanel.toggleMinimize();
-        }
-    }
-
-    public maximizeContentFormPanelIfNeeded() {
-        const enabled = this.contentWizardPanel.getComponentsViewToggler().isEnabled();
-        if (/*!this.contextWindow.isFloating() && */enabled) {
-            // this.contextWindow.slideIn();
-        }
     }
 
     private inspectPage(showPanel?: boolean) {
