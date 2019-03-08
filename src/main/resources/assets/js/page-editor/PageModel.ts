@@ -422,7 +422,8 @@ export class PageModel {
                 return null;
             }
         } else if (this.mode === PageMode.FRAGMENT) {
-            return new PageBuilder().setRegions(null).setConfig(this.config).setCustomized(this.isCustomized()).setFragment(
+            return new PageBuilder().setRegions(Regions.create().build()).setConfig(this.config).setCustomized(
+                this.isCustomized()).setFragment(
                 this.fragment).build();
         } else {
             throw new Error('Page mode not supported: ' + this.mode);
