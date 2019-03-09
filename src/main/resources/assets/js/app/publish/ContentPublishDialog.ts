@@ -119,8 +119,8 @@ export class ContentPublishDialog
 
             const itemsToPublish: number = this.countTotal();
             this.updateSubTitle(itemsToPublish);
-            this.updateControls(itemsToPublish);
             this.updateButtonCount(null, itemsToPublish);
+            this.updateControls(itemsToPublish);
         });
 
         this.handleIssueGlobalEvents();
@@ -329,26 +329,21 @@ export class ContentPublishDialog
     private updateControls(itemsToPublish: number) {
         const allValid: boolean = this.areItemsAndDependantsValid();
         const allPublishable: boolean = this.isAllPublishable();
-        const canPublish: boolean = itemsToPublish > 0 && allValid;
+        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const showActionMenu: boolean = itemsToPublish > 0 && allPublishable;
 
-        this.toggleAction(canPublish && allPublishable);
+        this.toggleAction(canPublish);
+        this.actionMenu.setVisible(showActionMenu);
+        this.createIssueButton.setVisible(!showActionMenu);
 
-        if (canPublish) {
-            this.actionMenu.show();
-            this.createIssueButton.hide();
-            this.getButtonRow().focusDefaultAction();
-            this.updateTabbable();
-        } else {
-            this.actionMenu.hide();
-            this.createIssueButton.show();
-        }
+        this.getButtonRow().focusDefaultAction();
+        this.updateTabbable();
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
         const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
 
-        this.publishButton.getAction().setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
-
+        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
         this.showScheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.scheduleMore')));
         this.createIssueAction.setLabel(labelWithNumber(this.getItemList().getItemCount(), i18n('action.createIssueMore')));
     }
