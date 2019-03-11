@@ -1246,10 +1246,10 @@ export class ContentWizardPanel
         return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
             defaultModels => {
                 this.defaultModels = defaultModels;
-                const livePanel = this.getLivePanel();
                 return !this.liveEditModel ?
                        wemQ(false) :
                        this.initPageModel(this.liveEditModel, defaultModels).then(() => {
+                           const livePanel = this.getLivePanel();
                            // pageModel is updated so we need reload unless we're saving already
                            const needsReload = !this.isSaving();
                            if (livePanel) {
