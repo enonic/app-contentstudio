@@ -22,8 +22,6 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     public static DEFAULT_ORDER: OrderExpr[] = [ContentSelectorQueryRequest.SCORE_DESC, ContentSelectorQueryRequest.MODIFIED_TIME_DESC];
 
-    public static DAFULT_ALLOWED_PATH = '${site}/*';
-
     private queryExpr: api.query.expr.QueryExpr;
 
     private from: number = 0;

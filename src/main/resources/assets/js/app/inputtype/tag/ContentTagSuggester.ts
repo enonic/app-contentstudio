@@ -8,6 +8,7 @@ import {ContentJson} from '../../content/ContentJson';
 import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
 import {Site} from '../../content/Site';
+import {Tag} from './Tag';
 
 export class ContentTagSuggesterBuilder {
 
@@ -67,7 +68,7 @@ export class ContentTagSuggester
     }
 
     private checkAndFindTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {
-        const restrictedToSite = api.ObjectHelper.anyArrayEquals([ContentSelectorQueryRequest.DAFULT_ALLOWED_PATH], this.allowedPaths);
+        const restrictedToSite = api.ObjectHelper.anyArrayEquals([Tag.DEFAULT_ALLOWED_PATH], this.allowedPaths);
 
         return (restrictedToSite ? this.hasNearestSite() : wemQ(true)).then((canFind: boolean) => {
             return canFind ? this.findTags(searchString, queryExpr) : wemQ([]);

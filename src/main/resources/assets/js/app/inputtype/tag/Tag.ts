@@ -9,10 +9,11 @@ import {Tags, TagsBuilder} from '../ui/tag/Tags';
 import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
 import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 
 export class Tag
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
+
+    static DEFAULT_ALLOWED_PATH: string = '${site}/*';
 
     private context: ContentInputTypeViewContext;
 
@@ -30,7 +31,7 @@ export class Tag
         this.readConfig(this.context.inputConfig);
 
         this.tagSuggester = new ContentTagSuggesterBuilder()
-            .setDataPath(this.resolveDataPath(this.context))
+            .setDataPath(Tag.resolveDataPath(this.context))
             .setContent(this.context.content)
             .setAllowedContentPaths(this.allowedContentPaths)
             .build();
@@ -41,10 +42,9 @@ export class Tag
         const allowContentPathConfig = inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
-            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
-            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
-             ? [this.getDefaultAllowPath()]
-             : []);
+            allowContentPathConfig.length > 0
+            ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val)
+            : [Tag.DEFAULT_ALLOWED_PATH];
     }
 
     getValueType(): ValueType {
@@ -123,11 +123,7 @@ export class Tag
         return this.getPropertyArray().getSize();
     }
 
-    protected getDefaultAllowPath(): string {
-        return ContentSelectorQueryRequest.DAFULT_ALLOWED_PATH;
-    }
-
-    private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
+    private static resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
         if (context.parentDataPath) {
             return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
         } else {
