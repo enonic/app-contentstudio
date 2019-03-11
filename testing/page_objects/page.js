@@ -16,7 +16,10 @@ Page.prototype.isAlertPresent = function () {
     return this.getBrowser().alertText().then(() => {
         return true;
     }).catch(err => {
-        if (err.seleniumStack.type == 'NoAlertOpenError') {
+        if (err.seleniumStack === undefined) {
+            return false;
+        }
+        if (err.seleniumStack.type == 'NoAlertOpenError' || err.seleniumStack.type == 'NoSuchWindow') {
             return false
         } else {
             throw new Error(err);

@@ -72,20 +72,18 @@ const createIssueDialog = Object.create(page, {
     },
     clickOnCreateIssueButton: {
         value: function () {
-            return this.doClick(this.createIssueButton).pause(500)
-                .catch(err => {
-                    this.saveScreenshot('err_click_create_issue');
-                    throw new Error('create issue dialog ' + err);
-                })
+            return this.doClick(this.createIssueButton).catch(err => {
+                this.saveScreenshot('err_click_create_issue');
+                throw new Error('create issue dialog ' + err);
+            }).pause(500);
         }
     },
     clickOnAddItemsButton: {
         value: function () {
-            return this.doClick(this.addItemsButton)
-                .catch(err => {
-                    this.saveScreenshot('err_click_add_items');
-                    throw new Error('click on add items button' + err);
-                })
+            return this.doClick(this.addItemsButton).catch(err => {
+                this.saveScreenshot('err_click_add_items');
+                throw new Error('click on add items button' + err);
+            }).pause(500);
         }
     },
     clickOnCancelBottomButton: {
@@ -106,7 +104,7 @@ const createIssueDialog = Object.create(page, {
             }).catch(err => {
                 this.saveScreenshot('err_click_on_include_children');
                 throw new Error('Error when clicking on `include children` icon ' + displayName + ' ' + err);
-            })
+            }).pause(500);
         }
     },
     waitForDialogLoaded: {

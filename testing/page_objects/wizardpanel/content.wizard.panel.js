@@ -203,8 +203,8 @@ const contentWizardPanel = Object.create(page, {
         value: function () {
             let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
             return this.getText(selector).catch(err => {
-               throw new Error("Error when getting title from x-data " + err);
-            }).then(result=>{
+                throw new Error("Error when getting title from x-data " + err);
+            }).then(result => {
                 return [].concat(result);
             })
         }
@@ -300,7 +300,7 @@ const contentWizardPanel = Object.create(page, {
         value: function () {
             return this.waitForVisible(this.savedButton, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_saved_button_not_visible');
-                throw new Error("Saved button is not visible in 3 seconds");
+                throw new Error("Saved button is not visible in 3 seconds" + err);
             });
         }
     },
@@ -325,17 +325,9 @@ const contentWizardPanel = Object.create(page, {
                 if (result) {
                     return this.doClick(this.saveButton);
                 } else {
-                    throw new Error('Save button is disabled');
+                    throw new Error('Save button is disabled! ' + err);
                 }
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_save');
-                throw new Error(`Error when click on Save button!` + err);
-            }).then(() => {
-                return this.waitForNotificationMessage();
-            }).catch(err => {
-                this.saveScreenshot('err_waiting_message');
-                console.log('notification message: ' + err);
-            })
+            });
         }
     },
     clickOnDelete: {
@@ -489,9 +481,7 @@ const contentWizardPanel = Object.create(page, {
                 console.log(err);
                 return this.getBrowser().frameParent().then(() => {
                     return false;
-                }).then(() => {
-                    return this.getBrowser().frameParent();
-                })
+                });
             })
         }
     },

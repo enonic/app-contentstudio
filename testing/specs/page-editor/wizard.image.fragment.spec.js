@@ -75,14 +75,12 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     //the image has been removed in 'inspection panel'
                     return imageInspectionPanel.clickOnRemoveIcon();
                 }).pause(1000).then(() => {
-                    // new image has been selected
+                    // new image has been selected( fragment should be saved automatically)
                     return imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
                 }).then(() => {
-                    //clicks on 'Save' button
-                    return contentWizard.waitAndClickOnSave();
-                }).then(() => {
-                    return assert.eventually.isTrue(contentWizard.waitForSavedButtonVisible(),
-                        "`Saved` button should appears on the toolbar");
+                    //so Save should be disabled now!
+                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonDisabled(),
+                        "`Save` button should be disabled on the toolbar");
                 })
             });
 
