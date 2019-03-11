@@ -9,6 +9,7 @@ function handleGet() {
     var context = contextLib.get();
     var repository = context.repository;
     var branch = context.branch;
+    var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
 
     var params = {
         adminUrl: admin.getBaseUri(),
@@ -25,7 +26,8 @@ function handleGet() {
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
         stylesUrl: portal.serviceUrl({service: 'styles'}),
-        i18nUrl: portal.serviceUrl({service: 'i18n'})
+        i18nUrl: portal.serviceUrl({service: 'i18n'}),
+        allowScriptsInEditor: allowScriptsInEditor
     };
 
     return {

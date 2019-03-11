@@ -127,6 +127,7 @@ export class HtmlArea
     private initEditor(id: string, property: Property, textAreaWrapper: Element): wemQ.Promise<HtmlEditor> {
         const focusedEditorCls = 'html-area-focused';
         const assetsUri = CONFIG.assetsUri;
+        const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
 
         const focusHandler = (e) => {
             this.resetInputHeight();
@@ -248,6 +249,7 @@ export class HtmlArea
             })
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
+            .setAllowScripts(allowScripts)
             .build();
 
         return HtmlEditor.create(htmlEditorParams);

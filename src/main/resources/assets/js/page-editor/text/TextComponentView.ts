@@ -13,9 +13,9 @@ import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
+import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import Promise = Q.Promise;
 import i18n = api.util.i18n;
-import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 
 declare var CONFIG;
 
@@ -368,6 +368,7 @@ export class TextComponentView
     private doInitEditor() {
         this.isInitializingEditor = true;
         const assetsUri = CONFIG.assetsUri;
+        const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
         const id = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
@@ -398,6 +399,7 @@ export class TextComponentView
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
+            .setAllowScripts(allowScripts)
             .build();
 
         HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
