@@ -474,6 +474,8 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
+        this.clearSelection();
+
         this.handleContentUpdatedEvent();
     }
 
