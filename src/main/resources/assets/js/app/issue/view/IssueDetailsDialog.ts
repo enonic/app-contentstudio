@@ -447,6 +447,14 @@ export class IssueDetailsDialog
         return this;
     }
 
+    hideBackButton() {
+        this.backButton.hide();
+    }
+
+    showBackButton() {
+        this.backButton.show();
+    }
+
     getButtonRow(): IssueDetailsDialogButtonRow {
         return <IssueDetailsDialogButtonRow>super.getButtonRow();
     }
