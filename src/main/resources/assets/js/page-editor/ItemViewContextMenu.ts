@@ -107,7 +107,7 @@ export class ItemViewContextMenu
                       (el.getTopPx() + el.getHeightWithBorder() - heightChange + arrowHeight + 1);
             const x = el.getLeftPx() + el.getWidth() / 2;
 
-            this.showAt(x, y);
+            this.showAt(x, y, false, true);
         });
 
         this.appendChild(this.menu);
@@ -131,8 +131,8 @@ export class ItemViewContextMenu
         this.onRemoved(() => MinimizeWizardPanelEvent.un(minimizeHandler));
     }
 
-    showAt(x: number, y: number, notClicked: boolean = false) {
-        this.menu.showAt.call(this, this.restrainX(x), this.restrainY(y, notClicked));
+    showAt(x: number, y: number, notClicked: boolean = false, keepOrientation: boolean = false) {
+        this.menu.showAt.call(this, this.restrainX(x), this.restrainY(y, notClicked, keepOrientation));
     }
 
     moveBy(dx: number, dy: number) {
@@ -212,8 +212,8 @@ export class ItemViewContextMenu
         return resultX;
     }
 
-    private restrainY(y: number, notClicked?: boolean): number {
-        let orientation = ItemViewContextMenuOrientation.DOWN;
+    private restrainY(y: number, notClicked?: boolean, keepOrientation?: boolean): number {
+        let orientation = keepOrientation ? this.orientation : ItemViewContextMenuOrientation.DOWN;
         let arrowHeight = this.arrow ? this.arrow.getHeight() : 0;
         let height = this.getEl().getHeight();
         let minY = 0;
