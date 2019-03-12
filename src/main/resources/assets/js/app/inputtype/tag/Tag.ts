@@ -29,7 +29,7 @@ export class Tag
         this.readConfig(this.context.inputConfig);
 
         this.tagSuggester = new ContentTagSuggesterBuilder()
-            .setDataPath(this.resolveDataPath(this.context))
+            .setDataPath(Tag.resolveDataPath(this.context))
             .setContent(this.context.content)
             .setAllowedContentPaths(this.allowedContentPaths)
             .build();
@@ -40,10 +40,9 @@ export class Tag
         const allowContentPathConfig = inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
-            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
-            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
-             ? [this.getDefaultAllowPath()]
-             : []);
+            allowContentPathConfig.length > 0
+            ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val)
+            : [ContentTagSuggester.SITE_PATH];
     }
 
     getValueType(): ValueType {
@@ -122,11 +121,7 @@ export class Tag
         return this.getPropertyArray().getSize();
     }
 
-    protected getDefaultAllowPath(): string {
-        return '${site}/*';
-    }
-
-    private resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
+    private static resolveDataPath(context: ContentInputTypeViewContext): PropertyPath {
         if (context.parentDataPath) {
             return PropertyPath.fromParent(context.parentDataPath, PropertyPathElement.fromString(context.input.getName()));
         } else {
