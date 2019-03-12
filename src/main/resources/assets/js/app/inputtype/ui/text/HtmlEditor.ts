@@ -856,11 +856,9 @@ class HtmlEditorConfigBuilder {
     }
 
     private getExtraAllowedContent(): string {
-        if (this.editorParams.isScriptAllowed()) {
-            return 'code address dl dt dd blockquote script;img[data-src]';
-        }
+        const scriptTag: string = this.editorParams.isScriptAllowed() ? 'script' : '';
 
-        return 'code address dl dt dd blockquote;img[data-src]';
+        return `code address dl dt dd blockquote ${scriptTag};img[data-src]`;
     }
 
     private includeTools(tools: any[]) {
