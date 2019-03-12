@@ -13,8 +13,6 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 export class Tag
     extends api.form.inputtype.support.BaseInputTypeManagingAdd {
 
-    static DEFAULT_ALLOWED_PATH: string = '${site}/*';
-
     private context: ContentInputTypeViewContext;
 
     private tags: Tags;
@@ -44,7 +42,7 @@ export class Tag
         this.allowedContentPaths =
             allowContentPathConfig.length > 0
             ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val)
-            : [Tag.DEFAULT_ALLOWED_PATH];
+            : [ContentTagSuggester.SITE_PATH];
     }
 
     getValueType(): ValueType {
