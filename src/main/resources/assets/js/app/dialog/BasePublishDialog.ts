@@ -52,7 +52,6 @@ export abstract class BasePublishDialog
     protected initActions() {
         if (!this.showScheduleAction) {
             this.showScheduleAction = new ShowSchedulePublishDialogAction();
-            this.showScheduleAction.onExecuted(this.showScheduleDialog.bind(this));
         }
     }
 

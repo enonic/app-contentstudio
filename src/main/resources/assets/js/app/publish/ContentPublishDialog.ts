@@ -19,6 +19,7 @@ import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import Principal = api.security.Principal;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
+import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
 
 /**
@@ -34,7 +35,13 @@ export class ContentPublishDialog
 
     private createIssueAction: Action;
 
+    private publishAction: Action;
+
+    private createIssueButton: DialogButton;
+
     private publishProcessor: PublishProcessor;
+
+    private actionMenu: MenuButton;
 
     private currentUser: Principal;
 
@@ -57,6 +64,10 @@ export class ContentPublishDialog
         super.initElements();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+        this.createIssueButton = this.addAction(this.createIssueAction);
+        this.actionMenu = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction, this.createIssueAction]);
+        this.actionButton = this.actionMenu.getActionButton();
+        this.publishButton = this.actionMenu.getActionButton();
         this.loadCurrentUser();
     }
 
@@ -65,6 +76,8 @@ export class ContentPublishDialog
 
         this.setElementToFocusOnShow(this.getButtonRow().getActionMenu().getDropdownHandle());
         this.addClickIgnoredElement(CreateIssueDialog.get());
+
+        this.lockControls();
     }
 
     protected initListeners() {
@@ -78,12 +91,10 @@ export class ContentPublishDialog
         });
 
         this.publishProcessor.onLoadingFinished(() => {
-            const header = this.getDependantsHeader(this.getDependantList().isVisible());
+            const header: string = this.getDependantsHeader(this.getDependantList().isVisible());
             this.updateDependantsHeader(header);
 
-            this.updatePublishableStatus();
-
-            const ids = this.getContentToPublishIds();
+            const ids: ContentId[] = this.getContentToPublishIds();
 
             new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
                 const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
@@ -103,7 +114,13 @@ export class ContentPublishDialog
             }
 
             this.loadMask.hide();
-            this.updateSubTitleShowScheduleAndButtonCount();
+
+            this.updateShowScheduleDialogButton();
+
+            const itemsToPublish: number = this.countTotal();
+            this.updateSubTitle(itemsToPublish);
+            this.updateButtonCount(null, itemsToPublish);
+            this.updateControls(itemsToPublish);
         });
 
         this.handleIssueGlobalEvents();
@@ -112,6 +129,9 @@ export class ContentPublishDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
+            this.actionMenu.getDropdownHandle().addClass('force-enabled');
+            this.createIssueButton.hide();
+            this.createIssueButton.addClass('force-enabled');
 
             return rendered;
         });
@@ -145,18 +165,8 @@ export class ContentPublishDialog
     protected initActions() {
         super.initActions();
 
-        const publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
+        this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
         this.createIssueAction = new CreateIssueDialogAction(this.createIssue.bind(this));
-
-        const actionMenu: MenuButton = this.getButtonRow().makeActionMenu(publishAction, [this.showScheduleAction, this.createIssueAction]);
-        actionMenu.getDropdownHandle().addClass('force-enabled');
-
-        this.actionButton = actionMenu.getActionButton();
-        this.publishButton = actionMenu.getActionButton();
-
-        this.updatePublishableStatus();
-
-        this.lockControls();
     }
 
     protected createDependantList(): PublishDialogDependantList {
@@ -187,14 +197,6 @@ export class ContentPublishDialog
         this.getItemList().clearExcludeChildrenIds();
 
         CreateIssueDialog.get().reset();
-    }
-
-    private updateSubTitleShowScheduleAndButtonCount() {
-        const count = this.countTotal();
-
-        this.updateSubTitle(count);
-        this.updateShowScheduleDialogButton();
-        this.updateButtonCount(null, count);
     }
 
     protected countTotal(): number {
@@ -274,10 +276,6 @@ export class ContentPublishDialog
         this.showCreateIssueDialog();
     }
 
-    private updatePublishableStatus() {
-        this.toggleClass('publishable', this.isAllPublishable());
-    }
-
     private doPublish(scheduled: boolean = false) {
 
         this.lockControls();
@@ -285,9 +283,9 @@ export class ContentPublishDialog
 
         this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
 
-        let selectedIds = this.getContentToPublishIds();
+        const selectedIds = this.getContentToPublishIds();
 
-        let publishRequest = new PublishContentRequest()
+        const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
@@ -316,10 +314,10 @@ export class ContentPublishDialog
         return <PublishDialogItemList>super.getItemList();
     }
 
-    private updateSubTitle(count: number) {
-        const allValid = this.areItemsAndDependantsValid();
+    private updateSubTitle(itemsToPublish: number) {
+        const allValid: boolean = this.areItemsAndDependantsValid();
 
-        let subTitle = (count === 0) ? i18n('dialog.publish.noItems') : this.isAllPublishable() ? (allValid
+        let subTitle = (itemsToPublish === 0) ? i18n('dialog.publish.noItems') : this.isAllPublishable() ? (allValid
                 ? i18n('dialog.publish.changesReady')
                 : i18n('dialog.publish.invalidError')
         ) : i18n('dialog.publish.readOnlyError');
@@ -328,23 +326,25 @@ export class ContentPublishDialog
         this.toggleClass('invalid', !allValid || !this.isAllPublishable());
     }
 
-    protected updateButtonCount(actionString: string, count: number) {
-        const allValid = this.areItemsAndDependantsValid();
-        const allPublishable = this.isAllPublishable();
-        const canPublish = count > 0 && allValid;
+    private updateControls(itemsToPublish: number) {
+        const allValid: boolean = this.areItemsAndDependantsValid();
+        const allPublishable: boolean = this.isAllPublishable();
+        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const showActionMenu: boolean = itemsToPublish > 0 && allPublishable;
 
-        this.toggleAction(canPublish && allPublishable);
+        this.toggleAction(canPublish);
+        this.actionMenu.setVisible(showActionMenu);
+        this.createIssueButton.setVisible(!showActionMenu);
 
-        if (canPublish) {
-            this.getButtonRow().focusDefaultAction();
-            this.updateTabbable();
-        }
+        this.getButtonRow().focusDefaultAction();
+        this.updateTabbable();
+    }
 
-        const labelWithNumber = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
+    protected updateButtonCount(actionString: string, itemsToPublish: number) {
+        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
 
-        this.publishButton.getAction().setLabel(labelWithNumber(count, i18n('action.publish')));
-
-        this.showScheduleAction.setLabel(labelWithNumber(count, i18n('action.scheduleMore')));
+        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
+        this.showScheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.scheduleMore')));
         this.createIssueAction.setLabel(labelWithNumber(this.getItemList().getItemCount(), i18n('action.createIssueMore')));
     }
 

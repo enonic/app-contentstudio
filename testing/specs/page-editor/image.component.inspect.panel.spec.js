@@ -17,7 +17,6 @@ const contentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-
 const imageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 
 
@@ -47,9 +46,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
         it(`GIVEN existing site is opened AND an image has been inserted WHEN a caption has been typed AND 'Apply' button pressed THEN the site is getting 'saved'`,
             () => {
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    //TODO uncomment it, when https://github.com/enonic/app-contentstudio/issues/112 will be fixed
-                    //return contentWizard.doUnlockLiveEditor();
-                }).then(() => {
+                    //automatic template does not exist, so no need to unlock the editor
                     return contentWizard.clickOnShowComponentViewToggler();
                 }).then(() => {
                     return pageComponentView.openMenu("main");

@@ -41,7 +41,7 @@ export class IssueDialogsManager {
             ignoreNextClosedEvent = true;
             dialog.close();
             this.notifyIssueCreated(issue);
-            this.openDetailsDialog(issue);
+            this.openDetailsDialogWithListDialog(issue);
         });
         dialog.onClosed(() => {
             if (!ignoreNextClosedEvent) {
@@ -62,7 +62,7 @@ export class IssueDialogsManager {
         dialog.onIssueSelected(issue => {
             dialog.mask();
             new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
-                this.openDetailsDialog(issueWithComments);
+                this.openDetailsDialogWithListDialog(issueWithComments);
             });
         });
         dialog.onCreateButtonClicked(action => {
@@ -92,12 +92,18 @@ export class IssueDialogsManager {
         }
     }
 
-    openDetailsDialog(issue: Issue) {
+    openDetailsDialogWithListDialog(issue: Issue) {
         if (!this.listDialog.isVisible()) {
             this.listDialog.open();
             this.listDialog.mask();
         }
 
+        this.detailsDialog.showBackButton();
+        this.detailsDialog.setIssue(issue).open();
+    }
+
+    openDetailsDialog(issue: Issue) {
+        this.detailsDialog.hideBackButton();
         this.detailsDialog.setIssue(issue).open();
     }
 

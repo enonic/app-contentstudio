@@ -810,7 +810,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.toolsToExlcude,
-            extraPlugins: 'macro,image2,tableresize',
+            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc',
             extraAllowedContent: this.getExtraAllowedContent(),
             format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
             image2_disableResizer: true,
