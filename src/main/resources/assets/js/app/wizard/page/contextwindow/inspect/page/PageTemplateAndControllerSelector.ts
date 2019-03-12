@@ -124,6 +124,7 @@ export class PageTemplateAndControllerSelector
 
     private doSelectTemplate(selectedOption: PageTemplateOption) {
         const pageModel = this.liveEditModel.getPageModel();
+        pageModel.setCustomized(false);
 
         const pageTemplate: PageTemplate = selectedOption.getData();
 
