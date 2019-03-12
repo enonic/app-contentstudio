@@ -357,15 +357,6 @@ export class PageView
         this.ignorePropertyChanges = value;
     }
 
-    /*
-     highlight() {
-     // Don't highlight page
-     }
-
-     unhighlight() {
-     // Don't highlight page on hover
-     }
-     */
     highlightSelected() {
         if (!this.isTextEditMode() && !this.isLocked() && !this.isDragging()) {
             super.highlightSelected();
@@ -433,7 +424,7 @@ export class PageView
         const unlockAction = new api.ui.Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
-            this.setLocked(false); //
+            this.setLocked(false);
         });
 
         return [unlockAction];
@@ -532,7 +523,8 @@ export class PageView
         } else {
             this.unshade();
 
-            if (!(this.pageModel.isPageTemplate() || this.pageModel.isCustomized())) {
+            const templateOrCustomized = this.pageModel.isPageTemplate() || this.pageModel.isCustomized();
+            if (!templateOrCustomized) {
                 this.pageModel.setCustomized(true);
                 this.pageModel.setTemplateContoller();
             }
