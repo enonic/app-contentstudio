@@ -56,8 +56,8 @@ ext {
     xpHome = "$distroDir${File.separator}home"
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
-    contentStudioFile = "$deployDir${File.separator}app-contentstudio-${appVersion}.jar"
-    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/app-contentstudio/${appVersion}/app-contentstudio-${appVersion}.jar"
+    contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
+    contentStudioAppUrl = "http://repo.enonic.com/public/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
 }
 
 task ensureScreenshotsDirectory {
