@@ -24,9 +24,7 @@ export abstract class BasePublishDialog
     protected initListeners() {
         super.initListeners();
 
-        if (!this.showScheduleAction) {
-            this.showScheduleAction.onExecuted(this.showScheduleDialog.bind(this));
-        }
+        this.showScheduleAction.onExecuted(this.showScheduleDialog.bind(this));
     }
 
     doRender(): Q.Promise<boolean> {
@@ -50,9 +48,7 @@ export abstract class BasePublishDialog
     }
 
     protected initActions() {
-        if (!this.showScheduleAction) {
-            this.showScheduleAction = new ShowSchedulePublishDialogAction();
-        }
+        this.showScheduleAction = new ShowSchedulePublishDialogAction();
     }
 
     protected lockControls() {
