@@ -2231,9 +2231,22 @@ export class ContentWizardPanel
     }
 
     private refreshScheduleWizardStep() {
-        const contentWasPublished = !!this.getContent() && this.getContent().isPublished();
+        let showStep = false;
 
-        this.scheduleWizardStep.show(contentWasPublished);
+        if (this.getContent()) {
+            const contentSummary = this.getContent().getContentSummary();
+
+            if (contentSummary) {
+
+                if (contentSummary.getPublishFromTime() != null || contentSummary.getPublishFromTime() != null) {
+                    showStep = true;
+                } else if (contentSummary.getPublishFirstTime() != null) {
+                    showStep = this.getContent().isPublished();
+                }
+            }
+        }
+
+        this.scheduleWizardStep.show(showStep);
     }
 
     getLiveMask(): api.ui.mask.LoadMask {

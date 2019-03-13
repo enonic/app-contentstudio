@@ -112,7 +112,12 @@ export class ContentSummaryAndCompareStatus
     getStatusText(): string {
         let value = CompareStatusFormatter.formatStatusTextFromContent(this);
 
-        if (PublishStatus.EXPIRED === this.getPublishStatus() || PublishStatus.PENDING === this.getPublishStatus()) {
+        const isExpired = PublishStatus.EXPIRED === this.getPublishStatus();
+
+        const isPending = PublishStatus.PENDING === this.getPublishStatus() &&
+                          (CompareStatus.NEWER === this.getCompareStatus() || CompareStatus.EQUAL === this.getCompareStatus());
+
+        if (isExpired || isPending) {
             value += ' (' + PublishStatusFormatter.formatStatus(this.getPublishStatus()) + ')';
         }
 
