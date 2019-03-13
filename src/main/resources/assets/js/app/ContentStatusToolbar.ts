@@ -5,8 +5,8 @@ import i18n = api.util.i18n;
 export class ContentStatusToolbar
     extends api.app.view.ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
 
-    private status: api.dom.SpanEl;
-    private author: api.dom.SpanEl;
+    protected status: api.dom.SpanEl;
+    protected author: api.dom.SpanEl;
 
     constructor(className?: string) {
         super('content-status-toolbar' + (className ? ' ' + className : ''));
