@@ -59,8 +59,18 @@ export class ContentWizardToolbar
     }
 
     private addPublishMenuButton(actions: ContentWizardActions) {
+        this.status.hide();
+        this.author.hide();
+
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(actions);
+        this.contentWizardToolbarPublishControls.getPublishButton().hide();
         super.addElement(this.contentWizardToolbarPublishControls);
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
+            this.status.show();
+            this.author.show();
+            this.contentWizardToolbarPublishControls.getPublishButton().show();
+        });
     }
 
     private addTogglerButtons(actions: ContentWizardActions) {

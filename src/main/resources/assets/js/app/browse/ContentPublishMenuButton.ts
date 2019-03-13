@@ -44,6 +44,8 @@ export class ContentPublishMenuButton
 
     private activeClass: string;
 
+    private initializedListeners: Function[] = [];
+
     protected publishAction: ContentPublishMenuAction;
     protected unpublishAction: ContentPublishMenuAction;
     protected createIssueAction: ContentPublishMenuAction;
@@ -105,6 +107,22 @@ export class ContentPublishMenuButton
         //
     }
 
+    private notifyInitialized() {
+        this.initializedListeners.forEach((listener: () => void) => {
+            listener();
+        });
+    }
+
+    onInitialized(listener: () => void) {
+        this.initializedListeners.push(listener);
+    }
+
+    unInitialized(listener: () => void) {
+        this.initializedListeners = this.initializedListeners.filter((currentListener: () => void) => {
+            return listener !== currentListener;
+        });
+    }
+
     private handleIssueCreatedOrUpdated() {
         const reloadList = (issue: Issue) => {
             if (this.item) {
@@ -145,6 +163,8 @@ export class ContentPublishMenuButton
 
         if (this.activeClass) {
             this.removeClass(this.activeClass);
+        } else {
+            this.notifyInitialized();
         }
 
         this.activeClass = value;
