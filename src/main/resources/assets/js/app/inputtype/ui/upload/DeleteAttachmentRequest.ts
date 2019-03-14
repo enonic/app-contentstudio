@@ -1,4 +1,3 @@
-import ContentPath = api.content.ContentPath;
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {Content} from '../../../content/Content';
@@ -27,9 +26,6 @@ export class DeleteAttachmentRequest
     }
 
     getParams(): Object {
-        let fn = (contentPath: ContentPath) => {
-            return contentPath.toString();
-        };
         return {
             contentId: this.contentId.toString(),
             attachmentNames: this.attachmentNames
