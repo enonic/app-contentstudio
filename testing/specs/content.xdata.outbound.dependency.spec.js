@@ -20,6 +20,7 @@ describe('content.xdata.outbound.dependency.spec:  check outbound dependency for
     webDriverHelper.setupBrowser();
     let SITE;
     let CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
+    let CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
     let IMAGE_DISPLAY_NAME = "kotey";
 
     it(`Preconditions: add new site and select required application `,
@@ -67,6 +68,40 @@ describe('content.xdata.outbound.dependency.spec:  check outbound dependency for
                     '`Show Inbound` button should not be present');
             })
         });
+
+    //verifies https://github.com/enonic/app-contentstudio/issues/287
+    it(`GIVEN content with enabled x-data(image-selector) WHEN the content has been opened THEN x-data form should be enabled`,
+        () => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double1_1').then(() => {
+                return contentWizard.typeDisplayName(CONTENT_WITH_XDATA_2);
+            }).then(() => {
+                // click on '+' and enable the x-data
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                //save and close the content
+                return studioUtils.saveAndCloseWizard();
+            }).then(() => {
+                return studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA_2);
+            }).then(() => {
+                // x-data with image-selector should be enabled and image selector should be visible
+                return xDataImageSelector.waitForImageOptionsFilterInputVisible();
+            });
+        });
+    //verifies https://github.com/enonic/app-contentstudio/issues/287
+    it(`GIVEN the existing content is opened WHEN x-data disabled THEN Save button gets visible and enabled`,
+        () => {
+            return studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA_2).then(()=>{
+                // x-data with image-selector should be present
+                return xDataImageSelector.waitForImageOptionsFilterInputVisible();
+            }).then(() => {
+                // click on toggler and disable the x-data
+                return contentWizard.clickOnXdataToggler();
+            }).then(() => {
+                // Save button gets visible and enabled
+                return contentWizard.waitForSaveButtonVisible();
+            });
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
 });

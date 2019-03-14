@@ -30,6 +30,13 @@ const xDataImageSelector = Object.create(page, {
             let selector = formXpath.container + "//div[contains (@id,'ImageSelectorSelectedOptionView')]";
             return this.waitForVisible(selector, appConst.TIMEOUT_2);
         }
-    }
+    },
+    waitForImageOptionsFilterInputVisible: {
+        value: function () {
+            return this.waitForVisible(this.imageOptionsFilterInput, appConst.TIMEOUT_2).catch(err=>{
+                throw new Error("x-data with Image Selector - image options filter input is not visible! " + err);
+            });
+        }
+    },
 });
 module.exports = xDataImageSelector;
