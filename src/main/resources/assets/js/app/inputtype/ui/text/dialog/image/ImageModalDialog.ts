@@ -14,7 +14,6 @@ import InputEl = api.dom.InputEl;
 import DivEl = api.dom.DivEl;
 import SpanEl = api.dom.SpanEl;
 import {Content} from '../../../../../content/Content';
-import {XDataName} from '../../../../../content/XDataName';
 import {OverrideNativeDialog} from './../OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
 import {ImageStyleSelector} from './ImageStyleSelector';
@@ -31,6 +30,7 @@ import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 import {HtmlEditor} from '../../HtmlEditor';
+import {ImageHelper} from '../../../../../util/ImageHelper';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -210,16 +210,18 @@ export class ImageModalDialog
         formItem.addClass('image-selector');
 
         imageSelectorComboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            const imageContent = event.getSelectedOption().getOption().displayValue;
-            if (!imageContent.getContentId()) {
+            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().displayValue;
+            if (!imageSelectorItem.getContentId()) {
                 return;
             }
 
-            this.previewImage(imageContent.getContent());
+            this.previewImage(imageSelectorItem.getContent());
             formItem.addClass('selected-item-preview');
-            this.setAltTextFieldValue(imageContent.getDisplayName());
-            this.fetchImageCaption(imageContent.getContentSummary()).then(value => this.setCaptionFieldValue(value)).catch(
-                (reason: any) => api.DefaultErrorHandler.handle(reason)).done();
+
+            new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).sendAndParse().then((content: Content) => {
+                this.setAltTextFieldValue(ImageHelper.getImageAltText(content));
+                this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
+            }).catch(api.DefaultErrorHandler.handle).done();
         });
 
         imageSelectorComboBox.onOptionDeselected(() => {
@@ -567,33 +569,6 @@ export class ImageModalDialog
 
     private setAltTextFieldValue(value: string) {
         (<api.dom.InputEl>this.imageAltTextField.getInput()).setValue(value);
-    }
-
-    private fetchImageCaption(imageContent: ContentSummary): wemQ.Promise<string> {
-        return new GetContentByIdRequest(imageContent.getContentId()).sendAndParse()
-            .then((content: Content) => {
-                return this.getDescriptionFromImageContent(content) || content.getProperty('caption').getString() || '';
-            });
-    }
-
-    private getDescriptionFromImageContent(imageContent: Content): string {
-        const imageInfoMixin = new XDataName('media:imageInfo');
-        const imageInfoData = imageContent.getExtraData(imageInfoMixin);
-
-        if (!imageInfoData || !imageInfoData.getData()) {
-            return null;
-        }
-
-        const descriptionProperty = imageInfoData.getData().getProperty('description');
-
-        if (descriptionProperty) {
-            const description = descriptionProperty.getString();
-            if (description) {
-                return description;
-            }
-        }
-
-        return null;
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {

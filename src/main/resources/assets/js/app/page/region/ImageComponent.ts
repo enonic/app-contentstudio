@@ -88,7 +88,7 @@ export class ImageComponent
         this.image = imageContent.getContentId();
 
         this.setName(new ComponentName(imageContent.getDisplayName()));
-        this.updateConfigImageCaption(ImageHelper.fetchImageCaption(imageContent));
+        this.updateConfigImageCaption(ImageHelper.getImageCaption(imageContent));
 
         if (!api.ObjectHelper.equals(oldValue, this.image)) {
             this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
