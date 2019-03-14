@@ -9,6 +9,8 @@ import {ContentSelectedOptionsView} from '../../../../../inputtype/ui/selector/C
 import {MediaTreeSelectorItem} from '../../../../../inputtype/ui/selector/media/MediaTreeSelectorItem';
 import {ImageComponent} from '../../../../../page/region/ImageComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
+import {Content} from '../../../../../content/Content';
+import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import ContentSummary = api.content.ContentSummary;
 import ContentId = api.content.ContentId;
 import Option = api.ui.selector.Option;
@@ -138,9 +140,13 @@ export class ImageInspectionPanel
 
         this.imageSelector.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
-                let option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
-                let imageContent = option.displayValue;
-                this.component.setImage(imageContent.getContentId(), imageContent.getDisplayName());
+                const option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
+                const imageContentSummary: ContentSummary = (<MediaTreeSelectorItem>option.displayValue).getContentSummary();
+
+                new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
+                    this.component.setImage(imageContent);
+                }).catch(api.DefaultErrorHandler.handle);
+
             }
         });
 

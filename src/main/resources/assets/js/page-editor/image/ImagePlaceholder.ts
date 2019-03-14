@@ -7,9 +7,11 @@ import {MediaTreeSelectorItem} from '../../app/inputtype/ui/selector/media/Media
 import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploaderEl';
 import {Content} from '../../app/content/Content';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
+import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import UploadedEvent = api.ui.uploader.UploadedEvent;
+import ContentSummary = api.content.ContentSummary;
 import i18n = api.util.i18n;
 
 export class ImagePlaceholder
@@ -49,11 +51,13 @@ export class ImagePlaceholder
 
         this.comboBox.getComboBox().getInput().setPlaceholder(i18n('field.image.option.placeholder'));
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
+            const component: ImageComponent = this.imageComponentView.getComponent();
+            const imageContentSummary: ContentSummary =
+                (<MediaTreeSelectorItem>event.getSelectedOption().getOption().displayValue).getContentSummary();
 
-            let component: ImageComponent = this.imageComponentView.getComponent();
-            let imageContent = event.getSelectedOption().getOption().displayValue;
-
-            component.setImage(imageContent.getContentId(), imageContent.getDisplayName());
+            new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
+                component.setImage(imageContent);
+            }).catch(api.DefaultErrorHandler.handle);
 
             this.imageComponentView.showLoadingSpinner();
         });
@@ -76,10 +80,10 @@ export class ImagePlaceholder
         this.imageUploader.getUploadButton().onClicked(() => this.comboboxWrapper.show());
 
         this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let createdImage = event.getUploadItem().getModel();
+            const createdImage: Content = event.getUploadItem().getModel();
+            const component: ImageComponent = this.imageComponentView.getComponent();
 
-            let component: ImageComponent = this.imageComponentView.getComponent();
-            component.setImage(createdImage.getContentId(), createdImage.getDisplayName());
+            component.setImage(createdImage);
         });
 
         this.imageUploader.addDropzone(this.comboBox.getId());
