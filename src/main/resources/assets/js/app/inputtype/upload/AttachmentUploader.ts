@@ -8,6 +8,8 @@ import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {Attachment} from '../../attachment/Attachment';
+import {DeleteAttachmentRequest} from '../ui/upload/DeleteAttachmentRequest';
+import {Content} from '../../content/Content';
 
 export class AttachmentUploader
     extends FileUploader {
@@ -104,7 +106,13 @@ export class AttachmentUploader
 
         this.updateOccurrences();
 
-        new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
+        new DeleteAttachmentRequest()
+            .setContentId(this.getContext().content.getContentId())
+            .addAttachmentName(itemName)
+            .sendAndParse()
+            .then((content: Content) => {
+                new ContentRequiresSaveEvent(content.getContentId()).fire();
+            });
     }
 
     private addItemCallback() {
