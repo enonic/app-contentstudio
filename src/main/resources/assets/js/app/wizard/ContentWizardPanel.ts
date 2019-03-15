@@ -863,7 +863,9 @@ export class ContentWizardPanel
                 }
 
                 let data = extraData.getData();
+
                 data.onChanged(this.dataChangedHandler);
+                stepForm.onEnableChanged(this.dataChangedHandler);
 
                 let xDataForm = new api.form.FormBuilder().addFormItems(xData.getFormItems()).build();
 
