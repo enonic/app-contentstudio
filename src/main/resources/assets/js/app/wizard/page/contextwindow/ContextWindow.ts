@@ -103,7 +103,11 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         if (this.inspectTab) {
             this.inspectTab.setLabel(this.getShownPanelName());
         }
-        this.selectPanel(this.insertablesPanel);
+
+        const selectDefault = !isPageInspectionPanelSelectable && this.inspectTab.isActive();
+        if (selectDefault) {
+            this.selectPanel(this.insertablesPanel);
+        }
     }
 
     private getShownPanelName(): string {
