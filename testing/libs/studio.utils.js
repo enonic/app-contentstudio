@@ -511,7 +511,7 @@ module.exports = {
                 });
             });
             return prevPromise;
-        }).pause(300);
+        }).pause(500);
     },
     doPressBackspace: function () {
         return webDriverHelper.browser.keys('\uE003');

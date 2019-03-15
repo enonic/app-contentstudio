@@ -476,7 +476,7 @@ const contentWizardPanel = Object.create(page, {
     waitForControllerOptionFilterInputNotVisible: {
         value: function () {
             return this.switchToLiveEditFrame().then(() => {
-                return this.waitForNotVisible(this.controllerOptionFilterInput, appConst.TIMEOUT_3);
+                return this.waitForNotVisible(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
             }).catch(err => {
                 console.log(err);
                 return this.getBrowser().frameParent().then(() => {

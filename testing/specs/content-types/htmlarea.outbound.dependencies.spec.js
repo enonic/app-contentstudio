@@ -56,6 +56,8 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
                 return insertImageDialog.clickOnInsertButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
+            }).then(()=>{
+                return contentWizard.waitForNotificationMessage();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_image_is_inserted');
                 let expectedMessage = appConstant.itemSavedNotificationMessage(CONTENT_NAME);
