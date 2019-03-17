@@ -3,50 +3,26 @@ import FormBuilder = api.form.FormBuilder;
 import OccurrencesBuilder = api.form.OccurrencesBuilder;
 import TextArea = api.form.inputtype.text.TextArea;
 import PropertyTree = api.data.PropertyTree;
-import PropertyEvent = api.data.PropertyEvent;
 import i18n = api.util.i18n;
-import {Component, ComponentBuilder} from './Component';
 import {ComponentName} from './ComponentName';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ImageComponentJson} from './ImageComponentJson';
 import {ImageComponentType} from './ImageComponentType';
-import {Region} from './Region';
+import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 
 export class ImageComponent
-    extends Component
-    implements api.Equitable, api.Cloneable {
+    extends ConfigBasedComponent {
 
     public static PROPERTY_IMAGE: string = 'image';
 
-    public static PROPERTY_CONFIG: string = 'config';
-
-    public static debug: boolean = false;
-
-    private disableEventForwarding: boolean;
-
     private image: api.content.ContentId;
 
-    private config: PropertyTree;
-
     private form: Form;
-
-    private configChangedHandler: (event: PropertyEvent) => void;
 
     constructor(builder: ImageComponentBuilder) {
         super(builder);
 
         this.image = builder.image;
-        this.config = builder.config;
-        this.configChangedHandler = (event: PropertyEvent) => {
-            if (ImageComponent.debug) {
-                console.debug('ImageComponent[' + this.getPath().toString() + '].config.onChanged: ', event);
-            }
-            if (!this.disableEventForwarding) {
-                this.notifyPropertyValueChanged(ImageComponent.PROPERTY_CONFIG);
-            }
-        };
-
-        this.config.onChanged(this.configChangedHandler);
 
         let formBuilder = new FormBuilder();
         formBuilder.addFormItem(
@@ -55,20 +31,12 @@ export class ImageComponent
         this.form = formBuilder.build();
     }
 
-    setDisableEventForwarding(value: boolean) {
-        this.disableEventForwarding = value;
-    }
-
     getImage(): api.content.ContentId {
         return this.image;
     }
 
     getForm(): api.form.Form {
         return this.form;
-    }
-
-    getConfig(): PropertyTree {
-        return this.config;
     }
 
     setImage(contentId: api.content.ContentId, name: string) {
@@ -112,32 +80,13 @@ export class ImageComponent
             return false;
         }
 
-        let other = <ImageComponent>o;
-
-        if (!super.equals(o)) {
-            return false;
-        }
+        const other = <ImageComponent>o;
 
         if (!api.ObjectHelper.equals(this.image, other.image)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.config, other.config)) {
-            const noCaptionSetOnBothComponents: boolean = !this.isCaptionSet(this.config) && !this.isCaptionSet(other.config);
-
-            return noCaptionSetOnBothComponents;
-        }
-
-        return true;
-    }
-
-
-    private isCaptionSet(config: PropertyTree): boolean {
-        if (!config) {
-            return false;
-        }
-
-        return !!config.getString('caption');
+        return super.equals(o);
     }
 
     clone(): ImageComponent {
@@ -146,20 +95,17 @@ export class ImageComponent
 }
 
 export class ImageComponentBuilder
-    extends ComponentBuilder<ImageComponent> {
+    extends ConfigBasedComponentBuilder<ImageComponent> {
 
     image: api.content.ContentId;
 
-    config: PropertyTree;
-
     constructor(source?: ImageComponent) {
         super(source);
+
         if (source) {
             this.image = source.getImage();
-            this.config = source.getConfig() ? source.getConfig().copy() : null;
-        } else {
-            this.config = new PropertyTree();
         }
+
         this.setType(ImageComponentType.get());
     }
 
@@ -168,24 +114,12 @@ export class ImageComponentBuilder
         return this;
     }
 
-    public setConfig(value: PropertyTree): ImageComponentBuilder {
-        this.config = value;
-        return this;
-    }
-
-    public fromJson(json: ImageComponentJson, region: Region): ImageComponentBuilder {
+    public fromJson(json: ImageComponentJson): ImageComponentBuilder {
+        super.fromJson(json);
 
         if (json.image) {
             this.setImage(new api.content.ContentId(json.image));
         }
-
-        this.setName(json.name ? new ComponentName(json.name) : null);
-
-        if (json.config) {
-            this.setConfig(PropertyTree.fromJson(json.config));
-        }
-
-        this.setParent(region);
 
         return this;
     }

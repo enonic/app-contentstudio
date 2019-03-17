@@ -12,6 +12,7 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
+import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Content
     extends ContentSummary
@@ -103,18 +104,12 @@ export class Content
         return false;
     }
 
-    private trimPropertyTree(data: PropertyTree): PropertyTree {
-        let copy = data.copy();
-        copy.getRoot().removeEmptyValues();
-        return copy;
-    }
-
     dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
         let data;
         let otherData;
         if (ignoreEmptyValues) {
-            data = this.trimPropertyTree(this.data);
-            otherData = this.trimPropertyTree(other);
+            data = PropertyTreeHelper.trimPropertyTree(this.data);
+            otherData = PropertyTreeHelper.trimPropertyTree(other);
         } else {
             data = this.data;
             otherData = other;

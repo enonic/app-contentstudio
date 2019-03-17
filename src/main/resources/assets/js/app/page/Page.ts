@@ -15,6 +15,7 @@ import {LayoutComponentType} from './region/LayoutComponentType';
 import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
+import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Page
     implements api.Equitable, api.Cloneable {
@@ -105,13 +106,7 @@ export class Page
             return false;
         }
 
-        if (!this.config && (!other.config || other.config.isEmpty())) {
-            return true;
-        }
-        if (!other.config && (!this.config || this.config.isEmpty())) {
-            return true;
-        }
-        return api.ObjectHelper.equals(this.config, other.config);
+        return PropertyTreeHelper.configsEqual(this.config, other.config);
     }
 
     clone(): Page {

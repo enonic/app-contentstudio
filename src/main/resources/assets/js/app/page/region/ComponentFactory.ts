@@ -15,18 +15,19 @@ export class ComponentFactory {
     public static createFromJson(json: ComponentTypeWrapperJson, componentIndex: number, region: Region): Component {
 
         if (json.PartComponent) {
-            return new PartComponentBuilder().fromJson(json.PartComponent, region).build();
+            return new PartComponentBuilder().fromJson(json.PartComponent).setParent(region).build();
         } else if (json.ImageComponent) {
-            return new ImageComponentBuilder().fromJson(json.ImageComponent, region).build();
+            return new ImageComponentBuilder().fromJson(json.ImageComponent).setParent(region).build();
         } else if (json.LayoutComponent) {
             const hasPath = !!region && componentIndex >= 0;
             const path = hasPath ? Component.fromRegionPathAndComponentIndex(region.getPath(), componentIndex) : null;
             const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions, path);
-            return new LayoutComponentBuilder().fromJson(json.LayoutComponent, region).setRegions(regions).setIndex(componentIndex).build();
+            return new LayoutComponentBuilder().setRegions(regions).fromJson(json.LayoutComponent).setParent(region).setIndex(
+                componentIndex).build();
         } else if (json.TextComponent) {
-            return new TextComponentBuilder().fromJson(json.TextComponent, region).setIndex(componentIndex).build();
+            return new TextComponentBuilder().fromJson(json.TextComponent).setParent(region).setIndex(componentIndex).build();
         } else if (json.FragmentComponent) {
-            return new FragmentComponentBuilder().fromJson(json.FragmentComponent, region).setIndex(componentIndex).build();
+            return new FragmentComponentBuilder().fromJson(json.FragmentComponent).setParent(region).setIndex(componentIndex).build();
         } else {
             throw new Error('Not a component that can be placed in a Region: ' + json);
         }

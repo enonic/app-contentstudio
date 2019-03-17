@@ -1,9 +1,7 @@
-import {ComponentJson} from './ComponentJson';
+import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
 export interface FragmentComponentJson
-    extends ComponentJson {
+    extends ConfigBasedComponentJson {
 
     fragment: string;
-
-    config: api.data.PropertyArrayJson[];
 }
