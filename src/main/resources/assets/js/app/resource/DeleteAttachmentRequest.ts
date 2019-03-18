@@ -1,7 +1,7 @@
 import ContentId = api.content.ContentId;
-import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
-import {Content} from '../../../content/Content';
-import {ContentJson} from '../../../content/ContentJson';
+import {ContentResourceRequest} from './ContentResourceRequest';
+import {Content} from '../content/Content';
+import {ContentJson} from '../content/ContentJson';
 
 export class DeleteAttachmentRequest
     extends ContentResourceRequest<ContentJson, Content> {

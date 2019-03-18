@@ -8,7 +8,7 @@ import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {Attachment} from '../../attachment/Attachment';
-import {DeleteAttachmentRequest} from '../ui/upload/DeleteAttachmentRequest';
+import {DeleteAttachmentRequest} from '../../resource/DeleteAttachmentRequest';
 import {Content} from '../../content/Content';
 
 export class AttachmentUploader
