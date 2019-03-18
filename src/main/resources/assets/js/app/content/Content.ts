@@ -104,9 +104,9 @@ export class Content
         return false;
     }
 
-    dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
-        let data;
-        let otherData;
+    private dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
+        let data: PropertyTree;
+        let otherData: PropertyTree;
         if (ignoreEmptyValues) {
             data = PropertyTreeHelper.trimPropertyTree(this.data);
             otherData = PropertyTreeHelper.trimPropertyTree(other);
@@ -117,10 +117,13 @@ export class Content
         return api.ObjectHelper.equals(data, otherData);
     }
 
-    extraDataEquals(other: ExtraData[]): boolean {
-        let comparator = new ExtraDataByMixinNameComparator();
+    private extraDataEquals(other: ExtraData[]): boolean {
+        const comparator: ExtraDataByMixinNameComparator = new ExtraDataByMixinNameComparator();
 
-        return api.ObjectHelper.arrayEquals(this.extraData.sort(comparator.compare), other.sort(comparator.compare));
+        const otherExtraDatas: ExtraData[] = other.filter((otherExtraData: ExtraData) => !otherExtraData.getData().isEmpty());
+        const thisExtraDatas: ExtraData[] = this.extraData.filter((extraData: ExtraData) => !extraData.getData().isEmpty());
+
+        return api.ObjectHelper.arrayEquals(thisExtraDatas.sort(comparator.compare), otherExtraDatas.sort(comparator.compare));
     }
 
     equals(o: api.Equitable, ignoreEmptyValues: boolean = false, shallow: boolean = false): boolean {
