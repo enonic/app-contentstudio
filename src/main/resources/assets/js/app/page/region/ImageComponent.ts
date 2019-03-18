@@ -11,6 +11,8 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ImageComponentJson} from './ImageComponentJson';
 import {ImageComponentType} from './ImageComponentType';
 import {Region} from './Region';
+import {Content} from '../../content/Content';
+import {ImageHelper} from '../../util/ImageHelper';
 
 export class ImageComponent
     extends Component
@@ -37,6 +39,12 @@ export class ImageComponent
 
         this.image = builder.image;
         this.config = builder.config;
+        this.form = this.createForm();
+
+        this.initConfigListener();
+    }
+
+    private initConfigListener() {
         this.configChangedHandler = (event: PropertyEvent) => {
             if (ImageComponent.debug) {
                 console.debug('ImageComponent[' + this.getPath().toString() + '].config.onChanged: ', event);
@@ -47,12 +55,16 @@ export class ImageComponent
         };
 
         this.config.onChanged(this.configChangedHandler);
+    }
 
-        let formBuilder = new FormBuilder();
+    private createForm(): Form {
+        const formBuilder = new FormBuilder();
+
         formBuilder.addFormItem(
             new api.form.InputBuilder().setName('caption').setInputType(TextArea.getName()).setLabel(i18n('field.caption')).setOccurrences(
                 new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build());
-        this.form = formBuilder.build();
+
+        return formBuilder.build();
     }
 
     setDisableEventForwarding(value: boolean) {
@@ -71,13 +83,29 @@ export class ImageComponent
         return this.config;
     }
 
-    setImage(contentId: api.content.ContentId, name: string) {
-        let oldValue = this.image;
-        this.image = contentId;
+    setImage(imageContent: Content) {
+        const oldValue = this.image;
+        this.image = imageContent.getContentId();
 
-        this.setName(name ? new ComponentName(name) : this.getType().getDefaultName());
+        this.setName(new ComponentName(imageContent.getDisplayName()));
+        this.updateConfigImageCaption(ImageHelper.getImageCaption(imageContent));
 
-        if (!api.ObjectHelper.equals(oldValue, contentId)) {
+        if (!api.ObjectHelper.equals(oldValue, this.image)) {
+            this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
+        }
+    }
+
+    private updateConfigImageCaption(caption: string) {
+        this.config.setString('caption', 0, caption);
+    }
+
+    resetImage() {
+        const hadImageBeforeReset: boolean = this.hasImage();
+        this.image = null;
+
+        this.setName(this.getType().getDefaultName());
+
+        if (hadImageBeforeReset) {
             this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
         }
     }
@@ -87,7 +115,7 @@ export class ImageComponent
     }
 
     doReset() {
-        this.setImage(null, null);
+        this.resetImage();
         this.config = new PropertyTree();
     }
 
