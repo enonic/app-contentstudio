@@ -138,6 +138,10 @@ export class Regions
         return true;
     }
 
+    isEmpty(): boolean {
+        return this.getRegions().length === 0;
+    }
+
     clone(): Regions {
         return new RegionsBuilder(this).build();
     }

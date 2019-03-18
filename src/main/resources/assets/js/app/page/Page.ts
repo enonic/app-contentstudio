@@ -60,12 +60,20 @@ export class Page
         return this.regions != null;
     }
 
+    hasNonEmptyRegions(): boolean {
+        return this.hasRegions() && !this.getRegions().isEmpty();
+    }
+
     getRegions(): Regions {
         return this.regions;
     }
 
     hasConfig(): boolean {
         return this.config != null;
+    }
+
+    hasNonEmptyConfig(): boolean {
+        return this.hasConfig() && !this.getConfig().isEmpty();
     }
 
     getConfig(): PropertyTree {
@@ -98,20 +106,37 @@ export class Page
         if (!api.ObjectHelper.equals(this.template, other.template)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.regions, other.regions)) {
+        if (!this.regionsEquals(other.regions)) {
             return false;
         }
         if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;
         }
 
-        if (!this.config && (!other.config || other.config.isEmpty())) {
+        return this.configEquals(other.config);
+    }
+
+    private regionsEquals(otherRegions: Regions): boolean {
+        if (!this.regions && (!otherRegions || otherRegions.isEmpty())) {
             return true;
         }
-        if (!other.config && (!this.config || this.config.isEmpty())) {
+
+        if (!otherRegions && (!this.regions || this.regions.isEmpty())) {
             return true;
         }
-        return api.ObjectHelper.equals(this.config, other.config);
+
+        return api.ObjectHelper.equals(this.regions, otherRegions);
+    }
+
+    private configEquals(otherConfig: PropertyTree): boolean {
+        if (!this.config && (!otherConfig || otherConfig.isEmpty())) {
+            return true;
+        }
+        if (!otherConfig && (!this.config || this.config.isEmpty())) {
+            return true;
+        }
+
+        return api.ObjectHelper.equals(this.config, otherConfig);
     }
 
     clone(): Page {
