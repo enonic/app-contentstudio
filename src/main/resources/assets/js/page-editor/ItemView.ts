@@ -756,7 +756,7 @@ export class ItemView
             return;
         } else if (selectedView) {
             // deselect selected item view if any
-            selectedView.deselect();
+            selectedView.deselect(true);
         }
 
         // selecting anything should exit the text edit mode
