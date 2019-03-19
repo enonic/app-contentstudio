@@ -1448,7 +1448,7 @@ export class ContentWizardPanel
                 this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
-                    liveFormPanel.setModel(this.liveEditModel);
+                    liveFormPanel.setModel(this.liveEditModel, false);
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 

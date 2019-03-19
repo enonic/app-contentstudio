@@ -439,7 +439,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel) {
+    setModel(liveEditModel: LiveEditModel, showPanel?: boolean) {
 
         this.liveEditModel = liveEditModel;
 
@@ -474,7 +474,7 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        this.clearSelection();
+        this.clearSelection(showPanel);
 
         this.handleContentUpdatedEvent();
     }
@@ -510,7 +510,7 @@ export class LiveFormPanel
         if (this.pageSkipReload === false && !this.pageLoading) {
 
             if (clearInspection) {
-                this.clearSelection();
+                this.clearSelection(false);
             }
 
             this.pageLoading = true;
@@ -742,14 +742,14 @@ export class LiveFormPanel
         this.contextWindow.showInspectionPanel(this.pageInspectionPanel, showPanel);
     }
 
-    private clearSelection(): void {
+    private clearSelection(showPanel?: boolean): void {
         let pageModel = this.liveEditModel.getPageModel();
         let customizedWithController = pageModel.isCustomized() && pageModel.hasController();
         let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
         if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection();
         } else {
-            this.inspectPage();
+            this.inspectPage(showPanel);
         }
     }
 
