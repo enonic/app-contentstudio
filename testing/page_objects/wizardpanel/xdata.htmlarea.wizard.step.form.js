@@ -22,5 +22,10 @@ const xDataHtmlArea = Object.create(page, {
             return htmlArea.getTextFromHtmlArea(formXpath.container);
         }
     },
+    waitForHtmlAreaVisible:{
+        value:function(){
+            return this.waitForVisible(formXpath.container + `//div[contains(@id,'cke_api.ui.text.TextArea')]`);
+        }
+    }
 });
 module.exports = xDataHtmlArea;

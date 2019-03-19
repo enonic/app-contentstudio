@@ -38,7 +38,8 @@ const wizard = {
         name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
         name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
-
+    xDataTogglerByName:
+        name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
 };
 const contentWizardPanel = Object.create(page, {
 
@@ -182,6 +183,14 @@ const contentWizardPanel = Object.create(page, {
             })
         }
     },
+    clickOnWizardStep: {
+        value: function (title) {
+            let stepXpath = wizard.wizardStepByTitle(title);
+            return this.doClick(stepXpath).catch(err => {
+                throw new Error("Error when clicking on the Step: " + title);
+            }).pause(300);
+        }
+    },
     waitForWizardStepByTitleNotVisible: {
         value: function (title) {
             let stepXpath = wizard.wizardStepByTitle(title);
@@ -196,6 +205,13 @@ const contentWizardPanel = Object.create(page, {
             return this.doClick(wizard.xDataToggler).catch(err => {
                 return this.doCatch('err_click_on_xdata_toggler', err);
             })
+        }
+    },
+    clickOnXdataTogglerByName: {
+        value: function (name) {
+            return this.doClick(wizard.xDataTogglerByName(name)).catch(err => {
+                throw new Error("Error on clickin on toogler " + name + " " + err);
+            }).pause(400);
         }
     },
     //Gets titles of all x-data forms
@@ -540,19 +556,24 @@ const contentWizardPanel = Object.create(page, {
     },
     clickOnPublishDropdownHandle: {
         value: function () {
-            return this.doClick(this.publishDropDownHandle).catch(err => {
-                return this.doCatch('err_click_on_publish_dropdown_handle', err);
+            return this.waitForVisible(this.publishDropDownHandle, appConst.TIMEOUT_3).then(() => {
+                return this.doClick(this.publishDropDownHandle);
+            }).catch(err => {
+                if (err.type === "WaitUntilTimeoutError") {
+                    throw new Error("Publish dropdown handle is not visible!" + err);
+                }
+                throw new Error("Error when clicking on Publish dropdown handle " + err);
             }).pause(300);
         }
     },
     clickOnUnpublishmenuItem: {
         value: function () {
             return this.clickOnPublishDropdownHandle().then(() => {
-                return this.waitForVisible(this.unpublishMenuItem);
+                return this.waitForVisible(this.unpublishMenuItem, appConst.TIMEOUT_3);
             }).then(() => {
                 return this.doClick(this.unpublishMenuItem);
             }).catch(err => {
-                return this.doCatch('err_click_on_unpublish_item', err);
+                throw new Error("Error when unpublishing the contentS! " + err);
             }).pause(300);
         }
     },
