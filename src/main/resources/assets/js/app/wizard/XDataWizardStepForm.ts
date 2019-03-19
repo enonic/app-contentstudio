@@ -79,7 +79,7 @@ export class XDataWizardStepForm
 
     resetState(data?: PropertyTree): wemQ.Promise<void> {
         this.data = data || this.data;
-        return this.setEnabled(!this.optional || this.data.getRoot().getSize() > 0, true).then(() => {
+        return this.setEnabled(!this.optional || !this.data.getRoot().isEmpty(), true).then(() => {
             this.resetHeaderState();
         });
     }
