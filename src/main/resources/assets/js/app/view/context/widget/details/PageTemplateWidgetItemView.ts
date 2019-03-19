@@ -23,6 +23,8 @@ import CompareExpr = api.query.expr.CompareExpr;
 import FieldExpr = api.query.expr.FieldExpr;
 import ValueExpr = api.query.expr.ValueExpr;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
+import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import ContentId = api.content.ContentId;
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -38,7 +40,7 @@ export class PageTemplateWidgetItemView
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        let content = item.getContentSummary();
+        const content = item.getContentSummary();
         if (!content.equals(this.content)) {
             if (!this.content) {
                 this.initListeners();
@@ -53,10 +55,10 @@ export class PageTemplateWidgetItemView
 
     private initListeners() {
 
-        let onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
-            let thisContentId = this.content.getId();
+        const onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
+            const thisContentId = this.content.getId();
 
-            let contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
+            const contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
                 return thisContentId === content.getId();
             })[0];
 
@@ -68,10 +70,26 @@ export class PageTemplateWidgetItemView
 
         };
 
-        let serverEvents = ContentServerEventsHandler.getInstance();
+        const onContentDeleted = (deletedPaths: ContentServerChangeItem[]) => {
+            if (!this.pageTemplateViewer || !this.pageTemplateViewer.hasPageTemplate()) {
+                return;
+            }
+
+            const pageTemplateContentId: ContentId = this.pageTemplateViewer.getPageTemplate().getContentId();
+            const isPageTemplateDeleted = deletedPaths.some((path: ContentServerChangeItem) => {
+                return path.getContentId().equals(pageTemplateContentId);
+            });
+
+            if (isPageTemplateDeleted) {
+                this.loadPageTemplate().then(() => this.layout());
+            }
+        };
+
+        const serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
         serverEvents.onContentPermissionsUpdated(onContentUpdated);
+        serverEvents.onContentDeleted(onContentDeleted);
     }
 
     public layout(): wemQ.Promise<any> {
@@ -88,7 +106,7 @@ export class PageTemplateWidgetItemView
     }
 
     private getPageTemplateInfo(content: Content): wemQ.Promise<PageTemplateViewer> {
-        let pageTemplateViewer = new PageTemplateViewer();
+        const pageTemplateViewer = new PageTemplateViewer();
 
         if (content.getType().isFragment()) {
             pageTemplateViewer.setPageMode(PageMode.FRAGMENT);
@@ -186,6 +204,14 @@ class PageTemplateViewer {
         this.pageTemplate = pageTemplate;
     }
 
+    hasPageTemplate(): boolean {
+        return !!this.pageTemplate;
+    }
+
+    getPageTemplate(): PageTemplate {
+        return this.pageTemplate;
+    }
+
     setPageController(pageController: PageDescriptor) {
         this.pageController = pageController;
     }
@@ -250,7 +276,7 @@ class PageTemplateViewer {
     }
 
     render(): api.dom.DivEl {
-        let divEl = new api.dom.DivEl('page-template-viewer');
+        const divEl = new api.dom.DivEl('page-template-viewer');
 
         if (!this.isRenderable()) {
             const noTemplateText = new api.dom.PEl('no-template');
