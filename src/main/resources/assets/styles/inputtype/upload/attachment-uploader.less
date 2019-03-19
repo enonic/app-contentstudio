@@ -21,13 +21,31 @@
       box-sizing: border-box;
       border: 2px solid transparent;
 
+      .attachment-item .remove {
+        line-height: 15px;
+      }
+
+      &.uploading {
+        width: calc(~'100% - 50px');
+        margin-top: 10px;
+        height: 22px;
+        padding-right: 0;
+
+        .progress-bar {
+          height: 100%;
+        }
+
+        .result-container:empty + .no-attachments-description {
+          display: none;
+        }
+      }
+
       &.dz-dragover {
         .dropzone-dragover-glow();
       }
 
       .result-container {
         position: relative;
-        min-height: @attachment-uploader-height;
 
         &:empty + .no-attachments-description {
           display: block;
@@ -52,7 +70,6 @@
         color: @admin-font-gray2;
         line-height: @attachment-uploader-height;
         text-align: center;
-        z-index: -1;
       }
 
       .progress-bar {
