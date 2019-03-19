@@ -68,7 +68,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     //verifies  https://github.com/enonic/xp/issues/6768
     it(`GIVEN existing 'htmlArea' content is selected WHEN Dependencies panel is opened THEN 'Outbound dependency' should be present`,
         () => {
-            return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+            return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
                 return wizardDetailsPanel.openDependencies();
@@ -85,7 +85,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
     it(`GIVEN existing 'htmlArea' content is opened AND Dependencies panel is opened WHEN image in htmlArea has been removed THEN 'Outbound dependency' should be cleared as well`,
         () => {
-            return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+            return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
                 return wizardDetailsPanel.openDependencies();

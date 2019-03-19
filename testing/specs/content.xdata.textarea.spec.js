@@ -42,7 +42,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //Inactive optional x-data should not be visible in the Content Wizard navigation bar
     it(`WHEN site with optional x-data has been opened THEN step for the x-data  should not be present on the navigation bar`,
         () => {
-            return studioUtils.openContentInWizard(SITE.displayName).then(() => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
             }).then(() => {
                 return contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
             }).then(isDisplayed => {
@@ -53,7 +53,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //Inactive optional x-data should not be visible in the Content Wizard navigation bar
     it(`GIVEN site with optional x-data is opened WHEN x-data has been activated THEN x-data should be visible in the Content Wizard navigation bar`,
         () => {
-            return studioUtils.openContentInWizard(SITE.displayName).then(() => {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
             }).then(() => {
                 return contentWizard.clickOnXdataToggler();
             }).then(() => {
