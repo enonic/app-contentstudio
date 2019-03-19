@@ -25,8 +25,7 @@ export class PageTemplate
     }
 
     getKey(): PageTemplateKey {
-
-        return <PageTemplateKey>this.getContentId();
+        return PageTemplateKey.fromContentId(this.getContentId());
     }
 
     getPageMode(): PageMode {

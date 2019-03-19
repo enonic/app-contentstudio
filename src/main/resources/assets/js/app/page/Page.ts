@@ -61,12 +61,20 @@ export class Page
         return this.regions != null;
     }
 
+    hasNonEmptyRegions(): boolean {
+        return this.hasRegions() && !this.getRegions().isEmpty();
+    }
+
     getRegions(): Regions {
         return this.regions;
     }
 
     hasConfig(): boolean {
         return this.config != null;
+    }
+
+    hasNonEmptyConfig(): boolean {
+        return this.hasConfig() && !this.getConfig().isEmpty();
     }
 
     getConfig(): PropertyTree {
@@ -99,7 +107,7 @@ export class Page
         if (!api.ObjectHelper.equals(this.template, other.template)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.regions, other.regions)) {
+        if (!this.regionsEquals(other.regions)) {
             return false;
         }
         if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
@@ -107,6 +115,18 @@ export class Page
         }
 
         return PropertyTreeHelper.configsEqual(this.config, other.config);
+    }
+
+    private regionsEquals(otherRegions: Regions): boolean {
+        if (!this.regions && (!otherRegions || otherRegions.isEmpty())) {
+            return true;
+        }
+
+        if (!otherRegions && (!this.regions || this.regions.isEmpty())) {
+            return true;
+        }
+
+        return api.ObjectHelper.equals(this.regions, otherRegions);
     }
 
     clone(): Page {
