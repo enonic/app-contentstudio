@@ -125,14 +125,11 @@ export class HtmlArea
     }
 
     private initEditor(id: string, property: Property, textAreaWrapper: Element): wemQ.Promise<HtmlEditor> {
-        const focusedEditorCls = 'html-area-focused';
         const assetsUri = CONFIG.assetsUri;
         const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
 
         const focusHandler = (e) => {
             this.resetInputHeight();
-            textAreaWrapper.addClass(focusedEditorCls);
-
             this.notifyFocused(e);
 
             AppHelper.dispatchCustomEvent('focusin', this);
@@ -147,16 +144,10 @@ export class HtmlArea
             new HtmlAreaResizeEvent(<any>this).fire();
         };
 
-        let isMouseOverRemoveOccurenceButton = false;
-
         const blurHandler = (e) => {
             //checking if remove occurence button clicked or not
             AppHelper.dispatchCustomEvent('focusout', this);
 
-            if (!isMouseOverRemoveOccurenceButton) {
-                this.setStaticInputHeight();
-                textAreaWrapper.removeClass(focusedEditorCls);
-            }
             this.notifyBlurred(e);
         };
 
@@ -205,7 +196,6 @@ export class HtmlArea
 
         const createDialogHandler = event => {
             HTMLAreaDialogHandler.createAndOpenDialog(event);
-            textAreaWrapper.addClass(focusedEditorCls);
         };
 
         const editorLoadedHandler = () => {
@@ -219,15 +209,6 @@ export class HtmlArea
 
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
-
-            const removeButtonEL = wemjq(textAreaWrapper.getParentElement().getParentElement().getHTMLElement()).find(
-                '.remove-button')[0];
-            removeButtonEL.addEventListener('mouseover', () => {
-                isMouseOverRemoveOccurenceButton = true;
-            });
-            removeButtonEL.addEventListener('mouseleave', () => {
-                isMouseOverRemoveOccurenceButton = false;
-            });
         };
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
