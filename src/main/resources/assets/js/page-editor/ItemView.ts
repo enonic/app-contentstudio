@@ -743,9 +743,9 @@ export class ItemView
         new ItemViewSelectedEvent(this, clickPosition, isNew, rightClicked).fire();
     }
 
-    selectWithoutMenu(isNew: boolean = false) {
+    selectWithoutMenu() {
         this.selectItem();
-        new ItemViewSelectedEvent(this, null, isNew).fire();
+        new ItemViewSelectedEvent(this, null, false).fire();
     }
 
     private selectItem() {
