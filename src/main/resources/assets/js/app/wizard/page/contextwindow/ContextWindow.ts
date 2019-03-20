@@ -79,11 +79,11 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         return !api.ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
     }
 
-    public showInspectionPanel(panel: BaseInspectionPanel, showPanel?: boolean) {
+    public showInspectionPanel(panel: BaseInspectionPanel, showWidget?: boolean, showPanel?: boolean) {
         const canSelectPanel = this.isPanelSelectable(panel);
         this.toggleClass('no-inspection', !canSelectPanel);
         if (canSelectPanel) {
-            new InspectEvent(showPanel).fire();
+            new InspectEvent(showWidget, showPanel).fire();
             setTimeout(() => {
                 this.inspectionsPanel.showInspectionPanel(panel);
                 if (this.inspectTab) {

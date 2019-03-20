@@ -1,11 +1,18 @@
 export class InspectEvent
     extends api.event.Event {
 
+    private showWidget: boolean;
+
     private showPanel: boolean;
 
-    constructor(showPanel: boolean = true, name?: string) {
+    constructor(showWidget: boolean = true, showPanel: boolean = true, name?: string) {
         super(name);
+        this.showWidget = showWidget;
         this.showPanel = showPanel;
+    }
+
+    isShowWidget(): boolean {
+        return this.showWidget;
     }
 
     isShowPanel(): boolean {

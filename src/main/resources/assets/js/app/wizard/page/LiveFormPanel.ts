@@ -602,11 +602,11 @@ export class LiveFormPanel
                 if (api.BrowserHelper.isIE()) {
                     path = isComponentView ? ComponentPath.fromString(path) : RegionPath.fromString(path);
                 }
-                const selected = api.ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
+                const selected: ComponentView<Component> | RegionView = api.ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
                     ? this.pageView.getComponentViewByPath(path)
                     : this.pageView.getRegionViewByPath(path);
                 if (selected) {
-                    selected.selectWithoutMenu();
+                    selected.selectWithoutMenu(true);
                 }
             }
         };
@@ -632,10 +632,9 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
             let itemView = event.getItemView();
-            // let toggler = this.contentWizardPanel.getContextWindowToggler();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView);
+                this.inspectComponent(<ComponentView<Component>>itemView, !event.isRestoredSelection());
             }
         });
 
@@ -739,7 +738,7 @@ export class LiveFormPanel
     }
 
     private inspectPage(showPanel?: boolean) {
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, showPanel);
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, true, showPanel);
     }
 
     private clearSelection(): void {
@@ -768,26 +767,26 @@ export class LiveFormPanel
         this.contextWindow.showInspectionPanel(this.regionInspectionPanel);
     }
 
-    private inspectComponent(componentView: ComponentView<Component>) {
+    private inspectComponent(componentView: ComponentView<Component>, showWidget?: boolean) {
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
             this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.imageInspectionPanel);
+            this.contextWindow.showInspectionPanel(this.imageInspectionPanel, showWidget);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
             this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.partInspectionPanel);
+            this.contextWindow.showInspectionPanel(this.partInspectionPanel, showWidget);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
             this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.layoutInspectionPanel);
+            this.contextWindow.showInspectionPanel(this.layoutInspectionPanel, showWidget);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
-            this.contextWindow.showInspectionPanel(this.textInspectionPanel);
+            this.contextWindow.showInspectionPanel(this.textInspectionPanel, showWidget);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
             this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
             this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.fragmentInspectionPanel);
+            this.contextWindow.showInspectionPanel(this.fragmentInspectionPanel, showWidget);
         } else {
             throw new Error('ComponentView cannot be selected: ' + api.ClassHelper.getClassName(componentView));
         }

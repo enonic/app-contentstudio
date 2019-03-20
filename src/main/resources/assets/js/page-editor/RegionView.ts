@@ -298,8 +298,8 @@ export class RegionView
         new RegionSelectedEvent(this).fire();
     }
 
-    selectWithoutMenu() {
-        super.selectWithoutMenu();
+    selectWithoutMenu(restoredSelection?: boolean) {
+        super.selectWithoutMenu(restoredSelection);
 
         new RegionSelectedEvent(this).fire();
     }

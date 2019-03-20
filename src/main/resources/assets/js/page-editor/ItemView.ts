@@ -742,9 +742,9 @@ export class ItemView
         new ItemViewSelectedEvent({itemView: this, position: clickPosition, isNew, rightClicked}).fire();
     }
 
-    selectWithoutMenu() {
+    selectWithoutMenu(restoredSelection?: boolean) {
         this.selectItem();
-        new ItemViewSelectedEvent({itemView: this, position: null}).fire();
+        new ItemViewSelectedEvent({itemView: this, position: null, restoredSelection}).fire();
     }
 
     private selectItem() {

@@ -404,8 +404,8 @@ export class PageView
         new PageSelectedEvent(this).fire();
     }
 
-    selectWithoutMenu() {
-        super.selectWithoutMenu();
+    selectWithoutMenu(restoredSelection?: boolean) {
+        super.selectWithoutMenu(restoredSelection);
 
         new PageSelectedEvent(this).fire();
     }
