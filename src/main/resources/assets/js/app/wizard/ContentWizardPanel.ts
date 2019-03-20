@@ -215,10 +215,6 @@ export class ContentWizardPanel
     protected createWizardActions(): ContentWizardActions {
         let wizardActions: ContentWizardActions = new ContentWizardActions(this);
         wizardActions.getShowLiveEditAction().setEnabled(false);
-        wizardActions.getSaveAction().onExecuted(() => {
-            this.contentWizardStepForm.validate();
-            this.displayValidationErrors(!this.isValid());
-        });
 
         wizardActions.getShowSplitEditAction().onExecuted(() => {
             if (!this.inMobileViewMode) {
@@ -1743,6 +1739,11 @@ export class ContentWizardPanel
             this.showFeedbackContentSaved(content);
 
             this.getWizardHeader().resetBaseValues();
+
+            return content;
+        }).then((content: Content) => {
+            this.contentWizardStepForm.validate();
+            this.displayValidationErrors(!this.isValid());
 
             return content;
         });
