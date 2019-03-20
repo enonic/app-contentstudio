@@ -12,6 +12,7 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
+import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Content
     extends ContentSummary
@@ -103,32 +104,16 @@ export class Content
         return false;
     }
 
-    private trimPropertyTree(data: PropertyTree): PropertyTree {
-        let copy = data.copy();
-        copy.getRoot().removeEmptyValues();
-        return copy;
+    private extraDataEquals(other: ExtraData[]): boolean {
+        const comparator: ExtraDataByMixinNameComparator = new ExtraDataByMixinNameComparator();
+
+        const otherExtraDatas: ExtraData[] = other.filter((otherExtraData: ExtraData) => !otherExtraData.getData().isEmpty());
+        const thisExtraDatas: ExtraData[] = this.extraData.filter((extraData: ExtraData) => !extraData.getData().isEmpty());
+
+        return api.ObjectHelper.arrayEquals(thisExtraDatas.sort(comparator.compare), otherExtraDatas.sort(comparator.compare));
     }
 
-    dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
-        let data;
-        let otherData;
-        if (ignoreEmptyValues) {
-            data = this.trimPropertyTree(this.data);
-            otherData = this.trimPropertyTree(other);
-        } else {
-            data = this.data;
-            otherData = other;
-        }
-        return api.ObjectHelper.equals(data, otherData);
-    }
-
-    extraDataEquals(other: ExtraData[]): boolean {
-        let comparator = new ExtraDataByMixinNameComparator();
-
-        return api.ObjectHelper.arrayEquals(this.extraData.sort(comparator.compare), other.sort(comparator.compare));
-    }
-
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false, shallow: boolean = false): boolean {
+    equals(o: api.Equitable): boolean {
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
             return false;
         }
@@ -139,14 +124,12 @@ export class Content
 
         let other = <Content>o;
 
-        if (!shallow) {
-            if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
-                return false;
-            }
+        if (!PropertyTreeHelper.configsEqual(this.data, other.getContentData())) {
+            return false;
+        }
 
-            if (!this.extraDataEquals(other.getAllExtraData())) {
-                return false;
-            }
+        if (!this.extraDataEquals(other.getAllExtraData())) {
+            return false;
         }
 
         if (!api.ObjectHelper.equals(this.pageObj, other.pageObj)) {

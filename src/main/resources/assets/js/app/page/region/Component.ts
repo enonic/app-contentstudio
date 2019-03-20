@@ -10,7 +10,7 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {RegionPath} from './RegionPath';
 
-export class Component
+export abstract class Component
     implements api.Equitable, api.Cloneable {
 
     public static PROPERTY_NAME: string = 'name';
@@ -273,6 +273,12 @@ export class ComponentBuilder<COMPONENT extends Component> {
 
     public setType(value: ComponentType): ComponentBuilder<COMPONENT> {
         this.type = value;
+        return this;
+    }
+
+    public fromJson(json: ComponentJson): ComponentBuilder<COMPONENT> {
+        this.setName(json.name ? new ComponentName(json.name) : null);
+
         return this;
     }
 

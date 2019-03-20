@@ -1,14 +1,10 @@
-import PropertyTree = api.data.PropertyTree;
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {PartComponentJson} from './PartComponentJson';
 import {PartComponentType} from './PartComponentType';
-import {Region} from './Region';
-import {ComponentName} from './ComponentName';
 
 export class PartComponent
-    extends DescriptorBasedComponent
-    implements api.Equitable, api.Cloneable {
+    extends DescriptorBasedComponent {
 
     constructor(builder: PartComponentBuilder) {
         super(builder);
@@ -44,23 +40,9 @@ export class PartComponentBuilder
     extends DescriptorBasedComponentBuilder<PartComponent> {
 
     constructor(source?: PartComponent) {
-
         super(source);
 
         this.setType(PartComponentType.get());
-    }
-
-    public fromJson(json: PartComponentJson, region: Region): PartComponentBuilder {
-
-        if (json.descriptor) {
-            this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
-        }
-        this.setName(json.name ? new ComponentName(json.name) : null);
-        if (json.config) {
-            this.setConfig(PropertyTree.fromJson(json.config));
-        }
-        this.setParent(region);
-        return this;
     }
 
     public build(): PartComponent {

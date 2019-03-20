@@ -1,52 +1,23 @@
 import PropertyTree = api.data.PropertyTree;
-import PropertyEvent = api.data.PropertyEvent;
 import DescriptorKey = api.content.page.DescriptorKey;
 import Descriptor = api.content.page.Descriptor;
-import {Component, ComponentBuilder} from './Component';
 import {ComponentName} from './ComponentName';
 import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
+import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 
-export class DescriptorBasedComponent
-    extends Component
-    implements api.Equitable, api.Cloneable {
-
-    public static debug: boolean = false;
+export abstract class DescriptorBasedComponent
+    extends ConfigBasedComponent {
 
     public static PROPERTY_DESCRIPTOR: string = 'descriptor';
-
-    public static PROPERTY_CONFIG: string = 'config';
-
-    private disableEventForwarding: boolean;
 
     private descriptorKey: DescriptorKey;
 
     private description: string;
 
-    private config: PropertyTree;
-
-    private configChangedHandler: (event: PropertyEvent) => void;
-
-    constructor(builder: DescriptorBasedComponentBuilder<any>) {
-
+    constructor(builder: DescriptorBasedComponentBuilder<DescriptorBasedComponent>) {
         super(builder);
 
         this.descriptorKey = builder.descriptor;
-        this.config = builder.config;
-
-        this.configChangedHandler = (event: PropertyEvent) => {
-            if (DescriptorBasedComponent.debug) {
-                console.debug('DescriptorBasedComponent[' + this.getPath().toString() + '].config.onChanged: ', event);
-            }
-            if (!this.disableEventForwarding) {
-                this.notifyPropertyValueChanged(DescriptorBasedComponent.PROPERTY_CONFIG);
-            }
-        };
-
-        this.config.onChanged(this.configChangedHandler);
-    }
-
-    setDisableEventForwarding(value: boolean) {
-        this.disableEventForwarding = value;
     }
 
     hasDescriptor(): boolean {
@@ -72,7 +43,7 @@ export class DescriptorBasedComponent
     }
 
     setConfig(config: PropertyTree) {
-        let oldValue = this.config;
+        const oldValue: PropertyTree = this.config;
         if (oldValue) {
             this.config.unChanged(this.configChangedHandler);
         }
@@ -80,12 +51,8 @@ export class DescriptorBasedComponent
         this.config.onChanged(this.configChangedHandler);
 
         if (!api.ObjectHelper.equals(oldValue, config)) {
-            this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_CONFIG);
+            this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
         }
-    }
-
-    getConfig(): PropertyTree {
-        return this.config;
     }
 
     getDescription(): string {
@@ -115,20 +82,13 @@ export class DescriptorBasedComponent
             return false;
         }
 
-        if (!super.equals(o)) {
-            return false;
-        }
-        let other = <DescriptorBasedComponent>o;
+        const other: DescriptorBasedComponent = <DescriptorBasedComponent>o;
 
         if (!api.ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.config, other.config)) {
-            return false;
-        }
-
-        return true;
+        return super.equals(o);
     }
 
     clone(): DescriptorBasedComponent {
@@ -137,33 +97,29 @@ export class DescriptorBasedComponent
 }
 
 export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends DescriptorBasedComponent>
-    extends ComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    extends ConfigBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
 
     descriptor: DescriptorKey;
-
-    config: PropertyTree;
 
     constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
             this.descriptor = source.getDescriptorKey();
-            this.config = source.getConfig() ? source.getConfig().copy() : null;
-        } else {
-            this.config = new PropertyTree();
         }
     }
 
-    public setDescriptor(value: DescriptorKey): ComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public fromJson(json: DescriptorBasedComponentJson): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+        super.fromJson(json);
+
+        if (json.descriptor) {
+            this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
+        }
+
+        return this;
+    }
+
+    public setDescriptor(value: DescriptorKey): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
         this.descriptor = value;
         return this;
-    }
-
-    public setConfig(value: PropertyTree): ComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
-        this.config = value;
-        return this;
-    }
-
-    public build(): DESCRIPTOR_BASED_COMPONENT {
-        throw new Error('Must be implemented by inheritor');
     }
 }
