@@ -735,17 +735,16 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, isNew: boolean = false,
-           rightClicked: boolean = false) {
+    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, isNew?: boolean, rightClicked?: boolean) {
         Highlighter.get().hide();
         this.selectItem();
         this.showContextMenu(clickPosition, menuPosition);
-        new ItemViewSelectedEvent(this, clickPosition, isNew, rightClicked).fire();
+        new ItemViewSelectedEvent({itemView: this, position: clickPosition, isNew, rightClicked}).fire();
     }
 
     selectWithoutMenu() {
         this.selectItem();
-        new ItemViewSelectedEvent(this, null, false).fire();
+        new ItemViewSelectedEvent({itemView: this, position: null}).fire();
     }
 
     private selectItem() {

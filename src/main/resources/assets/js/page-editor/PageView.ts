@@ -283,7 +283,7 @@ export class PageView
                     (<TextComponentView>itemView).setEditMode(true);
                     this.closeTextEditModeButton.toggleClass('active', true);
                 }
-                new ItemViewSelectedEvent(itemView, null, event.isNew(), true).fire();
+                new ItemViewSelectedEvent({itemView, position: null, isNew: event.isNew(), rightClicked: true}).fire();
                 itemView.giveFocus();
             } else {
                 if (this.isTextEditMode()) {
@@ -430,11 +430,11 @@ export class PageView
         return [unlockAction];
     }
 
-    selectLocked(pos: ClickPosition) {
+    selectLocked(position: ClickPosition) {
         this.setLockVisible(true);
-        this.lockedContextMenu.showAt(pos.x, pos.y);
+        this.lockedContextMenu.showAt(position.x, position.y);
 
-        new ItemViewSelectedEvent(this, pos).fire();
+        new ItemViewSelectedEvent({itemView: this, position}).fire();
         new PageSelectedEvent(this).fire();
     }
 

@@ -1,6 +1,12 @@
-import './../api.ts';
 import {ItemView} from './ItemView';
 import {ClickPosition} from './ClickPosition';
+
+interface ItemViewSelectedEventConfig {
+    itemView: ItemView;
+    position: ClickPosition;
+    isNew?: boolean;
+    rightClicked?: boolean;
+}
 
 export class ItemViewSelectedEvent
     extends api.event.Event {
@@ -13,12 +19,12 @@ export class ItemViewSelectedEvent
 
     private rightClicked: boolean;
 
-    constructor(itemView: ItemView, position: ClickPosition, isNew: boolean = false, rightClicked: boolean = false) {
+    constructor(config: ItemViewSelectedEventConfig) {
         super();
-        this.pageItemView = itemView;
-        this.position = position;
-        this.newlyCreated = isNew;
-        this.rightClicked = rightClicked;
+        this.pageItemView = config.itemView;
+        this.position = config.position;
+        this.newlyCreated = config.isNew === undefined ? false : config.isNew;
+        this.rightClicked = config.rightClicked === undefined ? false : config.rightClicked;
     }
 
     getItemView(): ItemView {
