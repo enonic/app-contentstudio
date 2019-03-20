@@ -202,7 +202,7 @@ export class PageComponentsView
 
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
-            if (!event.isNew() && !this.pageView.isLocked()) {
+            if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
                 let selectedItemId = this.tree.getDataId(event.getItemView());
                 this.tree.selectNode(selectedItemId, true);
                 this.tree.getGrid().focus();

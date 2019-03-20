@@ -283,13 +283,13 @@ export class PageView
                     (<TextComponentView>itemView).setEditMode(true);
                     this.closeTextEditModeButton.toggleClass('active', true);
                 }
-                new ItemViewSelectedEvent({itemView, position: null, isNew: event.isNew(), rightClicked: true}).fire();
+                new ItemViewSelectedEvent({itemView, position: null, newlyCreated: event.isNewlyCreated(), rightClicked: true}).fire();
                 itemView.giveFocus();
             } else {
                 if (this.isTextEditMode()) {
                     PageViewController.get().setTextEditMode(false);
                 }
-                if (event.isNew()) {
+                if (event.isNewlyCreated()) {
                     itemView.select(null, ItemViewContextMenuPosition.NONE, true);
                 }
             }
@@ -397,7 +397,7 @@ export class PageView
         });
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, isNew: boolean = false,
+    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated: boolean = false,
            rightClicked: boolean = false) {
         super.select(clickPosition, menuPosition, false, rightClicked);
 

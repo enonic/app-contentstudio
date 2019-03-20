@@ -129,7 +129,7 @@ export class RegionView
 
     private initListeners() {
 
-        this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNew());
+        this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNewlyCreated());
 
         this.itemViewRemovedListener = (event: ItemViewRemovedEvent) => {
 
@@ -312,7 +312,7 @@ export class RegionView
         return super.toString() + extra;
     }
 
-    registerComponentView(componentView: ComponentView<Component>, index: number, isNew: boolean = false) {
+    registerComponentView(componentView: ComponentView<Component>, index: number, newlyCreated: boolean = false) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + '].registerComponentView: ' + componentView.toString() + ' at ' + index);
         }
@@ -327,7 +327,7 @@ export class RegionView
         componentView.onItemViewAdded(this.itemViewAddedListener);
         componentView.onItemViewRemoved(this.itemViewRemovedListener);
 
-        this.notifyItemViewAdded(componentView, isNew);
+        this.notifyItemViewAdded(componentView, newlyCreated);
     }
 
     unregisterComponentView(componentView: ComponentView<Component>) {
@@ -356,7 +356,7 @@ export class RegionView
         return 0;
     }
 
-    addComponentView(componentView: ComponentView<Component>, index: number, isNew: boolean = false, dragged?: boolean) {
+    addComponentView(componentView: ComponentView<Component>, index: number, newlyCreated: boolean = false, dragged?: boolean) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + ']addComponentView: ' + componentView.toString() + ' at ' + index);
         }
@@ -365,7 +365,7 @@ export class RegionView
         }
 
         this.insertChild(componentView, index);
-        this.registerComponentView(componentView, index, isNew || dragged);
+        this.registerComponentView(componentView, index, newlyCreated || dragged);
 
         new PageEditorComponentAddedEvent(componentView, this, dragged).fire();
     }
@@ -480,8 +480,8 @@ export class RegionView
         });
     }
 
-    private notifyItemViewAdded(itemView: ItemView, isNew: boolean = false) {
-        const event = new ItemViewAddedEvent(itemView, isNew);
+    private notifyItemViewAdded(itemView: ItemView, newlyCreated: boolean = false) {
+        const event = new ItemViewAddedEvent(itemView, newlyCreated);
         this.itemViewAddedListeners.forEach((listener) => {
             listener(event);
         });
