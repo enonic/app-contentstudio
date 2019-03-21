@@ -123,6 +123,15 @@ export class ContentPublishDialog
             this.updateControls(itemsToPublish);
         });
 
+        this.publishProcessor.onLoadingFailed(() => {
+            this.addClass('invalid');
+            this.setSubTitle(i18n('dialog.publish.error.loadFailed'));
+            this.toggleAction(false);
+            this.actionMenu.setVisible(false);
+            this.createIssueButton.setVisible(true);
+            this.loadMask.hide();
+        });
+
         this.handleIssueGlobalEvents();
     }
 
@@ -187,7 +196,7 @@ export class ContentPublishDialog
 
         CreateIssueDialog.get().reset();
 
-        this.reloadPublishDependencies(true).done();
+        this.reloadPublishDependencies();
 
         super.open();
     }
@@ -224,12 +233,12 @@ export class ContentPublishDialog
         return this.publishProcessor && this.publishProcessor.isAllPublishable();
     }
 
-    private reloadPublishDependencies(resetDependantItems?: boolean): wemQ.Promise<void> {
+    private reloadPublishDependencies() {
         if (this.isProgressBarEnabled()) {
-            return wemQ<void>(null);
+            return;
         }
-        return this.publishProcessor.reloadPublishDependencies(resetDependantItems);
 
+        this.publishProcessor.reloadPublishDependencies(true);
     }
 
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {
