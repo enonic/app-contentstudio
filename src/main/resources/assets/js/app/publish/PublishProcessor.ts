@@ -31,6 +31,8 @@ export class PublishProcessor {
 
     private loadingFinishedListeners: { (): void }[] = [];
 
+    private loadingFailedListeners: { (): void }[] = [];
+
     private reloadDependenciesDebounced: Function;
 
     private static debug: boolean = false;
@@ -81,70 +83,88 @@ export class PublishProcessor {
         });
     }
 
-    reloadPublishDependencies(resetDependantItems?: boolean): wemQ.Promise<void> {
+    reloadPublishDependencies(resetDependantItems?: boolean) {
         if (PublishProcessor.debug) {
             console.debug('PublishProcessor.reloadPublishDependencies: resetDependantItems = ' + resetDependantItems);
         }
 
         this.notifyLoadingStarted();
 
-        let ids = this.getContentToPublishIds();
+        const ids: ContentId[] = this.getContentToPublishIds();
+        const noItemsToPublish: boolean = ids.length === 0;
 
-        let resolveDependenciesRequest;
-        if (ids.length === 0) {
-            // spare a request if there're no ids
-            const result = ResolvePublishDependenciesResult.create()
-                .setDependentContents([])
-                .setRequiredContents([])
-                .setRequestedContents([])
-                .setAllPublishable(false)
-                .setContainsInvalid(false)
-                .build();
-            resolveDependenciesRequest = wemQ(result);
+        if (noItemsToPublish) {
+            this.handleNoPublishItemsToLoad(resetDependantItems);
         } else {
-            resolveDependenciesRequest = ResolvePublishDependenciesRequest.create()
-                .setIds(ids)
-                .setExcludedIds(this.excludedIds)
-                .setExcludeChildrenIds(this.itemList.getExcludeChildrenIds())
-                .build()
-                .sendAndParse();
+            this.loadPublishDependencies(ids, resetDependantItems);
+        }
+    }
+
+    private handleNoPublishItemsToLoad(resetDependantItems?: boolean) {
+        this.dependantIds = [];
+        this.dependantList.setRequiredIds([]);
+        this.containsInvalid = false;
+        this.allPublishable = false;
+
+        this.processResolveDescendantsResult([], resetDependantItems);
+
+        this.notifyLoadingFinished();
+    }
+
+    private processResolveDescendantsResult(dependants: ContentSummaryAndCompareStatus[], resetDependantItems?: boolean) {
+        if (PublishProcessor.debug) {
+            console.debug('PublishProcessor.reloadPublishDependencies: resolved dependants = ', dependants);
         }
 
-        return resolveDependenciesRequest.then((result: ResolvePublishDependenciesResult) => {
-            if (PublishProcessor.debug) {
-                console.debug('PublishProcessor.reloadPublishDependencies: resolved dependencies = ', result);
-            }
-            this.dependantIds = result.getDependants().slice();
+        if (resetDependantItems) { // just opened or first time loading children
+            this.dependantList.setItems(dependants);
+        } else {
+            this.filterDependantItems(dependants);
+        }
+    }
 
-            this.dependantList.setRequiredIds(result.getRequired());
+    private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean) {
+        this.createResolveDependenciesRequest(ids).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
+            this.processResolveDependenciesResult(result);
 
-            this.containsInvalid = result.isContainsInvalid();
-            this.allPublishable = result.isAllPublishable();
-
-            let resolveDescendantsRequest;
-            if (this.dependantIds.length === 0) {
-                // spare the request if there're no dependants
-                resolveDescendantsRequest = wemQ([]);
-            } else {
-                resolveDescendantsRequest = this.loadDescendants(this.dependantIds, 0, GetDescendantsOfContentsRequest.LOAD_SIZE);
-            }
-
-            return resolveDescendantsRequest.then((dependants: ContentSummaryAndCompareStatus[]) => {
-                if (PublishProcessor.debug) {
-                    console.debug('PublishProcessor.reloadPublishDependencies: resolved dependants = ', dependants);
-                }
-
-                if (resetDependantItems) { // just opened or first time loading children
-                    this.dependantList.setItems(dependants);
-                } else {
-                    this.filterDependantItems(dependants);
-                }
+            return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
+                this.processResolveDescendantsResult(descendants, resetDependantItems);
                 this.notifyLoadingFinished();
-
             });
-        }).catch(() => {
-            this.notifyLoadingFinished();
+        }).catch((reason: any) => {
+            this.notifyLoadingFailed();
+            api.DefaultErrorHandler.handle(reason);
         });
+    }
+
+    private createResolveDependenciesRequest(ids: ContentId[]): ResolvePublishDependenciesRequest {
+        return ResolvePublishDependenciesRequest.create()
+            .setIds(ids)
+            .setExcludedIds(this.excludedIds)
+            .setExcludeChildrenIds(this.itemList.getExcludeChildrenIds())
+            .build();
+    }
+
+    private processResolveDependenciesResult(result: ResolvePublishDependenciesResult) {
+        if (PublishProcessor.debug) {
+            console.debug('PublishProcessor.reloadPublishDependencies: resolved dependencies = ', result);
+        }
+
+        this.dependantIds = result.getDependants().slice();
+        this.dependantList.setRequiredIds(result.getRequired());
+        this.containsInvalid = result.isContainsInvalid();
+        this.allPublishable = result.isAllPublishable();
+    }
+
+    private loadDescendants(): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+        const noDependantItems: boolean = this.dependantIds.length === 0;
+
+        if (noDependantItems) {
+            return wemQ([]);
+        }
+
+        const slicedIds = this.dependantIds.slice(0, 0 + GetDescendantsOfContentsRequest.LOAD_SIZE);
+        return ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
     }
 
     public reset() {
@@ -213,19 +233,11 @@ export class PublishProcessor {
         }, 0);
     }
 
-    private loadDescendants(ids: ContentId[], from: number,
-                            size: number): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
-
-        let slicedIds = ids.slice(from, from + size);
-        return ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
-    }
-
     private filterDependantItems(dependants: ContentSummaryAndCompareStatus[]) {
         let itemsToRemove = this.dependantList.getItems().filter(
             (oldDependantItem: ContentSummaryAndCompareStatus) => !dependants.some(
                 (newDependantItem) => oldDependantItem.equals(newDependantItem)));
         this.dependantList.removeItems(itemsToRemove);
-
     }
 
     onLoadingStarted(listener: () => void) {
@@ -256,6 +268,22 @@ export class PublishProcessor {
 
     private notifyLoadingFinished() {
         this.loadingFinishedListeners.forEach((listener) => {
+            listener();
+        });
+    }
+
+    onLoadingFailed(listener: () => void) {
+        this.loadingFailedListeners.push(listener);
+    }
+
+    unLoadingFailed(listener: () => void) {
+        this.loadingFailedListeners = this.loadingFailedListeners.filter((curr) => {
+            return listener !== curr;
+        });
+    }
+
+    private notifyLoadingFailed() {
+        this.loadingFailedListeners.forEach((listener) => {
             listener();
         });
     }

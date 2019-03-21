@@ -53,11 +53,7 @@ export abstract class IssueDialog
         super.initListeners();
 
         this.onRendered(() => {
-            this.publishProcessor.reloadPublishDependencies(true).then(() => {
-                this.form.setContentItems(this.publishProcessor.getContentToPublishIds(), true);
-                this.form.giveFocus();
-                this.loadMask.hide();
-            });
+            this.publishProcessor.reloadPublishDependencies(true);
         });
 
         this.form.onContentItemsAdded((items: ContentTreeSelectorItem[]) => {
@@ -89,6 +85,15 @@ export abstract class IssueDialog
             if (this.publishProcessor.containsInvalidDependants()) {
                 this.setDependantListVisible(true);
             }
+
+            this.form.setContentItems(this.publishProcessor.getContentToPublishIds(), true);
+            this.form.giveFocus();
+
+            this.loadMask.hide();
+            this.unlockControls();
+        });
+
+        this.publishProcessor.onLoadingFailed(() => {
             this.loadMask.hide();
             this.unlockControls();
         });
