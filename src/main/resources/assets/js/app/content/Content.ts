@@ -104,6 +104,19 @@ export class Content
         return false;
     }
 
+    private dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
+        let data: PropertyTree;
+        let otherData: PropertyTree;
+        if (ignoreEmptyValues) {
+            data = PropertyTreeHelper.trimPropertyTree(this.data);
+            otherData = PropertyTreeHelper.trimPropertyTree(other);
+        } else {
+            data = this.data;
+            otherData = other;
+        }
+        return api.ObjectHelper.equals(data, otherData);
+    }
+
     private extraDataEquals(other: ExtraData[]): boolean {
         const comparator: ExtraDataByMixinNameComparator = new ExtraDataByMixinNameComparator();
 
@@ -113,7 +126,7 @@ export class Content
         return api.ObjectHelper.arrayEquals(thisExtraDatas.sort(comparator.compare), otherExtraDatas.sort(comparator.compare));
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
             return false;
         }
@@ -124,7 +137,7 @@ export class Content
 
         let other = <Content>o;
 
-        if (!PropertyTreeHelper.configsEqual(this.data, other.getContentData())) {
+        if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
             return false;
         }
 

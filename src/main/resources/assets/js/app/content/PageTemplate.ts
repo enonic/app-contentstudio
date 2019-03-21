@@ -85,13 +85,13 @@ export class PageTemplate
         return this.getPage().getConfig();
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
 
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PageTemplate)) {
             return false;
         }
 
-        return super.equals(o);
+        return super.equals(o, ignoreEmptyValues);
     }
 
     clone(): PageTemplate {
