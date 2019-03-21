@@ -132,9 +132,14 @@ export class ImageUploader
         switch (property.getType()) {
         case ValueTypes.DATA:
             // update the attachment name, and reset the focal point data
-            let set = property.getPropertySet();
+            const set = property.getPropertySet();
             set.setProperty('attachment', 0, value);
             set.removeProperty('focalPoint', 0);
+            // these values are set on save by the server, setting them here for the contents to be equal
+            const focalSet = new PropertySet();
+            focalSet.addDouble('x', 0.5);
+            focalSet.addDouble('y', 0.5);
+            set.setPropertySet('focalPoint', 0, focalSet);
             set.removeProperty('cropPosition', 0);
             set.removeProperty('zoomPosition', 0);
 

@@ -1204,9 +1204,10 @@ export class ContentWizardPanel
     }
 
     private updatePersistedItemIfNeeded(content: Content) {
-        const isAlreadyUpdated = content.equals(this.getPersistedItem());
+        const isEqualToForm = content.getId() === this.getPersistedItem().getId() &&
+                              content.dataEquals(this.contentWizardStepForm.getData(), true);
 
-        if (!isAlreadyUpdated) {
+        if (!isEqualToForm) {
             this.setPersistedItem(content.clone());
             this.updateWizard(content, true);
 
@@ -1223,6 +1224,7 @@ export class ContentWizardPanel
 
             this.wizardActions.setDeleteOnlyMode(this.getPersistedItem(), false);
         } else {
+            // this update was triggered by our changes, so reset dirty state
             this.resetWizard();
         }
     }
