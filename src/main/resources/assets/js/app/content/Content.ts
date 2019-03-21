@@ -118,12 +118,9 @@ export class Content
     }
 
     private extraDataEquals(other: ExtraData[]): boolean {
-        const comparator: ExtraDataByMixinNameComparator = new ExtraDataByMixinNameComparator();
+        const comparator = new ExtraDataByMixinNameComparator();
 
-        const otherExtraDatas: ExtraData[] = other.filter((otherExtraData: ExtraData) => !otherExtraData.getData().isEmpty());
-        const thisExtraDatas: ExtraData[] = this.extraData.filter((extraData: ExtraData) => !extraData.getData().isEmpty());
-
-        return api.ObjectHelper.arrayEquals(thisExtraDatas.sort(comparator.compare), otherExtraDatas.sort(comparator.compare));
+        return api.ObjectHelper.arrayEquals(this.extraData.sort(comparator.compare), other.sort(comparator.compare));
     }
 
     equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
