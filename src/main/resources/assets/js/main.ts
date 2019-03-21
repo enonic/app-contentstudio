@@ -81,6 +81,24 @@ function startLostConnectionDetector(): LostConnectionDetector {
     return lostConnectionDetector;
 }
 
+function initApplicationEventListener() {
+
+    let messageId;
+
+    api.application.ApplicationEvent.on((event: api.application.ApplicationEvent) => {
+        if (api.application.ApplicationEventType.STOPPED === event.getEventType() || api.application.ApplicationEventType.UNINSTALLED ===
+            event.getEventType()) {
+            if (CONFIG.appId === event.getApplicationKey().toString()) {
+                api.notify.NotifyManager.get().hide(messageId);
+                messageId = api.notify.showError(i18n('notify.no_connection'), false);
+            }
+        }
+        if (api.application.ApplicationEventType.STARTED === event.getEventType() || api.application.ApplicationEventType.INSTALLED) {
+            api.notify.NotifyManager.get().hide(messageId);
+        }
+    });
+}
+
 function initToolTip() {
     const ID = api.StyleHelper.getCls('tooltip', api.StyleHelper.COMMON_PREFIX);
     const CLS_ON = 'tooltip_ON';
@@ -258,6 +276,8 @@ function startApplication() {
 
     let serverEventsListener = new AggregatedServerEventsListener([application]);
     serverEventsListener.start();
+
+    initApplicationEventListener();
 
     let connectionDetector = startLostConnectionDetector();
 
