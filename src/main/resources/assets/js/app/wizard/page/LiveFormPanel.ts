@@ -68,6 +68,7 @@ import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {RegionPath} from '../../page/region/RegionPath';
+import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
@@ -439,7 +440,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel, showPanel?: boolean) {
+    setModel(liveEditModel: LiveEditModel, showPanel: boolean) {
 
         this.liveEditModel = liveEditModel;
 
@@ -623,7 +624,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onPageSelected((event: PageSelectedEvent) => {
-            this.inspectPage();
+            this.inspectPage(true);
         });
 
         this.liveEditPageProxy.onRegionSelected((event: RegionSelectedEvent) => {
@@ -639,7 +640,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.clearSelection();
+            this.clearSelection(true);
         });
 
         this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -648,7 +649,7 @@ export class LiveFormPanel
                 this.pageModel.initializePageFromDefault(this);
             }
 
-            this.clearSelection();
+            this.clearSelection(true);
         });
 
         this.liveEditPageProxy.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
@@ -666,13 +667,12 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onComponentInspected((event: ComponentInspectedEvent) => {
             let componentView = event.getComponentView();
-            // this.contextWindow.slideIn();
             this.inspectComponent(componentView);
         });
 
         this.liveEditPageProxy.onPageInspected((event: PageInspectedEvent) => {
             // this.contextWindow.slideIn();
-            this.inspectPage();
+            this.inspectPage(true);
         });
 
         this.liveEditPageProxy.onComponentFragmentCreated((event: ComponentFragmentCreatedEvent) => {
@@ -737,11 +737,11 @@ export class LiveFormPanel
         });
     }
 
-    private inspectPage(showPanel?: boolean) {
+    private inspectPage(showPanel: boolean) {
         this.contextWindow.showInspectionPanel(this.pageInspectionPanel, true, showPanel);
     }
 
-    private clearSelection(showPanel?: boolean): void {
+    private clearSelection(showPanel: boolean): void {
         let pageModel = this.liveEditModel.getPageModel();
         let customizedWithController = pageModel.isCustomized() && pageModel.hasController();
         let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
@@ -752,7 +752,7 @@ export class LiveFormPanel
         }
     }
 
-    clearPageViewSelectionAndOpenInspectPage(showPanel?: boolean) {
+    clearPageViewSelectionAndOpenInspectPage(showPanel: boolean) {
         if (this.pageView && this.pageView.hasSelectedView()) {
             this.pageView.getSelectedView().deselect();
         }
@@ -764,29 +764,31 @@ export class LiveFormPanel
         let region = regionView.getRegion();
 
         this.regionInspectionPanel.setRegion(region);
-        this.contextWindow.showInspectionPanel(this.regionInspectionPanel);
+        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, true);
     }
 
-    private inspectComponent(componentView: ComponentView<Component>, showWidget?: boolean) {
+    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true) {
         api.util.assertNotNull(componentView, 'componentView cannot be null');
+
+        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, true);
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
             this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.imageInspectionPanel, showWidget);
+            showInspectionPanel(this.imageInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
             this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.partInspectionPanel, showWidget);
+            showInspectionPanel(this.partInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
             this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.layoutInspectionPanel, showWidget);
+            showInspectionPanel(this.layoutInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
-            this.contextWindow.showInspectionPanel(this.textInspectionPanel, showWidget);
+            showInspectionPanel(this.textInspectionPanel);
         } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
             this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
             this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
-            this.contextWindow.showInspectionPanel(this.fragmentInspectionPanel, showWidget);
+            showInspectionPanel(this.fragmentInspectionPanel);
         } else {
             throw new Error('ComponentView cannot be selected: ' + api.ClassHelper.getClassName(componentView));
         }

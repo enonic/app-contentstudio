@@ -1255,7 +1255,7 @@ export class ContentWizardPanel
                            // pageModel is updated so we need reload unless we're saving already
                            const needsReload = !this.isSaving();
                            if (livePanel) {
-                               livePanel.setModel(this.liveEditModel);
+                               livePanel.setModel(this.liveEditModel, true);
                                if (needsReload && reloadPage) {
                                    this.debouncedEditorRefresh(true);
                                }
@@ -1371,7 +1371,7 @@ export class ContentWizardPanel
             return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
 
-                liveFormPanel.setModel(this.liveEditModel);
+                liveFormPanel.setModel(this.liveEditModel, true);
 
                 this.debouncedEditorRefresh(false);
 

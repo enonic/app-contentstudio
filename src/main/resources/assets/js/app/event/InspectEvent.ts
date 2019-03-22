@@ -5,7 +5,7 @@ export class InspectEvent
 
     private showPanel: boolean;
 
-    constructor(showWidget: boolean = true, showPanel: boolean = true, name?: string) {
+    constructor(showWidget: boolean, showPanel: boolean, name?: string) {
         super(name);
         this.showWidget = showWidget;
         this.showPanel = showPanel;
