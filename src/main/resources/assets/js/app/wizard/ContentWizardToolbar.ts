@@ -70,6 +70,8 @@ export class ContentWizardToolbar
             this.status.show();
             this.author.show();
             this.contentWizardToolbarPublishControls.getPublishButton().show();
+            // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
+            setTimeout(() => this.foldOrExpand());
         });
     }
 
