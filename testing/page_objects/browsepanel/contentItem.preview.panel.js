@@ -126,6 +126,20 @@ const contentItemPreviewPanel = Object.create(page, {
             let selector = `${xpath.toolbar}${xpath.issueMenuButton}` + '//span/i';
             return this.getText(selector);
         }
+    },
+    getTextInAttachmentPreview: {
+        value: function () {
+            let attachmentFrame = "//div[contains(@id,'ContentItemPreviewPanel')]//iframe[contains(@src,'admin/rest/content/media/')]";
+            return this.waitForVisible(attachmentFrame, appConst.TIMEOUT_3).then(() => {
+                return this.getBrowser().element(attachmentFrame)
+            }).then(result => {
+                return this.frame(result.value);
+            }).then(() => {
+                return this.getText("//body/pre");
+            }).catch(err => {
+                throw new Error("Error when get text in attachment preview " + err);
+            })
+        }
     }
 });
 module.exports = contentItemPreviewPanel;
