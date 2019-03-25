@@ -1794,7 +1794,11 @@ export class ContentWizardPanel
         } else {
             const viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
 
-            return !viewedContent.equals(persistedContent);
+            // ignore empty values for auto-created content that hasn't been updated yet because it doesn't have data at all
+            let ignoreEmptyValues = !persistedContent.getModifiedTime() || !persistedContent.getCreatedTime() ||
+                                    persistedContent.getCreatedTime().getTime() === persistedContent.getModifiedTime().getTime();
+
+            return !viewedContent.equals(persistedContent, ignoreEmptyValues);
         }
     }
 
