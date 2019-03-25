@@ -42,7 +42,7 @@ export class LayoutComponentView
         this.liveEditModel = builder.parentRegionView.getLiveEditModel();
         LayoutComponentView.debug = false;
 
-        this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNew());
+        this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNewlyCreated());
         this.itemViewRemovedListener = (event: ItemViewRemovedEvent) => this.notifyItemViewRemoved(event.getView());
 
         this.parseRegions();

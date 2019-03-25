@@ -329,8 +329,8 @@ export class ContextView
                 .setType(InternalWidgetType.COMPONENTS)
                 .build();
 
-            InspectEvent.on(() => {
-                if (this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
+            InspectEvent.on((event: InspectEvent) => {
+                if (event.isShowWidget() && this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
                     this.activateDefaultWidget();
                 }
             });

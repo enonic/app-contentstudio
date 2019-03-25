@@ -1,6 +1,13 @@
-import './../api.ts';
 import {ItemView} from './ItemView';
 import {ClickPosition} from './ClickPosition';
+
+interface ItemViewSelectedEventConfig {
+    itemView: ItemView;
+    position: ClickPosition;
+    newlyCreated?: boolean;
+    rightClicked?: boolean;
+    restoredSelection?: boolean;
+}
 
 export class ItemViewSelectedEvent
     extends api.event.Event {
@@ -13,12 +20,15 @@ export class ItemViewSelectedEvent
 
     private rightClicked: boolean;
 
-    constructor(itemView: ItemView, position: ClickPosition, isNew: boolean = false, rightClicked: boolean = false) {
+    private restoredSelection: boolean;
+
+    constructor(config: ItemViewSelectedEventConfig) {
         super();
-        this.pageItemView = itemView;
-        this.position = position;
-        this.newlyCreated = isNew;
-        this.rightClicked = rightClicked;
+        this.pageItemView = config.itemView;
+        this.position = config.position;
+        this.newlyCreated = config.newlyCreated === undefined ? false : config.newlyCreated;
+        this.rightClicked = config.rightClicked === undefined ? false : config.rightClicked;
+        this.restoredSelection = config.restoredSelection === undefined ? false : config.restoredSelection;
     }
 
     getItemView(): ItemView {
@@ -29,12 +39,16 @@ export class ItemViewSelectedEvent
         return this.position;
     }
 
-    isNew(): boolean {
+    isNewlyCreated(): boolean {
         return this.newlyCreated;
     }
 
     isRightClicked(): boolean {
         return this.rightClicked;
+    }
+
+    isRestoredSelection(): boolean {
+        return this.restoredSelection;
     }
 
     static on(handler: (event: ItemViewSelectedEvent) => void, contextWindow: Window = window) {
