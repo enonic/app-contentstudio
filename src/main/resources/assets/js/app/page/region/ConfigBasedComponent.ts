@@ -54,7 +54,7 @@ export abstract class ConfigBasedComponent
 
         const other: ConfigBasedComponent = <ConfigBasedComponent>o;
 
-        return PropertyTreeHelper.configsEqual(this.config, other.config);
+        return PropertyTreeHelper.propertyTreesEqual(this.config, other.config);
     }
 }
 
