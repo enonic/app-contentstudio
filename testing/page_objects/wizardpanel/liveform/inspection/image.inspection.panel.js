@@ -49,7 +49,7 @@ const imageInspectionPanel = Object.create(page, {
     getCaptionText: {
         value: function () {
             return this.getTextFromInput(this.captionTextArea).catch(err => {
-                this.saveScreenshot('err_type_text_in_caption');
+                this.saveScreenshot('err_get_text_in_caption');
                 throw new Error('error- Image Inspect Panel, type text in Caption text area: ' + err)
             });
         }

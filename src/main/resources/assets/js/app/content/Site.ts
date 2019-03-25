@@ -38,13 +38,13 @@ export class Site
         return this.getSiteConfigs().map((config: ApplicationConfig) => config.getApplicationKey());
     }
 
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false, shallow: boolean = false): boolean {
+    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
 
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Site)) {
             return false;
         }
 
-        return super.equals(o, ignoreEmptyValues, shallow);
+        return super.equals(o, ignoreEmptyValues);
     }
 
     clone(): Site {

@@ -215,10 +215,6 @@ export class ContentWizardPanel
     protected createWizardActions(): ContentWizardActions {
         let wizardActions: ContentWizardActions = new ContentWizardActions(this);
         wizardActions.getShowLiveEditAction().setEnabled(false);
-        wizardActions.getSaveAction().onExecuted(() => {
-            this.contentWizardStepForm.validate();
-            this.displayValidationErrors(!this.isValid());
-        });
 
         wizardActions.getShowSplitEditAction().onExecuted(() => {
             if (!this.inMobileViewMode) {
@@ -1268,7 +1264,7 @@ export class ContentWizardPanel
                            // pageModel is updated so we need reload unless we're saving already
                            const needsReload = !this.isSaving();
                            if (livePanel) {
-                               livePanel.setModel(this.liveEditModel);
+                               livePanel.setModel(this.liveEditModel, true);
                                if (needsReload && reloadPage) {
                                    this.debouncedEditorRefresh(true);
                                }
@@ -1384,7 +1380,7 @@ export class ContentWizardPanel
             return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
 
-                liveFormPanel.setModel(this.liveEditModel);
+                liveFormPanel.setModel(this.liveEditModel, true);
 
                 this.debouncedEditorRefresh(false);
 
@@ -1461,7 +1457,7 @@ export class ContentWizardPanel
                 this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
-                    liveFormPanel.setModel(this.liveEditModel);
+                    liveFormPanel.setModel(this.liveEditModel, false);
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 
@@ -1758,6 +1754,11 @@ export class ContentWizardPanel
             this.getWizardHeader().resetBaseValues();
 
             return content;
+        }).then((content: Content) => {
+            this.contentWizardStepForm.validate();
+            this.displayValidationErrors(!this.isValid());
+
+            return content;
         });
     }
 
@@ -1798,12 +1799,13 @@ export class ContentWizardPanel
         if (!this.isRendered()) {
             return false;
         }
-        let persistedContent: Content = this.getPersistedItem();
+
+        const persistedContent: Content = this.getPersistedItem();
+
         if (persistedContent == null) {
             return true;
         } else {
-
-            let viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
+            const viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
 
             // ignore empty values for auto-created content that hasn't been updated yet because it doesn't have data at all
             let ignoreEmptyValues = !persistedContent.getModifiedTime() || !persistedContent.getCreatedTime() ||

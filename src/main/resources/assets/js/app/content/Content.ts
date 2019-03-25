@@ -12,6 +12,7 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
+import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Content
     extends ContentSummary
@@ -103,12 +104,6 @@ export class Content
         return false;
     }
 
-    private trimPropertyTree(data: PropertyTree): PropertyTree {
-        let copy = data.copy();
-        copy.getRoot().removeEmptyValues();
-        return copy;
-    }
-
     dataEquals(other: PropertyTree, ignoreEmptyValues: boolean = false): boolean {
         return this.propertySetsEqual(this.data, other, ignoreEmptyValues);
     }
@@ -117,8 +112,8 @@ export class Content
         let data;
         let otherData;
         if (ignoreEmptyValues) {
-            data = this.trimPropertyTree(one);
-            otherData = this.trimPropertyTree(two);
+            data = PropertyTreeHelper.trimPropertyTree(one);
+            otherData = PropertyTreeHelper.trimPropertyTree(two);
         } else {
             data = one;
             otherData = two;
@@ -126,8 +121,8 @@ export class Content
         return api.ObjectHelper.equals(data, otherData);
     }
 
-    extraDataEquals(other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
-        let comparator = new ExtraDataByMixinNameComparator();
+    private extraDataEquals(other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
+        const comparator = new ExtraDataByMixinNameComparator();
 
         const arrayA = this.extraData.sort(comparator.compare);
         const arrayB = other.sort(comparator.compare);
@@ -145,7 +140,7 @@ export class Content
         return true;
     }
 
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false, shallow: boolean = false): boolean {
+    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
             return false;
         }
@@ -156,14 +151,12 @@ export class Content
 
         let other = <Content>o;
 
-        if (!shallow) {
-            if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
-                return false;
-            }
+        if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
+            return false;
+        }
 
-            if (!this.extraDataEquals(other.getAllExtraData(), ignoreEmptyValues)) {
-                return false;
-            }
+        if (!this.extraDataEquals(other.getAllExtraData(), ignoreEmptyValues)) {
+            return false;
         }
 
         if (!api.ObjectHelper.equals(this.pageObj, other.pageObj)) {

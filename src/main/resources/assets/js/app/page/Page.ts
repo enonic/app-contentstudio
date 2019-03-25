@@ -15,6 +15,7 @@ import {LayoutComponentType} from './region/LayoutComponentType';
 import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
+import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Page
     implements api.Equitable, api.Cloneable {
@@ -113,7 +114,7 @@ export class Page
             return false;
         }
 
-        return this.configEquals(other.config);
+        return PropertyTreeHelper.configsEqual(this.config, other.config);
     }
 
     private regionsEquals(otherRegions: Regions): boolean {
@@ -126,17 +127,6 @@ export class Page
         }
 
         return api.ObjectHelper.equals(this.regions, otherRegions);
-    }
-
-    private configEquals(otherConfig: PropertyTree): boolean {
-        if (!this.config && (!otherConfig || otherConfig.isEmpty())) {
-            return true;
-        }
-        if (!otherConfig && (!this.config || this.config.isEmpty())) {
-            return true;
-        }
-
-        return api.ObjectHelper.equals(this.config, otherConfig);
     }
 
     clone(): Page {

@@ -36,7 +36,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
 
     //verifies https://github.com/enonic/lib-admin-ui/issues/909
     //Wizard's navigation toolbar scrolls to incorrect step on long forms
-    it(`WHEN content with long forms (x-data) is opened THEN last step has been clicked THEN required form gets visible`,
+    it(`WHEN content with long forms (x-data) is opened AND last step has been clicked THEN required form gets visible`,
         () => {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1').then(() => {
                 return contentWizard.typeDisplayName(contentName);

@@ -1,26 +1,18 @@
-import PropertyTree = api.data.PropertyTree;
 import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
 import {Regions} from './Regions';
-import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {Region} from './Region';
 import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
 import {Component} from './Component';
 import {LayoutComponentJson} from './LayoutComponentJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
-import {ComponentName} from './ComponentName';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
-import {LayoutBasedComponent, LayoutBasedComponentBuilder} from './LayoutBasedComponent';
+import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 
 export class LayoutComponent
-    extends LayoutBasedComponent
-    implements api.Equitable, api.Cloneable {
-
-    public static debug: boolean = false;
+    extends DescriptorBasedComponent {
 
     private regions: Regions;
-
-    private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
 
     private componentPropertyChangedEventHandler: (event: any) => void;
 
@@ -128,15 +120,11 @@ export class LayoutComponent
 
         const other = <LayoutComponent>o;
 
-        if (!super.equals(o)) {
-            return false;
-        }
-
         if (!api.ObjectHelper.equals(this.regions, other.regions)) {
             return false;
         }
 
-        return true;
+        return super.equals(o);
     }
 
     clone(): LayoutComponent {
@@ -153,21 +141,10 @@ export class LayoutComponent
         this.regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 
-    onComponentPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
-        this.componentPropertyChangedListeners.push(listener);
-    }
-
-    unComponentPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
-        this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
 }
 
 export class LayoutComponentBuilder
-    extends LayoutBasedComponentBuilder<LayoutComponent> {
+    extends DescriptorBasedComponentBuilder<LayoutComponent> {
 
     regions: Regions;
 
@@ -180,23 +157,6 @@ export class LayoutComponentBuilder
         }
 
         this.setType(LayoutComponentType.get());
-    }
-
-    public fromJson(json: LayoutComponentJson, region: Region): LayoutComponentBuilder {
-
-        if (json.descriptor) {
-            this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
-        }
-
-        this.setName(json.name ? new ComponentName(json.name) : null);
-
-        if (json.config) {
-            this.setConfig(PropertyTree.fromJson(json.config));
-        }
-
-        this.setParent(region);
-
-        return this;
     }
 
     public setRegions(value: Regions): LayoutComponentBuilder {

@@ -341,7 +341,7 @@ const contentWizardPanel = Object.create(page, {
                 if (result) {
                     return this.doClick(this.saveButton);
                 } else {
-                    throw new Error('Save button is disabled! ' + err);
+                    throw new Error('Save button is disabled! ');
                 }
             });
         }
@@ -455,7 +455,7 @@ const contentWizardPanel = Object.create(page, {
             }).then(() => {
                 return this.doClick(optionSelector).catch(err => {
                     this.saveScreenshot('err_select_option');
-                    throw new Error('option not found!' + pageControllerDisplayName);
+                    throw new Error('option not found!' + pageControllerDisplayName+ " "+ err);
                 }).pause(500);
             });
         }

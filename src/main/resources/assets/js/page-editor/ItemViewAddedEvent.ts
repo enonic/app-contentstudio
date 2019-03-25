@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemView} from './ItemView';
 
 export class ItemViewAddedEvent {
@@ -6,16 +5,16 @@ export class ItemViewAddedEvent {
     private view: ItemView;
     private newlyCreated: boolean;
 
-    constructor(view: ItemView, isNew: boolean = false) {
+    constructor(view: ItemView, newlyCreated: boolean = false) {
         this.view = view;
-        this.newlyCreated = isNew;
+        this.newlyCreated = newlyCreated;
     }
 
     getView(): ItemView {
         return this.view;
     }
 
-    isNew(): boolean {
+    isNewlyCreated(): boolean {
         return this.newlyCreated;
     }
 }

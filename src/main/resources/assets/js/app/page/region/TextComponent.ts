@@ -2,12 +2,10 @@ import {Component, ComponentBuilder} from './Component';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {TextComponentJson} from './TextComponentJson';
 import {TextComponentType} from './TextComponentType';
-import {Region} from './Region';
 import {ComponentName} from './ComponentName';
 
 export class TextComponent
-    extends Component
-    implements api.Equitable, api.Cloneable {
+    extends Component {
 
     private text: string;
 
@@ -90,14 +88,13 @@ export class TextComponentBuilder
         this.setType(TextComponentType.get());
     }
 
-    public fromJson(json: TextComponentJson, region: Region): TextComponentBuilder {
+    public fromJson(json: TextComponentJson): TextComponentBuilder {
 
         if (json.text) {
             this.setText(json.text);
         }
 
         this.setName(json.name ? new ComponentName(json.name) : null);
-        this.setParent(region);
 
         return this;
     }

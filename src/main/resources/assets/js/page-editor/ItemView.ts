@@ -735,17 +735,16 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, isNew: boolean = false,
-           rightClicked: boolean = false) {
+    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated?: boolean, rightClicked?: boolean) {
         Highlighter.get().hide();
         this.selectItem();
         this.showContextMenu(clickPosition, menuPosition);
-        new ItemViewSelectedEvent(this, clickPosition, isNew, rightClicked).fire();
+        new ItemViewSelectedEvent({itemView: this, position: clickPosition, newlyCreated, rightClicked}).fire();
     }
 
-    selectWithoutMenu(isNew: boolean = false) {
+    selectWithoutMenu(restoredSelection?: boolean) {
         this.selectItem();
-        new ItemViewSelectedEvent(this, null, isNew).fire();
+        new ItemViewSelectedEvent({itemView: this, position: null, restoredSelection}).fire();
     }
 
     private selectItem() {
@@ -937,7 +936,7 @@ export class ItemView
         }
     }
 
-    protected addComponentView(componentView: ItemView, index?: number, isNew: boolean = false) {
+    protected addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
         throw new Error('Must be implemented by inheritors');
     }
 

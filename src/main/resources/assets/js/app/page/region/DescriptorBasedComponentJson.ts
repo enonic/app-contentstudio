@@ -1,9 +1,7 @@
-import {ComponentJson} from './ComponentJson';
+import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
 export interface DescriptorBasedComponentJson
-    extends ComponentJson {
+    extends ConfigBasedComponentJson {
 
     descriptor: string;
-
-    config: api.data.PropertyArrayJson[];
 }

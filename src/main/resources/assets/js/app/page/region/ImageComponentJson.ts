@@ -1,9 +1,7 @@
-import {ComponentJson} from './ComponentJson';
+import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
 export interface ImageComponentJson
-    extends ComponentJson {
+    extends ConfigBasedComponentJson {
 
     image: string;
-
-    config: api.data.PropertyArrayJson[];
 }

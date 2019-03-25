@@ -1,57 +1,24 @@
-import PropertyTree = api.data.PropertyTree;
-import PropertyEvent = api.data.PropertyEvent;
-import {Component, ComponentBuilder} from './Component';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {FragmentComponentJson} from './FragmentComponentJson';
 import {ComponentName} from './ComponentName';
-import {Region} from './Region';
 import {FragmentComponentType} from './FragmentComponentType';
+import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 
 export class FragmentComponent
-    extends Component
-    implements api.Equitable, api.Cloneable {
+    extends ConfigBasedComponent {
 
     public static PROPERTY_FRAGMENT: string = 'fragment';
 
-    public static PROPERTY_CONFIG: string = 'config';
-
-    public static debug: boolean = false;
-
-    private disableEventForwarding: boolean;
-
     private fragment: api.content.ContentId;
-
-    private config: PropertyTree;
-
-    private configChangedHandler: (event: PropertyEvent) => void;
 
     constructor(builder: FragmentComponentBuilder) {
         super(builder);
 
         this.fragment = builder.fragment;
-        this.config = builder.config;
-        this.configChangedHandler = (event: PropertyEvent) => {
-            if (FragmentComponent.debug) {
-                console.debug('FragmentComponent[' + this.getPath().toString() + '].config.onChanged: ', event);
-            }
-            if (!this.disableEventForwarding) {
-                this.notifyPropertyValueChanged(FragmentComponent.PROPERTY_CONFIG);
-            }
-        };
-
-        this.config.onChanged(this.configChangedHandler);
-    }
-
-    setDisableEventForwarding(value: boolean) {
-        this.disableEventForwarding = value;
     }
 
     getFragment(): api.content.ContentId {
         return this.fragment;
-    }
-
-    getConfig(): PropertyTree {
-        return this.config;
     }
 
     setFragment(contentId: api.content.ContentId, name: string) {
@@ -94,21 +61,13 @@ export class FragmentComponent
             return false;
         }
 
-        let other = <FragmentComponent>o;
-
-        if (!super.equals(o)) {
-            return false;
-        }
+        const other = <FragmentComponent>o;
 
         if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.config, other.config)) {
-            return false;
-        }
-
-        return true;
+        return super.equals(o);
     }
 
     clone(): FragmentComponent {
@@ -117,20 +76,17 @@ export class FragmentComponent
 }
 
 export class FragmentComponentBuilder
-    extends ComponentBuilder<FragmentComponent> {
+    extends ConfigBasedComponentBuilder<FragmentComponent> {
 
     fragment: api.content.ContentId;
 
-    config: PropertyTree;
-
     constructor(source?: FragmentComponent) {
         super(source);
+
         if (source) {
             this.fragment = source.getFragment();
-            this.config = source.getConfig() ? source.getConfig().copy() : null;
-        } else {
-            this.config = new PropertyTree();
         }
+
         this.setType(FragmentComponentType.get());
     }
 
@@ -139,24 +95,12 @@ export class FragmentComponentBuilder
         return this;
     }
 
-    public setConfig(value: PropertyTree): FragmentComponentBuilder {
-        this.config = value;
-        return this;
-    }
-
-    public fromJson(json: FragmentComponentJson, region: Region): FragmentComponentBuilder {
+    public fromJson(json: FragmentComponentJson): FragmentComponentBuilder {
+        super.fromJson(json);
 
         if (json.fragment) {
             this.setFragment(new api.content.ContentId(json.fragment));
         }
-
-        this.setName(json.name ? new ComponentName(json.name) : null);
-
-        if (json.config) {
-            this.setConfig(PropertyTree.fromJson(json.config));
-        }
-
-        this.setParent(region);
 
         return this;
     }
