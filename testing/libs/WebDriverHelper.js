@@ -11,12 +11,12 @@ WebDriverHelper.prototype.getBrowser = function () {
     return this.browser;
 };
 
-const makeChromeOptions = headless => ({
+const makeChromeOptions = (headless, width) => ({
     "args": [
         ...(headless ? ["--headless", "--disable-gpu", "--no-sandbox"] : []),
         "--lang=en",
         '--disable-extensions',
-        'window-size=1920,1100'
+        `window-size=${width},1100`
     ]
 });
 
@@ -37,14 +37,16 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
         let baseUrl = properties.get('base.url');
         let chromeBinPath = properties.get('chrome.bin.path');
         let isHeadless = properties.get('is.headless');
+        let width = properties.get('browser.width');
         console.log('is Headless ##################### ' + isHeadless);
         console.log('browser name ##################### ' + browser_name);
+        console.log('browser width ##################### ' + width);
         let options = {
             desiredCapabilities: {
                 browserName: browser_name,
                 platform: platform_name,
                 binary: chromeBinPath,
-                chromeOptions: makeChromeOptions(isHeadless)
+                chromeOptions: makeChromeOptions(isHeadless, width)
             }
         };
         _this.browser = webdriverio

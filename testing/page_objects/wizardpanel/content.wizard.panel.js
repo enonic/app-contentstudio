@@ -356,9 +356,11 @@ const contentWizardPanel = Object.create(page, {
     },
     clickOnPublishButton: {
         value: function () {
-            return this.doClick(this.publishButton).catch(err => {
+            return this.waitForEnabled(this.publishButton, appConst.TIMEOUT_2).then(() => {
+                return this.doClick(this.publishButton)
+            }).catch(err => {
                 this.saveScreenshot('err_when_click_on_publish_button');
-                throw new Error('Error when Delete button has been clicked ' + err);
+                throw new Error('Error when Publish button has been clicked ' + err);
             });
         }
     },
@@ -455,7 +457,7 @@ const contentWizardPanel = Object.create(page, {
             }).then(() => {
                 return this.doClick(optionSelector).catch(err => {
                     this.saveScreenshot('err_select_option');
-                    throw new Error('option not found!' + pageControllerDisplayName+ " "+ err);
+                    throw new Error('option not found!' + pageControllerDisplayName + " " + err);
                 }).pause(500);
             });
         }
