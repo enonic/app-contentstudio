@@ -83,8 +83,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
                 assert.isTrue(message === expectedMessage, "'Item is saved' - this message should appear")
             }).then(() => {
                 studioUtils.saveScreenshot('inspect_panel_template_changed');
-                return assert.eventually.isTrue(contentWizard.waitForSavedButtonVisible(),
-                    "`Saved` button should appears on the toolbar");
+                return assert.eventually.isTrue(contentWizard.waitForSaveButtonDisabled(),
+                    "`Save` button gets disabled on the toolbar");
             });
         });
 
