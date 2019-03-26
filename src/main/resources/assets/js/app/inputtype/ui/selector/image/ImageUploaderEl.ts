@@ -240,7 +240,8 @@ export class ImageUploaderEl
         const contentId = new ContentId(value);
         for (let i = 0; i < this.imageEditors.length; i++) {
             let editor = this.imageEditors[i];
-            if (existingItem === editor && editor.getSrc().indexOf(value) === -1) {
+            // value may be equal to existing if reverting to previous version so do refresh anyway
+            if (existingItem === editor) {
                 editor.setSrc(this.resolveImageUrl(contentId));
                 break;
             }

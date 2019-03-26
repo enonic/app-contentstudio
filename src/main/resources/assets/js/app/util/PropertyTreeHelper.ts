@@ -9,13 +9,13 @@ export class PropertyTreeHelper {
         return copy;
     }
 
-    static configsEqual(config: PropertyTree, otherConfig: PropertyTree): boolean {
+    static propertyTreesEqual(config: PropertyTree, otherConfig: PropertyTree, ignoreEmptyValues: boolean = true): boolean {
         if ((!config || config.isEmpty()) && (!otherConfig || otherConfig.isEmpty())) {
             return true;
         }
 
-        const data: PropertyTree = !!config ? PropertyTreeHelper.trimPropertyTree(config) : config;
-        const otherData: PropertyTree = !!otherConfig ? PropertyTreeHelper.trimPropertyTree(otherConfig) : otherConfig;
+        const data: PropertyTree = !!config && ignoreEmptyValues ? PropertyTreeHelper.trimPropertyTree(config) : config;
+        const otherData: PropertyTree = !!otherConfig && ignoreEmptyValues ? PropertyTreeHelper.trimPropertyTree(otherConfig) : otherConfig;
 
         return api.ObjectHelper.equals(data, otherData);
     }

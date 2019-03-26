@@ -1200,9 +1200,21 @@ export class ContentWizardPanel
     }
 
     private updatePersistedItemIfNeeded(content: Content) {
-        const isAlreadyUpdated = content.equals(this.getPersistedItem());
+        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem())).build();
+        let isEqualToForm;
+        if (content.getType().isImage()) {
+            // if new image has been uploaded then different iconUrl was generated on server from what we have here
+            // in this case don't compare extraData as it will be different for new image too
+            isEqualToForm = content.getDisplayName() === current.getDisplayName() &&
+                            content.getName().equals(current.getName()) &&
+                            (content.getIconUrl() !== current.getIconUrl() || content.extraDataEquals(current.getAllExtraData(), true)) &&
+                            content.dataEquals(current.getContentData(), true) &&
+                            content.getPermissions().equals(current.getPermissions());
+        } else {
+            isEqualToForm = content.equals(current, true);
+        }
 
-        if (!isAlreadyUpdated) {
+        if (!isEqualToForm) {
             this.setPersistedItem(content.clone());
             this.updateWizard(content, true);
 
@@ -1217,8 +1229,9 @@ export class ContentWizardPanel
                 this.getWizardHeader().resetBaseValues();
             }
 
-            this.wizardActions.setDeleteOnlyMode(this.getPersistedItem(), false);
+            this.wizardActions.setDeleteOnlyMode(current, false);
         } else {
+            // this update was triggered by our changes, so reset dirty state after save
             this.resetWizard();
         }
     }

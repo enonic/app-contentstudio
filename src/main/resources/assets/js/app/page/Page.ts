@@ -114,7 +114,7 @@ export class Page
             return false;
         }
 
-        return PropertyTreeHelper.configsEqual(this.config, other.config);
+        return PropertyTreeHelper.propertyTreesEqual(this.config, other.config);
     }
 
     private regionsEquals(otherRegions: Regions): boolean {
