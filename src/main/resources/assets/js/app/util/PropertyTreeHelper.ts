@@ -10,7 +10,7 @@ export class PropertyTreeHelper {
     }
 
     static propertyTreesEqual(config: PropertyTree, otherConfig: PropertyTree, ignoreEmptyValues: boolean = true): boolean {
-        if ((!config || config.isEmpty()) && (!otherConfig || otherConfig.isEmpty())) {
+        if (ignoreEmptyValues && (!config || config.isEmpty()) && (!otherConfig || otherConfig.isEmpty())) {
             return true;
         }
 
