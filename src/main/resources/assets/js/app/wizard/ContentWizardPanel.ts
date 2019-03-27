@@ -1506,6 +1506,20 @@ export class ContentWizardPanel
         return extraData;
     }
 
+    private syncPersistedItemWithContentData(propertyTree: PropertyTree) {
+        const persistedContent: Content = this.getPersistedItem();
+        const persistedContentData: PropertyTree = persistedContent.getContentData();
+
+        const diff = persistedContentData.diff(propertyTree);
+        diff.added.forEach((property: api.data.Property) => {
+            persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
+        });
+
+        if (diff.added) {
+            this.wizardActions.refreshSaveActionState();
+        }
+    }
+
     private isSplitEditModeActive() {
         return (this.getEl().getWidth() > ResponsiveRanges._720_960.getMaximumRange() &&
                 this.isEditorEnabled() && this.shouldOpenEditorByDefault());
@@ -1583,6 +1597,7 @@ export class ContentWizardPanel
                     this.securityWizardStepForm.layout(content);
 
                     return wemQ.all(formViewLayoutPromises).spread<void>(() => {
+                        this.syncPersistedItemWithContentData(contentData);
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         if (this.formState.isNew()) {
@@ -1804,15 +1819,11 @@ export class ContentWizardPanel
 
         if (persistedContent == null) {
             return true;
-        } else {
-            const viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
-
-            // ignore empty values for auto-created content that hasn't been updated yet because it doesn't have data at all
-            let ignoreEmptyValues = !persistedContent.getModifiedTime() || !persistedContent.getCreatedTime() ||
-                                    persistedContent.getCreatedTime().getTime() === persistedContent.getModifiedTime().getTime();
-
-            return !viewedContent.equals(persistedContent, ignoreEmptyValues);
         }
+
+        const viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
+
+        return !viewedContent.equals(persistedContent);
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2132,6 +2143,8 @@ export class ContentWizardPanel
 
         this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
+
+            this.syncPersistedItemWithContentData(content.getContentData());
         });
 
         if (content.isSite()) {

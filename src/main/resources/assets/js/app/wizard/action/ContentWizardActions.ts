@@ -98,6 +98,8 @@ export class ContentWizardActions
 
     private hasUnsavedChanges: () => boolean;
 
+    private checkSaveActionStateHandler: () => void;
+
     constructor(wizardPanel: ContentWizardPanel) {
         super(
             new ContentSaveAction(wizardPanel),
@@ -163,8 +165,9 @@ export class ContentWizardActions
     setUnsavedChangesCallback(callback: () => boolean) {
         this.hasUnsavedChanges = callback;
 
-        const checkSaveActionState = api.util.AppHelper.debounce(() => {
-            let isEnabled = this.hasUnsavedChanges();
+        this.checkSaveActionStateHandler = api.util.AppHelper.debounce(() => {
+            let isEnabled: boolean = this.hasUnsavedChanges();
+
             if (this.persistedContent) {
 
                 const overwritePermissions = this.wizardPanel.getSecurityWizardStepForm() &&
@@ -178,11 +181,17 @@ export class ContentWizardActions
 
         }, 100, false);
 
-        this.wizardPanel.onPermissionItemsAdded(checkSaveActionState);
-        this.wizardPanel.onPermissionItemsRemoved(checkSaveActionState);
-        this.wizardPanel.onPermissionItemChanged(checkSaveActionState);
-        this.wizardPanel.onDataChanged(checkSaveActionState);
-        this.wizardPanel.onLiveModelChanged(checkSaveActionState);
+        this.wizardPanel.onPermissionItemsAdded(this.checkSaveActionStateHandler);
+        this.wizardPanel.onPermissionItemsRemoved(this.checkSaveActionStateHandler);
+        this.wizardPanel.onPermissionItemChanged(this.checkSaveActionStateHandler);
+        this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
+        this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
+    }
+
+    refreshSaveActionState() {
+        if (this.checkSaveActionStateHandler) {
+            this.checkSaveActionStateHandler();
+        }
     }
 
     private enableActions(state: ActionsState) {
