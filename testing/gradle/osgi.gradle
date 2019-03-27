@@ -1,6 +1,6 @@
 import com.enonic.gradle.OsgiConfigurator
 
-apply plugin: 'org.dm.bundle'
+apply plugin: 'biz.aQute.bnd.builder'
 
 bundle {
     instruction 'Bundle-SymbolicName', group + '.' + name.replace( '-', '.' )
