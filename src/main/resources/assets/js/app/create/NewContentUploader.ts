@@ -56,6 +56,7 @@ export class NewContentUploader
     }
 
     setEnabled(value: boolean) {
+        this.toggleClass('disabled', !value);
         this.mediaUploaderEl.setEnabled(value);
         value ? this.enable() : this.disable();
     }
