@@ -30,7 +30,7 @@ describe('site.controller.spec: checks options in selector for Page Templates an
                 return contentWizard.typeData(SITE);
             }).then(() => {
                 return contentWizard.selectPageDescriptor('Page');
-            }).pause(500).then(() => {
+            }).pause(700).then(() => {
                 return contextWindow.clickOnTabBarItem('Page');
             }).then(() => {
                 return pageInspectionPanel.getPageTemplateDropdownOptions();
