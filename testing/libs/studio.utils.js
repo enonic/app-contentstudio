@@ -178,16 +178,16 @@ module.exports = {
         return this.openContentWizard(appConst.contentTypes.SITE).then(() => {
             return contentWizardPanel.typeData(site);
         }).pause(400).then(() => {
-            return contentWizardPanel.waitAndClickOnSave();
-        }).pause(1000).then(() => {
             if (site.data.controller) {
                 return contentWizardPanel.selectPageDescriptor(site.data.controller);
+            } else {
+                return contentWizardPanel.waitAndClickOnSave();
             }
-        }).then(() => {
+        }).pause(2500).then(() => {
             return this.doCloseCurrentBrowserTab();
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).pause(2000);
+        }).pause(1500);
     },
     doOpenSiteWizard: function () {
         return this.openContentWizard(appConst.contentTypes.SITE);

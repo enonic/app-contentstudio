@@ -64,9 +64,9 @@ const pageComponentView = Object.create(page, {
     clickOnMenuItem: {
         value: function (menuItem) {
             let selector = xpath.contextMenuItemByName(menuItem);
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForVisible(selector, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot("err_menu_item");
-                throw new Error("Page Component View: Menu Item still not visible - " + menuItem)
+                throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
             }).then(() => {
                 return this.doClick(selector).pause(500);
             });

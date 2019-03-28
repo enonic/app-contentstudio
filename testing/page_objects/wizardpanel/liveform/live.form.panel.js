@@ -26,7 +26,7 @@ const liveFormPanel = Object.create(page, {
             let parentForComboBox = `//div[contains(@id,'ImagePlaceholder')]`;
             return contentWizard.switchToLiveEditFrame().then(() => {
                 return loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
-            })
+            }).pause(2000);
         }
     },
 });

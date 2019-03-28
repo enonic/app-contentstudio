@@ -71,7 +71,7 @@ const imageInspectionPanel = Object.create(page, {
             return this.doClick(selector).catch(err => {
                 this.saveScreenshot('err_click_on_apply_inspect_panel');
                 throw new Error('error- Image Inspect Panel, click on Apply button: ' + err)
-            }).pause(1500);
+            }).pause(1200);
         }
     },
 

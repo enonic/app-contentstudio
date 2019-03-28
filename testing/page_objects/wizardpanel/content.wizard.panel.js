@@ -452,14 +452,11 @@ const contentWizardPanel = Object.create(page, {
                 return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
             }).then(() => {
                 return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
-            }).catch(err => {
-                throw new Error('option was not found! ' + pageControllerDisplayName + ' ' + err);
             }).then(() => {
-                return this.doClick(optionSelector).catch(err => {
-                    this.saveScreenshot('err_select_option');
-                    throw new Error('option not found!' + pageControllerDisplayName + " " + err);
-                }).pause(500);
-            });
+                return this.doClick(optionSelector);
+            }).catch(err => {
+                throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
+            })
         }
     },
     selectPageDescriptor: {
