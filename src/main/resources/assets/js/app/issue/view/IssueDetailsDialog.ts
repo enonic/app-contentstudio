@@ -324,10 +324,6 @@ export class IssueDetailsDialog
         Router.setHash('issue/' + this.issue.getId());
     }
 
-    protected showLoadMask() {
-        // not showing mask on open
-    }
-
     public reloadItemList() {
         ContentSummaryAndCompareStatusFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
             this.getItemList().replaceItems(items);
@@ -678,7 +674,7 @@ export class IssueDetailsDialog
 
     close() {
         this.getItemList().clearExcludeChildrenIds();
-        super.close(false);
+        super.close();
         Router.back();
     }
 

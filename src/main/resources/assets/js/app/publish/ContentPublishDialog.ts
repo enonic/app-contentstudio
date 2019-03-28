@@ -85,7 +85,7 @@ export class ContentPublishDialog
 
         this.publishProcessor.onLoadingStarted(() => {
             this.lockControls();
-            this.loadMask.show();
+            this.showLoadMask();
 
             this.setSubTitle(i18n('dialog.publish.resolving'));
         });
@@ -113,7 +113,7 @@ export class ContentPublishDialog
                 this.setDependantListVisible(true);
             }
 
-            this.loadMask.hide();
+            this.hideLoadMask();
 
             this.updateShowScheduleDialogButton();
 
@@ -129,7 +129,7 @@ export class ContentPublishDialog
             this.toggleAction(false);
             this.actionMenu.setVisible(false);
             this.createIssueButton.setVisible(true);
-            this.loadMask.hide();
+            this.hideLoadMask();
         });
 
         this.handleIssueGlobalEvents();

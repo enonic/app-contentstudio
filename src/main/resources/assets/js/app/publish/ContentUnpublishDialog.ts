@@ -70,6 +70,8 @@ export class ContentUnpublishDialog
             return wemQ<void>(null);
         }
 
+        this.showLoadMask();
+
         this.getDependantList().clearItems();
         this.lockControls();
 
@@ -81,7 +83,7 @@ export class ContentUnpublishDialog
 
                 this.unlockControls();
             }).finally(() => {
-                this.loadMask.hide();
+                this.hideLoadMask();
                 return wemQ(null);
             });
         });
