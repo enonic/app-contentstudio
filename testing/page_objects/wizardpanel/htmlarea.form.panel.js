@@ -140,7 +140,7 @@ const htmlAreaForm = Object.create(page, {
         value: function () {
             return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
                 return this.doDoubleClick(form.ckeTextArea);
-            });
+            }).pause(1000);
         }
     },
     //clicks on Format's dropdown handle and expands options

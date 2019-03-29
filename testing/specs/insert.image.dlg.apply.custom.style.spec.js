@@ -96,7 +96,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             }).then(result => {
                 // Cinema style should be selected in the dialog
                 studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
-                assert.isTrue(result == 'Cinema');
+                assert.equal(result, 'Cinema', "Expected style should be present in the selector");
             })
         });
 
