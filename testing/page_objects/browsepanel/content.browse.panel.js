@@ -532,6 +532,16 @@ const contentBrowsePanel = Object.create(page, {
             });
         }
     },
+    clickOnCreateIssueButton: {
+        value: function () {
+            return this.waitForCreateIssueButtonVisible().then(() => {
+                return this.doClick(this.createIssueButton);
+            }).catch(err => {
+                this.saveScreenshot("err_click_create_issue_button");
+                throw new Error("Browse Panel. Error when click on Create issue button on the toolbar! " + err);
+            });
+        }
+    },
     openPublishMenuAndClickOnCreateIssue: {
         value: function () {
             return this.waitForShowPublishMenuButtonVisible().then(() => {

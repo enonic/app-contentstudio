@@ -16,13 +16,24 @@ const contentBuilder = require("../../libs/content.builder");
 const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
-describe('close.issue.with.item.spec: close an issue and verify control elements on the ItemPreviewPanel', function () {
+describe('close.issue.with.item.spec: close an issue and verify control elements on the ItemPreview Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let issueTitle = appConstant.generateRandomName('issue');
-
     let TEST_FOLDER;
-    it(`Precondition: create a folder and create new issue`,
+
+    //verifies https://github.com/enonic/app-contentstudio/issues/356
+    //Endless spinner after clicking on Create Issue button
+    it(`GIVEN user just is 'logged in' AND no selections in the grid WHEN 'Create Issue' button has been pressed  THEN Create Issue dialog should appear`,
+        () => {
+            return contentBrowsePanel.clickOnCreateIssueButton().then(() => {
+                return createIssueDialog.waitForDialogLoaded();
+            }).then(() => {
+                return createIssueDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
+            })
+        });
+
+    it(`Precondition: new folder and new issue should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
@@ -43,7 +54,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             })
         });
 
-    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed AND modal dialog closed THEN menu button should not be visible`,
+    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed AND modal dialog closed THEN issue-menu button should not be visible`,
         () => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return contentItemPreviewPanel.clickOnIssueMenuButton();

@@ -69,7 +69,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
         });
 
     //<allowPath>${site}/mytags/</allowPath>
-    it(`GIVEN wizard for new tag-content is opened WHEN part the tag that is not in 'allowPath' has been typed THEN tag-suggestion should not appear`,
+    it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that is not in 'allowPath' has been typed THEN tag-suggestion should not appear`,
         () => {
             //open new wizard in "${site}/mytags/"
             return studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5').then(() => {

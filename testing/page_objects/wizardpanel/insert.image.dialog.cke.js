@@ -12,7 +12,7 @@ const dialog = {
     styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
     imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]",
-    selectedOptionView: "//div[contains(@id,'SelectedOptionView')]"
+    selectedOptionView: "//div[contains(@id,'ImageStyleSelector')]//div[contains(@id,'SelectedOptionView')]"
 };
 
 const insertImageDialog = Object.create(page, {
