@@ -160,6 +160,8 @@ export class ContentWizardPanel
 
     private renderable: boolean = false;
 
+    private renderableChanged: boolean = false;
+
     private reloadPageEditorOnSave: boolean = true;
 
     private writePermissions: boolean = false;
@@ -1380,13 +1382,13 @@ export class ContentWizardPanel
             return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
 
-                liveFormPanel.setModel(this.liveEditModel, true);
+                const showPanel = this.renderableChanged && this.renderable;
+                liveFormPanel.setModel(this.liveEditModel, showPanel);
 
                 this.debouncedEditorRefresh(false);
 
                 return wemQ(null);
             });
-
         }
         if (!this.siteModel && content.isSite()) {
             this.siteModel = this.createSiteModel(<Site>content);
@@ -2202,6 +2204,7 @@ export class ContentWizardPanel
 
     private checkIfRenderable(): wemQ.Promise<Boolean> {
         return new IsRenderableRequest(this.getPersistedItem().getContentId()).sendAndParse().then((renderable: boolean) => {
+            this.renderableChanged = this.renderable !== renderable;
             this.renderable = renderable;
 
             return renderable;
