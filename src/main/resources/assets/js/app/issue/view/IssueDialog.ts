@@ -77,7 +77,7 @@ export abstract class IssueDialog
         });
 
         this.publishProcessor.onLoadingStarted(() => {
-            this.loadMask.show();
+            this.showLoadMask();
             this.lockControls();
         });
 
@@ -89,12 +89,12 @@ export abstract class IssueDialog
             this.form.setContentItems(this.publishProcessor.getContentToPublishIds(), true);
             this.form.giveFocus();
 
-            this.loadMask.hide();
+            this.hideLoadMask();
             this.unlockControls();
         });
 
         this.publishProcessor.onLoadingFailed(() => {
-            this.loadMask.hide();
+            this.hideLoadMask();
             this.unlockControls();
         });
 

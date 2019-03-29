@@ -82,7 +82,7 @@ export class ContentDuplicateDialog
     }
 
     protected manageDescendants() {
-        this.loadMask.show();
+        this.showLoadMask();
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
@@ -90,7 +90,7 @@ export class ContentDuplicateDialog
                 this.setDependantItems(descendants);
                 this.countItemsToDuplicateAndUpdateButtonCounter();
             }).finally(() => {
-                this.loadMask.hide();
+                this.hideLoadMask();
                 this.unlockControls();
                 this.updateTabbable();
                 this.actionButton.giveFocus();

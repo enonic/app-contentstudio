@@ -111,7 +111,7 @@ export class ContentDeleteDialog
     }
 
     protected manageDescendants() {
-        this.loadMask.show();
+        this.showLoadMask();
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
@@ -121,7 +121,7 @@ export class ContentDeleteDialog
                 this.countItemsToDeleteAndUpdateButtonCounter();
             }).finally(() => {
                 this.notifyResize();
-                this.loadMask.hide();
+                this.hideLoadMask();
                 this.unlockControls();
                 this.updateTabbable();
                 this.actionButton.giveFocus();

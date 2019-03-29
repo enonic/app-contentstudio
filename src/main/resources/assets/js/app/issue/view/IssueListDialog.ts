@@ -140,7 +140,7 @@ export class IssueListDialog
     }
 
     private doReload(updatedIssues?: Issue[]) {
-        this.loadMask.show();
+        this.showLoadMask();
         this.reloadDockPanel()
             .then(() => {
                 this.notifyResize();
@@ -150,7 +150,7 @@ export class IssueListDialog
                 }
             })
             .catch(api.DefaultErrorHandler.handle)
-            .finally(() => this.loadMask.hide())
+            .finally(() => this.hideLoadMask())
             .done();
     }
 

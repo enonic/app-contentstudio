@@ -190,33 +190,20 @@ export abstract class DependantItemsDialog
         this.ignoreItemsChanged = value;
     }
 
-    show(hideLoadMask: boolean = false) {
+    show() {
         super.show();
         this.setDependantListVisible(this.showDependantList);
-        this.showLoadMask();
     }
 
-    close(clearItems: boolean = true) {
+    close() {
         super.close();
         this.remove();
-        if (clearItems) {
-            this.itemList.clearItems(true);
-            this.dependantList.clearItems(true);
-        }
+
+        this.itemList.clearItems(true);
+        this.dependantList.clearItems(true);
+
         this.dependantsContainer.setVisible(false);
         this.unlockControls();
-    }
-
-    protected showLoadMask() {
-        if (this.isRendered()) {
-            this.loadMask.show();
-        } else {
-            const renderedListener: () => void = () => {
-                this.loadMask.show();
-                this.unRendered(renderedListener);
-            };
-            this.onRendered(renderedListener);
-        }
     }
 
     setAutoUpdateTitle(value: boolean) {
@@ -338,14 +325,14 @@ export abstract class DependantItemsDialog
         if (!this.loading) {
             if (lastVisible + GetDescendantsOfContentsRequest.LOAD_SIZE / 2 >= size && size < this.getDependantIds().length) {
 
-                this.loadMask.show();
+                this.showLoadMask();
                 this.loading = true;
 
                 this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems) => {
 
                     this.addDependantItems(newItems);
                     this.loading = false;
-                    this.loadMask.hide();
+                    this.hideLoadMask();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();

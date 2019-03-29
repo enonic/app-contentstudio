@@ -105,10 +105,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.initDragAndDropUploaderEvents();
         this.initKeyDownHandler();
         this.initFileInputEvents();
-
-        this.onRendered(() => {
-            this.loadMask.show();
-        });
     }
 
     private initContentTypesLists() {
@@ -264,8 +260,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private loadContentTypes() {
-
-        this.loadMask.show();
+        this.showLoadMask();
 
         wemQ.all(this.sendRequestsToFetchContentData())
             .spread((contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult,
@@ -287,7 +282,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         }).finally(() => {
             this.fileInput.enable();
             this.toggleUploadersEnabled();
-            this.loadMask.hide();
+            this.hideLoadMask();
             this.mostPopularContentTypes.showIfNotEmpty();
             this.newContentUploader.focus();
         }).done();
