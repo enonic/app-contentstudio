@@ -1211,7 +1211,10 @@ export class ContentWizardPanel
                             content.dataEquals(current.getContentData(), true) &&
                             content.getPermissions().equals(current.getPermissions());
         } else {
-            isEqualToForm = content.equals(current, true);
+            // Use `content` as `this` value in the `equals` call:
+            // `current` is instance of `Content`, while content may be the instance of `Site`.
+            // Another order may result in returning `false`.
+            isEqualToForm = current.equals(content, true);
         }
 
         if (!isEqualToForm) {
