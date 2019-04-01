@@ -52,8 +52,7 @@ export class ContentWizardToolbar
             actions.getDeleteAction(),
             actions.getDuplicateAction(),
             actions.getPreviewAction(),
-            actions.getUndoPendingDeleteAction(),
-            actions.getUnpublishAction()
+            actions.getUndoPendingDeleteAction()
         ]);
         super.addGreedySpacer();
     }
