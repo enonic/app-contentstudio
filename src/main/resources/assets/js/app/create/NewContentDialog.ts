@@ -224,9 +224,6 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
     show() {
         this.updateDialogTitlePath();
-
-        this.fileInput.disable();
-        this.newContentUploader.disable();
         this.resetFileInputWithUploader();
 
         super.show();
@@ -326,15 +323,24 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private toggleUploadersEnabled() {
-        const uploaderEnabled = !this.parentContent || !this.parentContent.getType().isTemplateFolder();
+        const uploaderEnabled: boolean = !this.isTemplateFolderSelected();
         this.toggleClass('no-uploader-el', !uploaderEnabled);
         this.newContentUploader.setEnabled(uploaderEnabled);
     }
 
     private resetFileInputWithUploader() {
+        this.addClass('no-uploader-el');
+        this.fileInput.disable();
         this.fileInput.reset();
-        this.newContentUploader.reset();
         this.newContentUploader.setEnabled(false);
+        this.newContentUploader.reset();
+
+        const hideUploader: boolean = this.isTemplateFolderSelected();
+        this.newContentUploader.setVisible(!hideUploader);
+    }
+
+    private isTemplateFolderSelected(): boolean {
+        return !!this.parentContent && this.parentContent.getType().isTemplateFolder();
     }
 }
 
