@@ -747,8 +747,9 @@ export class LiveFormPanel
         let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
         if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection();
-        } else {
             this.inspectPage(showPanel);
+        } else {
+            this.inspectPage(false);
         }
     }
 

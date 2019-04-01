@@ -45,7 +45,7 @@ export class PagePlaceholder
         return this.controllerDropdown;
     }
 
-    private handler(event: LoadedDataEvent<PageDescriptor>) {
+    private handler: (event: LoadedDataEvent<PageDescriptor>) => void = (event: LoadedDataEvent<PageDescriptor>) => {
 
         if (event.getData().length > 0) {
             this.controllerDropdown.show();
@@ -69,7 +69,7 @@ export class PagePlaceholder
     }
 
     private addControllerDropdownEvents() {
-        this.controllerDropdown.onLoadedData(this.handler.bind(this));
+        this.controllerDropdown.onLoadedData(this.handler);
 
         this.controllerDropdown.onClicked((event: MouseEvent) => {
             this.controllerDropdown.giveFocus();
@@ -78,7 +78,7 @@ export class PagePlaceholder
     }
 
     remove() {
-        this.controllerDropdown.unLoadedData(this.handler.bind(this));
+        this.controllerDropdown.unLoadedData(this.handler);
         return super.remove();
 
     }
