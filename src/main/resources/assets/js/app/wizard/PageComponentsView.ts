@@ -706,7 +706,7 @@ export class PageComponentsView
         }
 
         if (!this.contextMenu) {
-            this.contextMenu = new ItemViewContextMenu(null, contextMenuActions, false, false);
+            this.contextMenu = new ItemViewContextMenu(null, contextMenuActions, false);
             this.contextMenu.onHidden(this.removeMenuOpenStyleFromMenuIcon.bind(this));
         } else {
             this.contextMenu.setActions(contextMenuActions);
