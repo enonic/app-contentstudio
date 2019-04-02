@@ -90,7 +90,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                     return imageInspectPanel.typeCaption("test caption");
                 }).then(() => {
                     return imageInspectPanel.clickOnApplyButton();
-                }).pause(3000).then(() => {
+                }).pause(2000).then(() => {
                     return imageInspectPanel.getCaptionText();
                 }).then(result => {
                     assert.isTrue(result == "test caption", "caption should be updated successfully");

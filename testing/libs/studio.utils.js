@@ -183,7 +183,7 @@ module.exports = {
             } else {
                 return contentWizardPanel.waitAndClickOnSave();
             }
-        }).pause(2500).then(() => {
+        }).pause(1000).then(() => {
             return this.doCloseCurrentBrowserTab();
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();

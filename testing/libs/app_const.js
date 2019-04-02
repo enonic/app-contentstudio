@@ -31,6 +31,7 @@ module.exports = Object.freeze({
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,
+    TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
     TIMEOUT_7: 7000,
     TIMEOUT_2: 2000,

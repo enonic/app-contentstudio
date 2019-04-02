@@ -448,7 +448,7 @@ const contentWizardPanel = Object.create(page, {
         value: function (pageControllerDisplayName) {
             let optionSelector = elements.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`,
                 pageControllerDisplayName);
-            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
+            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_4).then(() => {
                 return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
             }).then(() => {
                 return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
