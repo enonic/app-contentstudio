@@ -81,7 +81,6 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
                 })
             });
 
-
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
         before(() => {

@@ -306,7 +306,7 @@ const contentBrowsePanel = Object.create(page, {
         value: function () {
             return this.waitForEnabled(this.newButton, 1000).then(() => {
                 return this.doClick(this.newButton);
-            }).catch((err) => {
+            }).catch(err => {
                 throw new Error('New button is not enabled! ' + err);
             })
         }

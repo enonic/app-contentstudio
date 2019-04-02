@@ -146,7 +146,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 return contentItemPreviewPanel.getIssueNameOnMenuButton();
             }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_updated");
-                assert.isTrue(result == firstIssueTitle);
+                assert.equal(result, firstIssueTitle, "Expected issue-title should be displayed on the Item Preview Panel");
             })
         });
 
