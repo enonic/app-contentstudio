@@ -262,17 +262,17 @@ export class ItemView
     }
 
     private bindMouseListeners() {
-        this.mouseEnterListener = this.handleMouseEnter.bind(this);
+        this.mouseEnterListener = (event: MouseEvent) => this.handleMouseEnter(event);
         this.onMouseEnter(this.mouseEnterListener);
 
-        this.mouseLeaveListener = this.handleMouseLeave.bind(this);
+        this.mouseLeaveListener = (event: MouseEvent) => this.handleMouseLeave(event);
         this.onMouseLeave(this.mouseLeaveListener);
 
-        this.mouseClickedListener = this.handleClick.bind(this);
+        this.mouseClickedListener = (event: MouseEvent) => this.handleClick(event);
         this.onClicked(this.mouseClickedListener);
         this.onTouchStart(this.mouseClickedListener);
 
-        this.contextMenuListener = this.handleClick.bind(this);
+        this.contextMenuListener = (event: MouseEvent) => this.handleClick(event);
         this.onContextMenu(this.contextMenuListener);
 
         api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: api.ui.responsive.ResponsiveItem) => {
@@ -288,7 +288,7 @@ export class ItemView
         // Page shader catches mouse events
         // so bind listener to it to know when a shader clicked
         // in case of the locked or selected page
-        this.shaderClickedListener = this.handleShaderClick.bind(this);
+        this.shaderClickedListener = (event: MouseEvent) => this.handleShaderClick(event);
         Shader.get().onClicked(this.shaderClickedListener);
 
         this.mouseOverViewListener = () => {
@@ -567,6 +567,10 @@ export class ItemView
         return this;
     }
 
+    getCurrentContextMenu(): ItemViewContextMenu {
+        return this.contextMenu;
+    }
+
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
@@ -575,13 +579,15 @@ export class ItemView
             return;
         }
 
-        const elem = new api.dom.ElementHelper(<HTMLElement>event.target);
-
         let rightClicked = event.which === 3 || event.ctrlKey;
 
         if (rightClicked) { // right click
             event.preventDefault();
         }
+
+        const contextMenu = this.getCurrentContextMenu();
+        const targetInContextMenu = !!contextMenu && contextMenu.getHTMLElement().contains(<Node>event.target);
+        const placeholderIsTarget = event.target === this.placeholder.getHTMLElement();
 
         if (!this.isSelected() || rightClicked) {
             let selectedView = SelectedHighlighter.get().getSelectedView();
@@ -608,8 +614,8 @@ export class ItemView
             } else if (isViewInsideSelectedContainer && rightClicked) {
                 SelectedHighlighter.get().getSelectedView().showContextMenu(clickPosition);
             }
-        } else if (!this.isEmpty() || event.target === this.placeholder.getHTMLElement()) {
-            // Deselect component on left-click only if it's not empty or the placeholder was clicked
+        } else if ((!this.isEmpty() && !targetInContextMenu) || placeholderIsTarget) {
+            // Deselect component on left-click only if it's not empty and target is not in the context menu or the placeholder was clicked
             this.deselect();
         }
     }

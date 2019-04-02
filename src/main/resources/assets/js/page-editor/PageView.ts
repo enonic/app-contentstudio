@@ -583,6 +583,10 @@ export class PageView
         return this;
     }
 
+    getCurrentContextMenu(): ItemViewContextMenu {
+        return this.lockedContextMenu || super.getCurrentContextMenu();
+    }
+
     private updateVerticalSpaceForEditorToolbar() {
         const result = this.getEditorToolbarWidth();
 

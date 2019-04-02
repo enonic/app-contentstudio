@@ -1,5 +1,4 @@
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
-import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import Action = api.ui.Action;
 
 export enum ItemViewContextMenuOrientation {
@@ -25,7 +24,7 @@ export class ItemViewContextMenu
 
     private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
 
-    constructor(title: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true, listenToWizard: boolean = true) {
+    constructor(title: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true) {
         super('menu item-view-context-menu');
 
         if (showArrow) {
@@ -36,7 +35,7 @@ export class ItemViewContextMenu
 
         this.createMenu(actions);
 
-        this.initListeners(listenToWizard);
+        this.initListeners();
 
         api.dom.Body.get().appendChild(this);
     }
@@ -113,22 +112,12 @@ export class ItemViewContextMenu
         this.appendChild(this.menu);
     }
 
-    initListeners(listenToWizard: boolean) {
+    initListeners() {
         this.onClicked((e: MouseEvent) => {
             // menu itself was clicked so do nothing
             e.preventDefault();
             e.stopPropagation();
         });
-
-        let minimizeHandler = () => {
-            this.hide();
-        };
-
-        if (listenToWizard) {
-            MinimizeWizardPanelEvent.on(minimizeHandler);
-        }
-
-        this.onRemoved(() => MinimizeWizardPanelEvent.un(minimizeHandler));
     }
 
     showAt(x: number, y: number, notClicked: boolean = false, keepOrientation: boolean = false) {
