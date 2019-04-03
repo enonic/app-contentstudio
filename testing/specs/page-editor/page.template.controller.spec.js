@@ -17,6 +17,7 @@ const contentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const liveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
 const pageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
+const newContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -32,16 +33,34 @@ describe('page.template.controller: select a controller in a template-wizard', f
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
                 studioUtils.saveScreenshot(displayName + '_created');
                 return studioUtils.findAndSelectItem(SITE.displayName);
             }).then(() => {
-
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
+
+    it(`GIVEN existing site is expanded AND _templates folder selected WHEN New button has been pressed THEN upload button should not be present on the modal dialog`,
+        () => {
+            return selectTemplatesFolderAndClickNew().then(() => {
+                return newContentDialog.waitForUploaderButtonDisplayed();
+            }).then(result => {
+                assert.isFalse(result, "Uploader button should not be displayed");
+            });
+        });
+    it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present on the modal dialog`,
+        () => {
+            return contentBrowsePanel.clickOnNewButton().then(() => {
+                return newContentDialog.waitForOpened();
+            }).then(() => {
+                return newContentDialog.waitForUploaderButtonDisplayed();
+            }).then(result => {
+                assert.isTrue(result, "Uploader button should be displayed");
+            });
+        });
+
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         () => {
@@ -128,4 +147,18 @@ describe('page.template.controller: select a controller in a template-wizard', f
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
+
+    function selectTemplatesFolderAndClickNew() {
+        return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
+            return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
+        }).then(() => {
+            return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
+        }).then(() => {
+            return contentBrowsePanel.clickOnNewButton();
+        }).then(() => {
+            return newContentDialog.waitForOpened();
+        });
+    }
 });
+
+
