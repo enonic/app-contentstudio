@@ -8,6 +8,7 @@ const appConst = require('../../libs/app_const');
 const dialog = {
     container: `//div[contains(@id,'NewContentDialog')]`,
     searchInput: `//div[contains(@id,'FileInput')]/input`,
+    uploaderButton: "//div[contains(@id,'NewContentUploader')]",
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul[contains(@id,'FilterableItemsList')]`,
     contentTypeByName: function (name) {
@@ -49,9 +50,7 @@ const newContentDialog = Object.create(page, {
             return this.waitForVisible(dialog.typesList, appConst.TIMEOUT_3).catch(err => {
                 this.saveScreenshot('err_new_content_dialog_load');
                 throw new Error('New Content dialog was not loaded! ' + err);
-            }).pause(200).then(() => {
-                return true;
-            });
+            }).pause(200);
         }
     },
     waitForClosed: {
@@ -95,6 +94,14 @@ const newContentDialog = Object.create(page, {
                 throw new Error('clickOnContentType:' + err);
             }).pause(500);
         }
-    }
+    },
+    waitForUploaderButtonDisplayed: {
+        value: function () {
+            return this.waitForVisible(`${dialog.uploaderButton}`, appConst.TIMEOUT_2).catch(error => {
+                this.saveScreenshot('uploader_button_not_visible');
+                return false;
+            });
+        }
+    },
 });
 module.exports = newContentDialog;
