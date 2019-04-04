@@ -689,7 +689,9 @@ export class ItemView
             x = dimensions.left + dimensions.width / 2;
             y = dimensions.top + (ItemViewContextMenuPosition.TOP === menuPosition ? 0 : dimensions.height);
         }
-        this.contextMenu.showAt(x, y, !clickPosition);
+        const width = this.getEl().getWidthWithMargin();
+        const height = this.getEl().getHeightWithMargin();
+        this.contextMenu.showAt(x, y, {notClicked: !clickPosition, targetSize: {width, height}});
     }
 
     hideContextMenu() {

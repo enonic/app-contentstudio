@@ -6,9 +6,20 @@ export enum ItemViewContextMenuOrientation {
     DOWN
 }
 
-interface Coordinates {
+export interface Coordinates {
     x: number;
     y: number;
+}
+
+export interface TargetSize {
+    width: number;
+    height?: number;
+}
+
+export interface ShowAtOptions {
+    notClicked?: boolean;
+    keepOrientation?: boolean;
+    targetSize?: TargetSize;
 }
 
 export class ItemViewContextMenu
@@ -23,6 +34,14 @@ export class ItemViewContextMenu
     private orientation: ItemViewContextMenuOrientation = ItemViewContextMenuOrientation.DOWN;
 
     private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
+
+    private notClicked: boolean = false;
+
+    private keepOrientation: boolean = false;
+
+    private targetSize: TargetSize;
+
+    private position: Coordinates;
 
     constructor(title: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true) {
         super('menu item-view-context-menu');
@@ -106,7 +125,7 @@ export class ItemViewContextMenu
                       (el.getTopPx() + el.getHeightWithBorder() - heightChange + arrowHeight + 1);
             const x = el.getLeftPx() + el.getWidth() / 2;
 
-            this.showAt(x, y, false, true);
+            this.showAt(x, y, {keepOrientation: true});
         });
 
         this.appendChild(this.menu);
@@ -120,8 +139,54 @@ export class ItemViewContextMenu
         });
     }
 
-    showAt(x: number, y: number, notClicked: boolean = false, keepOrientation: boolean = false) {
-        this.menu.showAt.call(this, this.restrainX(x), this.restrainY(y, notClicked, keepOrientation));
+    showAt(x: number, y: number, options: ShowAtOptions = {}) {
+        const {notClicked = false, keepOrientation = false, targetSize} = options;
+
+        this.notClicked = notClicked;
+        this.keepOrientation = keepOrientation;
+
+        const restrained: Coordinates = {
+            x: this.restrainX(x),
+            y: this.restrainY(y, notClicked, keepOrientation)
+        };
+
+        this.position = {
+            x: this.calcPositionX(restrained.x),
+            y: this.calcPositionY(restrained.y)
+        };
+
+        if (ItemViewContextMenu.isValidTargetSize(targetSize)) {
+            this.targetSize = targetSize;
+        }
+
+        this.menu.showAt.call(this, restrained.x, restrained.y);
+    }
+
+    static isValidTargetSize(targetSize: TargetSize) {
+        return !!targetSize &&
+               // Restore next line, if the track of the vertical position will be tracked
+               // targetSize.height != null && !isNaN(targetSize.height) &&
+               targetSize.width != null && !isNaN(targetSize.width);
+    }
+
+    updatePosition(width: number, height: number) {
+        const targetSize: TargetSize = {width, height};
+
+        if (ItemViewContextMenu.isValidTargetSize(targetSize)) {
+            const fx = width / this.targetSize.width;
+            // const fy = height / this.targetSize.height;
+
+            const {x, y} = this.position;
+
+            const options = {
+                notClicked: this.notClicked,
+                keepOrientation: this.keepOrientation,
+                targetSize
+            };
+
+            // this.showAt(x * fx, y * fy, options);
+            this.showAt(x * fx, y, options);
+        }
     }
 
     moveBy(dx: number, dy: number) {
@@ -173,17 +238,18 @@ export class ItemViewContextMenu
     }
 
     private restrainX(x: number): number {
-        let parentEl = this.getParentElement().getEl();
+        const parentEl = this.getParentElement().getEl();
 
-        let width = this.getEl().getWidth();
-        let halfWidth = width / 2;
-        let arrowHalfWidth = this.arrow ? this.arrow.getWidth() / 2 : 0;
-        let desiredX = x - halfWidth;
+        const width = this.getEl().getWidth();
+        const halfWidth = width / 2;
+        const arrowHalfWidth = this.arrow ? this.arrow.getWidth() / 2 : 0;
+        const desiredX = x - halfWidth;
+        const minX = parentEl.getMarginLeft();
+        const maxX = parentEl.getWidthWithMargin() - parentEl.getMarginRight() - width;
+
         let resultX = desiredX;
         let deltaX;
         let arrowPos;
-        let minX = parentEl.getMarginLeft();
-        let maxX = parentEl.getWidthWithMargin() - parentEl.getMarginRight() - width;
 
         if (desiredX < minX) {
             deltaX = minX - desiredX;
@@ -195,10 +261,29 @@ export class ItemViewContextMenu
             arrowPos = Math.min(halfWidth - deltaX, width - arrowHalfWidth);
             resultX = maxX;
         }
-        if (this.arrow && arrowPos) {
-            this.arrow.getEl().setLeftPx(arrowPos);
+        if (!arrowPos) {
+            arrowPos = halfWidth;
+        }
+        if (this.arrow) {
+            this.arrow.getEl().setLeftPx(arrowPos || halfWidth);
         }
         return resultX;
+    }
+
+    private calcPositionX(restrainedX: number) {
+        const halfWidth = this.getEl().getWidth() / 2;
+        return restrainedX + halfWidth;
+    }
+
+    private calcPositionY(restrainedY: number) {
+        const arrowHeight = this.arrow ? this.arrow.getHeight() : 0;
+        const height = this.getEl().getHeight();
+
+        if (this.orientation === ItemViewContextMenuOrientation.DOWN) {
+            return restrainedY - arrowHeight - (this.notClicked ? 0 : 1);
+        } else { // (this.orientation === ItemViewContextMenuOrientation.UP)
+            return restrainedY + arrowHeight + height + (this.notClicked ? 0 : 1);
+        }
     }
 
     private restrainY(y: number, notClicked?: boolean, keepOrientation?: boolean): number {

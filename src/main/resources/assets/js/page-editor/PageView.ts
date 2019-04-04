@@ -41,6 +41,8 @@ import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
 import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import i18n = api.util.i18n;
+import ResponsiveManager = api.ui.responsive.ResponsiveManager;
+import ResponsiveItem = api.ui.responsive.ResponsiveItem;
 
 export class PageViewBuilder {
 
@@ -303,11 +305,23 @@ export class PageView
 
         this.listenToMouseEvents();
 
-        this.onRemoved(event => this.unregisterPageModel(this.pageModel));
+        this.onRemoved(() => this.unregisterPageModel(this.pageModel));
 
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: api.ui.responsive.ResponsiveItem) => {
+        const menuPositionUpdateHandler = (item: ResponsiveItem) => {
+            const contextMenu = this.getCurrentContextMenu();
+            if (contextMenu) {
+                const width = item.getElement().getEl().getWidthWithMargin();
+                const height = item.getElement().getEl().getHeightWithMargin();
+
+                contextMenu.updatePosition(width, height);
+            }
+        };
+
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             if (this.isTextEditMode()) {
                 this.updateVerticalSpaceForEditorToolbar();
+            } else {
+                menuPositionUpdateHandler(item);
             }
         });
 
@@ -432,7 +446,10 @@ export class PageView
 
     selectLocked(position: ClickPosition) {
         this.setLockVisible(true);
-        this.lockedContextMenu.showAt(position.x, position.y);
+
+        const width = this.getEl().getWidthWithMargin();
+        const height = this.getEl().getHeightWithMargin();
+        this.lockedContextMenu.showAt(position.x, position.y, {targetSize: {width, height}});
 
         new ItemViewSelectedEvent({itemView: this, position}).fire();
         new PageSelectedEvent(this).fire();

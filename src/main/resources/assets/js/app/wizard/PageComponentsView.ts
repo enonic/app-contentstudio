@@ -752,7 +752,7 @@ export class PageComponentsView
         let x = clickPosition.x;
         let y = clickPosition.y;
 
-        this.contextMenu.showAt(x, y, false);
+        this.contextMenu.showAt(x, y);
     }
 
     private hidePageComponentsIfInMobileView(action: Action) {
