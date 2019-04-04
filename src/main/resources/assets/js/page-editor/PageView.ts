@@ -121,6 +121,8 @@ export class PageView
 
     private customizeChangedListener: (value: boolean) => void;
 
+    private innerContextMenus: ItemViewContextMenu[] = [];
+
     private lockedContextMenu: ItemViewContextMenu;
 
     private closeTextEditModeButton: api.dom.Element;
@@ -186,7 +188,7 @@ export class PageView
 
         ctrl.onTextEditModeChanged(textEditModeListener);
 
-        this.onRemoved(event => {
+        this.onRemoved(() => {
             ctrl.unTextEditModeChanged(textEditModeListener);
         });
     }
@@ -308,13 +310,15 @@ export class PageView
         this.onRemoved(() => this.unregisterPageModel(this.pageModel));
 
         const menuPositionUpdateHandler = (item: ResponsiveItem) => {
-            const contextMenu = this.getCurrentContextMenu();
-            if (contextMenu) {
-                const width = item.getElement().getEl().getWidthWithMargin();
-                const height = item.getElement().getEl().getHeightWithMargin();
+            const contextMenus = [this.lockedContextMenu, ...this.innerContextMenus];
+            const width = item.getElement().getEl().getWidthWithMargin();
+            const height = item.getElement().getEl().getHeightWithMargin();
 
-                contextMenu.updatePosition(width, height);
-            }
+            contextMenus.forEach(contextMenu => {
+                if (contextMenu && contextMenu.isVisible()) {
+                    contextMenu.updatePosition(width, height);
+                }
+            });
         };
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
@@ -330,6 +334,18 @@ export class PageView
                 this.appendContainerForTextToolbar();
             }
         });
+    }
+
+    registerInnerContextMenu(contextMenu: ItemViewContextMenu) {
+        if (contextMenu) {
+            this.innerContextMenus.push(contextMenu);
+        }
+    }
+
+    unregisterInnerContextMenu(contextMenu: ItemViewContextMenu) {
+        if (contextMenu) {
+            this.innerContextMenus = this.innerContextMenus.filter((menu) => (menu !== contextMenu));
+        }
     }
 
     private createCloseTextEditModeEl(): api.dom.Element {

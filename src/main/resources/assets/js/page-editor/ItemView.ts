@@ -663,6 +663,10 @@ export class ItemView
             return;
         }
 
+        const pageView = this.getPageView();
+        const pageViewWidth = pageView.getEl().getWidthWithMargin();
+        const pageViewHeight = pageView.getEl().getHeightWithMargin();
+
         const dimensions = this.getEl().getDimensions();
         let x;
         let y;
@@ -678,6 +682,9 @@ export class ItemView
                     this.contextMenu.getEl().setMarginTop('0px');
                 }
             });
+
+            pageView.registerInnerContextMenu(this.contextMenu);
+            this.contextMenu.onRemoved(() => pageView.unregisterInnerContextMenu(this.contextMenu));
         }
 
         if (clickPosition) {
@@ -689,9 +696,8 @@ export class ItemView
             x = dimensions.left + dimensions.width / 2;
             y = dimensions.top + (ItemViewContextMenuPosition.TOP === menuPosition ? 0 : dimensions.height);
         }
-        const width = this.getEl().getWidthWithMargin();
-        const height = this.getEl().getHeightWithMargin();
-        this.contextMenu.showAt(x, y, {notClicked: !clickPosition, targetSize: {width, height}});
+
+        this.contextMenu.showAt(x, y, {notClicked: !clickPosition, targetSize: {width: pageViewWidth, height: pageViewHeight}});
     }
 
     hideContextMenu() {
