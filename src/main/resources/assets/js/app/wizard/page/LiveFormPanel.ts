@@ -624,18 +624,20 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onPageSelected((event: PageSelectedEvent) => {
-            this.inspectPage(true);
+            this.inspectPage(!event.isRightClicked());
         });
 
         this.liveEditPageProxy.onRegionSelected((event: RegionSelectedEvent) => {
-            this.inspectRegion(event.getRegionView());
+            this.inspectRegion(event.getRegionView(), !event.isRightClicked());
         });
 
         this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
-            let itemView = event.getItemView();
+            const itemView = event.getItemView();
+            const rightClicked = event.isRightClicked();
+            const restoredSelection = event.isRestoredSelection();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, !event.isRestoredSelection());
+                this.inspectComponent(<ComponentView<Component>>itemView, !restoredSelection, !rightClicked);
             }
         });
 
@@ -760,18 +762,18 @@ export class LiveFormPanel
         this.inspectPage(showPanel);
     }
 
-    private inspectRegion(regionView: RegionView) {
+    private inspectRegion(regionView: RegionView, showPanel: boolean) {
 
         let region = regionView.getRegion();
 
         this.regionInspectionPanel.setRegion(region);
-        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, true);
+        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, showPanel);
     }
 
-    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true) {
+    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true, showPanel: boolean = true) {
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
-        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, true);
+        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, showPanel);
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);

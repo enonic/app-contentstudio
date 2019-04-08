@@ -1,5 +1,6 @@
 import {ItemView} from './ItemView';
 import {ClickPosition} from './ClickPosition';
+import {SelectedByClickEvent} from './SelectedByClickEvent';
 
 interface ItemViewSelectedEventConfig {
     itemView: ItemView;
@@ -10,7 +11,7 @@ interface ItemViewSelectedEventConfig {
 }
 
 export class ItemViewSelectedEvent
-    extends api.event.Event {
+    extends SelectedByClickEvent {
 
     private pageItemView: ItemView;
 
@@ -18,16 +19,13 @@ export class ItemViewSelectedEvent
 
     private newlyCreated: boolean;
 
-    private rightClicked: boolean;
-
     private restoredSelection: boolean;
 
     constructor(config: ItemViewSelectedEventConfig) {
-        super();
+        super(config.rightClicked);
         this.pageItemView = config.itemView;
         this.position = config.position;
         this.newlyCreated = config.newlyCreated === undefined ? false : config.newlyCreated;
-        this.rightClicked = config.rightClicked === undefined ? false : config.rightClicked;
         this.restoredSelection = config.restoredSelection === undefined ? false : config.restoredSelection;
     }
 
@@ -41,10 +39,6 @@ export class ItemViewSelectedEvent
 
     isNewlyCreated(): boolean {
         return this.newlyCreated;
-    }
-
-    isRightClicked(): boolean {
-        return this.rightClicked;
     }
 
     isRestoredSelection(): boolean {

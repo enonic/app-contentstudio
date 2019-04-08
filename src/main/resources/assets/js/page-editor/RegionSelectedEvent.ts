@@ -1,13 +1,13 @@
-import './../api.ts';
 import {RegionView} from './RegionView';
+import {SelectedByClickEvent} from './SelectedByClickEvent';
 
 export class RegionSelectedEvent
-    extends api.event.Event {
+    extends SelectedByClickEvent {
 
     private pageItemView: RegionView;
 
-    constructor(regionView: RegionView) {
-        super();
+    constructor(regionView: RegionView, rightClicked?: boolean) {
+        super(rightClicked);
         this.pageItemView = regionView;
     }
 
