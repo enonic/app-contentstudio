@@ -43,7 +43,7 @@ describe('Browse toolbar shortcut spec`', function () {
             assert.isTrue(result, 'Content Wizard should be loaded');
         })
     });
-    it(`WHEN 'Ctrl+n' have been pressed THEN 'New content' dialog should be loaded`, () => {
+    it(`WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded`, () => {
         return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
             return contentBrowsePanel.hotKeyNew();
         }).then(() => {
