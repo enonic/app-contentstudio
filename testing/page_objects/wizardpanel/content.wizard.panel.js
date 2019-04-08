@@ -370,7 +370,7 @@ const contentWizardPanel = Object.create(page, {
             return this.getBrowser().getAttribute(selector, 'class').then(result => {
                 return result.includes("invalid");
             }).catch(err => {
-                throw new Error('error when try to find the content validation state: ' + err);
+                throw new Error('Validation Error: error when try to find the content validation state: ' + err);
             });
         }
     },
@@ -384,7 +384,8 @@ const contentWizardPanel = Object.create(page, {
             }, 2000).then(() => {
                 return true;
             }).catch(err => {
-                throw new Error('content-wizard:invalid-icon was not found' + err);
+                this.saveScreenshot('err_wizard_validation_icon1');
+                throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds' + err);
             });
         }
     },
@@ -397,8 +398,9 @@ const contentWizardPanel = Object.create(page, {
                 })
             }, 2000).then(() => {
                 return true;
-            }).catch((err) => {
-                throw new Error(err);
+            }).catch(err => {
+                this.saveScreenshot('err_wizard_validation_icon2');
+                throw new Error("Validation Error: Red icon is displayed in the wizard after 2 seconds" + err);
             });
         }
     },
