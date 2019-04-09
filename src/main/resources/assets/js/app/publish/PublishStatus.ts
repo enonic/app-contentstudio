@@ -1,3 +1,4 @@
+import i18n = api.util.i18n;
 import {CompareStatus} from '../content/CompareStatus';
 
 export enum PublishStatus {
@@ -11,20 +12,20 @@ export class PublishStatusFormatter {
 
         switch (publishStatus) {
         case PublishStatus.ONLINE:
-            status = 'Online';
+            status = i18n('status.online');
             break;
         case PublishStatus.PENDING:
-            status = 'Pending';
+            status = i18n('status.pending');
             break;
         case PublishStatus.EXPIRED:
-            status = 'Expired';
+            status = i18n('status.expired');
             break;
         default:
-            status = 'Unknown';
+            status = i18n('status.unknown');
         }
 
         if (CompareStatus[status]) {
-            return 'Unknown';
+            return i18n('status.unknown');
         }
 
         return status;
