@@ -139,6 +139,45 @@ export class ContentSelector
         });
     }
 
+    resetPropertyValues() {
+        const values = this.contentComboBox.getSelectedDisplayValues();
+
+        this.ignorePropertyChange = true;
+
+        this.getPropertyArray().removeAll(true);
+        values.forEach(value => this.contentComboBox.deselect(value, true));
+        values.forEach(value => this.contentComboBox.select(value));
+
+        this.ignorePropertyChange = false;
+    }
+
+    protected removePropertyWithId(id: string) {
+        let length = this.getPropertyArray().getSize();
+        for (let i = 0; i < length; i++) {
+            if (this.getPropertyArray().get(i).getValue().getString() === id) {
+                this.getPropertyArray().remove(i);
+                api.notify.NotifyManager.get().showWarning('Failed to load content item with id ' + id +
+                                                           '. The reference will be removed upon save.');
+                break;
+            }
+        }
+    }
+
+    update(propertyArray: api.data.PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
+        return super.update(propertyArray, unchangedOnly).then(() => {
+            if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
+                let value = this.getValueFromPropertyArray(propertyArray);
+                this.contentComboBox.setValue(value);
+            } else if (this.contentComboBox.isDirty()) {
+                this.resetPropertyValues();
+            }
+        });
+    }
+
+    reset() {
+        this.contentComboBox.resetBaseValues();
+    }
+
     protected createContentComboBox(input: api.form.Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
         const optionDataLoader = this.createOptionDataLoader();
         const comboboxValue = this.getValueFromPropertyArray(propertyArray);
@@ -177,49 +216,14 @@ export class ContentSelector
 
         contentComboBox.onOptionDeselected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
 
-            this.getPropertyArray().remove(event.getSelectedOption().getIndex());
+            this.handleDeselected(event.getSelectedOption().getIndex());
             this.updateSelectedOptionStyle();
             this.validate(false);
         });
 
-        contentComboBox.onOptionMoved(this.handleMove.bind(this));
+        contentComboBox.onOptionMoved(this.handleMoved.bind(this));
 
         return contentComboBox;
-    }
-
-    protected removePropertyWithId(id: string) {
-        let length = this.getPropertyArray().getSize();
-        for (let i = 0; i < length; i++) {
-            if (this.getPropertyArray().get(i).getValue().getString() === id) {
-                this.getPropertyArray().remove(i);
-                api.notify.NotifyManager.get().showWarning('Failed to load content item with id ' + id +
-                                                           '. The reference will be removed upon save.');
-                break;
-            }
-        }
-    }
-
-    update(propertyArray: api.data.PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
-        return super.update(propertyArray, unchangedOnly).then(() => {
-            if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
-                let value = this.getValueFromPropertyArray(propertyArray);
-                this.contentComboBox.setValue(value);
-            } else if (this.contentComboBox.isDirty()) {
-                this.resetPropertyValues();
-            }
-        });
-    }
-
-    reset() {
-        this.contentComboBox.resetBaseValues();
-    }
-
-    resetPropertyValues() {
-        const values = this.contentComboBox.getSelectedDisplayValues();
-
-        this.getPropertyArray().removeAll(true);
-        values.forEach(value => this.contentComboBox.deselect(value, true));
-        values.forEach(value => this.contentComboBox.select(value));
     }
 
     private static doFetchSummaries() {
@@ -271,8 +275,17 @@ export class ContentSelector
         this.updateSelectedOptionStyle();
     }
 
-    protected handleMove(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
+    protected handleMoved(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
+
+        this.ignorePropertyChange = true;
         this.getPropertyArray().move(fromIndex, moved.getIndex());
+        this.ignorePropertyChange = false;
+    }
+
+    protected handleDeselected(index: number) {
+        this.ignorePropertyChange = true;
+        this.getPropertyArray().remove(index);
+        this.ignorePropertyChange = false;
     }
 
     protected updateSelectedOptionStyle() {
