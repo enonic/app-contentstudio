@@ -740,7 +740,8 @@ export class LiveFormPanel
     }
 
     private inspectPage(showPanel: boolean) {
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, true, showPanel);
+        const unlocked = this.pageView ? !this.pageView.isLocked() : true;
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked, unlocked && showPanel);
     }
 
     private clearSelection(showPanel: boolean): void {
