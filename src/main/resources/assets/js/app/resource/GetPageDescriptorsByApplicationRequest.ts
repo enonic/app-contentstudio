@@ -29,13 +29,9 @@ export class GetPageDescriptorsByApplicationRequest
     }
 
     sendAndParse(): wemQ.Promise<PageDescriptor[]> {
-        // In case frame was reloaded in IE it can't use objects from cache
-        // as they are from old unreachable for IE frame
-        if (!api.BrowserHelper.isIE()) {
-            const cached = this.cache.getByApplication(this.applicationKey);
-            if (cached) {
-                return wemQ(cached);
-            }
+        const cached = this.cache.getByApplication(this.applicationKey);
+        if (cached) {
+            return wemQ(cached);
         }
 
         return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {

@@ -19,7 +19,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
         const cacheName = `${api.ClassHelper.getFunctionName(descriptor)}Cache`;
 
-        if (!topWindow[cacheName]) {
+        if (!topWindow[cacheName] || api.BrowserHelper.isIE()) { // IE: Cache fails to work after frame reload (issue with freed script)
             const loadByApplication = (key: ApplicationKey) => new Request(key).sendAndParse().catch(api.DefaultErrorHandler.handle);
             topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplication);
         }
