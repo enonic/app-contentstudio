@@ -642,7 +642,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.clearSelection(true);
+            this.clearSelection(false, false);
         });
 
         this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -739,18 +739,18 @@ export class LiveFormPanel
         });
     }
 
-    private inspectPage(showPanel: boolean) {
+    private inspectPage(showPanel: boolean, showWidget: boolean = true) {
         const unlocked = this.pageView ? !this.pageView.isLocked() : true;
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked, unlocked && showPanel);
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked && showWidget, unlocked && showPanel);
     }
 
-    private clearSelection(showPanel: boolean): void {
+    private clearSelection(showPanel: boolean, showWidget: boolean = true): void {
         let pageModel = this.liveEditModel.getPageModel();
         let customizedWithController = pageModel.isCustomized() && pageModel.hasController();
         let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
         if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection();
-            this.inspectPage(showPanel);
+            this.inspectPage(showPanel, showWidget);
         } else {
             this.inspectPage(false);
         }
