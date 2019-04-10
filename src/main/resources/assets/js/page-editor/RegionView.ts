@@ -295,7 +295,7 @@ export class RegionView
            rightClicked: boolean = false) {
         super.select(clickPosition, menuPosition, false, rightClicked);
 
-        new RegionSelectedEvent(this).fire();
+        new RegionSelectedEvent(this, rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {

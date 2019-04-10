@@ -397,11 +397,14 @@ export class PageView
         });
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated: boolean = false,
-           rightClicked: boolean = false) {
+    select(clickPosition?: ClickPosition,
+           menuPosition?: ItemViewContextMenuPosition,
+           newlyCreated: boolean = false,
+           rightClicked: boolean = false
+    ) {
         super.select(clickPosition, menuPosition, false, rightClicked);
 
-        new PageSelectedEvent(this).fire();
+        new PageSelectedEvent(this, rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {

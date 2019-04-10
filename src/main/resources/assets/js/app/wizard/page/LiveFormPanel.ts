@@ -624,23 +624,25 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onPageSelected((event: PageSelectedEvent) => {
-            this.inspectPage(true);
+            this.inspectPage(!event.isRightClicked());
         });
 
         this.liveEditPageProxy.onRegionSelected((event: RegionSelectedEvent) => {
-            this.inspectRegion(event.getRegionView());
+            this.inspectRegion(event.getRegionView(), !event.isRightClicked());
         });
 
         this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
-            let itemView = event.getItemView();
+            const itemView = event.getItemView();
+            const rightClicked = event.isRightClicked();
+            const restoredSelection = event.isRestoredSelection();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, !event.isRestoredSelection());
+                this.inspectComponent(<ComponentView<Component>>itemView, !restoredSelection, !rightClicked);
             }
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.clearSelection(true);
+            this.clearSelection(false, false);
         });
 
         this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -737,17 +739,18 @@ export class LiveFormPanel
         });
     }
 
-    private inspectPage(showPanel: boolean) {
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, true, showPanel);
+    private inspectPage(showPanel: boolean, showWidget: boolean = true) {
+        const unlocked = this.pageView ? !this.pageView.isLocked() : true;
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked && showWidget, unlocked && showPanel);
     }
 
-    private clearSelection(showPanel: boolean): void {
+    private clearSelection(showPanel: boolean, showWidget: boolean = true): void {
         let pageModel = this.liveEditModel.getPageModel();
         let customizedWithController = pageModel.isCustomized() && pageModel.hasController();
         let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
         if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection();
-            this.inspectPage(showPanel);
+            this.inspectPage(showPanel, showWidget);
         } else {
             this.inspectPage(false);
         }
@@ -760,18 +763,18 @@ export class LiveFormPanel
         this.inspectPage(showPanel);
     }
 
-    private inspectRegion(regionView: RegionView) {
+    private inspectRegion(regionView: RegionView, showPanel: boolean) {
 
         let region = regionView.getRegion();
 
         this.regionInspectionPanel.setRegion(region);
-        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, true);
+        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, showPanel);
     }
 
-    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true) {
+    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true, showPanel: boolean = true) {
         api.util.assertNotNull(componentView, 'componentView cannot be null');
 
-        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, true);
+        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, showPanel);
 
         if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);

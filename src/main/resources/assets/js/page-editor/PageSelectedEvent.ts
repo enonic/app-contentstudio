@@ -1,13 +1,13 @@
-import './../api.ts';
 import {PageView} from './PageView';
+import {SelectedByClickEvent} from './SelectedByClickEvent';
 
 export class PageSelectedEvent
-    extends api.event.Event {
+    extends SelectedByClickEvent {
 
     private pageView: PageView;
 
-    constructor(pageView: PageView) {
-        super();
+    constructor(pageView: PageView, rightClicked?: boolean) {
+        super(rightClicked);
         this.pageView = pageView;
     }
 
