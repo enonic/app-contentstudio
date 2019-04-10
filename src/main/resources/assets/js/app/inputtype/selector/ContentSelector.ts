@@ -177,12 +177,12 @@ export class ContentSelector
 
         contentComboBox.onOptionDeselected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
 
-            this.getPropertyArray().remove(event.getSelectedOption().getIndex());
+            this.handleDeselected(event.getSelectedOption().getIndex());
             this.updateSelectedOptionStyle();
             this.validate(false);
         });
 
-        contentComboBox.onOptionMoved(this.handleMove.bind(this));
+        contentComboBox.onOptionMoved(this.handleMoved.bind(this));
 
         return contentComboBox;
     }
@@ -217,9 +217,13 @@ export class ContentSelector
     resetPropertyValues() {
         const values = this.contentComboBox.getSelectedDisplayValues();
 
+        this.ignorePropertyChange = true;
+
         this.getPropertyArray().removeAll(true);
         values.forEach(value => this.contentComboBox.deselect(value, true));
         values.forEach(value => this.contentComboBox.select(value));
+
+        this.ignorePropertyChange = false;
     }
 
     private static doFetchSummaries() {
@@ -271,8 +275,17 @@ export class ContentSelector
         this.updateSelectedOptionStyle();
     }
 
-    protected handleMove(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
+    protected handleMoved(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
+
+        this.ignorePropertyChange = true;
         this.getPropertyArray().move(fromIndex, moved.getIndex());
+        this.ignorePropertyChange = false;
+    }
+
+    protected handleDeselected(index: number) {
+        this.ignorePropertyChange = true;
+        this.getPropertyArray().remove(index);
+        this.ignorePropertyChange = false;
     }
 
     protected updateSelectedOptionStyle() {

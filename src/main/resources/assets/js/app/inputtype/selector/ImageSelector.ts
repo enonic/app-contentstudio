@@ -114,7 +114,7 @@ export class ImageSelector
             // property not found.
             const option = event.getSelectedOption();
             if (option.getOption().displayValue.getContentSummary()) {
-                this.getPropertyArray().remove(option.getIndex());
+                this.handleDeselected(option.getIndex());
             }
             this.validate(false);
         });
@@ -134,7 +134,7 @@ export class ImageSelector
         });
 
         comboBox.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>, fromIndex: number) => {
-            this.handleMove(moved, fromIndex);
+            this.handleMoved(moved, fromIndex);
             this.validate(false);
         });
 
