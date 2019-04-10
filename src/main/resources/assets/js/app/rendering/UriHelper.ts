@@ -19,8 +19,8 @@ export class UriHelper {
             renderingModeName + elementDivider + repositoryName + elementDivider + branchName + elementDivider + path);
     }
 
-    public static getPathFromPortalPreviewUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
-                                              workspace: Branch): string {
+    public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
+                                             workspace: Branch): string {
         const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
 
         const branchName: string = Branch[workspace].toLowerCase();
