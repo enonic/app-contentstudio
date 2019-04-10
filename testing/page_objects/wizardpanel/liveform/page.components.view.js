@@ -26,8 +26,10 @@ const pageComponentView = Object.create(page, {
     clickOnComponent: {
         value: function (displayName) {
             let selector = xpath.container + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
+            return this.waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
                 return this.doClick(selector);
+            }).catch(err=>{
+                throw new Error("Page Component View - Error when clicking on the component " + err);
             }).pause(400);
         }
     },
