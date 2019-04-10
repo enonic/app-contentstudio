@@ -22,6 +22,7 @@ import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {CompareStatus} from '../../content/CompareStatus';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -119,7 +120,9 @@ export class ContextView
         ShowSplitEditEvent.on(createPageEditorVisibilityChangedHandler(true));
         ShowContentFormEvent.on(createPageEditorVisibilityChangedHandler(false));
 
-        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
+        const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
+
+        contentServerEventsHandler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
             const itemSelected = this.item != null;
             const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
             const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
@@ -132,6 +135,20 @@ export class ContextView
                     this.updateActiveWidget();
                 }
             }
+        });
+
+        contentServerEventsHandler.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
+            contents.some((content: ContentSummaryAndCompareStatus) => {
+                if (content.getId() === this.item.getId()) {
+                    const sameContent = this.item.equals(content);
+                    const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
+                    if (!sameContent && wasModified) {
+                        this.setItem(content);
+                    }
+                    return true;
+                }
+                return false;
+            });
         });
     }
 
