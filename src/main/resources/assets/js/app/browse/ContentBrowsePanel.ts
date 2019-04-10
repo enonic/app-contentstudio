@@ -293,7 +293,7 @@ export class ContentBrowsePanel
         this.subscribeOnContentEvents();
 
         ContentPreviewPathChangedEvent.on((event: ContentPreviewPathChangedEvent) => {
-            this.selectPreviewedContentInGrid(event.getPreviewPath());
+            this.selectInlinedContentInGrid(event.getPreviewPath());
         });
 
         RepositoryEvent.on(event => {
@@ -306,8 +306,8 @@ export class ContentBrowsePanel
         });
     }
 
-    private selectPreviewedContentInGrid(contentPreviewPath: string) {
-        let path = this.getPathFromPreviewPath(contentPreviewPath);
+    private selectInlinedContentInGrid(contentInlinePath: string) {
+        let path = this.getPathFromInlinePath(contentInlinePath);
         if (path) {
             let contentPath = api.content.ContentPath.fromString(path);
             if (this.treeGrid.getFirstSelectedOrHighlightedNode() && !this.isGivenPathSelectedInGrid(contentPath)) {
@@ -330,8 +330,8 @@ export class ContentBrowsePanel
         return false;
     }
 
-    private getPathFromPreviewPath(contentPreviewPath: string): string {
-        return UriHelper.getPathFromPortalPreviewUri(contentPreviewPath, RenderingMode.PREVIEW, RepositoryId.CONTENT_REPO_ID,
+    private getPathFromInlinePath(contentPreviewPath: string): string {
+        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID,
             Branch.DRAFT);
     }
 
