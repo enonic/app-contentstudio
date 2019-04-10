@@ -633,11 +633,11 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
             const itemView = event.getItemView();
-            const rightClicked = event.isRightClicked();
-            const restoredSelection = event.isRestoredSelection();
+            const defaultClicked = !event.isRightClicked();
+            const newSelection = !event.isRestoredSelection();
 
             if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, !restoredSelection, !rightClicked);
+                this.inspectComponent(<ComponentView<Component>>itemView, newSelection, newSelection && defaultClicked);
             }
         });
 
