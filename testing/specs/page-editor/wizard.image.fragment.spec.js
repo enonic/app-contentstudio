@@ -15,6 +15,8 @@ const contentBuilder = require("../../libs/content.builder");
 const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const imageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
+const wizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const wizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 
 describe('wizard.image.fragment: changing of an image in image-fragment',
@@ -99,6 +101,34 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     return contentWizard.isAlertPresent();
                 }).then(result => {
                     assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
+                })
+            });
+
+        //verifies https://github.com/enonic/app-contentstudio/issues/335
+        //Site Wizard Context panel - versions widget closes after rollback a version
+        it(`GIVEN existing site is opened AND Versions widget is opened WHEN rollback a version THEN Versions widget should not be closed`,
+            () => {
+                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
+                    return contentWizard.openDetailsPanel();
+                }).then(() => {
+                    return wizardDetailsPanel.openVersionHistory();
+                }).then(() => {
+                    return wizardVersionsWidget.waitForVersionsLoaded();
+                }).then(() => {
+                    //expand the version item
+                    return wizardVersionsWidget.clickAndExpandVersion(1);
+                }).pause(500).then(() => {
+                    // click on Restore button
+                    return wizardVersionsWidget.clickOnRestoreThisVersion();
+                }).then(() => {
+                    //wait for the notification message
+                    return contentWizard.waitForNotificationMessage();
+                }).then(message => {
+                    assert.include(message, "Version was changed to", "Expected notification message should appear");
+                }).pause(2000).then(() => {
+                    return wizardVersionsWidget.isWidgetVisible();
+                }).then(result => {
+                    assert.isTrue(result, "Versions widget should be present in Details Panel")
                 })
             });
 
