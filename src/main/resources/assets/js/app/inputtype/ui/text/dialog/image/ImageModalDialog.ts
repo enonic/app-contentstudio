@@ -151,6 +151,7 @@ export class ImageModalDialog
             this.previewImage(imageContent, presetStyles);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
+            this.presetImageEl = null;
             api.DefaultErrorHandler.handle(reason);
         }).done();
     }
@@ -404,15 +405,11 @@ export class ImageModalDialog
         let imgSrcAttr = '';
         let imgDataSrcAttr = '';
 
-        if (!!this.presetImageEl) {
-
+        if (this.presetImageEl) {
             imgSrcAttr = this.getImagePreviewSrc();
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
-
         } else {
-
             const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
-
             imgSrcAttr = imageUrlBuilder.resolveForPreview();
             imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
