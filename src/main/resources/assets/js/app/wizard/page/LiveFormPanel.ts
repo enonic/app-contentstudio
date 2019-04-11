@@ -475,7 +475,7 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        this.clearSelection(showPanel);
+        this.clearSelectionAndInspect(showPanel);
 
         this.handleContentUpdatedEvent();
     }
@@ -511,7 +511,7 @@ export class LiveFormPanel
         if (this.pageSkipReload === false && !this.pageLoading) {
 
             if (clearInspection) {
-                this.clearSelection(false);
+                this.clearSelectionAndInspect(false);
             }
 
             this.pageLoading = true;
@@ -642,7 +642,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.clearSelection(false, false);
+            this.clearSelection();
         });
 
         this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -651,7 +651,7 @@ export class LiveFormPanel
                 this.pageModel.initializePageFromDefault(this);
             }
 
-            this.clearSelection(true);
+            this.clearSelection();
         });
 
         this.liveEditPageProxy.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
@@ -744,13 +744,22 @@ export class LiveFormPanel
         this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked && showWidget, unlocked && showPanel);
     }
 
-    private clearSelection(showPanel: boolean, showWidget: boolean = true): void {
-        let pageModel = this.liveEditModel.getPageModel();
-        let customizedWithController = pageModel.isCustomized() && pageModel.hasController();
-        let isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
+    private clearSelection(showInsertables: boolean = true): boolean {
+        const pageModel = this.liveEditModel.getPageModel();
+        const customizedWithController = pageModel.isCustomized() && pageModel.hasController();
+        const isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
         if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
-            this.contextWindow.clearSelection();
-            this.inspectPage(showPanel, showWidget);
+            this.contextWindow.clearSelection(showInsertables);
+            return true;
+        }
+
+        return false;
+    }
+
+    private clearSelectionAndInspect(showPanel: boolean) {
+        const cleared = this.clearSelection(false);
+        if (cleared) {
+            this.inspectPage(showPanel, true);
         } else {
             this.inspectPage(false);
         }

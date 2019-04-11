@@ -94,7 +94,7 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         }
     }
 
-    public clearSelection() {
+    public clearSelection(showInsertables?: boolean) {
         this.inspectionsPanel.clearInspection();
 
         const isPageInspectionPanelSelectable = this.isPanelSelectable(this.inspectionsPanel.getPanelShown());
@@ -104,7 +104,7 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.inspectTab.setLabel(this.getShownPanelName());
 
             const selectDefault = !isPageInspectionPanelSelectable && this.inspectTab.isActive();
-            if (selectDefault) {
+            if (showInsertables || selectDefault) {
                 this.selectPanel(this.insertablesPanel);
             }
         }
