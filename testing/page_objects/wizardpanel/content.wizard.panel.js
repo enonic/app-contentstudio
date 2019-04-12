@@ -457,6 +457,7 @@ const contentWizardPanel = Object.create(page, {
             }).then(() => {
                 return this.doClick(optionSelector);
             }).catch(err => {
+                this.saveScreenshot('err_select_controller');
                 throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
             })
         }
