@@ -440,7 +440,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel, showPanel: boolean) {
+    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true) {
 
         this.liveEditModel = liveEditModel;
 
@@ -475,7 +475,7 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        this.clearSelectionAndInspect(showPanel);
+        this.clearSelectionAndInspect(showPanel, showWidget);
 
         this.handleContentUpdatedEvent();
     }
@@ -511,7 +511,7 @@ export class LiveFormPanel
         if (this.pageSkipReload === false && !this.pageLoading) {
 
             if (clearInspection) {
-                this.clearSelectionAndInspect(false);
+                this.clearSelectionAndInspect(false, true);
             }
 
             this.pageLoading = true;
@@ -756,10 +756,10 @@ export class LiveFormPanel
         return false;
     }
 
-    private clearSelectionAndInspect(showPanel: boolean) {
+    private clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
         const cleared = this.clearSelection(false);
         if (cleared) {
-            this.inspectPage(showPanel, true);
+            this.inspectPage(showPanel, showWidget);
         } else {
             this.inspectPage(false);
         }
