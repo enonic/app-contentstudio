@@ -1386,7 +1386,7 @@ export class ContentWizardPanel
                 this.liveEditModel = liveEditModel;
 
                 const showPanel = this.renderableChanged && this.renderable;
-                liveFormPanel.setModel(this.liveEditModel, showPanel);
+                liveFormPanel.setModel(this.liveEditModel, showPanel, false);
 
                 this.debouncedEditorRefresh(false);
 
