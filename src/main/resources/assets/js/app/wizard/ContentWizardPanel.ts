@@ -75,6 +75,13 @@ import CycleButton = api.ui.button.CycleButton;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import i18n = api.util.i18n;
 import ObjectHelper = api.ObjectHelper;
+import FormOptionSet = api.form.FormOptionSet;
+import Property = api.data.Property;
+import PropertyArray = api.data.PropertyArray;
+import PropertySet = api.data.PropertySet;
+import FormItemSet = api.form.FormItemSet;
+import FieldSet = api.form.FieldSet;
+import FormOptionSetOption = api.form.FormOptionSetOption;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -1356,7 +1363,7 @@ export class ContentWizardPanel
         formItemContainer.getFormItems().forEach((item) => {
             if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormItemSet) ||
                 api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FieldSet) ||
-                api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSet) ||
+                api.ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSet) ||
                 api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSetOption)) {
                 result = result.concat(this.getHtmlAreasInForm(<any>item));
             } else if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.Input)) {
@@ -1515,12 +1522,18 @@ export class ContentWizardPanel
         const persistedContent: Content = this.getPersistedItem();
         const persistedContentData: PropertyTree = persistedContent.getContentData();
 
-        const diff = persistedContentData.diff(propertyTree);
+        const tree: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
+        tree.getRoot().getPropertyArrays().forEach((propertyArray: PropertyArray) => {
+            if (!persistedContentData.getPropertyArray(propertyArray.getName())) {
+                persistedContentData.getRoot().addPropertyArray(propertyArray.copy(persistedContentData.getRoot()));
+            }
+        });
+        const diff = persistedContentData.diff(tree);
         diff.added.forEach((property: api.data.Property) => {
             persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
         });
 
-        if (diff.added) {
+        if (diff.added && diff.added.length > 0) {
             this.wizardActions.refreshSaveActionState();
         }
     }
@@ -1738,15 +1751,15 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    private getOptionSetsInForm(formItemContainer: api.form.FormItemContainer): api.form.FormOptionSet[] {
-        let result: api.form.FormOptionSet[] = [];
+    private getOptionSetsInForm(formItemContainer: api.form.FormItemContainer): FormOptionSet[] {
+        let result: FormOptionSet[] = [];
 
         formItemContainer.getFormItems().forEach((item) => {
-            if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormItemSet) ||
-                api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FieldSet) ||
-                api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSetOption)) {
+            if (api.ObjectHelper.iFrameSafeInstanceOf(item, FormItemSet) ||
+                api.ObjectHelper.iFrameSafeInstanceOf(item, FieldSet) ||
+                api.ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSetOption)) {
                 result = result.concat(this.getOptionSetsInForm(<any>item));
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(item, api.form.FormOptionSet)) {
+            } else if (api.ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSet)) {
                 result.push(<api.form.FormOptionSet>item);
                 result = result.concat(this.getOptionSetsInForm(<any>item));
             }
@@ -1826,7 +1839,7 @@ export class ContentWizardPanel
             return true;
         }
 
-        const viewedContent = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
+        const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
 
         return !viewedContent.equals(persistedContent);
     }
@@ -1905,19 +1918,19 @@ export class ContentWizardPanel
         });
     }
 
-    private cleanFormRedundantData(data: api.data.PropertyTree): api.data.PropertyTree {
-        let optionSets = this.getOptionSetsInForm(this.getContentType().getForm());
+    private cleanFormOptionSetsRedundantData(data: api.data.PropertyTree): api.data.PropertyTree {
+        const formOptionSets: FormOptionSet[] = this.getOptionSetsInForm(this.getContentType().getForm());
 
-        optionSets.forEach((optionSet) => {
-            let property = data.getProperty(optionSet.getPath().toString());
+        formOptionSets.forEach((formOptionSet: FormOptionSet) => {
+            const property: Property = data.getProperty(formOptionSet.getPath().toString());
             if (!!property) {
-                let optionSetProperty = property.getPropertySet();
-                let selectionArray = optionSetProperty.getPropertyArray('_selected');
+                const optionSetProperty: PropertySet = property.getPropertySet();
+                const selectionArray: PropertyArray = optionSetProperty.getPropertyArray('_selected');
                 if (!selectionArray) {
                     return;
                 }
-                optionSet.getOptions().forEach((option: api.form.FormOptionSetOption) => {
-                    let isSelected = false;
+                formOptionSet.getOptions().forEach((option: api.form.FormOptionSetOption) => {
+                    let isSelected: boolean = false;
                     selectionArray.forEach((selectedOptionName: api.data.Property) => {
                         if (selectedOptionName.getString() === option.getName()) {
                             isSelected = true;
@@ -1998,8 +2011,8 @@ export class ContentWizardPanel
             if (!cleanFormRedundantData) {
                 viewedContentBuilder.setData(this.contentWizardStepForm.getData());
             } else {
-                let data: api.data.PropertyTree = new api.data.PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
-                viewedContentBuilder.setData(this.cleanFormRedundantData(data));
+                const data: api.data.PropertyTree = new api.data.PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
+                viewedContentBuilder.setData(this.cleanFormOptionSetsRedundantData(data));
             }
         }
 
