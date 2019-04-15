@@ -47,7 +47,7 @@ export class CustomSelectorRequest
 
     getParams(): Object {
         return {
-            ids: this.ids.toString(),
+            ids: this.ids && this.ids.length > 0 ? this.ids.toString() : null,
             query: this.query || null,
             start: this.start || null,
             count: this.count || null

@@ -17,7 +17,7 @@ export class CustomSelector
 
     public static debug: boolean = false;
 
-    private static portalUrl: string = UriHelper.addSitePrefix('/edit/draft{0}/_/service/{1}');
+    private static portalUrl: string = UriHelper.addSitePrefix('/edit/default/draft{0}/_/service/{1}');
 
     private requestPath: string;
 
