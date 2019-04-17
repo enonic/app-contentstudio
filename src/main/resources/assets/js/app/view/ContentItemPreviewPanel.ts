@@ -300,7 +300,14 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    const uri = api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`);
+
+                    if(this.frame.getSrc() !== uri) {
+                        this.frame.setSrc(uri);
+                    } else {
+                        this.frame.refresh();
+                    }
+
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
