@@ -82,6 +82,7 @@ import PropertySet = api.data.PropertySet;
 import FormItemSet = api.form.FormItemSet;
 import FieldSet = api.form.FieldSet;
 import FormOptionSetOption = api.form.FormOptionSetOption;
+import WizardStep = api.app.wizard.WizardStep;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -1656,34 +1657,15 @@ export class ContentWizardPanel
         const siteModel = new SiteModel(site);
 
         const handler = api.util.AppHelper.debounce(() => {
-            this.createXDataStepsForContent(this.getPersistedItem()).then((steps) => {
+            this.createXDataStepsForContent(this.getPersistedItem()).then((steps: XDataWizardStep[]) => {
 
-                const xDatasToRemove = [];
-
-                for (let xDataName in this.xDataStepFormByName) {
-                    if (this.xDataStepFormByName.hasOwnProperty(xDataName)) {
-                        const missed = !steps.some(step => (<XDataWizardStepForm>step.getStepForm()).getXDataName().equals(
-                            this.xDataStepFormByName[xDataName].getXDataName()));
-
-                        if (missed) {
-                            xDatasToRemove.push(xDataName);
-                        }
-                    }
-                }
-
+                const xDatasToRemove: XDataName[] = this.getXDatasToRemove(steps);
                 this.removeXDataSteps(xDatasToRemove);
+                this.removeXDatasFromPersistedItem(xDatasToRemove);
 
-                const stepsToAdd = steps.filter(xDataStep => {
-                        return !this.getSteps().some(step => step === xDataStep);
-                    }
-                );
+                const stepsToAdd: XDataWizardStep[] = this.getStepsToAdd(steps);
+                this.addXDataSteps(stepsToAdd);
 
-                stepsToAdd.forEach(xDataWizardStep => {
-                    this.insertStepBefore(xDataWizardStep, this.settingsWizardStep);
-
-                    const form = <XDataWizardStepForm>xDataWizardStep.getStepForm();
-                    form.resetHeaderState();
-                });
                 this.notifyDataChanged();
             }).finally(() => {
                 this.formMask.hide();
@@ -1696,6 +1678,60 @@ export class ContentWizardPanel
         });
 
         return siteModel;
+    }
+
+    private getXDatasToRemove(steps: XDataWizardStep[]): XDataName[] {
+        const xDatasToRemove: XDataName[] = [];
+
+        for (let xDataName in this.xDataStepFormByName) {
+            if (this.xDataStepFormByName.hasOwnProperty(xDataName)) {
+                const missed = !steps.some(step => (<XDataWizardStepForm>step.getStepForm()).getXDataName().equals(
+                    this.xDataStepFormByName[xDataName].getXDataName()));
+
+                if (missed) {
+                    xDatasToRemove.push(this.xDataStepFormByName[xDataName].getXDataName());
+                }
+            }
+        }
+
+        return xDatasToRemove;
+    }
+
+    private removeXDatasFromPersistedItem(xDatasToRemove: XDataName[]) {
+        const persistedItemExtraData: ExtraData[] = this.getPersistedItem().getAllExtraData();
+
+        xDatasToRemove.forEach((xDataToRemove: XDataName) => {
+            let indexToRemove = -1;
+
+            persistedItemExtraData.some((extraData: ExtraData, index: number) => {
+                if (extraData.getName().equals(xDataToRemove)) {
+                    indexToRemove = index;
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (indexToRemove > -1) {
+                persistedItemExtraData.splice(indexToRemove, 1);
+            }
+        });
+    }
+
+    private getStepsToAdd(steps: XDataWizardStep[]): XDataWizardStep[] {
+        return steps.filter((xDataStep: XDataWizardStep) => {
+                return !this.getSteps().some((step: WizardStep) => step === xDataStep);
+            }
+        );
+    }
+
+    private addXDataSteps(stepsToAdd: XDataWizardStep[]) {
+        stepsToAdd.forEach((xDataWizardStep: XDataWizardStep) => {
+            this.insertStepBefore(xDataWizardStep, this.settingsWizardStep);
+
+            const form: XDataWizardStepForm = <XDataWizardStepForm>xDataWizardStep.getStepForm();
+            form.resetHeaderState();
+        });
     }
 
     private initLiveEditModel(content: Content, siteModel: SiteModel, formContext: ContentFormContext): wemQ.Promise<LiveEditModel> {
