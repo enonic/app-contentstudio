@@ -1,7 +1,5 @@
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {ApplicationAddedEvent} from '../../../../../site/ApplicationAddedEvent';
-import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
@@ -28,22 +26,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
-    private applicationUnavailableListener: (applicationEvent: api.application.ApplicationEvent) => void;
-
-    private applicationAddedListener: (event: ApplicationAddedEvent) => void;
-
-    private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
-
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
         this.formView = null;
-
-        this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
-
-        this.applicationAddedListener = this.reloadDescriptorsOnApplicationChange.bind(this);
-
-        this.applicationRemovedListener = this.reloadDescriptorsOnApplicationChange.bind(this);
     }
 
     private layout() {
@@ -72,20 +58,28 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     setModel(liveEditModel: LiveEditModel) {
 
         if (this.liveEditModel !== liveEditModel) {
+
+            const siteModelUpdatedHandler = () => this.reloadDescriptorsOnApplicationChange();
+            const applicationUnavailableHandler = () => this.applicationUnavailableHandler();
+            const applicationAddedHandler = () => this.reloadDescriptorsOnApplicationChange();
+            const applicationRemovedHandler = () => this.reloadDescriptorsOnApplicationChange();
+
             if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
                 const siteModel = this.liveEditModel.getSiteModel();
 
-                siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
-                siteModel.unApplicationAdded(this.applicationAddedListener);
-                siteModel.unApplicationRemoved(this.applicationRemovedListener);
+                liveEditModel.getSiteModel().unSiteModelUpdated(siteModelUpdatedHandler);
+                siteModel.unApplicationUnavailable(applicationUnavailableHandler);
+                siteModel.unApplicationAdded(applicationAddedHandler);
+                siteModel.unApplicationRemoved(applicationRemovedHandler);
             }
 
             super.setModel(liveEditModel);
             this.layout();
 
-            liveEditModel.getSiteModel().onApplicationUnavailable(this.applicationUnavailableListener);
-            liveEditModel.getSiteModel().onApplicationAdded(this.applicationAddedListener);
-            liveEditModel.getSiteModel().onApplicationRemoved(this.applicationRemovedListener);
+            liveEditModel.getSiteModel().onSiteModelUpdated(siteModelUpdatedHandler);
+            liveEditModel.getSiteModel().onApplicationUnavailable(applicationUnavailableHandler);
+            liveEditModel.getSiteModel().onApplicationAdded(applicationAddedHandler);
+            liveEditModel.getSiteModel().onApplicationRemoved(applicationRemovedHandler);
         }
     }
 
