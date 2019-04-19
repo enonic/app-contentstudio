@@ -29,6 +29,8 @@ export class ContentSelector
 
     protected showStatus: boolean;
 
+    protected addNewOptionsToTheBottom: boolean;
+
     protected static contentIdBatch: ContentId[] = [];
 
     protected static loadSummariesResult: wemQ.Deferred<ContentSummary[]>;
@@ -52,6 +54,10 @@ export class ContentSelector
         const hideToggleIconConfig = inputConfig['hideToggleIcon'] ? inputConfig['hideToggleIcon'][0] : {};
         this.hideToggleIcon =
             !StringHelper.isBlank(hideToggleIconConfig['value']) ? hideToggleIconConfig['value'].toLowerCase() === 'true' : false;
+
+        const addNewOptionsToTheBottom = inputConfig['addNewOptionsToTheBottom'] ? inputConfig['addNewOptionsToTheBottom'][0] : {};
+        this.addNewOptionsToTheBottom =
+            !StringHelper.isBlank(addNewOptionsToTheBottom['value']) ? addNewOptionsToTheBottom['value'].toLowerCase() === 'true' : false;
 
         super.readConfig(inputConfig);
     }
@@ -152,6 +158,7 @@ export class ContentSelector
             .setTreegridDropdownEnabled(this.treeMode)
             .setTreeModeTogglerAllowed(!this.hideToggleIcon)
             .setShowStatus(this.showStatus)
+            .setAddNewOptionsToTheBottom(this.addNewOptionsToTheBottom)
             .build();
 
         contentComboBox.getComboBox().onContentMissing((ids: string[]) => {
@@ -165,7 +172,7 @@ export class ContentSelector
             const contentId: ContentId = event.getSelectedOption().getOption().displayValue.getContentId();
 
             if (contentId) {
-                this.setContentIdProperty(contentId);
+                this.setContentIdProperty(contentId, event.getSelectedOption().getIndex());
 
                 this.updateSelectedOptionIsEditable(event.getSelectedOption());
                 this.getSelectedOptionsView().refreshSortable();
@@ -254,7 +261,7 @@ export class ContentSelector
         });
     }
 
-    protected setContentIdProperty(contentId: api.content.ContentId) {
+    protected setContentIdProperty(contentId: api.content.ContentId, index?: number) {
         let reference = api.util.Reference.from(contentId);
 
         let value = new Value(reference, ValueTypes.REFERENCE);
@@ -264,7 +271,7 @@ export class ContentSelector
             if (this.contentComboBox.countSelected() === 1) { // overwrite initial value
                 this.getPropertyArray().set(0, value);
             } else {
-                this.getPropertyArray().add(value);
+                this.getPropertyArray().add(value, index);
             }
             this.ignorePropertyChange = false;
         }

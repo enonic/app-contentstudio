@@ -410,6 +410,11 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
         return this;
     }
 
+    setAddNewOptionsToTheBottom(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+        super.setAddNewOptionsToTheBottom(value);
+        return this;
+    }
+
     build(): ContentComboBox<ITEM_TYPE> {
         return new ContentComboBox<ITEM_TYPE>(this);
     }
