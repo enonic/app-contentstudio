@@ -26,7 +26,7 @@ export class CustomSelectorComboBox
     }
 }
 
-class CustomSelectorSelectedOptionsView
+export class CustomSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<CustomSelectorItem> {
     createSelectedOption(option: Option<CustomSelectorItem>): SelectedOption<CustomSelectorItem> {
         return new SelectedOption<CustomSelectorItem>(new CustomSelectorSelectedOptionView(option), this.count());
@@ -34,7 +34,7 @@ class CustomSelectorSelectedOptionsView
 
 }
 
-class CustomSelectorSelectedOptionView
+export class CustomSelectorSelectedOptionView
     extends api.ui.selector.combobox.RichSelectedOptionView<CustomSelectorItem> {
 
     constructor(option: Option<CustomSelectorItem>) {
