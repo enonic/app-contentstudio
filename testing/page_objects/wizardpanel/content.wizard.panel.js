@@ -356,7 +356,9 @@ const contentWizardPanel = Object.create(page, {
     },
     clickOnPublishButton: {
         value: function () {
-            return this.waitForEnabled(this.publishButton, appConst.TIMEOUT_2).then(() => {
+            return this.waitForVisible(this.publishButton, appConst.TIMEOUT_3).pause(300).then(() => {
+                return this.waitForEnabled(this.publishButton, appConst.TIMEOUT_3);
+            }).then(() => {
                 return this.doClick(this.publishButton)
             }).catch(err => {
                 this.saveScreenshot('err_when_click_on_publish_button');
