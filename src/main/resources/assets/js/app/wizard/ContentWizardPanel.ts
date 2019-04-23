@@ -1231,7 +1231,7 @@ export class ContentWizardPanel
             isEqualToForm = current.equals(content, true);
         }
 
-        if (!isEqualToForm || imageHasChanged) { //if image has changed then extraData was changed too
+        if (!isEqualToForm || imageHasChanged) { //if image has changed then content contains new extraData to be set
             this.setPersistedItem(content.clone());
             this.updateWizard(content, true);
 
