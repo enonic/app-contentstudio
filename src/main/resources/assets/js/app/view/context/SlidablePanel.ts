@@ -27,12 +27,14 @@ export class SlidablePanel
     slideIn() {
         this.slideInFunction();
         this.slidedIn = true;
+        this.toggleClass('expanded', true);
         this.notifySlidedIn();
     }
 
     slideOut(silent?: boolean) {
         this.slideOutFunction();
         this.slidedIn = false;
+        this.toggleClass('expanded', false);
         if (!silent) {
             this.notifySlidedOut();
         }
