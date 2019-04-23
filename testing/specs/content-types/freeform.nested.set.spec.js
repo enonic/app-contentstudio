@@ -18,13 +18,14 @@ const contentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button on the wizard-toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
+    let siteDisplayName;
     let SITE;
+    let contentDisplayName;
 
     it(`Preconditions: site should be added`,
         () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            siteDisplayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(siteDisplayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
             }).then(() => {
                 return studioUtils.findAndSelectItem(SITE.displayName);
@@ -37,9 +38,9 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button should appear on the wizard-toolbar`,
         () => {
-            let displayName = contentBuilder.generateRandomName('freeform');
+            contentDisplayName = contentBuilder.generateRandomName('freeform');
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform').then(() => {
-                return contentWizard.typeDisplayName(displayName);
+                return contentWizard.typeDisplayName(contentDisplayName);
             }).then(() => {
                 //save only the name
                 return contentWizard.waitAndClickOnSave();
@@ -57,6 +58,25 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
                 return contentWizard.waitForSaveButtonEnabled();
             }).then(result => {
                 assert.isTrue(result, "Save button should be enabled, because radio button has been clicked in the form");
+            })
+        });
+
+    it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button should appear on the wizard-toolbar`,
+        () => {
+            return studioUtils.openContentInWizard(contentDisplayName).then(() => {
+                return freeFormOptionSet1.clickOnTextRadioButton();
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).pause(1500).then(() => {
+                return freeFormOptionSet1.clickOnImageRadioButton();
+            }).then(() => {
+                return contentWizard.waitForSaveButtonEnabled();
+            }).then(result => {
+                assert.isTrue(result, "Save button should be enabled, because radio button has been clicked in the form");
+            }).then(()=>{
+                return contentWizard.isContentInvalid();
+            }).then(result=>{
+                assert.isFalse(result, "Red icon should not be displayed, because required inputs are filled");
             })
         });
 

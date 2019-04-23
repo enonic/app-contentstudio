@@ -57,7 +57,7 @@ describe(
                 }).then(() => {
                     return insertLinkDialog.getSelectedOptionDisplayName();
                 }).then(result => {
-                    assert.isTrue(result == "Templates");
+                    assert.equal(result, "Templates", "Expected option should be displayed in the dialog");
                 })
             });
 

@@ -42,6 +42,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             });
         });
 
+    //verifies https://github.com/enonic/app-contentstudio/issues/364
+    //Upload button should not be visible in the New Content dialog for Templates folder
     it(`GIVEN existing site is expanded AND _templates folder selected WHEN New button has been pressed THEN upload button should not be present on the modal dialog`,
         () => {
             return selectTemplatesFolderAndClickNew().then(() => {
