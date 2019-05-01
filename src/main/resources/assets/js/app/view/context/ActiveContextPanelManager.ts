@@ -21,6 +21,11 @@ export class ActiveContextPanelManager {
             return;
         }
 
+        if (ActiveContextPanelManager.activeContextPanel) {
+            ActiveContextPanelManager.activeContextPanel.removeClass('active');
+        }
+        contextPanelToMakeActive.addClass('active');
+
         ActiveContextPanelManager.activeContextPanel = contextPanelToMakeActive;
         ActiveContextPanelManager.activeContextPanel.setActive();
     }

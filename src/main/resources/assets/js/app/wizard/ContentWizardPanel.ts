@@ -1210,14 +1210,19 @@ export class ContentWizardPanel
     }
 
     private updatePersistedItemIfNeeded(content: Content) {
-        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem())).build();
         let isEqualToForm;
+        let imageHasChanged;
+
+        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem())).build();
+
         if (content.getType().isImage()) {
+            imageHasChanged = content.getIconUrl() !== current.getIconUrl();
+
             // if new image has been uploaded then different iconUrl was generated on server from what we have here
             // in this case don't compare extraData as it will be different for new image too
             isEqualToForm = content.getDisplayName() === current.getDisplayName() &&
                             content.getName().equals(current.getName()) &&
-                            (content.getIconUrl() !== current.getIconUrl() || content.extraDataEquals(current.getAllExtraData(), true)) &&
+                            (imageHasChanged || content.extraDataEquals(current.getAllExtraData(), true)) &&
                             content.dataEquals(current.getContentData(), true) &&
                             content.getPermissions().equals(current.getPermissions());
         } else {
@@ -1227,7 +1232,7 @@ export class ContentWizardPanel
             isEqualToForm = current.equals(content, true);
         }
 
-        if (!isEqualToForm) {
+        if (!isEqualToForm || imageHasChanged) { //if image has changed then content contains new extraData to be set
             this.setPersistedItem(content.clone());
             this.updateWizard(content, true);
 
