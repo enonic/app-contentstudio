@@ -691,7 +691,7 @@ export class ContentWizardPanel
                 allMetadataFormsHaveValidUserInput = false;
             }
         });
-        return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
+        return allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
     private isCurrentContentId(id: api.content.ContentId): boolean {
@@ -1561,6 +1561,7 @@ export class ContentWizardPanel
 
         xDatas.forEach((xData: XData) => {
             const stepForm: XDataWizardStepForm = new XDataWizardStepForm(xData);
+            stepForm.onEnableChanged(this.dataChangedHandler);
             this.xDataWizardStepForms.add(stepForm);
             added.push(stepForm);
         });
@@ -1596,6 +1597,8 @@ export class ContentWizardPanel
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const promise: wemQ.Promise<void> = this.layoutXDataWizardStepForm(content, form);
+
+            form.getData().onChanged(this.dataChangedHandler);
 
             formViewLayoutPromises.push(promise);
         });
@@ -1662,6 +1665,7 @@ export class ContentWizardPanel
             this.insertStepBefore(new XDataWizardStep(form), this.settingsWizardStep);
             form.resetHeaderState();
             const promise: wemQ.Promise<void> = this.layoutXDataWizardStepForm(content, form);
+            form.getData().onChanged(this.dataChangedHandler);
 
             formViewLayoutPromises.push(promise);
         });
@@ -1672,9 +1676,6 @@ export class ContentWizardPanel
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): wemQ.Promise<void> {
         const extraData = content.getExtraData(xDataStepForm.getXData().getXDataName());
         const data: PropertyTree = extraData.getData();
-
-        data.onChanged(this.dataChangedHandler);
-        xDataStepForm.onEnableChanged(this.dataChangedHandler);
 
         const xDataForm: Form = new api.form.FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
@@ -1861,6 +1862,8 @@ export class ContentWizardPanel
 
                     const promise: wemQ.Promise<void> = this.layoutXDataWizardStepFormOfPersistedItem(form);
 
+                    form.getData().onChanged(this.dataChangedHandler);
+
                     layoutPromises.push(promise);
                 });
 
@@ -1879,9 +1882,6 @@ export class ContentWizardPanel
 
     private layoutXDataWizardStepFormOfPersistedItem(xDataStepForm: XDataWizardStepForm): wemQ.Promise<void> {
         const data: PropertyTree = new PropertyTree();
-
-        data.onChanged(this.dataChangedHandler);
-        xDataStepForm.onEnableChanged(this.dataChangedHandler);
 
         const xDataForm: Form = new api.form.FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
