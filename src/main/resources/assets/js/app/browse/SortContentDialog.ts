@@ -77,6 +77,14 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.gridLoadedHandler = () => {
             this.notifyResize();
             this.contentGrid.render(true);
+
+            const scrollTop = this.contentGrid.getGrid().getCanvasNode().parentElement.scrollTop;// saves and restores grid scroll position
+            this.getContentPanel().getEl().setHeight('auto');//allows parent to be stretched by child grid
+
+            const parentHeight = this.getContentPanel().getParentElement().getEl().getHeightWithoutPadding();
+
+            this.getContentPanel().getEl().setHeight(Math.floor(parentHeight) + 'px');
+            this.contentGrid.getGrid().getCanvasNode().parentElement.scrollTop = scrollTop;
         };
 
         OpenSortDialogEvent.on((event) => {
