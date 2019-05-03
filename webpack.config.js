@@ -1,5 +1,5 @@
 const ErrorLoggerPlugin = require('error-logger-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
@@ -35,15 +35,12 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    publicPath: '../', // ..for root and ../.. for page-editor
-                    use: [
-                        {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
-                        {loader: 'postcss-loader', options: {sourceMap: !isProd}},
-                        {loader: 'less-loader', options: {sourceMap: !isProd}}
-                    ]
-                })
+                use: [
+                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../', hmr: !isProd}},
+                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
+                    {loader: 'postcss-loader', options: {sourceMap: !isProd}},
+                    {loader: 'less-loader', options: {sourceMap: !isProd}},
+                ]
             },
             {
                 test: /\.(eot|woff|woff2|ttf)$|icomoon.svg/,
@@ -57,10 +54,9 @@ module.exports = {
     },
     plugins: [
         new ErrorLoggerPlugin(),
-        new ExtractTextPlugin({
+        new MiniCssExtractPlugin({
             filename: '[name].css',
-            allChunks: true,
-            disable: false
+            chunkFilename: './styles/[id].css'
         }),
         new CopyWebpackPlugin([
             { from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name].[ext]' }
@@ -81,5 +77,6 @@ module.exports = {
             })
         ] : [])
     ],
+    mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map'
 };
