@@ -142,14 +142,8 @@ export class ContentTypeFilter
         this.combobox.resetBaseValues();
     }
 
-    private getValues(): Value[] {
-        return this.combobox.getSelectedDisplayValues().map((contentType: ContentTypeSummary) => {
-            return new Value(contentType.getContentTypeName().toString(), ValueTypes.STRING);
-        });
-    }
-
     protected getNumberOfValids(): number {
-        return this.getValues().length;
+        return this.getPropertyArray().getSize();
     }
 
     giveFocus(): boolean {
