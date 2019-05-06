@@ -488,6 +488,7 @@ export class ContentWizardPanel
                     this.updateLiveForm(persistedItem).then(() => {
                         if (persistedItem.isSite()) {
                             this.updateWizardStepForms(persistedItem, false);
+                            this.updateSiteModel(<Site>persistedItem);
                         }
                     });
                 }
@@ -832,7 +833,12 @@ export class ContentWizardPanel
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateWizardHeader(content);
         this.updateWizardStepForms(content, unchangedOnly);
+        this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
+
+        if (content.isSite()) {
+            this.updateSiteModel(<Site>content);
+        }
     }
 
     private removeXDataSteps(xDatas: XData[]) {
@@ -2110,9 +2116,9 @@ export class ContentWizardPanel
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
-            let extraData: ExtraData = content.getExtraData(xDataName);
-            if (!extraData) { // ensure ExtraData object corresponds to each step form
-                extraData = this.enrichWithExtraData(content, xDataName);
+            const extraData: ExtraData = content.getExtraData(xDataName);
+            if (!extraData) {
+                return;
             }
 
             form.getData().unChanged(this.dataChangedHandler);
@@ -2127,8 +2133,6 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
-
-            this.syncPersistedItemWithXData(xDataName, data);
         });
     }
 
@@ -2143,10 +2147,6 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
-
-        if (content.isSite()) {
-            this.updateSiteModel(<Site>content);
-        }
 
         this.settingsWizardStepForm.update(content, unchangedOnly);
         this.scheduleWizardStepForm.update(content, unchangedOnly);
