@@ -1,6 +1,6 @@
 {
   "name": "app-contentstudio",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Enonix XP - Content Studio App",
   "scripts": {
     "build": "webpack --hide-modules",
@@ -19,13 +19,13 @@
     "autoprefixer": "^8.1.0",
     "browserslist": "^3.1.2",
     "browserslist-config-enonic": "^1.0.3",
-    "circular-dependency-plugin": "^4.2.1",
+    "circular-dependency-plugin": "^5.0.2",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^2.1.1",
     "css-mqpacker": "^6.0.2",
     "cssnano": "^4.0.0-rc.2",
     "enonic-admin-artifacts": "^1.5.2",
-    "error-logger-webpack-plugin": "^1.0.1",
+    "error-logger-webpack-plugin": "^1.0.2",
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-prettier": "^2.3.0",
@@ -46,7 +46,7 @@
     "tslint": "5.9.1",
     "typescript": "^2.7.2",
     "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.1"
+    "webpack-cli": "^3.3.2"
   },
   "browserslist": [
     "extends browserslist-config-enonic"
