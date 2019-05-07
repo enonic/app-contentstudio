@@ -62,5 +62,5 @@ export class XDataWizardStepForms {
             form.displayValidationErrors(value);
         });
     }
-}
 
+}
