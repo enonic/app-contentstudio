@@ -37,7 +37,7 @@ const freeFormOptionSet1 = Object.create(page, {
     },
     clickOnTextRadioButton: {
         value: function () {
-            return this.waitForVisible(this.imageRadioButton, appConst.TIMEOUT_2).then(() => {
+            return this.waitForVisible(this.textRadioButton, appConst.TIMEOUT_2).then(() => {
                 return this.doClick(this.textRadioButton);
             }).catch(() => {
                 this.saveScreenshot("err_free_form_text_radio");

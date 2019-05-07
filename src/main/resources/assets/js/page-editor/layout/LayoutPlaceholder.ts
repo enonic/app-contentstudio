@@ -33,22 +33,22 @@ export class LayoutPlaceholder
 
         let siteModel = layoutView.getLiveEditModel().getSiteModel();
 
-            let listener = () => this.reloadDescriptors(siteModel);
+        let listener = () => this.reloadDescriptors(siteModel);
 
-            siteModel.onApplicationAdded(listener);
-            siteModel.onApplicationRemoved(listener);
-            siteModel.onSiteModelUpdated(listener);
+        siteModel.onApplicationAdded(listener);
+        siteModel.onApplicationRemoved(listener);
+        siteModel.onSiteModelUpdated(listener);
 
-            this.onRemoved(() => {
-                siteModel.unApplicationAdded(listener);
-                siteModel.unApplicationRemoved(listener);
-                siteModel.unSiteModelUpdated(listener);
-            });
-        }
+        this.onRemoved(() => {
+            siteModel.unApplicationAdded(listener);
+            siteModel.unApplicationRemoved(listener);
+            siteModel.unSiteModelUpdated(listener);
+        });
+    }
 
-        private reloadDescriptors(siteModel: SiteModel) {
-            this.comboBox.loadDescriptors(siteModel.getApplicationKeys());
-        }
+    private reloadDescriptors(siteModel: SiteModel) {
+        this.comboBox.loadDescriptors(siteModel.getApplicationKeys());
+    }
 
     select() {
         this.comboBox.show();

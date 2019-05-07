@@ -6,10 +6,9 @@ import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 import StringHelper = api.util.StringHelper;
 import UriHelper = api.util.UriHelper;
 import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
 import SelectedOption = api.ui.selector.combobox.SelectedOption;
 import {CustomSelectorItem} from './CustomSelectorItem';
-import {CustomSelectorComboBox} from './CustomSelectorComboBox';
+import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 
 export class CustomSelector
@@ -120,6 +119,7 @@ export class CustomSelector
 
             this.fireFocusSwitchEvent(event);
         });
+
         comboBox.onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
             this.ignorePropertyChange = true;
 
@@ -130,13 +130,15 @@ export class CustomSelector
             this.validate(false);
         });
 
+        comboBox.onOptionMoved((moved: SelectedOption<any>, fromIndex: number) => this.handleMove(moved, fromIndex));
+
         comboBox.onValueLoaded(() => this.validate(false));
 
         return comboBox;
     }
 
     protected getNumberOfValids(): number {
-        return this.comboBox.countSelected();
+        return this.getPropertyArray().getSize();
     }
 
     giveFocus(): boolean {
@@ -163,8 +165,8 @@ export class CustomSelector
     }
 
     private setupSortable() {
+        this.getSelectedOptionsView().setOccurrencesSortable(true);
         this.updateSelectedOptionStyle();
-        this.getSelectedOptionsView().onOptionMoved(this.handleMove.bind(this));
     }
 
     private handleMove(moved: SelectedOption<any>, fromIndex: number) {
@@ -176,9 +178,9 @@ export class CustomSelector
         this.getSelectedOptionsView().refreshSortable();
     }
 
-    private getSelectedOptionsView(): SelectedOptionsView<CustomSelectorItem> {
+    private getSelectedOptionsView(): CustomSelectorSelectedOptionsView {
         this.updateSelectedOptionStyle();
-        return <SelectedOptionsView<CustomSelectorItem>> this.comboBox.getSelectedOptionView();
+        return <CustomSelectorSelectedOptionsView> this.comboBox.getSelectedOptionView();
     }
 
     private updateSelectedOptionStyle() {
