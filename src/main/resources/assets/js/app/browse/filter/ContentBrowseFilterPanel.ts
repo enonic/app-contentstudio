@@ -6,6 +6,7 @@ import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
+import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
@@ -346,9 +347,9 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                                             LogicalOperator.AND,
                                             selectionMode ?
                                             this.makeSelectedItemsSearchExpr() : this.makeInboundDependenciesSearchExpr()
-                            ));
+                            ), ContentSummaryRequest.ROOT_ORDER);
         } else {
-            query = new QueryExpr(fulltextSearchExpression);
+            query = new QueryExpr(fulltextSearchExpression, ContentSummaryRequest.ROOT_ORDER);
         }
 
         contentQuery.setQueryExpr(query);
