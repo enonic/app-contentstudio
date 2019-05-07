@@ -138,7 +138,7 @@ export class CustomSelector
     }
 
     protected getNumberOfValids(): number {
-        return this.comboBox.countSelected();
+        return this.getPropertyArray().getSize();
     }
 
     giveFocus(): boolean {

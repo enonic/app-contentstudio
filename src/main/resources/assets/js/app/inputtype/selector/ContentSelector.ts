@@ -303,7 +303,7 @@ export class ContentSelector
     }
 
     protected getNumberOfValids(): number {
-        return this.contentComboBox.countSelected();
+        return this.getPropertyArray().getSize();
     }
 
     giveFocus(): boolean {
