@@ -58,7 +58,7 @@ export class CustomSelector
     }
 
     newInitialValue(): Value {
-        return ValueTypes.STRING.newNullValue();
+        return null;
     }
 
     layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
