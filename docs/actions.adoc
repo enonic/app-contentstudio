@@ -1,66 +1,312 @@
 = Actions
 :toc: right
-:imagesdir: actions
+:imagesdir: actions/images
 
-Depending on permissions, users may perform the following actions on selected content items
+Content can be created, edited, deleted, duplicated, moved, sorted and published. Depending on permissions, users may perform those actions on selected content items.
+
 
 == New
 
-The ``New`` action will launch the *New Content* dialog.
+The `New` action will launch the *New Content* dialog.
 
-There are three ways to open the *New Content* dialogue in the Content Studio.
+There are three ways to open the *New Content* dialog in the Content Studio:
 
-* The first method is with the shortcut - ``alt + n``.
-* By clicking the ``New`` button in the toolbar
-* By Clicking ``New``in the context menu, which is accessible by right-clicking an item
+* The first method is with the shortcut — `alt + n`;
+* By clicking the `New` button in the toolbar;
+* By clicking `New` in the context menu, which is accessible by right-clicking an item.
 
-image::new-content-dialog.png[New content dialog,683,520]
+image::dialog-new.png[]
 
-NOTE: The content dialogue will use the context of the selected content to create the new item. If no context is set, item will be created on root level
+NOTE: The content dialog will use the context of the selected content to create the new item. If no context is set, the item will be created on the root level.
+
 
 === New by Type
 
 The dialog lets you choose from available content types, based on the context of the selected item.
 
-* Select from the list of all content types
-* Select from the "Popular" list (Most used content types in your current context)
-* Select from the "Recent" list (Based on users recent actions)
+* Select from the list of all content types;
+* Select from the "Most Popular" list (most used content types in your current context);
+* Select from the "Recently Used" list (based on users recent actions).
 
-TIP: To filter the list of items - simply start typing on your keyboard to filter the list of available content types
+TIP: To filter the list of items — simply start typing on your keyboard to filter the list of available content types.
 
-image::new-content-search.png[New content dialog with search activated,681,379]
+image::dialog-new-search.png[]
 
 Once a content type is selected, a new item is created, and the content editor is launched in a new tab.
+
 
 === New by Uploading
 
 Create file-based content aka "media" from the new content dialog by uploading.
 There are two ways to upload files:
 
-* Click the upload icon placed in the top right of the dialog.
-* Drag'n drop - also supports bulk uploading
+* Click the upload icon placed in the top right of the dialog;
+* Drag'n drop — also supports bulk uploading.
 
-image::new-content-media.png[Drag'n drop creation of content,684,522]
+image::dialog-new-media.png[]
 
 NOTE: When uploading files, the underlying content type is automatically detected from the file type file uploaded.
 
 
-
-
 == Edit
+
+The `Edit` action will open the *Wizard* of the selected contents for edit in the new tab. If multiple items are selected, then the action will open a tab for each one.
+
+There are four ways to open content for edit in the Content Studio:
+
+* The first method is with the shortcut — `⌘ + e` (`ctrl + e` for Windows);
+* By clicking the `Edit` button in the toolbar;
+* By double-clicking the item in the grid;
+* By clicking `Edit` in the context menu, which is accessible by right-clicking an item.
+
 
 == Delete
 
+The `Delete` action will launch the *Delete item(s)* dialog for the selected content.
+
+There are three ways to open the *Delete item(s)* dialog in the Content Studio:
+
+* The first method is with the shortcut — `⌘ + del` (`ctrl + del` for Windows);
+* By clicking the `Delete` button in the toolbar;
+* By clicking `Delete` in the context menu, which is accessible by right-clicking an item.
+
+
+=== Deleting new items
+
+If the content has status "New" or "Unpublished", it will be deleted instantly, right after you confirm your action.
+
+image::dialog-delete-new.png[]
+
+If there is more than one item you want to delete, there will be a counter on the "Delete" button, that shows the total number of items, that will be deleted. After you press the "delete" button the confirmation dialog will appear.
+
+image::dialog-delete-confirm.png[]
+
+
+=== Deleting published items
+
+If you try to delete content, that was published and has a status like "Published" or "Modified", the additional checkbox will appear in the bottom left corner. If it's checked, all content will be deleted, just like, when deleting "New" content.
+
+image::dialog-delete-published.png[]
+
+If the option is unchecked, all content with status "New" and "Unpublished" will be deleted, but the "Publish" and "Modified" content will change the status to "Deleted". To remove such items completely, they must be <<publish,published>>.
+
+To restore files with "Deleted" status, select them and click the `Undo delete` button in the toolbar.
+
+image::dialog-delete-undo.png[]
+
+=== Deleting from the wizard
+
+When the `Delete` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+
+
 == Duplicate
+
+The `Duplicate` action will launch the *Duplicate content* dialog for the selected content.
+
+There are two ways to open the *Delete item(s)* dialog in the Content Studio:
+
+* By clicking the `Duplicate` button in the toolbar;
+* By clicking `Duplicate` in the context menu, which is accessible by right-clicking an item.
+
+In the dialog, you can choose whether child items of selected content(s) should also be duplicated or not by pressing the tree icon to the left of the content. Pressing the "Duplicate" button in the dialog will trigger the duplicate operation which will be visualized by a progress bar if the process is taking more than a few seconds. Duplicates will get a new id and path names will be postfixed with `-copy` or `-copy-*` with a number instead of an asterisk starting with `2` if it is not the first copy.
+
+image::dialog-duplicate.png[]
+
+=== Duplicating from the wizard
+
+When the `Duplicate` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+
 
 == Move
 
+The `Move` action will launch the *Move item(s) with children* dialog for the selected content.
+
+There are two ways to open this dialog in the Content Studio:
+
+* By clicking the `Move` button in the toolbar;
+* By clicking `Move` in the context menu, which is accessible by right-clicking an item.
+
+This feature moves selected items with all children and current permissions to another place in the tree grid. Type to search, or use the dropdown arrow, to find the new parent content where the selected items will be moved to. If the `Move` button in the dialog is clicked without choosing a parent content then the items will be moved to the *root* of the content tree.
+
+Content cannot be moved to a location where another content already exists with the same path name.
+
+image::dialog-move.png[]
+
 == Sort
+
+The `Sort` action will launch the *Sort items* dialog for the selected content.
+
+There are two ways to open this dialog in the Content Studio:
+
+* By clicking the `Sort` button in the toolbar;
+* By clicking `Sort` in the context menu, which is accessible by right-clicking an item.
+
+Child items of any content can be sorted in a number of ways through the *Sort items* dialog.
+
+The default sorting is by the *Modified date* in descending order. 
+
+You can sort items in ascending or descending order by Modified date, Created date, Display name or Publish date. Children can also be manually sorted by simply dragging them in the *Sort items* dialog.
+
+image::dialog-sort.png[]
+
+Once items are sorted, the parent content will have an arrow in the browse view tree grid pointed up or down to denote ascending or descending. If the content is manually sorted, an icon with three horizontal bars will appear. 
+
+Clicking the bars or arrow icon will open the *Sort items* dialog. 
+
+In the image below, the `/folder-copy` is sorted by Display name in ascending order, `/folder-copy-2` is sorted by Published date in ascending order, and the `/folder-copy-3` has manual sorting.
+
+image::dialog-sort-grid.png[]
+
 
 == Preview
 
+The `Preview` action will open and render a selected Site or Page in the new tab.
+
+There are two ways to open this dialog in the Content Studio:
+
+* By clicking the `Preview` button in the toolbar;
+* By clicking `Preview` in the context menu, which is accessible by right-clicking an item.
+
+
 == Publish
+
+Publishing is a simple but important concept for working with content in Enonic XP. The basic concept of publishing is that it makes content viewable to others outside of the Content Studio.
+
+The `Publish` action will launch the *Publishing Wizard* dialog for the selected content.
+
+There are three ways to open the *Publishing Wizard* dialog in the Content Studio:
+
+* The first method is with the shortcut — `⌘ + alt + p` (`ctrl + alt + p` for Windows);
+* By clicking the `Publish` button in the toolbar;
+* By clicking `Publish` in the context menu, which is accessible by right-clicking an item.
+
+image::dialog-publish-button.png[]
+
+There are also several options in the publish menu. *Publish* will simply opens the dialog, just like the main button. <<publish-tree,*Publish Tree*>> will open the same dialog, but with active tree icons. <<unpublish,*Unpublish*>> will open the *Unpublish item* dialog. <<new-issue,*Create Issue*>> will open the *New Issue* dialog.
+
+NOTE: If the "Publish" action is not available, the main button may change the action and title to `Publish Tree…` or `Create Issue…`.
+
+=== Draft and master branches
+
+All content created with the Content Studio exists in the *draft* branch with the status `offline`. Content in the *draft* branch can be edited, changed, and previewed until it is ready to go `online`. Every time a content is saved with changes, a new version is created. 
+
+When a content is published, the active version is copied from the *draft* branch to the *master* branch. Only content in the *master* branch can be accessed by others outside of the Content Studio, subject to the contents security settings.
+
+=== Content status
+
+Published content will have the status `online` while content that has not yet been published will be `offline`. When changes to a published content are saved, the new version becomes the active version but the version that is `online` is not changed. The status of the new active version will be *modified* and this content will need to be published again before the changes will be visible outside of the Content Studio.
+
+When a published content is deleted, the *Delete item(s)* dialog offers a checkbox to "Instantly delete published items". If this box is not checked then the content’s status will be `Deleted` and it will still be visible outside of the Content Studio. Content that is `Deleted` must be published, unpublished, or "instantly deleted" before it is actually removed from the master branch.
+
+=== Publishing wizard
+
+Content is published through the *Publishing Wizard* dialog. When a content is selected for publishing, its parents and all the related content will be published with it. For example, in the image below, a *Post* content named "March madness" was selected for publishing. This post has two related *Category* contents and a related *Author* content. Therefore, the categories and author will be published with the March "Madness post" and the parent folders of the categories and author will also be published. All items that will be published with the selected content are listed in the publishing wizard.
+
+image::dialog-publish.png[]
+
+The green `Publish` button has a menu option for <<scheduled-publishing,Schedule…>> and <<new-issue,Create Issue…>> options.
+
+=== Publish Tree
+
+If the selected content has children then these items can be included by clicking the tree icon to the left of the content. As you can see from the picture below, clicking the icon will add all descendants of the content to the publishing list.
+
+image::dialog-publish-with-children.png[]
+
+The total number of items that will be published is displayed on the `Publish` button.
+
+=== Scheduled publishing
+
+Clicking on the menu item `Schedule…` in the *Publish Wizard* dialog will open a new dialog, called *Scheduled Publishing*. There you can schedule the period of time, that the content will be online or even defer the publishing.
+
+image::dialog-schedule.png[]
+
+NOTE: Only offline items will be scheduled. All other changes will be published immediately.
+
+=== Publishing from the wizard
+
+When the `Publish` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+
 
 == Unpublish
 
+There are two ways to open this dialog in the Content Studio:
+
+* By clicking the `Unpublish` option button in the toolbar (it will replace the `Publish` button for the published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
+* By clicking `Unpublish` in the context menu, which is accessible by right-clicking an item, where it will replace `Publish` option for the published content.
+
+Previously published content can be taken `offline` with the "Unpublish" feature. All of the content’s children will be listed and unpublished along with the selected content. The total number of content items that will be taken `offline` will appear in parenthesis in the red `Unpublish` button at the bottom of the dialog.
+
+Content that has the status `Deleted` will be taken `offline`, changing the status to `Unpublished`.
+
+image::dialog-unpublish.png[]
+
+
 == New Issue
+
+There are three ways to open this dialog in the Content Studio:
+
+* By clicking the `Create Issue…` option button in the toolbar (it will replace the `Publish` button for the fully published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
+
+* By clicking the `Create Issue…` button in the *Publish Wizard* dialog;
+
+* By clicking `My Issues` button above the toolbar and then clicking the `New Issue…` button in the opened dialog.
+
+image::dialog-publish-button.png[]
+
+Creating an issue may be useful when you want to create a task, describe it and then assigning it to a certain user.
+
+=== My issues
+
+*My Issues* dialog can be accessed by clicking the `My Issues` in the top right corner, just button above the `Publish` button.
+
+The dialog will list all opened issues. You can switch to the closed ones by clicking the `Show closed issues` button. You can also filter the list, showing only the issues that were assigned to you  (`Assigned to Me` checkbox), or created by you (`My Issues` checkbox).
+
+To create a new issue, click the <<updating-issue,`New Issue…`>> button.
+
+Clicking on the issue from the list will open the <<updating-issue,dialog>> to an edit issue.
+
+image::dialog-issue-list.png[]
+
+=== Creating issue
+
+To create a new issue, only the *Title* must be specified. All other fields are optional.
+
+You can assign multiple users to work on an issue, using the *Assignees* selector, but you can't assign yourself.
+
+To add specific content to an issue, click on the `Add items` button. The *Items* selector will appear. 
+
+image::dialog-issue-1.png[]
+
+If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<publishing-wizard,example>>, when publishing "March Madness" post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
+
+image::dialog-issue-2.png[]
+
+=== Updating issue
+
+To edit the issue, click on it in the <<my-issues,*My issues*>> dialog. It will open the dialog with three tabs.
+
+In the top right corner, you will see the status of the current issue. It can be `Open` or `Close`.
+
+Just above the status is the *pencil* icon, clicking on which will allow you to edit the title of the issue.
+
+==== Comments
+
+The first tabs show comments on the current issue. Comments can be added by clicking the `Add Comment` button. To *edit* or *delete* a comment, click on the *kebab* icon to the right of the comment, that will show the menu with those two options. The number next to the tab title shows the total number of comments. 
+
+image::dialog-issue-edit-1.png[]
+
+==== Items
+
+On the second tab, you can update the list of content, that is associated with this issue. There can be multiple contents or no content at all. The descendants of the content can be added or removed from the list by clicking on the tree icon next to the content. 
+
+There is a `Publish & Close Issue` button at the footer of the dialog in this tab, which allows you to close the issue, or schedule the time, that the issue will be closed, if you click the `Schedule…` option in the menu.
+
+The number next to the tab title shows the total number of content, associated with the issue. 
+
+image::dialog-issue-edit-2.png[]
+
+==== Assignees
+
+On the third tab, assignees can be added and removed from this issue. The number next to the tab title shows the total number of assignees. 
+
+image::dialog-issue-edit-3.png[]
