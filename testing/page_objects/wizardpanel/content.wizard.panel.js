@@ -16,6 +16,7 @@ const wizard = {
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
+    savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
@@ -61,6 +62,11 @@ const contentWizardPanel = Object.create(page, {
     savedButton: {
         get: function () {
             return `${wizard.container}` + `${wizard.savedButton}`;
+        }
+    },
+    savingButton: {
+        get: function () {
+            return `${wizard.container}` + `${wizard.savingButton}`;
         }
     },
     publishButton: {
@@ -343,7 +349,14 @@ const contentWizardPanel = Object.create(page, {
                 } else {
                     throw new Error('Save button is disabled! ');
                 }
+            }).pause(1000).then(() => {
+                return this.waitForSavingButtonNotVisible();
             });
+        }
+    },
+    waitForSavingButtonNotVisible: {
+        value: function () {
+            return this.waitForNotVisible(this.savingButton, appConst.TIMEOUT_3);
         }
     },
     clickOnDelete: {
@@ -452,7 +465,7 @@ const contentWizardPanel = Object.create(page, {
         value: function (pageControllerDisplayName) {
             let optionSelector = elements.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`,
                 pageControllerDisplayName);
-            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_4).then(() => {
+            return this.waitForVisible(wizard.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
                 return this.typeTextInInput(wizard.controllerOptionFilterInput, pageControllerDisplayName);
             }).then(() => {
                 return this.waitForVisible(optionSelector, appConst.TIMEOUT_3);
