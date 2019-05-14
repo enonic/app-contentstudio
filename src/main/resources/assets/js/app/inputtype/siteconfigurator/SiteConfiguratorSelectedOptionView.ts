@@ -97,7 +97,7 @@ export class SiteConfiguratorSelectedOptionView
         this.siteConfig = siteConfig;
     }
 
-    updateDescriptionAndIcon() {
+    update() {
         new GetApplicationRequest(this.application.getApplicationKey()).sendAndParse().then((app: Application) => {
             if (app.getIconUrl()) {
                 this.namesAndIconView.setIconUrl(app.getIconUrl());
@@ -106,6 +106,8 @@ export class SiteConfiguratorSelectedOptionView
             if (app.getDescription()) {
                 this.namesAndIconView.setSubName(app.getDescription());
             }
+
+            this.namesAndIconView.setMainName(app.getDisplayName());
         }).catch(api.DefaultErrorHandler.handle).done();
     }
 

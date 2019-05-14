@@ -239,15 +239,19 @@ export class SiteConfigurator
             } else if (ApplicationEventType.STARTED === event.getEventType()) {
                 const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
                 handleAppEvent(view, false, false);
-                if (view && view.getOption().empty) {
-                    view.removeClass('empty');
+                if (view) {
+                    view.update();
+
+                    if (view.getOption().empty) {
+                        view.removeClass('empty');
+                    }
                 }
             } else if (ApplicationEventType.UNINSTALLED === event.getEventType()) {
                 handleAppEvent(this.getMatchedOption(comboBox, event), true, false);
             } else if (ApplicationEventType.INSTALLED === event.getEventType()) {
                 const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
                 if (view) {
-                    view.updateDescriptionAndIcon();
+                    view.update();
                 }
             }
         });
