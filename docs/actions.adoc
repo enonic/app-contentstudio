@@ -182,7 +182,7 @@ There are three ways to open the *Publishing Wizard* dialog in the Content Studi
 
 image::dialog-publish-button.png[]
 
-There are also several options in the publish menu. *Publish* will simply opens the dialog, just like the main button. <<publish-tree,*Publish Tree*>> will open the same dialog, but with active tree icons. <<unpublish,*Unpublish*>> will open the *Unpublish item* dialog. <<new-issue,*Create Issue*>> will open the *New Issue* dialog.
+There are also several options in the publish menu. *Publish* will simply opens the dialog, just like the main button. <<publish-tree,*Publish Tree*>> will open the same dialog, but with active tree icons. <<unpublish,*Unpublish*>> will open the *Unpublish item* dialog. <<create-issue,*Create Issue*>> will open the *New Issue* dialog.
 
 NOTE: If the "Publish" action is not available, the main button may change the action and title to `Publish Tree…` or `Create Issue…`.
 
@@ -204,7 +204,7 @@ Content is published through the *Publishing Wizard* dialog. When a content is s
 
 image::dialog-publish.png[]
 
-The green `Publish` button has a menu option for <<scheduled-publishing,Schedule…>> and <<new-issue,Create Issue…>> options.
+The green `Publish` button has a menu option for <<scheduled-publishing,Schedule…>> and <<create-issue,Create Issue…>> options.
 
 === Publish Tree
 
@@ -241,7 +241,9 @@ Content that has the status `Deleted` will be taken `offline`, changing the stat
 image::dialog-unpublish.png[]
 
 
-== New Issue
+== Create Issue
+
+NOTE: In-depth reference on the issues can be accessed in the separate <<issues.adoc#new-issue,chapter>>.
 
 There are three ways to open this dialog in the Content Studio:
 
@@ -253,60 +255,12 @@ There are three ways to open this dialog in the Content Studio:
 
 image::dialog-publish-button.png[]
 
-Creating an issue may be useful when you want to create a task, describe it and then assigning it to a certain user.
-
-=== My issues
-
-*My Issues* dialog can be accessed by clicking the `My Issues` in the top right corner, just button above the `Publish` button.
-
-The dialog will list all opened issues. You can switch to the closed ones by clicking the `Show closed issues` button. You can also filter the list, showing only the issues that were assigned to you  (`Assigned to Me` checkbox), or created by you (`My Issues` checkbox).
-
-To create a new issue, click the <<updating-issue,`New Issue…`>> button.
-
-Clicking on the issue from the list will open the <<updating-issue,dialog>> to an edit issue.
-
-image::dialog-issue-list.png[]
-
 === Creating issue
 
 To create a new issue, only the *Title* must be specified. All other fields are optional.
 
 You can assign multiple users to work on an issue, using the *Assignees* selector, but you can't assign yourself.
 
-To add specific content to an issue, click on the `Add items` button. The *Items* selector will appear. 
-
-image::dialog-issue-1.png[]
-
 If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<publishing-wizard,example>>, when publishing "March Madness" post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
 
-image::dialog-issue-2.png[]
-
-=== Updating issue
-
-To edit the issue, click on it in the <<my-issues,*My issues*>> dialog. It will open the dialog with three tabs.
-
-In the top right corner, you will see the status of the current issue. It can be `Open` or `Close`.
-
-Just above the status is the *pencil* icon, clicking on which will allow you to edit the title of the issue.
-
-==== Comments
-
-The first tabs show comments on the current issue. Comments can be added by clicking the `Add Comment` button. To *edit* or *delete* a comment, click on the *kebab* icon to the right of the comment, that will show the menu with those two options. The number next to the tab title shows the total number of comments. 
-
-image::dialog-issue-edit-1.png[]
-
-==== Items
-
-On the second tab, you can update the list of content, that is associated with this issue. There can be multiple contents or no content at all. The descendants of the content can be added or removed from the list by clicking on the tree icon next to the content. 
-
-There is a `Publish & Close Issue` button at the footer of the dialog in this tab, which allows you to close the issue, or schedule the time, that the issue will be closed, if you click the `Schedule…` option in the menu.
-
-The number next to the tab title shows the total number of content, associated with the issue. 
-
-image::dialog-issue-edit-2.png[]
-
-==== Assignees
-
-On the third tab, assignees can be added and removed from this issue. The number next to the tab title shows the total number of assignees. 
-
-image::dialog-issue-edit-3.png[]
+image::dialog-issue.png[]
