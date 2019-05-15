@@ -237,13 +237,22 @@ export class SiteConfigurator
             if (ApplicationEventType.STOPPED === event.getEventType()) {
                 handleAppEvent(this.getMatchedOption(comboBox, event), false, true);
             } else if (ApplicationEventType.STARTED === event.getEventType()) {
-                let view = this.getMatchedOption(comboBox, event);
+                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
                 handleAppEvent(view, false, false);
-                if (view && view.getOption().empty) {
-                    view.removeClass('empty');
+                if (view) {
+                    view.update();
+
+                    if (view.getOption().empty) {
+                        view.removeClass('empty');
+                    }
                 }
             } else if (ApplicationEventType.UNINSTALLED === event.getEventType()) {
                 handleAppEvent(this.getMatchedOption(comboBox, event), true, false);
+            } else if (ApplicationEventType.INSTALLED === event.getEventType()) {
+                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
+                if (view) {
+                    view.update();
+                }
             }
         });
 
@@ -251,7 +260,7 @@ export class SiteConfigurator
     }
 
     private getMatchedOption(combobox: SiteConfiguratorComboBox, event: ApplicationEvent): SiteConfiguratorSelectedOptionView {
-        let result;
+        let result: SiteConfiguratorSelectedOptionView;
         combobox.getSelectedOptionViews().some((view: SiteConfiguratorSelectedOptionView) => {
             if (view.getApplication() && view.getApplication().getApplicationKey().equals(event.getApplicationKey())) {
                 result = view;

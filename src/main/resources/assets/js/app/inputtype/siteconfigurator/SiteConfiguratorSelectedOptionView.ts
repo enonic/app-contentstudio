@@ -4,6 +4,9 @@ import FormView = api.form.FormView;
 import Application = api.application.Application;
 import ApplicationKey = api.application.ApplicationKey;
 import ApplicationConfig = api.application.ApplicationConfig;
+import NamesAndIconView = api.app.NamesAndIconView;
+import DivEl = api.dom.DivEl;
+import GetApplicationRequest = api.application.GetApplicationRequest;
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
@@ -30,6 +33,8 @@ export class SiteConfiguratorSelectedOptionView
 
     private formViewStateOnDialogOpen: FormView;
 
+    private namesAndIconView: NamesAndIconView;
+
     constructor(option: Option<Application>, siteConfig: ApplicationConfig, formContext: ContentFormContext) {
         super(option);
 
@@ -45,22 +50,10 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     doRender(): wemQ.Promise<boolean> {
+        this.namesAndIconView = this.createNamesAndIconView();
 
-        let header = new api.dom.DivEl('header');
-
-        let namesAndIconView = new api.app.NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(
-            api.app.NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
-            this.application.getName() + (!!this.application.getVersion() ? '-' + this.application.getVersion() : ''));
-
-        if (this.application.getIconUrl()) {
-            namesAndIconView.setIconUrl(this.application.getIconUrl());
-        }
-
-        if (this.application.getDescription()) {
-            namesAndIconView.setSubName(this.application.getDescription());
-        }
-
-        header.appendChild(namesAndIconView);
+        const header: DivEl = new DivEl('header');
+        header.appendChild(this.namesAndIconView);
 
         this.appendChild(header);
 
@@ -84,8 +77,38 @@ export class SiteConfiguratorSelectedOptionView
         return wemQ(true);
     }
 
+    private createNamesAndIconView() {
+        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(
+            api.app.NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
+            this.application.getName() + (!!this.application.getVersion() ? '-' + this.application.getVersion() : ''));
+
+        if (this.application.getIconUrl()) {
+            namesAndIconView.setIconUrl(this.application.getIconUrl());
+        }
+
+        if (this.application.getDescription()) {
+            namesAndIconView.setSubName(this.application.getDescription());
+        }
+
+        return namesAndIconView;
+    }
+
     setSiteConfig(siteConfig: ApplicationConfig) {
         this.siteConfig = siteConfig;
+    }
+
+    update() {
+        new GetApplicationRequest(this.application.getApplicationKey()).sendAndParse().then((app: Application) => {
+            if (app.getIconUrl()) {
+                this.namesAndIconView.setIconUrl(app.getIconUrl());
+            }
+
+            if (app.getDescription()) {
+                this.namesAndIconView.setSubName(app.getDescription());
+            }
+
+            this.namesAndIconView.setMainName(app.getDisplayName());
+        }).catch(api.DefaultErrorHandler.handle).done();
     }
 
     protected onEditButtonClicked(e: MouseEvent) {
