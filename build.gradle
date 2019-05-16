@@ -140,7 +140,9 @@ asciidoctor {
     sourceDir = file('docs')
     outputDir = file('build/docs')
     requires project.file('verbose-mode.rb')
-    attributes 'source-highlighter': 'coderay'
+    attributes 'source-highlighter': 'coderay',
+                idseparator: '-'
+    
     resources {
         from(sourceDir) {
             include '**/images/**'
