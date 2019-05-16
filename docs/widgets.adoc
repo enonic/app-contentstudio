@@ -1,9 +1,115 @@
 = Issues
 :toc: right
-:imagesdir: hosting/images
+:imagesdir: widgets/images
 
-TODO subtitle
+Widgets are apps that add functionality to the Content Studio. As of version 7.0, there are five built-in widgets. All widgets are listed in the dropdown selector at the top of the panel. The first widgets showing are built-in widgets. They are followed by the installed external widgets.
 
-== Introduction
+Widgets panel can be assessed via the cog icon on the right of the toolbar in the content navigator:
 
-TODO
+image::widgets-panel-button.png[]
+
+… or in the content editor:
+
+image::widgets-panel-button-wizard.png[]
+
+The list of widgets can be accessed from the dropdown, after clicking on the arrow to the right of the current widget name at the top of the panel. Just above the list of widgets, the input will show up, allowing you to filter this list, by typing the name of the desired widget.
+
+image::widgets-search.png[]
+
+
+== Details widget
+
+One of the basic widgets, that is visible in both content navigator and wizard, and the first in the list in the content navigator. This widget shows the most common details, that you may need.
+
+image::widgets-details-site.png[]
+
+Details widget was designed to provide all the basic information about the content and contain the following views:
+
+* **Content:** The top view shows the icon of the content with the display name and full path;
+
+* **Status:** The view shows the current content status, like *New*, *Published* and etc.;
+
+* **User access:** The view lists all the permissions, that are set for the selected content. Clicking on the `Edit Permissions` link will open the <<permissions.adoc,permissions dialog>>, so you can update those permissions;
+
+* **Properties:** The view shows useful metadata, like the application type, or the time when the content was created;
+
+* **Page template:** The view shows the template, that is used for this content. A template is something, that is common for the site or its children. Regular folder or an image may has this field empty;
+
+* **Attachments:** The view shows the link to the attachment content so that the content like video or image can be accessed in a separate tab. The example of such content can be seen below.
+
+image::widgets-details-audio.png[]
+
+
+== Version widget
+
+Version history widget lists all versions of the content and allows to switch between them. The new version is created each time you save the content.
+
+Currently, the active version is labeled with a gray stripe at the top with a content status displayed on it.
+
+To switch to the specific version, click on it to expand details, and then click on the `Restore this version` button.
+
+image::widgets-version-history.png[]
+
+
+== Dependencies widget
+
+Every content can have inbound and outbound dependencies, and this widget shows them. Simply put, the inbound dependency is something, that uses content, and the outbound dependency is something, that is used by the content. For example, if there is a **Shortcut**, and it has a link to the **Superhero** site, the **Shortcut** is the inbound dependency for the site, and in the same time, the **Superhero** is the outbound dependency for the **Shortcut**.
+
+The inbound dependencies are listed above the content, and the outbound dependencies are listed below.
+
+If there are no dependencies of a specific type, there will be the text: `No incoming dependencies`.
+
+If there are some dependencies, then the button will be rendered, showing the total number of dependencies, inbound or outbound. The icon of the content type and a number of the dependencies of this type will be shown below or above the button.
+
+image::widgets-dependencies.png[]
+
+Clicking on the button will open a new browser tab with expanded filter panel and all dependencies, inbound or outbound. If you click on the dependencies icon, then the same tab will be opened, but only the dependencies of the selected type will be listed and checked in the filter panel.
+
+image::widgets-dependencies-filter.png[]
+
+== Emulator widget
+
+This widget allows you to quickly preview the content on a number of different "default" screens. It can be a site, image, or even a text document. 
+
+NOTE: The emulator widget won't be available in the content wizard, if the content is not renderable, like a folder, or a site without the template.
+
+Clicking on the emulation option will resize the preview. To reset the emulation, click on the `Fill Size` option.
+
+image::widgets-emulator.png[]
+
+== Components widget
+
+NOTE: The component widget is only available in the content wizard, and, as an emulator, won't be present for the content that is not renderable.
+
+The components widget manipulates with the page content and contains two tabs.
+
+=== Insert tab
+
+Insert tab allows to drag and drop components into the page. There are five types of components in total:
+
+* **Image.** Creates a selector, where you can choose an image from the list or upload a new one.
+
+* **Part.** Creates a selector with a list of all available component for the supported applications.
+
+* **Layout.** Creates a selector with a list page layouts, which define, how other components will be positioned in the page.
+
+* **Text.** Creates a text area with an **HTML editor** support, which provides ample opportunities for editing, such as creating links, placing videos, adding text headers and etc.
+
+* **Fragment.** Creates a selector, to choose from the list of reusable fragments.
+
+
+image::widgets-components-insert.png[]
+
+=== Component tab
+
+Components type changes its name, according to the currently selected component. If nothing is selected, the title will be `Page`. 
+
+Each component has some configuration, that can be accessed from this tab.
+
+For the **Page**, it is possible to select different controller or template or save the current controller as a template.
+
+image::widgets-components-page.png[]
+
+The **Part** component tab, for example, will allow you to choose another part or configure the current, selecting the `Posts folder` in our case.
+
+image::widgets-components-part.png[]
