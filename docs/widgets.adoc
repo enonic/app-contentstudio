@@ -1,4 +1,4 @@
-= Issues
+= Widgets
 :toc: right
 :imagesdir: widgets/images
 
