@@ -1681,7 +1681,7 @@ export class ContentWizardPanel
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): wemQ.Promise<void> {
         const extraData = content.getExtraData(xDataStepForm.getXData().getXDataName());
-        const data: PropertyTree = extraData.getData();
+        const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new api.form.FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
