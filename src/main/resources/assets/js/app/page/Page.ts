@@ -2,6 +2,7 @@ import PropertyTree = api.data.PropertyTree;
 import DescriptorKey = api.content.page.DescriptorKey;
 import ContentId = api.content.ContentId;
 import ObjectHelper = api.ObjectHelper;
+import PropertyTreeHelper = api.util.PropertyTreeHelper;
 import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
 import {Component} from './region/Component';
@@ -15,7 +16,6 @@ import {LayoutComponentType} from './region/LayoutComponentType';
 import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
-import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Page
     implements api.Equitable, api.Cloneable {

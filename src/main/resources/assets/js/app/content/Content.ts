@@ -3,6 +3,7 @@ import PropertyTree = api.data.PropertyTree;
 import RoleKeys = api.security.RoleKeys;
 import ContentSummary = api.content.ContentSummary;
 import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
+import PropertyTreeHelper = api.util.PropertyTreeHelper;
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
@@ -12,7 +13,6 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
-import {PropertyTreeHelper} from '../util/PropertyTreeHelper';
 
 export class Content
     extends ContentSummary
