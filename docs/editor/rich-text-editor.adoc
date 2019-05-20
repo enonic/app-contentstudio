@@ -16,7 +16,7 @@ The toolbar contains buttons for various formatting options as well as inserting
 
 Style menu contains options for styles that can be applied to the entire paragraph, for example to create heading elements or snippets of code.
 
-=== Inline Format
+=== Inline formatting
 
 The next group of icons represent inline styles which can be combined in the same paragraph, for example bold, italic, strikethrough etc.
 
@@ -76,14 +76,14 @@ This button will open the editor in the full screen mode. Available only for HTM
 
 == Custom Image Styles
 
-By default, Content Studio comes with one built-in image style called "`Original (no image processing)`". By applying this style to the image, you'll make sure
+By default, Content Studio comes with one built-in image style called "_Original (no image processing)_". By applying this style to the image, you'll make sure
 that the image won't undergo any processing on the server and will be rendered "as is".
 
 image::image-style.png[]
 
-You can define your own styles in your application which will be automatically shown inside the dropdown with image styles inside the Image modal dialog.
+You can define your own styles in your application which will be automatically shown inside the dropdown with image styles inside the Image modal dialog as described below.
 
-=== Server-side processing
+=== Styles definition and Server-side processing
 
 Define a file called `styles.xml` in the `site` folder of your app. The example below represents a couple of styles applying
 different server processing, like `aspect-ratio` and `filter`. As of now, only `aspect-ratio` and `filter` are supported.
@@ -108,5 +108,6 @@ in `styles.xml`. So, in case of `css="styles/styles.css"` the file has to be loc
 include::code/styles.css[]
 ----
 
-TIP: If you want to combine client-side and server-side processing in the same style, define a CSS class in `styles.css` with a name matching
-`image.name` from styles.xml (like `editor-style-image-sepia` in `styles.xml` and `.editor-style-image-sepia` in `styles.css` from the example above).
+TIP: All custom styles (no matter if they define server-side processing or client-side processing or combine both) must be defined in `styles.xml`.
+If you want to use client-side processing, define a CSS file and add reference to it from `styles.xml` via `css` attribute (as described above).
+Make sure that CSS class matches `image.name` from `styles.xml` (like `editor-style-image-sepia` in `styles.xml` and `.editor-style-image-sepia` in `styles.css` from the example above).
