@@ -820,7 +820,8 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
             uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
-            sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null
+            sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
+            disableNativeSpellChecker: false
         };
 
         if (!this.isToolExcluded('Code')) {
