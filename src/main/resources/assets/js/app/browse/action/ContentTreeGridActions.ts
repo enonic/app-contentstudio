@@ -315,7 +315,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
             this.enableActions({
                 PUBLISH_TREE: false,
-                UNPUBLISH: false,
+                UNPUBLISH: allArePendingDelete || publishEnabled,
                 PUBLISH: allArePendingDelete || publishEnabled
             });
 

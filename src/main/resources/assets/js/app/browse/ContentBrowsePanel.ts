@@ -589,9 +589,13 @@ export class ContentBrowsePanel
             return wemQ(false);
         }
 
-        return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
+        const previewId = previewItem.getModel().getContentId();
 
-            let promises: wemQ.Promise<void>[] = [];
+        const result = updatedContents.length === 0 ?
+                       wemQ(null) :
+                       new GetContentByIdRequest(previewId).sendAndParse().then((previewItemContent: Content) => {
+
+                           const promises: wemQ.Promise<void>[] = [];
 
             updatedContents.some((content: ContentSummaryAndCompareStatus) => {
                 if (content.getPath().equals(previewItem.getModel().getPath())) {
@@ -617,8 +621,9 @@ export class ContentBrowsePanel
             });
 
             return wemQ.all(promises);
+        });
 
-        }).then(() => {
+        return result.then(() => {
             if (!previewRefreshRequired) {
                 return wemQ.all(
                     updatedContents.map(updatedContent =>
