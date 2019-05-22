@@ -628,7 +628,7 @@ export class ContentBrowsePanel
                 return wemQ.all(
                     updatedContents.map(updatedContent =>
                         ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getModel().getContentId()))
-                ).then((results: boolean[]) => results.some(result => result));
+                ).then((results: boolean[]) => results.some(value => value));
             } else {
                 return wemQ(previewRefreshRequired);
             }
