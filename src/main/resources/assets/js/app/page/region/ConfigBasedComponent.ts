@@ -1,8 +1,8 @@
 import PropertyTree = api.data.PropertyTree;
 import PropertyEvent = api.data.PropertyEvent;
+import PropertyTreeHelper = api.util.PropertyTreeHelper;
 import {Component, ComponentBuilder} from './Component';
 import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
-import {PropertyTreeHelper} from '../../util/PropertyTreeHelper';
 
 
 export abstract class ConfigBasedComponent
