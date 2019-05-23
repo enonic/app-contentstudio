@@ -71,7 +71,7 @@ Page.prototype.waitForNotVisible = function (selector, ms) {
         return this.getDisplayedElements(selector).then(result => {
             return result.length == 0;
         })
-    }, 2000).catch(err => {
+    }, ms).catch(err => {
         throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
     });
 };
