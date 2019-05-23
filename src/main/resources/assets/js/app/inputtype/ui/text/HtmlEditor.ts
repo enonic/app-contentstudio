@@ -31,6 +31,7 @@ export class HtmlEditor {
 
         this.createEditor(config);
         this.allowFigureHaveAnyClasses();
+        this.transformTableAttrs();
         this.listenEditorEvents();
         this.handleFileUpload();
         this.handleNativeNotifications();
@@ -54,6 +55,63 @@ export class HtmlEditor {
                 e.data.allowedContent.figure.styles = ['*'];
                 e.data.allowedContent.img.styles = ['*'];
             }
+        });
+    }
+
+    private transformTableAttrs() {
+        // updating table elements directly in transformation functions doesn't work as expected, thus updating by refreshFunc
+        const refreshFunc = api.util.AppHelper.debounce(() => {
+            this.editor.document.getElementsByTag('table').toArray().forEach((table: CKEDITOR.dom.element) => {
+                table.setStyle('border-spacing', `${table.getAttribute('cellspacing')}px`);
+                table.setStyle('border', `${table.getAttribute('border')}px solid black`);
+
+                const cellPadding: string = `${table.getAttribute('cellpadding')}px`;
+                table.find('td').toArray().forEach((td: CKEDITOR.dom.element) => {
+                    td.setStyle('padding', cellPadding);
+                });
+
+                const align: string = table.getAttribute('align');
+                if (align === 'center') {
+                    table.removeStyle('margin-left');
+                    table.removeStyle('margin-right');
+                    table.setStyle('margin', '0 auto');
+                } else if (align === 'left') {
+                    table.removeStyle('margin');
+                    table.removeStyle('margin-left');
+                    table.setStyle('margin-right', 'auto');
+                } else if (align === 'right') {
+                    table.removeStyle('margin');
+                    table.removeStyle('margin-right');
+                    table.setStyle('margin-left', 'auto');
+                } else {
+                    table.removeStyle('margin');
+                    table.removeStyle('margin-left');
+                    table.removeStyle('margin-right');
+                }
+            });
+        }, 200);
+
+        const createTransformationObject: Function = (attrName: string) => {
+            return <CKEDITOR.filter.transformation>{
+                element: 'table',
+                left: function (el: any) { // testing if element is non empty and has attribute
+                    return el.children && el.children.length > 0 && el.attributes[attrName];
+                },
+                // here we supposed to transform table's attributes but changes made here on htmlparser.element only visible after calling
+                // getData() on editor, also border attribute change not appearing in el.attributes, thus using custom refresh function
+                right: function () {
+                    refreshFunc();
+                    return true;
+                }
+            };
+        };
+        this.editor.on('instanceReady', () => {
+            const transformCellSpacing: CKEDITOR.filter.transformation = createTransformationObject('cellspacing');
+            const transformCellPadding: CKEDITOR.filter.transformation = createTransformationObject('cellpadding');
+            const transformBorder: CKEDITOR.filter.transformation = createTransformationObject('border');
+            const transformAlign: CKEDITOR.filter.transformation = createTransformationObject('align');
+
+            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformAlign]]);
         });
     }
 
@@ -859,7 +917,7 @@ class HtmlEditorConfigBuilder {
     private getExtraAllowedContent(): string {
         const scriptTag: string = this.editorParams.isScriptAllowed() ? 'script' : '';
 
-        return `code address dl dt dd blockquote ${scriptTag};img[data-src]`;
+        return `code address dl dt dd blockquote ${scriptTag};img[data-src];td{*};`;
     }
 
     private includeTools(tools: any[]) {
