@@ -16,6 +16,7 @@ import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentQuery} from '../content/ContentQuery';
+import {ContentSummaryRequest} from '../resource/ContentSummaryRequest';
 import ElementHelper = api.dom.ElementHelper;
 import TreeGrid = api.ui.treegrid.TreeGrid;
 import TreeNode = api.ui.treegrid.TreeNode;
@@ -214,11 +215,23 @@ export class ContentTreeGrid
 
     fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
         let parentContentId: api.content.ContentId = null;
+        let childOrder: api.content.order.ChildOrder;
+
         if (parentNode) {
             parentContentId = parentNode.getData() ? parentNode.getData().getContentId() : parentContentId;
         } else {
             parentNode = this.getRoot().getCurrentRoot();
         }
+
+        if(parentContentId == null) {
+            childOrder = new api.content.order.ChildOrder();
+
+            childOrder.addOrderExpressions(ContentSummaryRequest.ROOT_ORDER.map(fieldOrderExpr => {
+                return new api.content.order.FieldOrderExpr(new api.content.order.FieldOrderExprBuilder(
+                    {fieldName: fieldOrderExpr.getField().getName(), direction: fieldOrderExpr.directionAsString()}));
+            }));
+        }
+
         let from = parentNode.getChildren().length;
         if (from > 0 && !parentNode.getChildren()[from - 1].getData().getContentSummary()) {
             parentNode.getChildren().pop();
@@ -226,7 +239,8 @@ export class ContentTreeGrid
         }
 
         if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {
-            return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId, from, ContentTreeGrid.MAX_FETCH_SIZE).then(
+            return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId, from, ContentTreeGrid.MAX_FETCH_SIZE,
+                childOrder).then(
                 (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
                     // TODO: Will reset the ids and the selection for child nodes.
                     let contents = parentNode.getChildren().map((el) => {
