@@ -1,0 +1,176 @@
+= Keyboard Shortcuts
+:toc: right
+:imagesdir: keyboard-shortcuts/images
+
+This section describes the shortcuts that are available for power users in the Content Studio.
+
+NOTE: Press F2 to reveal all available shortcuts for a view.
+
+== Browse View
+
+|===
+|Content grid ^|Mac OS X ^|Windows / Linux
+
+|New content
+2+^|`Alt + n`
+
+|Select / Unselect content
+2+^|`Space`
+
+|Edit selected content
+^|`⌘ + e` / `Enter`
+^|`Ctrl + e` / `Enter`
+
+|Delete selected content
+^|`⌘ + Delete`
+^|`Ctrl + Delete`
+
+|Publish selected content
+^|`⌘ + Alt + p`
+^|`Ctrl + Alt + p`
+
+|Preview selected content
+^|`Alt + Space`
+^|`Ctrl + Alt + Space`
+
+|===
+
+
+== Content Editor
+
+|===
+|Edit content wizard ^|Mac OS X ^|Windows / Linux
+
+|Save content
+^|`⌘ + s`
+^|`Ctrl + s`
+
+|Save content and close wizard tab
+^|`⌘ + Enter`
+^|`Ctrl + Enter`
+
+|Close wizard tab
+2+^|`Alt + w`
+
+|Delete content
+^|`⌘ + Delete`
+^|`Ctrl + Delete`
+
+|Publish selected content
+^|`⌘ + Alt + p`
+^|`Ctrl + Alt + p`
+
+|Preview selected content
+^|`Alt + Space`
+^|`Ctrl + Alt + Space`
+
+|===
+
+== Rich Text Editor
+
+|===
+|HtmlArea editor ^|Mac OS X ^|Windows / Linux
+
+|Cut
+^|`⌘ + x`
+^|`Ctrl + x`
+
+|Copy
+^|`⌘ + c`
+^|`Ctrl + c`
+
+|Paste
+^|`⌘ + v`
+^|`Ctrl + v`
+
+|Paste as text
+^|`⌘ + Shift + v`
+^|`Ctrl + Shift + v`
+
+|Select All
+^|`⌘ + a`
+^|`Ctrl + a`
+
+3+^|
+
+|Bold
+^|`⌘ + b`
+^|`Ctrl + b`
+
+|Italic
+^|`⌘ + i`
+^|`Ctrl + i`
+
+|Underline
+^|`⌘ + u`
+^|`Ctrl + u`
+
+|H1
+^|`⌘ + Alt + 1`
+^|`Ctrl + Alt + 1`
+
+|H2
+^|`⌘ + Alt + 2`
+^|`Ctrl + Alt + 2`
+
+|H3
+^|`⌘ + Alt + 3`
+^|`Ctrl + Alt + 3`
+
+|H4
+^|`⌘ + Alt + 4`
+^|`Ctrl + Alt + 4`
+
+|H5
+^|`⌘ + Alt + 5`
+^|`Ctrl + Alt + 5`
+
+|H6
+^|`⌘ + Alt + 6`
+^|`Ctrl + Alt + 6`
+
+|Paragraph
+^|`⌘ + Shift + 7`
+^|`Ctrl + Shift + 7`
+
+|Div (Nornal)
+^|`⌘ + Shift + 8`
+^|`Ctrl + Shift + 8`
+
+|Address
+^|`⌘ + Shift + 9`
+^|`Ctrl + Shift + 9`
+
+3+^|
+
+|Undo
+^|`⌘ + z`
+^|`Ctrl + z`
+
+|Redo
+^|`⌘ + y` / `⌘ + Shift + z`
+^|`Ctrl + y` / `Ctrl + Shift + z`
+
+|Insert link
+^|`⌘ + k`
+^|`Ctrl + k`
+
+|Insert image
+^|`⌘ + l`
+^|`Ctrl + l`
+
+3+^|
+
+|Find
+^|`⌘ + f`
+^|`Ctrl + f`
+
+3+^|
+
+|Focus to toolbar
+2+^|`Alt + F10`
+
+|Focus to element
+2+^|`Alt + F11`
+
+|===

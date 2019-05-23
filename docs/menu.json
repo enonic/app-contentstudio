@@ -14,15 +14,15 @@
       "menuItems": [
         {
             "title": "Content Form",
-            "document" : "content-form"
+            "document" : "editor/content-form"
         },
         {
             "title": "Page Editor",
-            "document" : "page-editor"
+            "document" : "editor/page-editor"
         },
         {
             "title": "Rich Text Editor",
-            "document" : "rich-text"
+            "document" : "editor/rich-text-editor"
         }
       ]
     },

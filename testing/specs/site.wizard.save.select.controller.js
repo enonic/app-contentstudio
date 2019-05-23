@@ -19,7 +19,7 @@ describe('site.wizard.save.select.controller.spec: Saves site-data and selects a
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it(`GIVEN wizard for new site is opened WHEN name typed and Save button has been pressed THEN controller selector should be available in no longer than 4 seconds`,
+    it(`GIVEN wizard for new site is opened WHEN name typed and Save button has been pressed THEN controller selector should be available in no longer than 5 seconds`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
             let SITE = contentBuilder.buildSite(displayName, 'test site', [appConstant.APP_CONTENT_TYPES]);
