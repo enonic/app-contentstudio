@@ -43,6 +43,10 @@
       "document": "permissions"
     },
     {
+      "title": "Keyboard Shortcuts",
+      "document": "keyboard-shortcuts"
+    },
+    {
       "title": "Release Notes",
       "document" : "release"
     }
