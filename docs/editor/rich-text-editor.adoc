@@ -2,9 +2,8 @@
 :toc: right
 :imagesdir: images
 
-Rich Text Editor is used by HTML input type and for editing text component inside <<page-editor#,the Page Editor>>.
-It's capable of formatting the text in many different ways, using macros to insert code snippets and iFrames, inserting
-tables, images and content links etc.
+Rich Text Editor is used by HTML input type and for editing text component inside the <<page-editor#,Page Editor>>.
+It's capable of formatting the text in many different ways, using macros to insert code snippets and iFrames, inserting tables, images and content links etc.
 
 image::rich-text-editor.png[]
 
@@ -26,7 +25,7 @@ The next four icons can be used to change alignment of selected element: left-al
 
 === Lists
 
-The next two icons will turn text into a bullet list or a numbered list. Pressing “enter/return” will make a new list item and pressing it a second time will end the list. Use shift + enter/return to make a new line within the list item. A sub-list can be created with the indent button.
+The next two icons will turn text into a bullet list or a numbered list. Pressing `Enter` / `Return` will make a new list item and pressing it a second time will end the list. Use `Shift + Enter` / `Shift + Return` to make a new line within the list item. A sub-list can be created with the indent button.
 
 === Indent
 
@@ -44,7 +43,7 @@ Anchors enable pointing to a specfic position on a page via context link. If a l
 
 This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded by clicking the upload button.
 Once an image is selected, additional formatting options appear. The image can be floated to the left or right so that text wraps around it.
-The image can also be centered or set to full width. By checking off "Custom width" you will have an option to set relative width of the image.
+The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
 Additionally, there's an option to apply defined image styles to the image. Read how to define custom Image Styles below
 A caption and alt text can be entered at the bottom of the modal dialog.
 
@@ -76,10 +75,10 @@ This button will open the editor in the full screen mode. Available only for HTM
 
 == Custom Image Styles
 
-By default, Content Studio comes with one built-in image style called "_Original (no image processing)_". By applying this style to the image, you'll make sure
-that the image won't undergo any processing on the server and will be rendered "as is".
+By default, Content Studio comes with one built-in image style called “_Original (no image processing)_”. By applying this style to the image, you'll make sure
+that the image won't undergo any processing on the server and will be rendered “as is”.
 
-image::image-style.png[]
+image::rich-text-editor-image-style.png[]
 
 You can define your own styles in your application which will be automatically shown inside the dropdown with image styles inside the Image modal dialog as described below.
 

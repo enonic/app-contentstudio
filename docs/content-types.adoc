@@ -52,14 +52,14 @@ Applications that have been added to a Site are listed in the content edit panel
 image::wizard-config.png[]
 
 
-== Page Templates
+== Page templates
 
 A page template is special content that enable other content to be rendered as pages. Page template must support one or more content types. When a request endpoint matches a content path, the content’s supporting template will be used to render it. The Page Editor is used to build page templates by placing the desired components into regions on the page in the desired locations.
 
 
 === Page components
 
-Page components are defined in the application code and contain the basic HTML structure of all rendered pages. Each page template uses one page component. They usually contain the page header, footer and menu. Most page components will have one or more regions where other components (parts, layouts, etc.) can be placed with the page editor. A single page component can be used by any number of page templates.
+Page components are defined in the application code and contain the basic HTML structure of all rendered pages. Each page template uses one page component. They usually contain the page header, footer and menu. Most page components will have one or more regions where other components (parts, layouts, <<editor/component-types#,etc.>>) can be placed with the page editor. A single page component can be used by any number of page templates.
 
 
 === Creating page templates
@@ -78,7 +78,7 @@ image::wizard-template.png[]
 
 === Rendering other content
 
-Even content that has no supporting templates can be rendered as a page. For example, if a site has a *Folder* content called “Articles” and it has child *Article* content then it might be desirable to render the “Articles” folder as a page with a list of the articles that it contains. This is achieved by adding a page component to the unsupported content with the page editor. Edit the content and open the page editor. Select a page component from the dropdown selector and then add components (parts, layouts, etc.) to the page.
+Even content that has no supporting templates can be rendered as a page. For example, if a site has a *Folder* content called “Articles” and it has child *Article* content then it might be desirable to render the “Articles” folder as a page with a list of the articles that it contains. This is achieved by adding a page component to the unsupported content with the page editor. Edit the content and open the page editor. Select a page component from the dropdown selector and then add components (parts, layouts, <<editor/component-types#,etc.>>) to the page.
 
 image::wizard-template-select.png[]
 

@@ -21,6 +21,10 @@
             "document" : "editor/page-editor"
         },
         {
+          "title": "Components Type",
+          "document" : "editor/component-types"
+      },
+        {
             "title": "Rich Text Editor",
             "document" : "editor/rich-text-editor"
         }

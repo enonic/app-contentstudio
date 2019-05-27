@@ -243,7 +243,7 @@ image::dialog-unpublish.png[]
 
 == Create Issue
 
-NOTE: In-depth reference on the issues can be accessed in the separate <<issues.adoc#new-issue,chapter>>.
+NOTE: In-depth reference on the issues can be accessed in the separate <<issues#new-issue,chapter>>.
 
 There are three ways to open this dialog in the Content Studio:
 
