@@ -54,6 +54,8 @@ import {Permission} from '../access/Permission';
 import {InspectEvent} from '../event/InspectEvent';
 import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
+import {Access} from '../security/Access';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -84,6 +86,10 @@ import FieldSet = api.form.FieldSet;
 import FormOptionSetOption = api.form.FormOptionSetOption;
 import Form = api.form.Form;
 import ObjectHelper = api.ObjectHelper;
+import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
+import LoginResult = api.security.auth.LoginResult;
+import RoleKeys = api.security.RoleKeys;
+import PrincipalKey = api.security.PrincipalKey;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -222,7 +228,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardActions(): ContentWizardActions {
-        let wizardActions: ContentWizardActions = new ContentWizardActions(this);
+        const wizardActions: ContentWizardActions = new ContentWizardActions(this);
         wizardActions.getShowLiveEditAction().setEnabled(false);
 
         wizardActions.getShowSplitEditAction().onExecuted(() => {
@@ -232,7 +238,7 @@ export class ContentWizardPanel
             }
         });
 
-        let publishActionHandler = () => {
+        const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
                 this.contentWizardStepForm.validate();
                 this.displayValidationErrors(!this.isValid());
@@ -277,7 +283,7 @@ export class ContentWizardPanel
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
-        let thumbnailUploader = new ThumbnailUploaderEl({
+        const thumbnailUploader: ThumbnailUploaderEl = new ThumbnailUploaderEl({
             name: 'thumbnail-uploader',
             deferred: true
         });
@@ -302,17 +308,13 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): api.app.wizard.WizardHeader {
-        let header = new WizardHeaderWithDisplayNameAndNameBuilder()
+        const header: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
             .setDisplayNameGenerator(this.displayNameResolver)
             .build();
 
-        if (this.parentContent) {
-            header.setPath(this.parentContent.getPath().prettifyUnnamedPathElements().toString() + '/');
-        } else {
-            header.setPath('/');
-        }
+        header.setPath(this.getWizardHeaderPath());
 
-        let existing = this.getPersistedItem();
+        const existing: Content = this.getPersistedItem();
         if (!!existing) {
             header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
         }
@@ -320,6 +322,14 @@ export class ContentWizardPanel
         header.onPropertyChanged(this.dataChangedHandler);
 
         return header;
+    }
+
+    private getWizardHeaderPath(): string {
+        if (this.parentContent) {
+            return this.parentContent.getPath().prettifyUnnamedPathElements().toString() + '/';
+        }
+
+        return '/';
     }
 
     public getWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -369,20 +379,23 @@ export class ContentWizardPanel
     }
 
     protected createLivePanel(): api.ui.panel.Panel {
-        let liveFormPanel;
-        let isSiteOrWithinSite = !!this.site || this.contentParams.createSite;
-        let isPageTemplate = this.contentType.isPageTemplate();
-        let isShortcut = this.contentType.isShortcut();
-
-        if ((isSiteOrWithinSite || isPageTemplate) && !isShortcut) {
-
-            liveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
+        if (this.isLivePanelAllowed()) {
+            return new LiveFormPanel(<LiveFormPanelConfig>{
                 contentWizardPanel: this,
                 contentType: this.contentType.getContentTypeName(),
                 defaultModels: this.defaultModels
             });
         }
-        return liveFormPanel;
+
+        return null;
+    }
+
+    private isLivePanelAllowed(): boolean {
+        const isSiteOrWithinSite: boolean = !!this.site || this.contentParams.createSite;
+        const isPageTemplate: boolean = this.contentType.isPageTemplate();
+        const isShortcut: boolean = this.contentType.isShortcut();
+
+        return (isSiteOrWithinSite || isPageTemplate) && !isShortcut;
     }
 
     getWizardActions(): ContentWizardActions {
@@ -927,7 +940,7 @@ export class ContentWizardPanel
 
     private listenToContentEvents() {
 
-        let serverEvents = ContentServerEventsHandler.getInstance();
+        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const deleteHandler = (event: ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
@@ -1015,8 +1028,9 @@ export class ContentWizardPanel
                     this.setPersistedItem(content.clone());
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
-                    this.isContentPublishableByUser().then((canPublish: boolean) => {
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(canPublish);
+                    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                        this.toggleStepFormsVisibility(loginResult);
                     });
                 });
 
@@ -1343,17 +1357,15 @@ export class ContentWizardPanel
 
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
-            this.isContentPublishableByUser().then((canPublish: boolean) => {
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
-                    !this.getPersistedItem().hasChildren()).setUserCanPublish(canPublish);
+                    !this.getPersistedItem().hasChildren()).setUserCanPublish(this.isContentPublishableByUser(loginResult));
             });
         });
     }
 
-    private isContentPublishableByUser(): wemQ.Promise<boolean> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
-        });
+    private isContentPublishableByUser(loginResult: LoginResult): boolean {
+        return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): wemQ.Promise<Content> {
@@ -1515,7 +1527,7 @@ export class ContentWizardPanel
 
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(formContext, content).then(() => {
-                this.initWritePermissions();
+
                 this.fetchMissingOrStoppedAppKeys().then(this.handleMissingApp.bind(this));
 
                 return this.createWizardStepForms().then(() => {
@@ -1523,6 +1535,11 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
+                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                            this.initWritePermissions(loginResult);
+                            this.toggleStepFormsVisibility(loginResult);
+                        });
+
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
@@ -1610,6 +1627,40 @@ export class ContentWizardPanel
         });
 
         return wemQ.all(formViewLayoutPromises).thenResolve(null);
+    }
+
+    private toggleStepFormsVisibility(loginResult: LoginResult) {
+        const visible: boolean = this.isSecurityFormAllowed(loginResult);
+
+        this.securityWizardStepForm.setVisible(visible);
+        this.securityWizardStepForm.getPreviousElement().setVisible(visible);
+        this.settingsWizardStepForm.setVisible(visible);
+        this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
+    }
+
+    private isSecurityFormAllowed(loginResult: LoginResult): boolean {
+        if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
+            return true;
+        }
+
+        if (loginResult.isContentAdmin()) {
+            return true;
+        }
+
+        if (loginResult.isContentExpert()) {
+            return true;
+        }
+
+        return this.hasFullAccess(loginResult);
+    }
+
+    private hasFullAccess(loginResult: LoginResult): boolean {
+        const principalKeysWithFullAccess: PrincipalKey[] = this.getPersistedItem().getPermissions().getEntries().filter(
+            (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
+            (ace: AccessControlEntry) => ace.getPrincipalKey());
+
+        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => loginResult.getPrincipals().some(
+            (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 
     private updateSiteModel(site: Site): SiteModel {
@@ -2091,15 +2142,13 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private initWritePermissions(): wemQ.Promise<void> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            this.writePermissions =
-                this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
-            this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
-            if (this.getLivePanel()) {
-                this.getLivePanel().updateWritePermissions(this.writePermissions);
-            }
-        });
+    private initWritePermissions(loginResult: LoginResult) {
+        this.writePermissions =
+            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
+        this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
+        if (this.getLivePanel()) {
+            this.getLivePanel().updateWritePermissions(this.writePermissions);
+        }
     }
 
     hasWritePermissions(): boolean {
