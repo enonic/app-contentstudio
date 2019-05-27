@@ -8,9 +8,7 @@ import PropertyTree = api.data.PropertyTree;
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
-    private xDataName: XDataName;
-
-    private optional: boolean;
+    private xData: XData;
 
     private enabled: boolean;
 
@@ -22,12 +20,19 @@ export class XDataWizardStepForm
         super();
         this.addClass('x-data-wizard-step-form');
 
-        this.xDataName = xData.getXDataName();
-        this.optional = xData.isOptional();
+        this.xData = xData;
+    }
+
+    getXData(): XData {
+        return this.xData;
     }
 
     getXDataName(): XDataName {
-        return this.xDataName;
+        return this.xData.getXDataName();
+    }
+
+    getXDataNameAsString(): string {
+        return this.xData.getXDataName().toString();
     }
 
     setExpandState(value: boolean) {
@@ -35,7 +40,7 @@ export class XDataWizardStepForm
     }
 
     isExpandable(): boolean {
-        return this.optional;
+        return this.xData.isOptional();
     }
 
     isEnabled(): boolean {
@@ -43,7 +48,7 @@ export class XDataWizardStepForm
     }
 
     isOptional(): boolean {
-        return this.optional;
+        return this.xData.isOptional();
     }
 
     resetData() {
@@ -79,7 +84,7 @@ export class XDataWizardStepForm
 
     resetState(data?: PropertyTree): wemQ.Promise<void> {
         this.data = data || this.data;
-        return this.setEnabled(!this.optional || this.data.getRoot().getPropertyArrays().length > 0, true).then(() => {
+        return this.setEnabled(!this.isOptional() || this.data.getRoot().getPropertyArrays().length > 0, true).then(() => {
             this.resetHeaderState();
         });
     }

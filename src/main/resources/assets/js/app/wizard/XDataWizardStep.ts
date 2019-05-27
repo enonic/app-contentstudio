@@ -1,13 +1,12 @@
 import {ContentWizardStep} from './ContentWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
-import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {XDataName} from '../content/XDataName';
 
 export class XDataWizardStep
     extends ContentWizardStep {
 
-    constructor(label: string, stepForm: ContentWizardStepForm, iconCls?: string) {
-        super(label, stepForm, iconCls);
+    constructor(stepForm: XDataWizardStepForm, iconCls?: string) {
+        super(stepForm.getXData().getDisplayName(), stepForm, iconCls);
     }
 
     getStepForm(): XDataWizardStepForm {
