@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: widgets/images
 
-Widgets are applications that expand functionality of the Content Studio. As of version 7.0, there are five built-in widgets.
+Widgets are applications that expand the functionality of the Content Studio. As of version 7.0, there are five built-in widgets.
 All widgets are listed in the dropdown selector at the top of the panel. The top 5 widgets are internal, they are followed by the installed external widgets.
 
 Widgets panel can be assessed via the cog icon in the top right corner:
