@@ -1634,8 +1634,10 @@ export class ContentWizardPanel
 
         this.securityWizardStepForm.setVisible(visible);
         this.securityWizardStepForm.getPreviousElement().setVisible(visible);
+        this.securityWizardStep.getTabBarItem().setVisible(visible);
         this.settingsWizardStepForm.setVisible(visible);
         this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
+        this.settingsWizardStep.getTabBarItem().setVisible(visible);
     }
 
     private isSecurityFormAllowed(loginResult: LoginResult): boolean {
