@@ -7,22 +7,22 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const textComponentCke = require('../../page_objects/components/text.component');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const TextComponentCke = require('../../page_objects/components/text.component');
 
 describe('Swap two Text Component - specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let SITE;
     let CONTROLLER_NAME = 'main region';
 
     it(`Precondition before tests: new site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -38,17 +38,22 @@ describe('Swap two Text Component - specification', function () {
 
     it(`GIVEN existing site is opened WHEN Page Component View has been opened THEN expected component's description should be displayed`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(() => {
                 return pageComponentView.getComponentDescription("main region");
-            }).then(description=>{
+            }).then(description => {
                 assert.isTrue(description === "test region", "Expected description should be displayed");
             })
         });
 
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(() => {
@@ -70,8 +75,10 @@ describe('Swap two Text Component - specification', function () {
                 return contentWizard.switchToMainFrame();
             }).then(() => {
                 return contentWizard.hotKeySave();
-            }).pause(2000).then(() => {
-                return pageComponentView.swapComponents("component2", "component1");
+            }).then(() => {
+                return contentWizard.pause(1000);
+            }).then(() => {
+                return pageComponentView.swapComponents("component1", "component2");
             }).then(() => {
                 studioUtils.saveScreenshot('text_components_swapped');
             })

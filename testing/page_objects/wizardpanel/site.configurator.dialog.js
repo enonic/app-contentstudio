@@ -1,80 +1,71 @@
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const dialog = {
+const XPATH = {
     container: `//div[contains(@id,'SiteConfiguratorDialog')]`,//'api.form.inputtype.appconfig.ApplicationConfiguratorDialog'
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     imageSelectorOptionFilterInput: `//div[contains(@id,'ImageContentComboBox')]//input[contains(@id,'ComboBoxOptionFilterInput')]`,
 };
 
-const siteConfiguratorDialog = Object.create(page, {
+class SiteConfiguratorDialog extends Page {
 
-    cancelButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
-        }
-    },
-    cancelButtonTop: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
-        }
-    },
-    applyButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.applyButton}`;
-        }
-    },
-    textInput: {
-        get: function () {
-            return `${dialog.container}` + `${elements.TEXT_INPUT}`;
-        }
-    },
-    typeInTextInput: {
-        value: function (text) {
-            return this.typeTextInInput(this.textInput, text).catch(err => {
-                this.doCatch('site_conf_err', err);
-            })
-        }
-    },
-    showToolbarAndClickOnInsertImageButton: {
-        value: function () {
-            let areaSelector = `//div[contains(@id,'cke_api.ui.text.TextArea')]`;
-            let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
-            return this.waitForVisible(areaSelector, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(areaSelector);
-            }).then(() => {
-                return this.waitForVisible(insertImageButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(insertImageButton);
-            })
-        }
-    },
-    clickOnCancelButton: {
-        value: function () {
-            return this.doClick(this.cancelButton);
-        }
-    },
-    clickOnApplyButton: {
-        value: function () {
-            return this.doClick(this.applyButton).catch(err => {
-                this.saveScreenshot('err_click_on_apply_dialog');
-                throw new Error('Site Configurator Dialog, error when click on the Apply button  ' + err);
-            }).then(() => {
-                return this.waitForDialogClosed();
-            })
-        }
-    },
-    waitForDialogVisible: {
-        value: function () {
-            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_3);
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
-        }
-    },
-});
-module.exports = siteConfiguratorDialog;
+    get cancelButton() {
+        return XPATH.container + `${XPATH.cancelButton}`;
+    }
+
+    get cancelButtonTop() {
+        return XPATH.container + XPATH.cancelButton;
+    }
+
+    get applyButton() {
+        return XPATH.container + XPATH.applyButton;
+    }
+
+    get textInput() {
+        return XPATH.container + lib.TEXT_INPUT;
+    }
+
+    typeInTextInput(text) {
+
+        return this.typeTextInInput(this.textInput, text).catch(err => {
+            this.saveScreenshot('site_conf_err');
+            throw new Error("Site Configurator Dialog - " + err);
+        })
+    }
+
+    showToolbarAndClickOnInsertImageButton() {
+        let areaSelector = `//div[contains(@id,'cke_api.ui.text.TextArea')]`;
+        let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
+        return this.waitForElementDisplayed(areaSelector, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(areaSelector);
+        }).then(() => {
+            return this.waitForElementDisplayed(insertImageButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(insertImageButton);
+        })
+    }
+
+    clickOnCancelButton() {
+        return this.clickOnElement(this.cancelButton);
+    }
+
+    clickOnApplyButton() {
+        return this.clickOnElement(this.applyButton).catch(err => {
+            this.saveScreenshot('err_click_on_apply_dialog');
+            throw new Error('Site Configurator Dialog, error when click on the Apply button  ' + err);
+        }).then(() => {
+            return this.waitForDialogClosed();
+        })
+    }
+
+    waitForDialogOpened() {
+        return this.waitForElementDisplayed(this.applyButton, appConst.TIMEOUT_3);
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+};
+module.exports = SiteConfiguratorDialog;
 

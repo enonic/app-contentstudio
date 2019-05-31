@@ -7,11 +7,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const xDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const XDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -22,6 +22,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
 
     it(`Preconditions: site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -38,6 +39,8 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     //Wizard's navigation toolbar scrolls to incorrect step on long forms
     it(`WHEN content with long forms (x-data) is opened AND last step has been clicked THEN required form gets visible`,
         () => {
+            let xDataHtmlArea = new XDataHtmlArea();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1').then(() => {
                 return contentWizard.typeDisplayName(contentName);
             }).then(() => {

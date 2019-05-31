@@ -1,267 +1,328 @@
-const webDriverHelper = require('./../libs/WebDriverHelper');
-const appConst = require('./../libs/app_const');
+const webDriverHelper = require('../libs/WebDriverHelper');
+const appConst = require('../libs/app_const');
 const path = require('path');
 
-function Page() {
-}
+class Page {
+    constructor() {
+        this.browser = webDriverHelper.browser;
+    }
 
-Page.prototype.getBrowser = function () {
-    return webDriverHelper.browser;
-};
-Page.prototype.alertAccept = function () {
-    return this.getBrowser().alertAccept();
-};
+    getBrowser() {
+        return this.browser;
+    }
 
-Page.prototype.isAlertPresent = function () {
-    return this.getBrowser().alertText().then(() => {
-        return true;
-    }).catch(err => {
-        if (err.seleniumStack === undefined) {
-            return false;
+    // value: string | string[]
+    keys(value) {
+        return this.browser.keys(value);
+    }
+
+    findElement(selector) {
+        return this.browser.$(selector);
+    }
+
+    findElements(selector) {
+        return this.browser.$$(selector);
+    }
+
+    getTitle() {
+        return this.browser.getTitle();
+    }
+
+    async getDisplayedElements(selector) {
+        let elements = await this.findElements(selector);
+        let pr = elements.map(el => el.isDisplayed());
+        return Promise.all(pr).then(result => {
+            return elements.filter((el, i) => result[i]);
+        });
+    }
+
+    pause(ms) {
+        return this.browser.pause(ms);
+    }
+
+    async clickOnElement(selector) {
+        let element = await this.findElement(selector);
+        await element.waitForDisplayed(1500);
+        return await element.click();
+    }
+
+    async getText(selector) {
+        let element = await this.findElement(selector);
+        return await element.getText();
+    }
+
+    async getTextInElements(selector) {
+        let strings = [];
+        let elements = await this.findElements(selector);
+        elements.forEach(el => {
+            strings.push(el.getText());
+        });
+        return Promise.all(strings);
+    }
+
+    async getTextInDisplayedElements(selector) {
+        let strings = [];
+        let elements = await this.getDisplayedElements(selector);
+        elements.forEach(el => {
+            strings.push(el.getText());
+        });
+        return Promise.all(strings);
+    }
+
+    async typeTextInInput(selector, text) {
+        let inputElement = await this.findElement(selector);
+
+        await inputElement.setValue(text);
+        let value = await inputElement.getValue();
+        //workaround for issue in WebdriverIO
+        if (value == "") {
+            await inputElement.setValue(text);
         }
-        if (err.seleniumStack.type == 'NoAlertOpenError' || err.seleniumStack.type == 'NoSuchWindow') {
-            return false
-        } else {
-            throw new Error(err);
-        }
-    })
-};
+        return await inputElement.pause(300);
+    }
 
-Page.prototype.alertText = function () {
-    return this.getBrowser().alertText().catch(err => {
-        if (err.seleniumStack.type == 'NoAlertOpenError') {
-            throw new Error("Alert is not open " + err);
-        } else {
-            throw new Error(err);
-        }
-    })
-};
+    async getTextInInput(selector) {
+        let inputElement = await this.findElement(selector);
+        return await inputElement.getValue(selector);
+    }
 
-Page.prototype.numberOfElements = function (selector) {
-    return this.getBrowser().elements(selector).then((res) => {
-        return res.value.filter(el => {
-            return this.getBrowser().elementIdDisplayed(el.ELEMENT);
+    async clearInputText(selector) {
+        let inputElement = await this.findElement(selector);
+        await inputElement.waitForDisplayed(1000);
+        await inputElement.clearValue();
+        return await inputElement.pause(300);
+
+    }
+
+    saveScreenshot(name) {
+        let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+        return this.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
+            console.log('screenshot is saved ' + name);
+        }).catch(err => {
+            console.log('screenshot was not saved ' + screenshotsDir + ' ' + err);
         })
-    }).then((result) => {
-        return Object.keys(result).length;
-    });
-};
+    }
 
-Page.prototype.keys = function (value) {
-    return this.getBrowser().keys(value);
-};
-Page.prototype.getTitle = function () {
-    return this.getBrowser().getTitle();
-};
+    async isElementDisplayed(selector) {
+        let elems = await this.getDisplayedElements(selector);
+        return elems.length > 0;
+    }
 
-Page.prototype.isVisible = function (selector) {
-    return this.getBrowser().isVisible(selector);
-};
+    async isElementEnabled(selector) {
+        let element = await this.findElement(selector);
+        return element.isEnabled();
+    }
 
-Page.prototype.isEnabled = function (selector) {
-    return this.getBrowser().isEnabled(selector);
-};
+    async waitForElementEnabled(selector, ms) {
+        let el = await this.findElements(selector);
+        if (el.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        return el[0].waitForEnabled(ms);
+    }
+    async waitForDisplayedElementEnabled(selector, ms) {
+        let el = await this.getDisplayedElements(selector);
+        if (el.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        return el[0].waitForEnabled(ms);
+    }
 
-Page.prototype.waitForVisible = function (selector, ms) {
-    return this.getBrowser().waitForVisible(selector, ms);
-};
 
-Page.prototype.waitForNotVisible = function (selector, ms) {
-    return this.getBrowser().waitUntil(() => {
+    async waitForElementDisabled(selector, ms) {
+        let element = await this.findElements(selector);
+        if (element.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        return element[0].waitForEnabled(ms, true);
+    }
+    async waitForDisplayedElementDisabled(selector, ms) {
+        let element = await this.getDisplayedElements(selector);
+        if (element.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        return element[0].waitForEnabled(ms, true);
+    }
+
+
+    waitForElementNotDisplayed(selector, ms) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length == 0;
+            })
+        }, ms).catch(err => {
+            throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
+        });
+    }
+
+    async waitForElementDisplayed(selector, ms) {
+        let element = await this.findElement(selector);
+        return element.waitForDisplayed(ms);
+    }
+
+    waitForSpinnerNotVisible() {
+        let message = "Spinner still displayed! timeout is " + appConst.TIMEOUT_7;
+        return this.browser.waitUntil(() => {
+            return this.isElementNotDisplayed(`//div[@class='spinner']`);
+        }, appConst.TIMEOUT_7, message);
+    }
+
+    waitUntilElementNotVisible(selector, timeout) {
+        let message = "Element still displayed! timeout is " + appConst.TIMEOUT_7 + "  " + selector;
+        return this.browser.waitUntil(() => {
+            return this.isElementNotDisplayed(selector);
+        }, timeout, message);
+    }
+
+    isElementNotDisplayed(selector) {
         return this.getDisplayedElements(selector).then(result => {
             return result.length == 0;
         })
-    }, ms).catch(err => {
-        throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
-    });
-};
-Page.prototype.waitForSpinnerNotVisible = function (ms) {
-    let message = "Spinner still displayed! timeout is " + ms;
-    return this.getBrowser().waitUntil(() => {
-        return this.isElementNotDisplayed(`//div[@class='spinner']`);
-    }, ms, message);
-};
-Page.prototype.isElementNotDisplayed = function (selector) {
-    return this.getDisplayedElements(selector).then(result => {
-        return result.length == 0;
-    })
-};
-Page.prototype.isSpinnerVisible = function () {
-    return this.getBrowser().isVisible(`//div[@class='spinner']`);
-};
+    }
 
-Page.prototype.doClick = function (selector) {
-    return this.getBrowser().click(selector).catch(err => {
-        throw Error('Error when clicking on ' + err);
-    })
-};
-Page.prototype.doDoubleClick = function (selector) {
-    return this.getBrowser().doubleClick(selector).catch(err => {
-        throw Error('Error when doubleClick on the element' + err);
-    })
-};
-Page.prototype.typeTextInInput = function (selector, text) {
-    return this.getBrowser().setValue(selector, text).catch(err => {
-        throw new Error('text was not set in the input ' + err);
-    })
-};
-Page.prototype.clearElement = function (selector) {
-    return this.getBrowser().clearElement(selector);
-};
+    async getAttribute(selector, attributeName) {
+        let element = await this.findElement(selector);
+        return element.getAttribute(attributeName);
+    }
 
-Page.prototype.element = function (selector) {
-    return this.getBrowser().element(selector);
-};
-Page.prototype.elements = function (selector) {
-    return this.getBrowser().elements(selector);
-};
+    waitForNotificationMessage() {
+        return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
+            throw new Error('Error when wait for notification message: ' + err);
+        }).then(() => {
+            return this.getText(`//div[@class='notification-content']/span`);
+        })
+    }
+    //returns array of messages
+    waitForNotificationMessages() {
+        return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
+            throw new Error('Error when wait for notification message: ' + err);
+        }).then(() => {
+            return this.getTextInElements(`//div[@class='notification-content']/span`);
+        })
+    }
 
-Page.prototype.getText = function (selector) {
-    return this.getBrowser().getText(selector);
-};
-Page.prototype.waitForExist = function (selector, ms) {
-    return this.getBrowser().waitForExist(selector, ms);
-};
 
-Page.prototype.waitForEnabled = function (selector, ms) {
-    return this.getBrowser().waitForEnabled(selector, ms);
-};
+    waitForExpectedNotificationMessage(expectedMessage) {
+        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot('err_notification_mess');
+            throw new Error('expected notification message was not shown! ' + err);
+        })
+    }
 
-Page.prototype.waitForDisabled = function (selector, ms) {
-    return this.getBrowser().waitForEnabled(selector, ms, true);
-};
-Page.prototype.isSelected = function (selector) {
-    return this.getBrowser().isSelected(selector);
-};
-Page.prototype.hasFocus = function (selector) {
-    return this.getBrowser().hasFocus(selector);
-};
-Page.prototype.getElementId = function (ele) {
-    return ele.value.ELEMENT;
-};
-Page.prototype.isAttributePresent = function (selector, atrName) {
-    return this.getBrowser().getAttribute(selector, atrName).then(result => {
-        if (result == null) {
-            return false;
-        } else {
+    waitForErrorNotificationMessage() {
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+            return this.getText(selector);
+        })
+    }
+
+    waitForNotificationWarning() {
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+            return this.getText(selector);
+        })
+    }
+
+    async doRightClick(selector) {
+        let el = await this.findElement(selector);
+        await el.moveTo();
+        return await this.browser.positionClick(2);
+    }
+
+    async isFocused(selctor) {
+        let el = await this.findElement(selctor);
+        return await el.isFocused();
+
+    }
+
+    isAlertPresent() {
+        return this.getBrowser().getAlertText().then(() => {
             return true;
-        }
-    })
-};
+        }).catch(err => {
+            if (err.seleniumStack === undefined) {
+                return false;
+            }
+            if (err.seleniumStack.type == 'NoAlertOpenError' || err.seleniumStack.type == 'NoSuchWindow') {
+                return false
+            } else {
+                throw new Error(err);
+            }
+        })
+    };
 
-Page.prototype.getDisplayedElements = function (selector) {
-    return this.getBrowser().elements(selector).then(elems => {
-        let pr = elems.value.map(el => this.getBrowser().elementIdDisplayed(el.ELEMENT));
-        //return Promise.all(pr).then(result=> {
-        //    return elems.value.filter((el,i)=>result[i].value);
-        //});
-        return Promise.all(pr).then(result => elems.value.filter((el, i) => result[i].value));
-    })
-};
+    alertAccept() {
+        return this.getBrowser().acceptAlert();
+    };
 
-Page.prototype.execute = function (script) {
-    return this.getBrowser().execute(script);
-};
+    getAlertText() {
+        return this.getBrowser().getAlertText().catch(err => {
+            if (err.seleniumStack.type == 'NoAlertOpenError') {
+                throw new Error("Alert is not open " + err);
+            } else {
+                throw new Error(err);
+            }
+        })
+    }
 
-Page.prototype.doClickOnCloseInBrowser = function () {
-    return this.getBrowser().execute("window.close();");
-};
-
-Page.prototype.isElementDisplayed = function (selector) {
-    return this.getDisplayedElements(selector).then(result => {
-        return result.length > 0;
-    })
-};
-
-Page.prototype.getTextFromElements = function (selector) {
-    let json = [];
-    return this.getBrowser().elements(selector).then(result => {
-        result.value.forEach((val) => {
-            json.push(this.getBrowser().elementIdText(val.ELEMENT));
+    pressEscKey() {
+        return this.keys('Escape').then(() => {
+            return this.pause(500);
+        }).catch(err => {
+            throw new Error('Error when clicking on Esc key ' + err);
         });
-        return Promise.all(json).then((p) => {
-            return p;
+    }
+
+    async switchToFrame(selector) {
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        let el = await this.findElement(selector);
+        //await browser.switchToFrame(frame.elementId); // Fail! Firefox and Chrome
+        return await this.getBrowser().switchToFrame(el).catch(err => {
+            console.log('Error when switch to frame ' + selector);
+            throw new Error('Error when switch to frame  ' + err);
+        })
+    }
+
+    clickOnCloseIconInBrowser() {
+        return this.getBrowser().execute("window.close();");
+    }
+
+    execute(script) {
+        return this.getBrowser().execute(script);
+    }
+
+    async doDoubleClick(selector) {
+        let el = await this.findElement(selector);
+        await el.moveTo();
+        return await this.getBrowser().positionDoubleClick().catch(err => {
+            throw Error('Error when doubleClick on the element' + err);
+        })
+    }
+
+    switchToParentFrame() {
+        return this.getBrowser().switchToParentFrame();
+    }
+
+    waitUntilInvalid(selector) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, 'class').then(result => {
+                return result.includes('invalid');
+            });
+        }, 3000).catch(err => {
+            return false;
         });
-    }).then(responses => {
-        let res = [];
-        responses.forEach(str => {
-            return res.push(str.value);
-        });
-        return res;
-    });
-};
+    }
 
-Page.prototype.getTextFromInput = function (selector) {
-    return this.getBrowser().getAttribute(selector, 'value');
-};
-Page.prototype.switchToParentFrame = function () {
-    return this.getBrowser().frameParent();
-};
-Page.prototype.saveScreenshot = function (name) {
-    let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
-    return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
-        console.log('screenshot is saved ' + name);
-    }).catch(err => {
-        console.log('screenshot was not saved ' + screenshotsDir + ' ' + err);
-    })
-};
-Page.prototype.getCSSProperty = function (selector, attributeName) {
-    return this.getBrowser().getCSSProperty(selector, attributeName);
-};
+    //is checkbox selected...
+    async isSelected(selector) {
+        let elems = await this.findElements(selector);
+        return await elems[0].isSelected();
+    }
+    async isDisplayedElementSelected(selector) {
+        let elems = await this.getDisplayedElements(selector);
+        return await elems[0].isSelected();
+    }
+}
 
-Page.prototype.getAttribute = function (selector, attributeName) {
-    return this.getBrowser().getAttribute(selector, attributeName);
-};
+module.exports = Page;
 
-Page.prototype.frame = function (id) {
-    return this.getBrowser().frame(id).catch(err => {
-        console.log('Error when switch to frame ' + id);
-        throw new Error('Error when switch to frame  ' + id);
-    })
-};
-
-Page.prototype.waitForNotificationMessage = function () {
-    return this.getBrowser().waitForVisible(`//div[@class='notification-content']/span`, appConst.TIMEOUT_5).then(() => {
-        return this.getBrowser().getText(`//div[@class='notification-content']/span`);
-    })
-};
-
-Page.prototype.waitForExpectedNotificationMessage = function (expectedMessage) {
-    let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).catch((err) => {
-        this.saveScreenshot('err_notification_mess');
-        throw new Error('expected notification message was not shown! ' + err);
-    })
-};
-
-Page.prototype.waitForErrorNotificationMessage = function () {
-    let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
-        return this.getBrowser().getText(selector);
-    })
-};
-
-Page.prototype.waitForNotificationWarning = function () {
-    let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
-    return this.getBrowser().waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
-        return this.getBrowser().getText(selector);
-    })
-};
-Page.prototype.waitUntilInvalid = function (selector) {
-    return this.getBrowser().waitUntil(() => {
-        return this.getBrowser().getAttribute(selector, 'class').then(result => {
-            return result.includes('invalid');
-        });
-    }, 3000).then(() => {
-        return true;
-    }).catch((err) => {
-        return false;
-    });
-};
-Page.prototype.hasDefaultFocus = function (selector) {
-    return this.hasFocus(selector);
-};
-Page.prototype.pressEscKey = function () {
-    return this.getBrowser().keys(['Escape']);
-};
-module.exports = new Page();

@@ -8,11 +8,11 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('issue.not.valid.content.spec: create an issue with not valid content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -21,6 +21,9 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
 
     it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_2_NAME).then(() => {
                 return contentBrowsePanel.waitForPublishButtonVisible();
             }).then(()=>{
@@ -35,8 +38,10 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
                 studioUtils.saveScreenshot("issue_details_should_be_loaded");
-                return issueDetailsDialog.waitForDialogLoaded();
-            }).pause(2000).then(() => {
+                return issueDetailsDialog.waitForDialogOpened();
+            }).then(()=>{
+                return issueDetailsDialog.pause(1000);
+            }).then(() => {
                 return issueDetailsDialog.getNumberOfItems();
             }).then(result => {
                 return assert.equal(result, '10', 'Ten items should be displayed in the `Items`link');
@@ -45,10 +50,13 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
 
     it(`GIVEN issue with not valid item is clicked WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button should be disabled, because invalid child is present`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
@@ -59,10 +67,13 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
 
     it(`GIVEN Items-tab has been clicked WHEN not valid content has been excluded THEN 'Publish & Close Issue' button is getting enabled`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {

@@ -1,69 +1,59 @@
 /**
  * Created on 8.02.2018.
  */
+const Page = require('../page');
+const lib = require('../../libs/elements');
 
-const page = require('../page');
-const elements = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
-const loaderComboBox = require('../components/loader.combobox');
-
-const form = {
+const XPATH = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,
     metadataStepForm: `//div[contains(@id,'XDataWizardStepForm') and descendant::div[text()='Override "Title"']]`,
 };
-const testMetadataStepForm = Object.create(page, {
 
-    overrideTitleInput: {
-        get: function () {
-            return `${form.metadataStepForm}` + `${elements.FORM_VIEW}` + `${elements.TEXT_INPUT}`;
-        }
-    },
-    overrideDescriptionTextArea: {
-        get: function () {
-            return `${form.metadataStepForm}` + `${elements.FORM_VIEW}` + `${elements.TEXT_AREA}`;
-        }
-    },
-    descriptionErrorMessage: {
-        get: function () {
-            return `${form.metadataStepForm}` + `${elements.VALIDATION_RECORDING_VIEWER}`;
-        }
-    },
-    type: {
-        value: function (metadata) {
-            return this.typeDescription(metadata.description).then(()=> {
-                return this.typeTitle(metadata.title);
-            });
-        }
-    },
-    typeDescription: {
-        value: function (description) {
-            return this.typeTextInInput(this.overrideDescriptionTextArea, description).catch(err=> {
-                this.doCatch('err_metadata_description', 'error when type text in the metadata-input');
-            })
-        }
-    },
-    typeTitle: {
-        value: function (title) {
-            return this.typeTextInInput(this.overrideTitleInput, title).catch(err=> {
-                this.doCatch('err_metadata_title', 'error when type text in the metadata-input');
-            })
-        }
-    },
-    isValidationRecordingVisible: {
-        value: function () {
-            return this.isVisible(this.descriptionErrorMessage);
-        }
-    },
-    isOverrideTitleInputVisible: {
-        value: function () {
-            return this.isVisible(this.overrideTitleInput);
-        }
-    },
-    isOverrideDescriptionTextAreaVisible: {
-        value: function () {
-            return this.isVisible(this.overrideDescriptionTextArea);
-        }
-    },
+class TestMetadataStepForm extends Page {
 
-});
-module.exports = testMetadataStepForm;
+    get overrideTitleInput() {
+        return XPATH.metadataStepForm + lib.FORM_VIEW + lib.TEXT_INPUT;
+    }
+
+    get overrideDescriptionTextArea() {
+        return XPATH.metadataStepForm + lib.FORM_VIEW + lib.TEXT_AREA;
+    }
+
+    get descriptionErrorMessage() {
+        return XPATH.metadataStepForm + lib.VALIDATION_RECORDING_VIEWER;
+    }
+
+    type(metadata) {
+        return this.typeDescription(metadata.description).then(() => {
+            return this.typeTitle(metadata.title);
+        });
+    }
+
+    typeDescription(description) {
+        return this.typeTextInInput(this.overrideDescriptionTextArea, description).catch(err => {
+            this.saveScreenshot('err_metadata_description');
+            throw new Error("Metadata Form , description" + err);
+        })
+    }
+
+    typeTitle(title) {
+        return this.typeTextInInput(this.overrideTitleInput, title).catch(err => {
+            this.saveScreenshot('err_metadata_title');
+            throw new Error("Metadata Form , Title" + err);
+        })
+    }
+
+    isValidationRecordingVisible() {
+        return this.isElementDisplayed(this.descriptionErrorMessage);
+    }
+
+    isOverrideTitleInputVisible() {
+        return this.isElementDisplayed(this.overrideTitleInput);
+    }
+
+    isOverrideDescriptionTextAreaVisible() {
+        return this.isElementDisplayed(this.overrideDescriptionTextArea);
+    }
+
+};
+module.exports = TestMetadataStepForm;

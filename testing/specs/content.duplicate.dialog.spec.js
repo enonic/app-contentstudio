@@ -8,10 +8,8 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const issueListDialog = require('../page_objects/issue/issue.list.dialog');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const contentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
-
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
 
 describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -19,6 +17,8 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
 
     it(`GIVEN one folder with children is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and all elements should be present`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
@@ -40,12 +40,14 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             }).then(() => {
                 return contentDuplicateDialog.getDisplayNamesToDuplicate();
             }).then(result => {
-                assert.isTrue(result == appConstant.TEST_FOLDER_WITH_IMAGES, `correct parent's display name should be present`);
+                assert.isTrue(result == appConstant.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
             })
         });
 
     it(`GIVEN 2 folder with children are selected WHEN 'Duplicate...' button has been clicked THEN correct display names should be present on the dialog`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME).then(() => {
                 return contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME)
             }).then(() => {
@@ -54,19 +56,21 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
                 return contentDuplicateDialog.getDisplayNamesToDuplicate();
             }).then(result => {
                 assert.isTrue(result.length == 2, '2 items to duplicate should be displayed');
-                assert.isTrue(result[0] == appConstant.TEST_FOLDER_WITH_IMAGES, 'correct parent\'s display name should be present');
-                assert.isTrue(result[1] == appConstant.TEST_FOLDER_2_DISPLAY_NAME, 'correct parent\'s display name should be present');
+                assert.isTrue(result[0] == appConstant.TEST_FOLDER_WITH_IMAGES, 'expected parent\'s display name should be present');
+                assert.isTrue(result[1] == appConstant.TEST_FOLDER_2_DISPLAY_NAME, 'expected parent\'s display name should be present');
             })
         });
 
     it(`GIVEN 'Content Duplicate' dialog is opened WHEN 'exclude child' has been clicked THEN 'Show Dependent Items' should not be displayed `,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
                 // clicks on the 'include child toggler' and exclude child
                 return contentDuplicateDialog.clickOnIncludeChildToggler();
-            }).pause(300).then(() => {
+            }).then(() => {
                 return assert.eventually.isTrue(contentDuplicateDialog.isIncludeChildTogglerDisplayed(),
                     'Include Child toggler should be displayed');
             }).then(() => {
@@ -79,6 +83,8 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
 
     it(`GIVEN 'Content Duplicate' dialog is opened WHEN 'Show dependent items' link has been clicked THEN 'Hide dependent Items' should appear`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
@@ -93,7 +99,6 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
                 assert.isTrue(result.length == 12, '12 dependents to duplicate should be displayed');
             });
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {

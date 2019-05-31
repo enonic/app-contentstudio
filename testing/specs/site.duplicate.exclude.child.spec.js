@@ -8,19 +8,18 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const issueListDialog = require('../page_objects/issue/issue.list.dialog');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const contentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
 const contentBuilder = require("../libs/content.builder");
 
 describe('site.duplicate.exclude.child.spec:  select a site exclude child and duplicate the site', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let SITE;
     let folder;
     it(`Preconditions: new site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('duplicate-site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -34,6 +33,7 @@ describe('site.duplicate.exclude.child.spec:  select a site exclude child and du
         });
     it(`GIVEN existing site is selected WHEN child folder has been added THEN it should be present in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let folderName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(folderName);
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
@@ -47,6 +47,8 @@ describe('site.duplicate.exclude.child.spec:  select a site exclude child and du
         });
     it(`GIVEN existing site is selected AND 'Duplicate dialog' is opened WHEN child items have not excluded AND 'Duplicate' clicked THEN the site should be copied with children`,
         () => {
+            let contentDuplicateDialog = new ContentDuplicateDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
@@ -67,6 +69,8 @@ describe('site.duplicate.exclude.child.spec:  select a site exclude child and du
 
     it(`GIVEN existing site is selected AND Duplicate dialog opened WHEN 'exclude child' icon has been pressed and 'Duplicate' clicked THEN copy of the site should be displayed without expander`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnDuplicateButtonAndWait();
             }).then(() => {
@@ -80,7 +84,7 @@ describe('site.duplicate.exclude.child.spec:  select a site exclude child and du
             }).then(() => {
                 studioUtils.saveScreenshot("site_duplicated_no_child");
                 return contentBrowsePanel.isExpanderIconPresent(SITE.displayName + "-copy-2");
-            }).then((result) => {
+            }).then(result => {
                 assert.isFalse(result, 'Site should be displayed without a expander, because the site has no children')
             })
         });

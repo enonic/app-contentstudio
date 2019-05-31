@@ -1,33 +1,30 @@
 /**
  * Created on 23.12.2017.
  */
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 
-const form = {
+const XPATH = {
     bodyTextArea: `//textarea[contains(@name,'body')]`,
     titleInput: `//input[contains(@name,'title')]`,
 };
-const articleForm = Object.create(page, {
 
-    bodyTextArea: {
-        get: function () {
-            return `${elements.FORM_VIEW}` + `${form.bodyTextArea}`;
-        }
-    },
-    titleInput: {
-        get: function () {
-            return `${elements.FORM_VIEW}` + `${form.titleInput}`;
-        }
-    },
-    type: {
-        value: function (articleData) {
-            return this.typeTextInInput(this.titleInput, articleData.title).then(()=> {
-                this.typeTextInInput(this.bodyTextArea, articleData.body);
-            });
-        }
-    },
-});
-module.exports = articleForm;
+class ArticleForm extends Page {
+
+    get bodyTextArea() {
+        return lib.FORM_VIEW + XPATH.bodyTextArea;
+    }
+
+    get titleInput() {
+        return lib.FORM_VIEW + XPATH.titleInput;
+    }
+
+    type(articleData) {
+        return this.typeTextInInput(this.titleInput, articleData.title).then(() => {
+            return this.typeTextInInput(this.bodyTextArea, articleData.body);
+        });
+    }
+};
+module.exports = ArticleForm;
 
 

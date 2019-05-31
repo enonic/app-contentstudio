@@ -1,7 +1,7 @@
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const xpath = {
+const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     toIssueList: `//a[@title='To Issue List']`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
@@ -22,376 +22,293 @@ const xpath = {
         menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 
 };
-const issueDetailsDialog = Object.create(page, {
 
-    closeIssueButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.closeIssueButton}`;
-        }
-    },
-    backButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.toIssueList}`;
-        }
-    },
-    titleInput: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.issueNameInPlaceInput}` + '//input';
-        }
-    },
-    issueTitleInputToggle: {
-        get: function () {
-            return `${xpath.issueNameInPlaceInput}` + `${xpath.issueTitleInputToggle}`;
-        }
-    },
-    issueStatusSelector: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.issueStatusSelector}`;
-        }
-    },
-    reopenIssueButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.reopenIssueButton}`;
-        }
-    },
-    addCommentButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.addCommentButton}`;
-        }
-    },
-    issueCommentTextArea: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.issueCommentTextArea}` + `${elements.TEXT_AREA}`;
-        }
-    },
-    itemsTabBarItem: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.itemsTabBarItem}`;
-        }
-    },
-    commentsTabBarItem: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.commentsTabBarItem}`;
-        }
-    },
-    assigneesTabBarItem: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.assigneesTabBarItem}`;
-        }
-    },
+class IssueDetailsDialog extends Page {
 
-    cancelTopButton: {
-        get: function () {
-            return `${xpath.container}` + `${elements.CANCEL_BUTTON_TOP}`;
-        }
-    },
+    get closeIssueButton() {
+        return XPATH.container + XPATH.closeIssueButton;
+    }
 
-    waitForDialogLoaded: {
-        value: function () {
-            return this.waitForVisible(`${xpath.issueNameInPlaceInput}`, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot('err_load_issue_details_dialog');
-                console.log('Issue Details dialog is not loaded!')
-                throw new Error('Issue Details dialog is not loaded ' + err)
-            });
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_2).catch(err => {
-                this.saveScreenshot('err_close_is_det_dialog');
-                throw new Error('Issue Details Dialog should be closed! ' + err)
-            })
-        }
-    },
-    getNumberOfItems: {
-        value: function () {
-            let xpath = this.itemsTabBarItem + '/a';
-            return this.getText(xpath).then(result => {
-                let startIndex = result.indexOf('(');
-                let endIndex = result.indexOf(')');
-                return result.substring(startIndex + 1, endIndex);
-            })
-        }
-    },
-    isNoActionLabelPresent: {
-        value: function () {
-            return this.isVisible(`${xpath.noActionLabel}`);
-        }
-    },
-    isDialogOpened: {
-        value: function () {
-            return this.isVisible(`${xpath.container}`);
-        }
-    },
-    clickOnCancelTopButton: {
-        value: function () {
-            return this.doClick(this.cancelTopButton).pause(500);
-        }
-    },
-    clickOnIssueStatusSelector: {
-        value: function () {
-            return this.doClick(this.issueStatusSelector);
-        }
-    },
-    clickOnBackButton: {
-        value: function () {
-            return this.doClick(this.backButton);
-        }
-    },
-    clickOnIssueTitleInputToggle: {
-        value: function () {
-            return this.doClick(this.issueTitleInputToggle).pause(500);
-        }
-    },
-    typeTitle: {
-        value: function (title) {
-            return this.typeTextInInput(this.titleInput, title).catch(err => {
-                this.saveScreenshot("err_type_issue_title");
-                throw new Error('error when type issue-title ' + err);
-            })
-        }
-    },
-    waitForIssueTitleInputToggleLoaded: {
-        value: function () {
-            return this.waitForVisible(`${xpath.issueTitleInputToggle}`, appConst.TIMEOUT_5).catch(err => {
-                throw new Error('Issue Details dialog- `Title Input toggler` should be loaded! ' + err)
-            });
-        }
-    },
-    waitForIssueTitleInputToggleNotVisible: {
-        value: function () {
-            return this.waitForNotVisible(`${xpath.issueTitleInputToggle}`, appConst.TIMEOUT_5).catch(err => {
-                throw new Error('Issue Details dialog- `Title Input toggler` should be not visible! ' + err)
-            });
-        }
-    },
-    clickOnIssueStatusSelectorAndCloseIssue: {
-        value: function () {
-            let menuItemSelector = xpath.issueStatusMenuItem('Closed');
-            return this.doClick(this.issueStatusSelector).then(() => {
-                return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
-            }).then(() => {
-                return this.doClick(menuItemSelector);
-            }).pause(300);
-        }
-    },
-    clickOnIssueStatusSelectorAndOpenIssue: {
-        value: function () {
-            let menuItemSelector = xpath.issueStatusMenuItem('Open');
-            return this.doClick(this.issueStatusSelector).then(() => {
-                return this.waitForVisible(menuItemSelector, appConst.TIMEOUT_2);
-            }).then(() => {
-                return this.doClick(menuItemSelector);
-            }).pause(300);
-        }
-    },
-    waitForReopenButtonLoaded: {
-        value: function () {
-            return this.waitForVisible(`${xpath.reopenIssueButton}`, appConst.TIMEOUT_2).catch(err => {
-                throw new Error('Issue Details dialog `Reopen button` is not loaded ' + err)
-            });
-        }
-    },
-    waitForCloseButtonLoaded: {
-        value: function () {
-            return this.waitForVisible(`${xpath.closeIssueButton}`, appConst.TIMEOUT_2).catch(err => {
-                throw new Error('Issue Details dialog `Close button` is not loaded ' + err)
-            });
-        }
-    },
-    clickOnCloseIssueButton: {
-        value: function () {
-            return this.doClick(this.closeIssueButton).catch(err => {
-                this.saveScreenshot('err_click_close_issue_button');
-                throw  new Error('Error when clicking on the `Close Issue`  ' + err);
-            }).then(() => {
-                return this.waitForVisible(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
-                    this.saveScreenshot('err_issue_closed');
-                    throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
-                })
-            })
-        }
-    },
-    clickOnReopenIssueButton: {
-        value: function () {
-            return this.doClick(this.reopenIssueButton).catch(err => {
-                this.saveScreenshot('err_click_reopen_issue_button');
-                throw  new Error('Error when clicking on the `Close Issue`  ' + err);
-            }).pause(300);
-        }
-    },
-    pressEscKey: {
-        value: function () {
-            return this.getBrowser().keys(['Escape']);
-        }
-    },
-    isCloseIssueButtonDisplayed: {
-        value: function () {
-            return this.isVisible(this.closeIssueButton).catch(err => {
-                this.saveScreenshot('err_visible_close_issue_button');
-                throw  new Error('Issue Details Dialog: ' + err);
-            })
-        }
-    },
-    clickOnAddCommentButton: {
-        value: function () {
-            return this.doClick(this.addCommentButton).catch(err => {
-                this.saveScreenshot('err_click_add_comment_button');
-                throw  new Error('Error when clicking on the `Add Comment`  ' + err);
-            }).pause(300);
-        }
-    },
-    isAddCommentButtonDisplayed: {
-        value: function () {
-            return this.isVisible(this.addCommentButton).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    isCommentTextAreaDisplayed: {
-        value: function () {
-            return this.isVisible(this.issueCommentTextArea).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    isAddCommentButtonEnabled: {
-        value: function () {
-            return this.isEnabled(this.addCommentButton).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    waitForAddCommentButtonEnabled: {
-        value: function () {
-            return this.waitForEnabled(this.addCommentButton).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    waitForAddCommentButtonDisabled: {
-        value: function () {
-            return this.waitForDisabled(this.addCommentButton).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    isCommentsTabBarItemActive: {
-        value: function () {
-            return this.getAttribute(this.commentsTabBarItem, 'class').then(result => {
-                return result.includes('active');
-            }).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
-    isItemsTabBarItemActive: {
-        value: function () {
-            return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
-                return result.includes('active');
-            }).catch(err => {
-                throw  new Error('Issue Details Dialog  ' + err);
-            })
-        }
-    },
+    get backButton() {
+        return XPATH.container + XPATH.toIssueList;
+    }
 
-    getIssueTitle: {
-        value: function () {
-            return this.getText(`${xpath.issueNameInPlaceInput}/h2`).then(result => {
-                let endIndex = result.indexOf('#');
-                return result.substring(0, endIndex).trim();
+    get titleInput() {
+        return XPATH.container + XPATH.issueNameInPlaceInput + '//input';
+    }
 
+    get issueTitleInputToggle() {
+        return XPATH.issueNameInPlaceInput + XPATH.issueTitleInputToggle;
+    }
+
+    get issueStatusSelector() {
+        return XPATH.container + XPATH.issueStatusSelector;
+    }
+
+    get reopenIssueButton() {
+        return XPATH.container + XPATH.reopenIssueButton;
+    }
+
+    get addCommentButton() {
+        return XPATH.container + XPATH.addCommentButton;
+    }
+
+    get issueCommentTextArea() {
+        return XPATH.container + XPATH.issueCommentTextArea + lib.TEXT_AREA;
+    }
+
+    get itemsTabBarItem() {
+        return XPATH.container + XPATH.itemsTabBarItem;
+    }
+
+    get commentsTabBarItem() {
+        return XPATH.container + XPATH.commentsTabBarItem;
+    }
+
+    get assigneesTabBarItem() {
+        return XPATH.container + XPATH.assigneesTabBarItem;
+    }
+
+    get cancelTopButton() {
+        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    waitForDialogOpened() {
+        return this.waitForElementDisplayed(XPATH.issueNameInPlaceInput, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot('err_load_issue_details_dialog');
+            throw new Error('Issue Details dialog is not loaded ' + err)
+        });
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2).catch(err => {
+            this.saveScreenshot('err_close_is_det_dialog');
+            throw new Error('Issue Details Dialog must be closed! ' + err)
+        })
+    }
+
+    async getNumberOfItems() {
+        let xpath = this.itemsTabBarItem + '/a';
+        let result = await this.getText(xpath);
+        let startIndex = result.indexOf('(');
+        if (startIndex == -1) {
+            return undefined;
+        }
+        let endIndex = result.indexOf(')');
+        return result.substring(startIndex + 1, endIndex);
+    }
+
+    isNoActionLabelPresent() {
+        return this.isElementDisplayed(XPATH.noActionLabel);
+    }
+
+    isDialogOpened() {
+        return this.isElementDisplayed(XPATH.container);
+    }
+
+    async clickOnCancelTopButton() {
+        await this.clickOnElement(this.cancelTopButton);
+        return await this.pause(500);
+    }
+
+    clickOnIssueStatusSelector() {
+        return this.clickOnElement(this.issueStatusSelector);
+    }
+
+    clickOnBackButton() {
+        return this.clickOnElement(this.backButton);
+    }
+
+    async clickOnIssueTitleInputToggle() {
+        await this.clickOnElement(this.issueTitleInputToggle);
+        return await this.pause(500);
+    }
+
+    typeTitle(title) {
+        return this.typeTextInInput(this.titleInput, title).catch(err => {
+            this.saveScreenshot("err_type_issue_title");
+            throw new Error('error when type issue-title ' + err);
+        })
+    }
+
+    waitForIssueTitleInputToggleLoaded() {
+        return this.waitForElementDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
+            throw new Error('Issue Details dialog- `Title Input toggler` should be loaded! ' + err)
+        });
+    }
+
+    waitForIssueTitleInputToggleNotVisible() {
+        return this.waitForElementNotDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
+            throw new Error('Issue Details dialog- `Title Input toggler` should be not visible! ' + err)
+        });
+    }
+
+    async clickOnIssueStatusSelectorAndCloseIssue() {
+        let menuItemSelector = XPATH.issueStatusMenuItem('Closed');
+        await this.clickOnElement(this.issueStatusSelector);
+        await this.waitForElementDisplayed(menuItemSelector, appConst.TIMEOUT_2);
+        await this.clickOnElement(menuItemSelector);
+        return await this.pause(300);
+    }
+
+    async clickOnIssueStatusSelectorAndOpenIssue() {
+        let menuItemSelector = XPATH.issueStatusMenuItem('Open');
+        await this.clickOnElement(this.issueStatusSelector);
+        await this.waitForElementDisplayed(menuItemSelector, appConst.TIMEOUT_2);
+        await this.clickOnElement(menuItemSelector);
+        return await this.pause(300);
+    }
+
+    waitForReopenButtonLoaded() {
+        return this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Issue Details dialog `Reopen button` is not loaded ' + err)
+        });
+    }
+
+    waitForCloseButtonLoaded() {
+        return this.waitForElementDisplayed(XPATH.closeIssueButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Issue Details dialog `Close button` is not loaded ' + err)
+        });
+    }
+
+    clickOnCloseIssueButton() {
+        return this.clickOnElement(this.closeIssueButton).catch(err => {
+            this.saveScreenshot('err_click_close_issue_button');
+            throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+        }).then(() => {
+            return this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
+                this.saveScreenshot('err_issue_closed');
+                throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
             })
+        })
+    }
+
+    async clickOnReopenIssueButton() {
+        await this.clickOnElement(this.reopenIssueButton);
+        await this.pause(300);
+    }
+
+    pressEscKey() {
+        return this.getBrowser().keys(['Escape']);
+    }
+
+    isCloseIssueButtonDisplayed() {
+        return this.isElementDisplayed(this.closeIssueButton);
+    }
+
+    isAddCommentButtonDisplayed() {
+        return this.isElementDisplayed(this.addCommentButton);
+    }
+
+    async clickOnAddCommentButton() {
+        await this.clickOnElement(this.addCommentButton);
+        return await this.pause(500);
+    }
+
+    isCommentTextAreaDisplayed() {
+        return this.isElementDisplayed(this.issueCommentTextArea);
+    }
+
+    isAddCommentButtonEnabled() {
+        return this.isElementEnabled(this.addCommentButton);
+    }
+
+    waitForAddCommentButtonEnabled() {
+        return this.waitForElementEnabled(this.addCommentButton).catch(err => {
+            throw  new Error('Issue Details Dialog  ' + err);
+        })
+    }
+
+    waitForAddCommentButtonDisabled() {
+        return this.waitForElementDisabled(this.addCommentButton).catch(err => {
+            throw  new Error('Issue Details Dialog  ' + err);
+        })
+    }
+
+    async getIssueTitle() {
+        let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');
+        let endIndex = result.indexOf('#');
+        return result.substring(0, endIndex).trim();
+    }
+
+    typeComment(text) {
+        return this.typeTextInInput(this.issueCommentTextArea, text);
+    }
+
+    isCommentPresent(text) {
+        let selector = XPATH.issueCommentsListItemByText(text);
+        return this.isElementDisplayed(selector);
+    }
+
+    updateComment(comment, text) {
+        let commentTextarea = XPATH.issueCommentsListItemByText(comment) + `//textarea`;
+        return this.typeTextInInput(commentTextarea, text);
+    }
+
+    async clickOnSaveCommentButton(text) {
+        let saveButton = XPATH.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
+        await this.clickOnElement(saveButton);
+        return await this.pause(500);
+    }
+
+    async getNumberOfItemsInTabMenuBar() {
+        let result = await this.getText(this.itemsTabBarItem);
+        let startIndex = result.indexOf('(');
+        if (startIndex == -1) {
+            return undefined;
         }
-    },
-    typeComment: {
-        value: function (text) {
-            return this.typeTextInInput(this.issueCommentTextArea, text).catch(err => {
-                this.saveScreenshot('err_type_text_in_area');
-                throw new Error('error type text in issue comment: ' + err)
-            })
-        }
-    },
-    isCommentPresent: {
-        value: function (text) {
-            let selector = xpath.issueCommentsListItemByText(text);
-            return this.isVisible(selector).catch(err => {
-                this.saveScreenshot('err_get_comment_issue');
-                throw new Error('error when get issue comment: ' + err)
-            })
-        }
-    },
-    clickOnItemsTabBarItem: {
-        value: function (text) {
-            return this.waitForVisible(this.itemsTabBarItem, appConst.TIMEOUT_2).then(() => {
-                return this.doClick(this.itemsTabBarItem);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_items_tabbar_item');
-                throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
-            }).pause(500);
-        }
-    },
-    clickOnEditCommentMenuItem: {
-        value: function (text) {
-            let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                //clicks on menu and opens menu items
-                return this.doClick(selector);
-            }).pause(700).then(() => {
-                this.saveScreenshot('issue_details_comment_menu');
-                let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
-                return this.getDisplayedElements(editMenuItem);
-            }).then(result => {
-                return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_edit_comment_issue');
-                throw new Error('error when click on edit the issue comment: ' + err)
-            }).pause(500);
-        }
-    },
-    clickOnDeleteCommentMenuItem: {
-        value: function (text) {
-            let selector = xpath.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.doClick(selector);
-            }).pause(500).then(() => {
-                this.saveScreenshot('issue_details_comment_menu2');
-                let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
-                return this.getDisplayedElements(deleteMenuItem);
-            }).then(result => {
-                return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_delete_comment');
-                throw new Error('error when clicking on delete the issue comment: ' + err)
-            }).pause(500);
-        }
-    },
-    updateComment: {
-        value: function (comment, text) {
-            let commentTextarea = xpath.issueCommentsListItemByText(comment) + `//textarea`;
-            return this.typeTextInInput(commentTextarea, text).catch(err => {
-                throw new Error('error type text in issue comment: ' + err)
-            })
-        }
-    },
-    clickOnSaveCommentButton: {
-        value: function (text) {
-            let saveButton = xpath.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
-            return this.doClick(saveButton).catch(err => {
-                throw new Error('error when save the issue comment: ' + err)
-            }).pause(500);
-        }
-    },
-    getNumberOfItemsInTabMenuBar: {
-        value: function () {
-            return this.getText(this.itemsTabBarItem).then(result => {
-                let startIndex = result.indexOf('(');
-                let endIndex = result.indexOf(')');
-                return result.substring(startIndex + 1, endIndex);
-            }).catch(err => {
-                throw new Error('error when getting number from the Items(...) link ' + err);
-            });
-        }
-    },
-});
-module.exports = issueDetailsDialog;
+        let endIndex = result.indexOf(')');
+        return result.substring(startIndex + 1, endIndex);
+    }
+
+    isCommentsTabBarItemActive() {
+        return this.getAttribute(this.commentsTabBarItem, 'class').then(result => {
+            return result.includes('active');
+        }).catch(err => {
+            throw  new Error('Issue Details Dialog  ' + err);
+        })
+    }
+
+    isItemsTabBarItemActive() {
+        return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
+            return result.includes('active');
+        }).catch(err => {
+            throw  new Error('Issue Details Dialog  ' + err);
+        })
+    }
+
+    clickOnItemsTabBarItem(text) {
+        return this.waitForElementDisplayed(this.itemsTabBarItem, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.itemsTabBarItem);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_items_tabbar_item');
+            throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
+        }).then(() => {
+            return this.pause(500);
+        });
+    }
+
+    async clickOnEditCommentMenuItem(text) {
+        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        //clicks on menu and opens menu items
+        await this.clickOnElement(selector);
+        await this.pause(700);
+        let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
+        let elems = await this.getDisplayedElements(editMenuItem);
+        await elems[0].click();
+        await this.pause(500);
+    }
+
+    async clickOnDeleteCommentMenuItem(text) {
+        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.clickOnElement(selector);
+        await this.pause(500);
+        let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
+        let elems = await this.getDisplayedElements(deleteMenuItem);
+        await elems[0].click();
+        await this.pause(500);
+    }
+};
+module.exports = IssueDetailsDialog;

@@ -7,14 +7,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const htmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
-const detailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const versionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const DetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const VersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 
 describe('insert.image.dlg.custom.width.spec:  click on the `custom width` checkbox and check `image range value`', function () {
@@ -27,6 +27,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`Preconditions: site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -41,6 +42,8 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox should be not selected by default`,
         () => {
+            let insertImageDialog = new InsertImageDialog();
+            let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -61,6 +64,8 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox has been clicked THEN default range(100%) for custom width should appear`,
         () => {
+            let insertImageDialog = new InsertImageDialog();
+            let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -82,6 +87,9 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN image withs custom width is inserted WHEN Save button has been pressed THEN content is saving`,
         () => {
+            let insertImageDialog = new InsertImageDialog();
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             }).then(() => {
@@ -106,7 +114,11 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN existing htmlarea-content with inserted image(custom width) is opened WHEN double click in htmmlarea THEN expected range should be displayed`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).pause(2000).then(() => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).then(()=>{
+                return htmlAreaForm.pause(2000);
+            }).then(() => {
                 return htmlAreaForm.doubleClickOnHtmlArea();
             }).then(() => {
                 return insertImageDialog.waitForDialogVisible();
@@ -124,7 +136,12 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN existing htmlarea-content with inserted image(custom width) is opened WHEN 'Custom Width' has been unselected THEN image-range is getting hidden`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).pause(2000).then(() => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            let contentWizard = new ContentWizard();
+            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).then(()=>{
+                return contentWizard.pause(2000);
+            }).then(() => {
                 //open 'Insert Image Dialog'
                 return htmlAreaForm.doubleClickOnHtmlArea();
             }).then(() => {
@@ -135,7 +152,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
                 return insertImageDialog.waitForImageRangeNotVisible();
             }).then(result => {
                 assert.isTrue(result, "image-range is getting not visible");
-            }).pause(300).then(() => {
+            }).then(() => {
                 //`Custom Width` Checkbox should be unselected
                 return expect(insertImageDialog.isCustomWidthCheckBoxSelected()).to.eventually.false;
             }).then(() => {
@@ -148,6 +165,11 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
 
     it(`GIVEN existing htmlarea-content with inserted image is opened WHEN rollback version with 'Custom Width' THEN image-range is getting visible again`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            let contentWizard = new ContentWizard();
+            let versionsWidget = new VersionsWidget();
+            let detailsPanel = new DetailsPanel();
             return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
@@ -160,7 +182,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
             }).then(() => {
                 //rollback the version with 'Custom Width'
                 return versionsWidget.clickOnRestoreThisVersion();
-            }).pause(1000).then(() => {
+            }).then(() => {
                 //open 'Insert Image Dialog'
                 return htmlAreaForm.doubleClickOnHtmlArea();
             }).then(() => {
@@ -171,7 +193,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
             }).then(result => {
                 studioUtils.saveScreenshot('image_dialog_custom_width_rollback');
                 assert.isTrue(result == '100%');
-            }).pause(300).then(() => {
+            }).then(() => {
                 //`Custom Width` Checkbox is getting selected as well
                 return expect(insertImageDialog.isCustomWidthCheckBoxSelected()).to.eventually.true;
             });

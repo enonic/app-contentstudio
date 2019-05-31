@@ -8,14 +8,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const imageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const imageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
+const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 
 
 describe("image.component.default.caption.spec: Type a caption in image-wizard and check it in an inserted image component",
@@ -30,6 +30,7 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
 
         it(`Precondition: new site should be added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
                 return studioUtils.doAddSite(SITE).then(() => {
@@ -45,6 +46,8 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
 
         it(`GIVEN existing image is opened WHEN caption has been typed in the wizard AND the image has been saved THEN the caption should be saved`,
             () => {
+                let imageFormPanel = new ImageFormPanel();
+                let contentWizard = new ContentWizard();
                 return studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME).then(() => {
                     // type a caption and save the image
                     return imageFormPanel.typeCaption(EXPECTED_CAPTION);
@@ -59,6 +62,10 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
 
         it(`GIVEN existing site is opened WHEN test image has been inserted THEN expected default caption should be present in the Image Inspection Panel`,
             () => {
+                let contentWizard = new ContentWizard();
+                let pageComponentView = new PageComponentView();
+                let imageInspectPanel = new ImageInspectPanel();
+                let liveFormPanel = new LiveFormPanel();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     //opens Show Component View
                     return contentWizard.clickOnShowComponentViewToggler();

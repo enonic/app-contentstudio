@@ -7,14 +7,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const xDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
-const xDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard.step.form');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const detailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const versionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const XDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
+const XDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard.step.form');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(htmlarea), type a text in the textarea`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -26,6 +26,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`Preconditions: site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -42,6 +43,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //Inactive optional x-data should not be visible in the Content Wizard navigation bar
     it(`WHEN site with optional x-data has been opened THEN step for the x-data  should not be present on the navigation bar`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
             }).then(() => {
                 return contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
@@ -53,6 +55,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //Inactive optional x-data should not be visible in the Content Wizard navigation bar
     it(`GIVEN site with optional x-data is opened WHEN x-data has been activated THEN x-data should be visible in the Content Wizard navigation bar`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
             }).then(() => {
                 return contentWizard.clickOnXdataToggler();
@@ -67,6 +70,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //verifies "https://github.com/enonic/app-contentstudio/issues/467" (Incorrect validation inside X-data with ItemSet and htmlArea)
     it(`GIVEN existing site with optional x-data(html-area) WHEN x-data has been activated AND Save button pressed THEN content is getting invalid`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 //x-data (required html-area) is added
                 return contentWizard.clickOnXdataToggler();
@@ -83,6 +87,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`GIVEN existing site with optional x-data(html-area) WHEN text has been typed in x-data (required htmlarea) AND Save button pressed THEN content is getting valid`,
         () => {
+            let contentWizard = new ContentWizard();
+            let xDataHtmlArea = new XDataHtmlArea();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 // text typed in x-data(htmlarea)
                 return xDataHtmlArea.typeTextInHtmlArea("Hello World");
@@ -101,6 +107,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //verifies the https://github.com/enonic/lib-admin-ui/issues/778 (x-data should be disabled after the version rollback)
     it(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
         () => {
+            let contentWizard = new ContentWizard();
+            let detailsPanel = new WizardDetailsPanel();
+            let versionsWidget = new WizardVersionsWidget();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
@@ -110,9 +119,11 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
                 return versionsWidget.waitForVersionsLoaded();
             }).then(() => {
                 return versionsWidget.clickAndExpandVersion(2);
-            }).then(result => {
+            }).then(() => {
                 return versionsWidget.clickOnRestoreThisVersion();
-            }).pause(2000).then(() => {
+            }).then(() => {
+                return versionsWidget.pause(2000);
+            }).then(() => {
                 studioUtils.saveScreenshot("site_x_data_rollback_test");
                 return contentWizard.waitForWizardStepByTitleNotVisible(X_DATA_STEP_WIZARD);
             }).then(result => {
@@ -123,6 +134,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //x-data forms in the Content Wizard - should follow the same order in which they are included in the XML schema
     it(`WHEN content with optional two x-data is opened THEN expected order of x-data forms should be present on the wizard`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1').then(() => {
                 return contentWizard.typeDisplayName(contentName);
             }).then(() => {
@@ -137,6 +149,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area should be visible`,
         () => {
+            let contentWizard = new ContentWizard();
+            let xDataTextArea = new XDataTextArea();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0').then(() => {
                 return contentWizard.typeDisplayName(contentName);
             }).then(() => {
@@ -158,6 +172,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         });
     it(`GIVEN existing content with enabled x-data is opened WHEN x-data toggler has been clicked THEN x-data form should be hidden and content is getting valid`,
         () => {
+            let contentWizard = new ContentWizard();
+            let xDataTextArea = new XDataTextArea();
             return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
                 return contentWizard.clickOnXdataToggler();
             }).then(() => {
@@ -177,6 +193,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`GIVEN existing content with enabled x-data is opened WHEN text typed in x-data form THEN content is getting valid`,
         () => {
+            let contentWizard = new ContentWizard();
+            let xDataTextArea = new XDataTextArea();
             return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
                 return contentWizard.clickOnXdataToggler();
             }).then(() => {
@@ -193,6 +211,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     it(`GIVEN text is present in  textarea AND x-data has been disabled AND content saved WHEN x-data has been enabled again THEN text-area in x-data should be cleared, when x-data was disabled and the content was saved`,
         () => {
+            let contentWizard = new ContentWizard();
+            let xDataTextArea = new XDataTextArea();
             return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
                 //x-data form has been disabled
                 return contentWizard.clickOnXdataToggler();
@@ -215,17 +235,23 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     //verifies the https://github.com/enonic/lib-admin-ui/issues/778
     it(`GIVEN existing content with x-data is opened WHEN version of the content with text in x-data has been restored THEN text should appear in the area`,
         () => {
+            let contentWizard = new ContentWizard();
+            let versionsWidget = new WizardVersionsWidget();
+            let xDataTextArea = new XDataTextArea();
+            let detailsPanel = new WizardDetailsPanel();
             return studioUtils.selectContentAndOpenWizard(contentName).then(() => {
                 //open details panel
                 return contentWizard.openDetailsPanel();
-            }).pause(500).then(() => {
+            }).then(() => {
                 //open versions widget
                 return detailsPanel.openVersionHistory();
             }).then(() => {
                 return versionsWidget.clickAndExpandVersion(1);
             }).then(() => {
                 return versionsWidget.clickOnRestoreThisVersion();
-            }).pause(2000).then(() => {
+            }).then(() => {
+                return versionsWidget.pause(2000);
+            }).then(() => {
                 studioUtils.saveScreenshot('xdata_text_in_textarea_restored');
                 return xDataTextArea.getTextInTextArea();
             }).then(result => {

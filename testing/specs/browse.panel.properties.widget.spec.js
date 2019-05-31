@@ -8,11 +8,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const propertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const settingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const SettingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 
 
 describe('Browse panel, properties widget, language spec`', function () {
@@ -29,13 +29,17 @@ describe('Browse panel, properties widget, language spec`', function () {
                 return studioUtils.openBrowseDetailsPanel();
             }).then(() => {
                 studioUtils.saveScreenshot("details_panel_language_en");
+                let propertiesWidget = new PropertiesWidget();
                 return expect(propertiesWidget.getLanguage()).to.eventually.equal('en');
             });
         });
 
     it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed on the widget`,
         () => {
+            let contentWizard = new ContentWizard();
+            let propertiesWidget = new PropertiesWidget();
             return studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName).then(() => {
+                let settingsForm = new SettingsForm();
                 return settingsForm.clickOnRemoveLanguage();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();

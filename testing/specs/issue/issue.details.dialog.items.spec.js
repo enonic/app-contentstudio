@@ -8,11 +8,11 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const issueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('issue.details.dialog.items.spec: add items and check it on ItemsTabItem', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -21,10 +21,13 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '1' number should be in 'Items' on IssueDetailsDialog`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
                 // Publish button is getting visible, because the content is 'New' and valid
                 return contentBrowsePanel.waitForPublishButtonVisible();
-            }).then(()=>{
+            }).then(() => {
                 //open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
@@ -32,7 +35,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.getNumberOfItems();
             }).then(result => {
@@ -42,10 +45,13 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN Issue Details Dialog is opened WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button and Content Combobox should be displayed`,
         () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
@@ -61,10 +67,13 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN 'Show dependent items' link should appear`,
         () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
@@ -83,10 +92,13 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing issue (child items are included) WHEN issue details is opened THEN 'Show dependent items' link should be present`,
         () => {
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueListDialog = new IssueListDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
@@ -101,10 +113,13 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing issue (child items are included) WHEN issue details is opened  AND 'Show Dependent items' link has been clicked THEN 'hide dependent items' link should appear`,
         () => {
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueListDialog = new IssueListDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
@@ -117,15 +132,18 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
 
     it(`GIVEN existing issue (child items are included) WHEN issue details is opened  AND 'Exclude child items' icon has been clicked THEN number of items to publish should be decreased `,
         () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            let issueListDialog = new IssueListDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
                 return issueDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_WITH_IMAGES);
-            }).pause(1000).then(() => {
+            }).then(() => {
                 return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
             }).then(result => {
                 return assert.equal(result, '1', 'only one item should be in the link');

@@ -1,29 +1,27 @@
 /**
  * Created on 12/2/2017.
  */
-const launcherPanel = require('../page_objects/launcher.panel');
-const homePage = require('../page_objects/home.page');
-const loginPage = require('../page_objects/login.page');
-const browsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const wizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const filterPanel = require("../page_objects/browsepanel/content.filter.panel");
-const confirmationDialog = require("../page_objects/confirmation.dialog");
+const LauncherPanel = require('../page_objects/launcher.panel');
+const HomePage = require('../page_objects/home.page');
+const LoginPage = require('../page_objects/login.page');
+const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
+const ConfirmationDialog = require("../page_objects/confirmation.dialog");
 const appConst = require("./app_const");
-const newContentDialog = require('../page_objects/browsepanel/new.content.dialog');
-const contentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
+const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
+const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
-const issueListDialog = require('../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../page_objects/issue/create.issue.dialog');
-const deleteContentDialog = require('../page_objects/delete.content.dialog');
-const confirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
-const insertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
-const contentPublishDialog = require('../page_objects/content.publish.dialog');
-const browseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-const browseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
-const contentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
+const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
+const DeleteContentDialog = require('../page_objects/delete.content.dialog');
+const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
+const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const ContentPublishDialog = require('../page_objects/content.publish.dialog');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
+const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 
 module.exports = {
-    xpTabs: {},
     setTextInCKE: function (id, text) {
         let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
         return webDriverHelper.browser.execute(script).then(() => {
@@ -31,24 +29,32 @@ module.exports = {
             return webDriverHelper.browser.execute(script2);
         })
     },
-    clickOnElement: function (selector) {
-        return webDriverHelper.browser.click(selector).then(() => {
-            console.log('clicked on ' + selector);
-        })
+    async clickOnElement(selector) {
+        let el = await webDriverHelper.browser.$(selector);
+        await el.waitForDisplayed(1500);
+        return await el.click();
     },
-    isElementDisplayed: function (selector) {
-        return webDriverHelper.browser.isVisible(selector).catch((err) => {
-            console.log('Error, when checking the element ' + selector + '  ' + err);
-        })
+    async getText(selector) {
+        let el = await webDriverHelper.browser.$(selector);
+        await el.waitForDisplayed(1500);
+        return await el.getText();
     },
-    switchToFrameBySrc: function (src) {
+
+    async isElementDisplayed(selector) {
+        let el = await webDriverHelper.browser.$(selector);
+        return await el.isDisplayed();
+    },
+
+    async switchToFrameBySrc(src) {
         let selector = `//iframe[contains(@src,'${src}')]`;
-        return webDriverHelper.browser.element(selector).then(result => {
-            console.log('############## ' + result.value);
-            return webDriverHelper.browser.frame(result.value);
-        });
+        let el = await webDriverHelper.browser.$(selector);
+        await el.waitForDisplayed(1500);
+        return await webDriverHelper.browser.switchToFrame(el).catch(err => {
+            console.log('Error when switch to frame ' + selector);
+            throw new Error('Error when switch to frame  ' + err);
+        })
     },
-    getTitle: function () {
+    getTitle() {
         return webDriverHelper.browser.getTitle();
     },
 
@@ -57,67 +63,90 @@ module.exports = {
         return webDriverHelper.browser.execute(script);
     },
     insertUrlLinkInCke: function (text, url) {
+        let insertLinkDialog = new InsertLinkDialog();
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.typeUrl(url);
         }).then(() => {
             return insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        }).then(()=>{
+            return webDriverHelper.browser.pause(500);
         });
 
     },
     insertDownloadLinkInCke: function (text, contentDisplayName) {
+        let insertLinkDialog = new InsertLinkDialog();
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
         }).then(() => {
             this.saveScreenshot('download_link_dialog');
             return insertLinkDialog.clickOnInsertButton();
-        }).pause(700);
+        }).then(() => {
+            return insertLinkDialog.pause(700);
+        });
 
     },
     insertEmailLinkInCke: function (text, email) {
+        let insertLinkDialog = new InsertLinkDialog();
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.fillEmailForm(email);
         }).then(() => {
             this.saveScreenshot('email_link_dialog');
             return insertLinkDialog.clickOnInsertButton();
-        }).pause(700);
+        }).then(() => {
+            return insertLinkDialog.pause(700);
+        });
     },
 
     insertContentLinkInCke: function (text, contentDisplayName) {
+        let insertLinkDialog = new InsertLinkDialog();
         return insertLinkDialog.typeText(text).then(() => {
             return insertLinkDialog.selectTargetInContentTab(contentDisplayName);
         }).then(() => {
             this.saveScreenshot('content_link_dialog');
             return insertLinkDialog.clickOnInsertButton();
-        }).pause(700);
+        }).then(() => {
+            return insertLinkDialog.pause(700);
+        });
 
     },
     doCloseCurrentBrowserTab: function () {
         return webDriverHelper.browser.getTitle().then(title => {
             if (title != 'Enonic XP Home') {
-                return webDriverHelper.browser.close();
+                return webDriverHelper.browser.closeWindow();
             }
         })
     },
     openIssuesListDialog: function () {
+        let browsePanel = new BrowsePanel();
+        let issueListDialog = new IssueListDialog();
         return browsePanel.clickOnShowIssuesListButton().then(() => {
-            return issueListDialog.waitForDialogVisible();
-        }).pause(500);
+            return issueListDialog.waitForDialogOpened();
+        }).then(()=>{
+            return issueListDialog.pause(300);
+        });
     },
     openCreateIssueDialog: function () {
+        let browsePanel = new BrowsePanel();
+        let createIssueDialog = new CreateIssueDialog();
+        let issueListDialog = new IssueListDialog();
         return browsePanel.clickOnShowIssuesListButton().then(() => {
-            return issueListDialog.waitForDialogVisible(500);
+            return issueListDialog.waitForDialogOpened();
         }).then(() => {
             return issueListDialog.clickOnNewIssueButton();
         }).then(() => {
             return createIssueDialog.waitForDialogLoaded();
-        }).pause(200);
+        });
     },
     openPublishMenuAndClickOnCreateIssue: function () {
+        let browsePanel = new BrowsePanel();
+        let createIssueDialog = new CreateIssueDialog();
         return browsePanel.openPublishMenuAndClickOnCreateIssue().then(() => {
             return createIssueDialog.waitForDialogLoaded();
         })
     },
     openBrowseDetailsPanel: function () {
+        let browsePanel = new BrowsePanel();
+        let browseDetailsPanel = new BrowseDetailsPanel();
         return browseDetailsPanel.isPanelVisible().then(result => {
             if (!result) {
                 return browsePanel.clickOnDetailsPanelToggleButton();
@@ -126,9 +155,14 @@ module.exports = {
             return browseDetailsPanel.waitForDetailsPanelLoaded();
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
-        }).pause(2000);
+        }).then(() => {
+            return browsePanel.pause(1000);
+        });
     },
     openContentWizard: function (contentType) {
+        let browsePanel = new BrowsePanel();
+        let newContentDialog = new NewContentDialog();
+        let contentWizardPanel = new ContentWizardPanel();
         return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
             return browsePanel.clickOnNewButton();
         }).then(() => {
@@ -142,6 +176,8 @@ module.exports = {
         })
     },
     openContentInWizard: function (contentName) {
+        let contentWizardPanel = new ContentWizardPanel();
+        let browsePanel = new BrowsePanel();
         return this.findAndSelectItem(contentName).then(() => {
             return browsePanel.clickOnEditButton();
         }).then(() => {
@@ -152,22 +188,26 @@ module.exports = {
     },
 
     doAddShortcut: function (shortcut) {
+        let contentWizardPanel = new ContentWizardPanel();
         return this.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
             return contentWizardPanel.typeData(shortcut);
         }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
         }).then(() => {
             return this.doCloseWizardAndSwitchToGrid();
-        }).pause(1000);
+        });
     },
     doAddFolder: function (folder) {
+        let contentWizardPanel = new ContentWizardPanel();
         return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             return contentWizardPanel.typeData(folder);
         }).then(() => {
             return contentWizardPanel.waitAndClickOnSave();
         }).then(() => {
             return this.doCloseWizardAndSwitchToGrid()
-        }).pause(1000);
+        }).then(() => {
+            return webDriverHelper.browser.pause(1000);
+        });
     },
     doCloseWizardAndSwitchToGrid: function () {
         return this.doCloseCurrentBrowserTab().then(() => {
@@ -175,31 +215,39 @@ module.exports = {
         });
     },
     doAddSite: function (site) {
+        let contentWizardPanel = new ContentWizardPanel();
         return this.openContentWizard(appConst.contentTypes.SITE).then(() => {
             return contentWizardPanel.typeData(site);
-        }).pause(400).then(() => {
+        }).then(() => {
             if (site.data.controller) {
                 return contentWizardPanel.selectPageDescriptor(site.data.controller);
             } else {
                 return contentWizardPanel.waitAndClickOnSave();
             }
-        }).pause(1000).then(() => {
+        }).then(() => {
             return this.doCloseCurrentBrowserTab();
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).pause(1500);
+        }).then(() => {
+            return webDriverHelper.browser.pause(1000);
+        })
     },
     doOpenSiteWizard: function () {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
     doOpenPageTemplateWizard: function (siteName) {
+        let browsePanel = new BrowsePanel();
+        let newContentDialog = new NewContentDialog();
+        let contentWizardPanel = new ContentWizardPanel();
         return this.typeNameInFilterPanel(siteName).then(() => {
             return browsePanel.waitForContentDisplayed(siteName);
-        }).pause(700).then(() => {
+        }).then(() => {
+            return browsePanel.pause(300);
+        }).then(() => {
             return browsePanel.clickOnExpanderIcon(siteName);
-        }).pause(700).then(() => {
+        }).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
-        }).pause(500).then(() => {
+        }).then(() => {
             return browsePanel.clickOnNewButton();
         }).then(() => {
             return newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
@@ -210,6 +258,7 @@ module.exports = {
         });
     },
     doAddPageTemplate: function (siteName, template) {
+        let contentWizardPanel = new ContentWizardPanel();
         return this.doOpenPageTemplateWizard(siteName).then(() => {
             return contentWizardPanel.typeData(template);
         }).then(() => {
@@ -220,13 +269,17 @@ module.exports = {
             return this.doCloseCurrentBrowserTab();
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
-        }).pause(2000);
+        }).then(() => {
+            return contentWizardPanel.pause(2000);
+        });
     },
     doPublish: function () {
+        let browsePanel = new BrowsePanel();
+        let contentPublishDialog = new ContentPublishDialog();
         return browsePanel.waitForPublishButtonVisible().then(() => {
             return browsePanel.clickOnPublishButton();
         }).then(() => {
-            return contentPublishDialog.waitForDialogVisible();
+            return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
             return contentPublishDialog.clickOnPublishButton();
         }).then(() => {
@@ -234,8 +287,10 @@ module.exports = {
         })
     },
     doPublishInWizard: function () {
+        let contentPublishDialog = new ContentPublishDialog();
+        let contentWizardPanel = new ContentWizardPanel();
         return contentWizardPanel.clickOnPublishButton().then(() => {
-            return contentPublishDialog.waitForDialogVisible();
+            return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
             return contentPublishDialog.clickOnPublishButton();
         }).then(() => {
@@ -243,15 +298,18 @@ module.exports = {
         })
     },
     doUnPublishInWizard: function () {
+        let contentUnpublishDialog = new ContentUnpublishDialog();
+        let contentWizardPanel = new ContentWizardPanel();
         return contentWizardPanel.clickOnUnpublishmenuItem().then(() => {
             return contentUnpublishDialog.waitForDialogOpened();
         }).then(() => {
             return contentUnpublishDialog.clickOnUnpublishButton();
         }).then(() => {
-            return contentPublishDialog.waitForDialogClosed();
+            return contentUnpublishDialog.waitForDialogClosed();
         })
     },
     doAddArticleContent: function (siteName, article) {
+        let contentWizardPanel = new ContentWizardPanel();
         return this.findAndSelectItem(siteName).then(() => {
             return this.openContentWizard(article.contentType);
         }).then(() => {
@@ -262,32 +320,42 @@ module.exports = {
             return this.doCloseCurrentBrowserTab();
         }).then(() => {
             this.doSwitchToContentBrowsePanel();
-        }).pause(2000);
+        }).then(() => {
+            return webDriverHelper.browser.pause(1000);
+        })
     },
-    findAndSelectItem: function (name) {
-        return this.typeNameInFilterPanel(name).then(() => {
-            return browsePanel.waitForRowByNameVisible(name);
-        }).pause(500).then(() => {
-            return browsePanel.clickOnRowByName(name);
-        });
+    async findAndSelectItem(name) {
+        let browsePanel = new BrowsePanel();
+        await this.typeNameInFilterPanel(name);
+        await browsePanel.waitForRowByNameVisible(name);
+        await browsePanel.pause(500);
+        await browsePanel.clickOnRowByName(name);
+        return await browsePanel.pause(400);
     },
     findAndSelectContentByDisplayName: function (displayName) {
+        let browsePanel = new BrowsePanel();
         return this.typeNameInFilterPanel(displayName).then(() => {
             return browsePanel.waitForContentByDisplayNameVisible(displayName);
-        }).pause(400).then(() => {
+        }).then(() => {
             return browsePanel.clickOnRowByDisplayName(displayName);
         });
     },
     doDeleteContent: function (name) {
+        let browsePanel = new BrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
         return this.findAndSelectItem(name).then(() => {
             return browsePanel.clickOnDeleteButton();
-        }).pause(500).then(() => {
+        }).then(() => {
+            return deleteContentDialog.waitForDialogOpened();
+        }).then(() => {
             return deleteContentDialog.clickOnDeleteButton();
         }).then(() => {
             return deleteContentDialog.waitForDialogClosed();
-        }).pause(500);
+        });
     },
     selectContentAndOpenWizard: function (name) {
+        let browsePanel = new BrowsePanel();
+        let contentWizardPanel = new ContentWizardPanel()
         return this.findAndSelectItem(name).then(() => {
             return browsePanel.waitForEditButtonEnabled();
         }).then(() => {
@@ -299,14 +367,17 @@ module.exports = {
         })
     },
     findContentAndClickCheckBox: function (displayName) {
-        return this.typeNameInFilterPanel(displayName).pause(400).then(() => {
+        let browsePanel = new BrowsePanel();
+        return this.typeNameInFilterPanel(displayName).then(() => {
             return browsePanel.waitForContentByDisplayNameVisible(displayName);
         }).then(() => {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
-        }).pause(400);
-    }
-    ,
+        });
+    },
     selectSiteAndOpenNewWizard: function (siteName, contentType) {
+        let browsePanel = new BrowsePanel();
+        let newContentDialog = new NewContentDialog();
+        let contentWizardPanel = new ContentWizardPanel();
         return this.findAndSelectItem(siteName).then(() => {
             return browsePanel.waitForNewButtonEnabled();
         }).then(() => {
@@ -324,21 +395,26 @@ module.exports = {
         });
     },
     clickOnDeleteAndConfirm: function (numberOfContents) {
+        let browsePanel = new BrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
+        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
         return browsePanel.clickOnDeleteButton().then(() => {
-            return deleteContentDialog.waitForDialogVisible(1000);
+            return deleteContentDialog.waitForDialogOpened();
         }).then(() => {
             return deleteContentDialog.clickOnDeleteButton();
         }).then(() => {
-            return confirmContentDeleteDialog.waitForDialogVisible();
+            return confirmContentDeleteDialog.waitForDialogOpened();
         }).then(() => {
             return confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
-        }).pause(700).then(() => {
+        }).then(() => {
             return confirmContentDeleteDialog.clickOnConfirmButton();
         }).then(() => {
             return deleteContentDialog.waitForDialogClosed();
         })
     },
     typeNameInFilterPanel: function (name) {
+        let browsePanel = new BrowsePanel();
+        let filterPanel = new FilterPanel();
         return filterPanel.isPanelVisible().then((result) => {
             if (!result) {
                 return browsePanel.clickOnSearchButton().then(() => {
@@ -347,19 +423,21 @@ module.exports = {
             }
         }).then(() => {
             return filterPanel.typeSearchText(name);
-        }).catch((err) => {
-            throw new Error(err);
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-        }).pause(300);
+        }).then(() => {
+            return browsePanel.pause(300);
+        })
     },
     selectAndDeleteItem: function (name) {
-        return this.findAndSelectItem(name).pause(500).then(() => {
+        let browsePanel = new BrowsePanel();
+        let confirmationDialog = new ConfirmationDialog();
+        return this.findAndSelectItem(name).then(() => {
             return browsePanel.waitForDeleteButtonEnabled();
         }).then(result => {
             return browsePanel.clickOnDeleteButton();
         }).then(() => {
-            return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3);
+            return confirmationDialog.waitForDialogOpened();
         }).then(result => {
             if (!result) {
                 throw new Error('Confirmation dialog is not loaded!')
@@ -370,148 +448,81 @@ module.exports = {
         })
     },
     confirmDelete: () => {
-        return confirmationDialog.waitForDialogVisible(appConst.TIMEOUT_3).then(() => {
+        let browsePanel = new BrowsePanel();
+        let confirmationDialog = new ConfirmationDialog();
+        return confirmationDialog.waitForDialogOpened().then(() => {
             return confirmationDialog.clickOnYesButton();
         }).then(() => {
             return browsePanel.waitForSpinnerNotVisible();
         });
     },
-    navigateToContentStudioApp: function () {
-        return launcherPanel.waitForPanelVisible(appConst.TIMEOUT_3).then((result) => {
+
+    navigateToContentStudioApp: function (userName, password) {
+        let launcherPanel = new LauncherPanel();
+        return launcherPanel.waitForPanelDisplayed(3000).then(result => {
             if (result) {
-                console.log("Launcher Panel is opened, click on the `Content Studio` link...");
+                console.log("Launcher Panel is opened, click on the `Users` link...");
                 return launcherPanel.clickOnContentStudioLink();
             } else {
                 console.log("Login Page is opened, type a password and name...");
-                return this.doLoginAndClickOnContentStudio();
+                return this.doLoginAndClickOnContentStudio(userName, password);
             }
         }).then(() => {
             return this.doSwitchToContentBrowsePanel();
         }).catch(err => {
             console.log('tried to navigate to Content Studio app, but: ' + err);
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
-            throw new Error('error when navigated to studio ' + err);
-        })
+            throw new Error('error when navigate to Content Studio app ' + err);
+        });
     },
-    doLoginAndClickOnContentStudio: function () {
-        return loginPage.doLogin().pause(900).then(() => {
-            return homePage.waitForXpTourVisible(appConst.TIMEOUT_2);
-        }).then(result => {
-            if (result) {
-                return homePage.doCloseXpTourDialog();
-            }
+    doLoginAndClickOnContentStudio: function (userName, password) {
+        let loginPage = new LoginPage();
+        return loginPage.doLogin(userName, password).then(() => {
+            let launcherPanel = new LauncherPanel();
+            return launcherPanel.clickOnContentStudioLink();
         }).then(() => {
-            return launcherPanel.clickOnContentStudioLink().pause(1000);
+            return loginPage.pause(1000);
         })
     },
     doSwitchToContentBrowsePanel: function () {
-        console.log('testUtils:switching to Content Studio app...');
-        return webDriverHelper.browser.getTitle().then(title => {
-            if (title != "Content Studio - Enonic XP Admin") {
-                return this.switchToStudioTabWindow();
-            }
+        console.log('testUtils:switching to users app...');
+        let browsePanel = new BrowsePanel();
+        return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
+            console.log("switched to content browse panel...");
+            return browsePanel.waitForSpinnerNotVisible();
+        }).then(() => {
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+        }).catch(err => {
+            throw new Error("Error when switching to Content Studio App " + err);
         })
     },
     doSwitchToHome: function () {
         console.log('testUtils:switching to Home page...');
-        return webDriverHelper.browser.getTabIds().then(tabs => {
-            let prevPromise = Promise.resolve(false);
-            tabs.some(tabId => {
-                prevPromise = prevPromise.then((isHome) => {
-                    if (!isHome) {
-                        return this.switchAndCheckTitle(tabId, "Enonic XP Home");
-                    }
-                    return false;
-                });
-            });
-            return prevPromise;
+        return webDriverHelper.browser.switchWindow("Enonic XP Home").then(() => {
+            console.log("switched to Home...");
         }).then(() => {
+            let homePage = new HomePage();
             return homePage.waitForLoaded(appConst.TIMEOUT_3);
         });
     },
-    doSwitchToNewWizard: function () {
-        console.log('testUtils:switching to the new wizard tab...');
-        return webDriverHelper.browser.getTabIds().then(tabs => {
-            this.xpTabs = tabs;
-            return webDriverHelper.browser.switchTab(this.xpTabs[this.xpTabs.length - 1]);
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        });
-    },
-    doSwitchToNextTab: function () {
-        return webDriverHelper.browser.getTabIds().then(tabs => {
-            this.xpTabs = tabs;
-            return webDriverHelper.browser.switchTab(this.xpTabs[this.xpTabs.length - 1]);
-        }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_3);
-        });
-    },
-    switchAndCheckTitle: function (tabId, reqTitle) {
-        return webDriverHelper.browser.switchTab(tabId).then(() => {
-            return webDriverHelper.browser.getTitle().then(title => {
-                return title.includes(reqTitle);
-            }).catch(err => {
-                console.log("Error when getting Title" + err);
-                throw new Error("Error  " + err);
-            })
-        });
-    },
-
-    doLoginAndSwitchToContentStudio: function () {
-        return loginPage.doLogin().pause(1000).then(() => {
-            return homePage.waitForXpTourVisible(appConst.TIMEOUT_3);
-        }).then(result => {
-            if (result) {
-                return homePage.doCloseXpTourDialog();
-            }
-        }).then(() => {
-            return launcherPanel.clickOnContentStudioLink().pause(1000);
-        }).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        }).catch(err => {
-            throw new Error(err);
-        })
-    },
-    doCloseWindowTabAndSwitchToBrowsePanel: function () {
-        return webDriverHelper.browser.close().pause(300).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        })
+    async doCloseWindowTabAndSwitchToBrowsePanel() {
+        await webDriverHelper.browser.closeWindow();
+        return await this.doSwitchToContentBrowsePanel();
     },
 
     saveAndCloseWizard: function (displayName) {
-        return wizard.waitAndClickOnSave().pause(300).then(() => {
+        let contentWizardPanel = new ContentWizardPanel();
+        return contentWizardPanel.waitAndClickOnSave().then(() => {
+            return wizard.pause(300);
+        }).then(() => {
             return this.doCloseWindowTabAndSwitchToBrowsePanel()
         })
     },
-    switchToStudioTabWindow: function () {
-        return webDriverHelper.browser.getTabIds().then(tabs => {
-            let prevPromise = Promise.resolve(false);
-            tabs.some(tabId => {
-                prevPromise = prevPromise.then(isStudio => {
-                    if (!isStudio) {
-                        return this.switchAndCheckTitle(tabId, "Content Studio - Enonic XP Admin");
-                    }
-                    return true;
-                });
-            });
-            return prevPromise;
-        }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
-        });
-    },
-    switchToContentTabWindow: function (contentDisplayName) {
-        return webDriverHelper.browser.getTabIds().then(tabs => {
-            let prevPromise = Promise.resolve(false);
-            tabs.some(tabId => {
-                prevPromise = prevPromise.then(isStudio => {
-                    if (!isStudio) {
-                        return this.switchAndCheckTitle(tabId, contentDisplayName);
-                    }
-                    return true;
-                });
-            });
-            return prevPromise;
-        }).pause(500);
+
+    async switchToContentTabWindow(contentDisplayName) {
+        await webDriverHelper.browser.switchWindow(contentDisplayName);
+        let contentWizardPanel = new ContentWizardPanel();
+        return await contentWizardPanel.waitForSpinnerNotVisible();
     },
     doPressBackspace: function () {
         return webDriverHelper.browser.keys('\uE003');
@@ -523,15 +534,28 @@ module.exports = {
         return webDriverHelper.browser.keys('Enter');
     },
 
+    doSwitchToNewWizard: function () {
+        console.log('testUtils:switching to the new wizard tab...');
+        let contentWizardPanel = new ContentWizardPanel();
+        return webDriverHelper.browser.getWindowHandles().then(tabs => {
+            return webDriverHelper.browser.switchToWindow(tabs[tabs.length - 1]);
+        }).then(() => {
+            return contentWizardPanel.waitForOpened();
+        });
+    },
+    async doSwitchToNextTab() {
+        let tabs = await webDriverHelper.browser.getWindowHandles();
+        return await webDriverHelper.browser.switchToWindow(tabs[tabs.length - 1]);
+    },
     doCloseAllWindowTabsAndSwitchToHome: function () {
-        return webDriverHelper.browser.getTabIds().then(tabIds => {
+        return webDriverHelper.browser.getWindowHandles().then(tabIds => {
             let result = Promise.resolve();
             tabIds.forEach(tabId => {
                 result = result.then(() => {
                     return this.switchAndCheckTitle(tabId, "Enonic XP Home");
                 }).then(result => {
                     if (!result) {
-                        return webDriverHelper.browser.close().then(() => {
+                        return webDriverHelper.browser.closeWindow().then(() => {
                             console.log(tabId + ' was closed');
                         }).catch(err => {
                             console.log(tabId + ' was not closed ' + err);
@@ -544,6 +568,17 @@ module.exports = {
             return this.doSwitchToHome();
         });
     },
+    switchAndCheckTitle: function (handle, reqTitle) {
+        return webDriverHelper.browser.switchToWindow(handle).then(() => {
+            return webDriverHelper.browser.getTitle().then(title => {
+                return title.includes(reqTitle);
+            }).catch(err => {
+                console.log("Error when getting Title" + err);
+                throw new Error("Error  " + err);
+            })
+        });
+    },
+
     saveScreenshot: function (name) {
         let path = require('path');
         let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
@@ -554,6 +589,8 @@ module.exports = {
         })
     },
     openDependencyWidgetInBrowsePanel: function () {
+        let browsePanel = new BrowsePanel();
+        let browseDependenciesWidget = new BrowseDependenciesWidget();
         return browsePanel.openDetailsPanel().then(() => {
             return browsePanel.openDependencies();
         }).then(() => {

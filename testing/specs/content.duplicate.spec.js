@@ -8,8 +8,8 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const contentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
 const contentBuilder = require("../libs/content.builder");
 
 describe('content.duplicate.spec: Duplicate 2 folders specification', function () {
@@ -19,8 +19,9 @@ describe('content.duplicate.spec: Duplicate 2 folders specification', function (
     let folder1;
     let folder2;
 
-    it(`WHEN two folders has been added THEN folders should be present in the grid`,
+    it(`Preconditions:  two folders has been added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
             folder2 = contentBuilder.buildFolder(displayName2);
@@ -39,6 +40,8 @@ describe('content.duplicate.spec: Duplicate 2 folders specification', function (
 
     it(`GIVEN two folders are checked AND 'Duplicate Dialog' is opened WHEN 'Duplicate' button on the modal dialog has been pressed  THEN correct notification message should appear`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
             return studioUtils.findContentAndClickCheckBox(folder1.displayName).then(() => {
                 return studioUtils.findContentAndClickCheckBox(folder2.displayName);
             }).then(() => {
@@ -56,6 +59,7 @@ describe('content.duplicate.spec: Duplicate 2 folders specification', function (
 
     it(`WHEN two folders were duplicated THEN 2 copies should be present`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy').then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(folder1.displayName + '-copy');
             }).then(() => {

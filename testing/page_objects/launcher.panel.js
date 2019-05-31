@@ -1,59 +1,64 @@
 /**
  * Created by on 6/26/2017.
  */
-const page = require('./page');
-const panel = {
-    container: `div[class^='launcher-main-container']`
+const Page = require('./page');
+const appConst = require('../libs/app_const')
+const XPATH = {
+    container: `//div[contains(@class,'launcher-main-container')]`
 };
 
-const launcherPanel = Object.create(page, {
-    /**
-     * define elements
-     */
-    homeLink: {
-        get: function () {
-            return `${panel.container} a[data-id*='home']`
-        }
-    },
-    applications: {
-        get: function (userName) {
-            return `${panel.container} a[data-id*='app.applications']`
-        }
-    },
-    contentStudioLink: {
-        get: function () {
-            return `${panel.container} a[data-id*='app.contentstudio']`
-        }
-    },
-    usersLink: {
-        get: function () {
-            return `${panel.container} a[data-id*='app.users']`
-        }
-    },
+class LauncherPanel extends Page {
 
-    clickOnUsersLink: {
-        value: function () {
-            return this.doClick(this.usersLink);
-        }
-    },
-    clickOnContentStudioLink: {
-        value: function () {
-            return this.waitForVisible(this.contentStudioLink, 2000).then(()=> {
-                return this.doClick(this.contentStudioLink);
-            }).catch(err=> {
-                this.saveScreenshot("err_when_click_on_cs_link");
-                throw new Error('error when `Content Studio` link has been clicked  ' + err);
-            })
-        }
-    },
-    waitForPanelVisible: {
-        value: function (ms) {
-            return this.waitForVisible(`${panel.container}`, ms).catch((err)=> {
-                console.log('launcher panel is not opened');
-                return false;
-            })
-        }
-    },
+    get homeLink() {
+        return XPATH.container + `//a[contains(@data-id,'home')]`;
+    }
 
-});
-module.exports = launcherPanel;
+    get usersLink() {
+        return XPATH.container + `//a[contains(@data-id,'app.users')]`;
+    }
+
+    get contentStudioLink() {
+        return XPATH.container + `//a[contains(@data-id,'app.contentstudio')]`;
+    }
+
+    get applicationsLink() {
+        return XPATH.container + `//a[contains(@data-id,'app.applications')]`;
+    }
+
+    get logoutLink() {
+        return XPATH.container + `//div[@class='user-logout']`;
+    }
+
+    async clickOnUsersLink() {
+        await this.waitForElementDisplayed(this.usersLink, appConst.TIMEOUT_3);
+        return await this.clickOnElement(this.usersLink);
+    }
+
+    async clickOnContentStudioLink() {
+        await this.waitForElementDisplayed(this.contentStudioLink, appConst.TIMEOUT_3);
+        return await this.clickOnElement(this.contentStudioLink);
+    }
+
+    clickOnLogoutLink() {
+        return this.clickOnElement(this.logoutLink);
+    }
+
+    waitForPanelDisplayed(ms) {
+        return this.waitForElementDisplayed(XPATH.container, ms).catch(err => {
+            return false;
+        })
+    }
+
+    isApplicationsLinkDisplayed() {
+        return this.waitForElementDisplayed(this.applicationsLink, appConst.TIMEOUT_2).catch(err => {
+            return false;
+        })
+    }
+
+    isUsersLinkDisplayed() {
+        return this.waitForElementDisplayed(this.usersLink, appConst.TIMEOUT_2).catch(err => {
+            return false;
+        })
+    }
+};
+module.exports = LauncherPanel;

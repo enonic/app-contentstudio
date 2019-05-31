@@ -1,13 +1,13 @@
 /**
  * Created on 5/31/2017.
  */
-const page = require('../page');
-const contentDuplicateDialog = require('../content.duplicate.dialog');
-const createIssueDialog = require('../issue/create.issue.dialog');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const ContentDuplicateDialog = require('../content.duplicate.dialog');
+const CreateIssueDialog = require('../issue/create.issue.dialog');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
-const panel = {
+const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
     treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
@@ -34,578 +34,507 @@ const panel = {
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
     checkboxByName: function (name) {
-        return `${elements.itemByName(
+        return `${lib.itemByName(
             name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    checkboxByDisplayName: displayName => `${elements.itemByDisplayName(
+    checkboxByDisplayName: displayName => `${lib.itemByDisplayName(
         displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 
     expanderIconByName: function (name) {
-        return elements.itemByName(name) +
+        return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
 }
-const contentBrowsePanel = Object.create(page, {
 
-    searchButton: {
-        get: function () {
-            return `${panel.toolbar}` + `${panel.searchButton}`;
-        }
-    },
-    detailsPanelToggleButton: {
-        get: function () {
-            return `${panel.container}` + elements.DETAILS_PANEL_TOGGLE_BUTTON;
-        }
-    },
-    showPublishMenuButton: {
-        get: function () {
-            return `${panel.toolbar}` + `${panel.contentPublishMenuButton}` + `${elements.DROP_DOWN_HANDLE}`;
-        }
-    },
-    createIssueMenuItem: {
-        get: function () {
-            return `${panel.toolbar}` + `${panel.createIssueMenuItem}`;
-        }
-    },
-    createIssueButton: {
-        get: function () {
-            return `${panel.toolbar}` + `${panel.createIssueButton}`;
-        }
-    },
-    showIssuesListButton: {
-        get: function () {
-            return `${panel.appBar}` + `${panel.showIssuesListButton}`;
-        }
-    },
-    selectionControllerCheckBox: {
-        get: function () {
-            return `${panel.treeGridToolbar}${panel.selectionControllerCheckBox}`;
-        }
-    },
-    numberInToggler: {
-        get: function () {
-            return `${panel.treeGridToolbar}${panel.numberInSelectionToggler}`;
-        }
-    },
-    selectionPanelToggler: {
-        get: function () {
-            return `${panel.treeGridToolbar}${panel.selectionPanelToggler}`;
-        }
-    },
-    newButton: {
-        get: function () {
-            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'New...')]]`
-        }
-    },
-    editButton: {
-        get: function () {
-            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
-        }
-    },
+class ContentBrowsePanel extends Page {
 
-    deleteButton: {
-        get: function () {
-            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Delete...']]`;
+    get deleteButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete...']]`;
+    }
+
+    get moveButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
+    }
+
+    get duplicateButton() {
+        return XPATH.toolbar + XPATH.duplicateButton;
+    }
+
+    get previewButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
+    }
+
+    get searchButton() {
+        return XPATH.toolbar + XPATH.searchButton;
+    }
+
+    get detailsPanelToggleButton() {
+        return XPATH.container + lib.DETAILS_PANEL_TOGGLE_BUTTON;
+    }
+
+    get showPublishMenuButton() {
+        return XPATH.toolbar + XPATH.contentPublishMenuButton + lib.DROP_DOWN_HANDLE;
+    }
+
+    get createIssueMenuItem() {
+        return XPATH.toolbar + XPATH.createIssueMenuItem;
+    }
+
+    get createIssueButton() {
+        return XPATH.toolbar + XPATH.createIssueButton;
+    }
+
+    get showIssuesListButton() {
+        return XPATH.appBar + XPATH.showIssuesListButton;
+    }
+
+    get selectionControllerCheckBox() {
+        return XPATH.treeGridToolbar + XPATH.selectionControllerCheckBox;
+    }
+
+    get selectionPanelToggler() {
+        return `${XPATH.treeGridToolbar}${XPATH.selectionPanelToggler}`;
+    }
+
+    get newButton() {
+        return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'New...')]]`
+    }
+
+    get editButton() {
+        return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
+    }
+
+    get numberInToggler() {
+        return XPATH.treeGridToolbar + XPATH.numberInSelectionToggler;
+    }
+
+    get publishButton() {
+        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
+    }
+
+    get unpublishButton() {
+
+        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
+    }
+
+    get publishTreeButton() {
+        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`;
+    }
+
+    get displayNames() {
+        return XPATH.treeGrid + lib.H6_DISPLAY_NAME;
+    }
+
+    hotKeyPublish() {
+        return this.getBrowser().status().then(status => {
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                return this.getBrowser().keys(['Control', 'Alt', 'p']);
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                return this.getBrowser().keys(['Command', 'Alt', 'p']);
+            }
+        })
+    }
+
+    hotKeyNew() {
+        return this.getBrowser().keys(['Alt', 'n']);
+    }
+
+
+    hotKeyDelete() {
+        return this.getBrowser().status().then(status => {
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                return this.getBrowser().keys(['Control', 'Delete']);
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                return this.getBrowser().keys(['Command', 'Delete']);
+            }
+        })
+    }
+
+    hotKeyEdit() {
+        return this.getBrowser().status().then(status => {
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                return this.getBrowser().keys(['Control', 'e']);
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                return this.getBrowser().keys(['Command', 'e']);
+            }
+        }).then(() => {
+            return this.pause(1000);
+        })
+    }
+
+    waitForPublishButtonVisible() {
+        return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_publish_button");
+            throw new Error("Publish button is not visible! " + err);
+        })
+    }
+
+    waitForUnPublishButtonVisible() {
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2);
+    }
+
+    waitForPublishTreeButtonVisible() {
+        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3);
+    }
+
+    waitForGridLoaded(ms) {
+        return this.waitForElementDisplayed(lib.GRID_CANVAS, ms).then(() => {
+            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+        }).then(() => {
+            return console.log('content browse panel is loaded')
+        }).catch(err => {
+            throw new Error('content browse panel was not loaded in ' + ms);
+        });
+    }
+
+    clickOnMoveButton() {
+        return this.clickOnElement(this.moveButton).catch(err => {
+            throw new Error('error when clicking on the Move button ' + err);
+        })
+    }
+
+    clickOnPublishButton() {
+        return this.clickOnElement(this.publishButton).catch(err => {
+            throw new Error('error when clicking on the Publish button ' + err);
+        })
+    }
+
+    clickOnDuplicateButton() {
+        return this.clickOnElement(this.duplicateButton).catch(err => {
+            throw new Error('error when clicking on the Duplicate button ' + err);
+        })
+    }
+
+    clickOnDetailsPanelToggleButton() {
+        return this.clickOnElement(this.detailsPanelToggleButton).catch(err => {
+            this.saveScreenshot('err_click_on_details_panel_toggle');
+            throw new Error(`Error when clicking on Details Panel toggler` + err);
+        });
+    }
+
+    clickOnSelectionControllerCheckbox() {
+        return this.clickOnElement(this.selectionControllerCheckBox).catch(() => {
+            this.saveScreenshot('err_click_on_selection_controller');
+            throw new Error(`Error when clicking on Selection controller ` + err);
+        });
+    }
+
+    clickOnExpanderIcon(name) {
+        let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+        return this.clickOnElement(expanderIcon).then(() => {
+            return this.pause(900);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_expander');
+            throw new Error('error when click on expander-icon ' + err);
+        })
+    }
+
+    async clickOnShowIssuesListButton() {
+        await this.waitForElementDisplayed(this.showIssuesListButton);
+        return await this.clickOnElement(this.showIssuesListButton).catch(err => {
+            throw new Error('error when click on the button ' + err);
+        })
+    }
+
+    clickOnSearchButton() {
+        return this.clickOnElement(this.searchButton);
+    }
+
+    async clickOnEditButton() {
+        await this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
+        return await this.clickOnElement(this.editButton).catch(err => {
+            this.saveScreenshot('err_browsepanel_edit');
+            throw new Error('Edit button is not enabled! ' + err);
+        })
+    }
+
+    //wait for the "Show Selection" icon on the toolbar
+    async waitForSelectionTogglerVisible() {
+        try {
+            await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.TIMEOUT_3);
+            let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
+            return attr.includes('any-selected');
+        } catch (err) {
+            return false
         }
-    },
-    moveButton: {
-        get: function () {
-            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
-        }
-    },
-    duplicateButton: {
-        get: function () {
-            return `${panel.toolbar}` + panel.duplicateButton;
-        }
-    },
-    previewButton: {
-        get: function () {
-            return `${panel.toolbar}/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`
-        }
-    },
-    publishButton: {
-        get: function () {
-            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
-        }
-    },
-    unpublishButton: {
-        get: function () {
-            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
-        }
-    },
-    publishTreeButton: {
-        get: function () {
-            return `${panel.toolbar}//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`
-        }
-    },
-    displayNames: {
-        get: function () {
-            return `${panel.treeGrid}` + elements.H6_DISPLAY_NAME;
-        }
-    },
+    }
+
     //gets list of content display names
-    getDisplayNamesInGrid: {
-        value: function () {
-            return this.getText(this.displayNames).catch(err => {
-                this.saveScreenshot('err_click_on_details_panel_toggle');
-                throw new Error(`Error when getting display names in grid` + err);
-            }).then(result => {
-                return [].concat(result);
-            });
-        }
-    },
-    clickOnDetailsPanelToggleButton: {
-        value: function () {
-            return this.doClick(this.detailsPanelToggleButton).catch(err => {
-                this.saveScreenshot('err_click_on_details_panel_toggle');
-                throw new Error(`Error when clicking on Details Panel toggler` + err);
-            });
-        }
-    },
-    clickOnSelectionControllerCheckbox: {
-        value: function () {
-            return this.doClick(this.selectionControllerCheckBox).catch(() => {
-                this.saveScreenshot('err_click_on_selection_controller');
-                throw new Error(`Error when clicking on Selection controller`);
-            });
-        }
-    },
-    waitForSelectionTogglerVisible: {
-        value: function () {
-            return this.waitForVisible(this.selectionPanelToggler, appConst.TIMEOUT_2).then(() => {
-                return this.getAttribute(this.selectionPanelToggler, 'class');
-            }).then(result => {
-                return result.includes('any-selected');
-            }).catch(err => {
-                console.log(`error when check the 'Selection toggler'` + err);
-                return false;
-            });
-        }
-    },
-    waitForPublishButtonVisible: {
-        value: function () {
-            return this.waitForVisible(this.publishButton, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot("err_publish_button");
-                throw new Error("Publish button is not visible! " + err);
-            })
-        }
-    },
-    waitForUnPublishButtonVisible: {
-        value: function () {
-            return this.waitForVisible(this.unpublishButton, appConst.TIMEOUT_2);
-        }
-    },
-    waitForPublishTreeButtonVisible: {
-        value: function () {
-            return this.waitForVisible(this.publishTreeButton, appConst.TIMEOUT_3);
-        }
-    },
+    getDisplayNamesInGrid() {
+        return this.getTextInElements(this.displayNames).catch(err => {
+            this.saveScreenshot('err_click_on_details_panel_toggle');
+            throw new Error(`Error when getting display names in grid` + err);
+        });
+    }
 
-    //clicks on dropdown handle in ContentPublishMenuButton and select menu item
-    openPublishMenuSelectItem: {
-        value: function (menuItem) {
-            return this.waitForShowPublishMenuButtonVisible().then(() => {
-                return this.doClick(this.showPublishMenuButton);
-            }).then(() => {
-                return this.waitForVisible(this.createIssueMenuItem);
-            }).then(() => {
-                let selector = panel.toolbar + panel.publishMenuItemByName(menuItem);
-                return this.doClick(selector);
-            }).catch(err => {
-                this.saveScreenshot("err_click_issue_menuItem");
-                throw new Error('error when try to click on publish menu item, ' + err);
-            }).then(() => {
-                return createIssueDialog.waitForDialogLoaded();
-            })
-        }
-    },
-    waitForPanelVisible: {
-        value: function (ms) {
-            return this.waitForVisible(`${panel.toolbar}`, ms).catch(err => {
-                throw new Error('Content browse panel was not loaded in ' + ms);
-            });
-        }
-    },
-    clickOnMoveButton: {
-        value: function () {
-            return this.doClick(this.moveButton).catch(err => {
-                throw new Error('error when clicking on the Move button ' + err);
-            })
-        }
-    },
-    clickOnPublishButton: {
-        value: function () {
-            return this.doClick(this.publishButton).catch(err => {
-                throw new Error('error when clicking on the Publish button ' + err);
-            })
-        }
-    },
+    async openPublishMenuSelectItem(menuItem) {
+        await this.waitForShowPublishMenuButtonVisible();
+        await this.clickOnElement(this.showPublishMenuButton);
+        await this.waitForElementDisplayed(this.createIssueMenuItem);
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        await this.clickOnElement(selector).catch(err => {
+            this.saveScreenshot("err_click_issue_menuItem");
+            throw new Error('error when try to click on publish menu item, ' + err);
+        });
+        let createIssueDialog = new CreateIssueDialog();
+        return await createIssueDialog.waitForDialogLoaded();
+    }
 
-    clickOnDuplicateButton: {
-        value: function () {
-            return this.doClick(this.duplicateButton).catch(err => {
-                throw new Error('error when clicking on the Duplicate button ' + err);
-            })
-        }
-    },
-    // click on 'Duplicate button' and waits until modal dialog appears
-    clickOnDuplicateButtonAndWait: {
-        value: function () {
-            return this.waitForEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(this.duplicateButton);
-            }).catch(err => {
-                throw new Error('error when clicking on the Duplicate button ' + err);
-            }).then(() => {
-                return contentDuplicateDialog.waitForDialogVisible();
-            }).then(() => {
-                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-            });
-        }
-    },
-    clickOnShowIssuesListButton: {
-        value: function () {
-            return this.doClick(this.showIssuesListButton).catch(err => {
-                throw new Error('error when click on the button ' + err);
-            })
-        }
-    },
-    waitForContentDisplayed: {
-        value: function (contentName) {
-            return this.waitForVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err) => {
-                console.log("item is not displayed:" + contentName);
-                this.saveScreenshot('err_find_' + contentName)
-                throw new Error('content not found! ' + contentName);
-            });
-        }
-    },
-    waitForItemNotDisplayed: {
-        value: function (contentName) {
-            return this.waitForNotVisible(`${panel.treeGrid}` + `${elements.itemByName(contentName)}`, appConst.TIMEOUT_3).catch((err) => {
-                console.log("content is still displayed:" + contentName);
-                return false;
-            });
-        }
-    },
-    waitForGridLoaded: {
-        value: function (ms) {
-            return this.waitForVisible(`${elements.GRID_CANVAS}`, ms).then(() => {
-                return this.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
-            }).then(() => {
-                return console.log('content browse panel is loaded')
-            }).catch(err => {
-                throw new Error('content browse panel was not loaded in ' + ms);
-            });
-        }
-    },
-    clickOnSearchButton: {
-        value: function () {
-            return this.doClick(this.searchButton);
-        }
-    },
-    clickOnNewButton: {
-        value: function () {
-            return this.waitForEnabled(this.newButton, 1000).then(() => {
-                return this.doClick(this.newButton);
-            }).catch(err => {
-                throw new Error('New button is not enabled! ' + err);
-            })
-        }
-    },
-    clickOnEditButton: {
-        value: function () {
-            return this.waitForEnabled(this.editButton, 1000).then(() => {
-                return this.doClick(this.editButton);
-            }).pause(500).catch((err) => {
-                this.saveScreenshot('err_browsepanel_edit');
-                throw new Error('Edit button is not enabled! ' + err);
-            })
-        }
-    },
-    clickOnDeleteButton: {
-        value: function () {
-            return this.waitForEnabled(this.deleteButton, 2000).then(() => {
-                return this.doClick(this.deleteButton);
-            }).catch((err) => {
-                this.saveScreenshot('err_browsepanel_delete');
-                throw new Error('Delete button is not enabled! ' + err);
-            })
-        }
-    },
-    clickOnPreviewButton: {
-        value: function () {
-            return this.waitForEnabled(this.previewButton, 2000).then(() => {
-                return this.doClick(this.previewButton);
-            }).catch((err) => {
-                this.saveScreenshot('err_browsepanel_preview');
-                throw new Error('Error when clicking on Preview button ' + err);
-            })
-        }
-    },
-    isSearchButtonDisplayed: {
-        value: function () {
-            return this.isVisible(this.searchButton);
-        }
-    },
-    waitForNewButtonEnabled: {
-        value: function () {
-            return this.waitForEnabled(this.newButton, 3000).catch(err => {
-                this.saveScreenshot('err_new_button');
-                return false;
-            })
-        }
-    },
-    waitForEditButtonEnabled: {
-        value: function () {
-            return this.waitForEnabled(this.editButton, 3000).catch(err => {
-                this.saveScreenshot('err_edit_button');
-                throw Error('Edit button is not enabled after ' + 3000 + 'ms')
-            })
-        }
-    },
-    waitForDeleteButtonEnabled: {
-        value: function () {
-            return this.waitForEnabled(this.deleteButton, 3000).catch(err => {
-                this.saveScreenshot('err_delete_button');
-                throw Error('Delete button is not enabled after ' + 3000 + 'ms')
-            })
-        }
-    },
-    waitForDeleteButtonDisabled: {
-        value: function () {
-            return this.waitForDisabled(this.deleteButton, 3000).catch(err => {
-                this.saveScreenshot('err_delete_disabled_button');
-                throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
-            })
-        }
-    },
-    isDeleteButtonEnabled: {
-        value: function () {
-            return this.isEnabled(this.deleteButton).catch(err => {
-                this.saveScreenshot('err_delete_button');
-                throw Error('Delete button should be enabled, timeout ' + 3000 + 'ms')
-            })
-        }
-    },
-    isNewButtonEnabled: {
-        value: function () {
-            return this.isEnabled(this.newButton);
-        }
-    },
-    isEditButtonEnabled: {
-        value: function () {
-            return this.isEnabled(this.editButton);
-        }
-    },
-    clickOnRowByName: {
-        value: function (name) {
-            let nameXpath = panel.treeGrid + elements.itemByName(name);
-            return this.waitForVisible(nameXpath, 3000).then(() => {
-                return this.doClick(nameXpath);
-            }).catch(err => {
+    waitForPanelVisible(ms) {
+        return this.waitForElementDisplayed(XPATH.toolbar, ms).catch(err => {
+            throw new Error('Content browse panel was not loaded in ' + ms);
+        });
+    }
+
+
+    // clicks on 'Duplicate button' and waits until modal dialog appears
+    clickOnDuplicateButtonAndWait() {
+        return this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(this.duplicateButton);
+        }).catch(err => {
+            throw new Error('error when clicking on the Duplicate button ' + err);
+        }).then(() => {
+            let contentDuplicateDialog = new ContentDuplicateDialog();
+            return contentDuplicateDialog.waitForDialogOpened();
+        }).then(() => {
+            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+        });
+    }
+
+
+    waitForContentDisplayed(contentName) {
+        return this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
+            console.log("item is not displayed:" + contentName);
+            this.saveScreenshot('err_find_' + contentName)
+            throw new Error('content was not found! ' + contentName);
+        });
+    }
+
+    waitForItemNotDisplayed(contentName) {
+        return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
+            console.log("content is still displayed:" + contentName);
+            return false;
+        });
+    }
+
+    clickOnNewButton() {
+        return this.waitForElementEnabled(this.newButton, 1000).then(() => {
+            return this.clickOnElement(this.newButton);
+        }).catch(err => {
+            throw new Error('New button is not enabled! ' + err);
+        })
+    }
+
+    clickOnDeleteButton() {
+        return this.waitForElementEnabled(this.deleteButton, 2000).then(() => {
+            return this.clickOnElement(this.deleteButton);
+        }).catch(err => {
+            this.saveScreenshot('err_browsepanel_delete');
+            throw new Error('Delete button is not enabled! ' + err);
+        })
+    }
+
+    clickOnPreviewButton() {
+        return this.waitForElementEnabled(this.previewButton, 2000).then(() => {
+            return this.clickOnElement(this.previewButton);
+        }).catch(err => {
+            this.saveScreenshot('err_browsepanel_preview');
+            throw new Error('Error when clicking on Preview button ' + err);
+        }).then(()=>{
+            return this.pause(2000);
+        })
+    }
+
+    isSearchButtonDisplayed() {
+        return this.isElementDisplayed(this.searchButton);
+    }
+
+    waitForNewButtonEnabled() {
+        return this.waitForElementEnabled(this.newButton, 3000).catch(err => {
+            this.saveScreenshot('err_new_button');
+            return false;
+        })
+    }
+
+    waitForEditButtonEnabled() {
+        return this.waitForElementEnabled(this.editButton, 3000).catch(err => {
+            this.saveScreenshot('err_edit_button');
+            throw Error('Edit button is not enabled after ' + 3000 + 'ms')
+        })
+    }
+
+    waitForDeleteButtonEnabled() {
+        return this.waitForElementEnabled(this.deleteButton, 3000).catch(err => {
+            this.saveScreenshot('err_delete_button');
+            throw Error('Delete button is not enabled after ' + 3000 + 'ms')
+        })
+    }
+
+    waitForDeleteButtonDisabled() {
+        return this.waitForElementDisabled(this.deleteButton, 3000).catch(err => {
+            this.saveScreenshot('err_delete_disabled_button');
+            throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    isDeleteButtonEnabled() {
+        return this.isElementEnabled(this.deleteButton);
+    }
+
+    isNewButtonEnabled() {
+        return this.isElementEnabled(this.newButton);
+    }
+
+    isEditButtonEnabled() {
+        return this.isElementEnabled(this.editButton);
+    }
+
+    clickOnRowByName(name) {
+        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
+        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
+            return this.clickOnElement(nameXpath);
+        }).catch(err => {
+            this.saveScreenshot('err_find_' + name);
+            throw Error('Row with the name ' + name + ' was not found' + err);
+        }).then(() => {
+            return this.pause(300);
+        });
+    }
+
+    clickOnRowByDisplayName(displayName) {
+        let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
+            return this.clickOnElement(nameXpath);
+        }).then(() => {
+            return this.pause(300);
+        }).catch(err => {
+            this.saveScreenshot('err_find_' + displayName);
+            throw Error('Row with the displayName ' + displayName + ' was not found' + err)
+        })
+    }
+
+    waitForRowByNameVisible(name) {
+        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
+        return this.waitForElementDisplayed(nameXpath, 3000)
+            .catch(err => {
                 this.saveScreenshot('err_find_' + name);
-                throw Error('Row with the name ' + name + ' was not found' + err);
-            }).pause(500);
-        }
-    },
-    clickOnRowByDisplayName: {
-        value: function (displayName) {
-            let nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(nameXpath, 3000).then(() => {
-                return this.doClick(nameXpath);
-            }).pause(400).catch(err => {
-                this.saveScreenshot('err_find_' + displayName);
-                throw Error('Row with the displayName ' + displayName + ' was not found')
+                throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
             })
-        }
-    },
-    waitForRowByNameVisible: {
-        value: function (name) {
-            let nameXpath = panel.treeGrid + elements.itemByName(name);
-            return this.waitForVisible(nameXpath, 3000)
-                .catch(err => {
-                    this.saveScreenshot('err_find_' + name);
-                    throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
-                })
-        }
-    },
-    waitForContentByDisplayNameVisible: {
-        value: function (displayName) {
-            let nameXpath = panel.treeGrid + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(nameXpath, 3000).catch(err => {
-                this.saveScreenshot('err_find_' + displayName);
-                throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
-            })
-        }
-    },
-    clickCheckboxAndSelectRowByDisplayName: {
-        value: function (displayName) {
-            const displayNameXpath = panel.checkboxByDisplayName(displayName);
-            return this.waitForVisible(displayNameXpath, 2000).then(() => {
-                return this.doClick(displayNameXpath);
-            }).pause(200).catch(err => {
-                this.saveScreenshot('err_find_item');
-                throw Error(`Row with the displayName ${displayName} was not found.` + err);
-            })
-        }
-    },
-    clickOnCheckboxAndSelectRowByName: {
-        value: function (name) {
-            let nameXpath = panel.checkboxByName(name);
-            return this.waitForVisible(nameXpath, 2000).then(() => {
-                return this.doClick(nameXpath);
-            }).pause(300).catch(err => {
-                this.saveScreenshot('err_find_item');
-                throw Error('Row with the name ' + name + ' was not found ' + err)
-            })
-        }
-    },
-    getNumberOfSelectedRows: {
-        value: function () {
-            return this.elements(panel.selectedRows).then(result => {
-                return result.value.length;
-            }).catch(err => {
-                throw new Error(`Error when getting selected rows ` + err);
-            });
-        }
-    },
-    getNumberOfCheckedRows: {
-        value: function () {
-            return this.elements(panel.checkedRows).then(result => {
-                return result.value.length;
-            }).catch(err => {
-                throw new Error(`Error when getting selected rows ` + err);
-            });
-        }
-    },
+    }
 
-    doCloseWindowTabAndSwitchToBrowsePanel: {
-        value: function (displayName) {
-            return this.getBrowser().close().pause(300).then(() => {
-                return this.doSwitchToContentBrowsePanel();
-            });
-        }
-    },
-    clickOnExpanderIcon: {
-        value: function (name) {
-            let expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
-            return this.doClick(expanderIcon).pause(700).catch(err => {
-                this.saveScreenshot('err_click_on_expander ' + name);
-                throw new Error('error when click on expander-icon ' + err);
-            })
-        }
-    },
-    isExpanderIconPresent: {
-        value: function (name) {
-            let expanderIcon = panel.treeGrid + panel.expanderIconByName(name);
-            return this.waitForVisible(expanderIcon).catch(err => {
-                this.saveScreenshot('expander_not_exists ' + name);
-                return false;
-            })
-        }
-    },
+    waitForContentByDisplayNameVisible(displayName) {
+        let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
+            this.saveScreenshot('err_find_' + displayName);
+            throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
+        })
+    }
+
+    clickCheckboxAndSelectRowByDisplayName(displayName) {
+        const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
+        return this.waitForElementDisplayed(displayNameXpath, 2000).then(() => {
+            return this.clickOnElement(displayNameXpath);
+        }).then(() => {
+            return this.pause(400);
+        }).catch(err => {
+            this.saveScreenshot('err_find_item');
+            throw Error(`Row with the displayName ${displayName} was not found.` + err);
+        })
+    }
+
+    clickOnCheckboxAndSelectRowByName(name) {
+        let nameXpath = XPATH.checkboxByName(name);
+        return this.waitForElementDisplayed(nameXpath, 2000).then(() => {
+            return this.clickOnElement(nameXpath);
+        }).then(() => {
+            return this.pause(300);
+        }).catch(err => {
+            this.saveScreenshot('err_find_item');
+            throw Error('Row with the name ' + name + ' was not found ' + err)
+        })
+    }
+
+    getNumberOfSelectedRows() {
+        return this.findElements(XPATH.selectedRows).then(result => {
+            return result.length;
+        }).catch(err => {
+            throw new Error(`Error when getting selected rows ` + err);
+        });
+    }
+
+    getNumberOfCheckedRows() {
+        return this.findElements(XPATH.checkedRows).then(result => {
+            return result.length;
+        }).catch(err => {
+            throw new Error(`Error when getting selected rows ` + err);
+        });
+    }
+
+    isExpanderIconPresent(name) {
+        let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+        return this.waitForElementDisplayed(expanderIcon).catch(err => {
+            this.saveScreenshot('expander_not_exists ' + name);
+            return false;
+        })
+    }
+
     // this method does not wait, it just checks the attribute
-    isRedIconDisplayed: {
-        value: function (contentName) {
-            let xpath = panel.contentSummaryByName(contentName);
-            return this.getBrowser().getAttribute(xpath, 'class').then(result => {
-                return result.includes('invalid');
-            });
-        }
-    },
-    // this method waits until 'invalid' appears in the @class
-    waitForRedIconDisplayed: {
-        value: function (contentName) {
-            let xpath = panel.contentSummaryByName(contentName);
-            return this.waitUntilInvalid(xpath);
-        }
-    },
-    waitForShowPublishMenuButtonVisible: {
-        value: function () {
-            return this.waitForVisible(this.showPublishMenuButton, appConst.TIMEOUT_3);
-        }
-    },
-    waitForCreateIssueButtonVisible: {
-        value: function () {
-            return this.waitForVisible(this.createIssueButton, appConst.TIMEOUT_5).catch(err => {
-                this.saveScreenshot("err_create_issue_button");
-                throw new Error("Create issue button is not visible on the toolbar! " + err);
-            });
-        }
-    },
-    clickOnCreateIssueButton: {
-        value: function () {
-            return this.waitForCreateIssueButtonVisible().then(() => {
-                return this.doClick(this.createIssueButton);
-            }).catch(err => {
-                this.saveScreenshot("err_click_create_issue_button");
-                throw new Error("Browse Panel. Error when click on Create issue button on the toolbar! " + err);
-            });
-        }
-    },
-    openPublishMenuAndClickOnCreateIssue: {
-        value: function () {
-            return this.waitForShowPublishMenuButtonVisible().then(() => {
-                return this.doClick(this.showPublishMenuButton);
-            }).then(() => {
-                return this.waitForVisible(this.createIssueMenuItem);
-            }).then(() => {
-                return this.doClick(this.createIssueMenuItem);
-            }).catch(err => {
-                this.saveScreenshot("err_click_create_issue_menuItem");
-                throw new Error('error when try to click on Create Issue menu item, ' + err);
-            }).then(() => {
-                return createIssueDialog.waitForDialogLoaded();
-            })
-        }
-    },
-    hotKeyPublish: {
-        value: function () {
-            return this.getBrowser().status().then(status => {
-                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
-                    return this.getBrowser().keys(['Control', 'Alt', 'p']);
-                }
-                if (status.value.os.name.toLowerCase().includes('mac')) {
-                    return this.getBrowser().keys(['Command', 'Alt', 'p']);
-                }
-            })
-        }
-    },
-    hotKeyDelete: {
-        value: function () {
-            return this.getBrowser().status().then(status => {
-                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
-                    return this.getBrowser().keys(['Control', 'Delete']);
-                }
-                if (status.value.os.name.toLowerCase().includes('mac')) {
-                    return this.getBrowser().keys(['Command', 'Delete']);
-                }
-            })
-        }
-    },
-    hotKeyEdit: {
-        value: function () {
-            return this.getBrowser().status().then(status => {
-                if (status.value.os.name.toLowerCase().includes('wind') || status.value.os.name.toLowerCase().includes('linux')) {
-                    return this.getBrowser().keys(['Control', 'e']);
-                }
-                if (status.value.os.name.toLowerCase().includes('mac')) {
-                    return this.getBrowser().keys(['Command', 'e']);
-                }
-            })
-        }
-    },
-    hotKeyNew: {
-        value: function () {
-            return this.getBrowser().keys(['Alt', 'n']);
-        }
-    },
-    getContentStatus: {
-        value: function (name) {
-            let selector = elements.slickRowByDisplayName(panel.treeGrid, name) + "//div[contains(@class,'r3')]";
-            return this.getText(selector);
-        }
-    },
-});
-module.exports = contentBrowsePanel;
+    isRedIconDisplayed(contentName) {
+        let xpath = XPATH.contentSummaryByName(contentName);
+        return this.getAttribute(xpath, 'class').then(result => {
+            return result.includes('invalid');
+        });
+    }
 
+    // this method waits until 'invalid' appears in the @class
+    waitForRedIconDisplayed(contentName) {
+        let xpath = XPATH.contentSummaryByName(contentName);
+        return this.waitUntilInvalid(xpath);
+    }
+
+    getContentStatus(name) {
+        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+        return this.getText(selector);
+    }
+
+    waitForShowPublishMenuButtonVisible() {
+        return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.TIMEOUT_3);
+    }
+
+    waitForCreateIssueButtonVisible() {
+        return this.waitForElementDisplayed(this.createIssueButton, appConst.TIMEOUT_5).catch(err => {
+            this.saveScreenshot("err_create_issue_button");
+            throw new Error("Create issue button is not visible on the toolbar! " + err);
+        });
+    }
+
+    clickOnCreateIssueButton() {
+        return this.waitForCreateIssueButtonVisible().then(() => {
+            return this.clickOnElement(this.createIssueButton);
+        }).catch(err => {
+            this.saveScreenshot("err_click_create_issue_button");
+            throw new Error("Browse Panel. Error when click on Create issue button on the toolbar! " + err);
+        });
+    }
+
+    openPublishMenuAndClickOnCreateIssue() {
+        return this.waitForShowPublishMenuButtonVisible().then(() => {
+            return this.clickOnElement(this.showPublishMenuButton);
+        }).then(() => {
+            return this.waitForElementDisplayed(this.createIssueMenuItem);
+        }).then(() => {
+            return this.clickOnElement(this.createIssueMenuItem);
+        }).catch(err => {
+            this.saveScreenshot("err_click_create_issue_menuItem");
+            throw new Error('error when try to click on Create Issue menu item, ' + err);
+        }).then(() => {
+            let createIssueDialog = new CreateIssueDialog();
+            return createIssueDialog.waitForDialogLoaded();
+        })
+    }
+};
+module.exports = ContentBrowsePanel;
 

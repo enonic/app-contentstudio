@@ -8,10 +8,9 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 
 describe('issue.no.items.spec: create issue without items, close the issue and reopen the issue again', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -20,13 +19,14 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
 
     it(`WHEN new issue without items has been created THEN 'No items to publish' should be displayed in the Items-tab`,
         () => {
-            //this.bail(1);
+            let createIssueDialog = new CreateIssueDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openCreateIssueDialog().then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(() => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(result => {
@@ -37,10 +37,13 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
 
     it(`GIVEN 'open' issue is selected WHEN 'Close Issue' button has been pressed THEN the issue is getting closed`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {
@@ -53,12 +56,15 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
 
     it(`GIVEN 'closed' issue is selected WHEN 'Reopen Issue' button has been pressed THEN the issue is getting 'open'`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnShowClosedIssuesLink();
-            }).pause(500).then(() => {
+            }).then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnReopenIssueButton();
             }).then(() => {
@@ -74,14 +80,16 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
 
     it(`GIVEN Issue Details dialog is opened WHEN 'Esc' key has been pressed THEN Issue List Dialog should be loaded`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.pressEscKey();
             }).then(() => {
-                return issueListDialog.waitForDialogVisible();
+                return issueListDialog.waitForDialogOpened();
             }).then(result => {
                 studioUtils.saveScreenshot("issue_details_esc_key");
                 return assert.isTrue(result, 'Correct notification should appear');

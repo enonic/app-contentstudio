@@ -1,70 +1,53 @@
 /**
  * Created  on 6/29/2017.
  */
-const page = require('./page');
+const Page = require('./page');
 const appConst = require('../libs/app_const');
-const dialog = {
+const XPATH = {
     container: `//div[contains(@id,'ConfirmationDialog')]`,
     yesButton: `//button[contains(@id,'DialogButton') and child::span[text()='Yes']]`,
     noButton: `//div[@class='dialog-buttons']//button/span[text()='No']`
 };
-const confirmationDialog = Object.create(page, {
+class ConfirmationDialog extends Page {
 
-    warningMessage: {
-        get: function () {
-            return `${dialog.container}//h6[@class='question']`;
-        }
-    },
-    yesButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.yesButton}`;
+    get warningMessage() {
+        return XPATH.container + "//h6[@class='question']";
+    }
 
-        }
-    },
-    noButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.yesButton}`;
-        }
-    },
-    clickOnYesButton: {
-        value: function () {
-            return this.waitForVisible(this.yesButton, 1000).then(() => {
-                return this.doClick(this.yesButton);
-            }).then(() => {
-                return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
-            }).catch(err => {
-                this.saveScreenshot('err_close_confirmation');
-                throw new Error('Confirmation dialog must be closed!')
-            }).pause(700);
-        }
-    },
-    waitForDialogVisible: {
-        value: function () {
-            return this.waitForVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err => {
-                return false;
-            })
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_2);
-        }
-    },
-    isWarningMessageVisible: {
-        value: function () {
-            return this.isVisible(this.warningMessage);
-        }
-    },
-    getWarningMessage: {
-        value: function () {
-            return this.getText(this.warningMessage)
-        }
-    },
+    get yesButton() {
+        return XPATH.container + XPATH.yesButton;
+    }
 
-    clickOnNoButton: {
-        value: function () {
-            return this.doClick(this.noButton);
-        }
-    },
-});
-module.exports = confirmationDialog;
+    get noButton() {
+        return XPATH.container + XPATH.noButton;
+    }
+
+    async clickOnYesButton() {
+        await this.waitForElementDisplayed(this.yesButton, appConst.TIMEOUT_2);
+        await this.clickOnElement(this.yesButton);
+        await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2)
+    }
+
+    waitForDialogOpened() {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+            return false;
+        })
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    isWarningMessageVisible() {
+        return this.isElementDisplayed(this.warningMessage);
+    }
+
+    getWarningMessage() {
+        return this.getText(this.warningMessage)
+    }
+
+    clickOnNoButton() {
+        return this.clickOnElement(this.noButton);
+    }
+};
+module.exports = ConfirmationDialog;

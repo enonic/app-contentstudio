@@ -1,6 +1,5 @@
 /**
  * Created on 13.07.2018.
- *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -9,12 +8,12 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
-const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('close.issue.with.item.spec: close an issue and verify control elements on the ItemPreview Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -26,6 +25,8 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     //Endless spinner after clicking on Create Issue button
     it(`GIVEN user just is 'logged in' AND no selections in the grid WHEN 'Create Issue' button has been pressed  THEN Create Issue dialog should appear`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             return contentBrowsePanel.clickOnCreateIssueButton().then(() => {
                 return createIssueDialog.waitForDialogLoaded();
             }).then(() => {
@@ -35,6 +36,9 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
 
     it(`Precondition: new folder and new issue should be added`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
@@ -50,16 +54,18 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             })
         });
 
     it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed AND modal dialog closed THEN issue-menu button should not be visible`,
         () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return contentItemPreviewPanel.clickOnIssueMenuButton();
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {

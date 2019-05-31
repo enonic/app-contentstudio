@@ -8,12 +8,12 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
-const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const wizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
 describe('wizard.details.panel.spec: Open details panel in wizard and check widgets', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -21,6 +21,9 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
 
     it(`GIVEN folder-wizard is opened WHEN 'Version history' menu item in Details panel has been selected THEN 'Version history' widget should be loaded`,
         () => {
+        let wizardDetailsPanel = new WizardDetailsPanel();
+        let wizardVersionsWidget = new WizardVersionsWidget();
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             }).then(() => {
                 return contentWizard.openDetailsPanel();
@@ -37,6 +40,9 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
 
     it(`GIVEN folder-wizard is opened WHEN 'Dependencies' menu item in Details panel has been selected THEN 'Dependencies' widget should be loaded`,
         () => {
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let contentWizard = new ContentWizard();
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             }).then(() => {
                 return contentWizard.openDetailsPanel();
