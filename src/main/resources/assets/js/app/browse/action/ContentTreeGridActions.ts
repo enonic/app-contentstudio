@@ -241,28 +241,28 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private resetDefaultActionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[]) {
-        let contentSummaries: ContentSummary[] = contentBrowseItems.map((elem: ContentBrowseItem) => {
+        const contentSummaries: ContentSummary[] = contentBrowseItems.map((elem: ContentBrowseItem) => {
             return elem.getModel().getContentSummary();
         });
 
-        const noManagedActionExecuting = !ManagedActionManager.instance().isExecuting();
+        const noManagedActionExecuting: boolean = !ManagedActionManager.instance().isExecuting();
 
-        let treePublishEnabled = true;
-        let unpublishEnabled = true;
+        let treePublishEnabled: boolean = true;
+        let unpublishEnabled: boolean = true;
 
-        const deleteEnabled = this.anyDeletable(contentSummaries) && noManagedActionExecuting;
-        const duplicateEnabled = contentSummaries.length >= 1 && noManagedActionExecuting;
-        const moveEnabled = !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
+        const deleteEnabled: boolean = this.anyDeletable(contentSummaries) && noManagedActionExecuting;
+        const duplicateEnabled: boolean = contentSummaries.length >= 1 && noManagedActionExecuting;
+        const moveEnabled: boolean = !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
 
-        let allAreOnline = contentBrowseItems.length > 0;
-        let allArePendingDelete = contentBrowseItems.length > 0;
-        let anyIsPendingDelete = false;
-        let someArePublished = false;
-        let allAreReadonly = contentBrowseItems.length > 0;
-        const isMultipleOrValid = contentSummaries.length > 1 || (contentSummaries.length === 1 && contentSummaries[0].isValid());
+        let allAreOnline: boolean = contentBrowseItems.length > 0;
+        let allArePendingDelete: boolean = contentBrowseItems.length > 0;
+        let anyIsPendingDelete: boolean = false;
+        let someArePublished: boolean = false;
+        let allAreReadonly: boolean = contentBrowseItems.length > 0;
+        const isMultipleOrValid: boolean = contentSummaries.length > 1 || (contentSummaries.length === 1 && contentSummaries[0].isValid());
 
         contentBrowseItems.forEach((browseItem) => {
-            let content = browseItem.getModel();
+            const content: ContentSummaryAndCompareStatus = browseItem.getModel();
 
             if (allAreOnline && !content.isOnline()) {
                 allAreOnline = false;
@@ -281,7 +281,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             }
         });
 
-        const publishEnabled = !allAreOnline && noManagedActionExecuting && isMultipleOrValid;
+        const publishEnabled: boolean = !allAreOnline && noManagedActionExecuting && isMultipleOrValid;
         if (this.isEveryLeaf(contentSummaries)) {
             treePublishEnabled = false;
             unpublishEnabled = someArePublished;
@@ -308,7 +308,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
 
         if (anyIsPendingDelete) {
-            const invisibleActions = allArePendingDelete ? this.getAllActionsNoPendingDelete() : this.getAllActions();
+            const invisibleActions: Action[] = allArePendingDelete ? this.getAllActionsNoPendingDelete() : this.getAllActions();
             invisibleActions.forEach(action => action.setVisible(false));
 
             this.actionsMap.PUBLISH.setVisible(allArePendingDelete || publishEnabled);
@@ -356,89 +356,103 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return new GetPermittedActionsRequest().addPermissionsToBeChecked(Permission.CREATE).sendAndParse().then(
             (allowedPermissions: Permission[]) => {
                 this.resetDefaultActionsNoItemsSelected();
-
-                const canCreate = allowedPermissions.indexOf(Permission.CREATE) > -1;
-
-                this.enableActions({SHOW_NEW_DIALOG: canCreate});
+                this.enableActions({SHOW_NEW_DIALOG: this.canCreate(allowedPermissions)});
             });
     }
 
     private updateActionsByPermissionsSingleItemSelected(contentBrowseItems: ContentBrowseItem[]): wemQ.Promise<any> {
-        let selectedItem = contentBrowseItems[0].getModel().getContentSummary();
+        const selectedItem: ContentSummaryAndCompareStatus = contentBrowseItems[0].getModel();
 
         return this.checkIsChildrenAllowedByContentType(selectedItem).then((contentTypeAllowsChildren: boolean) => {
             return this.updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems, contentTypeAllowsChildren).then(() => {
-                return this.updateCanDuplicateActionSingleItemSelected(selectedItem);
+                return this.updateCanDuplicateActionSingleItemSelected(selectedItem.getContentSummary());
             });
         });
     }
 
-    private handleDeletedContentType(contentSummary: ContentSummary): wemQ.Promise<any> {
-        api.notify.NotifyManager.get().showWarning(i18n('notify.contentType.notFound', contentSummary.getType().getLocalName()));
+    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+        api.notify.NotifyManager.get().showWarning(
+            i18n('notify.contentType.notFound', selectedItem.getContentSummary().getType().getLocalName()));
 
-        return new GetPermittedActionsRequest().addContentIds(contentSummary.getContentId()).addPermissionsToBeChecked(
-            Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse().then((allowedPermissions: Permission[]) => {
+        return this.getCreateDeletePublishAllowed([selectedItem.getContentId()]).then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsNoItemsSelected();
             this.enableActions({SHOW_NEW_DIALOG: false});
-
-            const canCreate = allowedPermissions.indexOf(Permission.CREATE) > -1;
-
-            const canDelete = allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
-
-            const canPublish = allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
-
-            if (canDelete) {
-                this.enableActions({DELETE: true});
-            }
-
-            if (canCreate && canDelete) {
-                this.enableActions({MOVE: true});
-            }
-
-            if (canPublish) {
-                this.enableActions({UNPUBLISH: true});
-            }
+            this.updateDefaultActionsNoItemsSelected(selectedItem, allowedPermissions);
         });
+    }
+
+    private getCreateDeletePublishAllowed(contentIds: ContentId[]): wemQ.Promise<Permission[]> {
+        return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
+            Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse();
+    }
+
+    private canCreate(allowedPermissions: Permission[]): boolean {
+        return allowedPermissions.indexOf(Permission.CREATE) > -1;
+    }
+
+    private canDelete(allowedPermissions: Permission[]): boolean {
+        return allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
+    }
+
+    private canPublish(allowedPermissions: Permission[]): boolean {
+        return allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
+    }
+
+    private updateDefaultActionsNoItemsSelected(selectedItem: ContentSummaryAndCompareStatus, allowedPermissions: Permission[]) {
+        const canDelete: boolean = this.canDelete(allowedPermissions);
+
+        if (canDelete) {
+            this.enableActions({DELETE: true});
+        }
+
+        if (this.canCreate(allowedPermissions) && canDelete) {
+            this.enableActions({MOVE: true});
+        }
+
+        if (this.canPublish(allowedPermissions)) {
+            if (selectedItem.isPublished()) {
+                this.enableActions({UNPUBLISH: true});
+            } else {
+                this.enableActions({PUBLISH: true});
+            }
+        }
     }
 
     private updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[],
                                                             contentTypesAllowChildren: boolean = true): wemQ.Promise<any> {
         const contentIds: ContentId[] = contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId());
 
-        return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
-            Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse().then((allowedPermissions: Permission[]) => {
+        return this.getCreateDeletePublishAllowed(contentIds).then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsMultipleItemsSelected(contentBrowseItems);
-
-            const canCreate = allowedPermissions.indexOf(Permission.CREATE) > -1;
-
-            const canDelete = allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
-
-            const canPublish = allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
-
-            if (!contentTypesAllowChildren || !canCreate) {
-                this.enableActions({
-                    SHOW_NEW_DIALOG: false,
-                    SORT: false
-                });
-            }
-
-            if (!canDelete) {
-                this.enableActions({
-                    DELETE: false,
-                    MOVE: false
-                });
-            }
-
-            if (!canPublish) {
-                this.enableActions({
-                    PUBLISH: false,
-                    PUBLISH_TREE: false,
-                    UNPUBLISH: false
-                });
-            } else {
-                this.updatePublishTreeAction(contentIds);
-            }
+            this.updateDefaultActionsMultipleItemsSelected(contentIds, allowedPermissions, contentTypesAllowChildren);
         });
+    }
+
+    private updateDefaultActionsMultipleItemsSelected(contentIds: ContentId[], allowedPermissions: Permission[],
+                                                      contentTypesAllowChildren: boolean = true) {
+        if (!contentTypesAllowChildren || !this.canCreate(allowedPermissions)) {
+            this.enableActions({
+                SHOW_NEW_DIALOG: false,
+                SORT: false
+            });
+        }
+
+        if (!this.canDelete(allowedPermissions)) {
+            this.enableActions({
+                DELETE: false,
+                MOVE: false
+            });
+        }
+
+        if (!this.canPublish(allowedPermissions)) {
+            this.enableActions({
+                PUBLISH: false,
+                PUBLISH_TREE: false,
+                UNPUBLISH: false
+            });
+        } else {
+            this.updatePublishTreeAction(contentIds);
+        }
     }
 
     private updatePublishTreeAction(contentIds: ContentId[]) {
@@ -455,12 +469,12 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             }).catch(reason => api.DefaultErrorHandler.handle(reason));
     }
 
-    private checkIsChildrenAllowedByContentType(contentSummary: ContentSummary): wemQ.Promise<Boolean> {
-        let deferred = wemQ.defer<boolean>();
+    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): wemQ.Promise<Boolean> {
+        const deferred = wemQ.defer<boolean>();
 
-        new GetContentTypeByNameRequest(contentSummary.getType()).sendAndParse()
+        new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType()).sendAndParse()
             .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
-            .fail(() => this.handleDeletedContentType(contentSummary));
+            .fail(() => this.handleContentTypeNotFound(selectedItem));
 
         return deferred.promise;
     }
