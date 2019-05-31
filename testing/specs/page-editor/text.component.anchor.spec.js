@@ -7,24 +7,24 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const textComponentCke = require('../../page_objects/components/text.component');
-const insertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const TextComponentCke = require('../../page_objects/components/text.component');
+const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 
 describe('Text Component with CKE - insert Anchor specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
 
     it(`Precondition before tests: new site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -40,6 +40,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     it(`GIVEN Text component is inserted AND 'Insert Anchor' dialog is opened WHEN 'anchor' has been inserted THEN correct data should be present in the CKE`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
+            let insertAnchorDialog = new InsertAnchorDialog();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(() => {
@@ -66,6 +70,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     it(`GIVEN 'Insert Anchor' dialog is opened WHEN incorrect text has been typed in the dialog THEN validation message should be displayed`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
+            let insertAnchorDialog = new InsertAnchorDialog();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(() => {
@@ -90,11 +98,14 @@ describe('Text Component with CKE - insert Anchor specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => {
+        let insertAnchorDialog = new InsertAnchorDialog();
         return insertAnchorDialog.isDialogOpened().then(result => {
             if (result) {
                 return insertAnchorDialog.clickOnCancelButton();
             }
-        }).pause(500).then(() => {
+        }).then(() => {
+            return insertAnchorDialog.pause(500);
+        }).then(() => {
             return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         })
     });

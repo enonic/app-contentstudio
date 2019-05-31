@@ -9,7 +9,7 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const contentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 
 describe('attachment.preview.spec - Select a *.txt file and check expected text in Preview Panel', function () {
@@ -18,6 +18,7 @@ describe('attachment.preview.spec - Select a *.txt file and check expected text 
     let TEST_FOLDER;
     it(`WHEN existing *.txt file is selected WHEN expected text should be loaded in Preview Panel`,
         () => {
+        let contentItemPreviewPanel = new  ContentItemPreviewPanel();
             return studioUtils.findAndSelectItem("test-text.txt").then(() => {
                 return contentItemPreviewPanel.getTextInAttachmentPreview();
             }).then(result => {

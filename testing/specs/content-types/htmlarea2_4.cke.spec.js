@@ -10,11 +10,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const htmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -27,6 +27,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     let SITE;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -41,11 +42,12 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
                 return contentWizard.typeDisplayName('test_area2_4');
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1000).then(() => {
+            }).then(() => {
                 return contentWizard.isContentInvalid();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
@@ -55,9 +57,10 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area `,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
                 return htmlAreaForm.typeTextInHtmlArea("test text")
-            }).pause(1000).then(() => {
+            }).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_html_area2');
@@ -68,11 +71,15 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN all data has been typed and saved THEN correct notification message should be displayed `,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').pause(1000).then(() => {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
+                return contentWizard.pause(1000);
+            }).then(() => {
                 return contentWizard.typeData(htmlAreaContent);
-            }).pause(500).then(() => {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
             }).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
@@ -85,6 +92,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
 
     it(`GIVEN existing 'htmlArea 2:4' WHEN it has been opened THEN expected text should be displayed in the area`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
             }).then(result => {
@@ -97,6 +105,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     //verifies https://github.com/enonic/lib-admin-ui/issues/461
     it(`GIVEN existing 'htmlArea 2:4' WHEN the first area has been cleared THEN red icon should appears in the wizard`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
                 return htmlAreaForm.clearHtmlArea(0);
             }).then(() => {

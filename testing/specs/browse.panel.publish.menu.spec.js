@@ -8,12 +8,10 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const deleteContentDialog = require('../page_objects/delete.content.dialog');
-
+const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,6 +22,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     it(`Preconditions: test folder should be created`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(FOLDER).then(() => {
@@ -36,6 +35,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         });
 
     it(`Preconditions: test site should be created`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         let displayName = contentBuilder.generateRandomName('site');
         SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
         return studioUtils.doAddSite(SITE).then(() => {
@@ -49,10 +49,12 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     });
 
     it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE ISSUE...' button should appear on browse-toolbar`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.waitForCreateIssueButtonVisible();
     });
 
     it(`WHEN existing new folder has been selected THEN 'Publish' button should appear on browse-toolbar`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return studioUtils.findAndSelectItem(FOLDER.displayName).then(() => {
             return contentBrowsePanel.waitForPublishButtonVisible();
         }).then(() => {
@@ -64,6 +66,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     });
     it(`WHEN existing published folder has been selected THEN 'UNPUBLISH...' button should appear on browse-toolbar`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(FOLDER.displayName).then(() => {
                 return contentBrowsePanel.waitForUnPublishButtonVisible();
             });
@@ -71,13 +74,17 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     it(`GIVEN site has been published (children are not included)  WHEN the site has been selected THEN 'PUBLISH TREE...' button should appear on browse-toolbar`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 //site has been published and children are not included
                 return studioUtils.doPublish(SITE.displayName);
             }).then(() => {
+                //'PUBLISH TREE...' button should appear on browse-toolbar
                 return contentBrowsePanel.waitForPublishTreeButtonVisible();
             });
         });
+
+    //TODO test verifies https://github.com/enonic/app-contentstudio/issues/493
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

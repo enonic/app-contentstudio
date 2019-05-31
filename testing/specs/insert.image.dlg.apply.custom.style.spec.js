@@ -7,12 +7,12 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const htmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
+const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an image', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -25,6 +25,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     it(`Preconditions: site should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
+            let contentBrowsePanel = new ContentBrowsePanel();
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
             return studioUtils.doAddSite(SITE).then(() => {
             }).then(() => {
@@ -38,6 +39,8 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN custom styles should be present`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -59,6 +62,9 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
 
     it(`GIVEN Insert Image modal dialog opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
         () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
@@ -72,7 +78,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
                 //type a option in 'filter input' and click on the option
                 return insertImageDialog.doFilterStyleAndClickOnOption("Cinema");
             }).then(() => {
-                //checkbox should enabled
+                //checkbox should be enabled
                 return expect(insertImageDialog.waitForCustomWidthCheckBoxEnabled()).to.eventually.true;
             }).then(() => {
                 //checkbox should be unselected
@@ -87,7 +93,11 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
 
     it(`GIVEN existing htmlarea-content with inserted image(Custom Style) is opened WHEN double click in htmmlarea THEN expected style should be present in style selector`,
         () => {
-            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).pause(2000).then(() => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
+            return studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME).then(()=>{
+                return htmlAreaForm.pause(2000);
+            }).then(() => {
                 return htmlAreaForm.doubleClickOnHtmlArea();
             }).then(() => {
                 return insertImageDialog.waitForDialogVisible();

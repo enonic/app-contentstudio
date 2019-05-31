@@ -1,5 +1,5 @@
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
@@ -10,137 +10,114 @@ const xpath = {
         return `//li[contains(@id,'IssueListItem')]//h6[contains(@class,'main-name') and contains(.,'${name}')]`
     },
 };
-const issuesListDialog = Object.create(page, {
 
-    title: {
-        get: function () {
-            return `${xpath.container}//h2[@class='title']`;
-        }
-    },
-    myOpenedIssuesCheckbox: {
-        get: function () {
-            return `${xpath.container}` +
-                   `//div[contains(@class,'panel OPEN')]//div[contains(@id,'Checkbox') and descendant::label[contains(.,'My Issues')]]`;
-        }
-    },
-    showClosedIssuesLink: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.showClosedIssuesLink}`;
-        }
-    },
-    showOpenIssuesLink: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.showOpenIssuesLink}`;
-        }
-    },
-    newIssueButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.newIssueButton}`;
-        }
-    },
-    cancelTopButton: {
-        get: function () {
-            return `${xpath.container}` + `${elements.CANCEL_BUTTON_TOP}`;
-        }
-    },
+class IssuesListDialog extends Page {
 
-    waitForDialogVisible: {
-        value: function () {
-            return this.waitForVisible(this.newIssueButton, appConst.TIMEOUT_3).catch(err=>{
-                this.saveScreenshot("err_load_issues_list_dlg");
-                throw new Error("Issues list dialog not loaded in "+appConst.TIMEOUT_3)
-            })
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForNotVisible(`${xpath.container}`, appConst.TIMEOUT_2);
-        }
-    },
-    isDialogPresent: {
-        value: function () {
-            return this.isVisible(`${xpath.container}`);
-        }
-    },
-    clickOnCancelTopButton: {
-        value: function () {
-            return this.doClick(this.cancelTopButton);
-        }
-    },
-    clickOnNewIssueButton: {
-        value: function () {
-            return this.doClick(this.newIssueButton).catch(err => {
-                this.saveScreenshot('err_click_issue_list_new');
-                throw  new Error('Error when click on the `New Issue`  ' + err);
-            })
-        }
-    },
-    getTitle: {
-        value: function () {
-            return this.getText(this.title);
-        }
-    },
-    isNewIssueButtonVisible: {
-        value: function () {
-            return this.isVisible(this.newIssueButton);
-        }
-    },
-    isMyOpenedIssuesCheckboxVisible: {
-        value: function () {
-            return this.isVisible(this.myOpenedIssuesCheckbox);
-        }
-    },
-    isShowClosedIssuesLinkVisible: {
-        value: function () {
-            return this.isVisible(this.showClosedIssuesLink);
-        }
-    },
-    waitForShowOpenIssuesLinkVisible: {
-        value: function () {
-            return this.waitForVisible(this.showOpenIssuesLink);
-        }
-    },
-    clickOnShowClosedIssuesLink: {
-        value: function () {
-            return this.doClick(this.showClosedIssuesLink).pause(400).catch(err => {
-                this.saveScreenshot('err_issue_list_click_show_closed_issues');
-                throw new Error('Error when clicking on `Show closed issues` ' + err)
-            })
-        }
-    },
-    isIssuePresent: {
-        value: function (issueName) {
-            let issueXpath = xpath.issueByName(issueName);
-            return this.waitForVisible(issueXpath).catch(err => {
-                this.saveScreenshot("issue_not_present_" + issueName);
-                return false;
-            })
-        }
-    },
-    scrollToIssue: {
-        value: function (issueName) {
-            let issueXpath = xpath.issueByName(issueName);
-            //TODO implement it.
-            //return this.element(issueXpath).then(elem => {
-            //     return elem.scroll();
-            //})
-        }
-    },
-    clickOnIssue: {
-        value: function (issueName) {
-            let issueXpath = xpath.issueByName(issueName);
-            return this.isVisible(issueXpath).then(result => {
-                let selector = `div[@class='modal-dialog-body mask-wrapper']`;
-                if (!result) {
-                    return this.scrollToIssue(issueXpath);
-                }
-            }).then(() => {
-                return this.doClick(issueXpath);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_issue');
-                throw new Error('error when clicked on issue' + err)
-            })
-        }
-    },
-});
-module.exports = issuesListDialog;
+    get title() {
+        return xpath.container + `//h2[@class='title']`;
+    }
+
+    get myOpenedIssuesCheckbox() {
+        return xpath.container +
+               `//div[contains(@class,'panel OPEN')]//div[contains(@id,'Checkbox') and descendant::label[contains(.,'My Issues')]]`;
+    }
+
+    get showClosedIssuesLink() {
+        return xpath.container + xpath.showClosedIssuesLink;
+    }
+
+    get showOpenIssuesLink() {
+        return xpath.container + xpath.showOpenIssuesLink;
+    }
+
+    get newIssueButton() {
+        return xpath.container + xpath.newIssueButton;
+    }
+
+    get cancelTopButton() {
+        return xpath.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    waitForDialogOpened() {
+        return this.waitForElementDisplayed(this.newIssueButton, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_load_issues_list_dlg");
+            throw new Error("Issues list dialog not loaded in " + appConst.TIMEOUT_3)
+        })
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+    }
+
+    isDialogPresent() {
+        return this.isElementDisplayed(xpath.container);
+    }
+
+    clickOnCancelTopButton() {
+        return this.clickOnElement(this.cancelTopButton);
+    }
+
+    clickOnNewIssueButton() {
+        return this.clickOnElement(this.newIssueButton).catch(err => {
+            this.saveScreenshot('err_click_issue_list_new');
+            throw  new Error('Error when click on the `New Issue`  ' + err);
+        })
+    }
+
+    getTitle() {
+        return this.getText(this.title);
+    }
+
+    isNewIssueButtonVisible() {
+        return this.isElementDisplayed(this.newIssueButton);
+    }
+
+    isMyOpenedIssuesCheckboxVisible() {
+        return this.isElementDisplayed(this.myOpenedIssuesCheckbox);
+    }
+
+    isShowClosedIssuesLinkVisible() {
+        return this.isElementDisplayed(this.showClosedIssuesLink);
+    }
+
+    waitForShowOpenIssuesLinkVisible() {
+        return this.waitForElementDisplayed(this.showOpenIssuesLink);
+    }
+
+    async clickOnShowClosedIssuesLink() {
+        await this.clickOnElement(this.showClosedIssuesLink);
+        return await this.pause(400);
+    }
+
+    isIssuePresent(issueName) {
+        let issueXpath = xpath.issueByName(issueName);
+        return this.waitForElementDisplayed(issueXpath).catch(err => {
+            this.saveScreenshot("issue_not_present_" + issueName);
+            return false;
+        })
+    }
+
+    scrollToIssue(issueName) {
+        let issueXpath = xpath.issueByName(issueName);
+        //TODO implement it.
+        //return this.element(issueXpath).then(elem => {
+        //     return elem.scroll();
+        //})
+    }
+
+    clickOnIssue(issueName) {
+        let issueXpath = xpath.issueByName(issueName);
+        return this.isElementDisplayed(issueXpath).then(result => {
+            let selector = `div[@class='modal-dialog-body mask-wrapper']`;
+            if (!result) {
+                return this.scrollToIssue(issueXpath);
+            }
+        }).then(() => {
+            return this.clickOnElement(issueXpath);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_issue');
+            throw new Error('error when clicked on issue' + err)
+        })
+    }
+};
+module.exports = IssuesListDialog;

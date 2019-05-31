@@ -1,6 +1,5 @@
 /**
  * Created on 08.07.2018.
- *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -9,12 +8,12 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
-const contentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('issue.status.selector.spec: open and close issue by clicking on menu buttons, edit issue-title, save and update the issue',
     function () {
@@ -25,6 +24,9 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
 
         let TEST_FOLDER;
         it(`Precondition: create a folder and create new issue`, () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
@@ -39,16 +41,18 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             })
         });
 
         it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been opened and 'Closed'-item selected THEN issue should be 'Closed' and 'Reopen Issue' button is getting visible`,
             () => {
+                let issueDetailsDialog = new IssueDetailsDialog();
+                let contentItemPreviewPanel = new ContentItemPreviewPanel();
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                     return contentItemPreviewPanel.clickOnIssueMenuButton();
                 }).then(() => {
-                    return issueDetailsDialog.waitForDialogLoaded();
+                    return issueDetailsDialog.waitForDialogOpened();
                 }).then(() => {
                     return issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
                 }).then(() => {
@@ -67,12 +71,15 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
 
         it(`GIVEN existing 'closed' issue WHEN 'Issue Details'  Dialog is opened THEN 'Edit' button should not be visible on the dialog header`,
             () => {
+                let issueDetailsDialog = new IssueDetailsDialog();
+                let createIssueDialog = new CreateIssueDialog();
+                let issueListDialog = new IssueListDialog();
                 return studioUtils.openIssuesListDialog().then(() => {
                     return issueListDialog.clickOnShowClosedIssuesLink();
-                }).pause(500).then(() => {
+                }).then(() => {
                     return issueListDialog.clickOnIssue(issueTitle);
                 }).then(() => {
-                    return issueDetailsDialog.waitForDialogLoaded();
+                    return issueDetailsDialog.waitForDialogOpened();
                 }).then(() => {
                     return issueDetailsDialog.waitForIssueTitleInputToggleNotVisible();
                 }).then(result => {
@@ -83,16 +90,19 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
 
         it(`GIVEN existing 'closed' issue AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the issue is getting 'open' AND 'Close Issue' button is getting visible`,
             () => {
+                let issueDetailsDialog = new IssueDetailsDialog();
+                let createIssueDialog = new CreateIssueDialog();
+                let issueListDialog = new IssueListDialog();
                 return studioUtils.openIssuesListDialog().then(() => {
                     return issueListDialog.isShowClosedIssuesLinkVisible().then(result => {
                         if (result) {
                             return issueListDialog.clickOnShowClosedIssuesLink();
                         }
                     })
-                }).pause(500).then(() => {
+                }).then(() => {
                     return issueListDialog.clickOnIssue(issueTitle);
                 }).then(() => {
-                    return issueDetailsDialog.waitForDialogLoaded();
+                    return issueDetailsDialog.waitForDialogOpened();
                 }).then(() => {
                     return issueDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
                 }).then(() => {
@@ -108,10 +118,13 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
 
         it(`GIVEN existing 'open' issue AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed on the dialog`,
             () => {
+                let issueDetailsDialog = new IssueDetailsDialog();
+                let createIssueDialog = new CreateIssueDialog();
+                let contentItemPreviewPanel = new ContentItemPreviewPanel();
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                     return contentItemPreviewPanel.clickOnIssueMenuButton();
                 }).then(() => {
-                    return issueDetailsDialog.waitForDialogLoaded();
+                    return issueDetailsDialog.waitForDialogOpened();
                 }).then(() => {
                     return issueDetailsDialog.clickOnIssueTitleInputToggle();
                 }).then(() => {

@@ -11,14 +11,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const htmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const insertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
-const wizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
-const wizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
 describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a content with Html Area', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -30,6 +30,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
 
     it(`Preconditions: site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -44,11 +45,16 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
 
     it(`GIVEN new 'htmlArea' content is opened WHEN image has been inserted in 'htmlarea' THEN the content should be updated`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
+            let insertImageDialog = new InsertImageDialog();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return contentWizard.typeDisplayName(CONTENT_NAME);
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1000).then(() => {
+            }).then(()=>{
+                return htmlAreaForm.pause(1000);
+            }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             }).then(() => {
                 return insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
@@ -68,6 +74,9 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     //verifies  https://github.com/enonic/xp/issues/6768
     it(`GIVEN existing 'htmlArea' content is selected WHEN Dependencies panel is opened THEN 'Outbound dependency' should be present`,
         () => {
+            let contentWizard = new ContentWizard();
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {
@@ -85,6 +94,10 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
     it(`GIVEN existing 'htmlArea' content is opened AND Dependencies panel is opened WHEN image in htmlArea has been removed THEN 'Outbound dependency' should be cleared as well`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
             return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
                 return contentWizard.openDetailsPanel();
             }).then(() => {

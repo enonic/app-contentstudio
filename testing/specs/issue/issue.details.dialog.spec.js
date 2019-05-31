@@ -8,11 +8,10 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const issueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const issueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
-const confirmationDialog = require('../../page_objects/confirmation.dialog');
-
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -23,6 +22,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`WHEN new issue has been created THEN correct notification should be displayed`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openCreateIssueDialog().then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
             }).then(result => {
@@ -36,10 +36,12 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`GIVEN issues list dialog is opened WHEN issue has been clicked THEN Issue Details dialog should be displayed`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.isCommentsTabBarItemActive();
             }).then(result => {
@@ -58,10 +60,12 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`GIVEN issue Details dialog is opened WHEN comment typed in the area THEN Add Comment is getting enabled`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.typeComment(MY_COMMENT);
             }).then(() => {
@@ -73,17 +77,19 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`GIVEN Issue Details dialog is opened WHEN comment typed AND add comment button has been pressed THEN correct notification should be shown`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.typeComment(MY_COMMENT);
             }).then(() => {
                 return issueDetailsDialog.clickOnAddCommentButton();
             }).then(() => {
                 return issueDetailsDialog.waitForNotificationMessage();
-            }).then((message) => {
+            }).then(message => {
                 studioUtils.saveScreenshot("issue_comment_added");
                 assert.isTrue(message == 'Your comment is added to issue',
                     'Correct notification message should be shown when the comment has been added');
@@ -96,13 +102,15 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`WHEN Issue Details dialog is opened THEN just created comment should be present in the comments-list`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.isCommentPresent(MY_COMMENT);
-            }).then((result) => {
+            }).then(result => {
                 studioUtils.saveScreenshot("issue_comment_added");
                 assert.isTrue(result, 'Comment with the name should be present ');
             })
@@ -110,10 +118,12 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`GIVEN existing issue with a comment WHEN Issue Details dialog is opened  AND the comment has been changed THEN updated comment should be present in the comments-list`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
+                return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return issueDetailsDialog.clickOnEditCommentMenuItem(MY_COMMENT);
             }).then(() => {
@@ -122,7 +132,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
                 return issueDetailsDialog.clickOnSaveCommentButton(MY_COMMENT);
             }).then(() => {
                 return issueDetailsDialog.isCommentPresent(newText);
-            }).then((result) => {
+            }).then(result => {
                 studioUtils.saveScreenshot("issue_comment_updated");
                 assert.isTrue(result, 'Comment with the new text should be present ');
             })
@@ -130,19 +140,22 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`GIVEN existing issue with a comment WHEN Issue Details dialog is opened  AND the comment has been deleted THEN the comment should not be present in the comments-list`,
         () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let confirmationDialog = new ConfirmationDialog();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogLoaded();
-            }).pause(300).then(() => {
+                return issueDetailsDialog.waitForDialogOpened();
+            }).then(() => {
                 return issueDetailsDialog.clickOnDeleteCommentMenuItem(newText);
             }).then(() => {
-                return confirmationDialog.waitForDialogVisible();
+                return confirmationDialog.waitForDialogOpened();
             }).then(() => {
                 return confirmationDialog.clickOnYesButton();
             }).then(() => {
                 return issueDetailsDialog.isCommentPresent(newText);
-            }).then((result) => {
+            }).then(result => {
                 studioUtils.saveScreenshot("issue_comment_deleted");
                 assert.isFalse(result, 'Comment with the text should be deleted');
             })

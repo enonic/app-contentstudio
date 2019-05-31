@@ -11,13 +11,13 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const liveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const imageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
+const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 
 
 describe("image.component.inspect.panel.spec: Inserts a image component and checks 'Inspect Panel' on the Context Window ",
@@ -30,6 +30,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
         let CONTROLLER_NAME = 'main region';
         it(`Precondition: new site should be added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
                 return studioUtils.doAddSite(SITE).then(() => {
@@ -45,6 +46,10 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
 
         it(`GIVEN existing site is opened AND an image has been inserted WHEN a caption has been typed AND 'Apply' button pressed THEN the site is getting 'saved'`,
             () => {
+                let pageComponentView = new PageComponentView();
+                let liveFormPanel = new LiveFormPanel();
+                let contentWizard = new ContentWizard();
+                let imageInspectPanel = new ImageInspectPanel();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     //automatic template does not exist, so no need to unlock the editor
                     return contentWizard.clickOnShowComponentViewToggler();
@@ -75,6 +80,9 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
         //verifies https://github.com/enonic/app-contentstudio/issues/77
         it(`GIVEN existing site with image-component is opened WHEN the caption in inspection panel has been updated THEN expected caption should be present in the text area`,
             () => {
+                let contentWizard = new ContentWizard();
+                let pageComponentView = new PageComponentView();
+                let imageInspectPanel = new ImageInspectPanel();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     return contentWizard.clickOnShowComponentViewToggler();
                 }).then(() => {
@@ -86,11 +94,13 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                     return imageInspectPanel.typeCaption("new caption");
                 }).then(() => {
                     return imageInspectPanel.clickOnApplyButton();
-                }).pause(3000).then(() => {
+                }).then(() => {
                     return imageInspectPanel.typeCaption("test caption");
                 }).then(() => {
                     return imageInspectPanel.clickOnApplyButton();
-                }).pause(2000).then(() => {
+                }).then(()=>{
+                    return imageInspectPanel.pause(1000);
+                }).then(() => {
                     return imageInspectPanel.getCaptionText();
                 }).then(result => {
                     assert.isTrue(result == "test caption", "caption should be updated successfully");
