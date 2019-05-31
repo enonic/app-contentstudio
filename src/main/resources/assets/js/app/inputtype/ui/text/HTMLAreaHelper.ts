@@ -51,27 +51,26 @@ export class HTMLAreaHelper {
     }
 
     public static convertRenderSrcToPreviewSrc(value: string, contentId: string): string {
-        let processedContent = value;
-        let regex = /<img.*?src="(.*?)"/g;
-        let imgSrcs;
-
-        if (!processedContent) {
+        if (!value) {
             return '';
         }
 
-        while (processedContent.includes(` src="${ImageUrlResolver.URL_PREFIX_RENDER}`) ||
-               processedContent.includes(` src="${ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL}`)) {
+        let processedContent: string = value;
+        const regex: RegExp = /<img.*?src="(.*?)"/g;
+        let imgSrcs: RegExpExecArray = regex.exec(processedContent);
+
+        while (imgSrcs) {
+            imgSrcs.forEach((imgSrc: string) => {
+                if (imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER) ||
+                    imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
+                    processedContent =
+                        processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
+                }
+            });
+
             imgSrcs = regex.exec(processedContent);
-            if (imgSrcs) {
-                imgSrcs.forEach((imgSrc: string) => {
-                    if (imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER) ||
-                        imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
-                        processedContent =
-                            processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
-                    }
-                });
-            }
         }
+
         return processedContent;
     }
 
