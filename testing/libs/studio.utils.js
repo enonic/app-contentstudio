@@ -107,7 +107,6 @@ module.exports = {
         }).then(() => {
             return insertLinkDialog.pause(700);
         });
-
     },
     doCloseCurrentBrowserTab: function () {
         return webDriverHelper.browser.getTitle().then(title => {
@@ -513,7 +512,7 @@ module.exports = {
     saveAndCloseWizard: function (displayName) {
         let contentWizardPanel = new ContentWizardPanel();
         return contentWizardPanel.waitAndClickOnSave().then(() => {
-            return wizard.pause(300);
+            return contentWizardPanel.pause(300);
         }).then(() => {
             return this.doCloseWindowTabAndSwitchToBrowsePanel()
         })

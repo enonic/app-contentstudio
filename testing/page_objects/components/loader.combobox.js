@@ -33,7 +33,7 @@ class LoaderComboBox extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        await this.waitForElementDisplayed(xpath + this.optionsFilterInput);
+        //await this.waitForElementDisplayed(xpath + this.optionsFilterInput);
         let elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
         await this.getBrowser().elementSendKeys(elems[0].ELEMENT, [optionDisplayName]);
         await this.waitForElementDisplayed(optionSelector);
@@ -46,7 +46,6 @@ class LoaderComboBox extends Page {
     getOptionDisplayNames() {
         //TODO implement it
     }
-
 };
 module.exports = LoaderComboBox;
 

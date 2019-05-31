@@ -13,6 +13,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
+const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 describe('Text Component with CKE - insert download link  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -85,7 +86,16 @@ describe('Text Component with CKE - insert download link  specification', functi
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => {
+        let insertLinkDialog = new InsertLinkDialog();
+        return insertLinkDialog.isDialogOpened().then(result => {
+            if (result) {
+                return insertLinkDialog.clickOnCancelButton();
+            }
+        }).then(() => {
+            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        })
+    });
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
