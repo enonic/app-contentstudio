@@ -74,13 +74,13 @@ class InsertLinkDialog extends Page {
         });
     }
 
-    selectTargetInContentTab(targetDisplayName) {
+    async selectTargetInContentTab(targetDisplayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.clickOnBarItem('Content').then(() => {
-            return this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
-        }).then(() => {
-            return loaderComboBox.typeTextAndSelectOption(targetDisplayName, "//div[contains(@id,'ContentComboBox')]");
-        })
+        let selector = "//div[contains(@id,'ContentComboBox')]" + loaderComboBox.optionsFilterInput;
+        //opens Content tab
+        await this.clickOnBarItem('Content');
+        await this.pause(300);
+        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, "//div[contains(@id,'ContentComboBox')]");
     }
 
 
