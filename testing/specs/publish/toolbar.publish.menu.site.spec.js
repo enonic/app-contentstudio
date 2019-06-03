@@ -1,0 +1,40 @@
+/**
+ * Created on 21.01.2019.
+ * verifies : https://github.com/enonic/app-contentstudio/issues/493
+ */
+const chai = require('chai');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+
+describe('publish.dialog.site.with.children.spec - Select a site with not valid child and try to publish it`', function () {
+    this.timeout(appConstant.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+
+    let SITE;
+    //verifies 'Create Issue' button should not appear on the toolbar after publishing site's child items
+    it(`WHEN site is selected and Publish AND Publish Tree actions have been performed THEN Unpublish button should appear on the toolbar`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
+            await studioUtils.doAddSite(SITE);
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            //let isDisplayed = await contentBrowsePanel.clickOnPublishButton();
+            await studioUtils.doPublish();
+            //'Publish Tree button should appear on the toolbar' ( throw exception after the timeout)
+            await contentBrowsePanel.waitForPublishTreeButtonVisible();
+            await studioUtils.doPublishTree();
+            //'Unpublish button should appear on the toolbar' ( throw exception after the timeout)
+            await contentBrowsePanel.waitForUnPublishButtonVisible();
+        });
+
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+});
