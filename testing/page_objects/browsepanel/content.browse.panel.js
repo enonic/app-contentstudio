@@ -173,11 +173,17 @@ class ContentBrowsePanel extends Page {
     }
 
     waitForUnPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2).catch(err=>{
+            throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
+        })
     }
 
     waitForPublishTreeButtonVisible() {
         return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3);
+    }
+
+    clickOnPublishTreeButton() {
+        return this.clickOnElement(this.publishTreeButton);
     }
 
     waitForGridLoaded(ms) {
@@ -196,10 +202,11 @@ class ContentBrowsePanel extends Page {
         })
     }
 
-    clickOnPublishButton() {
-        return this.clickOnElement(this.publishButton).catch(err => {
-            throw new Error('error when clicking on the Publish button ' + err);
-        })
+    async clickOnPublishButton() {
+        await this.waitForPublishButtonVisible();
+        await this.pause(400);
+        return await this.clickOnElement(this.publishButton);
+
     }
 
     clickOnDuplicateButton() {
@@ -289,7 +296,6 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-
     // clicks on 'Duplicate button' and waits until modal dialog appears
     clickOnDuplicateButtonAndWait() {
         return this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
@@ -303,7 +309,6 @@ class ContentBrowsePanel extends Page {
             return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
         });
     }
-
 
     waitForContentDisplayed(contentName) {
         return this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
@@ -343,7 +348,7 @@ class ContentBrowsePanel extends Page {
         }).catch(err => {
             this.saveScreenshot('err_browsepanel_preview');
             throw new Error('Error when clicking on Preview button ' + err);
-        }).then(()=>{
+        }).then(() => {
             return this.pause(2000);
         })
     }

@@ -272,11 +272,25 @@ module.exports = {
             return contentWizardPanel.pause(2000);
         });
     },
+    //Clicks on Publish button on the toolbar then clicks on Publish button ib the dialog
     doPublish: function () {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         return browsePanel.waitForPublishButtonVisible().then(() => {
             return browsePanel.clickOnPublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogOpened();
+        }).then(() => {
+            return contentPublishDialog.clickOnPublishButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    },
+    doPublishTree: function () {
+        let browsePanel = new BrowsePanel();
+        let contentPublishDialog = new ContentPublishDialog();
+        return browsePanel.waitForPublishTreeButtonVisible().then(() => {
+            return browsePanel.clickOnPublishTreeButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {

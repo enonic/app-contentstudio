@@ -291,7 +291,7 @@ class ContentWizardPanel extends Page {
     }
 
     waitForSavingButtonNotVisible() {
-        return this.waitForElementNotDisplayed(this.savingButton, appConst.TIMEOUT_3);
+        return this.waitForElementNotDisplayed(this.savingButton, appConst.TIMEOUT_7);
     }
 
     clickOnDelete() {
