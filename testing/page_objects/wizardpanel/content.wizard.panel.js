@@ -396,7 +396,8 @@ class ContentWizardPanel extends Page {
         }).then(() => {
             return this.switchToParentFrame();
         }).then(() => {
-            this.saveScreenshot('controller_selected');
+            let screenshotName = contentBuilder.generateRandomName("controller");
+            this.saveScreenshot(screenshotName);
             return this.waitForContextWindowVisible();
         })
     }

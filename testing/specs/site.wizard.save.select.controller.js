@@ -7,12 +7,9 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/page.inspection.panel');
-
 
 describe('site.wizard.save.select.controller.spec: Saves site-data and selects a controller', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -32,6 +29,7 @@ describe('site.wizard.save.select.controller.spec: Saves site-data and selects a
                 //switch to 'LiveEdit' and select the controller
                 return contentWizard.selectPageDescriptor('Page');
             }).then(() => {
+                studioUtils.saveScreenshot("site_page_descriptor_selected1");
                 return contentWizard.waitForNotificationMessage()
             }).then(result => {
                 assert.equal(result, appConstant.itemSavedNotificationMessage(displayName), "Expected notification message should appear");
