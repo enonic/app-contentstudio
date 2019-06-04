@@ -82,6 +82,7 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selctor (
         });
 
 
+    //verifies "Drag'n'Drop of selected options in Custom selector is not working #440"
     it(`GIVEN wizard with 'custom-selector' is opened AND 2 options are selected WHEN options have been swapped THEN order of selected options should be changed`,
         () => {
             let customSelectorForm = new CustomSelectorForm();
