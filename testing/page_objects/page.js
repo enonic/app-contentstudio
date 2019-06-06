@@ -120,6 +120,7 @@ class Page {
         }
         return el[0].waitForEnabled(ms);
     }
+
     async waitForDisplayedElementEnabled(selector, ms) {
         let el = await this.getDisplayedElements(selector);
         if (el.length > 1) {
@@ -136,6 +137,7 @@ class Page {
         }
         return element[0].waitForEnabled(ms, true);
     }
+
     async waitForDisplayedElementDisabled(selector, ms) {
         let element = await this.getDisplayedElements(selector);
         if (element.length > 1) {
@@ -189,15 +191,18 @@ class Page {
         return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
             throw new Error('Error when wait for notification message: ' + err);
         }).then(() => {
-            return this.getText(`//div[@class='notification-content']/span`);
+            return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
+        }).then(result=>{
+            return result[0];
         })
     }
+
     //returns array of messages
     waitForNotificationMessages() {
         return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
             throw new Error('Error when wait for notification message: ' + err);
         }).then(() => {
-            return this.getTextInElements(`//div[@class='notification-content']/span`);
+            return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
         })
     }
 
@@ -318,6 +323,7 @@ class Page {
         let elems = await this.findElements(selector);
         return await elems[0].isSelected();
     }
+
     async isDisplayedElementSelected(selector) {
         let elems = await this.getDisplayedElements(selector);
         return await elems[0].isSelected();

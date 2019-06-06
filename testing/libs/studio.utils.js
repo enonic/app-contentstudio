@@ -68,7 +68,7 @@ module.exports = {
             return insertLinkDialog.typeUrl(url);
         }).then(() => {
             return insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
-        }).then(()=>{
+        }).then(() => {
             return webDriverHelper.browser.pause(500);
         });
 
@@ -120,7 +120,7 @@ module.exports = {
         let issueListDialog = new IssueListDialog();
         return browsePanel.clickOnShowIssuesListButton().then(() => {
             return issueListDialog.waitForDialogOpened();
-        }).then(()=>{
+        }).then(() => {
             return issueListDialog.pause(300);
         });
     },
@@ -368,10 +368,15 @@ module.exports = {
     },
     selectContentAndOpenWizard: function (name) {
         let browsePanel = new BrowsePanel();
-        let contentWizardPanel = new ContentWizardPanel()
+        let contentWizardPanel = new ContentWizardPanel();
         return this.findAndSelectItem(name).then(() => {
-            return browsePanel.waitForEditButtonEnabled();
-        }).then(() => {
+            return this.doClickOnEditAndOpenContent(name);
+        })
+    },
+    doClickOnEditAndOpenContent: function (name) {
+        let browsePanel = new BrowsePanel();
+        let contentWizardPanel = new ContentWizardPanel()
+        return browsePanel.waitForEditButtonEnabled().then(() => {
             return browsePanel.clickOnEditButton();
         }).then(() => {
             return this.doSwitchToNewWizard();
