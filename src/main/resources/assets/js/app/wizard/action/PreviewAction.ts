@@ -10,7 +10,7 @@ export class PreviewAction extends BasePreviewAction {
     constructor(wizard: ContentWizardPanel) {
         super(i18n('action.preview'));
         this.onExecuted(() => {
-            if (wizard.hasUnsavedChanges() && this.writePermissions) {
+            if (this.writePermissions && wizard.hasUnsavedChanges()) {
                     wizard.setRequireValid(true);
                     wizard.saveChanges().then(content => this.openWindow(content)).catch(
                         (reason: any) => api.DefaultErrorHandler.handle(reason)).done();
