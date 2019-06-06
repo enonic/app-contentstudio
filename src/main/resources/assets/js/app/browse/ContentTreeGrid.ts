@@ -327,10 +327,8 @@ export class ContentTreeGrid
     }
 
     appendUploadNode(item: api.ui.uploader.UploadItem<ContentSummary>) {
-
-        let data = ContentSummaryAndCompareStatus.fromUploadItem(item);
-
-        let parent: TreeNode<ContentSummaryAndCompareStatus> = this.getRoot().getCurrentSelection()[0];
+        const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
+        const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getRoot().getCurrentSelection()[0];
 
         this.appendNode(data, false).then(() => {
             if (parent) {
@@ -395,7 +393,7 @@ export class ContentTreeGrid
         }, 5);
     }
 
-    findByPaths(paths: api.content.ContentPath[], useParent: boolean = false): TreeNodesOfContentPath[] {
+    private findByPaths(paths: api.content.ContentPath[], useParent: boolean = false): TreeNodesOfContentPath[] {
         let root = this.getRoot().getDefaultRoot().treeToList(false, false);
         let filter = this.getRoot().getFilteredRoot().treeToList(false, false);
         let all: TreeNode<ContentSummaryAndCompareStatus>[] = root.concat(filter);
@@ -523,20 +521,20 @@ export class ContentTreeGrid
         return deferred.promise;
     }
 
-    updateContentNode(contentId: api.content.ContentId) {
-        let root = this.getRoot().getCurrentRoot();
-        let treeNode = root.findNode(contentId.toString());
+    private updateContentNode(contentId: api.content.ContentId) {
+        const root: TreeNode<ContentSummaryAndCompareStatus> = this.getRoot().getCurrentRoot();
+        const treeNode: TreeNode<ContentSummaryAndCompareStatus> = root.findNode(contentId.toString());
         if (treeNode) {
-            let content = treeNode.getData();
+            const content: ContentSummaryAndCompareStatus = treeNode.getData();
             this.updateNode(ContentSummaryAndCompareStatus.fromContentSummary(content.getContentSummary()));
         }
     }
 
-    appendContentNode(parentNode: TreeNode<ContentSummaryAndCompareStatus>, childData: ContentSummaryAndCompareStatus, index: number,
-                      update: boolean = true): TreeNode<ContentSummaryAndCompareStatus> {
-
-        let appendedNode = this.dataToTreeNode(childData, parentNode);
-        let data = parentNode.getData();
+    private appendContentNode(parentNode: TreeNode<ContentSummaryAndCompareStatus>, childData: ContentSummaryAndCompareStatus,
+                              index: number,
+                              update: boolean = true): TreeNode<ContentSummaryAndCompareStatus> {
+        const appendedNode: TreeNode<ContentSummaryAndCompareStatus> = this.dataToTreeNode(childData, parentNode);
+        const data: ContentSummaryAndCompareStatus = parentNode.getData();
 
         if (!parentNode.hasParent() ||
             (data && parentNode.hasChildren()) ||
@@ -555,14 +553,12 @@ export class ContentTreeGrid
         }
 
         return appendedNode;
-
     }
 
-    appendContentNodes(relationships: TreeNodeParentOfContent[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
-
-        let deferred = wemQ.defer<TreeNode<ContentSummaryAndCompareStatus>[]>();
-        let parallelPromises: wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]>[] = [];
-        let result: TreeNode<ContentSummaryAndCompareStatus>[] = [];
+    private appendContentNodes(relationships: TreeNodeParentOfContent[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
+        const deferred = wemQ.defer<TreeNode<ContentSummaryAndCompareStatus>[]>();
+        const parallelPromises: wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]>[] = [];
+        const result: TreeNode<ContentSummaryAndCompareStatus>[] = [];
 
         relationships.forEach((relationship) => {
             parallelPromises.push(this.fetchChildrenIds(relationship.getNode()).then((contentIds: ContentId[]) => {
@@ -579,13 +575,13 @@ export class ContentTreeGrid
         return deferred.promise;
     }
 
-    placeContentNode(parent: TreeNode<ContentSummaryAndCompareStatus>,
-                     child: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
+    private placeContentNode(parent: TreeNode<ContentSummaryAndCompareStatus>,
+                             child: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
         return this.fetchChildrenIds(parent).then((result: ContentId[]) => {
-            let map = result.map((el) => {
+            const map = result.map((el) => {
                 return el.toString();
             });
-            let index = map.indexOf(child.getData().getId());
+            const index: number = map.indexOf(child.getData().getId());
 
             if (!parent.hasParent() ||
                 (child.getData() && parent.hasChildren()) ||
@@ -603,7 +599,7 @@ export class ContentTreeGrid
     }
 
     placeContentNodes(nodes: TreeNode<ContentSummaryAndCompareStatus>[]): wemQ.Promise<any> {
-        let parallelPromises: wemQ.Promise<any>[] = [];
+        const parallelPromises: wemQ.Promise<any>[] = [];
 
         nodes.forEach((node: TreeNode<ContentSummaryAndCompareStatus>) => {
             parallelPromises.push(this.placeContentNode(node.getParent(), node));
@@ -617,9 +613,9 @@ export class ContentTreeGrid
         });
     }
 
-    deleteContentNode(node: TreeNode<ContentSummaryAndCompareStatus>,
-                      update: boolean = true): TreeNode<ContentSummaryAndCompareStatus> {
-        let parentNode = node.getParent();
+    private deleteContentNode(node: TreeNode<ContentSummaryAndCompareStatus>,
+                              update: boolean = true): TreeNode<ContentSummaryAndCompareStatus> {
+        const parentNode: TreeNode<ContentSummaryAndCompareStatus> = node.getParent();
 
         if (this.isNodeHighlighted(node)) {
             this.removeHighlighting();
@@ -627,7 +623,7 @@ export class ContentTreeGrid
 
         node.remove();
 
-        let data = parentNode ? parentNode.getData() : null;
+        const data: ContentSummaryAndCompareStatus = parentNode ? parentNode.getData() : null;
         if (data && !parentNode.hasChildren() && data.getContentSummary().hasChildren()) {
             data.setContentSummary(new ContentSummaryBuilder(data.getContentSummary()).setHasChildren(false).build());
         }
@@ -639,43 +635,68 @@ export class ContentTreeGrid
         return parentNode;
     }
 
-    deleteContentNodes(nodes: TreeNode<ContentSummaryAndCompareStatus>[],
-                       update: boolean = true) {
-
+    deleteContentNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const nodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getNodes(paths);
         this.deselectDeletedNodes(nodes);
 
         nodes.forEach((node) => {
             this.deleteContentNode(node, false);
         });
 
-        if (update) {
-            this.initAndRender();
-        }
+        this.initAndRender();
+        this.updateNodesHasChildren(paths);
+
+        return nodes;
+    }
+
+    private getNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const nodes: TreeNode<ContentSummaryAndCompareStatus>[][] = this.findByPaths(paths).map(el => el.getNodes());
+        const merged: TreeNode<ContentSummaryAndCompareStatus>[] = [];
+
+        return merged.concat.apply(merged, nodes);
     }
 
     private deselectDeletedNodes(nodes: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        let deselected = [];
-        this.getSelectedDataList().forEach((content: ContentSummaryAndCompareStatus) => {
+        const nodesToDeselect: string[] = [];
 
-            let wasDeleted = nodes.some((node: TreeNode<ContentSummaryAndCompareStatus>) => {
+        this.getSelectedDataList().forEach((content: ContentSummaryAndCompareStatus) => {
+            const wasDeleted: boolean = nodes.some((node: TreeNode<ContentSummaryAndCompareStatus>) => {
                 return content.getContentId().equals(node.getData().getContentId()) ||
                        content.getPath().isDescendantOf(node.getData().getPath());
             });
 
             if (wasDeleted) {
-                deselected.push(content.getId());
+                nodesToDeselect.push(content.getId());
             }
 
         });
-        this.deselectNodes(deselected);
+
+        this.deselectNodes(nodesToDeselect);
     }
 
-    updatePathsInChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
+    // update parent if all children were deleted
+    private updateNodesHasChildren(paths: ContentPath[]) {
+        this.getUniqueParentsNodes(paths)
+            .filter((parentNode: TreeNode<ContentSummaryAndCompareStatus>) => parentNode.getChildren().length === 0)
+            .forEach((parentNode: TreeNode<ContentSummaryAndCompareStatus>) => {
+                this.refreshNodeData(parentNode);
+            });
+    }
+
+    private getUniqueParentsNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const uniqueParents: ContentPath[] = paths.map(path => path.getParentPath()).filter((parent, index, self) => {
+            return self.indexOf(parent) === index;
+        });
+
+        return this.getNodes(uniqueParents);
+    }
+
+    private updatePathsInChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
         node.getChildren().forEach((child) => {
-            let nodeSummary = node.getData() ? node.getData().getContentSummary() : null;
-            let childSummary = child.getData() ? child.getData().getContentSummary() : null;
+            const nodeSummary: ContentSummary = node.getData() ? node.getData().getContentSummary() : null;
+            const childSummary: ContentSummary = child.getData() ? child.getData().getContentSummary() : null;
             if (nodeSummary && childSummary) {
-                let path = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
+                const path: ContentPath = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
                 child.getData().setContentSummary(new ContentSummaryBuilder(childSummary).setPath(path).build());
                 child.clearViewers();
                 this.updatePathsInChildren(child);
@@ -683,9 +704,10 @@ export class ContentTreeGrid
         });
     }
 
-    sortNodesChildren(nodes: TreeNode<ContentSummaryAndCompareStatus>[]): wemQ.Promise<void> {
-
-        let parallelPromises: wemQ.Promise<any>[] = [];
+    sortNodesChildren(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<void> {
+        const paths: api.content.ContentPath[] = data.map(d => d.getContentSummary().getPath());
+        const nodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getNodes(paths);
+        const parallelPromises: wemQ.Promise<any>[] = [];
 
         nodes.sort((a, b) => {
             return a.getDataId().localeCompare(b.getDataId());
@@ -730,12 +752,13 @@ export class ContentTreeGrid
         });
 
         return wemQ.all(parallelPromises).spread<void>(() => {
+            this.invalidate();
             return wemQ(null);
         }).catch((reason: any) => api.DefaultErrorHandler.handle(reason));
     }
 
     protected handleItemMetadata(row: number) {
-        let node = this.getItem(row);
+        const node: TreeNode<ContentSummaryAndCompareStatus> = this.getItem(row);
         if (this.isEmptyNode(node)) {
             return {cssClasses: 'empty-node'};
         }
@@ -745,5 +768,142 @@ export class ContentTreeGrid
         }
 
         return null;
+    }
+
+    getSelectedOrHighlightedItems(): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const selectedItems: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getFullSelection();
+
+        if (selectedItems.length > 0) {
+            return selectedItems;
+        }
+
+        if (this.hasHighlightedNode()) {
+            return [this.getFirstSelectedOrHighlightedNode()];
+        }
+
+        return [];
+    }
+
+    renameContentNodes(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): wemQ.Promise<void> {
+        const nodes: TreeNodesOfContentPath[] = this.getContentNodes(data);
+        const parentsOfContents: TreeNodeParentOfContent[] = [];
+
+        for (let i = 0; i < nodes.length; i++) {
+            this.processRenamedNodes(data, nodes[i].getPath(), oldPaths);
+            nodes[i].getNodes().map((node) => {
+                parentsOfContents.push(new TreeNodeParentOfContent([], node));
+            });
+        }
+
+        return this.processContentCreated(parentsOfContents);
+    }
+
+    private getContentNodes(data: ContentSummaryAndCompareStatus[]): TreeNodesOfContentPath[] {
+        const paths: api.content.ContentPath[] = data.map(d => d.getPath());
+        return this.findByPaths(paths, true);
+    }
+
+    private processRenamedNodes(data: ContentSummaryAndCompareStatus[], path: ContentPath, oldPaths: ContentPath[]) {
+        data.filter((el) => el.getPath().isChildOf(path)).forEach((el) => {
+            const movedNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getNodes(oldPaths);
+            this.updatePathsOfRenamedNodes(el, movedNodes);
+            this.placeContentNodes(movedNodes);
+        });
+    }
+
+    private updatePathsOfRenamedNodes(el: ContentSummaryAndCompareStatus, nodes: TreeNode<ContentSummaryAndCompareStatus>[]) {
+        nodes.forEach((node) => {
+            if (node.getDataId() === el.getId()) {
+                node.setData(el);
+                node.clearViewers();
+                this.updatePathsInChildren(node);
+            }
+        });
+    }
+
+    private processContentCreated(nodes: TreeNodeParentOfContent[]): wemQ.Promise<void> {
+        return this.appendContentNodes(nodes).then((results: TreeNode<ContentSummaryAndCompareStatus>[]) => {
+            return this.placeContentNodes(this.getNodesThatShouldBeVisible(results)).then(() => {
+                this.initAndRender();
+
+                return wemQ(null);
+            });
+        });
+    }
+
+    private getNodesThatShouldBeVisible(items: TreeNode<ContentSummaryAndCompareStatus>[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const nodesThatShouldBeVisible: TreeNode<ContentSummaryAndCompareStatus>[] = [];
+
+        items.forEach((appendedNode) => {
+            if (appendedNode.getParent() && appendedNode.getParent().isExpanded()) {
+                nodesThatShouldBeVisible.push(appendedNode);
+            }
+        });
+
+        return nodesThatShouldBeVisible;
+    }
+
+    addContentNodes(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<void> {
+        return this.processContentCreated(this.getParentsOfCreatedContents(data));
+    }
+
+    private getParentsOfCreatedContents(data: ContentSummaryAndCompareStatus[]): TreeNodeParentOfContent[] {
+        const createResult: TreeNodesOfContentPath[] = this.getContentNodes(data);
+        const parentsOfContents: TreeNodeParentOfContent[] = [];
+
+        for (let i = 0; i < createResult.length; i++) {
+            const dataToHandle: ContentSummaryAndCompareStatus[] = [];
+
+            data.filter((el) => el.getPath().isChildOf(createResult[i].getPath())).forEach((el) => {
+                dataToHandle.push(el);
+            });
+
+            createResult[i].getNodes().map((node) => {
+                parentsOfContents.push(new TreeNodeParentOfContent(dataToHandle, node));
+            });
+        }
+
+        return parentsOfContents;
+    }
+
+    updateContentNodes(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
+        const changed: TreeNode<ContentSummaryAndCompareStatus>[] = this.doUpdateContentNodes(data);
+        this.invalidateNodes(changed);
+
+        return wemQ(changed);
+    }
+
+    private doUpdateContentNodes(data: ContentSummaryAndCompareStatus[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        const treeNodes: TreeNodesOfContentPath[] = this.getContentNodes(data);
+
+        const changed: TreeNode<ContentSummaryAndCompareStatus>[] = [];
+        data.forEach((el) => {
+            for (let i = 0; i < treeNodes.length; i++) {
+                if (treeNodes[i].getId() === el.getId()) {
+                    treeNodes[i].updateNodeData(el);
+                    changed.push(...treeNodes[i].getNodes());
+                    break;
+                }
+            }
+        });
+
+        return changed;
+    }
+
+    selectInlinedContentInGrid(contentPath: ContentPath) {
+        if (this.getFirstSelectedOrHighlightedNode() && !this.isGivenPathSelectedInGrid(contentPath)) {
+            this.selectNodeByPath(contentPath);
+        }
+    }
+
+    private isGivenPathSelectedInGrid(path: api.content.ContentPath): boolean {
+        const node: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedNode();
+
+        if (node) {
+            const contentSummary: ContentSummaryAndCompareStatus = node.getData();
+            return contentSummary.getPath().equals(path);
+        }
+
+        return false;
     }
 }
