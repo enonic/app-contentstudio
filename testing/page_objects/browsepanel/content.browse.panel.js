@@ -173,7 +173,7 @@ class ContentBrowsePanel extends Page {
     }
 
     waitForUnPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2).catch(err=>{
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
         })
     }
@@ -365,9 +365,9 @@ class ContentBrowsePanel extends Page {
     }
 
     waitForEditButtonEnabled() {
-        return this.waitForElementEnabled(this.editButton, 3000).catch(err => {
+        return this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_5).catch(err => {
             this.saveScreenshot('err_edit_button');
-            throw Error('Edit button is not enabled after ' + 3000 + 'ms')
+            throw Error('Edit button is not enabled after ' + appConst.TIMEOUT_5 + 'ms')
         })
     }
 

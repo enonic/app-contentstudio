@@ -22,7 +22,7 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selctor (
     let OPTION_2 = "Option number 2";
     let CUSTOM_SELECTOR = 'custom-selector0_2';
 
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
+    it(`Preconditions: new site should be added`,
         () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
@@ -55,7 +55,7 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selctor (
             }).then(() => {
                 return customSelectorForm.getSelectedOptions();
             }).then(result => {
-                studioUtils.saveScreenshot("custom_selector_swapped_options");
+                studioUtils.saveScreenshot("custom_selector_1_option");
                 assert.equal(result[0], OPTION_1, "Order of selected Options should be changed");
             });
         });
@@ -75,12 +75,11 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selctor (
             }).then(() => {
                 return customSelectorForm.getSelectedOptions();
             }).then(result => {
-                studioUtils.saveScreenshot("custom_selector_swapped_options");
+                studioUtils.saveScreenshot("custom_selector_2_options");
                 assert.equal(result[0], OPTION_1, "Order of selected Options should be changed");
                 assert.equal(result[1], OPTION_2, "Order of selected Options should be changed");
             });
         });
-
 
     //verifies "Drag'n'Drop of selected options in Custom selector is not working #440"
     it(`GIVEN wizard with 'custom-selector' is opened AND 2 options are selected WHEN options have been swapped THEN order of selected options should be changed`,

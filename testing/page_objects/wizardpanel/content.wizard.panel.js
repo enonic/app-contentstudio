@@ -245,8 +245,8 @@ class ContentWizardPanel extends Page {
     }
 
     waitForSaveButtonDisabled() {
-        return this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_3).catch((err) => {
-            throw new Error("Content Wizard - " + err);
+        return this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Content Wizard -Save button should be disabled! " + err);
         })
     }
 

@@ -30,7 +30,7 @@ describe('site.wizard.save.select.controller.spec: Saves site-data and selects a
                 return contentWizard.selectPageDescriptor('Page');
             }).then(() => {
                 studioUtils.saveScreenshot("site_page_descriptor_selected1");
-                return contentWizard.waitForNotificationMessage()
+                return contentWizard.waitForNotificationMessage();
             }).then(result => {
                 assert.equal(result, appConstant.itemSavedNotificationMessage(displayName), "Expected notification message should appear");
             });
