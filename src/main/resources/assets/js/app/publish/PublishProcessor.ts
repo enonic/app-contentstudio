@@ -205,6 +205,10 @@ export class PublishProcessor {
         return this.dependantIds;
     }
 
+    public resetDependantIds() {
+        this.dependantIds = [];
+    }
+
     public getExcludedIds(): ContentId[] {
         return this.excludedIds;
     }
