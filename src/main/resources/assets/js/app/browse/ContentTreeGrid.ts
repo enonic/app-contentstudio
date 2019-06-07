@@ -394,16 +394,17 @@ export class ContentTreeGrid
     }
 
     private findByPaths(paths: api.content.ContentPath[], useParent: boolean = false): TreeNodesOfContentPath[] {
-        let root = this.getRoot().getDefaultRoot().treeToList(false, false);
-        let filter = this.getRoot().getFilteredRoot().treeToList(false, false);
-        let all: TreeNode<ContentSummaryAndCompareStatus>[] = root.concat(filter);
-        let result: TreeNodesOfContentPath[] = [];
-        let resultIds: string[] = [];
+        const root: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getDefaultRoot().treeToList(false, false);
+        const filter: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getFilteredRoot().treeToList(false, false);
+        const all: TreeNode<ContentSummaryAndCompareStatus>[] = root.concat(filter);
+        const result: TreeNodesOfContentPath[] = [];
+        const resultIds: string[] = [];
 
         for (let i = 0; i < paths.length; i++) {
-            let node = useParent
+            const node = useParent
                 ? new TreeNodesOfContentPath(paths[i].getParentPath(), paths[i])
                 : new TreeNodesOfContentPath(paths[i]);
+
             if (useParent && node.getPath().isRoot()) {
                 node.getNodes().push(this.getRoot().getDefaultRoot());
                 if (this.isFiltered()) {
@@ -420,6 +421,7 @@ export class ContentTreeGrid
                     }
                 }
             }
+
             if (node.hasNodes()) {
                 if (resultIds.indexOf(node.getId()) < 0) {
                     result.push(node);
@@ -785,7 +787,7 @@ export class ContentTreeGrid
     }
 
     renameContentNodes(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): wemQ.Promise<void> {
-        const nodes: TreeNodesOfContentPath[] = this.getContentNodes(data);
+        const nodes: TreeNodesOfContentPath[] = this.getContentNodes(data, true);
         const parentsOfContents: TreeNodeParentOfContent[] = [];
 
         for (let i = 0; i < nodes.length; i++) {
@@ -798,9 +800,9 @@ export class ContentTreeGrid
         return this.processContentCreated(parentsOfContents);
     }
 
-    private getContentNodes(data: ContentSummaryAndCompareStatus[]): TreeNodesOfContentPath[] {
+    private getContentNodes(data: ContentSummaryAndCompareStatus[], useParent: boolean = false): TreeNodesOfContentPath[] {
         const paths: api.content.ContentPath[] = data.map(d => d.getPath());
-        return this.findByPaths(paths, true);
+        return this.findByPaths(paths, useParent);
     }
 
     private processRenamedNodes(data: ContentSummaryAndCompareStatus[], path: ContentPath, oldPaths: ContentPath[]) {
@@ -848,7 +850,7 @@ export class ContentTreeGrid
     }
 
     private getParentsOfCreatedContents(data: ContentSummaryAndCompareStatus[]): TreeNodeParentOfContent[] {
-        const createResult: TreeNodesOfContentPath[] = this.getContentNodes(data);
+        const createResult: TreeNodesOfContentPath[] = this.getContentNodes(data, true);
         const parentsOfContents: TreeNodeParentOfContent[] = [];
 
         for (let i = 0; i < createResult.length; i++) {
