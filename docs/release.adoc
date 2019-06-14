@@ -2,4 +2,26 @@
 :toc: right
 :imagesdir: release/images
 
-== TODO
+== Introduction
+
+Until the release of Enonic XP 7 the Content Studio app used to be a part of the XP distribution package.
+*Content Studio 2.0* is the first version released on Enonic Market separately from XP.
+It is compatible with XP 7.0 and will not work with earlier versions. This release includes some important features, as well as
+a number of major improvements and bugfixes.
+
+=== Context panel
+
+In previous versions *Context panel* (previously "Detail panel") was available only in the Browse Content view. Starting from version 2.0,
+the panel is available in the Content Edit view as well. User can now access widgets without having to switch to or open the Browse view.
+The panel can be opened and closed by clicking the cog icon in the top right corner of the view.
+
+image::context-panel.png[]
+
+Compared to the Context panel available in the Browse Content view, in this view the panel adds the widget for managing selected content, such
+as adding new components to the page or configuring existing page components.
+
+You can find more information about the Context Panel and widgets in the <<widgets#,dedicated section>>.
+
+
+=== Icons in the Content Wizard form navigator
+
