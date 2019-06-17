@@ -269,6 +269,7 @@ export class HtmlEditor {
 
                 const imgUrl = new ImageUrlResolver()
                     .setContentId(mediaContent.id)
+                    .setScaleWidth(true)
                     .resolveForPreview();
 
                 data.url = imgUrl;

@@ -10,7 +10,10 @@ export class HTMLAreaHelper {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
-        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId)).setTimestamp(new Date());
+        const imageUrlResolver = new ImageUrlResolver()
+            .setContentId(new ContentId(imageId))
+            .setTimestamp(new Date())
+            .setScaleWidth(true);
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();

@@ -18,6 +18,8 @@ export class ImageUrlResolver
 
     private crop: boolean = true;
 
+    private scaleWidth: boolean = false;
+
     private size: number;
 
     private aspectRatio: string; //scale params applied to image
@@ -64,6 +66,11 @@ export class ImageUrlResolver
         return this;
     }
 
+    setScaleWidth(value: boolean) : ImageUrlResolver {
+        this.scaleWidth = value;
+        return this;
+    }
+
     private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
         const url = urlPrefix + this.contentId.toString();
 
@@ -104,6 +111,10 @@ export class ImageUrlResolver
 
         if (!this.crop) {
             url = this.appendParam('crop', 'false', url);
+        }
+
+        if (this.scaleWidth) {
+            url = this.appendParam('scaleWidth', 'true', url);
         }
 
         return url;
