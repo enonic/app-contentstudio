@@ -124,4 +124,10 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
         this.curChildOrder = value;
     }
 
+    reset() {
+        this.setChildOrder(null);
+        this.getGrid().getDataView().setItems([]);
+        this.getGrid().resizeCanvas();
+    }
+
 }

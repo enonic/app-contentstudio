@@ -28,8 +28,13 @@
   }
 
   .slick-viewport {
-    overflow: auto;
+    position: relative;
   }
+
+  .slick-pane-top {
+    height: auto !important;
+  }
+
   .drag-icon {
     cursor: move;
     min-width: 30px;
@@ -67,6 +72,7 @@
   .grid-canvas {
     position: static;
     min-height: 45px;
+    max-height: 40vh;
 
     .selected {
       z-index: 2;
