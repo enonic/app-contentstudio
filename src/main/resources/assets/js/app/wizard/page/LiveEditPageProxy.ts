@@ -42,9 +42,12 @@ import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
+import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
+import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
 import PageDescriptor = api.content.page.PageDescriptor;
 import i18n = api.util.i18n;
+import Element = api.dom.Element;
 
 declare var CONFIG;
 
@@ -428,7 +431,7 @@ export class LiveEditPageProxy {
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string): wemQ.Promise<string> {
-        let deferred = wemQ.defer<string>();
+        const deferred = wemQ.defer<string>();
         api.util.assertNotNull(componentView, 'componentView cannot be null');
         api.util.assertNotNull(componentUrl, 'componentUrl cannot be null');
 
@@ -436,43 +439,58 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
-                let newElement = api.dom.Element.fromString(htmlAsString);
-                let itemViewIdProducer = componentView.getItemViewIdProducer();
-                let itemViewFactory = componentView.getItemViewFactory();
-
-                let createViewConfig = new CreateItemViewConfig<RegionView, Component>()
-                    .setItemViewIdProducer(itemViewIdProducer)
-                    .setItemViewFactory(itemViewFactory)
-                    .setParentView(componentView.getParentItemView())
-                    .setData(componentView.getComponent())
-                    .setElement(newElement);
-
-                let newComponentView = <ComponentView<Component>>itemViewFactory.createView(componentView.getType(),
-                    createViewConfig);
-
-                componentView.replaceWith(newComponentView);
-
-                let event = new ComponentLoadedEvent(newComponentView, componentView);
-                event.fire(this.liveEditWindow);
-
-                newComponentView.select();
-                newComponentView.hideContextMenu();
-
-                deferred.resolve('');
+                deferred.resolve(this.handleComponentLoaded(htmlAsString, componentView));
             },
             error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                let responseHtml = wemjq.parseHTML(jqXHR.responseText);
-                let errorMessage = '';
-                responseHtml.forEach((el: HTMLElement, i) => {
-                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
-                        errorMessage = el.innerHTML;
-                    }
-                });
-                deferred.reject(errorMessage);
+                deferred.reject(this.createErrorMessage(jqXHR.responseText));
             }
         });
 
         return deferred.promise;
+    }
+
+    private handleComponentLoaded(htmlAsString: string, oldComponentView: ComponentView<Component>): string {
+        const newComponentView: ComponentView<Component> = this.createComponentViewFromHtml(htmlAsString, oldComponentView);
+        const hasContextMenuOpen: boolean = oldComponentView.hasContextMenuOpen();
+
+        oldComponentView.replaceWith(newComponentView);
+
+        const loadedEvent: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, oldComponentView);
+        loadedEvent.fire(this.liveEditWindow);
+
+        newComponentView.select();
+        if (!hasContextMenuOpen) {
+            newComponentView.hideContextMenu();
+        }
+
+        return '';
+    }
+
+    private createComponentViewFromHtml(htmlAsString: string, oldComponentView: ComponentView<Component>): ComponentView<Component> {
+        const newElement: Element = api.dom.Element.fromString(htmlAsString);
+        const itemViewIdProducer: ItemViewIdProducer = oldComponentView.getItemViewIdProducer();
+        const itemViewFactory: ItemViewFactory = oldComponentView.getItemViewFactory();
+
+        const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
+            .setItemViewIdProducer(itemViewIdProducer)
+            .setItemViewFactory(itemViewFactory)
+            .setParentView(oldComponentView.getParentItemView())
+            .setData(oldComponentView.getComponent())
+            .setElement(newElement);
+
+        return <ComponentView<Component>>itemViewFactory.createView(oldComponentView.getType(), createViewConfig);
+    }
+
+    private createErrorMessage(responseText: string): string {
+        const responseHtml: any[] = wemjq.parseHTML(responseText);
+        let errorMessage: string = '';
+        responseHtml.forEach((el: HTMLElement, i) => {
+            if (el.tagName && el.tagName.toLowerCase() === 'title') {
+                errorMessage = el.innerHTML;
+            }
+        });
+
+        return errorMessage;
     }
 
     public stopListening(contextWindow: any) {

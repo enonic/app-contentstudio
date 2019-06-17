@@ -571,6 +571,10 @@ export class ItemView
         return this.contextMenu;
     }
 
+    hasContextMenuOpen(): boolean {
+        return !!this.contextMenu && this.contextMenu.isVisible();
+    }
+
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
