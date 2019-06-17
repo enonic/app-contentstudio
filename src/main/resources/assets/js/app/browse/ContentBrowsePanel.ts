@@ -387,10 +387,6 @@ export class ContentBrowsePanel
             ContentSummaryAndCompareStatusFetcher.updateReadOnly(updatedNodes.map(node => node.getData())).then(() => {
                 this.triggerDataChangedEvent(updatedNodes);
                 this.updatePreviewIfNeeded(data);
-
-                if (updatedNodes.length > 0) {
-                    this.treeGrid.placeContentNodes(updatedNodes);
-                }
             });
         });
     }
@@ -443,7 +439,8 @@ export class ContentBrowsePanel
     }
 
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
-        return this.treeGrid.updateContentNodes(data).then(this.updateContextPanel.bind(this));
+        this.updateContextPanel(data);
+        return this.treeGrid.updateContentNodes(data);
     }
 
     private handleContentSorted(data: ContentSummaryAndCompareStatus[]) {
