@@ -254,7 +254,7 @@ export class ItemView
     }
 
     protected disableLinks() {
-        wemjq(this.getHTMLElement()).find('a').click(e => e.preventDefault());
+        wemjq(this.getHTMLElement()).find('a').on('click', e => e.preventDefault());
     }
 
     public setContextMenuTitle(title: ItemViewContextMenuTitle) {

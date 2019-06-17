@@ -12,6 +12,9 @@ import ChildOrder = api.content.order.ChildOrder;
 import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
 import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
+import TabMenu = api.ui.tab.TabMenu;
+import H6El = api.dom.H6El;
+import TabMenuItem = api.ui.tab.TabMenuItem;
 
 export class SortContentDialog extends api.ui.dialog.ModalDialog {
 
@@ -61,7 +64,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         super.initListeners();
 
         this.sortContentMenu.onSortOrderChanged(() => {
-            this.handleOnSortOrderChangedEvent();
+            this.handleSortOrderChanged();
             this.saveButton.giveFocus();
         });
 
@@ -71,20 +74,12 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         });
 
         this.sortAction.onExecuted(() => {
-            this.handleSortAction();
+            this.handleSortApplied();
         });
 
         this.gridLoadedHandler = () => {
             this.notifyResize();
-            this.contentGrid.render(true);
-
-            const scrollTop = this.contentGrid.getGrid().getCanvasNode().parentElement.scrollTop;// saves and restores grid scroll position
-            this.getContentPanel().getEl().setHeight('auto');//allows parent to be stretched by child grid
-
-            const parentHeight = this.getContentPanel().getParentElement().getEl().getHeightWithoutPadding();
-
-            this.getContentPanel().getEl().setHeight(Math.floor(parentHeight) + 'px');
-            this.contentGrid.getGrid().getCanvasNode().parentElement.scrollTop = scrollTop;
+            this.contentGrid.getGrid().resizeCanvas();
         };
 
         OpenSortDialogEvent.on((event) => {
@@ -98,7 +93,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
             this.sortContentMenu.show();
             this.appendChildToHeader(this.sortContentMenu);
 
-            const header = new api.dom.H6El();
+            const header = new H6El();
             header.setHtml(i18n('dialog.sort.preface'));
             this.appendChildToContentPanel(header);
 
@@ -111,7 +106,6 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     show() {
-        this.contentGrid.getGrid().resizeCanvas();
         super.show();
         this.contentGrid.onLoaded(this.gridLoadedHandler);
         this.contentGrid.reload(this.parentContent);
@@ -122,7 +116,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.remove();
         this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
-        this.contentGrid.setChildOrder(null);
+        this.contentGrid.reset();
         this.gridDragHandler.clearContentMovements();
     }
 
@@ -131,30 +125,29 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private initTabMenu() {
-        const menu = new api.ui.tab.TabMenu();
-        const tabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
+        const menu: TabMenu = new TabMenu();
+        const tabMenuItem: TabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
         tabMenuItem.setActive(true);
         menu.addNavigationItem(tabMenuItem);
         menu.selectNavigationItem(0);
         menu.show();
     }
 
-    private handleSortAction() {
+    private handleSortApplied() {
         if (this.curChildOrder.equals(this.getParentChildOrder()) && !this.curChildOrder.isManual()) {
             this.close();
         } else {
-            this.showLoadingSpinner();
+            this.saveSortOrder().catch(api.DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
+        }
+    }
 
-            if (this.curChildOrder.isManual()) {
-                this.setManualReorder(this.hasChangedPrevChildOrder() ? this.prevChildOrder : null,
-                    this.gridDragHandler.getContentMovements())
-                    .catch(reason => api.DefaultErrorHandler.handle(reason))
-                    .done(() => this.onAfterSetOrder());
-            } else {
-                this.setContentChildOrder(this.curChildOrder)
-                    .catch(reason => api.DefaultErrorHandler.handle(reason))
-                    .done(() => this.onAfterSetOrder());
-            }
+    private saveSortOrder(): wemQ.Promise<Content> {
+        this.showLoadingSpinner();
+
+        if (this.curChildOrder.isManual()) {
+            return this.setManualReorder();
+        } else {
+            return this.setContentChildOrder();
         }
     }
 
@@ -175,23 +168,24 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.open();
     }
 
-    private handleOnSortOrderChangedEvent() {
-        const newOrder = this.sortContentMenu.getSelectedNavigationItem().getSelectedChildOrder();
+    private handleSortOrderChanged() {
+        const newOrder: ChildOrder = this.sortContentMenu.getSelectedNavigationItem().getSelectedChildOrder();
 
         if (!this.curChildOrder.equals(newOrder)) {
+            this.setSortOrder(newOrder);
+        }
+    }
 
-            if (!newOrder.isManual()) {
-                this.curChildOrder = newOrder;
-
-                this.contentGrid.setChildOrder(this.curChildOrder);
-                this.contentGrid.reload(this.parentContent);
-
-                this.gridDragHandler.clearContentMovements();
-            } else {
-                this.prevChildOrder = this.curChildOrder;
-                this.curChildOrder = newOrder;
-                this.contentGrid.setChildOrder(this.curChildOrder);
-            }
+    private setSortOrder(newOrder: ChildOrder) {
+        if (!newOrder.isManual()) {
+            this.curChildOrder = newOrder;
+            this.contentGrid.setChildOrder(this.curChildOrder);
+            this.contentGrid.reload(this.parentContent);
+            this.gridDragHandler.clearContentMovements();
+        } else {
+            this.prevChildOrder = this.curChildOrder;
+            this.curChildOrder = newOrder;
+            this.contentGrid.setChildOrder(this.curChildOrder);
         }
     }
 
@@ -212,20 +206,20 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.saveButton.removeClass('spinner');
     }
 
-    private setContentChildOrder(order: ChildOrder, silent: boolean = false): wemQ.Promise<Content> {
-
+    private setContentChildOrder(): wemQ.Promise<Content> {
         return new OrderContentRequest()
-            .setSilent(silent)
+            .setSilent(false)
             .setContentId(this.parentContent.getContentId())
-            .setChildOrder(order)
+            .setChildOrder(this.curChildOrder)
             .sendAndParse();
     }
 
-    private setManualReorder(order: ChildOrder, movements: OrderChildMovements,
-                             silent: boolean = false): wemQ.Promise<Content> {
+    private setManualReorder(): wemQ.Promise<Content> {
+        const order: ChildOrder = this.hasChangedPrevChildOrder() ? this.prevChildOrder : null;
+        const movements: OrderChildMovements = this.gridDragHandler.getContentMovements();
 
         return new OrderChildContentRequest()
-            .setSilent(silent)
+            .setSilent(false)
             .setManualOrder(true)
             .setContentId(this.parentContent.getContentId())
             .setChildOrder(order)
