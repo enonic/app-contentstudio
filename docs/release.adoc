@@ -9,6 +9,7 @@ Until the release of Enonic XP 7 the Content Studio app used to be a part of the
 It is compatible with XP 7.0 and will not work with earlier versions. This release includes some important features, as well as
 a number of major improvements and bugfixes.
 
+
 === Context panel
 
 In previous versions *Context panel* (previously "Detail panel") was available only in the Browse Content view. Starting from version 2.0,
@@ -24,4 +25,142 @@ You can find more information about the Context Panel and widgets in the <<widge
 
 
 === Icons in the Content Wizard form navigator
+
+Schedule, Settings and Access steps of the Content Wizard form are now represented with icons in the navigator toolbar, to separate
+them from the custom steps of the form.
+Clicking the icon would scroll the form down to selected step.
+
+image::wizard-form-navigator.png[]
+
+Unlocked lock icon for the Access step means that this content is accessible by everyone (user Everyone has at least "Can Read" permissions).
+Locked lock icon means that read access is limited.
+
+image::wizard-form-navigator-locked.png[]
+
+
+=== Attachment preview
+
+Content Studio 2.0 enables automatic preview of the media content (video, audio, PDF, DOCX etc.) directly in the preview panel.
+
+image::content-video-preview.png[]
+
+
+=== Improved table features in the Rich text editor
+
+Table features in the Rich text editor have been greatly improved and now enable changing column width, cell spacing/padding and border width
+via "Table Properties" modal dialog (right-click the table and select "Table properties" from the context menu).
+
+image::html-area-table1.png[]
+
+image::html-area-table2.png[]
+
+The same context menu can be used to add and delete rows and columns, merge several cells into one etc.
+
+image::html-area-table3.png[]
+
+
+=== Relative image width in the Rich text editor
+
+Image dialog of the Rich text editor now allows user to adjust relative width of the image.
+Check off "Custom width" checkbox in the modal dialog and adjust the width using the drag control.
+
+image::image-dialog-custom-width.png[]
+
+=== Image styles
+
+Content Studio 2.0 introduces a new feature in the rich text editor called "Image styles".
+Image styles consist of both client side styling (css), and image service rendering specifications.
+
+The rich text editor was previously limited to pre-defined and hard-coded styles, such as `cinema (21:9)` or `square(1:1)`.
+Now, application developers may define custom styles that control both server side rendering aspect ratio, and specify classes to annotate the specific image.
+
+Read more about defining custom image styles in the <<editor/rich-text-editor#custom_image_styles,dedicated section>>.
+
+=== New "inline" mode for content preview inside Content Studio
+
+XP 7.0 introduced a new value for portal rendering mode (`mode` field in the HTTP request object).
+In addition to _edit_ (when content is being edited in the Page Editor), _preview_ (preview of a draft version)
+and _live_ (preview of a master version), when content is rendered in the preview panel of the Content Studio the `request.mode` will
+have a value of *_inline_*.
+
+
+=== Limiting Tag input to specific path
+
+Previously, Tag input always allowed tags from all available content in the repo.
+Now tags are by default limited to current site.
+You can use `allowPath` config to adjust this limit and allow content outside of the current site.
+
+Allow tags from other sites
+[source,XML]
+----
+<input name="MyTag" type="Tag">
+  <label>Tags for this content</label>
+  <occurrences minimum="0" maximum="0"/>
+  <config>
+    <allowPath>*</allowPath>
+  </config>
+</input>
+----
+
+=== Descriptions for content types, page and page component descriptors
+
+XML schemas of content types, pages and page component descriptors now support optional `description` field which, if filled,
+will be shown in the Content Studio UI.
+
+==== Content type description
+
+If set, content type description will be shown under display name inside the "New Content" modal dialog.
+
+Description in content type schema
+[source,XML]
+----
+<content-type>
+  <display-name>Author</display-name>
+  <description>Create authors to be selected on blog posts</description>
+  <form/>
+</content-type>
+----
+
+image::content-type-description.png[]
+
+
+==== Page description
+
+If set in the page descriptor schema, page description will be shown under page root in the Page Components tree
+and also the page descriptor dropdown inside the Inspect component widget.
+
+Description in page descriptor schema
+[source,XML]
+----
+<page>
+    <display-name>Page</display-name>
+    <description>Front page of the Superhero site</description>
+    <form/>
+    <regions>
+        <region name="main"/>
+    </regions>
+</page>
+----
+
+image::page-description.png[]
+
+
+==== Part or Layout description
+
+If set in the component schema, description will be shown under component's display name in the Page Components tree
+and components descriptor dropdowns. Description is supported for layouts and parts.
+
+Description in component descriptor schema
+[source,XML]
+----
+<part>
+  <display-name>Featured</display-name>
+  <description>Feature a post in large format</description>
+  <form/>
+</part>
+----
+
+image::part-description1.png[]
+
+image::part-description2.png[]
 
