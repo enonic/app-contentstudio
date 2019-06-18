@@ -34,6 +34,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
                 behavior: 'selectAndMove'
             }])
             .setPartialLoadEnabled(true)
+            .setLoadBufferSize(20)
             .setAutoLoad(false)
             .setCheckableRows(false)
             .setShowToolbar(false)
@@ -121,6 +122,12 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
 
     setChildOrder(value: ChildOrder) {
         this.curChildOrder = value;
+    }
+
+    reset() {
+        this.setChildOrder(null);
+        this.getGrid().getDataView().setItems([]);
+        this.getGrid().resizeCanvas();
     }
 
 }

@@ -2,8 +2,8 @@
 :toc: right
 :imagesdir: editor/images
 
-TODO subtitle
+The *Content Editor* opens in a new browser tab from the <<navigator#,Browse View>> when content is created or edited. Multiple content tabs can be open at the same time. Clicking on the *Content Studio* tree icon in the top left corner will open <<navigator#,Browse View>> in a new browser tab. User will get a browser warning upon trying to close a tab with modified but unsaved content.
 
-== Introduction
+The edit view consists of several parts. On the left is the <<editor/content-form#,Content Form>>. If content is editable, the <<editor/page-editor#,Page Editor>> will automatically open on the right. <<widgets#components,Components widget>> can be accessed from inside the Page Editor. Widgets panel will be placed to the right of the <<editor/page-editor#,Page Editor>> or expand over it, based on screen resolution.
 
-TODO
+image::editor.png[]

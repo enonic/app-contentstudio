@@ -12,22 +12,22 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Content grid ^|Mac OS X ^|Windows / Linux
 
 |New content
-2+^|`Alt + n`
+2+^|`Alt + N`
 
 |Select / Unselect content
 2+^|`Space`
 
 |Edit selected content
-^|`⌘ + e` / `Enter`
-^|`Ctrl + e` / `Enter`
+^|`⌘ + E` / `Enter`
+^|`Ctrl + E` / `Enter`
 
 |Delete selected content
 ^|`⌘ + Delete`
 ^|`Ctrl + Delete`
 
 |Publish selected content
-^|`⌘ + Alt + p`
-^|`Ctrl + Alt + p`
+^|`⌘ + Alt + P`
+^|`Ctrl + Alt + P`
 
 |Preview selected content
 ^|`Alt + Space`
@@ -42,23 +42,23 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Edit content wizard ^|Mac OS X ^|Windows / Linux
 
 |Save content
-^|`⌘ + s`
-^|`Ctrl + s`
+^|`⌘ + S`
+^|`Ctrl + S`
 
 |Save content and close wizard tab
 ^|`⌘ + Enter`
 ^|`Ctrl + Enter`
 
 |Close wizard tab
-2+^|`Alt + w`
+2+^|`Alt + W`
 
 |Delete content
 ^|`⌘ + Delete`
 ^|`Ctrl + Delete`
 
 |Publish selected content
-^|`⌘ + Alt + p`
-^|`Ctrl + Alt + p`
+^|`⌘ + Alt + P`
+^|`Ctrl + Alt + P`
 
 |Preview selected content
 ^|`Alt + Space`
@@ -72,38 +72,36 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |HtmlArea editor ^|Mac OS X ^|Windows / Linux
 
 |Cut
-^|`⌘ + x`
-^|`Ctrl + x`
+^|`⌘ + X`
+^|`Ctrl + X`
 
 |Copy
-^|`⌘ + c`
-^|`Ctrl + c`
+^|`⌘ + C`
+^|`Ctrl + C`
 
 |Paste
-^|`⌘ + v`
-^|`Ctrl + v`
+^|`⌘ + V`
+^|`Ctrl + V`
 
 |Paste as text
-^|`⌘ + Shift + v`
-^|`Ctrl + Shift + v`
+^|`⌘ + Shift + V`
+^|`Ctrl + Shift + V`
 
 |Select All
-^|`⌘ + a`
-^|`Ctrl + a`
-
-3+^|
+^|`⌘ + A`
+^|`Ctrl + A`
 
 |Bold
-^|`⌘ + b`
-^|`Ctrl + b`
+^|`⌘ + B`
+^|`Ctrl + B`
 
 |Italic
-^|`⌘ + i`
-^|`Ctrl + i`
+^|`⌘ + I`
+^|`Ctrl + I`
 
 |Underline
-^|`⌘ + u`
-^|`Ctrl + u`
+^|`⌘ + U`
+^|`Ctrl + U`
 
 |H1
 ^|`⌘ + Alt + 1`
@@ -141,31 +139,25 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 ^|`⌘ + Shift + 9`
 ^|`Ctrl + Shift + 9`
 
-3+^|
-
 |Undo
-^|`⌘ + z`
-^|`Ctrl + z`
+^|`⌘ + Z`
+^|`Ctrl + Z`
 
 |Redo
-^|`⌘ + y` / `⌘ + Shift + z`
-^|`Ctrl + y` / `Ctrl + Shift + z`
+^|`⌘ + Y` / `⌘ + Shift + Z`
+^|`Ctrl + Y` / `Ctrl + Shift + Z`
 
 |Insert link
-^|`⌘ + k`
-^|`Ctrl + k`
+^|`⌘ + K`
+^|`Ctrl + K`
 
 |Insert image
-^|`⌘ + l`
-^|`Ctrl + l`
-
-3+^|
+^|`⌘ + L`
+^|`Ctrl + L`
 
 |Find
-^|`⌘ + f`
-^|`Ctrl + f`
-
-3+^|
+^|`⌘ + F`
+^|`Ctrl + F`
 
 |Focus to toolbar
 2+^|`Alt + F10`

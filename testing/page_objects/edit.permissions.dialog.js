@@ -1,8 +1,8 @@
-const page = require('./page');
+const Page = require('./page');
 const appConst = require('../libs/app_const');
-const elements = require('../libs/elements');
+const lib = require('../libs/elements');
 const utils = require('../libs/studio.utils');
-const comboBox = require('./components/loader.combobox');
+const ComboBox = require('./components/loader.combobox');
 const xpath = {
     container: `//div[contains(@id,'EditPermissionsDialog')]`,
     applyButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Apply')]]`,
@@ -17,162 +17,149 @@ const xpath = {
         name => `//li[contains(@id,'TabMenuItem') and child::a[text()='${name}']]`,
 };
 
-const editPermissionsDialog = Object.create(page, {
+class EditPermissionsDialog extends Page {
 
-    principalsOptionFilterInput: {
-        get: function () {
-            return `${xpath.container}` + elements.COMBO_BOX_OPTION_FILTER_INPUT;
-        }
-    },
-    cancelButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.cancelButton}`;
-        }
-    },
-    applyButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.applyButton}`;
-        }
-    },
-    overwriteChildPermissionsCheckbox: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.overwriteChildPermissionsCheckbox}`;
-        }
-    },
-    inheritPermissionsCheckbox: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.inheritPermissionsCheckbox}`;
-        }
-    },
-    waitForDialogLoaded: {
-        value: function () {
-            return this.waitForVisible(this.applyButton, appConst.TIMEOUT_3);
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
-            return this.getBrowser().waitUntil(() => {
-                return this.isElementNotDisplayed(`${xpath.container}`);
-            }, appConst.TIMEOUT_3, message).pause(300);
-        }
-    },
-    getDisplayNameOfSelectedPrincipals: {
-        value: function () {
-            let selector = xpath.container + elements.H6_DISPLAY_NAME;
-            return this.getText(selector);
-        }
-    },
-    removeAclEntry: {
-        value: function (principalName) {
-            let selector = xpath.container + xpath.aclEntryByName(principalName) + elements.REMOVE_ICON;
-            return this.doClick(selector).catch(err => {
-                this.saveScreenshot("err_remove_acl_entry");
-                throw new Error("Error when try to remove acl entry " + err);
-            }).pause(500);
-        }
-    },
+    get principalsOptionFilterInput() {
+        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get cancelButton() {
+        return xpath.container + xpath.cancelButton;
+    }
+
+    get applyButton() {
+        return xpath.container + xpath.applyButton;
+    }
+
+    get overwriteChildPermissionsCheckbox() {
+        return xpath.container + xpath.overwriteChildPermissionsCheckbox;
+    }
+
+    get inheritPermissionsCheckbox() {
+        return xpath.container + xpath.inheritPermissionsCheckbox;
+    }
+
+    waitForDialogLoaded() {
+        return this.waitForElementDisplayed(this.applyButton, appConst.TIMEOUT_3);
+    }
+
+    waitForDialogClosed() {
+        let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
+        return this.getBrowser().waitUntil(() => {
+            return this.isElementNotDisplayed(xpath.container);
+        }, appConst.TIMEOUT_3, message).then(() => {
+            return this.pause(400);
+        })
+    }
+
+    getDisplayNameOfSelectedPrincipals() {
+        let selector = xpath.container + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(selector);
+    }
+
+    removeAclEntry(principalName) {
+        let selector = xpath.container + xpath.aclEntryByName(principalName) + lib.REMOVE_ICON;
+        return this.clickOnElement(selector).catch(err => {
+            this.saveScreenshot("err_remove_acl_entry");
+            throw new Error("Error when try to remove acl entry " + err);
+        });
+    }
 
     //filters and select a principal
-    filterAndSelectPrincipal: {
-        value: function (principalDisplayName) {
-            return comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container).then(() => {
-                console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
-            })
-        }
-    },
+    filterAndSelectPrincipal(principalDisplayName) {
+        let comboBox = new ComboBox();
+        return comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container).then(() => {
+            console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+        })
+    }
 
     //finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'
-    showAceMenuAndSelectItem: {
-        value: function (principalName, menuItem) {
-            let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
-            let menuItemXpath = xpath.aclEntryByName(principalName) + xpath.menuItemByName(menuItem);
-            return this.doClick(tabMenuButton).pause(1000).then(() => {
-                return this.doClick(menuItemXpath)
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_ace_menu_button');
-                throw new Error('Error when clicking on ACE-menu button ' + err);
-            })
-        }
-    },
+    showAceMenuAndSelectItem(principalName, menuItem) {
+        let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
+        let menuItemXpath = xpath.aclEntryByName(principalName) + xpath.menuItemByName(menuItem);
+        return this.clickOnElement(tabMenuButton).then(() => {
+            return this.pause(1000);
+        }).then(() => {
+            return this.clickOnElement(menuItemXpath);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_ace_menu_button');
+            throw new Error('Error when clicking on ACE-menu button ' + err);
+        })
+    }
+
+
     //Permissions Toggle appears when a selected option switched to 'custom' mode
     //clicks on 'Read','Create', 'Modify' ....  permissions-toggles
-    clickOnPermissionToggle: {
-        value: function (principalName, operationName,) {
-            let permToggle = xpath.permissionToggleByOperationName(operationName);
-            let selector = xpath.aclEntryByName(principalName) + permToggle;
+    clickOnPermissionToggle(principalName, operationName,) {
+        let permToggle = xpath.permissionToggleByOperationName(operationName);
+        let selector = xpath.aclEntryByName(principalName) + permToggle;
+        return this.waitForElementDisplayed(selector, 1000).then(() => {
+            return this.clickOnElement(selector);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_permission_toggle');
+            throw new Error('Error when clicking on Permission Toggle ' + err);
+        })
+    }
 
-            return this.waitForVisible(selector, 1000).then(() => {
-                return this.doClick(selector);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_permission_toggle');
-                throw new Error('Error when clicking on Permission Toggle ' + err);
-            })
-        }
-    },
-    clickOnApplyButton: {
-        value: function () {
-            return this.doClick(this.applyButton).catch(err => {
-                this.saveScreenshot('err_click_on_apply_button_permis_dialog');
-                throw new Error('Error when clicking Apply dialog must be closed ' + err);
-            }).pause(500);
-        }
-    },
-    isOperationAllowed: {
-        value: function (principalName, operation) {
-            let permToggle = xpath.permissionToggleByOperationName(operation);
-            let selector = xpath.aclEntryByName(principalName) + permToggle;
+    clickOnApplyButton() {
+        return this.clickOnElement(this.applyButton).then(() => {
+            return this.pause(500);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_apply_button_permis_dialog');
+            throw new Error('Error when clicking Apply dialog must be closed ' + err);
+        })
+    }
 
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.getAttribute(selector, 'class');
-            }).then(result => {
-                return result.includes('allow');
-            });
-        }
-    },
-    isOperationDenied: {
-        value: function (principalName, operation) {
-            let permToggle = xpath.permissionToggleByOperationName(operation);
-            let selector = xpath.aclEntryByName(principalName) + permToggle;
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.getAttribute(selector, 'class');
-            }).then(result => {
-                return result.includes('deny');
-            });
-        }
-    },
-    clickOnInheritPermissionsCheckBox: {
-        value: function () {
-            return this.waitForVisible(this.inheritPermissionsCheckbox).then(() => {
-                return this.doClick(this.inheritPermissionsCheckbox + '/label');
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_inherit_permis_dialog');
-                throw new Error('Error when clicking on Inherit permissions ' + err);
-            }).pause(500);
-        }
-    },
-    clickOnOverwiteChildPermissionsCheckBox: {
-        value: function () {
-            return this.doClick(this.overwriteChildPermissionsCheckbox + '/label').catch(err => {
-                this.saveScreenshot('err_click_on_inherit_permis_dialog');
-                throw new Error('Error when clicking on Inherit permissions ' + err);
-            })
-        }
-    },
-    isInheritPermissionsCheckBoxSelected: {
-        value: function () {
-            return this.isSelected(this.inheritPermissionsCheckbox + '//input').catch(err => {
-                throw new Error('Error when checking Inherit permissions link ' + err);
-            })
-        }
-    },
-    isOverwriteChildPermissionsCheckBoxSelected: {
-        value: function () {
-            return this.isSelected(this.overwriteChildPermissionsCheckbox + '//input').catch(err => {
-                throw new Error('Error when checking Overwrite child permissions link ' + err);
-            })
-        }
-    },
-});
-module.exports = editPermissionsDialog;
+    isOperationAllowed(principalName, operation) {
+        let permToggle = xpath.permissionToggleByOperationName(operation);
+        let selector = xpath.aclEntryByName(principalName) + permToggle;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).then(() => {
+            return this.getAttribute(selector, 'class');
+        }).then(result => {
+            return result.includes('allow');
+        });
+    }
+
+
+    isOperationDenied(principalName, operation) {
+        let permToggle = xpath.permissionToggleByOperationName(operation);
+        let selector = xpath.aclEntryByName(principalName) + permToggle;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).then(() => {
+            return this.getAttribute(selector, 'class');
+        }).then(result => {
+            return result.includes('deny');
+        });
+    }
+
+    clickOnInheritPermissionsCheckBox() {
+        return this.waitForElementDisplayed(this.inheritPermissionsCheckbox).then(() => {
+            return this.clickOnElement(this.inheritPermissionsCheckbox + '/label');
+        }).then(() => {
+            return this.pause(500);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_inherit_permis_dialog');
+            throw new Error('Error when clicking on Inherit permissions ' + err);
+        });
+    }
+
+    clickOnOverwiteChildPermissionsCheckBox() {
+        return this.clickOnElement(this.overwriteChildPermissionsCheckbox + '/label').catch(err => {
+            this.saveScreenshot('err_click_on_inherit_permis_dialog');
+            throw new Error('Error when clicking on Inherit permissions ' + err);
+        })
+    }
+
+    isInheritPermissionsCheckBoxSelected() {
+        return this.isSelected(this.inheritPermissionsCheckbox + '//input').catch(err => {
+            throw new Error('Error when checking Inherit permissions link ' + err);
+        })
+    }
+
+    isOverwriteChildPermissionsCheckBoxSelected() {
+        return this.isSelected(this.overwriteChildPermissionsCheckbox + '//input').catch(err => {
+            throw new Error('Error when checking Overwrite child permissions link ' + err);
+        })
+    }
+};
+module.exports = EditPermissionsDialog;
 

@@ -1,5 +1,4 @@
 /**
- * Created on 02.12.2017.
  * Helper class that encapsulates webdriverio
  * and sets up mocha hooks for easier test writing.
  */
@@ -26,7 +25,7 @@ const makeChromeOptions = (headless, width) => ({
  */
 WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
     let _this = this;
-    before(function () {
+    before(async function () {
         let PropertiesReader = require('properties-reader');
         let path = require('path');
         let webdriverio = require('webdriverio');
@@ -42,27 +41,25 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
         console.log('browser name ##################### ' + browser_name);
         console.log('browser width ##################### ' + width);
         let options = {
-            desiredCapabilities: {
+            logLevel: "error",
+            capabilities: {
                 browserName: browser_name,
                 platform: platform_name,
                 binary: chromeBinPath,
                 chromeOptions: makeChromeOptions(isHeadless, width)
             }
         };
-        _this.browser = webdriverio
-            .remote(options)
-            .init().url(baseUrl);
+        _this.browser = await webdriverio.remote(options);
+        await _this.browser.url(baseUrl);
         console.log('webdriverio #####################  ' + 'is  initialized!');
         return _this.browser;
     });
-    after(function () {
-        return _this.browser.end();
+    after(async function () {
+        await _this.browser.deleteSession();
     });
     afterEach(function () {
         let state = this.currentTest.state ? this.currentTest.state.toString().toUpperCase() : 'FAILED';
         return console.log('Test:', this.currentTest.title, ' is  ' + state);
-
     });
 };
-
 module.exports = new WebDriverHelper();

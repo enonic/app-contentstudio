@@ -53,6 +53,9 @@ import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
 import {InspectEvent} from '../event/InspectEvent';
 import {PermissionHelper} from './PermissionHelper';
+import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
+import {Access} from '../security/Access';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -74,7 +77,6 @@ import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 import i18n = api.util.i18n;
-import ObjectHelper = api.ObjectHelper;
 import FormOptionSet = api.form.FormOptionSet;
 import Property = api.data.Property;
 import PropertyArray = api.data.PropertyArray;
@@ -82,6 +84,12 @@ import PropertySet = api.data.PropertySet;
 import FormItemSet = api.form.FormItemSet;
 import FieldSet = api.form.FieldSet;
 import FormOptionSetOption = api.form.FormOptionSetOption;
+import Form = api.form.Form;
+import ObjectHelper = api.ObjectHelper;
+import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
+import LoginResult = api.security.auth.LoginResult;
+import RoleKeys = api.security.RoleKeys;
+import PrincipalKey = api.security.PrincipalKey;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -118,11 +126,9 @@ export class ContentWizardPanel
 
     private scheduleWizardStep: ContentWizardStep;
 
-    private scheduleWizardStepIndex: number;
-
     private securityWizardStepForm: SecurityWizardStepForm;
 
-    private xDataStepFormByName: { [name: string]: XDataWizardStepForm; };
+    private xDataWizardStepForms: XDataWizardStepForms;
 
     private displayNameResolver: DisplayNameResolver;
 
@@ -199,7 +205,7 @@ export class ContentWizardPanel
 
         this.displayNameResolver = new DisplayNameResolver();
 
-        this.xDataStepFormByName = {};
+        this.xDataWizardStepForms = new XDataWizardStepForms();
 
         this.initListeners();
         this.listenToContentEvents();
@@ -222,7 +228,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardActions(): ContentWizardActions {
-        let wizardActions: ContentWizardActions = new ContentWizardActions(this);
+        const wizardActions: ContentWizardActions = new ContentWizardActions(this);
         wizardActions.getShowLiveEditAction().setEnabled(false);
 
         wizardActions.getShowSplitEditAction().onExecuted(() => {
@@ -232,7 +238,7 @@ export class ContentWizardPanel
             }
         });
 
-        let publishActionHandler = () => {
+        const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
                 this.contentWizardStepForm.validate();
                 this.displayValidationErrors(!this.isValid());
@@ -246,10 +252,8 @@ export class ContentWizardPanel
         return wizardActions;
     }
 
-    createXDataStepsForContent(content: Content): wemQ.Promise<XDataWizardStep[]> {
-        return new GetContentXDataRequest(content.getContentId()).sendAndParse().then((xDatas: XData[]) => {
-            return this.createXDataSteps(content, xDatas);
-        });
+    fetchContentXData(): wemQ.Promise<XData[]> {
+        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -279,7 +283,7 @@ export class ContentWizardPanel
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
-        let thumbnailUploader = new ThumbnailUploaderEl({
+        const thumbnailUploader: ThumbnailUploaderEl = new ThumbnailUploaderEl({
             name: 'thumbnail-uploader',
             deferred: true
         });
@@ -304,17 +308,13 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): api.app.wizard.WizardHeader {
-        let header = new WizardHeaderWithDisplayNameAndNameBuilder()
+        const header: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
             .setDisplayNameGenerator(this.displayNameResolver)
             .build();
 
-        if (this.parentContent) {
-            header.setPath(this.parentContent.getPath().prettifyUnnamedPathElements().toString() + '/');
-        } else {
-            header.setPath('/');
-        }
+        header.setPath(this.getWizardHeaderPath());
 
-        let existing = this.getPersistedItem();
+        const existing: Content = this.getPersistedItem();
         if (!!existing) {
             header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
         }
@@ -322,6 +322,14 @@ export class ContentWizardPanel
         header.onPropertyChanged(this.dataChangedHandler);
 
         return header;
+    }
+
+    private getWizardHeaderPath(): string {
+        if (this.parentContent) {
+            return this.parentContent.getPath().prettifyUnnamedPathElements().toString() + '/';
+        }
+
+        return '/';
     }
 
     public getWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -371,20 +379,23 @@ export class ContentWizardPanel
     }
 
     protected createLivePanel(): api.ui.panel.Panel {
-        let liveFormPanel;
-        let isSiteOrWithinSite = !!this.site || this.contentParams.createSite;
-        let isPageTemplate = this.contentType.isPageTemplate();
-        let isShortcut = this.contentType.isShortcut();
-
-        if ((isSiteOrWithinSite || isPageTemplate) && !isShortcut) {
-
-            liveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
+        if (this.isLivePanelAllowed()) {
+            return new LiveFormPanel(<LiveFormPanelConfig>{
                 contentWizardPanel: this,
                 contentType: this.contentType.getContentTypeName(),
                 defaultModels: this.defaultModels
             });
         }
-        return liveFormPanel;
+
+        return null;
+    }
+
+    private isLivePanelAllowed(): boolean {
+        const isSiteOrWithinSite: boolean = !!this.site || this.contentParams.createSite;
+        const isPageTemplate: boolean = this.contentType.isPageTemplate();
+        const isShortcut: boolean = this.contentType.isShortcut();
+
+        return (isSiteOrWithinSite || isPageTemplate) && !isShortcut;
     }
 
     getWizardActions(): ContentWizardActions {
@@ -490,6 +501,7 @@ export class ContentWizardPanel
                     this.updateLiveForm(persistedItem).then(() => {
                         if (persistedItem.isSite()) {
                             this.updateWizardStepForms(persistedItem, false);
+                            this.updateSiteModel(<Site>persistedItem);
                         }
                     });
                 }
@@ -501,7 +513,7 @@ export class ContentWizardPanel
                 this.securityWizardStepForm.update(persistedItem);
             }
 
-            this.resetDisabledXDataForms();
+            this.xDataWizardStepForms.resetDisabledForms();
 
             return persistedItem;
         }).finally(() => {
@@ -677,21 +689,23 @@ export class ContentWizardPanel
             return true;
         }
 
+        if (!this.isContentFormValid) {
+            return false;
+        }
+
         let allMetadataFormsValid = true;
         let allMetadataFormsHaveValidUserInput = true;
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                let form = this.xDataStepFormByName[key];
-                if (!form.isValid()) {
-                    allMetadataFormsValid = false;
-                }
-                let formHasValidUserInput = form.getFormView().hasValidUserInput();
-                if (!formHasValidUserInput) {
-                    allMetadataFormsHaveValidUserInput = false;
-                }
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            if (!form.isValid()) {
+                allMetadataFormsValid = false;
             }
-        }
-        return this.isContentFormValid && allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
+            let formHasValidUserInput = form.getFormView().hasValidUserInput();
+            if (!formHasValidUserInput) {
+                allMetadataFormsHaveValidUserInput = false;
+            }
+        });
+        return allMetadataFormsValid && allMetadataFormsHaveValidUserInput;
     }
 
     private isCurrentContentId(id: api.content.ContentId): boolean {
@@ -830,69 +844,22 @@ export class ContentWizardPanel
     }
 
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
-
         this.updateWizardHeader(content);
         this.updateWizardStepForms(content, unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
+
+        if (content.isSite()) {
+            this.updateSiteModel(<Site>content);
+        }
     }
 
-    private removeXDataSteps(xDataNames: XDataName[]) {
-
-        xDataNames.forEach(xDataName => {
-            const xDataNameStr = xDataName.toString();
-
-            if (this.xDataStepFormByName.hasOwnProperty(xDataNameStr)) {
-                this.removeStepWithForm(this.xDataStepFormByName[xDataNameStr]);
-                delete this.xDataStepFormByName[xDataNameStr];
+    private removeXDataSteps(xDatas: XData[]) {
+        xDatas.map((xData: XData) => xData.getXDataName().toString()).forEach((xDataNameStr: string) => {
+            if (this.xDataWizardStepForms.contains(xDataNameStr)) {
+                this.removeStepWithForm(this.xDataWizardStepForms.get(xDataNameStr));
+                this.xDataWizardStepForms.remove(xDataNameStr);
             }
-        });
-
-    }
-
-    private createXDataSteps(content: Content, xDatas: XData[]): wemQ.Promise<XDataWizardStep[]> {
-
-        const steps = [];
-        const resultPromises = [];
-
-        xDatas.forEach((xData: XData, index: number) => {
-            if (!this.xDataStepFormByName[xData.getXDataName().toString()]) {
-                let stepForm = new XDataWizardStepForm(xData);
-                this.xDataStepFormByName[xData.getXDataName().toString()] = stepForm;
-
-                steps.splice(index + 1, 0, new XDataWizardStep(xData.getDisplayName(), stepForm));
-
-                let extraData = content.getExtraData(xData.getXDataName());
-                if (!extraData) {
-                    extraData = this.enrichWithExtraData(content, xData.getXDataName());
-                }
-
-                let data = extraData.getData();
-
-                data.onChanged(this.dataChangedHandler);
-                stepForm.onEnableChanged(this.dataChangedHandler);
-
-                let xDataForm = new api.form.FormBuilder().addFormItems(xData.getFormItems()).build();
-
-                const promise = stepForm.layout(this.getFormContext(content), data, xDataForm).then(() => {
-                    this.synchPersistedItemWithXData(xData.getXDataName(), data);
-                });
-
-                resultPromises.push(promise);
-            } else {
-                const existedStep = this.getSteps().filter(step => {
-                    if (!ObjectHelper.iFrameSafeInstanceOf(step, XDataWizardStep)) {
-                        return false;
-                    }
-                    const xDataStep = <XDataWizardStep>step;
-                    return xDataStep.getXDataName().equals(xData.getXDataName());
-                })[0];
-                steps.splice(index + 1, 0, existedStep);
-            }
-        });
-
-        return wemQ.all(resultPromises).then(() => {
-            return steps;
         });
     }
 
@@ -903,14 +870,7 @@ export class ContentWizardPanel
         this.contentWizardStepForm.reset();
         this.settingsWizardStepForm.reset();
         this.scheduleWizardStepForm.reset();
-
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                let form = this.xDataStepFormByName[key];
-                form.reset();
-            }
-        }
-
+        this.xDataWizardStepForms.reset();
     }
 
     private updateContent(compareStatus: CompareStatus) {
@@ -951,48 +911,27 @@ export class ContentWizardPanel
         return nearestSiteChanged;
     }
 
-    private createSteps(content: Content): wemQ.Promise<ContentWizardStep[]> {
-        this.contentWizardStepForm = new ContentWizardStepForm();
-        this.settingsWizardStepForm = new SettingsWizardStepForm();
-        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
-        this.securityWizardStepForm = new SecurityWizardStepForm();
-        this.missingOrStoppedAppKeys = [];
+    private createSteps(): ContentWizardStep[] {
+        const steps: ContentWizardStep[] = [];
 
-        let applicationKeys = this.site ? this.site.getApplicationKeys() : [];
-        let applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+        this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+        steps.push(this.contentWizardStep);
 
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            this.checkPermissions(loginResult);
-            return wemQ.all(applicationPromises);
-        }).then(() => {
-            this.handleMissingApp();
-
-            let steps: ContentWizardStep[] = [];
-
-            this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-            steps.push(this.contentWizardStep);
-
-            return this.createXDataStepsForContent(content).then(
-                (xDataSteps: XDataWizardStep[]) => {
-                    steps = steps.concat(xDataSteps);
-
-                    this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
-                    this.scheduleWizardStepIndex = steps.length;
-                    steps.push(this.scheduleWizardStep);
-
-                    this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
-                    steps.push(this.settingsWizardStep);
-
-                    this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
-                        this.canEveryoneRead(content) ? 'icon-unlock' : 'icon-lock');
-                    steps.push(this.securityWizardStep);
-
-                    this.setSteps(steps);
-
-                    this.resetXDatasState();
-                    return steps;
-                });
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            steps.push(new XDataWizardStep(form));
         });
+
+        this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
+        steps.push(this.scheduleWizardStep);
+
+        this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
+        steps.push(this.settingsWizardStep);
+
+        this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
+            this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
+        steps.push(this.securityWizardStep);
+
+        return steps;
     }
 
     private fetchPersistedContent(): wemQ.Promise<Content> {
@@ -1001,7 +940,7 @@ export class ContentWizardPanel
 
     private listenToContentEvents() {
 
-        let serverEvents = ContentServerEventsHandler.getInstance();
+        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const deleteHandler = (event: ContentDeletedEvent) => {
             if (!this.getPersistedItem()) {
@@ -1089,8 +1028,9 @@ export class ContentWizardPanel
                     this.setPersistedItem(content.clone());
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
-                    this.isContentPublishableByUser().then((canPublish: boolean) => {
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(canPublish);
+                    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                        this.toggleStepFormsVisibility(loginResult);
                     });
                 });
 
@@ -1417,17 +1357,15 @@ export class ContentWizardPanel
 
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
-            this.isContentPublishableByUser().then((canPublish: boolean) => {
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
-                    !this.getPersistedItem().hasChildren()).setUserCanPublish(canPublish);
+                    !this.getPersistedItem().hasChildren()).setUserCanPublish(this.isContentPublishableByUser(loginResult));
             });
         });
     }
 
-    private isContentPublishableByUser(): wemQ.Promise<boolean> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
-            return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
-        });
+    private isContentPublishableByUser(loginResult: LoginResult): boolean {
+        return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): wemQ.Promise<Content> {
@@ -1490,21 +1428,10 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    private resetDisabledXDataForms() {
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                let form = this.xDataStepFormByName[key];
-                if (form.isExpandable() && !form.isEnabled()) {
-                    form.resetForm();
-                }
-            }
-        }
-    }
-
-    // synch persisted content extra data with xData
+    // sync persisted content extra data with xData
     // when rendering form - we may add extra fields from xData;
     // as this is intended action from XP, not user - it should be present in persisted content
-    private synchPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
+    private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
         let persistedContent = this.getPersistedItem();
         let extraData = persistedContent.getExtraData(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
@@ -1596,31 +1523,25 @@ export class ContentWizardPanel
 
         this.toggleClass('rendered', false);
 
-        let formContext = this.getFormContext(content);
+        const formContext: ContentFormContext = this.getFormContext(content);
 
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(formContext, content).then(() => {
 
-                return this.createSteps(content).then((/*schemas: XData[]*/) => {
+                this.fetchMissingOrStoppedAppKeys().then(this.handleMissingApp.bind(this));
 
-                    let contentData = content.getContentData();
+                return this.createWizardStepForms().then(() => {
+                    const steps: ContentWizardStep[] = this.createSteps();
+                    this.setSteps(steps);
 
-                    contentData.onChanged(this.dataChangedHandler);
+                    return this.layoutWizardStepForms(content).then(() => {
+                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                            this.initWritePermissions(loginResult);
+                            this.toggleStepFormsVisibility(loginResult);
+                        });
 
-                    let formViewLayoutPromises: wemQ.Promise<void>[] = [];
-                    formViewLayoutPromises.push(this.contentWizardStepForm.layout(formContext, contentData, this.contentType.getForm()));
-                    // Must pass FormView from contentWizardStepForm displayNameResolver,
-                    // since a new is created for each call to renderExisting
-                    this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
-                    this.settingsWizardStepForm.layout(content);
-                    this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-                    this.scheduleWizardStepForm.layout(content);
-                    this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-                    this.refreshScheduleWizardStep();
-                    this.securityWizardStepForm.layout(content);
-
-                    return wemQ.all(formViewLayoutPromises).spread<void>(() => {
-                        this.syncPersistedItemWithContentData(contentData);
+                        this.syncPersistedItemWithContentData(content.getContentData());
+                        this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         if (this.formState.isNew()) {
@@ -1649,6 +1570,101 @@ export class ContentWizardPanel
         });
     }
 
+    private createWizardStepForms(): wemQ.Promise<void> {
+        this.contentWizardStepForm = new ContentWizardStepForm();
+        this.settingsWizardStepForm = new SettingsWizardStepForm();
+        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
+        this.securityWizardStepForm = new SecurityWizardStepForm();
+
+        return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
+    }
+
+    private createXDataWizardStepForms(xDatas: XData[]): XDataWizardStepForm[] {
+        const added: XDataWizardStepForm[] = [];
+
+        xDatas.forEach((xData: XData) => {
+            const stepForm: XDataWizardStepForm = new XDataWizardStepForm(xData);
+            stepForm.onEnableChanged(this.dataChangedHandler);
+            this.xDataWizardStepForms.add(stepForm);
+            added.push(stepForm);
+        });
+
+        return added;
+    }
+
+    private fetchMissingOrStoppedAppKeys(): wemQ.Promise<void> {
+        this.missingOrStoppedAppKeys = [];
+
+        const applicationKeys = this.site ? this.site.getApplicationKeys() : [];
+        const applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+
+        return wemQ.all(applicationPromises).thenResolve(null);
+    }
+
+    private layoutWizardStepForms(content: Content): wemQ.Promise<void> {
+        const contentData = content.getContentData();
+        contentData.onChanged(this.dataChangedHandler);
+
+        const formViewLayoutPromises: wemQ.Promise<void>[] = [];
+        formViewLayoutPromises.push(
+            this.contentWizardStepForm.layout(this.getFormContext(content), contentData, this.contentType.getForm()));
+        // Must pass FormView from contentWizardStepForm displayNameResolver,
+        // since a new is created for each call to renderExisting
+        this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
+        this.settingsWizardStepForm.layout(content);
+        this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
+        this.scheduleWizardStepForm.layout(content);
+        this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
+        this.refreshScheduleWizardStep();
+        this.securityWizardStepForm.layout(content);
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            const promise: wemQ.Promise<void> = this.layoutXDataWizardStepForm(content, form);
+
+            form.getData().onChanged(this.dataChangedHandler);
+
+            formViewLayoutPromises.push(promise);
+        });
+
+        return wemQ.all(formViewLayoutPromises).thenResolve(null);
+    }
+
+    private toggleStepFormsVisibility(loginResult: LoginResult) {
+        const visible: boolean = this.isSecurityFormAllowed(loginResult);
+
+        this.securityWizardStepForm.setVisible(visible);
+        this.securityWizardStepForm.getPreviousElement().setVisible(visible);
+        this.securityWizardStep.getTabBarItem().setVisible(visible);
+        this.settingsWizardStepForm.setVisible(visible);
+        this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
+        this.settingsWizardStep.getTabBarItem().setVisible(visible);
+    }
+
+    private isSecurityFormAllowed(loginResult: LoginResult): boolean {
+        if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
+            return true;
+        }
+
+        if (loginResult.isContentAdmin()) {
+            return true;
+        }
+
+        if (loginResult.isContentExpert()) {
+            return true;
+        }
+
+        return this.hasFullAccess(loginResult);
+    }
+
+    private hasFullAccess(loginResult: LoginResult): boolean {
+        const principalKeysWithFullAccess: PrincipalKey[] = this.getPersistedItem().getPermissions().getEntries().filter(
+            (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
+            (ace: AccessControlEntry) => ace.getPrincipalKey());
+
+        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => loginResult.getPrincipals().some(
+            (principal: PrincipalKey) => principalFullAccess.equals(principal)));
+    }
+
     private updateSiteModel(site: Site): SiteModel {
         this.unbindSiteModelListeners();
         this.siteModel.update(site);
@@ -1661,35 +1677,11 @@ export class ContentWizardPanel
         const siteModel = new SiteModel(site);
 
         const handler = api.util.AppHelper.debounce(() => {
-            this.createXDataStepsForContent(this.getPersistedItem()).then((steps) => {
-
-                const xDatasToRemove = [];
-
-                for (let xDataName in this.xDataStepFormByName) {
-                    if (this.xDataStepFormByName.hasOwnProperty(xDataName)) {
-                        const missed = !steps.some(step => (<XDataWizardStepForm>step.getStepForm()).getXDataName().equals(
-                            this.xDataStepFormByName[xDataName].getXDataName()));
-
-                        if (missed) {
-                            xDatasToRemove.push(xDataName);
-                        }
-                    }
-                }
-
-                this.removeXDataSteps(xDatasToRemove);
-
-                const stepsToAdd = steps.filter(xDataStep => {
-                        return !this.getSteps().some(step => step === xDataStep);
-                    }
-                );
-
-                stepsToAdd.forEach(xDataWizardStep => {
-                    this.insertStepBefore(xDataWizardStep, this.settingsWizardStep);
-
-                    const form = <XDataWizardStepForm>xDataWizardStep.getStepForm();
-                    form.resetHeaderState();
+            return this.fetchContentXData().then((xDatas: XData[]) => {
+                this.removeXDataSteps(this.getXDatasToRemove(xDatas));
+                return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
+                    this.notifyDataChanged();
                 });
-                this.notifyDataChanged();
             }).finally(() => {
                 this.formMask.hide();
             });
@@ -1701,6 +1693,55 @@ export class ContentWizardPanel
         });
 
         return siteModel;
+    }
+
+    private getXDatasToRemove(xDatas: XData[]): XData[] {
+        return this.getXDataWizardSteps().filter(
+            (step: XDataWizardStep) => !xDatas.some((xData: XData) => xData.getXDataName().equals(step.getXDataName()))).map(
+            (step: XDataWizardStep) => step.getStepForm().getXData());
+    }
+
+    private getXDataWizardSteps(): XDataWizardStep[] {
+        return <XDataWizardStep[]>this.getSteps().filter(step => {
+            if (ObjectHelper.iFrameSafeInstanceOf(step, XDataWizardStep)) {
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    private getXDatasToAdd(xDatas: XData[]): XData[] {
+        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getXDataName().toString()));
+    }
+
+    private addXDataSteps(xDatas: XData[]): wemQ.Promise<void> {
+        const content: Content = this.getPersistedItem().clone();
+        const formViewLayoutPromises: wemQ.Promise<void>[] = [];
+
+        const formsAdded: XDataWizardStepForm[] = this.createXDataWizardStepForms(xDatas);
+        formsAdded.forEach((form: XDataWizardStepForm) => {
+            this.insertStepBefore(new XDataWizardStep(form), this.settingsWizardStep);
+            form.resetHeaderState();
+            const promise: wemQ.Promise<void> = this.layoutXDataWizardStepForm(content, form);
+            form.getData().onChanged(this.dataChangedHandler);
+
+            formViewLayoutPromises.push(promise);
+        });
+
+        return wemQ.all(formViewLayoutPromises).thenResolve(null);
+    }
+
+    private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): wemQ.Promise<void> {
+        const extraData = content.getExtraData(xDataStepForm.getXData().getXDataName());
+        const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
+
+        const xDataForm: Form = new api.form.FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
+
+        return xDataStepForm.layout(this.getFormContext(content), data, xDataForm).then(() => {
+            this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
+            return wemQ(null);
+        });
     }
 
     private initLiveEditModel(content: Content, siteModel: SiteModel, formContext: ContentFormContext): wemQ.Promise<LiveEditModel> {
@@ -1859,17 +1900,6 @@ export class ContentWizardPanel
         }
     }
 
-    private resetXDatasState(): wemQ.Promise<void[]> {
-        const promises = [];
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                promises.push(this.xDataStepFormByName[key].resetState());
-            }
-        }
-
-        return wemQ.all(promises);
-    }
-
     private addXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
 
         this.applicationLoadCount++;
@@ -1877,22 +1907,27 @@ export class ContentWizardPanel
 
         return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
             (xDatas: XData[]) => {
-                const xDatasToAdd = xDatas.filter(xData =>
-                    !this.xDataStepFormByName[xData.getName()]
-                );
-                return this.createXDataSteps(this.getPersistedItem(), xDatasToAdd).then(steps => {
-                    steps.forEach((xDataStep: XDataWizardStep) => {
-                        if (!this.getSteps().some(step => step === xDataStep)) {
-                            this.insertStepBefore(xDataStep, this.settingsWizardStep);
-                        }
+                const xDatasToAdd: XData[] = xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
 
-                        const form = xDataStep.getStepForm();
-                        form.onRendered(() => {
-                            form.validate(false, true);
-                        });
+                const layoutPromises = [];
+
+                const formsAdded: XDataWizardStepForm[] = this.createXDataWizardStepForms(xDatasToAdd);
+                formsAdded.forEach((form: XDataWizardStepForm) => {
+                    this.insertStepBefore(new XDataWizardStep(form), this.settingsWizardStep);
+
+                    form.onRendered(() => {
+                        form.validate(false, true);
                     });
 
-                    this.resetXDatasState();
+                    const promise: wemQ.Promise<void> = this.layoutXDataWizardStepFormOfPersistedItem(form);
+
+                    form.getData().onChanged(this.dataChangedHandler);
+
+                    layoutPromises.push(promise);
+                });
+
+                return wemQ.all(layoutPromises).then(() => {
+                    this.xDataWizardStepForms.resetState();
                 });
 
             }).catch((reason: any) => {
@@ -1904,6 +1939,14 @@ export class ContentWizardPanel
         });
     }
 
+    private layoutXDataWizardStepFormOfPersistedItem(xDataStepForm: XDataWizardStepForm): wemQ.Promise<void> {
+        const data: PropertyTree = new PropertyTree();
+
+        const xDataForm: Form = new api.form.FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
+
+        return xDataStepForm.layout(this.getFormContext(this.getPersistedItem()), data, xDataForm);
+    }
+
     private removeXDataStepForms(applicationKey: ApplicationKey): wemQ.Promise<void> {
         this.missingOrStoppedAppKeys = [];
 
@@ -1913,9 +1956,7 @@ export class ContentWizardPanel
             (xDatasToRemove: XData[]) => {
                 this.formMask.show();
                 this.handleMissingApp();
-
-                this.removeXDataSteps(xDatasToRemove.map(xData => xData.getXDataName()));
-
+                this.removeXDataSteps(xDatasToRemove);
             }).finally(() => {
             if (--this.applicationLoadCount === 0) {
                 this.formMask.hide();
@@ -2021,12 +2062,11 @@ export class ContentWizardPanel
             }
         }
 
-        let extraData: ExtraData[] = [];
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                extraData.push(new ExtraData(new XDataName(key), this.xDataStepFormByName[key].getData()));
-            }
-        }
+        const extraData: ExtraData[] = [];
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+        });
 
         viewedContentBuilder.setExtraData(extraData);
 
@@ -2042,13 +2082,7 @@ export class ContentWizardPanel
 
     private displayValidationErrors(value: boolean) {
         this.contentWizardStepForm.displayValidationErrors(value);
-
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-                let form = this.xDataStepFormByName[key];
-                form.displayValidationErrors(value);
-            }
-        }
+        this.xDataWizardStepForms.displayValidationErrors(value);
     }
 
     getComponentsViewToggler(): TogglerButton {
@@ -2110,8 +2144,9 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private checkPermissions(loginResult: api.security.auth.LoginResult) {
-        this.writePermissions = this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
+    private initWritePermissions(loginResult: LoginResult) {
+        this.writePermissions =
+            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
         this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().updateWritePermissions(this.writePermissions);
@@ -2130,32 +2165,26 @@ export class ContentWizardPanel
     private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
         this.getFormContext(content).updatePersistedContent(content);
 
-        for (let key in this.xDataStepFormByName) {
-            if (this.xDataStepFormByName.hasOwnProperty(key)) {
-
-                let xDataName = new XDataName(key);
-                let extraData = content.getExtraData(xDataName);
-                if (!extraData) { // ensure ExtraData object corresponds to each step form
-                    extraData = this.enrichWithExtraData(content, xDataName);
-                }
-
-                let form: XDataWizardStepForm = this.xDataStepFormByName[key];
-                form.getData().unChanged(this.dataChangedHandler);
-
-                let data = extraData.getData();
-                data.onChanged(this.dataChangedHandler);
-
-                form.resetState(data);
-
-                if (form.isEnabled()) {
-                    form.update(data, unchangedOnly);
-                } else {
-                    form.resetData();
-                }
-
-                this.synchPersistedItemWithXData(xDataName, data);
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
+            const extraData: ExtraData = content.getExtraData(xDataName);
+            if (!extraData) {
+                return;
             }
-        }
+
+            form.getData().unChanged(this.dataChangedHandler);
+
+            const data: PropertyTree = extraData.getData();
+            data.onChanged(this.dataChangedHandler);
+
+            form.resetState(data);
+
+            if (form.isEnabled()) {
+                form.update(data, unchangedOnly);
+            } else {
+                form.resetData();
+            }
+        });
     }
 
     private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
@@ -2169,10 +2198,6 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
-
-        if (content.isSite()) {
-            this.updateSiteModel(<Site>content);
-        }
 
         this.settingsWizardStepForm.update(content, unchangedOnly);
         this.scheduleWizardStepForm.update(content, unchangedOnly);

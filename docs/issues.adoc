@@ -39,7 +39,7 @@ To add specific content to an issue, click on the `Add items` button. The *Items
 
 image::dialog-issue-1.png[]
 
-If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<actions.adoc#publishing-wizard,example>>, when publishing "March Madness" post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
+If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<actions#publishing-wizard,example>>, when publishing “March Madness” post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
 
 image::dialog-issue-2.png[]
 

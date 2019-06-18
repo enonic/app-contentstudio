@@ -8,12 +8,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 
 describe('Menu Items: `Save as fragment` and `Detach from Fragment` specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -23,6 +22,7 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
     let CONTROLLER_NAME = 'main region';
     it(`Precondition: new site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(()=> {
@@ -38,6 +38,8 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
 
     it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN 'Detach from Fragment' menu item should appear`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(()=> {
@@ -48,7 +50,9 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
                 return pageComponentView.openMenu("Text");
             }).then(()=> {
                 return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).pause(2000).then(()=> {
+            }).then(()=>{
+                return pageComponentView.pause(2000);
+            }).then(()=> {
                 return pageComponentView.openMenu("Text");
             }).then(()=> {
                 studioUtils.saveScreenshot('text_saved_as_fragment');
@@ -58,13 +62,17 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
         });
     it(`GIVEN Page Component View is opened WHEN text-fragment clicked AND Detach from Fragment has been clicked THEN 'Save as Fragment' menu item should appear again`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(()=> {
                 return pageComponentView.openMenu("Text");
             }).then(()=> {
                 return pageComponentView.selectMenuItem([appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT]);
-            }).pause(2000).then(()=> {
+            }).then(()=>{
+                return pageComponentView.pause(2000);
+            }).then(()=> {
                 return pageComponentView.openMenu("Text");
             }).then(()=> {
                 studioUtils.saveScreenshot('text_is_detached');

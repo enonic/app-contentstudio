@@ -1,10 +1,10 @@
 /**
  * Created  on 3/1/2018.
  */
-const page = require('../page');
+const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const elements = require('../../libs/elements');
-const xpath = {
+const lib = require('../../libs/elements');
+const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
     createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
     cancelButton: `//button[contains(@class,'button-bottom')]`,
@@ -14,173 +14,137 @@ const xpath = {
     assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
-
 };
-const createIssueDialog = Object.create(page, {
 
-    cancelTopButton: {
-        get: function () {
-            return `${xpath.container}` + `${elements.CANCEL_BUTTON_TOP}`;
-        }
-    },
-    titleErrorMessage: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.titleFormItem}` + `${elements.VALIDATION_RECORDING_VIEWER}`;
-        }
-    },
-    titleInput: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.titleFormItem}` + `${elements.TEXT_INPUT}`;
-        }
-    },
-    titleInputValidationMessage: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.titleFormItem}` + `${elements.VALIDATION_RECORDING_VIEWER}`;
-        }
-    },
+class CreateIssueDialog extends Page {
 
-    addItemsButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.addItemsButton}`;
-        }
-    },
-    itemsOptionFilterInput: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.itemsComboBox}` + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
-        }
-    },
-    assigneesOptionFilterInput: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.assigneesComboBox}` + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
-        }
-    },
-    descriptionTextArea: {
-        get: function () {
-            return `${xpath.container}` + `${elements.TEXT_AREA}`;
-        }
-    },
+    get cancelTopButton() {
+        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
 
-    createIssueButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.createIssueButton}`;
-        }
-    },
-    cancelBottomButton: {
-        get: function () {
-            return `${xpath.container}` + `${xpath.cancelButton}`;
-        }
-    },
-    clickOnCreateIssueButton: {
-        value: function () {
-            return this.doClick(this.createIssueButton).catch(err => {
-                this.saveScreenshot('err_click_create_issue');
-                throw new Error('create issue dialog ' + err);
-            }).pause(500);
-        }
-    },
-    clickOnAddItemsButton: {
-        value: function () {
-            return this.doClick(this.addItemsButton).catch(err => {
-                this.saveScreenshot('err_click_add_items');
-                throw new Error('click on add items button' + err);
-            }).pause(500);
-        }
-    },
-    clickOnCancelBottomButton: {
-        value: function () {
-            return this.doClick(this.cancelBottomButton).then(() => {
-                return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3);
-            }).catch(err => {
-                this.saveScreenshot('err_close_issue_dialog');
-                throw new Error('Create Issue dialog must be closed!')
-            })
-        }
-    },
-    clickOnIncludeChildrenToggler: {
-        value: function (displayName) {
-            let selector = xpath.container + xpath.selectionItemByDisplayName(displayName) + `${elements.INCLUDE_CHILDREN_TOGGLER}`;
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.doClick(selector);
-            }).catch(err => {
-                this.saveScreenshot('err_click_on_include_children');
-                throw new Error('Error when clicking on `include children` icon ' + displayName + ' ' + err);
-            }).pause(500);
-        }
-    },
-    waitForDialogLoaded: {
-        value: function () {
-            return this.waitForVisible(`${xpath.container}`, appConst.TIMEOUT_2);
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForVisible(`${xpath.container}`, appConst.TIMEOUT_2);
-        }
-    },
-    isWarningMessageDisplayed: {
-        value: function () {
-            return this.isVisible(this.warningMessage);
-        }
-    },
-    isTitleInputDisplayed: {
-        value: function () {
-            return this.isVisible(this.titleInput);
-        }
-    },
+    get cancelBottomButton() {
+        return XPATH.container + XPATH.cancelButton;
+    }
 
-    isCreateIssueButtonDisplayed: {
-        value: function () {
-            return this.isVisible(this.createIssueButton);
-        }
-    },
-    isCancelButtonTopDisplayed: {
-        value: function () {
-            return this.isVisible(this.cancelTopButton);
-        }
-    },
-    isCancelButtonBottomDisplayed: {
-        value: function () {
-            return this.isVisible(this.cancelBottomButton);
-        }
-    },
-    isAddItemsButtonDisplayed: {
-        value: function () {
-            return this.isVisible(this.addItemsButton);
-        }
-    },
+    get titleInputValidationMessage() {
+        return XPATH.container + XPATH.titleFormItem + lib.VALIDATION_RECORDING_VIEWER;
+    }
 
-    isDescriptionTextAreaDisplayed: {
-        value: function () {
-            return this.isVisible(this.descriptionTextArea);
-        }
-    },
-    clickOnCancelTopButton: {
-        value: function () {
-            return this.doClick(this.cancelTopButton);
-        }
-    },
-    isItemsOptionFilterDisplayed: {
-        value: function () {
-            return this.isVisible(this.itemsOptionFilterInput);
-        }
-    },
-    isAssigneesOptionFilterDisplayed: {
-        value: function () {
-            return this.isVisible(this.assigneesOptionFilterInput);
-        }
-    },
-    getValidationMessageForTitleInput: {
-        value: function () {
-            return this.getText(this.titleInputValidationMessage);
-        }
-    },
-    typeTitle: {
-        value: function (issueName) {
-            return this.typeTextInInput(this.titleInput, issueName).catch(err => {
-                this.saveScreenshot("err_type_issue_name");
-                throw new Error('error when type issue-name ' + err);
-            })
-        }
-    },
-});
-module.exports = createIssueDialog;
+    get titleInput() {
+        return XPATH.container + XPATH.titleFormItem + lib.TEXT_INPUT;
+    }
+
+    get addItemsButton() {
+        return XPATH.container + XPATH.addItemsButton;
+    }
+
+    get itemsOptionFilterInput() {
+        return XPATH.container + XPATH.itemsComboBox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get assigneesOptionFilterInput() {
+        return XPATH.container + XPATH.assigneesComboBox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get descriptionTextArea() {
+        return XPATH.container + lib.TEXT_AREA;
+    }
+
+    get createIssueButton() {
+        return XPATH.container + XPATH.createIssueButton;
+    }
+
+    clickOnCreateIssueButton() {
+        return this.waitForElementDisplayed(this.createIssueButton, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.createIssueButton)
+        }).catch(err => {
+            this.saveScreenshot('err_click_create_issue_button');
+            throw new Error('create issue dialog: ' + err);
+        });
+    }
+
+    clickOnAddItemsButton() {
+        return this.clickOnElement(this.addItemsButton).catch(err => {
+            this.saveScreenshot('err_click_add_items');
+            throw new Error('click on add items button' + err);
+        });
+    }
+
+    clickOnCancelBottomButton() {
+        return this.clickOnElement(this.cancelBottomButton).then(() => {
+            return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
+        }).catch(err => {
+            this.saveScreenshot('err_close_issue_dialog');
+            throw new Error('Create Issue dialog must be closed!')
+        })
+    }
+
+    async clickOnIncludeChildrenToggler(displayName) {
+        let selector = XPATH.container + XPATH.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector).catch(err => {
+            this.saveScreenshot('err_click_on_include_children');
+            throw new Error('Error when clicking on `include children` icon ' + displayName + ' ' + err);
+        });
+    }
+
+    getValidationMessageForTitleInput() {
+        return this.getText(this.titleInputValidationMessage);
+    }
+
+    typeTitle(issueName) {
+        return this.typeTextInInput(this.titleInput, issueName).catch(err => {
+            this.saveScreenshot("err_type_issue_name");
+            throw new Error('error when type issue-name ' + err);
+        })
+    }
+
+    clickOnCancelTopButton() {
+        return this.clickOnElement(this.cancelTopButton);
+    }
+
+    waitForDialogLoaded() {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    isWarningMessageDisplayed() {
+        return this.isElementDisplayed(this.warningMessage);
+    }
+
+    isTitleInputDisplayed() {
+        return this.isElementDisplayed(this.titleInput);
+    }
+
+    isCreateIssueButtonDisplayed() {
+        return this.isElementDisplayed(this.createIssueButton);
+    }
+
+    isCancelButtonTopDisplayed() {
+        return this.isElementDisplayed(this.cancelTopButton);
+    }
+
+    isCancelButtonBottomDisplayed() {
+        return this.isElementDisplayed(this.cancelBottomButton);
+    }
+
+    isAddItemsButtonDisplayed() {
+        return this.isElementDisplayed(this.addItemsButton);
+    }
+
+    isDescriptionTextAreaDisplayed() {
+        return this.isElementDisplayed(this.descriptionTextArea);
+    }
+
+    isItemsOptionFilterDisplayed() {
+        return this.isElementDisplayed(this.itemsOptionFilterInput);
+    }
+
+    isAssigneesOptionFilterDisplayed() {
+        return this.isElementDisplayed(this.assigneesOptionFilterInput);
+    }
+};
+module.exports = CreateIssueDialog;

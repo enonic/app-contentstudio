@@ -1,13 +1,12 @@
 /**
  * Created on 26.04.2018.
  */
-
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const insertLinkDialog = require('./insert.link.modal.dialog.cke');
+const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
 
-const form = {
+const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
     ckeTextArea: `//div[contains(@id,'cke_api.ui.text.TextArea')]`,
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
@@ -48,360 +47,327 @@ const form = {
         return `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };
-const htmlAreaForm = Object.create(page, {
 
-    fullScreenButton: {
-        get: function () {
-            return `${elements.FORM_VIEW}` + `${form.fullScreen}`;
-        }
-    },
+class HtmlAreaForm extends Page {
 
-    validationRecord: {
-        get: function () {
-            return `${elements.FORM_VIEW}` + `${form.validationRecording}`;
-        }
-    },
-
-    type: {
-        value: function (data) {
-            return this.typeTextInHtmlArea(data.texts).pause(300);
-        }
-    },
-
-    getIdOfHtmlAreas: {
-        value: function (text) {
-            let selector = elements.FORM_VIEW + elements.TEXT_AREA;
-            return this.getAttribute(selector, 'id');
-        }
-    },
-    typeTextInHtmlArea: {
-        value: function (texts) {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).pause(300).then(() => {
-                return this.getIdOfHtmlAreas();
-            }).then(ids => {
-                const promises = [].concat(texts).map((text, index) => {
-                    return this.execute(form.typeText([].concat(ids)[index], text));
-                });
-                return Promise.all(promises);
-            });
-        }
-    },
-    clearHtmlArea: {
-        value: function (index) {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.getIdOfHtmlAreas();
-            }).then(ids => {
-                const arr = [].concat(ids);
-                return this.execute(form.typeText(arr[index], ''));
-            }).pause(500);
-        }
-    },
-    getTextFromHtmlArea: {
-        value: function () {
-            let strings = [];
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.getIdOfHtmlAreas();
-            }).then(ids => {
-                [].concat(ids).forEach(id => {
-                    strings.push(this.execute(form.getText(id)));
-                });
-                return Promise.all(strings);
-            }).then(response => {
-                let res = [];
-                response.forEach((str) => {
-                    return res.push(str.value.trim());
-                })
-                return res;
-            })
-        }
-    },
-    showToolbar: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button')]`, appConst.TIMEOUT_3).catch(err => {
-                    throw new Error('CKE toolbar was not shown in ' + appConst.TIMEOUT_3 + ' ' + err);
-                })
-            });
-        }
-    },
-    showToolbarAndClickOnInsertImageButton: {
-        value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(form.ckeTextArea);
-            }).then(() => {
-                return this.waitForVisible(form.insertImageButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.insertImageButton);
-            })
-        }
-    },
-    //double clicks on the html-area
-    doubleClickOnHtmlArea: {
-        value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.doDoubleClick(form.ckeTextArea);
-            }).pause(1000);
-        }
-    },
-    //clicks on Format's dropdown handle and expands options
-    showToolbarAndClickOnFormatDropDownHandle: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(form.formatDropDownHandle, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.formatDropDownHandle);
-            })
-        }
-    },
-    getFormatOptions: {
-        value: function () {
-            let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
-            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
-                return this.frame(id);
-            }).then(() => {
-                return this.getText(selector);
-            })
-        }
-    },
-    //switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
-    selectFormatOption: {
-        value: function (optionName) {
-            let selector = form.formatOptionByName(optionName);
-            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
-                return this.frame(id);
-            }).then(() => {
-                return this.doClick(selector);
-            }).pause(1000).then(() => {
-                return this.getBrowser().frameParent();
-            });
-        }
-    },
-    showToolbarAndClickOnInsertAnchorButton: {
-        value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(form.ckeTextArea)
-            }).then(() => {
-                return this.waitForVisible(form.insertAnchorButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.insertAnchorButton);
-            })
-        }
-    },
-    showToolbarAndClickOnTableButton: {
-        value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(form.ckeTextArea);
-            }).then(() => {
-                return this.waitForVisible(form.tableButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.tableButton);
-            })
-        }
-    },
-    isTableDropDownMenuVisible: {
-        value: function () {
-            let table = "//table";
-            return this.getAttribute("//iframe[@class='cke_panel_frame']", 'id').then(id => {
-                return this.frame(id);
-            }).then(() => {
-                return this.waitForVisible(table, appConst.TIMEOUT_2);
-            }).catch(err => {
-                return false;
-            })
-        }
-    },
-    showToolbarAndClickOnInsertSpecialCharactersButton: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`)
-            })
-        }
-    },
-    showToolbarAndClickOnInsertMacroButton: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(form.insertMacroButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.insertMacroButton);
-            })
-        }
-    },
-    showToolbarAndClickOnInsertLinkButton: {
-        value: function () {
-            return this.waitForVisible(form.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(form.ckeTextArea);
-            }).then(() => {
-                //click on `Insert Link` button and wait for modal dialog is loaded
-                return this.clickOnInsertLinkButton();
-            })
-        }
-    },
-    clickOnInsertLinkButton: {
-        value: function () {
-            return this.waitForVisible(form.insertLinkButton, appConst.TIMEOUT_3).then(result => {
-                return this.doClick(form.insertLinkButton);
-            }).then(() => {
-                return insertLinkDialog.waitForDialogLoaded();
-            })
-        }
-    },
-    clickOnSourceButton: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(form.sourceButton, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(form.sourceButton);
-            })
-        }
-    },
-    clickOnFullScreenButton: {
-        value: function () {
-            return this.doClick(form.ckeTextArea).then(() => {
-                return this.waitForVisible(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
-            }).then(result => {
-                return this.doClick(this.fullScreenButton);
-            })
-        }
-    },
-    isBoldButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.boldButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Bold button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isItalicButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.italicButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Italic button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isUnderlineButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.underlineButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Underline button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isSuperscriptButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.superScriptButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Superscript button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isSubscriptButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.subscriptButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Subscript button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isBulletedListButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.bulletedButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Bulleted List button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isNumberedListButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.numberedButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Numbered List button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isAlignLeftButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.alignLeftButton, appConst.TIMEOUT_2).catch(err => {
-                console.log('Align Left  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isAlignRightButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.alignRightButton, appConst.TIMEOUT_2).catch(err => {
-                console.log('Align Right  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isCenterButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.centerButton, appConst.TIMEOUT_2).catch(err => {
-                console.log('Center  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isIncreaseIndentDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.increaseIndentButton).catch(err => {
-                console.log('Increase Indent  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isDecreaseIndentDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.decreaseIndentButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Increase Indent  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isBlockQuoteButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.blockQuoteButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Block Quote  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isTableButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.tableButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Table  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    isIncreaseIndentButtonDisplayed: {
-        value: function () {
-            return this.waitForVisible(form.increaseIndentButton, appConst.TIMEOUT_3).catch(err => {
-                console.log('Increase Indent  button is not visible! ' + err);
-                return false;
-            })
-        }
-    },
-    waitForValidationRecording: {
-        value: function () {
-            return this.waitForVisible(this.validationRecord, appConst.TIMEOUT_2);
-        }
-    },
-    isValidationRecordingVisible: {
-        value: function () {
-            return this.isVisible(this.validationRecord);
-        }
-    },
-    getValidationRecord: {
-        value: function () {
-            return this.getText(this.validationRecord).catch(err => {
-                this.saveScreenshot('err_textarea_validation_record');
-                throw new Error('getting Validation text: ' + err);
-            })
-        }
+    get fullScreenButton() {
+        return lib.FORM_VIEW + XPATH.fullScreen;
     }
-});
-module.exports = htmlAreaForm;
+
+    get validationRecord() {
+        return lib.FORM_VIEW + XPATH.validationRecording;
+    }
+
+    type(data) {
+        return this.typeTextInHtmlArea(data.texts).then(() => {
+            return this.pause(300);
+        })
+    }
+
+    typeTextInHtmlArea(texts) {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.getIdOfHtmlAreas();
+        }).then(ids => {
+            const promises = [].concat(texts).map((text, index) => {
+                return this.execute(XPATH.typeText([].concat(ids)[index], text));
+            });
+            return Promise.all(promises);
+        }).then(()=>{
+            return this.pause(300);
+        });
+    }
+
+    async getIdOfHtmlAreas() {
+        let selector = lib.FORM_VIEW + lib.TEXT_AREA;
+        let elems = await this.findElements(selector);
+        let ids = [];
+        elems.forEach(el => {
+            ids.push(el.getAttribute("id"));
+        });
+        return Promise.all(ids);
+    }
+
+    clearHtmlArea(index) {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.getIdOfHtmlAreas();
+        }).then(ids => {
+            const arr = [].concat(ids);
+            return this.execute(XPATH.typeText(arr[index], ''));
+        }).then(() => {
+            return this.pause(300);
+        });
+    }
+
+    getTextFromHtmlArea() {
+        let strings = [];
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.getIdOfHtmlAreas();
+        }).then(ids => {
+            [].concat(ids).forEach(id => {
+                strings.push(this.execute(XPATH.getText(id)));
+            });
+            return Promise.all(strings);
+        }).then(response => {
+            let res = [];
+            response.forEach((str) => {
+                return res.push(str.trim());
+            })
+            return res;
+        })
+    }
+
+    showToolbar() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(`//a[contains(@class,'cke_button')]`, appConst.TIMEOUT_3).catch(err => {
+                throw new Error('CKE toolbar was not shown in ' + appConst.TIMEOUT_3 + ' ' + err);
+            })
+        });
+    }
+
+    showToolbarAndClickOnInsertImageButton() {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(XPATH.ckeTextArea);
+        }).then(() => {
+            return this.waitForElementDisplayed(XPATH.insertImageButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.insertImageButton);
+        })
+    }
+
+//double clicks on the html-area
+    doubleClickOnHtmlArea() {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.doDoubleClick(XPATH.ckeTextArea);
+        }).then(() => {
+            return this.pause(1000);
+        })
+    }
+
+    //clicks on Format's dropdown handle and expands options
+    showToolbarAndClickOnFormatDropDownHandle() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.formatDropDownHandle);
+        })
+    }
+
+    async getFormatOptions() {
+        let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
+        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+        return await this.getTextInElements(selector);
+    }
+
+//switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
+    async selectFormatOption(optionName) {
+        let selector = XPATH.formatOptionByName(optionName);
+        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+        await this.clickOnElement(selector);
+        await this.pause(700);
+        //switches to the parent frame again
+        return await this.getBrowser().switchToParentFrame();
+
+    }
+
+    showToolbarAndClickOnInsertAnchorButton() {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(XPATH.ckeTextArea)
+        }).then(() => {
+            return this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.insertAnchorButton);
+        })
+    }
+
+    showToolbarAndClickOnTableButton() {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(XPATH.ckeTextArea);
+        }).then(() => {
+            return this.waitForElementDisplayed(XPATH.tableButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.tableButton);
+        }).then(()=>{
+            this.pause(400);
+        })
+    }
+
+    async isTableDropDownMenuVisible() {
+        let table = "//table";
+        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+        return await this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
+    }
+
+    showToolbarAndClickOnInsertSpecialCharactersButton() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`,
+                appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`)
+        })
+    }
+
+    showToolbarAndClickOnInsertMacroButton() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.insertMacroButton);
+        })
+    }
+
+    showToolbarAndClickOnInsertLinkButton() {
+        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(XPATH.ckeTextArea);
+        }).then(() => {
+            //click on `Insert Link` button and wait for modal dialog is loaded
+            return this.clickOnInsertLinkButton();
+        })
+    }
+
+    clickOnInsertLinkButton() {
+        return this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.TIMEOUT_3).then(result => {
+            return this.clickOnElement(XPATH.insertLinkButton);
+        }).then(() => {
+            let insertLinkDialog = new InsertLinkDialog();
+            return insertLinkDialog.waitForDialogLoaded();
+        }).then(()=>{
+            return this.pause(300);
+        })
+    }
+
+    clickOnSourceButton() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(XPATH.sourceButton, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(XPATH.sourceButton);
+        })
+    }
+
+    clickOnFullScreenButton() {
+        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
+            return this.waitForElementDisplayed(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
+        }).then(result => {
+            return this.clickOnElement(this.fullScreenButton);
+        })
+    }
+
+    isBoldButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.boldButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Bold button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isItalicButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.italicButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Italic button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isUnderlineButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.underlineButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Underline button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isSuperscriptButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.superScriptButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Superscript button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isSubscriptButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.subscriptButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Subscript button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isBulletedListButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.bulletedButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Bulleted List button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isNumberedListButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.numberedButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Numbered List button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isAlignLeftButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.alignLeftButton, appConst.TIMEOUT_2).catch(err => {
+            console.log('Align Left  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isAlignRightButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.alignRightButton, appConst.TIMEOUT_2).catch(err => {
+            console.log('Align Right  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isCenterButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.centerButton, appConst.TIMEOUT_2).catch(err => {
+            console.log('Center  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isIncreaseIndentDisplayed() {
+        return this.waitForElementDisplayed(XPATH.increaseIndentButton).catch(err => {
+            console.log('Increase Indent  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isDecreaseIndentDisplayed() {
+        return this.waitForElementDisplayed(XPATH.decreaseIndentButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Increase Indent  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isBlockQuoteButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.blockQuoteButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Block Quote  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isTableButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.tableButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Table  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    isIncreaseIndentButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.increaseIndentButton, appConst.TIMEOUT_3).catch(err => {
+            console.log('Increase Indent  button is not visible! ' + err);
+            return false;
+        })
+    }
+
+    waitForValidationRecording() {
+        return this.waitForElementDisplayed(this.validationRecord, appConst.TIMEOUT_2);
+    }
+
+    isValidationRecordingVisible() {
+        return this.isElementDisplayed(this.validationRecord);
+    }
+
+    getValidationRecord() {
+        return this.getText(this.validationRecord).catch(err => {
+            this.saveScreenshot('err_textarea_validation_record');
+            throw new Error('getting Validation text: ' + err);
+        })
+    }
+};
+module.exports = HtmlAreaForm;

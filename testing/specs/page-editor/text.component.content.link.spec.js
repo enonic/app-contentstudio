@@ -7,12 +7,13 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const pageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const textComponentCke = require('../../page_objects/components/text.component');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const TextComponentCke = require('../../page_objects/components/text.component');
+const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 describe('Text Component with CKE - insert content link  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,6 +25,7 @@ describe('Text Component with CKE - insert content link  specification', functio
 
     it(`Precondition: new site should be added`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -39,6 +41,9 @@ describe('Text Component with CKE - insert content link  specification', functio
 
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'content-link' has been inserted THEN correct data should be present in the CKE`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
             }).then(() => {
@@ -51,13 +56,12 @@ describe('Text Component with CKE - insert content link  specification', functio
                 return textComponentCke.clickOnInsertLinkButton();
             }).then(() => {
                 return studioUtils.insertContentLinkInCke("test", SITE.displayName);
-            }).pause(1000).then(() => {
+            }).then(() => {
                 return textComponentCke.switchToLiveEditFrame();
             }).then(() => {
                 studioUtils.saveScreenshot('content_link_inserted');
                 return textComponentCke.getTextFromEditor();
             }).then(result => {
-                console.log(result);
                 assert.isTrue(result.includes(EXPECTED_SRC), 'correct data should be in CKE');
             }).then(() => {
                 return textComponentCke.switchToParentFrame();
@@ -68,9 +72,10 @@ describe('Text Component with CKE - insert content link  specification', functio
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();
-            }).pause(1000).then(() => {
+            }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName)
             }).then(() => {
                 return studioUtils.isElementDisplayed(`a=test`);
@@ -81,7 +86,16 @@ describe('Text Component with CKE - insert content link  specification', functio
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => {
+        let insertLinkDialog = new InsertLinkDialog();
+        return insertLinkDialog.isDialogOpened().then(result => {
+            if (result) {
+                return insertLinkDialog.clickOnCancelButton();
+            }
+        }).then(() => {
+            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        })
+    });
     before(() => {
         return console.log('specification starting: ' + this.title);
     });

@@ -9,13 +9,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const pageInspectionPanel = require('../page_objects/wizardpanel/liveform/page.inspection.panel');
-const contextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
-
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/page.inspection.panel');
+const ContextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
 
 describe('site.controller.spec: checks options in selector for Page Templates and Controllers', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,13 +22,18 @@ describe('site.controller.spec: checks options in selector for Page Templates an
     let SITE;
     it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN required options should be present in the Inspection Panel`,
         () => {
+        let contentWizard = new ContentWizard();
+        let contextWindow = new ContextWindow();
+        let pageInspectionPanel = new PageInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doOpenSiteWizard().then(() => {
                 return contentWizard.typeData(SITE);
             }).then(() => {
                 return contentWizard.selectPageDescriptor('Page');
-            }).pause(700).then(() => {
+            }).then(()=>{
+                return contentWizard.pause(700);
+            }).then(() => {
                 return contextWindow.clickOnTabBarItem('Page');
             }).then(() => {
                 return pageInspectionPanel.getPageTemplateDropdownOptions();

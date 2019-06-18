@@ -1,8 +1,7 @@
 /**
  * Created on 30/07/2018.
  */
-const baseVersionsWidget = require('../../details_panel/base.versions.widget');
-const elements = require('../../../libs/elements');
+const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
@@ -10,52 +9,45 @@ const xpath = {
     versionsList: `//ul[contains(@id,'VersionsView')]`,
     versionItem: `//li[contains(@class,'content-version-item')]`,
 };
-const wizardVersionsWidget = Object.create(baseVersionsWidget, {
 
-    versionsWidget: {
-        get: function () {
-            return `${xpath.widget}`;
-        }
-    },
-    versionItems: {
-        get: function () {
-            return this.versionsWidget + `${xpath.versionsList}` + `${xpath.versionItem}`;
-        }
-    },
-    isWidgetVisible: {
-        value: function () {
-            return this.isVisible(xpath.widget);
-        }
-    },
-    //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
-    waitForVersionsLoaded: {
-        value: function () {
-            return this.waitForVisible(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
-                throw new Error('Content Wizard: Version Widget was not loaded in ' + appConst.TIMEOUT_2);
-            });
-        }
-    },
-    //waits for Version Widget is loaded, returns false after the timeout exceeded
-    isWidgetLoaded: {
-        value: function () {
-            return this.waitForVisible(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
-                return false;
-            });
-        }
-    },
-    clickOnRestoreThisVersion: {
-        value: function () {
-            let selector = xpath.versionItem + "//button";
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.getDisplayedElements(selector)
-            }).then(result => {
-                return this.getBrowser().elementIdClick(result[0].ELEMENT);
-            }).catch(err => {
-                throw new Error("Version Widget - error when clicking on 'Restore Version' button " + err);
-            });
-        }
+class WizardVersionsWidget extends BaseVersionsWidget {
+
+    get versionsWidget() {
+        return xpath.widget;
     }
-});
-module.exports = wizardVersionsWidget;
 
+    get versionItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.versionItem;
+    }
+
+    isWidgetVisible() {
+        return this.isElementDisplayed(xpath.widget);
+    }
+
+//waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
+    waitForVersionsLoaded() {
+        return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Content Wizard: Version Widget was not loaded in ' + appConst.TIMEOUT_2);
+        });
+    }
+
+//waits for Version Widget is loaded, returns false after the timeout exceeded
+    isWidgetLoaded() {
+        return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
+            return false;
+        });
+    }
+
+    clickOnRestoreThisVersion() {
+        let selector = xpath.versionItem + "//button";
+        return this.getDisplayedElements(selector).then(result => {
+            return this.getBrowser().elementClick(result[0].ELEMENT);
+        }).then(() => {
+            return this.pause(2000);
+        }).catch(err => {
+            throw new Error("Version Widget - error when clicking on 'Restore Version' button " + err);
+        });
+    }
+};
+module.exports = WizardVersionsWidget;
 

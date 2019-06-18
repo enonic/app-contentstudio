@@ -8,17 +8,16 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const liveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
-const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
-const imageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
-const siteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
-const siteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
-const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
+const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
+const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
+const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
+const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
 
 describe('Content with image-selector, select images and verify that Outbound dependencies are refreshed ',
     function () {
@@ -33,6 +32,7 @@ describe('Content with image-selector, select images and verify that Outbound de
 
         it(`Precondition: new site should be added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
                 return studioUtils.doAddSite(SITE).then(() => {
@@ -48,6 +48,10 @@ describe('Content with image-selector, select images and verify that Outbound de
 
         it(`GIVEN existing site with the configurator is opened WHEN image has been inserted in the site configurator THEN 'Outbound dependency' should appear`,
             () => {
+                let siteFormPanel = new SiteFormPanel();
+                let insertImageDialog = new InsertImageDialog();
+                let siteConfiguratorDialog = new SiteConfiguratorDialog();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     return siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_CONTENT_TYPES);
                 }).then(() => {
@@ -72,6 +76,9 @@ describe('Content with image-selector, select images and verify that Outbound de
 
         it(`GIVEN wizard for content with image selector is opened WHEN 2 images has been selected THEN 2 outbound dependencies should be present on the widget`,
             () => {
+                let imageSelectorForm = new ImageSelectorForm();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
+                let contentWizard = new ContentWizard();
                 return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
                     return contentWizard.typeDisplayName(contentDisplayName);
                 }).then(() => {
@@ -95,6 +102,9 @@ describe('Content with image-selector, select images and verify that Outbound de
     });
 
 function openWizardDependencyWidget() {
+    let contentWizard = new ContentWizard();
+    let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardDependenciesWidget = new WizardDependenciesWidget();
     return contentWizard.openDetailsPanel().then(() => {
         return wizardDetailsPanel.openDependencies();
     }).then(() => {

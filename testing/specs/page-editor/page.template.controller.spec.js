@@ -11,18 +11,17 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const liveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
-const pageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
-const newContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
+const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
+const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let SITE;
     let TEMPLATE;
     let SUPPORT = 'Site';
@@ -30,6 +29,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     it(`Precondition: new site should be present in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -46,6 +46,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //Upload button should not be visible in the New Content dialog for Templates folder
     it(`GIVEN existing site is expanded AND _templates folder selected WHEN New button has been pressed THEN upload button should not be present on the modal dialog`,
         () => {
+        let newContentDialog = new NewContentDialog();
             return selectTemplatesFolderAndClickNew().then(() => {
                 return newContentDialog.waitForUploaderButtonDisplayed();
             }).then(result => {
@@ -54,6 +55,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
     it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present on the modal dialog`,
         () => {
+            let newContentDialog = new NewContentDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             return contentBrowsePanel.clickOnNewButton().then(() => {
                 return newContentDialog.waitForOpened();
             }).then(() => {
@@ -66,6 +69,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         () => {
+            let contentWizard = new ContentWizard();
+            let liveContextWindow = new  LiveContextWindow();
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
             return studioUtils.doOpenPageTemplateWizard(SITE.displayName).then(() => {
@@ -82,6 +87,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         () => {
+            let contentWizard = new ContentWizard();
+            let pageTemplateForm = new PageTemplateForm();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
@@ -102,15 +109,17 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN 'support' has been removed (in template) THEN controller-selector must appear on the site-wizard`,
         () => {
+            let pageTemplateForm = new PageTemplateForm();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
                 return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
             }).then(() => {
                 return pageTemplateForm.clickOnRemoveSupportIcon();
-            }).pause(1200).then(() => {
+            }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).pause(700).then(() => {
+            }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
@@ -122,6 +131,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened  WHEN template has been deleted THEN Options filter input must be visible in the site-wizard`,
         () => {
+            let pageTemplateForm = new PageTemplateForm();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName).then(() => {
                 return pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
             }).then(() => {
@@ -134,7 +145,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
                 return studioUtils.doDeleteContent(TEMPLATE.displayName);
-            }).pause(1000).then(() => {
+            }).then(()=>{
+                return contentWizard.pause(2000);
+            }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);
             }).then(() => {
                 return contentWizard.waitForControllerOptionFilterInputVisible();
@@ -151,6 +164,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
     });
 
     function selectTemplatesFolderAndClickNew() {
+        let newContentDialog = new NewContentDialog();
+        let contentBrowsePanel = new ContentBrowsePanel();
         return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
             return contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
         }).then(() => {
@@ -162,5 +177,3 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
     }
 });
-
-

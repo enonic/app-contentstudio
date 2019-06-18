@@ -1,33 +1,31 @@
 /**
  * Created on 15.02.2018.
  */
-
-const page = require('../../page');
-const elements = require('../../../libs/elements');
+const Page = require('../../page');
+const lib = require('../../../libs/elements');
 const utils = require('../../../libs/studio.utils');
 const appConst = require('../../../libs/app_const');
-const contentWizard = require('../content.wizard.panel');
-const loaderComboBox = require('../../../page_objects/components/loader.combobox');
+const ContentWizard = require('../content.wizard.panel');
+const LoaderComboBox = require('../../../page_objects/components/loader.combobox');
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
 };
 
-const liveFormPanel = Object.create(page, {
+class LiveFormPanel extends Page {
 
-    waitForOpened: {
-        value: function () {
-            return this.waitForVisible(xpath.container, appConst.TIMEOUT_2);
-        }
-    },
-    // selects an image by displayName(in an image-component)
-    selectImageByDisplayName: {
-        value: function (displayName) {
-            let parentForComboBox = `//div[contains(@id,'ImagePlaceholder')]`;
-            return contentWizard.switchToLiveEditFrame().then(() => {
-                return loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
-            }).pause(500);
-        }
-    },
-});
-module.exports = liveFormPanel;
+    waitForOpened() {
+        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2);
+    }
+
+   // selects an image by displayName(in an image-component)
+    async selectImageByDisplayName(displayName) {
+        let parentForComboBox = `//div[contains(@id,'ImagePlaceholder')]`;
+        let contentWizard = new ContentWizard();
+        let loaderComboBox = new LoaderComboBox();
+        await contentWizard.switchToLiveEditFrame();
+        await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+        return await this.pause(500);
+    }
+};
+module.exports = LiveFormPanel;

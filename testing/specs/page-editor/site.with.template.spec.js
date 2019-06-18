@@ -9,11 +9,10 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-
 
 describe('site.wit.template: when a template has been deleted, then site-wizard should be refreshed', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -25,6 +24,7 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
     let CONTROLLER_NAME = 'main region';
     it(`Precondition: new site should be present in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -40,6 +40,7 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
 
     it(`WHEN new template has been added THEN the template should be listed in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
             return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(() => {
@@ -53,6 +54,7 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
 
     it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
@@ -63,8 +65,7 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
                 return contentWizard.waitForControllerOptionFilterInputVisible();
             }).then(result => {
                 studioUtils.saveScreenshot(SITE.displayName + '_reset');
-                assert.isTrue(result, 'Options filter input should appear in the site, because the template was deleted')
-
+                assert.isTrue(result, 'Options filter input should appear in the site, because the template was deleted');
             });
         });
 
