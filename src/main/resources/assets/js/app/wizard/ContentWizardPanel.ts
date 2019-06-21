@@ -1455,11 +1455,9 @@ export class ContentWizardPanel
         const persistedContentData: PropertyTree = persistedContent.getContentData();
 
         const tree: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
-        tree.getRoot().getPropertyArrays().forEach((propertyArray: PropertyArray) => {
-            if (!persistedContentData.getPropertyArray(propertyArray.getName())) {
-                persistedContentData.getRoot().addPropertyArray(propertyArray.copy(persistedContentData.getRoot()));
-            }
-        });
+
+        persistedContentData.getRoot().syncEmptyArrays(tree.getRoot());
+
         const diff = persistedContentData.diff(tree);
         diff.added.forEach((property: api.data.Property) => {
             persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
