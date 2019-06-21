@@ -2184,6 +2184,8 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
+
+            this.syncPersistedItemWithXData(xDataName, data);
         });
     }
 
