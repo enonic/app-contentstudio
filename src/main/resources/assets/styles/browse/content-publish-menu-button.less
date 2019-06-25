@@ -1,12 +1,19 @@
 .content-publish-menu {
   margin-left: auto;
+  display: flex;
 
   .action-button {
     text-align: left;
     padding-left: 12px;
+    padding-right: 12px;
     border-left: 1px solid @admin-bg-light-gray;
     margin-left: 38px;
     display: none !important;
+    min-width: unset;
+  }
+
+  .xp-admin-common-dropdown-handle {
+    position: relative;
   }
 
   &.no-item {
