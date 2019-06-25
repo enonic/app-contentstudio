@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: widgets/images
 
-Widgets are applications that expand functionality of the Content Studio. As of version 7.0, there are five built-in widgets.
+Widgets are applications that expand the functionality of the Content Studio. As of version 7.0, there are five built-in widgets.
 All widgets are listed in the dropdown selector at the top of the panel. The top 5 widgets are internal, they are followed by the installed external widgets.
 
 Widgets panel can be assessed via the cog icon in the top right corner:
@@ -32,7 +32,7 @@ Details widget was designed to provide all the basic information about the conte
 
 * **Status:** The view shows the current content status, like *New*, *Published* etc.;
 
-* **User access:** The view lists all the permissions set for the selected content. Clicking on the `Edit Permissions` link will open the <<permissions.adoc#,permissions dialog>> for updating content permissions;
+* **User access:** The view lists all the permissions set for the selected content. Clicking on the `Edit Permissions` link will open the <<permissions#,permissions dialog>> for updating content permissions;
 
 * **Properties:** The view shows useful metadata (application type, create/modified date etc.);
 
@@ -94,15 +94,15 @@ The components widget manipulates the page content and contains two tabs.
 
 Insert tab allows to drag and drop components onto the page. There are five types of components in total:
 
-* **Layout.** Enables adding a layout (container of other components) from one of the supported applications
+* *Layout.* Enables adding a <<editor/component-types#layout-component,layout>> (container of other components) from one of the supported applications;
 
-* **Part.** Enables adding a part from one of the supported applications
+* *Part.* Enables adding a part from one of the supported applications;
 
-* **Image.** Enables adding a new or existing image to the page
+* *Image.* Enables adding a new or existing image to the page;
 
-* **Text.** Enables adding a text using **rich HTML editor* which provides ample opportunities for editing, such as creating links, placing videos, adding text headers etc.
+* *Text.* Enables adding a text using <<editor/rich-text-editor#,Rich Text Editor>> which provides ample opportunities for editing, such as creating links, placing videos, adding text headers etc;
 
-* **Fragment.** Enables adding one of reusable fragments to the page
+* *Fragment.* Enables adding one of reusable fragments to the page.
 
 
 image::widgets-components-insert.png[]

@@ -1,9 +1,8 @@
 /**
  * Created on 28.03.2018.
  */
-
-const page = require('../../page');
-const elements = require('../../../libs/elements');
+const Page = require('../../page');
+const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView')]",
@@ -17,93 +16,88 @@ const xpath = {
     },
     componentDescriptionByName: function (name) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]` +
-               elements.P_SUB_NAME;
+               lib.P_SUB_NAME;
     },
 };
 
-const pageComponentView = Object.create(page, {
+class PageComponentView extends Page {
+    clickOnComponent(displayName) {
+        let selector = xpath.container + lib.itemByDisplayName(displayName);
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+            return this.clickOnElement(selector);
+        }).catch(err => {
+            throw new Error("Page Component View - Error when clicking on the component " + err);
+        }).then(() => {
+            return this.pause(400);
+        });
+    }
 
-    clickOnComponent: {
-        value: function (displayName) {
-            let selector = xpath.container + elements.itemByDisplayName(displayName);
-            return this.waitForVisible(selector, appConst.TIMEOUT_3).then(() => {
-                return this.doClick(selector);
-            }).catch(err=>{
-                throw new Error("Page Component View - Error when clicking on the component " + err);
-            }).pause(400);
-        }
-    },
-    openMenu: {
-        value: function (componentName) {
+    async openMenu(componentName) {
+        try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
-            return this.waitForVisible(menuButton, appConst.TIMEOUT_2).then(() => {
-                return this.doClick(menuButton);
-            }).pause(500).catch(err => {
-                this.saveScreenshot('err_component_view');
-                throw new Error('Error when clicking on `Menu button`: ' + err);
-            });
-        }
-    },
-    isMenuItemPresent: {
-        value: function (name) {
-            let selector = xpath.contextMenuItemByName(name);
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).catch(err => {
-                console.log(err);
-                return false;
-            })
-        }
-    },
-    //example: clicks on Insert/Image menu items
-    selectMenuItem: {
-        value: function (items) {
-            let result = Promise.resolve();
-            items.forEach(menuItem => {
-                result = result.then(() => this.clickOnMenuItem(menuItem));
-            });
-            return result;
-        }
-    },
-    clickOnMenuItem: {
-        value: function (menuItem) {
-            let selector = xpath.contextMenuItemByName(menuItem);
-            return this.waitForVisible(selector, appConst.TIMEOUT_3).catch(err => {
-                this.saveScreenshot("err_menu_item");
-                throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
-            }).then(() => {
-                return this.doClick(selector).pause(500);
-            });
-        }
-    },
-
-    waitForOpened: {
-        value: function () {
-            return this.waitForVisible(xpath.container, appConst.TIMEOUT_2);
-        }
-    },
-    swapComponents: {
-        value: function (sourceName, destinationName) {
-            let sourceElem = xpath.container + xpath.componentByName(sourceName);
-            let destinationElem = xpath.container + xpath.componentByName(destinationName);
-            return this.getBrowser().dragAndDrop(sourceElem, destinationElem).pause(3000).then(() => {
-                //return this.getBrowser().moveToObject(sourceElem)
-            }).then(() => {
-                //return this.getBrowser().buttonDown(0);
-            }).pause(500).then(() => {
-                //return this.getBrowser().moveToObject(destinationElem);
-            }).pause(500).then(() => {
-                //return this.getBrowser().buttonUp(0);
-            }).pause(1000).then(() => {
-                console.log("Items are swapped: " + sourceName + " " + destinationName);
-            });
-        }
-    },
-    getComponentDescription: {
-        value: function (name) {
-            let selector = xpath.container + xpath.componentDescriptionByName(name);
-            return this.waitForVisible(selector, appConst.TIMEOUT_2).then(() => {
-                return this.getText(selector);
-            })
+            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(menuButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_component_view');
+            throw new Error('Error when clicking on `Menu button`: ' + err);
         }
     }
-});
-module.exports = pageComponentView;
+
+    isMenuItemPresent(name) {
+        let selector = xpath.contextMenuItemByName(name);
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).catch(err => {
+            console.log(err);
+            return false;
+        })
+    }
+
+    //example: clicks on Insert/Image menu items
+    selectMenuItem(items) {
+        let result = Promise.resolve();
+        items.forEach(menuItem => {
+            result = result.then(() => this.clickOnMenuItem(menuItem));
+        });
+        return result;
+    }
+
+    clickOnMenuItem(menuItem) {
+        let selector = xpath.contextMenuItemByName(menuItem);
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_menu_item");
+            throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
+        }).then(() => {
+            return this.clickOnElement(selector);
+        }).then(() => {
+            return this.pause(300);
+        });
+    }
+
+    waitForOpened() {
+        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2);
+    }
+
+    async swapComponents(sourceName, destinationName) {
+        let sourceElem = xpath.container + xpath.componentByName(sourceName);
+        let destinationElem = xpath.container + xpath.componentByName(destinationName);
+        let source = await this.findElement(sourceElem);
+        let destination = await this.findElement(destinationElem);
+        await source.moveTo();
+        //await source.click();
+        await this.pause(300);
+        await this.getBrowser().buttonDown(0);
+        await destination.moveTo();
+        await this.pause(300);
+         await this.getBrowser().buttonUp(0);
+        //await destination.click();
+        await this.pause(1000);
+    }
+
+    getComponentDescription(name) {
+        let selector = xpath.container + xpath.componentDescriptionByName(name);
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).then(() => {
+            return this.getText(selector);
+        })
+    }
+};
+module.exports = PageComponentView;

@@ -7,12 +7,9 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const contentPublishDialog = require('../../page_objects/content.publish.dialog');
-const scheduleWizardStep = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('Wizard page - verify schedule form`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,6 +19,7 @@ describe('Wizard page - verify schedule form`', function () {
     let TEST_FOLDER;
     it(`WHEN new folder has been created THEN schedule form should not be present AND schedule menu item is not visible on the step-navigator`,
         () => {
+        let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
@@ -41,6 +39,7 @@ describe('Wizard page - verify schedule form`', function () {
 
     it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentInWizard(TEST_FOLDER.displayName).then(() => {
             }).then(() => {
                 return studioUtils.doPublishInWizard();
@@ -60,6 +59,7 @@ describe('Wizard page - verify schedule form`', function () {
 
     it(`GIVEN existing online-content is opened WHEN content has been unpublished THEN 'Schedule' form is getting not visible`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentInWizard(TEST_FOLDER.displayName).then(() => {
             }).then(() => {
                 return studioUtils.doUnPublishInWizard();

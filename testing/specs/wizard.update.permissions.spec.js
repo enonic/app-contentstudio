@@ -10,11 +10,10 @@ const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
-const editPermissionsDialog = require('../page_objects/edit.permissions.dialog');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const accessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const userAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const AccessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form');
+const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar',
     function () {
@@ -25,11 +24,16 @@ describe('wizard.update.permissions.spec: update permissions and check the state
 
         it(`GIVEN content is saved in wizard WHEN permissions have been changed THEN 'Saved' button should be visible on toolbar`,
             () => {
+                let contentWizard = new ContentWizard();
+                let accessStepForm = new AccessStepForm();
+                let editPermissionsDialog = new EditPermissionsDialog();
                 return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
                     return contentWizard.typeDisplayName(displayName);
                 }).then(() => {
                     return contentWizard.waitAndClickOnSave();
-                }).pause(1000).then(() => {
+                }).then(() => {
+                    return contentWizard.pause(1000);
+                }).then(() => {
                     return accessStepForm.clickOnEditPermissionsButton();
                 }).then(() => {
                     //uncheck the 'Inherit permissions'
@@ -50,6 +54,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
 
         it(`GIVEN existing content is opened WHEN display name has been changed AND new permissions applied THEN 'Save' button should be visible on wizard-toolbar`,
             () => {
+                let contentWizard = new ContentWizard();
+                let editPermissionsDialog = new EditPermissionsDialog();
+                let accessStepForm = new AccessStepForm();
                 return studioUtils.openContentInWizard(displayName).then(() => {
                     return contentWizard.typeDisplayName(newDisplayName);
                 }).then(() => {
@@ -70,6 +77,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
 
         it(`GIVEN existing content is opened WHEN permissions for the content have been updated in browse panel (Details Panel) THEN 'Save' button should be disabled in the wizard`,
             () => {
+                let editPermissionsDialog = new EditPermissionsDialog();
+                let userAccessWidget = new UserAccessWidget();
+                let contentWizard = new ContentWizard();
                 return studioUtils.openContentInWizard(displayName).then(() => {
                     return studioUtils.doSwitchToContentBrowsePanel();
                 }).then(() => {

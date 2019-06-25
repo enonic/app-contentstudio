@@ -8,10 +8,10 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const contentPublishDialog = require('../../page_objects/content.publish.dialog');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -20,6 +20,7 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     let folder;
     it(`Precondition: WHEN folder has been added THEN folder should be present in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(folder).then(() => {
@@ -33,11 +34,13 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
     it(`WHEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
         () => {
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(folder.displayName).then(() => {
             }).then(() => {
                 return contentBrowsePanel.hotKeyPublish();
             }).then(() => {
-                return contentPublishDialog.waitForDialogVisible();
+                return contentPublishDialog.waitForDialogOpened();
             }).then(result => {
                 assert.isTrue(result, 'Publish Dialog should be present');
             })

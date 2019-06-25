@@ -7,12 +7,11 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const htmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const insertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
+const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -25,6 +24,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     it(`Preconditions: site should be added`,
         () => {
             let displayName = contentBuilder.generateRandomName('site');
+            let contentBrowsePanel = new ContentBrowsePanel();
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
             }).then(() => {
@@ -38,6 +38,8 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN expected options should be present`,
         () => {
+            let insertImageDialog = new InsertImageDialog();
+            let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -56,6 +58,8 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN 'Original' option has been selected THEN 'Custom Width' checkbox is getting disabled`,
         () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertImageDialog = new InsertImageDialog();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();

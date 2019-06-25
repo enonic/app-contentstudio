@@ -1,11 +1,11 @@
 /**
  * Created on 18.12.2017.
  */
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const loaderComboBox = require('../components/loader.combobox');
-const form = {
+const LoaderComboBox = require('../components/loader.combobox');
+const XPATH = {
     wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
     imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
     flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
@@ -16,121 +16,98 @@ const form = {
         return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageName}']]`
     },
     expanderIconByName: function (name) {
-        return elements.itemByName(name) +
+        return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-
     },
 }
-const imageSelectorForm = Object.create(page, {
 
-    imageComboBoxDrppdownHandle: {
-        get: function () {
-            return `${form.imageContentComboBox}` + `${elements.DROP_DOWN_HANDLE}`;
-        }
-    },
-    modeTogglerButton: {
-        get: function () {
-            return `${form.imageContentComboBox}` + `${form.modeTogglerButton}`;
-        }
-    },
-    imagesOptionsFilterInput: {
-        get: function () {
-            return `${elements.FORM_VIEW}` + `${elements.COMBO_BOX_OPTION_FILTER_INPUT}`;
-        }
-    },
+class ImageSelectorForm extends Page {
 
-    type: {
-        value: function (contentData) {
-            return this.selectImages(contentData.images);
-        }
-    },
+    get imageComboBoxDrppdownHandle() {
+        return XPATH.imageContentComboBox + lib.DROP_DOWN_HANDLE;
+    }
 
-    clickOnDropdownHandle: {
-        value: function (contentData) {
-            return this.doClick(this.imageComboBoxDrppdownHandle).pause(700).catch(err => {
-                this.saveScreenshot('err_img_sel_dropdown_handle');
-                throw  new Error('image combobox dropdown handle not found ' + err);
+    get modeTogglerButton() {
+        return XPATH.imageContentComboBox + XPATH.modeTogglerButton;
+    }
+
+    get imagesOptionsFilterInput() {
+        return lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+
+    type(contentData) {
+        return this.selectImages(contentData.images);
+    }
+
+
+    clickOnDropdownHandle() {
+        return this.clickOnElement(this.imageComboBoxDrppdownHandle).catch(err => {
+            this.saveScreenshot('err_img_sel_dropdown_handle');
+            throw  new Error('image combobox dropdown handle not found ' + err);
+        });
+    }
+
+    async clickOnModeTogglerButton() {
+        await this.clickOnElement(this.modeTogglerButton);
+        return await this.pause(1000);
+    }
+
+    getTreeModeOptionDisplayNames() {
+        let options = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(options);
+    }
+
+    getFlatModeOptionImageNames() {
+        let titles = [];
+        let imgSelector = XPATH.flatOptionView;
+        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_2).then(() => {
+            return this.findElements(imgSelector);
+        }).then(result => {
+            result.forEach(el => {
+                titles.push(this.getBrowser().getElementAttribute(el.ELEMENT,'title'));
             });
-        }
-    },
-    clickOnModeTogglerButton: {
-        value: function () {
-            return this.doClick(this.modeTogglerButton).catch(err => {
-                this.saveScreenshot('err_img_sel_toggler');
-                throw  new Error('mode toggler not found ' + err);
-            }).pause(1000);
-        }
-    },
-    getTreeModeOptionDisplayNames: {
-        value: function () {
-            let options = `${elements.SLICK_VIEW_PORT}` + `${elements.H6_DISPLAY_NAME}`;
-            return this.getTextFromElements(options);
-        }
-    },
-    getFlatModeOptionImageNames: {
-        value: function () {
-            let titles = [];
-            let imgSelector = `${form.flatOptionView}`;
-            return this.waitForVisible(imgSelector, appConst.TIMEOUT_2).then(() => {
-                return this.getBrowser().elements(imgSelector);
-            }).then(result => {
-                result.value.forEach(val => {
-                    titles.push(this.getBrowser().elementIdAttribute(val.ELEMENT, 'title'));
-                });
-                return Promise.all(titles).then(p => {
-                    return p;
-                });
-            }).then(responses => {
-                let imageNames = [];
-                responses.forEach(atrribute => {
-                    return imageNames.push(atrribute.value);
-                });
-                return imageNames;
+            return Promise.all(titles).then(p => {
+                return p;
             });
-        }
-    },
+        });
+    }
 
-    selectImages: {
-        value: function (imgNames) {
-            let result = Promise.resolve();
-            imgNames.forEach(name => {
-                result = result.then(() => this.filterOptionsAndSelectImage(name));
+
+    selectImages(imgNames) {
+        let result = Promise.resolve();
+        imgNames.forEach(name => {
+            result = result.then(() => this.filterOptionsAndSelectImage(name));
+        });
+        return result;
+    }
+
+    filterOptionsAndSelectImage(displayName) {
+        let loaderComboBox = new LoaderComboBox();
+        return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {
+            return loaderComboBox.selectOption(displayName);
+        });
+    }
+
+    async doFilterOptions(displayName) {
+        await this.typeTextInInput(this.imagesOptionsFilterInput, displayName);
+        return this.pause(600);
+    }
+
+    waitForEmptyOptionsMessage(displayName) {
+        return this.waitForElementDisplayed(`//div[contains(@class,'empty-options') and text()='No matching items']`,
+            appConst.TIMEOUT_3).catch(
+            err => {
+                console.log("Error: " + err);
+                this.saveScreenshot("err_empty_options");
+                return false;
             });
-            return result;
-        }
-    },
-    filterOptionsAndSelectImage: {
-        value: function (displayName) {
-            return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {
-                return loaderComboBox.selectOption(displayName);
-            });
-        }
-    },
-    doFilterOptions: {
-        value: function (displayName) {
-            return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).pause(500);
-        }
-    },
-    waitForEmptyOptionsMessage: {
-        value: function (displayName) {
-            return this.waitForVisible(`//div[contains(@class,'empty-options') and text()='No matching items']`, appConst.TIMEOUT_3).catch(
-                err => {
-                    console.log("Error: "+err);
-                    this.saveScreenshot("err_empty_options");
-                    return false;
-                });
-        }
-    },
+    }
 
-    clickOnExpanderIconInOptions: {
-        value: function (name) {
-            let expanderIcon = form.imageContentComboBox + form.expanderIconByName(name);
-            return this.doClick(expanderIcon).pause(700).catch(err => {
-                this.saveScreenshot('err_click_on_expander ' + name);
-                throw new Error('error when click on expander-icon ' + err);
-            })
-        }
-    },
-
-});
-module.exports = imageSelectorForm;
+    async clickOnExpanderIconInOptions(name) {
+        let expanderIcon = XPATH.imageContentComboBox + XPATH.expanderIconByName(name);
+        await this.clickOnElement(expanderIcon);
+        return await this.pause(700);
+    }
+};
+module.exports = ImageSelectorForm;

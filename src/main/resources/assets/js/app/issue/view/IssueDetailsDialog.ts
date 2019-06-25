@@ -292,7 +292,7 @@ export class IssueDetailsDialog
     }
 
     private updateItemsCountAndButtons() {
-        const count = this.countTotal();
+        const count: number = this.countTotal();
         this.itemsTab.setLabel(i18n('field.items') + (count > 0 ? ` (${count})` : ''));
         this.updateButtonCount(i18n('action.publishAndCloseIssue'), count);
         this.toggleAction(count > 0);
@@ -674,7 +674,10 @@ export class IssueDetailsDialog
 
     close() {
         this.getItemList().clearExcludeChildrenIds();
+        this.publishProcessor.resetDependantIds();
         super.close();
+        this.commentsList.clearItems();
+        this.updateItemsCountAndButtons();
         Router.back();
     }
 

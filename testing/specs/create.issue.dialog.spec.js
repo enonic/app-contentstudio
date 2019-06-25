@@ -8,8 +8,8 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const issueListDialog = require('../page_objects/issue/issue.list.dialog');
-const createIssueDialog = require('../page_objects/issue/create.issue.dialog');
+const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
+const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 
 
 describe('create.issue.dialog.spec: Create Issue Dialog specification', function () {
@@ -18,6 +18,8 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     it(`GIVEN 'Issues List' dialog is opened WHEN 'New Issue...' button has been clicked THEN 'Create Issue Dialog' should be loaded `,
         () => {
+        let issueListDialog = new IssueListDialog();
+        let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openIssuesListDialog().then(()=> {
                 return issueListDialog.clickOnNewIssueButton();
             }).then(()=> {
@@ -27,6 +29,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     it(`WHEN 'Create Issue' dialog is opened THEN all required inputs should be present`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openCreateIssueDialog().then(()=> {
                 return createIssueDialog.isTitleInputDisplayed();
             }).then(result=> {
@@ -52,6 +55,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     it(`GIVEN 'Create Issue' dialog is opened WHEN 'Create Issue' button has been pressed THEN validation message should appear`,
         () => {
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openCreateIssueDialog().then(()=> {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(()=> {

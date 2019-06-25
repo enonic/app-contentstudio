@@ -7,11 +7,10 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const tagForm = require('../page_objects/wizardpanel/tag.form.panel');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const TagForm = require('../page_objects/wizardpanel/tag.form.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
 
 describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
@@ -38,6 +37,8 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
 
     it(`Precondition, new tag should be added in the root of the site: tag-content wizard has been opened and tag with text 'enonic' has been saved`,
         () => {
+            let contentWizard = new ContentWizard();
+            let tagForm = new TagForm();
            //do add new tag-content in the root of the site
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'tag0_5').then(() => {
                 return contentWizard.typeDisplayName("test-tag1");
@@ -54,6 +55,8 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
 
     it(`Precondition: new tag-content should be added in the folder that specified in 'allowPath'`,
         () => {
+            let tagForm = new TagForm();
+            let contentWizard = new ContentWizard();
            //select 'mytags' folder and open wizard for tag-content
             return studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5').then(() => {
                 return contentWizard.typeDisplayName("test-tag2");
@@ -71,6 +74,8 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     //<allowPath>${site}/mytags/</allowPath>
     it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that is not in 'allowPath' has been typed THEN tag-suggestion should not appear`,
         () => {
+            let tagForm = new TagForm();
+            let contentWizard = new ContentWizard();
             //open new wizard in "${site}/mytags/"
             return studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5').then(() => {
                 //type a name
@@ -89,6 +94,8 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
 
     it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that in 'allowed' folder has been typed THEN tag-suggestion should appear`,
         () => {
+            let tagForm = new TagForm();
+            let contentWizard = new ContentWizard();
             //open new wizard in "${site}/mytags/"
             return studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5').then(() => {
                 //type a name

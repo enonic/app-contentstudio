@@ -16,8 +16,15 @@
     }
 
     &:not(.selected) {
-      .slick-cell:not(.selected).status {
-        .content-status-mixin();
+      .slick-cell {
+        &.status {
+          .content-status-mixin();
+        }
+        &.selected, &.highlight {
+          &.status > * {
+            color: @admin-white;
+          }
+        }
       }
     }
   }

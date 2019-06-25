@@ -1,6 +1,5 @@
 /**
  * Created on 29.11.2018.
- *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -8,15 +7,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const liveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
-const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
-const imageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
-const wizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
+const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
+const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('Check Outbound dependencies after rollback a version of content with image-selector',
     function () {
@@ -31,6 +29,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
 
         it(`Precondition: new site should be added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
                 return studioUtils.doAddSite(SITE).then(() => {
@@ -45,6 +44,8 @@ describe('Check Outbound dependencies after rollback a version of content with i
 
         it(`Preconditions: content with image-selector with 2 different versions should be added`,
             () => {
+                let contentWizard = new ContentWizard();
+                let imageSelectorForm = new ImageSelectorForm();
                 return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
                     return contentWizard.typeDisplayName(CONTENT_NAME);
                 }).then(() => {
@@ -63,6 +64,8 @@ describe('Check Outbound dependencies after rollback a version of content with i
             });
         it(`GIVEN existing content with 2 images is opened AND outbound dependencies is opened in the new tab WHEN version with one image has been rollback THEN tab with outbound dependencies should be updated `,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
                 return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
                     return openWizardDependencyWidget();
                 }).then(() => {
@@ -89,6 +92,9 @@ describe('Check Outbound dependencies after rollback a version of content with i
     });
 
 function openWizardDependencyWidget() {
+    let contentWizard = new ContentWizard();
+    let wizardDependenciesWidget = new WizardDependenciesWidget();
+    let wizardDetailsPanel = new WizardDetailsPanel();
     return contentWizard.openDetailsPanel().then(() => {
         return wizardDetailsPanel.openDependencies();
     }).then(() => {
@@ -97,13 +103,15 @@ function openWizardDependencyWidget() {
 }
 
 function rollbackVersion() {
+    let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardVersionsWidget = new WizardVersionsWidget();
     return wizardDetailsPanel.openVersionHistory().then(() => {
         return wizardVersionsWidget.waitForVersionsLoaded();
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
-    }).pause(500).then(() => {
+    }).then(() => {
         return wizardVersionsWidget.clickOnRestoreThisVersion();
-    }).pause(1000);
+    });
 }
 
 

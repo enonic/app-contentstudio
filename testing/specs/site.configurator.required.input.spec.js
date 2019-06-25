@@ -7,12 +7,12 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const siteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
-const siteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
+const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
+const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 
 
 describe('site.configurator.required.input.spec: verifies the wizard-validation when the dialog contains required input', function () {
@@ -22,6 +22,8 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
     let SITE;
     it(`GIVEN existing site is opened WHEN 'edit' button on the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         () => {
+            let siteFormPanel = new SiteFormPanel();
+            let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -35,12 +37,13 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 assert.isTrue(isDisplayed, '`site-configurator` dialog should be visible');
             }).then(() => {
                 //verifies issue#427
-               return assert.eventually.isTrue(siteConfiguratorDialog.hasDefaultFocus(`//input[contains(@name,'trackingId')]`));
+                return assert.eventually.isTrue(siteConfiguratorDialog.isFocused(`//input[contains(@name,'trackingId')]`));
             });
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed near the content`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             }).then(isDisplayed => {
@@ -51,6 +54,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed in the wizard`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.isContentInvalid();
             }).then(isRedIconDisplayed => {
@@ -61,6 +65,7 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
         () => {
+            let siteFormPanel = new SiteFormPanel();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
             }).then(isInvalid => {
@@ -70,6 +75,9 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
 
     it(`GIVEN existing site with the configurator is opened WHEN required input has been filled THEN the content is getting valid`,
         () => {
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizard = new ContentWizard();
+            let siteConfiguratorDialog = new SiteConfiguratorDialog();
             return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
             }).then(() => {
@@ -78,15 +86,17 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                 return siteConfiguratorDialog.clickOnApplyButton();
             }).then(() => {
                 return siteFormPanel.waitUntilSiteConfiguratorViewValid(appConstant.APP_WITH_CONFIGURATOR);
-            }).then(isValid=> {
+            }).then(isValid => {
                 studioUtils.saveScreenshot('site_conf_is_getting_valid');
                 assert.isTrue(isValid, 'Selected option view should be valid because, the required input is not empty');
             }).then(() => {
-               return assert.eventually.isFalse(contentWizard.isContentInvalid(), 'the site is getting valid, red icon is getting not visible');
+                return assert.eventually.isFalse(contentWizard.isContentInvalid(),
+                    'the site is getting valid, red icon is getting not visible');
             })
         });
     it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             }).then(isDisplayed => {

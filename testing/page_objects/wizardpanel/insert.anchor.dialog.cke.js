@@ -1,92 +1,78 @@
-const page = require('../page');
-const elements = require('../../libs/elements');
+const Page = require('../page');
+const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
-const dialog = {
+const XPATH = {
     container: `//div[contains(@id,'AnchorModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
 };
 
-const insertAnchorModalDialog = Object.create(page, {
+class InsertAnchorModalDialog extends Page {
 
-    cancelButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
-        }
-    },
-    cancelButtonTop: {
-        get: function () {
-            return `${dialog.container}` + `${elements.CANCEL_BUTTON_TOP}`;
-        }
-    },
-    insertButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.insertButton}`;
-        }
-    },
-    textInput: {
-        get: function () {
-            return `${dialog.container}` + `${elements.TEXT_INPUT}`;
-        }
-    },
-    typeInTextInput: {
-        value: function (text) {
-            return this.typeTextInInput(this.textInput, text).catch(err => {
-                this.doCatch('err_insert_anchor', err);
-            })
-        }
-    },
-    clickOnCancelButton: {
-        value: function () {
-            return this.doClick(this.cancelButton);
-        }
-    },
-    clickOnInsertButton: {
-        value: function () {
-            return this.doClick(this.insertButton).pause(300).catch((err) => {
-                this.saveScreenshot('err_click_on_insert_anchor_icon');
-                throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
-            });
-        }
-    },
-    clickOnInsertButtonAndWaitForClosed: {
-        value: function () {
-            return this.doClick(this.insertButton).catch((err) => {
-                this.saveScreenshot('err_click_on_insert_anchor_icon');
-                throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
-            }).then(() => {
-                return this.waitForDialogClosed(appConst.TIMEOUT_3);
-            }).catch(err => {
-                throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.TIMEOUT_3 + "   " + err);
-            })
-        }
-    },
-    waitForValidationMessage: {
-        value: function () {
-            return this.waitForVisible(dialog.container + elements.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
-                return false;
-            });
-        }
-    },
-    waitForDialogLoaded: {
-        value: function () {
-            return this.waitForVisible(this.insertButton, appConst.TIMEOUT_2).catch(err => {
-                this.saveScreenshot('err_open_insert_anchor_dialog');
-                throw new Error('Insert Anchor Dialog should be opened!' + err);
-            });
-        }
-    },
-    isDialogOpened: {
-        value: function () {
-            return this.isVisible(dialog.container);
-        }
-    },
-    waitForDialogClosed: {
-        value: function (ms) {
-            return this.waitForNotVisible(`${dialog.container}`, ms);
-        }
-    },
-});
-module.exports = insertAnchorModalDialog;
+    get cancelButton() {
+        return XPATH.container + XPATH.cancelButton;
+    }
+
+    get cancelButtonTop() {
+        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    get insertButton() {
+        return `${XPATH.container}` + `${XPATH.insertButton}`;
+    }
+
+    get textInput() {
+        return XPATH.container + lib.TEXT_INPUT;
+    }
+
+    typeInTextInput(text) {
+        return this.typeTextInInput(this.textInput, text).catch(err => {
+            this.saveScreenshot('err_insert_anchor', err);
+            throw new Error("Insert Anchor Dialog - " + err);
+        })
+    }
+
+    clickOnCancelButton() {
+        return this.clickOnElement(this.cancelButton);
+    }
+
+    async clickOnInsertButton() {
+        await this.clickOnElement(this.insertButton);
+        return await this.pause(500);
+    }
+
+    clickOnInsertButtonAndWaitForClosed() {
+        return this.clickOnElement(this.insertButton).catch((err) => {
+            this.saveScreenshot('err_click_on_insert_anchor_icon');
+            throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
+        }).then(() => {
+            return this.waitForDialogClosed(appConst.TIMEOUT_3);
+        }).catch(err => {
+            throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.TIMEOUT_3 + "   " + err);
+        })
+    }
+
+    waitForValidationMessage() {
+        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+            return false;
+        });
+    }
+
+    waitForDialogLoaded() {
+        return this.waitForElementDisplayed(this.insertButton, appConst.TIMEOUT_2).catch(err => {
+            this.saveScreenshot('err_open_insert_anchor_dialog');
+            throw new Error('Insert Anchor Dialog should be opened!' + err);
+        });
+    }
+
+    isDialogOpened() {
+        return this.isElementDisplayed(XPATH.container);
+    }
+
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+};
+module.exports = InsertAnchorModalDialog;
 

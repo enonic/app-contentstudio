@@ -218,6 +218,7 @@ export class ContentWizardActions
         this.persistedContent = null;
         this.stateManager.enableActions({});
         this.enableActions({SAVE: false, DELETE: true});
+        (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
     enableActionsForExisting(existing: Content) {

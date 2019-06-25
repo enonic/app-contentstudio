@@ -7,10 +7,10 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const deleteContentDialog = require('../page_objects/delete.content.dialog');
+const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 
 describe('Delete a content that has inbound references spec', function () {
@@ -19,6 +19,8 @@ describe('Delete a content that has inbound references spec', function () {
 
     it(`GIVEN existing shortcut with a target WHEN the target-content has been selected AND 'Delete' button pressed THEN notification message should appear`,
         () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
             let displayName = contentBuilder.generateRandomName('shortcut');
             let shortcut = contentBuilder.buildShortcut(displayName, appConstant.TEST_IMAGES.WHALE);
             return studioUtils.doAddShortcut(shortcut).then(()=> {

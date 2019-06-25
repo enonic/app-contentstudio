@@ -121,6 +121,8 @@ export class PublishProcessor {
         } else {
             this.filterDependantItems(dependants);
         }
+
+        this.dependantList.refresh();
     }
 
     private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean) {
@@ -201,6 +203,10 @@ export class PublishProcessor {
 
     public getDependantIds(): ContentId[] {
         return this.dependantIds;
+    }
+
+    public resetDependantIds() {
+        this.dependantIds = [];
     }
 
     public getExcludedIds(): ContentId[] {

@@ -6,22 +6,15 @@ export class TreeNodesOfContentPath {
 
     private path: ContentPath;
 
-    private altPath: ContentPath;
-
     private nodes: TreeNode<ContentSummaryAndCompareStatus>[];
 
-    constructor(path: ContentPath, altPath?: ContentPath) {
+    constructor(path: ContentPath) {
         this.path = path;
-        this.altPath = altPath;
         this.nodes = [];
     }
 
     getPath(): ContentPath {
         return this.path;
-    }
-
-    getAltPath(): ContentPath {
-        return this.altPath;
     }
 
     getNodes(): TreeNode<ContentSummaryAndCompareStatus>[] {

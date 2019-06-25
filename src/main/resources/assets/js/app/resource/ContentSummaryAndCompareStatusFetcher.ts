@@ -1,6 +1,7 @@
 import ContentId = api.content.ContentId;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
+import ChildOrder = api.content.order.ChildOrder;
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';
@@ -13,8 +14,24 @@ import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
 import {CompareContentResult} from './CompareContentResult';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryRequest} from './ContentSummaryRequest';
 
 export class ContentSummaryAndCompareStatusFetcher {
+
+    static fetchRoot(from: number = 0, size: number = -1): wemQ.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
+        return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, this.createRootChildOrder());
+    }
+
+    private static createRootChildOrder(): ChildOrder {
+        const childOrder: ChildOrder = new ChildOrder();
+
+        childOrder.addOrderExpressions(ContentSummaryRequest.ROOT_ORDER.map(fieldOrderExpr => {
+            return new api.content.order.FieldOrderExpr(new api.content.order.FieldOrderExprBuilder(
+                {fieldName: fieldOrderExpr.getField().getName(), direction: fieldOrderExpr.directionAsString()}));
+        }));
+
+        return childOrder;
+    }
 
     static fetchChildren(parentContentId: ContentId, from: number = 0, size: number = -1,
                          childOrder?: api.content.order.ChildOrder): wemQ.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {

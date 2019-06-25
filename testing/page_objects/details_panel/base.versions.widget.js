@@ -1,26 +1,23 @@
 /**
  * Created on 04/07/2018.
  */
-const page = require('../page');
-const elements = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
+const Page = require('../page');
 
-
-const baseVersionsWidget = Object.create(page, {
+class BaseVersionsWidget extends Page {
 
     //click on a version and expand the content-version-item
-    clickAndExpandVersion: {
-        value: function (index) {
-            return this.waitForVisible(this.versionItems).then(()=>{
-                return this.elements(this.versionItems);
-            }).then(items => {
-                return this.getBrowser().elementIdClick(items.value[index].ELEMENT);
-            }).catch(err=>{
-                throw new Error("Version Widget - error when clicking on version " + err);
-            })
-        }
-    },
-});
-module.exports = baseVersionsWidget;
+    clickAndExpandVersion(index) {
+        return this.waitForElementDisplayed(this.versionItems).then(() => {
+            return this.findElements(this.versionItems);
+        }).then(items => {
+            return this.getBrowser().elementClick(items[index].ELEMENT);
+        }).catch(err => {
+            throw new Error("Version Widget - error when clicking on version " + err);
+        }).then(() => {
+            return this.pause(400);
+        })
+    }
+};
+module.exports = BaseVersionsWidget;
 
 

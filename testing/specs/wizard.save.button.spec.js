@@ -8,7 +8,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
 
@@ -18,6 +18,7 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
 
     it(`WHEN folder-wizard is opened THEN 'Save' button should be disabled`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(()=> {
             }).then(()=> {
                 return contentWizard.waitForSaveButtonEnabled();
@@ -28,6 +29,7 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
 
     it(`WHEN folder-wizard is opened WHEN name has been typed THEN Save button is getting enabled `,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(()=> {
             }).then(()=> {
                 return contentWizard.typeDisplayName('test999');
@@ -40,10 +42,13 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
 //verifies xp-apps#503  Incorrect label for button Save on the toolbar, when any data has been changed
     it(`WHEN folder-wizard is opened AND name was typed WHEN the name has been cleared THEN Save button should be enabled`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(()=> {
             }).then(()=> {
                 return contentWizard.typeDisplayName('test999');
-            }).pause(3000).then(()=> {
+            }).then(()=>{
+                return contentWizard.pause(2000);
+            }).then(()=> {
                 return contentWizard.clearDisplayNameInput();
             }).then(()=> {
                 studioUtils.saveScreenshot('save_button_clear_name');
@@ -57,10 +62,13 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
 
     it(`WHEN folder-wizard is opened AND name was typed WHEN 'Save' button has been pressed THEN 'Saved' button should be visible`,
         () => {
+            let contentWizard = new ContentWizard();
             return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(()=> {
             }).then(()=> {
                 return contentWizard.typeDisplayName('test999');
-            }).pause(1000).then(()=> {
+            }).then(()=>{
+                return contentWizard.pause(1000);
+            }).then(()=> {
                 return contentWizard.waitAndClickOnSave();
             }).then(()=> {
                 return contentWizard.waitForSavedButtonVisible();

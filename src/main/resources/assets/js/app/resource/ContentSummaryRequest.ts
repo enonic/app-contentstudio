@@ -28,7 +28,9 @@ export class ContentSummaryRequest
 
     public static PATH_ASC: FieldOrderExpr = new FieldOrderExpr(new FieldExpr('_path'), OrderDirection.ASC);
 
-    public static DEFAULT_ORDER: OrderExpr[] = [ContentSummaryRequest.SCORE_DESC, ContentSummaryRequest.MODIFIED_TIME_DESC];
+    public static DEFAULT_ORDER: FieldOrderExpr[] = [ContentSummaryRequest.SCORE_DESC, ContentSummaryRequest.MODIFIED_TIME_DESC];
+
+    public static ROOT_ORDER: FieldOrderExpr[] = [ContentSummaryRequest.SCORE_DESC, ContentSummaryRequest.PATH_ASC];
 
     constructor() {
         super();

@@ -7,6 +7,8 @@ import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import i18n = api.util.i18n;
 import ContentId = api.content.ContentId;
 import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import Element = api.dom.Element;
+import ContentSummary = api.content.ContentSummary;
 
 export class PublishDialogDependantList
     extends DialogDependantList {
@@ -24,49 +26,60 @@ export class PublishDialogDependantList
         this.requiredIds = ContentIds.empty();
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): api.dom.Element {
-        const view = super.createItemView(item, readOnly);
-        const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
-        const isRemovable = !this.requiredIds.contains(item.getContentId()) && !isPendingDelete;
+    refresh() {
+        this.getItemViews().forEach((view: StatusSelectionItem) => {
+            view.toggleClass('removable', this.isRemovable(view.getBrowseItem().getModel()));
+        });
+    }
 
-        if (isRemovable) {
-            view.addClass('removable');
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
+        const statusView: StatusSelectionItem = <StatusSelectionItem>super.createItemView(item, readOnly);
+
+        if (this.isRemovable(item)) {
+            statusView.addClass('removable');
         }
 
-        const statusView = <StatusSelectionItem> view;
-
-        statusView.setIsRemovableFn(() => !this.requiredIds.contains(item.getContentId()) && !isPendingDelete);
+        statusView.setIsRemovableFn(() => this.isRemovable(item));
         statusView.setRemoveHandlerFn(() => this.notifyItemRemoveClicked(item));
 
         statusView.setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
         statusView.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
 
         if (!this.isContentSummaryValid(item)) {
-            view.addClass('invalid');
+            statusView.addClass('invalid');
         }
 
         if (this.isContentSummaryReadOnly(item)) {
-            view.addClass('readonly');
-            view.getEl().setTitle(i18n('field.readOnly'));
+            statusView.addClass('readonly');
+            statusView.getEl().setTitle(i18n('field.readOnly'));
         }
 
-        this.initListItemListeners(item, view);
+        this.initListItemListeners(item, statusView);
 
-        return view;
+        return statusView;
+    }
+
+    private isRemovable(item: ContentSummaryAndCompareStatus): boolean {
+        const isPendingDelete: boolean = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
+        if (isPendingDelete) {
+            return false;
+        }
+
+        return !this.requiredIds.contains(item.getContentId());
     }
 
     setRequiredIds(value: ContentId[]) {
         this.requiredIds = ContentIds.from(value);
     }
 
-    private initListItemListeners(item: ContentSummaryAndCompareStatus, view: api.dom.Element) {
+    private initListItemListeners(item: ContentSummaryAndCompareStatus, view: Element) {
         view.onClicked((event) => {
             if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
                 this.notifyItemClicked(item);
             }
         });
 
-        const serverEvents = ContentServerEventsHandler.getInstance();
+        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
@@ -90,8 +103,8 @@ export class PublishDialogDependantList
     }
 
     private isContentSummaryValid(item: ContentSummaryAndCompareStatus): boolean {
-        let status = item.getCompareStatus();
-        let summary = item.getContentSummary();
+        const status: CompareStatus = item.getCompareStatus();
+        const summary: ContentSummary = item.getContentSummary();
 
         return status === CompareStatus.PENDING_DELETE ||
                (summary.isValid() && !api.util.StringHelper.isBlank(summary.getDisplayName()) && !summary.getName().isUnnamed());

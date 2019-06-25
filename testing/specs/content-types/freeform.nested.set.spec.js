@@ -9,10 +9,10 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const freeFormNestedSet = require('../../page_objects/wizardpanel/itemset/freeform.form.view');
-const freeFormOptionSet1 = require('../../page_objects/wizardpanel/itemset/freeform.optionset1.view');
-const contentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const contentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const FreeFormNestedSet = require('../../page_objects/wizardpanel/itemset/freeform.form.view');
+const FreeFormOptionSet1 = require('../../page_objects/wizardpanel/itemset/freeform.optionset1.view');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 
 describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button on the wizard-toolbar', function () {
@@ -22,8 +22,8 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
     let SITE;
     let contentDisplayName;
 
-    it(`Preconditions: site should be added`,
-        () => {
+    it(`Preconditions: site should be added`, () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             siteDisplayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(siteDisplayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -38,19 +38,22 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button should appear on the wizard-toolbar`,
         () => {
+            let contentWizard = new ContentWizard();
+            let freeFormNestedSet = new FreeFormNestedSet();
+            let freeFormOptionSet1 = new FreeFormOptionSet1();
             contentDisplayName = contentBuilder.generateRandomName('freeform');
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform').then(() => {
                 return contentWizard.typeDisplayName(contentDisplayName);
             }).then(() => {
                 //save only the name
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1000).then(() => {
+            }).then(() => {
                 //click on the radio and expand the first form (set)
                 return freeFormNestedSet.clickOnElementType_Input();
             }).then(() => {
                 // save the content again
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1000).then(() => {
+            }).then(() => {
                 // click on the radio in the first form(set)
                 return freeFormOptionSet1.clickOnImageRadioButton();
             }).then(() => {
@@ -63,11 +66,15 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked sequentially THEN Save button should appear on the wizard-toolbar`,
         () => {
+            let contentWizard = new ContentWizard();
+            let freeFormOptionSet1 = new FreeFormOptionSet1();
             return studioUtils.openContentInWizard(contentDisplayName).then(() => {
                 return freeFormOptionSet1.clickOnTextRadioButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).pause(1500).then(() => {
+            }).then(()=>{
+              return contentWizard.pause(1500);
+            }).then(() => {
                 return freeFormOptionSet1.clickOnImageRadioButton();
             }).then(() => {
                 return contentWizard.waitForSaveButtonEnabled();

@@ -7,20 +7,20 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const contentSelector = require('../page_objects/components/content.selector');
+const ContentSelector = require('../page_objects/components/content.selector');
 
 describe('content.selector.spec: content-selector specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let SITE;
     let articleContent;
 
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('cselector-site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             return studioUtils.doAddSite(SITE).then(()=> {
@@ -35,6 +35,7 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`WHEN article is saved THEN the article should be listed in the grid`,
         () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('article');
             articleContent =
                 contentBuilder.buildArticleContent(displayName, 'title', 'body', appConstant.contentTypes.ARTICLE);
@@ -50,6 +51,7 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`WHEN wizard for 'custom-relationship' is opened THEN mode toggler should be present in the content-selector AND mode should be 'Flat'`,
         () => {
+            let contentSelector = new ContentSelector();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
                 return contentSelector.waitForModeTogglerDisplayed();
             }).then(()=> {
@@ -61,6 +63,7 @@ describe('content.selector.spec: content-selector specification', function () {
         });
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode  toggler has been clicked THEN the mode should be switched to 'Tree'`,
         () => {
+            let contentSelector = new ContentSelector();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
                 return contentSelector.waitForModeTogglerDisplayed();
             }).then(()=> {
@@ -75,6 +78,7 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been pressed THEN mode should be switched to 'Tree' and site, that is parent for the image should be present in the options`,
         () => {
+            let contentSelector = new ContentSelector();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
                 return contentSelector.clickOnModeTogglerButton();
             }).then(()=> {

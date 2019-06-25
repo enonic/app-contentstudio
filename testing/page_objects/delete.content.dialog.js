@@ -1,6 +1,6 @@
-const page = require('./page');
+const Page = require('./page');
 const appConst = require('../libs/app_const');
-const dialog = {
+const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
     deleteButton: `//button/span[contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
@@ -11,59 +11,48 @@ const dialog = {
     },
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
 };
+
 // it appears when select a content and click on  'Delete' button on the toolbar
-const deleteContentDialog = Object.create(page, {
+class DeleteContentDialog extends Page {
 
-    cancelButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.cancelButton}`;
+    get cancelButton() {
+        return XPATH.container + XPATH.cancelButton;
+    }
 
-        }
-    },
-    deleteButton: {
-        get: function () {
-            return `${dialog.container}` + `${dialog.deleteButton}`;
-        }
-    },
-    clickOnDeleteButton: {
-        value: function () {
-            return this.doClick(this.deleteButton).catch((err)=> {
-                this.saveScreenshot('err_click_on_delete_dialog');
-                throw new Error(err);
-            })
-        }
-    },
-    waitForDialogVisible: {
-        value: function (ms) {
-            return this.waitForVisible(`${dialog.deleteButton}`, ms);
-        }
-    },
-    waitForDialogClosed: {
-        value: function () {
-            return this.waitForNotVisible(`${dialog.container}`, appConst.TIMEOUT_3).catch(err=> {
-                this.saveScreenshot('err_close_delete_content_dialog');
-                throw new Error('Delete content dialog must be closed');
-            })
-        }
-    },
-    isItemHasInboundLink: {
-        value: function (itemDisplayName) {
-            let selector = `${dialog.deleteItemByDisplayName(itemDisplayName)}` + `${dialog.inboundLink}`;
-            return this.waitForVisible(selector, appConst.TIMEOUT_1);
-        }
-    },
-    getNumberOfInboundDependency: {
-        value: function (itemDisplayName) {
-            let selector = `${dialog.deleteItemByDisplayName(itemDisplayName)}` + `${dialog.inboundLink}`;
-            return this.getText(selector);
-        }
-    },
+    get deleteButton() {
+        return XPATH.container + XPATH.deleteButton;
+    }
 
-    clickOnNoButton: {
-        value: function () {
-            return this.doClick(this.noButton);
-        }
-    },
-});
-module.exports = deleteContentDialog;
+    waitForDialogOpened() {
+        return this.waitForElementDisplayed(this.deleteButton, appConst.TIMEOUT_2);
+    }
 
+    waitForDialogClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot('err_close_delete_content_dialog');
+            throw new Error('Delete content dialog must be closed');
+        })
+    }
+
+    clickOnDeleteButton() {
+        return this.clickOnElement(this.deleteButton).catch(err => {
+            this.saveScreenshot('err_click_on_delete_dialog');
+            throw new Error(err);
+        })
+    }
+
+    clickOnNoButton() {
+        return this.clickOnElement(this.noButton);
+    }
+
+    isItemHasInboundLink(itemDisplayName) {
+        let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    }
+
+    getNumberOfInboundDependency(itemDisplayName) {
+        let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
+        return this.getText(selector);
+    }
+};
+module.exports = DeleteContentDialog;

@@ -8,15 +8,15 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const contentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const studioUtils = require('../libs/studio.utils.js');
-const contentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const pageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
-const liveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
-const wizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const wizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
+const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
 
 describe('wizard.detailspanel.inbound.outbound: select a content with inbound and outbound dependencies and check dependencies',
@@ -31,6 +31,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
         let CONTROLLER_NAME = 'main region';
         it(`Precondition: new site should be added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
                 return studioUtils.doAddSite(SITE).then(() => {
@@ -46,6 +47,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
 
         it(`Precondition: new template has been added`,
             () => {
+                let contentBrowsePanel = new ContentBrowsePanel();
                 let templateName = contentBuilder.generateRandomName('template');
                 TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
                 return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(() => {
@@ -59,6 +61,11 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
 
         it(`GIVEN existing site is opened WHEN an image has been inserted and saved as fragment AND Dependencies widget opened in the site-wizard THEN 'Show Outbound' button should be present but 'Show Inbound' should be hidden`,
             () => {
+                let contentWizard = new ContentWizard();
+                let pageComponentView = new PageComponentView();
+                let liveFormPanel = new LiveFormPanel();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     return contentWizard.doUnlockLiveEditor();
                 }).then(() => {
@@ -77,10 +84,11 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 }).then(() => {
                     return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                }).pause(3000).then(() => {
+                }).then(()=>{
+                    return pageComponentView.pause(3000);
+                }).then(() => {
                     return contentWizard.openDetailsPanel();
-                }).pause(500).then(() => {
-                    console.log("details panel is opened");
+                }).then(() => {
                     return wizardDetailsPanel.openDependencies();
                 }).then(() => {
                     studioUtils.saveScreenshot('site_wizard_dependencies');
@@ -94,6 +102,9 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
 
         it(`GIVEN existing site with fragment WHEN fragment has been selected AND Dependencies widget opened  THEN 'Show Outbound' button should be present AND 'Show Inbound' should be present`,
             () => {
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let contentWizard = new ContentWizard();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
                 return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME).then(() => {
                     return contentWizard.openDetailsPanel();
                 }).then(() => {
@@ -110,13 +121,20 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
 
         it(`GIVEN existing site with fragment WHEN 'Show Outbound' button has been pressed THEN  Dependencies Section should appear in the new browser-tab`,
             () => {
+                let contentWizard = new ContentWizard();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
+                let contentFilterPanel = new ContentFilterPanel();
+                let contentBrowsePanel = new ContentBrowsePanel();
                 return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME).then(() => {
                     return contentWizard.openDetailsPanel();
                 }).then(() => {
                     return wizardDetailsPanel.openDependencies();
                 }).then(() => {
                     return wizardDependenciesWidget.clickOnShowOutboundButton();
-                }).pause(1000).then(() => {
+                }).then(()=>{
+                    return wizardDependenciesWidget.pause(1000);
+                }).then(() => {
                     return studioUtils.doSwitchToNextTab();
                 }).then(() => {
                     return assert.eventually.isTrue(contentFilterPanel.waitForDependenciesSectionVisible(),
@@ -132,6 +150,10 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
 
         it(`GIVEN existing site with fragment is opened WHEN fragment has been removed in 'Page Component View'  THEN 'No outgoing dependencies' should appears`,
             () => {
+                let contentWizard = new ContentWizard();
+                let pageComponentView = new PageComponentView();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let wizardDependenciesWidget = new WizardDependenciesWidget();
                 return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                     return contentWizard.openDetailsPanel();
                 }).then(() => {

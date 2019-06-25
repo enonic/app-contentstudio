@@ -8,7 +8,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const contentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 
 
@@ -17,6 +17,7 @@ describe('Browse panel selections spec`', function () {
     webDriverHelper.setupBrowser();
 
     it(`WHEN one row with content has been clicked THEN the row is getting selected AND 'Selection Toggler' should not be visible`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
@@ -32,6 +33,7 @@ describe('Browse panel selections spec`', function () {
     });
 
     it(`WHEN one row with content has been checked THEN the row is getting checked AND 'Selection Toggler' is getting visible`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
@@ -47,6 +49,7 @@ describe('Browse panel selections spec`', function () {
     });
 
     it(`GIVEN one row is checked WHEN one more row with content has been checked THEN 2 rows should be checked AND 0 rows is selected`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
             return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_2_DISPLAY_NAME)
         }).then(() => {
@@ -62,9 +65,12 @@ describe('Browse panel selections spec`', function () {
     });
 
     it(`GIVEN one row is selected WHEN the row has been clicked THEN the row is getting unselected`, () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
             return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES)
-        }).pause(1000).then(() => {
+        }).then(()=>{
+            return contentBrowsePanel.pause(1000);
+        }).then(() => {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
             studioUtils.saveScreenshot('two_rows_checked');
