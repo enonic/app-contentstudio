@@ -36,6 +36,10 @@ export class ContentSummaryAndCompareStatus
         return new ContentSummaryAndCompareStatus().setUploadItem(item);
     }
 
+    hasContentSummary(): boolean {
+        return !!this.contentSummary;
+    }
+
     getContentSummary(): ContentSummary {
         return this.contentSummary;
     }
@@ -61,6 +65,10 @@ export class ContentSummaryAndCompareStatus
     setPublishStatus(publishStatus: PublishStatus): ContentSummaryAndCompareStatus {
         this.publishStatus = publishStatus;
         return this;
+    }
+
+    hasUploadItem(): boolean {
+        return !!this.uploadItem;
     }
 
     getUploadItem(): UploadItem<ContentSummary> {
