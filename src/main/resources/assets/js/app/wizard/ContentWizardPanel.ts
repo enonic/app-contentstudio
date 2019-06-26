@@ -439,9 +439,6 @@ export class ContentWizardPanel
 
                 let isThisValid = this.isValid(); // event.isValid() = false will prevent the call to this.isValid()
                 this.isContentFormValid = isThisValid;
-                if (thumbnailUploader) {
-                    thumbnailUploader.toggleClass('invalid', !isThisValid);
-                }
                 this.getMainToolbar().toggleValid(isThisValid);
                 this.getContentWizardToolbarPublishControls().setContentCanBePublished(this.checkContentCanBePublished());
                 if (!this.formState.isNew()) {
@@ -1390,8 +1387,6 @@ export class ContentWizardPanel
             })
             .setEnabled(!content.isImage())
             .setValue(new api.content.util.ContentIconUrlResolver().setContent(content).resolve());
-
-        thumbnailUploader.toggleClass('invalid', !content.isValid());
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): wemQ.Promise<void> {

@@ -8,6 +8,7 @@ import AppIcon = api.app.bar.AppIcon;
 import Application = api.app.Application;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
+import DivEl = api.dom.DivEl;
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
@@ -16,6 +17,7 @@ export class ContentWizardToolbar
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
     private mobileItemStatisticsButton: TogglerButton;
+    private stateElement: api.dom.Element;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -23,6 +25,7 @@ export class ContentWizardToolbar
         this.addHomeButton(application);
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
+        this.addStateIcon();
         this.addTogglerButtons(actions);
         this.addMobileItemStatisticsButton();
 
@@ -32,7 +35,7 @@ export class ContentWizardToolbar
     }
 
     private addHomeButton(application: Application) {
-        let homeAction = new Action(application.getName());
+        const homeAction: Action = new Action(application.getName());
         homeAction.onExecuted(() => {
             let tabId;
             if (navigator.userAgent.search('Chrome') > -1) {
@@ -55,6 +58,11 @@ export class ContentWizardToolbar
             actions.getUndoPendingDeleteAction()
         ]);
         super.addGreedySpacer();
+    }
+
+    private addStateIcon() {
+        this.stateElement = new DivEl('toolbar-state-icon');
+        super.addElement(this.stateElement);
     }
 
     private addPublishMenuButton(actions: ContentWizardActions) {
@@ -80,6 +88,22 @@ export class ContentWizardToolbar
 
         super.addElement(this.cycleViewModeButton);
         super.addElement(this.componentsViewToggler);
+    }
+
+    toggleValid(isValid: boolean) {
+        super.toggleValid(isValid);
+
+        this.stateElement.toggleClass('invalid', !isValid);
+        this.stateElement.toggleClass('ready', this.isContentReady());
+        this.stateElement.toggleClass('in-progress', isValid && this.isContentInProgress());
+    }
+
+    private isContentReady(): boolean {
+        return !this.getItem().isPublished() && this.getItem().getContentSummary().isReady();
+    }
+
+    private isContentInProgress(): boolean {
+        return !this.getItem().isPublished() && this.getItem().getContentSummary().isInProgress();
     }
 
     getCycleViewModeButton(): CycleButton {

@@ -52,7 +52,8 @@
   .content-status-wrapper {
     display: none; // Is made visible in content-wizard-panel.less
     order: 1;
-    margin-left: auto;
+    flex-grow: 1;
+    text-align: center;
   }
 
   .toolbar-publish-controls {
@@ -79,6 +80,41 @@
     &.icon-clipboard,
     &.icon-cog:not(.details-toggle) {
       display: none !important;
+    }
+  }
+
+  .toolbar-state-icon {
+    display: none;
+    height: 100%;
+    width: 20px;
+    order: 2;
+    padding: 0 10px;
+
+    &:before {
+      position: absolute;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &.invalid, &.ready, &.in-progress {
+      display: block;
+    }
+
+    &.invalid:before {
+      content: "";
+      background-image: url('../../icons/invalid.svg');
+    }
+
+    &.ready:before {
+      content: "";
+      background-image: url('../../icons/ready.svg');
+    }
+
+    &.in-progress:before {
+      content: "";
+      background-image: url('../../icons/in-progress.svg');
+      background-repeat: no-repeat;
     }
   }
 
