@@ -440,7 +440,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true) {
+    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true, updateInspection: boolean = true) {
 
         this.liveEditModel = liveEditModel;
 
@@ -475,7 +475,9 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        this.clearSelectionAndInspect(showPanel, showWidget);
+        if (updateInspection) {
+            this.clearSelectionAndInspect(showPanel, showWidget);
+        }
 
         this.handleContentUpdatedEvent();
     }
