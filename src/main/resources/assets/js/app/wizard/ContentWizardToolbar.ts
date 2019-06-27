@@ -97,9 +97,22 @@ export class ContentWizardToolbar
             return;
         }
 
+        this.updateStateIconElement(isValid);
+    }
+
+    private updateStateIconElement(isValid: boolean) {
+        const isReady: boolean = isValid && this.isContentReady();
+        const isInProgress: boolean = isValid && this.isContentInProgress();
+        this.stateElement.getEl().removeAttribute('title');
         this.stateElement.toggleClass('invalid', !isValid);
-        this.stateElement.toggleClass('ready', this.isContentReady());
-        this.stateElement.toggleClass('in-progress', isValid && this.isContentInProgress());
+        this.stateElement.toggleClass('ready', isReady);
+        this.stateElement.toggleClass('in-progress', isInProgress);
+
+        if (isReady) {
+            this.stateElement.getEl().setTitle(i18n('tooltip.state.ready'));
+        } else if (isInProgress) {
+            this.stateElement.getEl().setTitle(i18n('tooltip.state.in_progress'));
+        }
     }
 
     private isContentReady(): boolean {

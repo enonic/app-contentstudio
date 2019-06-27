@@ -52,13 +52,18 @@
   .content-status-wrapper {
     display: none; // Is made visible in content-wizard-panel.less
     order: 1;
-    flex-grow: 1;
-    text-align: center;
+    margin: auto;
   }
 
   .toolbar-publish-controls {
     display: none;
     order: 2;
+
+    .content-publish-menu {
+      .action-button {
+        margin-left: 0px;
+      }
+    }
   }
 
   .toggle-button {
@@ -89,6 +94,7 @@
     width: 20px;
     order: 2;
     padding: 0 10px;
+    margin-left: auto;
 
     &:before {
       position: absolute;
