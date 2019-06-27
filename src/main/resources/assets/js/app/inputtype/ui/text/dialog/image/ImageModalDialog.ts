@@ -367,7 +367,8 @@ export class ImageModalDialog
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
         const imgUrlResolver = new ImageUrlResolver()
             .setContentId(imageContent.getContentId())
-            .setTimestamp(imageContent.getModifiedTime());
+            .setTimestamp(imageContent.getModifiedTime())
+            .setScaleWidth(true);
 
         if (size && !isOriginalImage) {
             imgUrlResolver.setSize(size);
