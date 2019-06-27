@@ -93,6 +93,10 @@ export class ContentWizardToolbar
     toggleValid(isValid: boolean) {
         super.toggleValid(isValid);
 
+        if (!this.getItem()) {
+            return;
+        }
+
         this.stateElement.toggleClass('invalid', !isValid);
         this.stateElement.toggleClass('ready', this.isContentReady());
         this.stateElement.toggleClass('in-progress', isValid && this.isContentInProgress());
