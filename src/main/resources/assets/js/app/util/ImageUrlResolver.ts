@@ -53,6 +53,7 @@ export class ImageUrlResolver
 
     disableProcessing(): ImageUrlResolver {
         this.source = true;
+        this.scaleWidth = false;
         return this;
     }
 
