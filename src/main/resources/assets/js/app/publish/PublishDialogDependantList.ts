@@ -47,6 +47,10 @@ export class PublishDialogDependantList
 
         if (!this.isContentSummaryValid(item)) {
             statusView.addClass('invalid');
+        } else if (this.isContentReady(item)) {
+            statusView.addClass('ready');
+        } else if (this.isContentInProgress(item)) {
+            statusView.addClass('in-progress');
         }
 
         if (this.isContentSummaryReadOnly(item)) {
@@ -112,6 +116,14 @@ export class PublishDialogDependantList
 
     private isContentSummaryReadOnly(item: ContentSummaryAndCompareStatus): boolean {
         return item.isReadOnly() === true; // can be undefined so thus to true
+    }
+
+    private isContentReady(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.isPublished() && item.getContentSummary().isReady();
+    }
+
+    private isContentInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.isPublished() && item.getContentSummary().isInProgress();
     }
 
    onListChanged(listener: () => void) {
