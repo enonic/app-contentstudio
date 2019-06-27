@@ -70,13 +70,20 @@
         .names-and-icon-view {
           cursor: pointer;
 
-          .icon-signup {
-            color: @admin-font-gray2;
-            &:not(.closed) {
-              color: @admin-green;
+          .icon-issue {
+            &::before {
+              content: '';
+              display: block;
+              line-height: 26px;
+              background-image: url("../../icons/issue-closed.svg");
+              background-size: contain;
+              height: 26px;
+              width: 26px;
+            }
+            &:not(.closed)::before {
+              background-image: url("../../icons/issue-open.svg");
             }
 
-            font-size: 26px;
           }
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {

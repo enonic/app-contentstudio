@@ -193,7 +193,7 @@ export class IssueListItem
             const namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
             namesAndIconView
                 .setMainName(this.issue.getTitleWithId())
-                .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-signup closed' : 'icon-signup')
+                .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-issue closed' : 'icon-issue')
                 .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
 
             if (this.issue.getDescription().length) {
