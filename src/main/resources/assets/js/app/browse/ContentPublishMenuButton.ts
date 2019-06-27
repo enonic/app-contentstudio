@@ -90,6 +90,8 @@ export class ContentPublishMenuButton
             this.createIssueButton.addClass('create-issue-action-button');
 
             this.appendChildren(...this.getButtons());
+            this.getDropdownHandle().remove();
+            this.appendChild(this.getDropdownHandle());
 
             return rendered;
         });
