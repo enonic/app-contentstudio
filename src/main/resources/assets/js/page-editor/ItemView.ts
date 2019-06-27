@@ -1072,7 +1072,7 @@ export class ItemView
         } else {
             name = itemView.getName();
         }
-        return new api.ui.Action(`${name} (${itemView.getType().getShortName()})`)
+        return new api.ui.Action(`${name} (${i18n('live.view.insert.' + itemView.getType().getShortName())})`)
             .onExecuted(() => this.selectItemView(itemView))
             .setVisible(false);
     }
