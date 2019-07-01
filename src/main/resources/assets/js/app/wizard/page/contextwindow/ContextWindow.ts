@@ -34,8 +34,6 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
 
     private inspectTab: TabBarItem;
 
-    private fixed: boolean = false;
-
     constructor(config: ContextWindowConfig) {
         super();
         this.liveFormPanel = config.liveFormPanel;
@@ -59,20 +57,12 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.inspectTab = tabItems[tabItems.length - 1];
             this.inspectTab.addClass('inspect-tab');
 
-            this.insertablesPanel.getComponentsView().onBeforeInsertAction(() => {
-                this.fixed = true;
-            });
-
             return rendered;
         });
     }
 
     getComponentsView(): PageComponentsView {
         return this.insertablesPanel.getComponentsView();
-    }
-
-    isFixed(): boolean {
-        return this.fixed;
     }
 
     private isPanelSelectable(panel: Panel): boolean {
