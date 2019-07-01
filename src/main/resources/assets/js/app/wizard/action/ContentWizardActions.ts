@@ -20,6 +20,7 @@ import {Content} from '../../content/Content';
 import {CompareStatusChecker} from '../../content/CompareStatus';
 import {AccessControlList} from '../../access/AccessControlList';
 import {Permission} from '../../access/Permission';
+import {MarkAsReadyAction} from './MarkAsReadyAction';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -54,6 +55,7 @@ type ActionsMap = {
     PUBLISH_TREE?: Action,
     CREATE_ISSUE?: Action,
     UNPUBLISH?: Action,
+    MARK_AS_READY?: Action,
     CLOSE?: Action,
     SHOW_LIVE_EDIT?: Action,
     SHOW_FORM?: Action,
@@ -72,6 +74,7 @@ type ActionsState = {
     PUBLISH_TREE?: boolean,
     CREATE_ISSUE?: boolean,
     UNPUBLISH?: boolean,
+    MARK_AS_READY?: boolean,
     CLOSE?: boolean,
     SHOW_LIVE_EDIT?: boolean,
     SHOW_FORM?: boolean,
@@ -117,7 +120,8 @@ export class ContentWizardActions
             new ShowSplitEditAction(wizardPanel),
             new SaveAndCloseAction(wizardPanel),
             new PublishAction(wizardPanel),
-            new UndoPendingDeleteAction(wizardPanel)
+            new UndoPendingDeleteAction(wizardPanel),
+            new MarkAsReadyAction(wizardPanel)
         );
 
         this.wizardPanel = wizardPanel;
@@ -139,7 +143,8 @@ export class ContentWizardActions
             SHOW_SPLIT_EDIT: actions[11],
             SAVE_AND_CLOSE: actions[12],
             PUBLISH_MOBILE: actions[13],
-            UNDO_PENDING_DELETE: actions[14]
+            UNDO_PENDING_DELETE: actions[14],
+            MARK_AS_READY: actions[15]
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -356,6 +361,10 @@ export class ContentWizardActions
 
     getUnpublishAction(): Action {
         return this.actionsMap.UNPUBLISH;
+    }
+
+    getMarkAsReadyAction(): Action {
+        return this.actionsMap.MARK_AS_READY;
     }
 
     getPreviewAction(): Action {

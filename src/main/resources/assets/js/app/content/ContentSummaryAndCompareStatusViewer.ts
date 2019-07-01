@@ -67,7 +67,7 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', isPendingDelete);
 
-        if (!invalid && !object.isPublished()) {
+        if (!invalid && !object.isOnline()) {
             const status: string = contentSummary.getWorkflow().getStateAsString();
             this.getNamesAndIconView().setIconToolTip(i18n(`status.workflow.${status}`));
             this.toggleClass('ready', contentSummary.isReady());

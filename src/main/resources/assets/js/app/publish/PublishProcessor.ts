@@ -203,7 +203,7 @@ export class PublishProcessor {
 
     public containsItemsInProgress(): boolean {
         return this.itemList.getItems().some(
-            (item: ContentSummaryAndCompareStatus) => !item.isPublished() && item.getContentSummary().isInProgress()) ||
+            (item: ContentSummaryAndCompareStatus) => !item.isOnline() && item.getContentSummary().isInProgress()) ||
                this.dependantList.getItems().some((item: ContentSummaryAndCompareStatus) => item.getContentSummary().isInProgress());
     }
 

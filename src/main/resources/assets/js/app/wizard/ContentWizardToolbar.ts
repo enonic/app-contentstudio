@@ -116,11 +116,11 @@ export class ContentWizardToolbar
     }
 
     private isContentReady(): boolean {
-        return !this.getItem().isPublished() && this.getItem().getContentSummary().isReady();
+        return !this.getItem().isOnline() && this.getItem().getContentSummary().isReady();
     }
 
     private isContentInProgress(): boolean {
-        return !this.getItem().isPublished() && this.getItem().getContentSummary().isInProgress();
+        return !this.getItem().isOnline() && this.getItem().getContentSummary().isInProgress();
     }
 
     getCycleViewModeButton(): CycleButton {

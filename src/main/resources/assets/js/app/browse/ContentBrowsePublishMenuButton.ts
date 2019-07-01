@@ -33,6 +33,7 @@ export class ContentBrowsePublishMenuButton
         return [
             this.publishAction.getAction(),
             this.publishTreeAction.getAction(),
+            this.markAsReadyAction.getAction(),
             this.unpublishAction.getAction(),
             this.createIssueAction.getAction()
         ];
@@ -45,7 +46,7 @@ export class ContentBrowsePublishMenuButton
     }
 
     protected getButtons(): ActionButton[] {
-        return [this.publishTreeButton, this.unpublishButton, this.createIssueButton];
+        return [this.publishTreeButton, this.markAsReadyButton, this.unpublishButton, this.createIssueButton];
     }
 
     doRender(): Q.Promise<boolean> {
@@ -67,6 +68,8 @@ export class ContentBrowsePublishMenuButton
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.publishTreeAction.isEnabled()) {
             this.setActiveClass(this.publishTreeAction.getActionClass());
+        } else if (this.markAsReadyAction.isEnabled()) {
+            this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
         } else {
