@@ -79,7 +79,7 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         return !api.ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
     }
 
-    public showInspectionPanel(panel: BaseInspectionPanel, showWidget: boolean, showPanel: boolean) {
+    public showInspectionPanel(panel: BaseInspectionPanel, showWidget: boolean, showPanel: boolean, keepPanelSelection: boolean = false) {
         const canSelectPanel = this.isPanelSelectable(panel);
         this.toggleClass('no-inspection', !canSelectPanel);
         if (canSelectPanel) {
@@ -89,7 +89,9 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
                 if (this.inspectTab) {
                     this.inspectTab.setLabel(panel.getName());
                 }
-                this.selectPanel(this.inspectionsPanel);
+                if (!keepPanelSelection) {
+                    this.selectPanel(this.inspectionsPanel);
+                }
             });
         }
     }
