@@ -19,10 +19,14 @@ describe('Browse panel selections spec`', function () {
     it(`WHEN one row with content has been clicked THEN the row is getting selected AND 'Selection Toggler' should not be visible`, () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
+            return contentBrowsePanel.getNameOfSelectedRow();
+        }).then(result=>{
+            assert.equal (result, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
+        }).then(()=>{
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
-            studioUtils.saveScreenshot('one_row_clicked');
-            assert.isTrue(result == 1, 'One row should be selected');
+            studioUtils.saveScreenshot('row_clicked');
+            assert.isTrue(result == 1, 'One row should be highlighted');
         }).then(() => {
             return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
