@@ -13,7 +13,7 @@ const XPATH = {
     treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
     appBar: `//div[contains(@id,'AppBar')]`,
-    selectedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and contains(@class,'selected')]`,
+    selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
@@ -463,8 +463,15 @@ class ContentBrowsePanel extends Page {
     }
 
     getNumberOfSelectedRows() {
-        return this.findElements(XPATH.selectedRows).then(result => {
+        return this.findElements(XPATH.selectedRow).then(result => {
             return result.length;
+        }).catch(err => {
+            throw new Error(`Error when getting selected rows ` + err);
+        });
+    }
+    getNameOfSelectedRow() {
+        return this.findElements(XPATH.selectedRow).then(result => {
+            return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
             throw new Error(`Error when getting selected rows ` + err);
         });
