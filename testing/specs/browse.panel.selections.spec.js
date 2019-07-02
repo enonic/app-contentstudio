@@ -26,11 +26,11 @@ describe('Browse panel selections spec`', function () {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
             studioUtils.saveScreenshot('row_clicked');
-            assert.isTrue(result == 1, 'One row should be highlighted');
+            assert.isTrue(result === 1, 'One row should be highlighted');
         }).then(() => {
             return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
-            assert.isTrue(result == 0, 'no one row should be checked');
+            assert.isTrue(result === 0, 'no one row should be checked');
         }).then(() => {
             return assert.eventually.isFalse(contentBrowsePanel.waitForSelectionTogglerVisible(), '`Selection Toggler` should not be visible on the toolbar');
         })
@@ -42,11 +42,11 @@ describe('Browse panel selections spec`', function () {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
             studioUtils.saveScreenshot('one_row_checked');
-            assert.isTrue(result == 0, 'no one row should be selected');
+            assert.isTrue(result === 0, 'no one row should be selected');
         }).then(() => {
             return contentBrowsePanel.getNumberOfCheckedRows();
         }).then(result => {
-            assert.isTrue(result == 1, 'One row should be checked');
+            assert.isTrue(result === 1, 'One row should be checked');
         }).then(() => {
             return assert.eventually.isTrue(contentBrowsePanel.waitForSelectionTogglerVisible(), 'Selection Toggler should appear on the toolbar');
         })
@@ -60,11 +60,11 @@ describe('Browse panel selections spec`', function () {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
             studioUtils.saveScreenshot('two_rows_checked');
-            assert.isTrue(result == 0, 'no one row should be selected');
+            assert.isTrue(result === 0, 'no one row should be selected');
         }).then(() => {
             return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
-            assert.isTrue(result == 2, 'Two rows should be checked');
+            assert.isTrue(result === 2, 'Two rows should be checked');
         })
     });
 
@@ -78,7 +78,7 @@ describe('Browse panel selections spec`', function () {
             return contentBrowsePanel.getNumberOfSelectedRows();
         }).then(result => {
             studioUtils.saveScreenshot('two_rows_checked');
-            assert.isTrue(result == 0, 'no one row should be selected');
+            assert.isTrue(result === 0, 'no one row should be selected');
         }).then(() => {
             return contentBrowsePanel.getNumberOfCheckedRows()
         }).then(result => {
