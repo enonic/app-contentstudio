@@ -1,4 +1,5 @@
 import ContentName = api.content.ContentName;
+import Workflow = api.content.Workflow;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
@@ -33,6 +34,8 @@ export class UpdateContentRequest
     private inheritPermissions: boolean;
 
     private overwritePermissions: boolean;
+
+    private workflow: Workflow;
 
     constructor(id: string) {
         super();
@@ -106,6 +109,11 @@ export class UpdateContentRequest
         return this;
     }
 
+    setWorkflow(workflow: Workflow): UpdateContentRequest {
+        this.workflow = workflow;
+        return this;
+    }
+
     getParams(): Object {
         return {
             contentId: this.id,
@@ -120,7 +128,8 @@ export class UpdateContentRequest
             publishTo: this.publishTo,
             permissions: this.permissions ? this.permissions.toJson() : undefined,
             inheritPermissions: this.inheritPermissions,
-            overwriteChildPermissions: this.overwritePermissions
+            overwriteChildPermissions: this.overwritePermissions,
+            workflow: this.workflow.toJson()
         };
     }
 

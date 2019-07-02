@@ -14,9 +14,11 @@ export class ContentWizardToolbarPublishControls
     private createIssueAction: Action;
     private unpublishAction: Action;
     private publishMobileAction: Action;
+    private markAsReadyAction: Action;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
     private leafContent: boolean = true;
+    private isContentValid: boolean = false;
     private content: ContentSummaryAndCompareStatus;
     private publishButtonForMobile: ActionButton;
     private refreshHandlerDebounced: Function;
@@ -29,10 +31,12 @@ export class ContentWizardToolbarPublishControls
         this.createIssueAction = actions.getCreateIssueAction();
         this.unpublishAction = actions.getUnpublishAction();
         this.publishMobileAction = actions.getPublishMobileAction();
+        this.markAsReadyAction = actions.getMarkAsReadyAction();
 
         this.publishButton = new ContentPublishMenuButton({
             publishAction: this.publishAction,
             unpublishAction: this.unpublishAction,
+            markAsReadyAction: this.markAsReadyAction,
             createIssueAction: this.createIssueAction
         });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
@@ -79,6 +83,15 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
+    public setIsValid(value: boolean): ContentWizardToolbarPublishControls {
+        const isRefreshNeeded: boolean = value !== this.isContentValid;
+        this.isContentValid = value;
+        if (isRefreshNeeded) {
+            this.refreshState();
+        }
+        return this;
+    }
+
     public refreshState() {
 
         if (!this.content) {
@@ -89,14 +102,17 @@ export class ContentWizardToolbarPublishControls
     }
 
     private doRefreshState() {
-        const canBePublished = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
-        const canBeUnpublished = this.content.isPublished() && this.userCanPublish;
+        const canBePublished: boolean = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
+        const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
+        const canBeMarkedAsReady: boolean = this.isContentValid && !this.content.isOnline() &&
+                                            !this.content.getContentSummary().isReady();
 
         this.publishAction.setEnabled(canBePublished);
         this.createIssueAction.setEnabled(true);
         this.unpublishAction.setEnabled(canBeUnpublished);
         this.publishMobileAction.setEnabled(canBePublished);
         this.publishMobileAction.setVisible(canBePublished);
+        this.markAsReadyAction.setEnabled(canBeMarkedAsReady);
 
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));

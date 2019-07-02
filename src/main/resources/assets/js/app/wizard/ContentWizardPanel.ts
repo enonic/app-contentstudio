@@ -90,6 +90,8 @@ import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
 import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
+import Workflow = api.content.Workflow;
+import WorkflowState = api.content.WorkflowState;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -135,6 +137,8 @@ export class ContentWizardPanel
     private requireValid: boolean;
 
     private isContentFormValid: boolean;
+
+    private isMarkedAsReady: boolean;
 
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
@@ -195,6 +199,7 @@ export class ContentWizardPanel
         this.loadData();
 
         this.isContentFormValid = false;
+        this.isMarkedAsReady = false;
 
         this.requireValid = false;
         this.skipValidation = false;
@@ -441,6 +446,7 @@ export class ContentWizardPanel
                 this.isContentFormValid = isThisValid;
                 this.getMainToolbar().toggleValid(isThisValid);
                 this.getContentWizardToolbarPublishControls().setContentCanBePublished(this.checkContentCanBePublished());
+                this.getContentWizardToolbarPublishControls().setIsValid(isThisValid);
                 if (!this.formState.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
@@ -514,6 +520,7 @@ export class ContentWizardPanel
 
             return persistedItem;
         }).finally(() => {
+            this.isMarkedAsReady = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
         });
@@ -1808,15 +1815,13 @@ export class ContentWizardPanel
     }
 
     updatePersistedItem(): wemQ.Promise<Content> {
-        let persistedContent = this.getPersistedItem();
+        const persistedContent: Content = this.getPersistedItem();
+        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
 
-        let viewedContent = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
-
-        let updatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
+        const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setUpdateContentRequestProducer(this.produceUpdateContentRequest);
 
-        return updatePersistedContentRoutine.execute().then((content: Content) => {
-
+        return updateContentRoutine.execute().then((content: Content) => {
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
@@ -1847,6 +1852,8 @@ export class ContentWizardPanel
 
     private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {
         const persistedContent = this.getPersistedItem();
+        const state: WorkflowState = this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS;
+        const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(state).build();
 
         return new UpdateContentRequest(persistedContent.getId())
             .setRequireValid(this.requireValid)
@@ -1860,7 +1867,8 @@ export class ContentWizardPanel
             .setPublishTo(viewedContent.getPublishToTime())
             .setPermissions(viewedContent.getPermissions())
             .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
-            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled());
+            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled())
+            .setWorkflow(workflow);
     }
 
     private isDisplayNameUpdated(): boolean {
@@ -2003,6 +2011,10 @@ export class ContentWizardPanel
 
     setRequireValid(requireValid: boolean) {
         this.requireValid = requireValid;
+    }
+
+    setIsMarkedAsReady(value: boolean) {
+        this.isMarkedAsReady = value;
     }
 
     showLiveEdit() {
