@@ -15,6 +15,7 @@ export class ContentWizardToolbarPublishControls
     private unpublishAction: Action;
     private publishMobileAction: Action;
     private markAsReadyAction: Action;
+    private requestPublishAction: Action;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
     private leafContent: boolean = true;
@@ -32,12 +33,14 @@ export class ContentWizardToolbarPublishControls
         this.unpublishAction = actions.getUnpublishAction();
         this.publishMobileAction = actions.getPublishMobileAction();
         this.markAsReadyAction = actions.getMarkAsReadyAction();
+        this.requestPublishAction = actions.getRequestPublishAction();
 
         this.publishButton = new ContentPublishMenuButton({
             publishAction: this.publishAction,
             unpublishAction: this.unpublishAction,
             markAsReadyAction: this.markAsReadyAction,
-            createIssueAction: this.createIssueAction
+            createIssueAction: this.createIssueAction,
+            requestPublishAction: this.requestPublishAction
         });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
@@ -104,8 +107,9 @@ export class ContentWizardToolbarPublishControls
     private doRefreshState() {
         const canBePublished: boolean = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
-        const canBeMarkedAsReady: boolean = this.isContentValid && !this.content.isOnline() &&
-                                            !this.content.getContentSummary().isReady();
+        const canBeMarkedAsReady: boolean = this.isContentValid && !this.content.isOnline() && !this.content.getContentSummary().isReady();
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() &&
+                                               !this.content.getContentSummary().isInProgress();
 
         this.publishAction.setEnabled(canBePublished);
         this.createIssueAction.setEnabled(true);
@@ -113,6 +117,7 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction.setEnabled(canBePublished);
         this.publishMobileAction.setVisible(canBePublished);
         this.markAsReadyAction.setEnabled(canBeMarkedAsReady);
+        this.requestPublishAction.setEnabled(canBeRequestedPublish);
 
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));
