@@ -17,7 +17,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-        let IMAGE_DISPLAY_NAME = 'book';
+        let IMAGE_DISPLAY_NAME = 'nord';
 
         it(`GIVEN existing image is opened WHEN 'Rotate' button has been pressed AND 'Reset Filter' has been pressed THEN Save button has expected state`,
             async () => {
@@ -30,6 +30,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
                 await imageFormPanel.clickOnResetButton();
+                studioUtils.saveScreenshot("image_reset_filter_pressed1");
                 //exception will be thrown after the timeout:
                 await contentWizard.waitForSaveButtonDisabled();
             });
@@ -46,6 +47,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 assert.isTrue(isEnabled, "Save button gets enabled");
 
                 await imageFormPanel.clickOnResetButton();
+                studioUtils.saveScreenshot("image_reset_filter_pressed2");
                 // Save gets disabled again. Exception will be thrown after the timeout:
                 await contentWizard.waitForSaveButtonDisabled();
             });

@@ -40,9 +40,9 @@ module.exports = Object.freeze({
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
-    WIDGET_TITLE:{
-      VERSION_HISTORY:'Version history',
-      DEPENDENCIES:'Dependencies'
+    WIDGET_TITLE: {
+        VERSION_HISTORY: 'Version history',
+        DEPENDENCIES: 'Dependencies'
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -59,7 +59,7 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
         POP_03: 'Pop_03',
-        KOTEY:'kotey'
+        KOTEY: 'kotey'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

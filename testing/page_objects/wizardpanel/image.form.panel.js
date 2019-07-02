@@ -59,14 +59,18 @@ class ImageFormPanel extends Page {
     }
 
     clickOnResetButton() {
-        return this.clickOnElement(this.buttonReset).catch(err => {
+        return this.clickOnElement(this.buttonReset).then(() => {
+            return this.pause(500);
+        }).catch(err => {
             this.saveScreenshot('err_click_on_reset_button');
             throw new Error('Image Editor, button reset  ' + err);
         })
     }
 
     waitForResetFilterDisplayed() {
-        return this.waitForElementDisplayed(this.buttonReset, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.buttonReset, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Image Wizard - Reset Filter button, " + err);
+        });
     }
 
     waitForResetFilterNotDisplayed() {
