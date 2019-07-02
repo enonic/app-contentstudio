@@ -1,5 +1,6 @@
 import ContentName = api.content.ContentName;
 import ContentPath = api.content.ContentPath;
+import Workflow = api.content.Workflow;
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
@@ -24,6 +25,8 @@ export class CreateContentRequest
     private meta: ExtraData[] = [];
 
     private displayName: string;
+
+    private workflow: Workflow;
 
     constructor() {
         super();
@@ -72,6 +75,11 @@ export class CreateContentRequest
         return this;
     }
 
+    setWorkflow(workflow: Workflow): CreateContentRequest {
+        this.workflow = workflow;
+        return this;
+    }
+
     getParams(): Object {
         return {
             valid: this.valid,
@@ -81,7 +89,8 @@ export class CreateContentRequest
             contentType: this.contentType.toString(),
             data: this.data.toJson(),
             meta: this.extraDataToJson(),
-            displayName: this.displayName
+            displayName: this.displayName,
+            workflow: this.workflow.toJson()
         };
     }
 

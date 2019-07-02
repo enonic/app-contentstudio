@@ -61,6 +61,9 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     private toggleState(object: ContentSummaryAndCompareStatus) {
+        if (!object.hasContentSummary()) {
+            return;
+        }
         const contentSummary: ContentSummary = object.getContentSummary();
         const invalid: boolean = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
         const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();

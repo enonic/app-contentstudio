@@ -1791,7 +1791,9 @@ export class ContentWizardPanel
                     .setParent(parentPath)
                     .setContentType(this.contentType.getContentTypeName())
                     .setDisplayName('')     // new content is created on wizard open so display name is always empty
-                    .setData(new PropertyTree()).setExtraData([]));
+                    .setData(new PropertyTree())
+                    .setExtraData([])
+                    .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build()));
         }
 
         return deferred.promise;
