@@ -72,7 +72,7 @@ class HtmlAreaForm extends Page {
                 return this.execute(XPATH.typeText([].concat(ids)[index], text));
             });
             return Promise.all(promises);
-        }).then(()=>{
+        }).then(() => {
             return this.pause(300);
         });
     }
@@ -186,7 +186,7 @@ class HtmlAreaForm extends Page {
             return this.waitForElementDisplayed(XPATH.tableButton, appConst.TIMEOUT_3);
         }).then(result => {
             return this.clickOnElement(XPATH.tableButton);
-        }).then(()=>{
+        }).then(() => {
             this.pause(400);
         })
     }
@@ -229,7 +229,7 @@ class HtmlAreaForm extends Page {
         }).then(() => {
             let insertLinkDialog = new InsertLinkDialog();
             return insertLinkDialog.waitForDialogLoaded();
-        }).then(()=>{
+        }).then(() => {
             return this.pause(300);
         })
     }
@@ -356,7 +356,7 @@ class HtmlAreaForm extends Page {
     }
 
     waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.validationRecord, appConst.TIMEOUT_3);
     }
 
     isValidationRecordingVisible() {
@@ -364,7 +364,9 @@ class HtmlAreaForm extends Page {
     }
 
     getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
+        return this.waitForValidationRecording().then(() => {
+            return this.getText(this.validationRecord);
+        }).catch(err => {
             this.saveScreenshot('err_textarea_validation_record');
             throw new Error('getting Validation text: ' + err);
         })
