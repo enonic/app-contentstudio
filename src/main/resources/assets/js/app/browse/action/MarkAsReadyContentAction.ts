@@ -24,8 +24,9 @@ export class MarkAsReadyContentAction
 
     private handleExecuted() {
         const selectedContents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
-        const contentsToMarkAsReady: ContentId[] = selectedContents.filter(this.canBeMarkedAsReady)
-            .map((item: ContentSummaryAndCompareStatus) => item.getContentId());
+        const contentsToMarkAsReady: ContentId[] = selectedContents
+            .filter(this.canBeMarkedAsReady)
+            .map(item => item.getContentId());
 
         this.confirmDialog.setYesCallback(() => {
             new MarkAsReadyRequest(contentsToMarkAsReady).sendAndParse().catch(api.DefaultErrorHandler.handle);

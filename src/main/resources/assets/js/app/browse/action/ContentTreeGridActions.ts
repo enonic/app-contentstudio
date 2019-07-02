@@ -500,17 +500,14 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private isMarkAsReadyHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(
-            (contentBrowseItem: ContentBrowseItem) => contentBrowseItem.getModel());
+        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
 
-        const allValid: boolean = items.every((item: ContentSummaryAndCompareStatus) => item.getContentSummary().isValid());
+        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
         if (!allValid) {
             return false;
         }
 
-        return items.some((item: ContentSummaryAndCompareStatus) => {
-            return !item.isOnline() && !item.getContentSummary().isReady();
-        });
+        return items.some(item => (!item.isOnline() && !item.getContentSummary().isReady()));
     }
 
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
