@@ -1033,9 +1033,9 @@ export class ContentWizardPanel
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
                     new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                        const canUserPublish: boolean = this.isContentPublishableByUser(loginResult);
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(canUserPublish);
-                        this.wizardActions.getPublishAction().setUserCanPublish(canUserPublish);
+                        const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
+                        this.wizardActions.getPublishAction().setUserCanPublish(userCanPublish);
                         this.toggleStepFormsVisibility(loginResult);
                     });
                 });
@@ -1364,12 +1364,12 @@ export class ContentWizardPanel
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                const canUserPublish: boolean = this.isContentPublishableByUser(loginResult);
+                const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                 this.getContentWizardToolbarPublishControls()
                     .setContent(this.currentContent)
                     .setLeafContent(!this.getPersistedItem().hasChildren())
-                    .setUserCanPublish(canUserPublish);
-                this.wizardActions.getPublishAction().setUserCanPublish(canUserPublish);
+                    .setUserCanPublish(userCanPublish);
+                this.wizardActions.getPublishAction().setUserCanPublish(userCanPublish);
             });
         });
     }
