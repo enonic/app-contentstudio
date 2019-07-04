@@ -1033,7 +1033,9 @@ export class ContentWizardPanel
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
                     new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                        const canUserPublish: boolean = this.isContentPublishableByUser(loginResult);
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(canUserPublish);
+                        this.wizardActions.getPublishAction().setUserCanPublish(canUserPublish);
                         this.toggleStepFormsVisibility(loginResult);
                     });
                 });
@@ -1362,8 +1364,12 @@ export class ContentWizardPanel
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
-                    !this.getPersistedItem().hasChildren()).setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                const canUserPublish: boolean = this.isContentPublishableByUser(loginResult);
+                this.getContentWizardToolbarPublishControls()
+                    .setContent(this.currentContent)
+                    .setLeafContent(!this.getPersistedItem().hasChildren())
+                    .setUserCanPublish(canUserPublish);
+                this.wizardActions.getPublishAction().setUserCanPublish(canUserPublish);
             });
         });
     }

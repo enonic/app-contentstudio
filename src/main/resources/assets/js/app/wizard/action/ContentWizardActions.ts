@@ -348,8 +348,8 @@ export class ContentWizardActions
         return this.actionsMap.CLOSE;
     }
 
-    getPublishAction(): Action {
-        return this.actionsMap.PUBLISH;
+    getPublishAction(): PublishAction {
+        return <PublishAction>this.actionsMap.PUBLISH;
     }
 
     getPublishTreeAction(): Action {
