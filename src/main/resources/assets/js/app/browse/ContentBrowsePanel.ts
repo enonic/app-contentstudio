@@ -590,6 +590,7 @@ export class ContentBrowsePanel
             unpublishAction: browseActions.getUnpublishAction(),
             markAsReadyAction: browseActions.getMarkAsReadyAction(),
             createIssueAction: browseActions.getCreateIssueAction(),
+            requestPublishAction: browseActions.getRequestPublishAction(),
             showCreateIssueButtonByDefault: true
         });
 

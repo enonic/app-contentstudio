@@ -12,6 +12,7 @@ export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
     unpublishAction: Action;
     markAsReadyAction: Action;
+    requestPublishAction: Action;
     createIssueAction: Action;
 }
 
@@ -51,10 +52,12 @@ export class ContentPublishMenuButton
     protected unpublishAction: ContentPublishMenuAction;
     protected createIssueAction: ContentPublishMenuAction;
     protected markAsReadyAction: ContentPublishMenuAction;
+    protected requestPublishAction: ContentPublishMenuAction;
 
     protected markAsReadyButton: ActionButton;
     protected unpublishButton: ActionButton;
     protected createIssueButton: ActionButton;
+    protected requestPublishButton: ActionButton;
 
     protected item: ContentSummaryAndCompareStatus;
 
@@ -75,6 +78,7 @@ export class ContentPublishMenuButton
         this.unpublishAction = new ContentPublishMenuAction(config.unpublishAction, 'unpublish');
         this.createIssueAction = new ContentPublishMenuAction(config.createIssueAction, 'create-issue');
         this.markAsReadyAction = new ContentPublishMenuAction(config.markAsReadyAction, 'mark-as-ready');
+        this.requestPublishAction = new ContentPublishMenuAction(config.requestPublishAction, 'request-publish');
     }
 
     protected getActions(): Action[] {
@@ -82,6 +86,7 @@ export class ContentPublishMenuButton
             this.publishAction.getAction(),
             this.markAsReadyAction.getAction(),
             this.unpublishAction.getAction(),
+            this.requestPublishAction.getAction(),
             this.createIssueAction.getAction()
         ];
     }
@@ -90,6 +95,7 @@ export class ContentPublishMenuButton
         this.unpublishButton = new ActionButton(this.unpublishAction.getAction());
         this.createIssueButton = new ActionButton(this.createIssueAction.getAction());
         this.markAsReadyButton = new ActionButton(this.markAsReadyAction.getAction());
+        this.requestPublishButton = new ActionButton(this.requestPublishAction.getAction());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -99,6 +105,7 @@ export class ContentPublishMenuButton
             this.unpublishButton.addClass('unpublish-action-button');
             this.createIssueButton.addClass('create-issue-action-button');
             this.markAsReadyButton.addClass('mark-as-ready-action-button');
+            this.requestPublishButton.addClass('request-publish-action-button');
 
             this.appendChildren(...this.getButtons());
             this.getDropdownHandle().remove();
@@ -109,7 +116,7 @@ export class ContentPublishMenuButton
     }
 
     protected getButtons(): ActionButton[] {
-        return [this.markAsReadyButton, this.unpublishButton, this.createIssueButton];
+        return [this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.createIssueButton];
     }
 
     minimize() {
@@ -166,6 +173,8 @@ export class ContentPublishMenuButton
             this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
+        } else if (this.requestPublishAction.isEnabled()) {
+            this.setActiveClass(this.requestPublishAction.getActionClass());
         } else {
             this.setActiveClass(this.createIssueAction.getActionClass());
         }

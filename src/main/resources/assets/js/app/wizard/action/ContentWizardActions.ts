@@ -21,6 +21,7 @@ import {CompareStatusChecker} from '../../content/CompareStatus';
 import {AccessControlList} from '../../access/AccessControlList';
 import {Permission} from '../../access/Permission';
 import {MarkAsReadyAction} from './MarkAsReadyAction';
+import {RequestPublishAction} from './RequestPublishAction';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -39,6 +40,7 @@ type ActionNames =
     'CREATE_ISSUE' |
     'UNPUBLISH' |
     'MARK_AS_READY' |
+    'REQUEST_PUBLISH' |
     'CLOSE' |
     'SHOW_LIVE_EDIT' |
     'SHOW_FORM' |
@@ -57,6 +59,7 @@ type ActionsMap = {
     CREATE_ISSUE?: Action,
     UNPUBLISH?: Action,
     MARK_AS_READY?: Action,
+    REQUEST_PUBLISH?: Action,
     CLOSE?: Action,
     SHOW_LIVE_EDIT?: Action,
     SHOW_FORM?: Action,
@@ -76,6 +79,7 @@ type ActionsState = {
     CREATE_ISSUE?: boolean,
     UNPUBLISH?: boolean,
     MARK_AS_READY?: boolean,
+    REQUEST_PUBLISH?: boolean,
     CLOSE?: boolean,
     SHOW_LIVE_EDIT?: boolean,
     SHOW_FORM?: boolean,
@@ -116,6 +120,7 @@ export class ContentWizardActions
             new UnpublishAction(wizardPanel)
                 .setIconClass('unpublish-action'),
             new MarkAsReadyAction(wizardPanel),
+            new RequestPublishAction(wizardPanel),
             new CloseAction(wizardPanel),
             new ShowLiveEditAction(wizardPanel),
             new ShowFormAction(wizardPanel),
@@ -139,13 +144,14 @@ export class ContentWizardActions
             CREATE_ISSUE: actions[6],
             UNPUBLISH: actions[7],
             MARK_AS_READY: actions[8],
-            CLOSE: actions[9],
-            SHOW_LIVE_EDIT: actions[10],
-            SHOW_FORM: actions[11],
-            SHOW_SPLIT_EDIT: actions[12],
-            SAVE_AND_CLOSE: actions[13],
-            PUBLISH_MOBILE: actions[14],
-            UNDO_PENDING_DELETE: actions[15],
+            REQUEST_PUBLISH: actions[9],
+            CLOSE: actions[10],
+            SHOW_LIVE_EDIT: actions[11],
+            SHOW_FORM: actions[12],
+            SHOW_SPLIT_EDIT: actions[13],
+            SAVE_AND_CLOSE: actions[14],
+            PUBLISH_MOBILE: actions[15],
+            UNDO_PENDING_DELETE: actions[16],
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -366,6 +372,10 @@ export class ContentWizardActions
 
     getMarkAsReadyAction(): Action {
         return this.actionsMap.MARK_AS_READY;
+    }
+
+    getRequestPublishAction(): Action {
+        return this.actionsMap.REQUEST_PUBLISH;
     }
 
     getPreviewAction(): Action {
