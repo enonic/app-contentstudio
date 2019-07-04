@@ -188,12 +188,15 @@ class Page {
     }
 
     waitForNotificationMessage() {
-        return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
-            throw new Error('Error when wait for notification message: ' + err);
+        let notificationXpath = `//div[@class='notification-content']/span`;
+        return this.getBrowser().waitUntil(() => {
+            return this.isElementDisplayed(notificationXpath);
         }).then(() => {
-            return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
-        }).then(result=>{
+            return this.getTextInDisplayedElements(notificationXpath);
+        }).then(result => {
             return result[0];
+        }).catch(err => {
+            throw new Error('Error when wait for notification message: ' + err);
         })
     }
 
@@ -329,6 +332,4 @@ class Page {
         return await elems[0].isSelected();
     }
 }
-
 module.exports = Page;
-

@@ -24,13 +24,15 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 let imageFormPanel = new ImageFormPanel();
                 let contentWizard = new ContentWizard();
                 await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
+                studioUtils.saveScreenshot("image_rotate_reset_filter_pressed1");
                 await imageFormPanel.clickOnRotateButton();
                 await imageFormPanel.waitForResetFilterDisplayed();
+                studioUtils.saveScreenshot("image_rotate_reset_filter_pressed2");
 
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
                 await imageFormPanel.clickOnResetButton();
-                studioUtils.saveScreenshot("image_reset_filter_pressed1");
+                studioUtils.saveScreenshot("image_rotate_reset_filter_pressed3");
                 //exception will be thrown after the timeout:
                 await contentWizard.waitForSaveButtonDisabled();
             });
@@ -40,14 +42,16 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 let imageFormPanel = new ImageFormPanel();
                 let contentWizard = new ContentWizard();
                 await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
+                studioUtils.saveScreenshot("image_flip_reset_filter_pressed1");
                 await imageFormPanel.clickOnFlipButton();
                 await imageFormPanel.waitForResetFilterDisplayed();
+                studioUtils.saveScreenshot("image_flip_reset_filter_pressed2");
 
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
 
                 await imageFormPanel.clickOnResetButton();
-                studioUtils.saveScreenshot("image_reset_filter_pressed2");
+                studioUtils.saveScreenshot("image_flip_reset_filter_pressed3");
                 // Save gets disabled again. Exception will be thrown after the timeout:
                 await contentWizard.waitForSaveButtonDisabled();
             });
