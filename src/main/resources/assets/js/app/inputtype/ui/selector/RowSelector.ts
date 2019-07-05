@@ -104,8 +104,24 @@ export class RowSelector
 
 class RowSelectedOptionsView
     extends BaseSelectedOptionsView<string> {
+
+    constructor() {
+        super('row-selected-options-view');
+    }
+
     createSelectedOption(option: Option<string>): SelectedOption<string> {
-        return super.createSelectedOption(option);
+        const selectedOption = super.createSelectedOption(option);
+
+        const removeHandler = () => {
+            this.removeOption(selectedOption.getOption());
+        };
+
+        selectedOption.getOptionView().onClicked(removeHandler);
+        selectedOption.getOptionView().onRemoved(() => {
+            selectedOption.getOptionView().unClicked(removeHandler);
+        });
+
+        return selectedOption;
     }
 
     updateOption(optionToUpdate: Option<string>, newOption: Option<string>) {
