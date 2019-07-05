@@ -58,14 +58,21 @@ export class IssuesPanel
             const optionValue = event.getSelectedOption().getOption().value;
             switch (optionValue) {
             case this.filterOptions.allOptions.value:
-                // No need to reload the grid, if `All` was (de)selected
-                this.setAllOptions(select, false);
+                this.setAllOptions(select);
                 break;
-            case this.filterOptions.assignedToMe.value:
-                this.setAssignedToMe(select, true);
+            case this.filterOptions.assignedToMe.value: {
+                const selected = this.setAssignedToMe(select);
+                if (selected) {
+                    this.reload();
+                }
+            }
                 break;
-            case this.filterOptions.assignedByMe.value:
-                this.setAssignedByMe(select, true);
+            case this.filterOptions.assignedByMe.value: {
+                const selected = this.setAssignedByMe(select);
+                if (selected) {
+                    this.reload();
+                }
+            }
                 break;
             }
         };
@@ -102,49 +109,41 @@ export class IssuesPanel
         return this.issuesList.reload();
     }
 
-    public setAllOptions(select: boolean, forceReload: boolean = false): boolean {
+    public setAllOptions(select: boolean): boolean {
         const {selectable} = this.filterOptions.allOptions;
         if (selectable) {
             this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.allOptions, select, true);
+            this.filter.setSelection(this.filterOptions.allOptions, select);
             this.issuesList.setLoadAssignedToMe(false);
             this.issuesList.setLoadMyIssues(false);
-            if (forceReload) {
-                this.issuesList.reload();
-            }
         }
         return selectable;
     }
 
-    public setAssignedToMe(select: boolean, forceReload: boolean = false): boolean {
+    public setAssignedToMe(select: boolean): boolean {
         const {selectable} = this.filterOptions.assignedToMe;
         if (this.filterOptions.assignedToMe.selectable) {
             this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.assignedToMe, select, true);
+            this.filter.setSelection(this.filterOptions.assignedToMe, select);
             this.issuesList.setLoadAssignedToMe(select);
-            if (forceReload) {
-                this.issuesList.reload();
-            }
         }
         return selectable;
     }
 
-    public setAssignedByMe(select: boolean, forceReload: boolean = false): boolean {
+    public setAssignedByMe(select: boolean): boolean {
         const {selectable} = this.filterOptions.assignedByMe;
         if (this.filterOptions.assignedByMe.selectable) {
             this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.assignedByMe, select, true);
+            this.filter.setSelection(this.filterOptions.assignedByMe, select);
             this.issuesList.setLoadMyIssues(select);
-            if (forceReload) {
-                this.issuesList.reload();
-            }
         }
         return selectable;
     }
 
-    public resetFilters() {
+    public resetFilters(): wemQ.Promise<void> {
         this.filter.clearSelection();
-        this.setAllOptions(true, true);
+        const selected = this.setAllOptions(true);
+        return selected ? this.reload() : wemQ(null);
     }
 
     public updateAssignedToMeOption(total: number) {

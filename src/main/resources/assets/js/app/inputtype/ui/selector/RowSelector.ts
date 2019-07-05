@@ -18,9 +18,7 @@ export class RowSelector
     private selectedOptionsView: SelectedOptionsView<string>;
 
     constructor(title?: string) {
-        super();
-
-        this.addClass('row-selector');
+        super('row-selector');
 
         this.initElements(title);
     }
@@ -71,11 +69,19 @@ export class RowSelector
         this.comboBox.clearSelection();
     }
 
-    setSelection(option: Option<string>, select: boolean = true, silent?: boolean) {
+    select(option: Option<string>) {
+        this.comboBox.selectOption(option, true);
+    }
+
+    deselect(option: Option<string>) {
+        this.comboBox.deselectOption(option, true);
+    }
+
+    setSelection(option: Option<string>, select: boolean = true) {
         if (select) {
-            this.comboBox.selectOption(option, silent);
+            this.select(option);
         } else {
-            this.comboBox.deselectOption(option, silent);
+            this.deselect(option);
         }
     }
 
