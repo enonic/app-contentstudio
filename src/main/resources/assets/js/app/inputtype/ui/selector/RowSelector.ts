@@ -13,6 +13,8 @@ import SelectedOption = api.ui.selector.combobox.SelectedOption;
 export class RowSelector
     extends DivEl {
 
+    private title: SpanEl;
+
     private comboBox: ComboBox<string>;
 
     private selectedOptionsView: SelectedOptionsView<string>;
@@ -24,8 +26,8 @@ export class RowSelector
     }
 
     protected initElements(title?: string) {
-        const titleEl = new SpanEl('title');
-        titleEl.setHtml(title == null ? i18n('field.rowselector.title') : title);
+        this.title = new SpanEl('title');
+        this.title.setHtml(title == null ? i18n('field.rowselector.title') : title);
 
         this.selectedOptionsView = new RowSelectedOptionsView();
         this.selectedOptionsView.setEditable(false);
@@ -45,8 +47,6 @@ export class RowSelector
                 this.comboBox.giveFocus();
             }
         });
-
-        this.appendChildren<Element>(titleEl, this.comboBox, this.selectedOptionsView);
     }
 
     setOptions(options: Option<string>[], saveSelection?: boolean) {
@@ -59,8 +59,7 @@ export class RowSelector
                 value: index.toString(),
                 displayValue,
                 indices: [displayValue],
-                selectable: true,
-                readOnly: false
+                selectable: true
             };
         });
     }
@@ -90,8 +89,7 @@ export class RowSelector
             value: option.value,
             displayValue: value,
             indices: [value],
-            selectable: selectable != null ? selectable : option.selectable,
-            readOnly: selectable != null ? !selectable : option.readOnly
+            selectable: selectable != null ? selectable : option.selectable
         };
 
         this.comboBox.updateOption(option, newOption);
@@ -105,6 +103,14 @@ export class RowSelector
 
     onOptionDeselected(listener: (event: SelectedOptionEvent<string>) => void) {
         this.comboBox.onOptionDeselected(listener);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren<Element>(this.title, this.comboBox, this.selectedOptionsView);
+
+            return rendered;
+        });
     }
 }
 
