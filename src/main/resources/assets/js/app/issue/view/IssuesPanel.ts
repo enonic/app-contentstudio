@@ -46,8 +46,6 @@ export class IssuesPanel
             IssuesPanel.makeFilterLabel(i18n('field.assignedByMe')),
         ]);
 
-        options.forEach(option => (option.selectable = false));
-
         this.filterOptions = {
             allOptions: options[0],
             assignedToMe: options[1],
@@ -104,60 +102,50 @@ export class IssuesPanel
         return this.issuesList.reload();
     }
 
-    public setAllOptions(select: boolean, forceReload: boolean = false) {
-        this.filter.clearSelection();
-        this.filter.setSelection(this.filterOptions.allOptions, select, true);
-        this.issuesList.setLoadAssignedToMe(false);
-        this.issuesList.setLoadMyIssues(false);
-        if (forceReload) {
-            this.issuesList.reload();
+    public setAllOptions(select: boolean, forceReload: boolean = false): boolean {
+        const {selectable} = this.filterOptions.allOptions;
+        if (selectable) {
+            this.filter.clearSelection();
+            this.filter.setSelection(this.filterOptions.allOptions, select, true);
+            this.issuesList.setLoadAssignedToMe(false);
+            this.issuesList.setLoadMyIssues(false);
+            if (forceReload) {
+                this.issuesList.reload();
+            }
         }
+        return selectable;
     }
 
-    public setAssignedToMe(select: boolean, forceReload: boolean = false) {
-        this.filter.clearSelection();
-        this.filter.setSelection(this.filterOptions.assignedToMe, select, true);
-        this.issuesList.setLoadAssignedToMe(select);
-        if (forceReload) {
-            this.issuesList.reload();
+    public setAssignedToMe(select: boolean, forceReload: boolean = false): boolean {
+        const {selectable} = this.filterOptions.assignedToMe;
+        if (this.filterOptions.assignedToMe.selectable) {
+            this.filter.clearSelection();
+            this.filter.setSelection(this.filterOptions.assignedToMe, select, true);
+            this.issuesList.setLoadAssignedToMe(select);
+            if (forceReload) {
+                this.issuesList.reload();
+            }
         }
+        return selectable;
     }
 
-    public setAssignedByMe(select: boolean, forceReload: boolean = false) {
-        this.filter.clearSelection();
-        this.filter.setSelection(this.filterOptions.assignedByMe, select, true);
-        this.issuesList.setLoadMyIssues(select);
-        if (forceReload) {
-            this.issuesList.reload();
+    public setAssignedByMe(select: boolean, forceReload: boolean = false): boolean {
+        const {selectable} = this.filterOptions.assignedByMe;
+        if (this.filterOptions.assignedByMe.selectable) {
+            this.filter.clearSelection();
+            this.filter.setSelection(this.filterOptions.assignedByMe, select, true);
+            this.issuesList.setLoadMyIssues(select);
+            if (forceReload) {
+                this.issuesList.reload();
+            }
         }
+        return selectable;
     }
 
     public resetFilters() {
         this.filter.clearSelection();
         this.setAllOptions(true, true);
     }
-
-    // private createAssignedToMeCheckbox(): Checkbox {
-    //     const assignedToMeCheckbox: Checkbox = Checkbox.create().build();
-    //     assignedToMeCheckbox.addClass('assigned-to-me-filter');
-    //     assignedToMeCheckbox.onValueChanged(() => {
-    //         this.setAssignedToMe(assignedToMeCheckbox.isChecked(), true);
-    //     });
-    //     assignedToMeCheckbox.setLabel(i18n('field.assignedToMe'));
-    //
-    //     return assignedToMeCheckbox;
-    // }
-    //
-    // private createMyIssuesCheckbox(): Checkbox {
-    //     const myIssuesCheckbox: Checkbox = Checkbox.create().build();
-    //     myIssuesCheckbox.addClass('my-issues-filter');
-    //     myIssuesCheckbox.onValueChanged(() => {
-    //         this.setAssignedByMe(myIssuesCheckbox.isChecked(), true);
-    //     });
-    //     myIssuesCheckbox.setLabel(i18n('field.myIssues'));
-    //
-    //     return myIssuesCheckbox;
-    // }
 
     public updateAssignedToMeOption(total: number) {
         const selectable = total > 0;
