@@ -28,6 +28,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await imageFormPanel.clickOnRotateButton();
                 await imageFormPanel.waitForResetFilterDisplayed();
                 studioUtils.saveScreenshot("image_rotate_reset_filter_pressed2");
+                await imageFormPanel.pause(1000);
 
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
