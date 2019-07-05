@@ -110,5 +110,12 @@ module.exports = Object.freeze({
         ANONYMOUS_USER: 'Anonymous User',
         EVERYONE: 'Everyone',
         SUPER_USER: 'Super User',
+    },
+    sortMenuItem: {
+        DISPLAY_NAME: 'Display name',
+        MANUALLY_SORTED: 'Manually sorted',
+        MODIFIED_DATE: "Modified date",
+        CREATED_DATE: "Created date",
+        PUBLISHED_DATE: "Published date",
     }
 });

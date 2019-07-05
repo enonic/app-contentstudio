@@ -6,6 +6,8 @@ const XPATH = {
     saveButton: "//button[contains(@id,'DialogButton') and child::span[text()='Save']]",
     cancelButton: "//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]",
     menuButton: "//div[contains(@id,'TabMenuButton')]",
+    sortMenuItem:
+        by => `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`,
 };
 
 class SortContentDialog extends Page {
@@ -15,7 +17,7 @@ class SortContentDialog extends Page {
     }
 
     get saveButton() {
-        return XPATH.container + XPATH.deleteButton;
+        return XPATH.container + XPATH.saveButton;
     }
 
     get menuButton() {
@@ -49,10 +51,25 @@ class SortContentDialog extends Page {
         return this.clickOnElement(this.menuButton);
     }
 
+    selectSortMenuItem(by, order) {
+        let menuItemXpath = XPATH.container + XPATH.sortMenuItem(by);
+        let fullSelector;
+        if (order === 'ascending') {
+            fullSelector = menuItemXpath + "//button[@title='Sort in ascending order']"
+        } else if (order === 'descending') {
+            fullSelector = menuItemXpath + "//button[@title='Sort in descending order']"
+        } else {
+            fullSelector = menuItemXpath;
+        }
+        return this.clickOnElement(fullSelector);
+    }
+
+
     getMenuItems() {
         let selector = xpath.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";
         return this.getText(selector);
     }
-};
+}
+;
 module.exports = SortContentDialog;
 

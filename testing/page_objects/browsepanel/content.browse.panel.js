@@ -63,6 +63,9 @@ class ContentBrowsePanel extends Page {
     get previewButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
     }
+    get sortButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
+    }
 
     get searchButton() {
         return XPATH.toolbar + XPATH.searchButton;
@@ -207,6 +210,11 @@ class ContentBrowsePanel extends Page {
         await this.pause(400);
         return await this.clickOnElement(this.publishButton);
 
+    }
+    async clickOnSortButton() {
+        await this.waitForElementEnabled(this.sortButton);
+        await this.pause(200);
+        return await this.clickOnElement(this.sortButton);
     }
 
     clickOnDuplicateButton() {
@@ -469,12 +477,29 @@ class ContentBrowsePanel extends Page {
             throw new Error(`Error when getting selected rows ` + err);
         });
     }
+
     getNameOfSelectedRow() {
         return this.findElements(XPATH.selectedRow).then(result => {
             return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
             throw new Error(`Error when getting selected rows ` + err);
         });
+    }
+
+    async getSortingIcon(name) {
+        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r2')]/span/div";
+        let elems = await this.findElements(selector);
+        if (elems.length === 0) {
+            return "Default";
+        }
+        let classAttr = await elems[0].getAttribute("class");
+        if (classAttr.includes('num-asc')) {
+            return "Date ascending";
+        } else if (classAttr.includes('num-desc')) {
+            return "Date descending";
+        } else if (classAttr === 'sort-dialog-trigger icon-menu') {
+            return appConst.sortMenuItem.MANUALLY_SORTED;
+        }
     }
 
     getNumberOfCheckedRows() {
