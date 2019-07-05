@@ -9,9 +9,9 @@ import i18n = api.util.i18n;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
 
 interface FilterOptions {
-    allOptions: Option<string>,
-    assignedToMe: Option<string>,
-    assignedByMe: Option<string>
+    allOptions: Option<string>;
+    assignedToMe: Option<string>;
+    assignedByMe: Option<string>;
 }
 
 export class IssuesPanel

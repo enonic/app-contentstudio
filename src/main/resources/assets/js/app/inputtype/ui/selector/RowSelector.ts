@@ -52,7 +52,7 @@ export class RowSelector
     }
 
     setOptions(options: Option<string>[], saveSelection?: boolean) {
-        this.comboBox.setOptions(options, saveSelection)
+        this.comboBox.setOptions(options, saveSelection);
     }
 
     createOptions(options: string[]): Option<string>[] {
@@ -63,7 +63,7 @@ export class RowSelector
                 indices: [displayValue],
                 selectable: true,
                 readOnly: false
-            }
+            };
         });
     }
 
@@ -73,7 +73,7 @@ export class RowSelector
 
     setSelection(option: Option<string>, select: boolean = true, silent?: boolean) {
         if (select) {
-            this.comboBox.selectOption(option, silent)
+            this.comboBox.selectOption(option, silent);
         } else {
             this.comboBox.deselectOption(option, silent);
         }
