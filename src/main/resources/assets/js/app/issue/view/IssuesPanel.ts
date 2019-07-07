@@ -1,11 +1,18 @@
-import Panel = api.ui.panel.Panel;
-import Checkbox = api.ui.Checkbox;
-import DivEl = api.dom.DivEl;
-import i18n = api.util.i18n;
-import LoadMask = api.ui.mask.LoadMask;
 import {IssueList} from './IssueList';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {RowSelector} from '../../inputtype/ui/selector/RowSelector';
+import Panel = api.ui.panel.Panel;
+import LoadMask = api.ui.mask.LoadMask;
+import Option = api.ui.selector.Option;
+import i18n = api.util.i18n;
+import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+
+interface FilterOptions {
+    allOptions: Option<string>;
+    assignedToMe: Option<string>;
+    assignedByMe: Option<string>;
+}
 
 export class IssuesPanel
     extends Panel {
@@ -14,9 +21,9 @@ export class IssuesPanel
 
     private issuesList: IssueList;
 
-    private assignedToMeCheckbox: Checkbox;
+    private filter: RowSelector;
 
-    private myIssuesCheckbox: Checkbox;
+    private filterOptions: FilterOptions;
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
@@ -24,6 +31,7 @@ export class IssuesPanel
         super(IssueStatus[issueStatus]);
 
         this.issueStatus = issueStatus;
+
         this.initElements();
     }
 
@@ -31,8 +39,44 @@ export class IssuesPanel
         this.issuesList = new IssueList(this.issueStatus);
         this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
 
-        this.myIssuesCheckbox = this.createMyIssuesCheckbox();
-        this.assignedToMeCheckbox = this.createAssignedToMeCheckbox();
+        this.filter = new RowSelector();
+        const options = this.filter.createOptions([
+            IssuesPanel.makeFilterLabel(i18n('field.all')),
+            IssuesPanel.makeFilterLabel(i18n('field.assignedToMe')),
+            IssuesPanel.makeFilterLabel(i18n('field.assignedByMe')),
+        ]);
+
+        this.filterOptions = {
+            allOptions: options[0],
+            assignedToMe: options[1],
+            assignedByMe: options[2]
+        };
+
+        this.filter.setOptions(options);
+
+        const createSelectionHandler = (select: boolean) => (event: SelectedOptionEvent<string>) => {
+            const optionValue = event.getSelectedOption().getOption().value;
+            switch (optionValue) {
+            case this.filterOptions.allOptions.value:
+                this.setAllOptions(select);
+                break;
+            case this.filterOptions.assignedToMe.value: {
+                if (this.isAssignedToMeSelectable()) {
+                    this.setAssignedToMe(select);
+                }
+            }
+                break;
+            case this.filterOptions.assignedByMe.value: {
+                if (this.isAssignedByMeSelectable()) {
+                    this.setAssignedByMe(select);
+                }
+            }
+                break;
+            }
+        };
+
+        this.filter.onOptionSelected(createSelectionHandler(true));
+        this.filter.onOptionDeselected(createSelectionHandler(false));
     }
 
     getIssueList(): IssueList {
@@ -41,8 +85,8 @@ export class IssuesPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const checkboxesDiv: DivEl = new DivEl('filters').appendChildren(this.myIssuesCheckbox, this.assignedToMeCheckbox);
-            this.appendChildren(checkboxesDiv, this.issuesList);
+            this.appendChildren<api.dom.Element>(this.filter, this.issuesList);
+
             return rendered;
         });
     }
@@ -59,75 +103,106 @@ export class IssuesPanel
         this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
     }
 
-    public getItemCount(): number {
-        return this.issuesList.getItemCount();
-    }
-
     public reload(): wemQ.Promise<void> {
         return this.issuesList.reload();
     }
 
-    public setAssignedToMe(checked: boolean, forceReload: boolean = false) {
-        this.assignedToMeCheckbox.setChecked(checked, true);
-        this.issuesList.setLoadAssignedToMe(checked);
-        if (forceReload) {
-            this.issuesList.reload();
+    private setAllOptions(select: boolean) {
+        if (this.isAllOptionsSelectable()) {
+            this.doSetAllOptions(select);
         }
     }
 
-    public setCreatedByMe(checked: boolean, forceReload: boolean = false) {
-        this.myIssuesCheckbox.setChecked(checked, true);
-        this.issuesList.setLoadMyIssues(checked);
-        if (forceReload) {
-            this.issuesList.reload();
+    public isAllOptionsSelectable(): boolean {
+        return this.filterOptions.allOptions.selectable;
+    }
+
+    private doSetAllOptions(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.allOptions, select);
+        this.issuesList.setLoadAssignedToMe(false);
+        this.issuesList.setLoadMyIssues(false);
+    }
+
+    public selectAssignedToMe() {
+        if (this.isAssignedToMeSelectable()) {
+            this.setAssignedToMe(true);
         }
     }
 
-    public resetFilters() {
-        this.setCreatedByMe(false);
-        this.setAssignedToMe(false);
+    private isAssignedToMeSelectable(): boolean {
+        return this.filterOptions.assignedToMe.selectable;
     }
 
-    private createAssignedToMeCheckbox(): Checkbox {
-        const assignedToMeCheckbox: Checkbox = Checkbox.create().build();
-        assignedToMeCheckbox.addClass('assigned-to-me-filter');
-        assignedToMeCheckbox.onValueChanged(() => {
-            this.setAssignedToMe(assignedToMeCheckbox.isChecked(), true);
-        });
-        assignedToMeCheckbox.setLabel(i18n('field.assignedToMe'));
-
-        return assignedToMeCheckbox;
+    private setAssignedToMe(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.assignedToMe, select);
+        this.issuesList.setLoadAssignedToMe(select);
+        this.reload();
     }
 
-    private createMyIssuesCheckbox(): Checkbox {
-        const myIssuesCheckbox: Checkbox = Checkbox.create().build();
-        myIssuesCheckbox.addClass('my-issues-filter');
-        myIssuesCheckbox.onValueChanged(() => {
-            this.setCreatedByMe(myIssuesCheckbox.isChecked(), true);
-        });
-        myIssuesCheckbox.setLabel(i18n('field.myIssues'));
-
-        return myIssuesCheckbox;
-    }
-
-    public updateAssignedToMeCheckbox(total: number) {
-        this.assignedToMeCheckbox.toggleClass('disabled', total === 0);
-        this.assignedToMeCheckbox.setLabel(this.makeFilterLabel(i18n('field.assignedToMe'), total));
-        if (total === 0) {
-            this.assignedToMeCheckbox.setChecked(false);
+    public selectAssignedByMe() {
+        if (this.isAssignedByMeSelectable()) {
+            this.setAssignedByMe(true);
         }
     }
 
-    public updateMyIssuesCheckbox(total: number) {
-        this.myIssuesCheckbox.toggleClass('disabled', total === 0);
-        this.myIssuesCheckbox.setLabel(this.makeFilterLabel(i18n('field.myIssues'), total));
-        if (total === 0) {
-            this.myIssuesCheckbox.setChecked(false);
+    private isAssignedByMeSelectable(): boolean {
+        return this.filterOptions.assignedByMe.selectable;
+    }
+
+    private setAssignedByMe(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.assignedByMe, select);
+        this.issuesList.setLoadMyIssues(select);
+        this.reload();
+    }
+
+    public resetFilters(): wemQ.Promise<void> {
+        this.filter.clearSelection();
+        if (this.isAllOptionsSelectable()) {
+            this.doSetAllOptions(true);
+            return this.reload();
+        }
+
+        return wemQ(null);
+    }
+
+    public updateAssignedToMeOption(total: number) {
+        const selectable = total > 0;
+        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.assignedToMe'), total);
+
+        this.filterOptions.assignedToMe = this.filter.updateOptionValue(this.filterOptions.assignedToMe, displayValue, selectable);
+
+        if (!selectable) {
+            this.resetFilters();
         }
     }
 
-    private makeFilterLabel(label: string, count: number): string {
-        return (count > 0 ? label + ' (' + count + ')' : label);
+    public updateAssignedByMeOption(total: number) {
+        const selectable = total > 0;
+        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.assignedByMe'), total);
+
+        this.filterOptions.assignedByMe = this.filter.updateOptionValue(this.filterOptions.assignedByMe, displayValue, selectable);
+
+        if (!selectable) {
+            this.resetFilters();
+        }
+    }
+
+    public updateAllOption(total: number) {
+        const selectable = total > 0;
+        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.all'), total);
+
+        this.filterOptions.allOptions = this.filter.updateOptionValue(this.filterOptions.allOptions, displayValue, selectable);
+
+        if (!selectable) {
+            this.filter.clearSelection();
+        }
+    }
+
+    private static makeFilterLabel(label: string, count: number = 0): string {
+        return (count > 0 ? `${label} (${count})` : label);
     }
 
     setLoadMask(loadMask: LoadMask) {

@@ -122,13 +122,13 @@ export class IssueListDialog
         this.openIssuesPanel.resetFilters();
         this.closedIssuesPanel.resetFilters();
         if (assignedToMe) {
-            this.openIssuesPanel.setAssignedToMe(true, true);
-            this.closedIssuesPanel.setAssignedToMe(true, true);
+            this.openIssuesPanel.selectAssignedToMe();
+            this.closedIssuesPanel.selectAssignedToMe();
             return;
         }
         if (createdByMe) {
-            this.openIssuesPanel.setCreatedByMe(true, true);
-            this.closedIssuesPanel.setCreatedByMe(true, true);
+            this.openIssuesPanel.selectAssignedByMe();
+            this.closedIssuesPanel.selectAssignedByMe();
             return;
         }
     }
@@ -205,10 +205,12 @@ export class IssueListDialog
         new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
             this.updateTabLabel(0, i18n('field.issue.openIssues'), stats.open);
             this.updateTabLabel(1, i18n('field.issue.closedIssues'), stats.closed);
-            this.openIssuesPanel.updateMyIssuesCheckbox(stats.openCreatedByMe);
-            this.openIssuesPanel.updateAssignedToMeCheckbox(stats.openAssignedToMe);
-            this.closedIssuesPanel.updateMyIssuesCheckbox(stats.closedCreatedByMe);
-            this.closedIssuesPanel.updateAssignedToMeCheckbox(stats.closedAssignedToMe);
+            this.openIssuesPanel.updateAssignedByMeOption(stats.openCreatedByMe);
+            this.openIssuesPanel.updateAssignedToMeOption(stats.openAssignedToMe);
+            this.openIssuesPanel.updateAllOption(stats.open);
+            this.closedIssuesPanel.updateAssignedByMeOption(stats.closedCreatedByMe);
+            this.closedIssuesPanel.updateAssignedToMeOption(stats.closedAssignedToMe);
+            this.closedIssuesPanel.updateAllOption(stats.closed);
             this.dockedPanel.selectPanel(stats.open === 0 && stats.closed > 0 ? this.closedIssuesPanel : this.openIssuesPanel);
         }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
