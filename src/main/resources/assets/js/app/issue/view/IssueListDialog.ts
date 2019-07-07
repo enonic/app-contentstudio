@@ -122,17 +122,13 @@ export class IssueListDialog
         this.openIssuesPanel.resetFilters();
         this.closedIssuesPanel.resetFilters();
         if (assignedToMe) {
-            this.openIssuesPanel.setAssignedToMe(true);
-            this.closedIssuesPanel.setAssignedToMe(true);
-            this.openIssuesPanel.reload();
-            this.closedIssuesPanel.reload();
+            this.openIssuesPanel.selectAssignedToMe();
+            this.closedIssuesPanel.selectAssignedToMe();
             return;
         }
         if (createdByMe) {
-            this.openIssuesPanel.setAssignedByMe(true);
-            this.closedIssuesPanel.setAssignedByMe(true);
-            this.openIssuesPanel.reload();
-            this.closedIssuesPanel.reload();
+            this.openIssuesPanel.selectAssignedByMe();
+            this.closedIssuesPanel.selectAssignedByMe();
             return;
         }
     }

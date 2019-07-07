@@ -61,16 +61,14 @@ export class IssuesPanel
                 this.setAllOptions(select);
                 break;
             case this.filterOptions.assignedToMe.value: {
-                const selected = this.setAssignedToMe(select);
-                if (selected) {
-                    this.reload();
+                if (this.isAssignedToMeSelectable()) {
+                    this.setAssignedToMe(select);
                 }
             }
                 break;
             case this.filterOptions.assignedByMe.value: {
-                const selected = this.setAssignedByMe(select);
-                if (selected) {
-                    this.reload();
+                if (this.isAssignedByMeSelectable()) {
+                    this.setAssignedByMe(select);
                 }
             }
                 break;
@@ -109,41 +107,65 @@ export class IssuesPanel
         return this.issuesList.reload();
     }
 
-    public setAllOptions(select: boolean): boolean {
-        const {selectable} = this.filterOptions.allOptions;
-        if (selectable) {
-            this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.allOptions, select);
-            this.issuesList.setLoadAssignedToMe(false);
-            this.issuesList.setLoadMyIssues(false);
+    private setAllOptions(select: boolean) {
+        if (this.isAllOptionsSelectable()) {
+            this.doSetAllOptions(select);
         }
-        return selectable;
     }
 
-    public setAssignedToMe(select: boolean): boolean {
-        const {selectable} = this.filterOptions.assignedToMe;
-        if (this.filterOptions.assignedToMe.selectable) {
-            this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.assignedToMe, select);
-            this.issuesList.setLoadAssignedToMe(select);
-        }
-        return selectable;
+    public isAllOptionsSelectable(): boolean {
+        return this.filterOptions.allOptions.selectable;
     }
 
-    public setAssignedByMe(select: boolean): boolean {
-        const {selectable} = this.filterOptions.assignedByMe;
-        if (this.filterOptions.assignedByMe.selectable) {
-            this.filter.clearSelection();
-            this.filter.setSelection(this.filterOptions.assignedByMe, select);
-            this.issuesList.setLoadMyIssues(select);
+    private doSetAllOptions(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.allOptions, select);
+        this.issuesList.setLoadAssignedToMe(false);
+        this.issuesList.setLoadMyIssues(false);
+    }
+
+    public selectAssignedToMe() {
+        if (this.isAssignedToMeSelectable()) {
+            this.setAssignedToMe(true);
         }
-        return selectable;
+    }
+
+    private isAssignedToMeSelectable(): boolean {
+        return this.filterOptions.assignedToMe.selectable;
+    }
+
+    private setAssignedToMe(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.assignedToMe, select);
+        this.issuesList.setLoadAssignedToMe(select);
+        this.reload();
+    }
+
+    public selectAssignedByMe() {
+        if (this.isAssignedByMeSelectable()) {
+            this.setAssignedByMe(true);
+        }
+    }
+
+    private isAssignedByMeSelectable(): boolean {
+        return this.filterOptions.assignedByMe.selectable;
+    }
+
+    private setAssignedByMe(select: boolean) {
+        this.filter.clearSelection();
+        this.filter.setSelection(this.filterOptions.assignedByMe, select);
+        this.issuesList.setLoadMyIssues(select);
+        this.reload();
     }
 
     public resetFilters(): wemQ.Promise<void> {
         this.filter.clearSelection();
-        const selected = this.setAllOptions(true);
-        return selected ? this.reload() : wemQ(null);
+        if (this.isAllOptionsSelectable()) {
+            this.doSetAllOptions(true);
+            return this.reload();
+        }
+
+        return wemQ(null);
     }
 
     public updateAssignedToMeOption(total: number) {
