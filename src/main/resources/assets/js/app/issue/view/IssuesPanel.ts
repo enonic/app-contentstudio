@@ -36,11 +36,18 @@ export class IssuesPanel
     }
 
     private initElements() {
+        this.initIssuesList();
+        this.initFilterOptions();
+        this.initFilter();
+    }
+
+    private initIssuesList() {
         this.issuesList = new IssueList(this.issueStatus);
         this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
+    }
 
-        this.filter = new RowSelector();
-        const options = this.filter.createOptions([
+    private initFilterOptions() {
+        const options = RowSelector.createOptions([
             IssuesPanel.makeFilterLabel(i18n('field.all')),
             IssuesPanel.makeFilterLabel(i18n('field.assignedToMe')),
             IssuesPanel.makeFilterLabel(i18n('field.assignedByMe')),
@@ -51,8 +58,16 @@ export class IssuesPanel
             assignedToMe: options[1],
             assignedByMe: options[2]
         };
+    }
 
-        this.filter.setOptions(options);
+    private initFilter() {
+        this.filter = new RowSelector();
+
+        this.filter.setOptions([
+            this.filterOptions.allOptions,
+            this.filterOptions.assignedToMe,
+            this.filterOptions.assignedByMe
+        ]);
 
         const createSelectionHandler = (select: boolean) => (event: SelectedOptionEvent<string>) => {
             const optionValue = event.getSelectedOption().getOption().value;

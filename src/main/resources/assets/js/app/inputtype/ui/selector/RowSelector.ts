@@ -53,7 +53,7 @@ export class RowSelector
         this.comboBox.setOptions(options, saveSelection);
     }
 
-    createOptions(options: string[]): Option<string>[] {
+    static createOptions(options: string[]): Option<string>[] {
         return options.map((displayValue: string, index: number) => {
             return <Option<string>>{
                 value: index.toString(),
