@@ -151,7 +151,7 @@ jar.enabled = true
 task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
         xpServer.installDir = file( distroDir )
-        xpServer.startupDelay = 40000
+        xpServer.startupDelay = 50000
         xpServer.start()
     }
     copyConfig.mustRunAfter unpackDistro

@@ -14,6 +14,9 @@ module.exports = Object.freeze({
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
     },
+    sortOrderTitle: function (by,order) {
+        return `Sorted by \"${by}\" in ${order} order`
+    },
     permissionsAppliedNotificationMessage: function (name) {
         return `Permissions for \"${name}\" are applied.`
     },

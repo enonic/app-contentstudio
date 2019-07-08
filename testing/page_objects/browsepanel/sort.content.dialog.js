@@ -5,7 +5,7 @@ const XPATH = {
     container: `//div[contains(@id,'SortContentDialog')]`,
     saveButton: "//button[contains(@id,'DialogButton') and child::span[text()='Save']]",
     cancelButton: "//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]",
-    menuButton: "//div[contains(@id,'TabMenuButton')]",
+    menuButton: "//div[contains(@id,'SortContentTabMenu')]//div[contains(@id,'TabMenuButton')]",
     sortMenuItem:
         by => `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`,
 };
@@ -25,8 +25,10 @@ class SortContentDialog extends Page {
     }
 
     clickOnSaveButton() {
-        return this.clickOnElement(this.saveButton).catch(err => {
-            this.saveScreenshot('err_click_on_delete_dialog');
+        return this.clickOnElement(this.saveButton).then(() => {
+            return this.waitForDialogClosed();
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_save_order_button');
             throw new Error(err);
         })
     }
@@ -51,7 +53,7 @@ class SortContentDialog extends Page {
         return this.clickOnElement(this.menuButton);
     }
 
-    selectSortMenuItem(by, order) {
+    async selectSortMenuItem(by, order) {
         let menuItemXpath = XPATH.container + XPATH.sortMenuItem(by);
         let fullSelector;
         if (order === 'ascending') {
@@ -61,7 +63,8 @@ class SortContentDialog extends Page {
         } else {
             fullSelector = menuItemXpath;
         }
-        return this.clickOnElement(fullSelector);
+        await this.clickOnElement(fullSelector);
+        return await this.pause(300);
     }
 
 
@@ -69,7 +72,12 @@ class SortContentDialog extends Page {
         let selector = xpath.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";
         return this.getText(selector);
     }
-}
-;
+
+    async getSelectedOrder() {
+        let selector = XPATH.container + XPATH.menuButton + "//a";
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.getAttribute(selector, "title");
+    }
+};
 module.exports = SortContentDialog;
 
