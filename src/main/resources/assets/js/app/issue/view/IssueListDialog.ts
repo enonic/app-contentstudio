@@ -3,10 +3,10 @@ import ModalDialog = api.ui.dialog.ModalDialog;
 import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
-import {IssuesPanel} from './IssuesPanel';
+import Panel = api.ui.panel.Panel;
+import {IssuesCount, IssuesPanel} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
-import {IssueStatus} from '../IssueStatus';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 
@@ -17,9 +17,7 @@ export class IssueListDialog
 
     private dockedPanel: DockedPanel;
 
-    private openIssuesPanel: IssuesPanel;
-
-    private closedIssuesPanel: IssuesPanel;
+    private issuesPanel: IssuesPanel;
 
     private reload: Function;
 
@@ -55,8 +53,7 @@ export class IssueListDialog
 
     protected initElements() {
         super.initElements();
-        this.openIssuesPanel = this.createIssuePanel(IssueStatus.OPEN);
-        this.closedIssuesPanel = this.createIssuePanel(IssueStatus.CLOSED);
+        this.issuesPanel = this.createIssuePanel();
         this.dockedPanel = this.createDockedPanel();
         this.createAction = new Action(i18n('action.newIssueMore'));
         this.loadCurrentUser();
@@ -80,16 +77,20 @@ export class IssueListDialog
     private createDockedPanel(): DockedPanel {
         const dockedPanel = new DockedPanel();
 
-        dockedPanel.addItem(i18n('field.issue.openIssues'), true, this.openIssuesPanel);
-        dockedPanel.addItem(i18n('field.issue.closedIssues'), true, this.closedIssuesPanel);
+        // TODO: Remove, when other tabs implemented
+        const panel2 = new Panel();
+        const panel3 = new Panel();
+
+        dockedPanel.addItem(i18n('field.all'), true, this.issuesPanel);
+        dockedPanel.addItem(i18n('field.issue.publishRequests'), true, panel2);
+        dockedPanel.addItem(i18n('field.issues'), true, panel3);
 
         return dockedPanel;
     }
 
     private reloadDockPanel(): wemQ.Promise<any> {
         return wemQ.all([
-            this.openIssuesPanel.reload(),
-            this.closedIssuesPanel.reload()
+            this.issuesPanel.reload()
         ]);
     }
 
@@ -105,8 +106,7 @@ export class IssueListDialog
 
     close() {
         super.close();
-        this.openIssuesPanel.resetFilters();
-        this.closedIssuesPanel.resetFilters();
+        this.issuesPanel.resetFilters();
         this.remove();
     }
 
@@ -119,16 +119,13 @@ export class IssueListDialog
         super.open();
 
         this.skipInitialLoad = false;
-        this.openIssuesPanel.resetFilters();
-        this.closedIssuesPanel.resetFilters();
+        this.issuesPanel.resetFilters();
         if (assignedToMe) {
-            this.openIssuesPanel.selectAssignedToMe();
-            this.closedIssuesPanel.selectAssignedToMe();
+            this.issuesPanel.selectAssignedToMe();
             return;
         }
         if (createdByMe) {
-            this.openIssuesPanel.selectAssignedByMe();
-            this.closedIssuesPanel.selectAssignedByMe();
+            this.issuesPanel.selectAssignedByMe();
             return;
         }
     }
@@ -203,30 +200,33 @@ export class IssueListDialog
 
     private updateTabAndFiltersLabels() {
         new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
-            this.updateTabLabel(0, i18n('field.issue.openIssues'), stats.open);
-            this.updateTabLabel(1, i18n('field.issue.closedIssues'), stats.closed);
-            this.openIssuesPanel.updateAssignedByMeOption(stats.openCreatedByMe);
-            this.openIssuesPanel.updateAssignedToMeOption(stats.openAssignedToMe);
-            this.openIssuesPanel.updateAllOption(stats.open);
-            this.closedIssuesPanel.updateAssignedByMeOption(stats.closedCreatedByMe);
-            this.closedIssuesPanel.updateAssignedToMeOption(stats.closedAssignedToMe);
-            this.closedIssuesPanel.updateAllOption(stats.closed);
-            this.dockedPanel.selectPanel(stats.open === 0 && stats.closed > 0 ? this.closedIssuesPanel : this.openIssuesPanel);
+            const openedIssues: IssuesCount = {
+                all: stats.open,
+                assignedToMe: stats.openAssignedToMe,
+                assignedByMe: stats.openCreatedByMe
+            };
+            const closedIssues: IssuesCount = {
+                all: stats.closed,
+                assignedToMe: stats.closedAssignedToMe,
+                assignedByMe: stats.closedCreatedByMe
+            };
+
+            this.issuesPanel.updateIssuesCount(openedIssues, closedIssues);
         }).catch((reason: any) => {
             api.DefaultErrorHandler.handle(reason);
         });
     }
 
-    private updateTabLabel(tabIndex: number, label: string, issuesFound: number) {
-        this.dockedPanel.getNavigator().getNavigationItem(tabIndex).setLabel(issuesFound > 0 ? (label + ' (' + issuesFound + ')') : label);
+    private updateTabLabel(tabIndex: number, label: string, count: number) {
+        this.dockedPanel.getNavigator().getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
     }
 
     onCreateButtonClicked(listener: (action: Action) => void) {
         return this.createAction.onExecuted(listener);
     }
 
-    private createIssuePanel(issueStatus: IssueStatus): IssuesPanel {
-        const issuePanel = new IssuesPanel(issueStatus);
+    private createIssuePanel(): IssuesPanel {
+        const issuePanel = new IssuesPanel();
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));

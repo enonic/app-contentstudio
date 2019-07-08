@@ -2,6 +2,7 @@ import {IssueList} from './IssueList';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {RowSelector} from '../../inputtype/ui/selector/RowSelector';
+import {OnOffButton} from './OnOffButton';
 import Panel = api.ui.panel.Panel;
 import LoadMask = api.ui.mask.LoadMask;
 import Option = api.ui.selector.Option;
@@ -14,10 +15,14 @@ interface FilterOptions {
     assignedByMe: Option<string>;
 }
 
+export interface IssuesCount {
+    all: number;
+    assignedToMe: number;
+    assignedByMe: number;
+}
+
 export class IssuesPanel
     extends Panel {
-
-    private issueStatus: IssueStatus;
 
     private issuesList: IssueList;
 
@@ -25,12 +30,12 @@ export class IssuesPanel
 
     private filterOptions: FilterOptions;
 
+    private issuesToggler: OnOffButton;
+
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
-    constructor(issueStatus: IssueStatus) {
-        super(IssueStatus[issueStatus]);
-
-        this.issueStatus = issueStatus;
+    constructor() {
+        super('issues-panel');
 
         this.initElements();
     }
@@ -39,18 +44,19 @@ export class IssuesPanel
         this.initIssuesList();
         this.initFilterOptions();
         this.initFilter();
+        this.initIssuesToggler();
     }
 
     private initIssuesList() {
-        this.issuesList = new IssueList(this.issueStatus);
+        this.issuesList = new IssueList(IssueStatus.OPEN);
         this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
     }
 
     private initFilterOptions() {
         const options = RowSelector.createOptions([
-            IssuesPanel.makeFilterLabel(i18n('field.all')),
-            IssuesPanel.makeFilterLabel(i18n('field.assignedToMe')),
-            IssuesPanel.makeFilterLabel(i18n('field.assignedByMe')),
+            IssuesPanel.makeLabelWithCounter(i18n('field.all')),
+            IssuesPanel.makeLabelWithCounter(i18n('field.assignedToMe')),
+            IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe')),
         ]);
 
         this.filterOptions = {
@@ -94,13 +100,55 @@ export class IssuesPanel
         this.filter.onOptionDeselected(createSelectionHandler(false));
     }
 
+    private initIssuesToggler() {
+        this.issuesToggler = new OnOffButton({
+            onLabel: i18n('field.issue.showClosedIssues'),
+            offLabel: i18n('field.issue.hideClosedIssues'),
+            off: false,
+            clickHandler: () => {
+                this.toggleClosedIssues()
+            }
+        });
+    }
+
     getIssueList(): IssueList {
         return this.issuesList;
     }
 
+    toggleClosedIssues() {
+        const allVisible = this.isAllVisible();
+
+        if (allVisible) {
+            this.hideClosedIssues();
+        } else {
+            this.showClosedIssues();
+        }
+    }
+
+    isAllVisible(): boolean {
+        return this.issuesList.getIssueStatus() == null;
+    }
+
+    showClosedIssues(): wemQ.Promise<void> {
+        return this.updateShownIssues(null);
+    }
+
+    hideClosedIssues(): wemQ.Promise<void> {
+        return this.updateShownIssues(IssueStatus.OPEN);
+    }
+
+    updateShownIssues(status: IssueStatus): wemQ.Promise<void> {
+        this.issuesList.setIssueStatus(status);
+        return this.reload();
+    }
+
+    reload(): wemQ.Promise<void> {
+        return this.issuesList.reload();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren<api.dom.Element>(this.filter, this.issuesList);
+            this.appendChildren<api.dom.Element>(this.filter, this.issuesToggler, this.issuesList);
 
             return rendered;
         });
@@ -110,16 +158,12 @@ export class IssuesPanel
         this.issueSelectedListeners.forEach(listener => listener(issue));
     }
 
-    public onIssueSelected(listener: (issue: IssueWithAssignees) => void) {
+    onIssueSelected(listener: (issue: IssueWithAssignees) => void) {
         this.issueSelectedListeners.push(listener);
     }
 
-    public unIssueSelected(listener: (issue: IssueWithAssignees) => void) {
+    unIssueSelected(listener: (issue: IssueWithAssignees) => void) {
         this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
-    }
-
-    public reload(): wemQ.Promise<void> {
-        return this.issuesList.reload();
     }
 
     private setAllOptions(select: boolean) {
@@ -128,7 +172,7 @@ export class IssuesPanel
         }
     }
 
-    public isAllOptionsSelectable(): boolean {
+    isAllOptionsSelectable(): boolean {
         return this.filterOptions.allOptions.selectable;
     }
 
@@ -139,7 +183,7 @@ export class IssuesPanel
         this.issuesList.setLoadMyIssues(false);
     }
 
-    public selectAssignedToMe() {
+    selectAssignedToMe() {
         if (this.isAssignedToMeSelectable()) {
             this.setAssignedToMe(true);
         }
@@ -156,7 +200,7 @@ export class IssuesPanel
         this.reload();
     }
 
-    public selectAssignedByMe() {
+    selectAssignedByMe() {
         if (this.isAssignedByMeSelectable()) {
             this.setAssignedByMe(true);
         }
@@ -173,7 +217,7 @@ export class IssuesPanel
         this.reload();
     }
 
-    public resetFilters(): wemQ.Promise<void> {
+    resetFilters(): wemQ.Promise<void> {
         this.filter.clearSelection();
         if (this.isAllOptionsSelectable()) {
             this.doSetAllOptions(true);
@@ -183,9 +227,49 @@ export class IssuesPanel
         return wemQ(null);
     }
 
-    public updateAssignedToMeOption(total: number) {
+    updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount) {
+        const allVisible = this.isAllVisible();
+
+        const total: IssuesCount = {
+            all: openedIssues.all + closedIssues.all,
+            assignedToMe: openedIssues.assignedToMe + closedIssues.assignedToMe,
+            assignedByMe: openedIssues.assignedByMe + closedIssues.assignedByMe
+        };
+
+        this.updateOptions(total);
+        this.updateIssuesToggler(total.all, openedIssues.all);
+
+        const allAreClosed = total.all > 0 && openedIssues.all === 0;
+        const switchToAllIssues = !allVisible && allAreClosed;
+
+        if (switchToAllIssues) {
+            this.issuesToggler.turnOff();
+            this.showClosedIssues();
+        }
+    }
+
+    private updateIssuesToggler(total: number, opened: number) {
+        this.issuesToggler.updateLabels({
+            onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), total),
+            offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), opened),
+        });
+
+        const allAreOpened = total === opened;
+        const allAreClosed = total > 0 && opened === 0;
+        if (allAreOpened || allAreClosed) {
+            this.issuesToggler.setEnabled(false);
+        }
+    }
+
+    private updateOptions(total: IssuesCount) {
+        this.updateAllOption(total.all);
+        this.updateAssignedToMeOption(total.assignedToMe);
+        this.updateAssignedByMeOption(total.assignedByMe);
+    }
+
+    private updateAssignedToMeOption(total: number) {
         const selectable = total > 0;
-        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.assignedToMe'), total);
+        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.assignedToMe'), total);
 
         this.filterOptions.assignedToMe = this.filter.updateOptionValue(this.filterOptions.assignedToMe, displayValue, selectable);
 
@@ -194,9 +278,9 @@ export class IssuesPanel
         }
     }
 
-    public updateAssignedByMeOption(total: number) {
+    private updateAssignedByMeOption(total: number) {
         const selectable = total > 0;
-        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.assignedByMe'), total);
+        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe'), total);
 
         this.filterOptions.assignedByMe = this.filter.updateOptionValue(this.filterOptions.assignedByMe, displayValue, selectable);
 
@@ -205,9 +289,9 @@ export class IssuesPanel
         }
     }
 
-    public updateAllOption(total: number) {
+    private updateAllOption(total: number) {
         const selectable = total > 0;
-        const displayValue = IssuesPanel.makeFilterLabel(i18n('field.all'), total);
+        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.all'), total);
 
         this.filterOptions.allOptions = this.filter.updateOptionValue(this.filterOptions.allOptions, displayValue, selectable);
 
@@ -216,7 +300,7 @@ export class IssuesPanel
         }
     }
 
-    private static makeFilterLabel(label: string, count: number = 0): string {
+    private static makeLabelWithCounter(label: string, count: number = 0): string {
         return (count > 0 ? `${label} (${count})` : label);
     }
 

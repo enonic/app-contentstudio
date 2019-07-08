@@ -1,0 +1,20 @@
+.on-off-button {
+  padding: 0;
+  background: initial;
+
+  &:hover:not(:disabled) span,
+  span {
+    transition: none;
+    color: @admin-button-blue1;
+  }
+
+  &:hover:not(:disabled) {
+    background: initial;
+  }
+
+  &:disabled {
+    span {
+      color: @admin-black;
+    }
+  }
+}
