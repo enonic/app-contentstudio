@@ -3,7 +3,8 @@ import TaskId = api.task.TaskId;
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
+export class PublishContentRequest
+    extends ContentResourceRequest<TaskIdJson, TaskId> {
 
     private ids: ContentId[] = [];
 
@@ -14,6 +15,8 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
     private publishFrom: Date;
 
     private publishTo: Date;
+
+    private message: string;
 
     constructor(contentId?: ContentId) {
         super();
@@ -43,12 +46,19 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
         return this;
     }
 
-    setPublishFrom(publishFrom: Date) {
+    setPublishFrom(publishFrom: Date): PublishContentRequest {
         this.publishFrom = publishFrom;
+        return this;
     }
 
-    setPublishTo(publishTo: Date) {
+    setPublishTo(publishTo: Date): PublishContentRequest {
         this.publishTo = publishTo;
+        return this;
+    }
+
+    setMessage(message: string): PublishContentRequest {
+        this.message = message;
+        return this;
     }
 
     getParams(): Object {
@@ -65,7 +75,8 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
             schedule: this.publishFrom ? {
                 from: this.publishFrom.toISOString(),
                 to: this.publishTo ? this.publishTo.toISOString() : undefined
-            } : null
+            } : null,
+            message: this.message
         };
     }
 

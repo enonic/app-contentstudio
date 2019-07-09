@@ -45,8 +45,10 @@ export class ContentPublishDialog
 
     private currentUser: Principal;
 
+    private publishSubTitle: api.ui.text.AutosizeTextInput;
+
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
                 dialogSubName: i18n('dialog.publish.resolving'),
@@ -62,6 +64,9 @@ export class ContentPublishDialog
 
     protected initElements() {
         super.initElements();
+
+        this.publishSubTitle = new api.ui.text.AutosizeTextInput();
+        this.publishSubTitle.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
         this.createIssueButton = this.addAction(this.createIssueAction);
@@ -137,6 +142,7 @@ export class ContentPublishDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.setSubTitleEl(this.publishSubTitle);
             this.addCancelButtonToBottom();
             this.actionMenu.getDropdownHandle().addClass('force-enabled');
             this.createIssueButton.hide();
@@ -296,6 +302,7 @@ export class ContentPublishDialog
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
+            .setMessage(this.publishSubTitle.getValue())
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 
@@ -327,8 +334,10 @@ export class ContentPublishDialog
         const allValid: boolean = this.areItemsAndDependantsValid();
 
         let subTitle = (itemsToPublish === 0) ? i18n('dialog.publish.noItems') : this.isAllPublishable() ? (allValid
-                ? i18n('dialog.publish.changesReady')
-                : i18n('dialog.publish.invalidError')
+                                                                                                            ? i18n(
+                    'dialog.publish.changesReady')
+                                                                                                            : i18n(
+                    'dialog.publish.invalidError')
         ) : i18n('dialog.publish.readOnlyError');
 
         this.setSubTitle(subTitle);
@@ -350,7 +359,7 @@ export class ContentPublishDialog
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
+        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
         this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
         this.showScheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.scheduleMore')));
