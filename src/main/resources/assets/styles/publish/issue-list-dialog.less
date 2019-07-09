@@ -48,6 +48,7 @@
         display: flex;
         justify-content: space-between;
         padding: 5px 0;
+        align-items: center;
 
         &:hover {
           background-color: @admin-bg-light-gray;
@@ -87,6 +88,24 @@
             line-height: 18px;
             color: @admin-black;
             font-family: @admin-font-family;
+          }
+        }
+
+        .status {
+          width: 50px;
+          padding: 2px 20px;
+          text-transform: capitalize;
+          font-size: 14px;
+          font-weight: bold;
+          text-align: center;
+          color: white;
+          border-radius: 4px;
+
+          &.open {
+            background-color: @admin-green;
+          }
+          &.closed {
+            background-color: @admin-font-gray2;
           }
         }
 
