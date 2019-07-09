@@ -9,7 +9,7 @@ export interface OnOffButtonOptions
     extends OnOffButtonLabels {
 
     off: boolean;
-    clickHandler?: (event: MouseEvent) => void
+    clickHandler?: (event: MouseEvent) => void;
 }
 
 export class OnOffButton

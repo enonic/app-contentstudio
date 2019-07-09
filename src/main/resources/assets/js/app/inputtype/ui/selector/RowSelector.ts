@@ -84,6 +84,14 @@ export class RowSelector
         }
     }
 
+    isOptionSelected(option: Option<string>): boolean {
+        return this.comboBox.isOptionSelected(option);
+    }
+
+    isSelectionEmpty(): boolean {
+        return this.comboBox.countSelectedOptions() === 0;
+    }
+
     updateOptionValue(option: Option<string>, value: string, selectable?: boolean): Option<string> {
         const newOption = <Option<string>>{
             value: option.value,

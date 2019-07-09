@@ -19,8 +19,6 @@ export class IssueListDialog
 
     private issuesPanel: IssuesPanel;
 
-    private reload: Function;
-
     private currentUser: Principal;
 
     private createAction: api.ui.Action;
@@ -61,7 +59,6 @@ export class IssueListDialog
 
     protected initListeners() {
         super.initListeners();
-        this.initDeboundcedReloadFunc();
         this.handleIssueGlobalEvents();
     }
 
@@ -89,9 +86,7 @@ export class IssueListDialog
     }
 
     private reloadDockPanel(): wemQ.Promise<any> {
-        return wemQ.all([
-            this.issuesPanel.reload()
-        ]);
+        return this.issuesPanel.reload();
     }
 
     show() {
@@ -100,7 +95,7 @@ export class IssueListDialog
         if (!this.skipInitialLoad) {
             this.reload();
         } else {
-            this.updateTabAndFiltersLabels();
+            this.updateTabAndFiltersLabels().catch(api.DefaultErrorHandler.handle);
         }
     }
 
@@ -130,18 +125,13 @@ export class IssueListDialog
         }
     }
 
-    private initDeboundcedReloadFunc() {
-        this.reload = api.util.AppHelper.debounce((issues?: Issue[]) => {
-            this.doReload(issues);
-        }, 3000, true);
-    }
-
-    private doReload(updatedIssues?: Issue[]) {
+    private reload(updatedIssues?: Issue[]) {
         this.showLoadMask();
         this.reloadDockPanel()
             .then(() => {
                 this.notifyResize();
-                this.updateTabAndFiltersLabels();
+                return this.updateTabAndFiltersLabels();
+            }).then(() => {
                 if (this.isNotificationToBeShown(updatedIssues)) {
                     api.notify.NotifyManager.get().showFeedback(i18n('notify.issue.listUpdated'));
                 }
@@ -153,15 +143,19 @@ export class IssueListDialog
 
     private handleIssueGlobalEvents() {
 
+        const debouncedReload = api.util.AppHelper.debounce((issues?: Issue[]) => {
+            this.reload(issues);
+        }, 3000, true);
+
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
             if (this.isVisible()) {
-                this.reload(issues);
+                debouncedReload(issues);
             }
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
             if (this.isVisible()) {
-                this.reload(issues);
+                debouncedReload(issues);
             }
         });
     }
@@ -198,8 +192,8 @@ export class IssueListDialog
         return this.isMasked();
     }
 
-    private updateTabAndFiltersLabels() {
-        new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
+    private updateTabAndFiltersLabels(): wemQ.Promise<void> {
+        return new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
             const openedIssues: IssuesCount = {
                 all: stats.open,
                 assignedToMe: stats.openAssignedToMe,
@@ -211,9 +205,7 @@ export class IssueListDialog
                 assignedByMe: stats.closedCreatedByMe
             };
 
-            this.issuesPanel.updateIssuesCount(openedIssues, closedIssues);
-        }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            return this.issuesPanel.updateIssuesCount(openedIssues, closedIssues);
         });
     }
 
