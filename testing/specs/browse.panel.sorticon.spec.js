@@ -41,6 +41,32 @@ describe('Browse panel, sort icon spec - checks sort-icon in the grid`', functio
             })
         });
 
+    it(`GIVEN existing folder is selected AND 'Published date' order has been set in modal dialog WHEN sort dialog is re-opened THEN expected order should be present in the selected option`,
+        () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let sortContentDialog = new SortContentDialog();
+            return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
+                return contentBrowsePanel.clickOnSortButton();
+            }).then(() => {
+                return sortContentDialog.clickOnMenuButton();
+            }).then(() => {
+                //'Published date' sorted menu item has been clicked
+                return sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.PUBLISHED_DATE, 'ascending');
+            }).then(() => {
+                return sortContentDialog.clickOnSaveButton();
+            }).then(() => {
+                return contentBrowsePanel.pause(1000);
+            }).then(() => {
+                //re-open sort dialog
+                return contentBrowsePanel.clickOnSortButton();
+            }).then(() => {
+                return sortContentDialog.getSelectedOrder();
+            }).then(result => {
+                let expected = appConstant.sortOrderTitle(appConstant.sortMenuItem.PUBLISHED_DATE, 'ascending');
+                assert.equal(result, expected, "expected sorting order should be present on the dialog");
+            })
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
