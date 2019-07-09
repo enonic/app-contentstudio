@@ -112,6 +112,7 @@ export class IssuesPanel
             }
                 break;
             }
+            this.updateIssuesToggler();
         };
 
         this.filter.onOptionSelected(createSelectionHandler(true));
@@ -148,15 +149,11 @@ export class IssuesPanel
     }
 
     showClosedIssues(): wemQ.Promise<void> {
-        return this.updateShownIssues(null).then(() => {
-            this.updateOptions();
-        });
+        return this.updateShownIssues(null).then(() => this.updateIssuesTogglerAndOptions());
     }
 
     hideClosedIssues(): wemQ.Promise<void> {
-        return this.updateShownIssues(IssueStatus.OPEN).then(() => {
-            this.updateOptions();
-        });
+        return this.updateShownIssues(IssueStatus.OPEN).then(() => this.updateIssuesTogglerAndOptions());
     }
 
     updateShownIssues(status: IssueStatus): wemQ.Promise<void> {
@@ -273,10 +270,7 @@ export class IssuesPanel
         this.openedIssues = openedIssues;
         this.closedIssues = closedIssues;
 
-        return this.checkAndSwitchOptions().then(() => {
-            this.updateIssuesToggler();
-            return this.updateOptions();
-        });
+        return this.checkAndSwitchOptions().then(() => this.updateIssuesTogglerAndOptions());
     }
 
     getTotalIssues(): IssuesCount {
@@ -301,19 +295,30 @@ export class IssuesPanel
         return wemQ(null);
     }
 
+    private updateIssuesTogglerAndOptions(): wemQ.Promise<void> {
+        return this.updateOptions().then(() => {
+            this.updateIssuesToggler();
+        });
+    }
+
     private updateIssuesToggler() {
-        const total = this.getTotalIssues().all;
-        const opened = this.openedIssues.all;
+        let count = 0;
+        const allCanBeSelected = this.isNoOptionsSelected() && this.isAllOptionsSelectable();
+        if (this.isAllOptionsSelected() || allCanBeSelected) {
+            count = this.closedIssues.all;
+        } else if (this.isAssignedToMeSelected()) {
+            count = this.closedIssues.assignedToMe;
+        } else if (this.isAssignedByMeSelected()) {
+            count = this.closedIssues.assignedByMe;
+        }
 
         this.issuesToggler.updateLabels({
-            onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), total),
-            offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), opened),
+            onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), count),
+            offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), count),
         });
 
-        const allAreOpened = total === opened;
-        const allAreClosed = total > 0 && opened === 0;
-        const togglerDisabled = allAreOpened || allAreClosed;
-        this.issuesToggler.setEnabled(!togglerDisabled);
+        const disableToggler = count === 0;
+        this.issuesToggler.setEnabled(!disableToggler);
     }
 
     private updateOptions(): wemQ.Promise<void> {
