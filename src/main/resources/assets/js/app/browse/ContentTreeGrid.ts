@@ -766,6 +766,8 @@ export class ContentTreeGrid
         changed.forEach((node: TreeNode<ContentSummaryAndCompareStatus>) => {
             this.sortNodeChildren(node);
         });
+
+        this.invalidateNodes(changed);
     }
 
     protected handleItemMetadata(row: number) {
