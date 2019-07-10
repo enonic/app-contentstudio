@@ -302,22 +302,28 @@ export class IssuesPanel
     }
 
     private updateIssuesToggler() {
-        let count = 0;
+        let closedCount = 0;
+        let openedCount = 0;
         const allCanBeSelected = this.isNoOptionsSelected() && this.isAllOptionsSelectable();
         if (this.isAllOptionsSelected() || allCanBeSelected) {
-            count = this.closedIssues.all;
+            closedCount = this.closedIssues.all;
+            openedCount = this.openedIssues.all;
         } else if (this.isAssignedToMeSelected()) {
-            count = this.closedIssues.assignedToMe;
+            closedCount = this.closedIssues.assignedToMe;
+            openedCount = this.openedIssues.assignedToMe;
         } else if (this.isAssignedByMeSelected()) {
-            count = this.closedIssues.assignedByMe;
+            closedCount = this.closedIssues.assignedByMe;
+            openedCount = this.openedIssues.assignedByMe;
         }
 
         this.issuesToggler.updateLabels({
-            onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), count),
-            offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), count),
+            onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), closedCount),
+            offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
 
-        const disableToggler = count === 0;
+        const noClosedIssues = closedCount === 0;
+        const noOpenedIssues = openedCount === 0;
+        const disableToggler = noClosedIssues || noOpenedIssues;
         this.issuesToggler.setEnabled(!disableToggler);
     }
 
