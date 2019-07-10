@@ -1,7 +1,7 @@
 import {Issue} from '../Issue';
 import {IssueResponse} from '../resource/IssueResponse';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {IssueStatus} from '../IssueStatus';
+import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import ListBox = api.ui.selector.list.ListBox;
@@ -210,10 +210,11 @@ export class IssueListItem
         const statusEl = new DivEl('status');
 
         const issueStatus = this.issue.getIssueStatus();
-        const status = (issueStatus != null ? IssueStatus[issueStatus] : '').toLowerCase();
+        const status = IssueStatusFormatter.formatStatus(issueStatus);
+        const statusClass = (issueStatus != null ? IssueStatus[issueStatus] : '').toLowerCase();
 
         statusEl.setHtml(status, true);
-        statusEl.addClass(status);
+        statusEl.addClass(statusClass);
 
         return statusEl;
     }
