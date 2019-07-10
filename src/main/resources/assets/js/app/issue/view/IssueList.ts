@@ -1,7 +1,7 @@
 import {Issue} from '../Issue';
 import {IssueResponse} from '../resource/IssueResponse';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {IssueStatus} from '../IssueStatus';
+import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import ListBox = api.ui.selector.list.ListBox;
@@ -14,6 +14,9 @@ import Tooltip = api.ui.Tooltip;
 import Element = api.dom.Element;
 import i18n = api.util.i18n;
 import LoadMask = api.ui.mask.LoadMask;
+import NamesAndIconView = api.app.NamesAndIconView;
+import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
+import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
 
 export class IssueList
     extends ListBox<IssueWithAssignees> {
@@ -190,26 +193,43 @@ export class IssueListItem
         this.currentUser = currentUser;
     }
 
-    public getIssue(): Issue {
-        return this.issue;
+    private createNamesAndIconView(): NamesAndIconView {
+        const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
+            .setMainName(this.issue.getTitleWithId())
+            .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-issue closed' : 'icon-issue')
+            .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
+
+        if (this.issue.getDescription().length) {
+            new Tooltip(namesAndIconView, this.issue.getDescription(), 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
+        }
+
+        return namesAndIconView;
+    }
+
+    private createStatus(): DivEl {
+        const statusEl = new DivEl('status');
+
+        const issueStatus = this.issue.getIssueStatus();
+        const status = IssueStatusFormatter.formatStatus(issueStatus);
+        const statusClass = (issueStatus != null ? IssueStatus[issueStatus] : '').toLowerCase();
+
+        statusEl.setHtml(status, true);
+        statusEl.addClass(statusClass);
+
+        return statusEl;
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.getEl().setTabIndex(0);
 
-            const namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
-            namesAndIconView
-                .setMainName(this.issue.getTitleWithId())
-                .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-issue closed' : 'icon-issue')
-                .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
-
-            if (this.issue.getDescription().length) {
-                new Tooltip(namesAndIconView, this.issue.getDescription(), 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
-            }
+            const namesAndIconView = this.createNamesAndIconView();
+            const status = this.createStatus();
 
             this.appendChild(namesAndIconView);
-            this.appendChild(new AssigneesLine(this.assignees, this.currentUser));
+            this.appendChild(status);
+            // Removed, till the AssigneesLine is refactored
+            // this.appendChild(new AssigneesLine(this.assignees, this.currentUser));
 
             return rendered;
         });
