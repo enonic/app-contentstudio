@@ -19,6 +19,9 @@ class ImageFormPanel extends Page {
     get buttonReset() {
         return xpath.imageEditor + xpath.buttonReset;
     }
+    get photoWizardStep() {
+        return "//ul[contains(@id,'WizardStepNavigator')]" + lib.tabBarItemByName("Photo");
+    }
 
     get buttonRotate() {
         return xpath.imageEditor + xpath.buttonRotate;
@@ -34,6 +37,9 @@ class ImageFormPanel extends Page {
 
     get alternativeText() {
         return lib.FORM_VIEW + xpath.alternativeText;
+    }
+    clickOnPhotoWizardStep(){
+        return this.clickOnElement(this.photoWizardStep);
     }
 
     async clickOnFlipButton() {
