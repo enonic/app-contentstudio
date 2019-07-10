@@ -59,7 +59,7 @@ export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, Is
 
     getParams(): Object {
         return {
-            type: IssueStatus[this.issueStatus],
+            type: this.issueStatus != null ? IssueStatus[this.issueStatus] : null,
             from: this.from,
             size: this.size,
             assignedToMe: this.assignedToMe,

@@ -41,11 +41,19 @@ export class IssueList
         this.setupLazyLoading();
     }
 
-    public reload(): wemQ.Promise<void> {
+    getIssueStatus(): IssueStatus {
+        return this.issueStatus;
+    }
+
+    setIssueStatus(issueStatus: IssueStatus) {
+        this.issueStatus = issueStatus;
+    }
+
+    reload(): wemQ.Promise<void> {
         return this.fetchItems();
     }
 
-    public setLoadMask(loadMask: LoadMask) {
+    setLoadMask(loadMask: LoadMask) {
         this.loadMask = loadMask;
     }
 

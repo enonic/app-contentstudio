@@ -53,7 +53,7 @@ export class RowSelector
         this.comboBox.setOptions(options, saveSelection);
     }
 
-    createOptions(options: string[]): Option<string>[] {
+    static createOptions(options: string[]): Option<string>[] {
         return options.map((displayValue: string, index: number) => {
             return <Option<string>>{
                 value: index.toString(),
@@ -82,6 +82,14 @@ export class RowSelector
         } else {
             this.deselect(option);
         }
+    }
+
+    isOptionSelected(option: Option<string>): boolean {
+        return this.comboBox.isOptionSelected(option);
+    }
+
+    isSelectionEmpty(): boolean {
+        return this.comboBox.countSelectedOptions() === 0;
     }
 
     updateOptionValue(option: Option<string>, value: string, selectable?: boolean): Option<string> {
