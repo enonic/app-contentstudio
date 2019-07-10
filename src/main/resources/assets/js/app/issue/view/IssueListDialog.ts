@@ -1,9 +1,12 @@
-import DockedPanel = api.ui.panel.DockedPanel;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import Panel = api.ui.panel.Panel;
+import TabBar = api.ui.tab.TabBar;
+import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
+import TabBarItem = api.ui.tab.TabBarItem;
+import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
 import {IssuesCount, IssuesPanel} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
@@ -15,7 +18,15 @@ export class IssueListDialog
 
     private static INSTANCE: IssueListDialog;
 
-    private dockedPanel: DockedPanel;
+    private tabBar: TabBar;
+
+    private allTab: TabBarItem;
+
+    private publishRequestsTab: TabBarItem;
+
+    private issuesTab: TabBarItem;
+
+    private deckPanel: NavigatedDeckPanel;
 
     private issuesPanel: IssuesPanel;
 
@@ -52,7 +63,8 @@ export class IssueListDialog
     protected initElements() {
         super.initElements();
         this.issuesPanel = this.createIssuePanel();
-        this.dockedPanel = this.createDockedPanel();
+        this.tabBar = this.createTabBar();
+        this.deckPanel = this.createDeckPanel();
         this.createAction = new Action(i18n('action.newIssueMore'));
         this.loadCurrentUser();
     }
@@ -65,24 +77,39 @@ export class IssueListDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.getButtonRow().addAction(this.createAction, true);
-            this.appendChildToContentPanel(this.dockedPanel);
+            this.appendChildToHeader(this.tabBar);
+            this.appendChildToContentPanel(this.deckPanel);
 
             return rendered;
         });
     }
 
-    private createDockedPanel(): DockedPanel {
-        const dockedPanel = new DockedPanel();
+    private createTabBar(): TabBar {
+        const tabBar = new TabBar();
 
-        // TODO: Remove, when other tabs implemented
+        this.allTab = IssueListDialog.createTab(i18n('field.all'));
+        this.publishRequestsTab = IssueListDialog.createTab(i18n('field.issue.publishRequests'));
+        this.issuesTab = IssueListDialog.createTab(i18n('field.issues'));
+
+        return tabBar;
+    }
+
+    private static createTab(label: string): TabBarItem {
+        const builder = new TabBarItemBuilder();
+        return builder.setLabel(label).build();
+    }
+
+    private createDeckPanel(): NavigatedDeckPanel {
+        const deckPanel = new NavigatedDeckPanel(this.tabBar);
+
         const panel2 = new Panel();
         const panel3 = new Panel();
 
-        dockedPanel.addItem(i18n('field.all'), true, this.issuesPanel);
-        dockedPanel.addItem(i18n('field.issue.publishRequests'), true, panel2);
-        dockedPanel.addItem(i18n('field.issues'), true, panel3);
+        deckPanel.addNavigablePanel(this.allTab, this.issuesPanel, true);
+        deckPanel.addNavigablePanel(this.publishRequestsTab, panel2);
+        deckPanel.addNavigablePanel(this.issuesTab, panel3);
 
-        return dockedPanel;
+        return deckPanel;
     }
 
     private reloadDockPanel(): wemQ.Promise<any> {
@@ -184,10 +211,6 @@ export class IssueListDialog
         return issue.getCreator() === this.currentUser.getKey().toString();
     }
 
-    private openTab(issuePanel: IssuesPanel) {
-        this.dockedPanel.selectPanel(issuePanel);
-    }
-
     protected hasSubDialog(): boolean {
         return this.isMasked();
     }
@@ -210,7 +233,7 @@ export class IssueListDialog
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.dockedPanel.getNavigator().getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
+        this.tabBar.getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
     }
 
     onCreateButtonClicked(listener: (action: Action) => void) {
