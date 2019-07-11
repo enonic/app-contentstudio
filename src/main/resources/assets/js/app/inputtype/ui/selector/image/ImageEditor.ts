@@ -868,6 +868,13 @@ export class ImageEditor
         this.mirrorButton.setEnabled(value);
         this.editCropButton.setEnabled(value);
         this.editFocusButton.setEnabled(value);
+        if (!value) {
+            this.disableButtonsTooltip();
+        }
+    }
+
+    private disableButtonsTooltip() {
+        wemjq('.button-rotate, .button-mirror').mouseleave();
     }
 
     private rotate90() {
