@@ -79,7 +79,7 @@ export class ContentPublishDialog
     protected postInitElements() {
         super.postInitElements();
 
-        this.setElementToFocusOnShow(this.getButtonRow().getActionMenu().getDropdownHandle());
+        this.setElementToFocusOnShow(this.publishSubTitle);
         this.addClickIgnoredElement(CreateIssueDialog.get());
 
         this.lockControls();
