@@ -12,7 +12,7 @@ export class AttachmentItem
 
         this.value = value;
 
-        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + contentId + '/' + value));
+        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + contentId + '/' + encodeURIComponent(value)));
         this.link.setHtml(value);
 
         this.initRemoveButton(removeCallback);
