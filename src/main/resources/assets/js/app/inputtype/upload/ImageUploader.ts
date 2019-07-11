@@ -191,7 +191,9 @@ export class ImageUploader
             container = this.getPropertyContainer(this.getProperty());
         }
         if (container && crop && zoom) {
-            if (this.isCropAutoPositioned && container.getPropertySets('zoomPosition').length === 0) {
+            if (this.isCropAutoPositioned && !this.hasOriginalCropAutoProperty()) {
+                container.removeProperty('zoomPosition', 0);
+                container.removeProperty('cropPosition', 0);
                 return;
             }
             container.setDoubleByPath('zoomPosition.left', zoom.x);
@@ -205,6 +207,13 @@ export class ImageUploader
             container.setDoubleByPath('cropPosition.bottom', crop.y2);
             container.setDoubleByPath('cropPosition.zoom', zoom.x2 - zoom.x);
         }
+    }
+
+    private hasOriginalCropAutoProperty(): boolean {
+        const content: Content = <Content>this.getContext().content;
+        const property: Property = this.getMetaProperty(content, 'zoomPosition');
+
+        return !!property;
     }
 
     private saveFocusToProperty(focus: Point, container?: PropertySet) {
@@ -300,7 +309,7 @@ export class ImageUploader
     private readOriginalOrientation(content: Content): number {
         const property = this.getMetaProperty(content, 'orientation');
         if (!property) {
-            return null;
+            return 1;
         }
         return property && property.getLong() || 1;
     }
