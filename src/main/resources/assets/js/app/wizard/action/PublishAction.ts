@@ -6,7 +6,6 @@ import i18n = api.util.i18n;
 
 export class PublishAction extends BasePublishAction {
     private wizard: ContentWizardPanel;
-    private userCanPublish: boolean;
 
     constructor(wizard: ContentWizardPanel) {
         super({
@@ -17,10 +16,9 @@ export class PublishAction extends BasePublishAction {
         });
 
         this.wizard = wizard;
-        this.userCanPublish = false;
 
         this.onBeforeExecute(() => {
-            if (this.userCanPublish && this.wizard.hasUnsavedChanges()) {
+            if (this.wizard.getContent().getContentSummary().isInProgress()) {
                 this.wizard.setIsMarkedAsReady(true);
             }
         });
@@ -30,7 +28,8 @@ export class PublishAction extends BasePublishAction {
         new ContentPublishPromptEvent(summary).fire();
     }
 
-    public setUserCanPublish(value: boolean) {
-        this.userCanPublish = value;
+
+    protected isSaveRequired(): boolean {
+        return this.wizard.getContent().getContentSummary().isInProgress();
     }
 }

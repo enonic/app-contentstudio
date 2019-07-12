@@ -167,10 +167,10 @@ export class ContentPublishMenuButton
     }
 
     protected updateActiveClass() {
-        if (this.publishAction.isEnabled()) {
-            this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.markAsReadyAction.isEnabled()) {
+        if (this.markAsReadyAction.isEnabled()) {
             this.setActiveClass(this.markAsReadyAction.getActionClass());
+        } else if (this.publishAction.isEnabled()) {
+            this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
         } else if (this.requestPublishAction.isEnabled()) {

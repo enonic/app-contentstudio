@@ -60,17 +60,19 @@ export class ContentBrowsePublishMenuButton
 
     protected updateActiveClass() {
         if (!this.item) {
-            if (this.publishAction.isEnabled()) {
+            if (this.markAsReadyAction.isEnabled()) {
+                this.setActiveClass(this.markAsReadyAction.getActionClass());
+            } else if (this.publishAction.isEnabled()) {
                 this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
             } else {
                 this.setActiveClass('no-item');
             }
+        } else if (this.markAsReadyAction.isEnabled()) {
+            this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.publishAction.isEnabled()) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.publishTreeAction.isEnabled()) {
             this.setActiveClass(this.publishTreeAction.getActionClass());
-        } else if (this.markAsReadyAction.isEnabled()) {
-            this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
         } else if (this.requestPublishAction.isEnabled()) {

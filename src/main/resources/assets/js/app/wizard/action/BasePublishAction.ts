@@ -21,7 +21,7 @@ export abstract class BasePublishAction extends api.ui.Action {
         this.setEnabled(false);
 
         const callback = () => {
-            if (config.wizard.hasUnsavedChanges()) {
+            if (config.wizard.hasUnsavedChanges() || this.isSaveRequired()) {
 
                 this.setEnabled(false);
                 config.wizard.saveChanges().then((content) => {
@@ -56,4 +56,8 @@ export abstract class BasePublishAction extends api.ui.Action {
     }
 
     protected abstract createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void;
+
+    protected isSaveRequired(): boolean {
+        return false;
+    }
 }
