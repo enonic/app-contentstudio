@@ -117,7 +117,7 @@ export class IssueList
     }
 
     private fetchItems(append?: boolean): wemQ.Promise<void> {
-        const skipLoad = !this.filterAndCheckNeedToLoad();
+        const skipLoad = !this.filterAndCheckIfNeedToLoad();
         if (skipLoad) {
             return wemQ(null);
         }
@@ -174,7 +174,7 @@ export class IssueList
         return this.currentTotal > this.allIssues.length;
     }
 
-    private filterAndCheckNeedToLoad(): boolean {
+    private filterAndCheckIfNeedToLoad(): boolean {
         this.filter();
         return this.needToLoad();
     }

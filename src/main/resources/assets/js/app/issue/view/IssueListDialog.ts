@@ -128,8 +128,7 @@ export class IssueListDialog
 
     close() {
         super.close();
-        this.allTab.select();
-        this.issuesPanel.resetFilters();
+        this.resetFiltersAndTab();
         this.remove();
     }
 
@@ -142,8 +141,7 @@ export class IssueListDialog
         super.open();
 
         this.skipInitialLoad = false;
-        this.allTab.select();
-        this.issuesPanel.resetFilters();
+        this.resetFiltersAndTab();
         if (assignedToMe) {
             this.issuesPanel.selectAssignedToMe();
             return;
@@ -152,6 +150,11 @@ export class IssueListDialog
             this.issuesPanel.selectAssignedByMe();
             return;
         }
+    }
+
+    private resetFiltersAndTab() {
+        this.allTab.select();
+        this.issuesPanel.resetFilters();
     }
 
     private reload(updatedIssues?: Issue[]) {

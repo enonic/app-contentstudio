@@ -150,12 +150,12 @@ export class IssuesPanel
 
     private showClosedIssues(): wemQ.Promise<void> {
         this.setIssueStatus(null);
-        return this.updateIssuesTogglerAndOptions()
+        return this.updateIssuesTogglerAndOptions();
     }
 
     private hideClosedIssues(): wemQ.Promise<void> {
         this.setIssueStatus(IssueStatus.OPEN);
-        return this.updateIssuesTogglerAndOptions()
+        return this.updateIssuesTogglerAndOptions();
     }
 
     private setIssueStatus(status: IssueStatus) {
@@ -208,12 +208,12 @@ export class IssuesPanel
         return this.filter.isSelectionEmpty();
     }
 
-    private clearSelection() {
+    private clearFilter() {
         this.filter.clearSelection();
     }
 
     private doSetAllOptions(select: boolean) {
-        this.clearSelection();
+        this.clearFilter();
         this.filter.setSelection(this.filterOptions.allOptions, select);
         this.issuesList.setLoadAssignedToMe(false);
         this.issuesList.setLoadMyIssues(false);
@@ -237,7 +237,7 @@ export class IssuesPanel
     }
 
     private setAssignedToMe(select: boolean) {
-        this.clearSelection();
+        this.clearFilter();
         this.filter.setSelection(this.filterOptions.assignedToMe, select);
         this.issuesList.setLoadAssignedToMe(select);
         if (select) {
@@ -260,7 +260,7 @@ export class IssuesPanel
     }
 
     private setAssignedByMe(select: boolean) {
-        this.clearSelection();
+        this.clearFilter();
         this.filter.setSelection(this.filterOptions.assignedByMe, select);
         this.issuesList.setLoadMyIssues(select);
         if (select) {
@@ -274,7 +274,7 @@ export class IssuesPanel
         if (allSelectable) {
             this.doSetAllOptions(true);
         } else {
-            this.clearSelection();
+            this.clearFilter();
             this.updateCurrentTotal();
         }
 
@@ -364,12 +364,12 @@ export class IssuesPanel
                 this.doSetAllOptions(true);
                 this.doFilter();
             } else {
-                this.clearSelection();
+                this.clearFilter();
             }
         } else if (shouldSelectDefault) {
             this.doSetAllOptions(true);
         } else if (mustResetSelection) {
-            this.clearSelection();
+            this.clearFilter();
         }
 
         return this.updateCurrentTotal();
