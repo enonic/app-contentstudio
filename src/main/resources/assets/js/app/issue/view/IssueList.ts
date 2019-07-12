@@ -21,15 +21,21 @@ import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
 export class IssueList
     extends ListBox<IssueWithAssignees> {
 
-    private issueStatus: IssueStatus;
+    private static MAX_VISIBLE_OPTIONS: number = 15;
 
-    private totalItems: number;
+    private issueStatus: IssueStatus;
 
     private currentUser: Principal;
 
     private loadAssignedToMe: boolean = false;
 
     private loadMyIssues: boolean = false;
+
+    private allIssues: IssueWithAssignees[];
+
+    private totalItems: number;
+
+    private currentTotal: number;
 
     private loadMask: LoadMask;
 
@@ -40,6 +46,8 @@ export class IssueList
     constructor(issueStatus: IssueStatus) {
         super('issue-list');
         this.issueStatus = issueStatus;
+        this.allIssues = [];
+        this.currentTotal = 0;
         this.loadCurrentUser();
         this.setupLazyLoading();
     }
@@ -50,10 +58,6 @@ export class IssueList
 
     setIssueStatus(issueStatus: IssueStatus) {
         this.issueStatus = issueStatus;
-    }
-
-    reload(): wemQ.Promise<void> {
-        return this.fetchItems();
     }
 
     setLoadMask(loadMask: LoadMask) {
@@ -68,43 +72,123 @@ export class IssueList
         this.loadAssignedToMe = value;
     }
 
-    private fetchItems(append?: boolean): wemQ.Promise<void> {
-        if (this.loadMask) {
-            this.loadMask.show();
+    updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
+        if (this.currentTotal !== currentTotal) {
+            this.currentTotal = currentTotal;
+            return this.fetchItems(true);
         }
-        return new ListIssuesRequest()
-            .setIssueStatus(this.issueStatus)
-            .setAssignedToMe(this.loadAssignedToMe)
-            .setCreatedByMe(this.loadMyIssues)
-            .setResolveAssignees(true)
-            .setFrom(append ? this.getItemCount() : 0)
-            .setSize(20)
-            .sendAndParse()
-            .then((response: IssueResponse) => {
 
-                this.totalItems = response.getMetadata().getTotalHits();
-                const issues = response.getIssues();
+        return wemQ(null);
+    }
 
-                if (append) {
-                    if (issues.length > 0) {
-                        this.addItems(issues);
-                    }
-                } else {
-                    if (issues.length > 0) {
-                        this.setItems(issues);
-                    } else {
-                        this.clearItems();
-                        this.appendChild(new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound')));
-                    }
-                }
-            })
+    updateTotalItems(totalItems: number): wemQ.Promise<void> {
+        if (this.totalItems !== totalItems) {
+            // Total items will be updated in the reload method
+            return this.reload();
+        }
+
+        return wemQ(null);
+    }
+
+    filter() {
+        const issues = this.doFilter();
+        this.setItems(issues);
+    }
+
+    private doFilter(): IssueWithAssignees[] {
+        const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe);
+        if (needToFilter) {
+            return this.allIssues.filter((issueWithAssignee: IssueWithAssignees) => {
+                const issue = issueWithAssignee.getIssue();
+                const assignees = issueWithAssignee.getAssignees();
+
+                const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
+                const assignedByMeMatched = !this.loadMyIssues || issue.getCreator() === this.currentUser.getKey().toString();
+                const assignedToMeMatched = !this.loadAssignedToMe || assignees.some(assignee => assignee.equals(this.currentUser));
+                return statusMatches && assignedToMeMatched && assignedByMeMatched;
+            });
+        } else {
+            return this.allIssues.slice();
+        }
+    }
+
+    reload(): wemQ.Promise<void> {
+        return this.fetchItems();
+    }
+
+    private fetchItems(append?: boolean): wemQ.Promise<void> {
+        const skipLoad = !this.filterAndCheckNeedToLoad();
+        if (skipLoad) {
+            return wemQ(null);
+        }
+
+        this.showLoadMask();
+
+        return this.doFetch(append)
             .catch(api.DefaultErrorHandler.handle)
             .finally(() => {
                 this.notifyIssuesLoaded();
-                if (this.loadMask) {
-                    this.loadMask.hide();
+                this.hideLoadMask();
+            });
+    }
+
+    private doFetch(append?: boolean): wemQ.Promise<void> {
+        return new ListIssuesRequest()
+            .setResolveAssignees(true)
+            .setFrom(append ? this.allIssues.length : 0)
+            .setSize(IssueList.MAX_VISIBLE_OPTIONS)
+            .sendAndParse()
+            .then((response: IssueResponse) => {
+                const totalHits = response.getMetadata().getTotalHits();
+                const issuesCountChanged = totalHits !== this.totalItems;
+
+                const issues = response.getIssues();
+
+                if (append && !issuesCountChanged) {
+                    if (issues.length > 0) {
+                        this.allIssues = this.allIssues.concat(issues);
+                        this.filter();
+                    }
+                } else {
+                    this.totalItems = totalHits;
+                    if (issues.length > 0) {
+                        this.allIssues = issues;
+                        this.filter();
+                    } else {
+                        this.allIssues = [];
+                        this.clearItems();
+                        const noIssuesEl = new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound'));
+                        this.appendChild(noIssuesEl);
+                    }
+                }
+
+                const loadMore = this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
+
+                if (loadMore) {
+                    return this.doFetch(true);
                 }
             });
+    }
+
+    private needToLoad(): boolean {
+        return this.currentTotal > this.allIssues.length;
+    }
+
+    private filterAndCheckNeedToLoad(): boolean {
+        this.filter();
+        return this.needToLoad();
+    }
+
+    private showLoadMask() {
+        if (this.loadMask) {
+            this.loadMask.show();
+        }
+    }
+
+    private hideLoadMask() {
+        if (this.loadMask) {
+            this.loadMask.hide();
+        }
     }
 
     private loadCurrentUser() {
@@ -126,7 +210,7 @@ export class IssueList
     }
 
     private handleScroll() {
-        if (this.isScrolledToBottom() && !this.isAllItemsLoaded()) {
+        if (this.isScrolledToBottom()) {
             this.fetchItems(true);
         }
     }
@@ -167,10 +251,6 @@ export class IssueList
     private isScrolledToBottom(): boolean {
         let element = this.getHTMLElement();
         return (element.scrollHeight - element.scrollTop - 50) <= element.clientHeight; // 50px before bottom to start loading earlier
-    }
-
-    private isAllItemsLoaded(): boolean {
-        return this.getItemCount() >= this.totalItems;
     }
 }
 

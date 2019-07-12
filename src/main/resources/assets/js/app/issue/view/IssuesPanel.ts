@@ -134,7 +134,7 @@ export class IssuesPanel
         return this.issuesList;
     }
 
-    toggleClosedIssues() {
+    private toggleClosedIssues() {
         const allVisible = this.isAllVisible();
 
         if (allVisible) {
@@ -144,25 +144,30 @@ export class IssuesPanel
         }
     }
 
-    isAllVisible(): boolean {
+    private isAllVisible(): boolean {
         return this.issuesList.getIssueStatus() == null;
     }
 
-    showClosedIssues(): wemQ.Promise<void> {
-        return this.updateShownIssues(null).then(() => this.updateIssuesTogglerAndOptions());
+    private showClosedIssues(): wemQ.Promise<void> {
+        this.setIssueStatus(null);
+        return this.updateIssuesTogglerAndOptions()
     }
 
-    hideClosedIssues(): wemQ.Promise<void> {
-        return this.updateShownIssues(IssueStatus.OPEN).then(() => this.updateIssuesTogglerAndOptions());
+    private hideClosedIssues(): wemQ.Promise<void> {
+        this.setIssueStatus(IssueStatus.OPEN);
+        return this.updateIssuesTogglerAndOptions()
     }
 
-    updateShownIssues(status: IssueStatus): wemQ.Promise<void> {
+    private setIssueStatus(status: IssueStatus) {
         this.issuesList.setIssueStatus(status);
-        return this.reload();
     }
 
     reload(): wemQ.Promise<void> {
         return this.issuesList.reload();
+    }
+
+    private doFilter() {
+        this.issuesList.filter();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -203,11 +208,18 @@ export class IssuesPanel
         return this.filter.isSelectionEmpty();
     }
 
-    private doSetAllOptions(select: boolean) {
+    private clearSelection() {
         this.filter.clearSelection();
+    }
+
+    private doSetAllOptions(select: boolean) {
+        this.clearSelection();
         this.filter.setSelection(this.filterOptions.allOptions, select);
         this.issuesList.setLoadAssignedToMe(false);
         this.issuesList.setLoadMyIssues(false);
+        if (select) {
+            this.updateCurrentTotal();
+        }
     }
 
     selectAssignedToMe() {
@@ -225,10 +237,12 @@ export class IssuesPanel
     }
 
     private setAssignedToMe(select: boolean) {
-        this.filter.clearSelection();
+        this.clearSelection();
         this.filter.setSelection(this.filterOptions.assignedToMe, select);
         this.issuesList.setLoadAssignedToMe(select);
-        this.reload();
+        if (select) {
+            this.updateCurrentTotal();
+        }
     }
 
     selectAssignedByMe() {
@@ -246,10 +260,12 @@ export class IssuesPanel
     }
 
     private setAssignedByMe(select: boolean) {
-        this.filter.clearSelection();
+        this.clearSelection();
         this.filter.setSelection(this.filterOptions.assignedByMe, select);
         this.issuesList.setLoadMyIssues(select);
-        this.reload();
+        if (select) {
+            this.updateCurrentTotal();
+        }
     }
 
     resetFilters() {
@@ -258,7 +274,8 @@ export class IssuesPanel
         if (allSelectable) {
             this.doSetAllOptions(true);
         } else {
-            this.filter.clearSelection();
+            this.clearSelection();
+            this.updateCurrentTotal();
         }
 
         this.issuesToggler.setEnabled(true);
@@ -270,10 +287,12 @@ export class IssuesPanel
         this.openedIssues = openedIssues;
         this.closedIssues = closedIssues;
 
-        return this.checkAndSwitchOptions().then(() => this.updateIssuesTogglerAndOptions());
+        return this.updateTotalItems()
+            .then(() => this.checkAndSwitchOptions())
+            .then(() => this.updateIssuesTogglerAndOptions());
     }
 
-    getTotalIssues(): IssuesCount {
+    private getTotalIssues(): IssuesCount {
         return {
             all: this.openedIssues.all + this.closedIssues.all,
             assignedToMe: this.openedIssues.assignedToMe + this.closedIssues.assignedToMe,
@@ -343,17 +362,35 @@ export class IssuesPanel
         if (mustSelectDefault) {
             if (allSelectable) {
                 this.doSetAllOptions(true);
-                return this.reload();
+                this.doFilter();
             } else {
-                this.filter.clearSelection();
+                this.clearSelection();
             }
         } else if (shouldSelectDefault) {
             this.doSetAllOptions(true);
         } else if (mustResetSelection) {
-            this.filter.clearSelection();
+            this.clearSelection();
         }
 
-        return wemQ(null);
+        return this.updateCurrentTotal();
+    }
+
+    private updateTotalItems(): wemQ.Promise<void> {
+        const total = this.getTotalIssues().all;
+        return this.issuesList.updateTotalItems(total);
+    }
+
+    private updateCurrentTotal(): wemQ.Promise<void> {
+        const total = this.isAllVisible() ? this.getTotalIssues() : this.openedIssues;
+        let count = 0;
+        if (this.isAllOptionsSelected() || this.isNoOptionsSelected()) {
+            count = total.all;
+        } else if (this.isAssignedToMeSelected()) {
+            count = total.assignedToMe;
+        } else if (this.isAssignedByMeSelected()) {
+            count = total.assignedByMe;
+        }
+        return this.issuesList.updateCurrentTotal(count);
     }
 
     private updateAssignedToMeOption(total: number) {

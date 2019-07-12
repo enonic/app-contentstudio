@@ -128,6 +128,7 @@ export class IssueListDialog
 
     close() {
         super.close();
+        this.allTab.select();
         this.issuesPanel.resetFilters();
         this.remove();
     }
@@ -141,6 +142,7 @@ export class IssueListDialog
         super.open();
 
         this.skipInitialLoad = false;
+        this.allTab.select();
         this.issuesPanel.resetFilters();
         if (assignedToMe) {
             this.issuesPanel.selectAssignedToMe();
