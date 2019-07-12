@@ -21,6 +21,9 @@ import Principal = api.security.Principal;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
+import DateTimeRange = api.form.inputtype.time.DateTimeRange;
+import FormItem = api.form.FormItem;
+import KeyHelper = api.ui.KeyHelper;
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -45,13 +48,16 @@ export class ContentPublishDialog
 
     private currentUser: Principal;
 
-    private publishSubTitle: api.ui.text.AutosizeTextInput;
+    private publishSubTitle: ContentPublishDialogSubTitle;
+
+    private scheduleFormView: api.form.FormView;
+
+    private showScheduleFormAction: api.ui.Action;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
-                dialogSubName: i18n('dialog.publish.resolving'),
             dependantsDescription: i18n('dialog.publish.dependants'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
@@ -65,21 +71,38 @@ export class ContentPublishDialog
     protected initElements() {
         super.initElements();
 
-        this.publishSubTitle = new api.ui.text.AutosizeTextInput();
-        this.publishSubTitle.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
+        this.publishSubTitle = new ContentPublishDialogSubTitle();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
         this.createIssueButton = this.addAction(this.createIssueAction);
-        this.actionMenu = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction, this.createIssueAction]);
-        this.actionButton = this.actionMenu.getActionButton();
-        this.publishButton = this.actionMenu.getActionButton();
+
+        this.publishButton = this.actionButton = new api.ui.button.ActionButton(this.publishAction);
+
+        const formBuilder = new api.form.FormBuilder().addFormItem(this.createRangeFormItem());
+        const propertySet = new api.data.PropertyTree().getRoot();
+        this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), propertySet);
+        this.scheduleFormView.setVisible(false);
+
         this.loadCurrentUser();
+    }
+
+    protected createRangeFormItem(): FormItem {
+        return new api.form.InputBuilder()
+            .setName('publish')
+            .setInputType(DateTimeRange.getName())
+            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+            .setInputTypeConfig({
+                labelStart: i18n('field.onlineFrom'),
+                labelEnd: i18n('field.onlineTo')
+            })
+            .setHelpText(i18n('field.onlineFrom.help'))
+            .setMaximizeUIInputWidth(true)
+            .build();
     }
 
     protected postInitElements() {
         super.postInitElements();
 
-        this.setElementToFocusOnShow(this.publishSubTitle);
         this.addClickIgnoredElement(CreateIssueDialog.get());
 
         this.lockControls();
@@ -92,7 +115,7 @@ export class ContentPublishDialog
             this.lockControls();
             this.showLoadMask();
 
-            this.setSubTitle(i18n('dialog.publish.resolving'));
+            // this.setSubTitle(i18n('dialog.publish.resolving'));
         });
 
         this.publishProcessor.onLoadingFinished(() => {
@@ -123,14 +146,14 @@ export class ContentPublishDialog
             this.updateShowScheduleDialogButton();
 
             const itemsToPublish: number = this.countTotal();
-            this.updateSubTitle(itemsToPublish);
+            this.updateSubTitle();
             this.updateButtonCount(null, itemsToPublish);
             this.updateControls(itemsToPublish);
         });
 
         this.publishProcessor.onLoadingFailed(() => {
             this.addClass('invalid');
-            this.setSubTitle(i18n('dialog.publish.error.loadFailed'));
+            // this.setSubTitle(i18n('dialog.publish.error.loadFailed'));
             this.toggleAction(false);
             this.actionMenu.setVisible(false);
             this.createIssueButton.setVisible(true);
@@ -143,8 +166,15 @@ export class ContentPublishDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
+
+            this.prependChildToContentPanel(this.scheduleFormView);
+            this.scheduleFormView.layout();
+
+            const scheduleButton = new api.ui.button.ActionButton(this.showScheduleFormAction);
+            this.prependChildToContentPanel(scheduleButton);
+
             this.addCancelButtonToBottom();
-            this.actionMenu.getDropdownHandle().addClass('force-enabled');
+
             this.createIssueButton.hide();
             this.createIssueButton.addClass('force-enabled');
 
@@ -179,6 +209,12 @@ export class ContentPublishDialog
 
     protected initActions() {
         super.initActions();
+
+        this.showScheduleFormAction = new api.ui.Action('Add schedule');
+        this.showScheduleFormAction.onExecuted((action: Action) => {
+            this.scheduleFormView.setVisible(true);
+            action.setVisible(false);
+        });
 
         this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
         this.createIssueAction = new CreateIssueDialogAction(this.createIssue.bind(this));
@@ -296,13 +332,14 @@ export class ContentPublishDialog
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
-        this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
+        // this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
 
         const selectedIds = this.getContentToPublishIds();
+        const publishMessage = this.publishSubTitle.getValue();
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
-            .setMessage(this.publishSubTitle.getValue())
+            .setMessage(!api.util.StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 
@@ -330,17 +367,9 @@ export class ContentPublishDialog
         return <PublishDialogItemList>super.getItemList();
     }
 
-    private updateSubTitle(itemsToPublish: number) {
+    private updateSubTitle() {
         const allValid: boolean = this.areItemsAndDependantsValid();
 
-        let subTitle = (itemsToPublish === 0) ? i18n('dialog.publish.noItems') : this.isAllPublishable() ? (allValid
-                                                                                                            ? i18n(
-                    'dialog.publish.changesReady')
-                                                                                                            : i18n(
-                    'dialog.publish.invalidError')
-        ) : i18n('dialog.publish.readOnlyError');
-
-        this.setSubTitle(subTitle);
         this.toggleClass('invalid', !allValid || !this.isAllPublishable());
     }
 
@@ -411,5 +440,72 @@ export class CreateIssueDialogAction
         super(i18n('action.createIssueMore'));
         this.setIconClass('create-issue-action');
         this.onExecuted(handler);
+    }
+}
+
+export class ContentPublishDialogSubTitle
+    extends api.dom.DivEl {
+    private input: api.ui.text.AutosizeTextInput;
+    private message: api.dom.AEl;
+
+    constructor() {
+        super('publish-dialog-sub-title');
+        this.input = new api.ui.text.AutosizeTextInput();
+        this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
+        this.input.setVisible(false);
+
+        this.message = new api.dom.AEl();
+        this.message.setHtml(i18n('dialog.publish.messageHint'));
+        this.message.onClicked(() => {
+            this.toggleInput(true);
+        });
+
+        this.initKeyDownHandler();
+    }
+
+    private toggleInput(visible: boolean) {
+        if (visible) {
+            this.message.hide();
+            this.input.show();
+            this.input.giveFocus();
+        } else {
+            this.input.reset();
+            this.input.hide();
+            this.message.show();
+        }
+    }
+
+    private initKeyDownHandler() {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
+                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
+            const isInputVisible = this.input.isVisible();
+
+            if (!isInputVisible && isLetterOrNumber) {
+                this.toggleInput(true);
+            } else if (isInputVisible && KeyHelper.isEscKey(event)) {
+                event.stopImmediatePropagation();
+                this.toggleInput(false);
+            }
+        };
+
+        this.onShown(() => {
+            api.dom.Body.get().onKeyDown(keyDownHandler);
+        });
+
+        this.onHidden(() => {
+            api.dom.Body.get().unKeyDown(keyDownHandler);
+        });
+    }
+
+    public getValue(): string {
+        return this.input.getValue();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren<api.dom.Element>(this.message, this.input);
+            return rendered;
+        });
     }
 }
