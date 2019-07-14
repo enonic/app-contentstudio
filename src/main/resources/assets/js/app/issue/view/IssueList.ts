@@ -84,7 +84,7 @@ export class IssueList
     updateTotalItems(totalItems: number): wemQ.Promise<void> {
         if (this.totalItems !== totalItems) {
             // Total items will be updated in the reload method
-            return this.reload();
+            return this.fetchItems();
         }
 
         return wemQ(null);
@@ -113,7 +113,14 @@ export class IssueList
     }
 
     reload(): wemQ.Promise<void> {
-        return this.fetchItems();
+        this.showLoadMask();
+
+        return this.doFetch()
+            .catch(api.DefaultErrorHandler.handle)
+            .finally(() => {
+                this.notifyIssuesLoaded();
+                this.hideLoadMask();
+            });
     }
 
     private fetchItems(append?: boolean): wemQ.Promise<void> {
