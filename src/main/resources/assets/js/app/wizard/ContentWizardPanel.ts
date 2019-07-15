@@ -310,6 +310,7 @@ export class ContentWizardPanel
     protected createWizardHeader(): api.app.wizard.WizardHeader {
         const header: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
             .setDisplayNameGenerator(this.displayNameResolver)
+            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null)
             .build();
 
         header.setPath(this.getWizardHeaderPath());
