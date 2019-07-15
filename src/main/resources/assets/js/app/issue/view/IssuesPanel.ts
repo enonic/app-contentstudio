@@ -161,7 +161,7 @@ export class IssuesPanel
     }
 
     private setIssueStatus(status: IssueStatus) {
-        this.issuesList.setIssueStatus(status);
+        this.issuesList.updateIssueStatus(status);
     }
 
     reload(): wemQ.Promise<void> {
@@ -282,7 +282,7 @@ export class IssuesPanel
 
         this.issuesToggler.setEnabled(true);
         this.issuesToggler.turnOn();
-        this.issuesList.setIssueStatus(IssueStatus.OPEN);
+        this.issuesList.updateIssueStatus(IssueStatus.OPEN);
     }
 
     updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): wemQ.Promise<void> {

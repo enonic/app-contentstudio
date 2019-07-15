@@ -35,7 +35,11 @@ export class IssueList
 
     private loadMyIssues: boolean = false;
 
-    private issuesStorage: IssuesStorage;
+    private allIssuesStorage: IssuesStorage;
+
+    private issuesOfType: number;
+
+    private totalItems: number;
 
     private currentTotal: number;
 
@@ -45,25 +49,27 @@ export class IssueList
 
     private issuesLoadedListeners: { (): void }[] = [];
 
-    constructor(issuesStorage: IssuesStorage, issueType?: IssueType) {
+    constructor(storage: IssuesStorage, issueType?: IssueType) {
         super('issue-list');
         this.issueStatus = IssueStatus.OPEN;
-        this.issueType = issueType || null;
-        this.issuesStorage = issuesStorage;
+        this.issueType = issueType;
+        this.allIssuesStorage = storage;
+        this.issuesOfType = 0;
         this.initListeners();
         this.loadCurrentUser();
         this.setupLazyLoading();
     }
 
     private initListeners() {
-        this.issuesStorage.onIssuesUpdated(() => {
-            const hasIssues = this.issuesStorage.hasIssues();
+        this.allIssuesStorage.onIssuesUpdated(() => {
+            const hasIssues = this.allIssuesStorage.hasIssues();
 
             if (hasIssues) {
                 this.filter();
             } else {
                 this.clearItems();
             }
+            this.issuesOfType = this.countIssuesOfType();
         });
     }
 
@@ -71,8 +77,9 @@ export class IssueList
         return this.issueStatus;
     }
 
-    setIssueStatus(issueStatus: IssueStatus) {
+    updateIssueStatus(issueStatus: IssueStatus) {
         this.issueStatus = issueStatus;
+        this.issuesOfType = this.countIssuesOfType();
     }
 
     hasIssueType(): boolean {
@@ -101,8 +108,8 @@ export class IssueList
     }
 
     updateTotalItems(totalItems: number): wemQ.Promise<void> {
-        if (this.issuesStorage.getTotalIssues() !== totalItems) {
-            // Total items will be updated in the reload method
+        if (this.totalItems !== totalItems) {
+            this.totalItems = totalItems;
             return this.fetchItems();
         }
 
@@ -115,7 +122,7 @@ export class IssueList
     }
 
     private doFilter(): IssueWithAssignees[] {
-        const allIssues = this.issuesStorage.copyIssues();
+        const allIssues = this.allIssuesStorage.copyIssues();
         const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe) || this.hasIssueType();
 
         if (needToFilter) {
@@ -164,29 +171,31 @@ export class IssueList
     private doFetch(append?: boolean): wemQ.Promise<void> {
         return new ListIssuesRequest()
             .setResolveAssignees(true)
-            .setFrom(append ? this.issuesStorage.getIssuesCount() : 0)
+            .setFrom(append ? this.allIssuesStorage.getIssuesCount() : 0)
             .setSize(IssueList.MAX_VISIBLE_OPTIONS)
             .sendAndParse()
             .then((response: IssueResponse) => {
                 const totalHits = response.getMetadata().getTotalHits();
-                const issuesCountChanged = totalHits !== this.issuesStorage.getTotalIssues();
+                const issuesCountChanged = totalHits !== this.allIssuesStorage.getTotalIssues();
 
                 const issues = response.getIssues();
 
                 if (append && !issuesCountChanged) {
                     if (issues.length > 0) {
-                        this.issuesStorage.addIssues(issues);
+                        this.allIssuesStorage.addIssues(issues);
                     }
                 } else {
-                    this.issuesStorage.setTotalIssues(totalHits);
                     if (issues.length > 0) {
-                        this.issuesStorage.setIssues(issues);
+                        this.allIssuesStorage.setIssues(issues);
                     } else {
-                        this.issuesStorage.clear();
+                        this.allIssuesStorage.clear();
                         const noIssuesEl = new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound'));
                         this.appendChild(noIssuesEl);
                     }
                 }
+
+                this.allIssuesStorage.setTotalIssues(totalHits);
+                this.issuesOfType = this.countIssuesOfType();
 
                 const loadMore = this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
 
@@ -196,8 +205,18 @@ export class IssueList
             });
     }
 
+    private countIssuesOfType(): number {
+        return this.allIssuesStorage.copyIssues().filter((issueWithAssignee: IssueWithAssignees) => {
+            const issue = issueWithAssignee.getIssue();
+
+            const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
+            const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
+            return typeMatches && statusMatches;
+        }).length;
+    }
+
     private needToLoad(): boolean {
-        return this.currentTotal > this.issuesStorage.getIssuesCount();
+        return this.currentTotal > this.issuesOfType;
     }
 
     private filterAndCheckIfNeedToLoad(): boolean {
