@@ -251,7 +251,7 @@ export class IssueListDialog
         });
     }
 
-    private static updatePanelIssuesCount(panel: IssuesPanel, stats): wemQ.Promise<void> {
+    private static updatePanelIssuesCount(panel: IssuesPanel, stats: IssueStatsJson): wemQ.Promise<void> {
         const openedIssues = IssueListDialog.createOpenedIssues(stats);
         const closedIssues = IssueListDialog.createClosedIssues(stats);
         return panel.updateIssuesCount(openedIssues, closedIssues);
