@@ -437,13 +437,15 @@ export class ContentWizardPanel
             const thumbnailUploader = this.getFormIcon();
 
             this.onValidityChanged((event: api.ValidityChangedEvent) => {
-
                 if (!this.persistedContent) {
                     return;
                 }
 
-                let isThisValid = this.isValid(); // event.isValid() = false will prevent the call to this.isValid()
+                const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
+                if (thumbnailUploader) {
+                    thumbnailUploader.toggleClass('invalid', !isThisValid);
+                }
                 this.getMainToolbar().toggleValid(isThisValid);
                 this.getContentWizardToolbarPublishControls().setContentCanBePublished(this.checkContentCanBePublished());
                 this.getContentWizardToolbarPublishControls().setIsValid(isThisValid);
@@ -879,8 +881,8 @@ export class ContentWizardPanel
 
     private updateContent(compareStatus: CompareStatus) {
         this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
-        this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(this.currentContent);
+        this.updateThumbnailStateIcon();
 
         this.wizardActions.refreshPendingDeleteDecorations();
     }
@@ -990,8 +992,8 @@ export class ContentWizardPanel
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.persistedContent = this.currentContent = content;
-                    this.getContentWizardToolbarPublishControls().setContent(content, false);
                     this.getMainToolbar().setItem(content);
+                    this.updateThumbnailStateIcon();
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
@@ -1035,7 +1037,6 @@ export class ContentWizardPanel
                     new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                         const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                         this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
-                        this.wizardActions.getPublishAction().setUserCanPublish(userCanPublish);
                         this.toggleStepFormsVisibility(loginResult);
                     });
                 });
@@ -1139,8 +1140,8 @@ export class ContentWizardPanel
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
         this.persistedContent = this.currentContent = updatedContent;
-        this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
         this.getMainToolbar().setItem(updatedContent);
+        this.updateThumbnailStateIcon();
         this.contextSplitPanel.setContent(updatedContent);
     }
 
@@ -1363,13 +1364,12 @@ export class ContentWizardPanel
 
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.getMainToolbar().setItem(this.currentContent);
+            this.updateThumbnailStateIcon();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                 this.getContentWizardToolbarPublishControls()
-                    .setContent(this.currentContent)
                     .setLeafContent(!this.getPersistedItem().hasChildren())
                     .setUserCanPublish(userCanPublish);
-                this.wizardActions.getPublishAction().setUserCanPublish(userCanPublish);
             });
         });
     }
@@ -1392,7 +1392,7 @@ export class ContentWizardPanel
     }
 
     private updateThumbnailWithContent(content: Content) {
-        let thumbnailUploader = this.getFormIcon();
+        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
         thumbnailUploader
             .setParams({
@@ -1400,6 +1400,18 @@ export class ContentWizardPanel
             })
             .setEnabled(!content.isImage())
             .setValue(new api.content.util.ContentIconUrlResolver().setContent(content).resolve());
+
+        thumbnailUploader.toggleClass('invalid', !content.isValid());
+    }
+
+    private updateThumbnailStateIcon() {
+        const item: ContentSummaryAndCompareStatus = this.currentContent;
+        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        const isReady: boolean = !item.isOnline() && item.getContentSummary().isReady();
+        const isInProgress: boolean = !item.isOnline() && item.getContentSummary().isInProgress();
+
+        thumbnailUploader.toggleClass('ready', isReady);
+        thumbnailUploader.toggleClass('in-progress', isInProgress);
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): wemQ.Promise<void> {
@@ -2300,7 +2312,7 @@ export class ContentWizardPanel
     }
 
     private updatePublishStatusOnDataChange() {
-        let publishControls = this.getContentWizardToolbarPublishControls();
+        const publishControls = this.getContentWizardToolbarPublishControls();
 
         if (this.isContentFormValid) {
             if (!this.hasUnsavedChanges()) {
@@ -2319,8 +2331,8 @@ export class ContentWizardPanel
                 }
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
-            publishControls.setContent(this.currentContent);
             this.getMainToolbar().setItem(this.currentContent);
+            this.updateThumbnailStateIcon();
         }
     }
 

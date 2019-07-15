@@ -34,6 +34,12 @@ export class ContentWizardToolbar
         }
     }
 
+    setItem(item: ContentSummaryAndCompareStatus) {
+        super.setItem(item);
+
+        this.contentWizardToolbarPublishControls.setContent(item);
+    }
+
     private addHomeButton(application: Application) {
         const homeAction: Action = new Action(application.getName());
         homeAction.onExecuted(() => {
