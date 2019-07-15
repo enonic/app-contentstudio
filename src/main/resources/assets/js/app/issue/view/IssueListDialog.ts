@@ -2,7 +2,6 @@ import ModalDialog = api.ui.dialog.ModalDialog;
 import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
-import Panel = api.ui.panel.Panel;
 import TabBar = api.ui.tab.TabBar;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
 import TabBarItem = api.ui.tab.TabBarItem;
@@ -12,6 +11,8 @@ import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
+import {IssuesStorage} from './IssuesStorage';
+import {IssueType} from '../IssueType';
 
 export class IssueListDialog
     extends ModalDialog {
@@ -27,6 +28,10 @@ export class IssueListDialog
     private issuesTab: TabBarItem;
 
     private deckPanel: NavigatedDeckPanel;
+
+    private allPanel: IssuesPanel;
+
+    private publishRequestsPanel: IssuesPanel;
 
     private issuesPanel: IssuesPanel;
 
@@ -62,7 +67,10 @@ export class IssueListDialog
 
     protected initElements() {
         super.initElements();
-        this.issuesPanel = this.createIssuePanel();
+        const storage = new IssuesStorage();
+        this.allPanel = this.createIssuePanel(storage);
+        this.publishRequestsPanel = this.createIssuePanel(storage, IssueType.PUBLISH_REQUEST);
+        this.issuesPanel = this.createIssuePanel(storage, IssueType.STANDARD);
         this.tabBar = this.createTabBar();
         this.deckPanel = this.createDeckPanel();
         this.createAction = new Action(i18n('action.newIssueMore'));
@@ -102,18 +110,16 @@ export class IssueListDialog
     private createDeckPanel(): NavigatedDeckPanel {
         const deckPanel = new NavigatedDeckPanel(this.tabBar);
 
-        const panel2 = new Panel();
-        const panel3 = new Panel();
-
-        deckPanel.addNavigablePanel(this.allTab, this.issuesPanel, true);
-        deckPanel.addNavigablePanel(this.publishRequestsTab, panel2);
-        deckPanel.addNavigablePanel(this.issuesTab, panel3);
+        deckPanel.addNavigablePanel(this.allTab, this.allPanel, true);
+        deckPanel.addNavigablePanel(this.publishRequestsTab, this.publishRequestsPanel);
+        deckPanel.addNavigablePanel(this.issuesTab, this.issuesPanel);
 
         return deckPanel;
     }
 
-    private reloadDockPanel(): wemQ.Promise<any> {
-        return this.issuesPanel.reload();
+    private reloadDeckPanel(): wemQ.Promise<any> {
+        const panel = <IssuesPanel>(this.deckPanel.getPanelShown() || this.allPanel);
+        return panel.reload();
     }
 
     show() {
@@ -143,23 +149,26 @@ export class IssueListDialog
         this.skipInitialLoad = false;
         this.resetFiltersAndTab();
         if (assignedToMe) {
+            this.allPanel.selectAssignedToMe();
+            this.publishRequestsPanel.selectAssignedToMe();
             this.issuesPanel.selectAssignedToMe();
-            return;
-        }
-        if (createdByMe) {
+        } else if (createdByMe) {
+            this.allPanel.selectAssignedByMe();
+            this.publishRequestsPanel.selectAssignedByMe();
             this.issuesPanel.selectAssignedByMe();
-            return;
         }
     }
 
     private resetFiltersAndTab() {
         this.allTab.select();
+        this.allPanel.resetFilters();
+        this.publishRequestsPanel.resetFilters();
         this.issuesPanel.resetFilters();
     }
 
     private reload(updatedIssues?: Issue[]) {
         this.showLoadMask();
-        this.reloadDockPanel()
+        this.reloadDeckPanel()
             .then(() => {
                 this.notifyResize();
                 return this.updateTabAndFiltersLabels();
@@ -221,20 +230,47 @@ export class IssueListDialog
     }
 
     private updateTabAndFiltersLabels(): wemQ.Promise<void> {
-        return new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
-            const openedIssues: IssuesCount = {
-                all: stats.open,
-                assignedToMe: stats.openAssignedToMe,
-                assignedByMe: stats.openCreatedByMe
-            };
-            const closedIssues: IssuesCount = {
-                all: stats.closed,
-                assignedToMe: stats.closedAssignedToMe,
-                assignedByMe: stats.closedCreatedByMe
-            };
+        return wemQ.all([
+            new GetIssueStatsRequest().sendAndParse(),
+            new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST).sendAndParse(),
+            new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse()
+        ]).then((results: IssueStatsJson[]) => {
+            [
+                i18n('field.all'),
+                i18n('field.issue.publishRequests'),
+                i18n('field.issues')
+            ].forEach((label, index) => {
+                const {open, closed} = results[index];
+                const total = open + closed;
+                this.updateTabLabel(index, label, total);
+            });
 
-            return this.issuesPanel.updateIssuesCount(openedIssues, closedIssues);
+            return IssueListDialog.updatePanelIssuesCount(this.allPanel, results[0])
+                .then(() => IssueListDialog.updatePanelIssuesCount(this.publishRequestsPanel, results[1]))
+                .then(() => IssueListDialog.updatePanelIssuesCount(this.issuesPanel, results[2]));
         });
+    }
+
+    private static updatePanelIssuesCount(panel: IssuesPanel, stats): wemQ.Promise<void> {
+        const openedIssues = IssueListDialog.createOpenedIssues(stats);
+        const closedIssues = IssueListDialog.createClosedIssues(stats);
+        return panel.updateIssuesCount(openedIssues, closedIssues);
+    }
+
+    private static createOpenedIssues(stats: IssueStatsJson): IssuesCount {
+        return {
+            all: stats.open,
+            assignedToMe: stats.openAssignedToMe,
+            assignedByMe: stats.openCreatedByMe
+        };
+    }
+
+    private static createClosedIssues(stats: IssueStatsJson): IssuesCount {
+        return {
+            all: stats.closed,
+            assignedToMe: stats.closedAssignedToMe,
+            assignedByMe: stats.closedCreatedByMe
+        };
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
@@ -245,8 +281,8 @@ export class IssueListDialog
         return this.createAction.onExecuted(listener);
     }
 
-    private createIssuePanel(): IssuesPanel {
-        const issuePanel = new IssuesPanel();
+    private createIssuePanel(storage: IssuesStorage, issueType?: IssueType): IssuesPanel {
+        const issuePanel = new IssuesPanel(storage, issueType);
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));

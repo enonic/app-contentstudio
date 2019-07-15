@@ -3,6 +3,8 @@ import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {RowSelector} from '../../inputtype/ui/selector/RowSelector';
 import {OnOffButton} from './OnOffButton';
+import {IssueType} from '../IssueType';
+import {IssuesStorage} from './IssuesStorage';
 import Panel = api.ui.panel.Panel;
 import LoadMask = api.ui.mask.LoadMask;
 import Option = api.ui.selector.Option;
@@ -38,22 +40,22 @@ export class IssuesPanel
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
-    constructor() {
+    constructor(storage: IssuesStorage, issueType?: IssueType) {
         super('issues-panel');
 
-        this.initElements();
+        this.initElements(storage, issueType);
     }
 
-    private initElements() {
-        this.initIssuesList();
+    private initElements(storage: IssuesStorage, issueType?: IssueType) {
+        this.initIssuesList(storage, issueType);
         this.initOptionsCount();
         this.initFilterOptions();
         this.initFilter();
         this.initIssuesToggler();
     }
 
-    private initIssuesList() {
-        this.issuesList = new IssueList(IssueStatus.OPEN);
+    private initIssuesList(storage: IssuesStorage, issueType?: IssueType) {
+        this.issuesList = new IssueList(storage, issueType);
         this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
     }
 

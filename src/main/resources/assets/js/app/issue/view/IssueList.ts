@@ -4,6 +4,8 @@ import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {IssuesStorage} from './IssuesStorage';
+import {IssueType} from '../IssueType';
 import ListBox = api.ui.selector.list.ListBox;
 import Principal = api.security.Principal;
 import PEl = api.dom.PEl;
@@ -25,15 +27,15 @@ export class IssueList
 
     private issueStatus: IssueStatus;
 
+    private issueType: IssueType;
+
     private currentUser: Principal;
 
     private loadAssignedToMe: boolean = false;
 
     private loadMyIssues: boolean = false;
 
-    private allIssues: IssueWithAssignees[];
-
-    private totalItems: number;
+    private issuesStorage: IssuesStorage;
 
     private currentTotal: number;
 
@@ -43,13 +45,26 @@ export class IssueList
 
     private issuesLoadedListeners: { (): void }[] = [];
 
-    constructor(issueStatus: IssueStatus) {
+    constructor(issuesStorage: IssuesStorage, issueType?: IssueType) {
         super('issue-list');
-        this.issueStatus = issueStatus;
-        this.allIssues = [];
-        this.currentTotal = 0;
+        this.issueStatus = IssueStatus.OPEN;
+        this.issueType = issueType || null;
+        this.issuesStorage = issuesStorage;
+        this.initListeners();
         this.loadCurrentUser();
         this.setupLazyLoading();
+    }
+
+    private initListeners() {
+        this.issuesStorage.onIssuesUpdated(() => {
+            const hasIssues = this.issuesStorage.hasIssues();
+
+            if (hasIssues) {
+                this.filter();
+            } else {
+                this.clearItems();
+            }
+        });
     }
 
     getIssueStatus(): IssueStatus {
@@ -58,6 +73,10 @@ export class IssueList
 
     setIssueStatus(issueStatus: IssueStatus) {
         this.issueStatus = issueStatus;
+    }
+
+    hasIssueType(): boolean {
+        return this.issueType != null;
     }
 
     setLoadMask(loadMask: LoadMask) {
@@ -82,7 +101,7 @@ export class IssueList
     }
 
     updateTotalItems(totalItems: number): wemQ.Promise<void> {
-        if (this.totalItems !== totalItems) {
+        if (this.issuesStorage.getTotalIssues() !== totalItems) {
             // Total items will be updated in the reload method
             return this.fetchItems();
         }
@@ -96,20 +115,23 @@ export class IssueList
     }
 
     private doFilter(): IssueWithAssignees[] {
-        const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe);
+        const allIssues = this.issuesStorage.copyIssues();
+        const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe) || this.hasIssueType();
+
         if (needToFilter) {
-            return this.allIssues.filter((issueWithAssignee: IssueWithAssignees) => {
+            return allIssues.filter((issueWithAssignee: IssueWithAssignees) => {
                 const issue = issueWithAssignee.getIssue();
                 const assignees = issueWithAssignee.getAssignees();
 
+                const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
                 const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
                 const assignedByMeMatched = !this.loadMyIssues || issue.getCreator() === this.currentUser.getKey().toString();
                 const assignedToMeMatched = !this.loadAssignedToMe || assignees.some(assignee => assignee.equals(this.currentUser));
-                return statusMatches && assignedToMeMatched && assignedByMeMatched;
+                return typeMatches && statusMatches && assignedToMeMatched && assignedByMeMatched;
             });
-        } else {
-            return this.allIssues.slice();
         }
+
+        return allIssues;
     }
 
     reload(): wemQ.Promise<void> {
@@ -142,28 +164,25 @@ export class IssueList
     private doFetch(append?: boolean): wemQ.Promise<void> {
         return new ListIssuesRequest()
             .setResolveAssignees(true)
-            .setFrom(append ? this.allIssues.length : 0)
+            .setFrom(append ? this.issuesStorage.getIssuesCount() : 0)
             .setSize(IssueList.MAX_VISIBLE_OPTIONS)
             .sendAndParse()
             .then((response: IssueResponse) => {
                 const totalHits = response.getMetadata().getTotalHits();
-                const issuesCountChanged = totalHits !== this.totalItems;
+                const issuesCountChanged = totalHits !== this.issuesStorage.getTotalIssues();
 
                 const issues = response.getIssues();
 
                 if (append && !issuesCountChanged) {
                     if (issues.length > 0) {
-                        this.allIssues = this.allIssues.concat(issues);
-                        this.filter();
+                        this.issuesStorage.addIssues(issues);
                     }
                 } else {
-                    this.totalItems = totalHits;
+                    this.issuesStorage.setTotalIssues(totalHits);
                     if (issues.length > 0) {
-                        this.allIssues = issues;
-                        this.filter();
+                        this.issuesStorage.setIssues(issues);
                     } else {
-                        this.allIssues = [];
-                        this.clearItems();
+                        this.issuesStorage.clear();
                         const noIssuesEl = new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound'));
                         this.appendChild(noIssuesEl);
                     }
@@ -178,7 +197,7 @@ export class IssueList
     }
 
     private needToLoad(): boolean {
-        return this.currentTotal > this.allIssues.length;
+        return this.currentTotal > this.issuesStorage.getIssuesCount();
     }
 
     private filterAndCheckIfNeedToLoad(): boolean {
