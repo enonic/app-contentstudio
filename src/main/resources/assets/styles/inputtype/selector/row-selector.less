@@ -1,5 +1,6 @@
 .row-selector {
   display: flex;
+  position: relative;
 
   .title {
     display: inline;
@@ -13,6 +14,9 @@
   }
 
   .@{_COMMON_PREFIX}combobox {
+    position: absolute;
+    z-index: 1;
+
     .@{_COMMON_PREFIX}text-input {
       display: inline-flex;
       flex: 1 0 auto;
@@ -28,6 +32,7 @@
 
   .row-selected-options-view {
     .selected-option {
+      display: inline-block;
       padding: 9px 0;
       font-size: 14px;
       cursor: pointer;
