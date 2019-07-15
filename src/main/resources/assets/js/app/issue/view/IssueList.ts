@@ -319,9 +319,11 @@ export class IssueListItem
     }
 
     private createNamesAndIconView(): NamesAndIconView {
+        const typeClass = this.issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
+        const statusClass = this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'closed' : 'opened';
         const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
             .setMainName(this.issue.getTitleWithId())
-            .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-issue closed' : 'icon-issue')
+            .setIconClass(`icon-${typeClass} ${statusClass}`)
             .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
 
         if (this.issue.getDescription().length) {
