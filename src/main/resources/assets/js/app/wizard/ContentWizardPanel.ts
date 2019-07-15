@@ -1436,7 +1436,7 @@ export class ContentWizardPanel
         let persistedContent = this.getPersistedItem();
         let extraData = persistedContent.getExtraData(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree.copy());
+            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
         } else {
             let diff = extraData.getData().diff(xDataPropertyTree);
             diff.added.forEach((property: api.data.Property) => {
@@ -1455,11 +1455,11 @@ export class ContentWizardPanel
         const persistedContent: Content = this.getPersistedItem();
         const persistedContentData: PropertyTree = persistedContent.getContentData();
 
-        const tree: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
+        const treeCopy: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
 
-        persistedContentData.getRoot().syncEmptyArrays(tree.getRoot());
+        persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
 
-        const diff = persistedContentData.diff(tree);
+        const diff = persistedContentData.diff(treeCopy);
         diff.added.forEach((property: api.data.Property) => {
             persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
         });
@@ -2162,11 +2162,17 @@ export class ContentWizardPanel
      * @param content
      */
     private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
-        this.getFormContext(content).updatePersistedContent(content);
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
             const extraData: ExtraData = content.getExtraData(xDataName);
+
+            //fill empty fields by empty values in persisted xdata
+            const viewedData = form.getData().copy();
+            viewedData.getRoot().reset();
+
+            this.syncPersistedItemWithXData(xDataName, viewedData);
+
             if (!extraData) {
                 return;
             }
@@ -2183,8 +2189,6 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
-
-            this.syncPersistedItemWithXData(xDataName, data);
         });
     }
 
