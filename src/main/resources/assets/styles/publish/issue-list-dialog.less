@@ -67,18 +67,33 @@
         .names-and-icon-view {
           cursor: pointer;
 
-          .icon-issue {
+          .icon-issue,
+          .icon-publish-request {
             &::before {
               content: '';
               display: block;
               line-height: 26px;
-              background-image: url("../../icons/issue-closed.svg");
               background-size: contain;
               height: 26px;
               width: 26px;
             }
-            &:not(.closed)::before {
+          }
+
+          .icon-issue {
+            &.closed::before {
+              background-image: url("../../icons/issue-closed.svg");
+            }
+            &.opened::before {
               background-image: url("../../icons/issue-open.svg");
+            }
+          }
+
+          .icon-publish-request {
+            &.closed::before {
+              background-image: url("../../icons/publish-request-closed.svg");
+            }
+            &.opened::before {
+              background-image: url("../../icons/publish-request-open.svg");
             }
 
           }
