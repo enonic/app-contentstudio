@@ -17,4 +17,6 @@ export interface IssueSummaryJson {
     description: string;
 
     issueStatus: string;
+
+    type: string;
 }

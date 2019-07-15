@@ -8,7 +8,7 @@ import DivEl = api.dom.DivEl;
 import SpanEl = api.dom.SpanEl;
 import DefaultOptionDisplayValueViewer = api.ui.selector.DefaultOptionDisplayValueViewer;
 import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
+import OptionFilterInputValueChangedEvent = api.ui.selector.OptionFilterInputValueChangedEvent;
 
 export class RowSelector
     extends DivEl {
@@ -26,26 +26,84 @@ export class RowSelector
     }
 
     protected initElements(title?: string) {
+        this.initTitle(title);
+        this.initCombobox();
+        this.initListeners();
+    }
+
+    private initTitle(title?: string) {
         this.title = new SpanEl('title');
         this.title.setHtml(title == null ? i18n('field.rowselector.title') : title);
+    }
 
+    private initCombobox() {
         this.selectedOptionsView = new RowSelectedOptionsView();
         this.selectedOptionsView.setEditable(false);
 
         this.comboBox = new ComboBox<string>('rowSelector', {
+            filter: RowSelector.comboBoxFilter,
             selectedOptionsView: this.selectedOptionsView,
             optionDisplayValueViewer: new RowOptionDisplayValueViewer(),
-            hideComboBoxWhenMaxReached: true,
-            maximumOccurrences: 1,
+            hideComboBoxWhenMaxReached: false,
+            maximumOccurrences: 1
+        });
+    }
+
+    private static comboBoxFilter(item: api.ui.selector.Option<string>, args: any) {
+        // Do not change to one-liner `return !(...);`. Bugs expected with UglifyJs + SlickGrid filter compilation.
+        const isEmptyInput = args == null || args.searchString == null;
+        return isEmptyInput || item.displayValue.toUpperCase().indexOf(args.searchString.toUpperCase()) !== -1;
+    }
+
+    private initListeners() {
+        this.comboBox.onOptionSelected((event: SelectedOptionEvent<string>) => {
+            this.comboBox.hide();
+            const selectedOption = event.getSelectedOption().getOptionView().getOption();
+            selectedOption.readOnly = true;
+            this.comboBox.getSelectedOptions().forEach(option => {
+                if (option.value !== selectedOption.value) {
+                    option.readOnly = false;
+                    this.deselect(option);
+                }
+            });
         });
 
-        this.comboBox.onOptionDeselected(() => {
-            const hasOptions = this.comboBox.getOptionCount() > 0;
-            const hasSelectedOptions = this.comboBox.countSelectedOptions() > 0;
-            if (hasOptions && !hasSelectedOptions) {
+        this.onClicked((event: MouseEvent) => {
+            const target = <HTMLElement> event.target;
+            const {classList} = target;
+            if (classList.contains('selected-option') || classList.contains('option-value')) {
+                event.stopPropagation();
+                this.comboBox.show();
                 this.comboBox.showDropdown();
-                this.comboBox.giveFocus();
+                this.comboBox.giveInputFocus();
             }
+        });
+
+        this.comboBox.onOptionFilterInputValueChanged((event: OptionFilterInputValueChangedEvent) => {
+            this.comboBox.setFilterArgs({searchString: event.getNewValue()});
+        });
+
+        this.handleClickOutside();
+    }
+
+    private handleClickOutside() {
+        const mouseClickListener: (event: MouseEvent) => void = (event: MouseEvent) => {
+            if (this.comboBox.isVisible()) {
+                for (let target = event.target; target; target = (<any>target).parentNode) {
+                    if (target === this.comboBox.getHTMLElement()) {
+                        return;
+                    }
+                }
+                this.comboBox.hide();
+            }
+        };
+
+        this.comboBox.onRemoved(() => {
+            api.dom.Body.get().unMouseDown(mouseClickListener);
+        });
+
+        this.comboBox.onAdded(() => {
+            api.dom.Body.get().onMouseDown(mouseClickListener);
         });
     }
 
@@ -69,11 +127,11 @@ export class RowSelector
     }
 
     select(option: Option<string>) {
-        this.comboBox.selectOption(option, true);
+        this.comboBox.selectOption(option);
     }
 
     deselect(option: Option<string>) {
-        this.comboBox.deselectOption(option, true);
+        this.comboBox.deselectOption(option);
     }
 
     setSelection(option: Option<string>, select: boolean = true) {
@@ -97,7 +155,8 @@ export class RowSelector
             value: option.value,
             displayValue: value,
             indices: [value],
-            selectable: selectable != null ? selectable : option.selectable
+            selectable: selectable != null ? selectable : option.selectable,
+            readOnly: option.readOnly
         };
 
         this.comboBox.updateOption(option, newOption);
@@ -129,23 +188,12 @@ class RowSelectedOptionsView
         super('row-selected-options-view');
     }
 
-    createSelectedOption(option: Option<string>): SelectedOption<string> {
-        const selectedOption = super.createSelectedOption(option);
-
-        const removeHandler = () => {
-            this.removeOption(selectedOption.getOption());
-        };
-
-        selectedOption.getOptionView().onClicked(removeHandler);
-        selectedOption.getOptionView().onRemoved(() => {
-            selectedOption.getOptionView().unClicked(removeHandler);
-        });
-
-        return selectedOption;
-    }
-
     updateOption(optionToUpdate: Option<string>, newOption: Option<string>) {
         super.updateOption(optionToUpdate, newOption);
+    }
+
+    maximumOccurrencesReached(): boolean {
+        return false;
     }
 }
 
