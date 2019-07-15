@@ -83,8 +83,8 @@ export class ContentPublishMenuButton
 
     protected getActions(): Action[] {
         return [
-            this.publishAction.getAction(),
             this.markAsReadyAction.getAction(),
+            this.publishAction.getAction(),
             this.unpublishAction.getAction(),
             this.requestPublishAction.getAction(),
             this.createIssueAction.getAction()

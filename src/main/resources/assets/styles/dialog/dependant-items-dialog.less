@@ -32,6 +32,11 @@
   }
 
   .publish-dialog-issues {
+
+    h6:nth-child(2) {
+      margin-top: 10px;
+    }
+
     .invalid {
       color: @admin-red;
       line-height: 20px;
@@ -246,7 +251,7 @@
             opacity: 0.5;
           }
 
-          .state(@state, @bgcolor) {
+          .state(@state) {
             .names-and-icon-view {
               cursor: pointer;
 
@@ -254,7 +259,6 @@
                 content: "";
                 background-image: url('../../icons/@{state}.svg');
                 background-size: contain;
-                background-color: @bgcolor;
               }
 
               .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
@@ -264,15 +268,15 @@
           }
 
           &.invalid {
-            .state('invalid', @admin-white);
+            .state('invalid');
           }
 
           &.ready {
-            .state('ready', @admin-white);
+            .state('ready');
           }
 
           &.in-progress {
-            .state('in-progress', unset);
+            .state('in-progress');
           }
 
           .dependant-item-viewer {
@@ -299,11 +303,11 @@
 
             &.small {
               .@{_COMMON_PREFIX}wrapper:before {
-                left: 8px;
-                width: 8px;
-                height: 8px;
-                line-height: 8px;
-                border-radius: 15px;
+                left: 11px;
+                width: 11px;
+                height: 11px;
+                line-height: 11px;
+                border-radius: 0;
                 font-size: 12px;
               }
 
