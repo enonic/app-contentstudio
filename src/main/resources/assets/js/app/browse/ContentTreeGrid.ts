@@ -799,10 +799,6 @@ export class ContentTreeGrid
 
     renameContentNodes(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): wemQ.Promise<void> {
         this.processRenamedNodes(data, oldPaths);
-
-        this.reInitData();
-        this.invalidate();
-
         return wemQ(null);
     }
 
@@ -816,6 +812,8 @@ export class ContentTreeGrid
         data.forEach((newData: ContentSummaryAndCompareStatus) => {
             this.updatePathsOfRenamedNodes(newData, renamedNodes);
         });
+
+        this.placeContentNodes(renamedNodes);
     }
 
     private updatePathsOfRenamedNodes(newData: ContentSummaryAndCompareStatus, oldNodes: TreeNode<ContentSummaryAndCompareStatus>[]) {
