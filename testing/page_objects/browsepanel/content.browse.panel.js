@@ -392,6 +392,24 @@ class ContentBrowsePanel extends Page {
             throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
         })
     }
+    waitForSortButtonEnabled() {
+        return this.waitForElementEnabled(this.sortButton, 3000).catch(err => {
+            this.saveScreenshot('err_sort_enabled_button');
+            throw Error('Sort button should be enabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+    waitForMoveButtonEnabled() {
+        return this.waitForElementEnabled(this.moveButton, 3000).catch(err => {
+            this.saveScreenshot('err_move_enabled_button');
+            throw Error('Move button should be enabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+    waitForMoveButtonDisabled() {
+        return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
+            this.saveScreenshot('err_move_disabled_button');
+            throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
 
     isDeleteButtonEnabled() {
         return this.isElementEnabled(this.deleteButton);
