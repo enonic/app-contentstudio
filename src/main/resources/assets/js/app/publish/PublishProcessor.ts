@@ -202,9 +202,15 @@ export class PublishProcessor {
     }
 
     public containsItemsInProgress(): boolean {
-        return this.itemList.getItems().some(
-            (item: ContentSummaryAndCompareStatus) => !item.isOnline() && item.getContentSummary().isInProgress()) ||
-               this.dependantList.getItems().some((item: ContentSummaryAndCompareStatus) => item.getContentSummary().isInProgress());
+        return this.itemList.getItems().some(this.isItemInProgress) || this.dependantList.getItems().some(this.isDependantItemInProgress);
+    }
+
+    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.isOnline() && item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
+    }
+
+    private isDependantItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
     }
 
     public getDependantIds(): ContentId[] {
