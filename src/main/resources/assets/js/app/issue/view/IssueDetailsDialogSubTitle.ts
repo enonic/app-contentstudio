@@ -5,6 +5,7 @@ import {Issue} from '../Issue';
 import {IssueStatusSelector} from './IssueStatusSelector';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
 import {IssueStatus} from '../IssueStatus';
+import {IssueTypeFormatter} from '../IssueType';
 
 export class DetailsDialogSubTitle
     extends DivEl {
@@ -27,10 +28,16 @@ export class DetailsDialogSubTitle
 
         this.setStatus(issue.getIssueStatus(), silent);
         this.updateStatusInfo();
+        this.updateTypeClass();
     }
 
     private updateStatusInfo() {
         this.statusSpan.setHtml(this.makeStatusInfo(), false);
+    }
+
+    private updateTypeClass() {
+        this.issueStatusSelector.removeClass('standard publish-request');
+        this.issueStatusSelector.addClass(this.makeTypeClass());
     }
 
     setUser(user: Principal) {
@@ -75,5 +82,9 @@ export class DetailsDialogSubTitle
     private makeStatusInfo(): string {
         return this.issue ? IssueStatusInfoGenerator.create().setIssue(this.issue).setIssueStatus(
             this.issue.getIssueStatus()).setCurrentUser(this.currentUser).generate() : '';
+    }
+
+    private makeTypeClass(): string {
+        return this.issue ? IssueTypeFormatter.parseTypeName(this.issue.getType()) : '';
     }
 }

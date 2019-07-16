@@ -1,15 +1,20 @@
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import TabMenuItem = api.ui.tab.TabMenuItem;
 import TabMenu = api.ui.tab.TabMenu;
+import DivEl = api.dom.DivEl;
+import i18n = api.util.i18n;
 
-type IssueOption = { value: IssueStatus, name: string };
+interface IssueOption {
+    value: IssueStatus;
+    name: string;
+}
 
 export class IssueStatusSelector
     extends TabMenu {
 
     private static OPTIONS: IssueOption[] = [
-        {value: IssueStatus.OPEN, name: 'Open'},
-        {value: IssueStatus.CLOSED, name: 'Closed'}
+        {value: IssueStatus.OPEN, name: 'open'},
+        {value: IssueStatus.CLOSED, name: 'closed'}
     ];
 
     private value: IssueStatus;
@@ -19,15 +24,38 @@ export class IssueStatusSelector
     constructor() {
         super('issue-status-selector');
 
+        this.initElements();
+        this.initListeners();
+    }
+
+    protected initElements() {
+        this.initNavigationItems();
+        this.initIcon();
+    }
+
+    private initNavigationItems() {
         IssueStatusSelector.OPTIONS.forEach(option => {
             const menuItem: TabMenuItem = TabMenuItem.create()
-                .setLabel(option.name)
+                .setLabel(i18n(`field.issue.status.${option.name}`))
                 .setAddLabelTitleAttribute(false)
                 .build();
 
             this.addNavigationItem(menuItem);
         });
+    }
 
+    private initIcon() {
+        const icon = new DivEl('issue-icon');
+        icon.onClicked(() => {
+            const enabled = this.isEnabled();
+            if (enabled) {
+                this.toggleMenu();
+            }
+        });
+        this.prependChild(icon);
+    }
+
+    protected initListeners() {
         this.onNavigationItemSelected((event: api.ui.NavigatorEvent) => {
             let item: api.ui.tab.TabMenuItem = <api.ui.tab.TabMenuItem> event.getItem();
             this.setValue(IssueStatusSelector.OPTIONS[item.getIndex()].value);
@@ -41,14 +69,14 @@ export class IssueStatusSelector
     }
 
     setValue(value: IssueStatus, silent?: boolean): IssueStatusSelector {
-        let option = this.findOptionByValue(value);
+        const option = IssueStatusSelector.findOptionByValue(value);
         if (option) {
             this.selectNavigationItem(IssueStatusSelector.OPTIONS.indexOf(option), true);
 
             this.removeClass(IssueStatusSelector.OPTIONS
-                .map(curOption => curOption.name.toLowerCase())
+                .map(curOption => curOption.name)
                 .join(' '));
-            this.addClass(option.name.toLowerCase());
+            this.addClass(option.name);
 
             if (!silent && value !== this.value) {
                 this.notifyValueChanged(
@@ -86,7 +114,7 @@ export class IssueStatusSelector
         return this;
     }
 
-    private findOptionByValue(value: IssueStatus) {
+    private static findOptionByValue(value: IssueStatus) {
         for (let i = 0; i < IssueStatusSelector.OPTIONS.length; i++) {
             let option = IssueStatusSelector.OPTIONS[i];
             if (option.value === value) {

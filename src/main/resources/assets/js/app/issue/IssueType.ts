@@ -13,4 +13,15 @@ export class IssueTypeFormatter {
             return null;
         }
     }
+
+    public static parseTypeName(value: IssueType): string {
+        switch (value) {
+        case IssueType.STANDARD:
+            return 'standard';
+        case IssueType.PUBLISH_REQUEST:
+            return 'publish-request';
+        default:
+            return '';
+        }
+    }
 }
