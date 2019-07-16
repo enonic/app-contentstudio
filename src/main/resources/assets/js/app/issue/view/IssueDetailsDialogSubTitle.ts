@@ -11,10 +11,14 @@ export class DetailsDialogSubTitle
     extends DivEl {
 
     private issue: Issue;
+
     private currentUser: Principal;
-    private issueStatusChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
-    private issueStatusSelector: IssueStatusSelector;
+
     private statusSpan: api.dom.SpanEl;
+
+    private issueStatusSelector: IssueStatusSelector;
+
+    private issueStatusChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
 
     constructor(issue: Issue) {
         super('issue-details-sub-title');
@@ -55,7 +59,7 @@ export class DetailsDialogSubTitle
             this.issueStatusSelector.onValueChanged((event) => {
                 this.notifyIssueStatusChanged(event);
             });
-            this.appendChildren<api.dom.Element>(this.issueStatusSelector, this.statusSpan);
+            this.appendChildren<api.dom.Element>(this.statusSpan, this.issueStatusSelector);
             if (this.issue) {
                 this.setIssue(this.issue, true);
             }

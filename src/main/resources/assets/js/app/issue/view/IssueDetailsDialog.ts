@@ -116,6 +116,7 @@ export class IssueDetailsDialog
         });
 
         this.backButton = new AEl('back-button');
+        this.header.addClass('with-back-button');
         this.initTabs();
         this.itemSelector = ContentComboBox.create()
             .setShowStatus(true)
@@ -466,10 +467,12 @@ export class IssueDetailsDialog
     }
 
     hideBackButton() {
+        this.header.removeClass('with-back-button');
         this.backButton.hide();
     }
 
     showBackButton() {
+        this.header.addClass('with-back-button');
         this.backButton.show();
     }
 
