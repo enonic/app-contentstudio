@@ -179,13 +179,14 @@ export class IssueList
                 const issuesCountChanged = totalHits !== this.allIssuesStorage.getTotalIssues();
 
                 const issues = response.getIssues();
+                const hasLoadedIssues = issues.length > 0;
 
                 if (append && !issuesCountChanged) {
-                    if (issues.length > 0) {
+                    if (hasLoadedIssues) {
                         this.allIssuesStorage.addIssues(issues);
                     }
                 } else {
-                    if (issues.length > 0) {
+                    if (hasLoadedIssues) {
                         this.allIssuesStorage.setIssues(issues);
                     } else {
                         this.allIssuesStorage.clear();
@@ -197,7 +198,7 @@ export class IssueList
                 this.allIssuesStorage.setTotalIssues(totalHits);
                 this.issuesOfType = this.countIssuesOfType();
 
-                const loadMore = this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
+                const loadMore = hasLoadedIssues && this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
 
                 if (loadMore) {
                     return this.doFetch(true);

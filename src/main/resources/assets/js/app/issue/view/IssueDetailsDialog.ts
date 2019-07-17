@@ -482,11 +482,10 @@ export class IssueDetailsDialog
 
     private initItemListTogglers(itemList: PublishDialogItemList): boolean {
         // ignore event if there're changes as we're just setting loaded values on list
-        const changesMade = itemList.getItemViews().reduce((alreadyMade, itemView) => {
+        return itemList.getItemViews().reduce((alreadyMade, itemView) => {
             const toggler = itemView.getIncludeChildrenToggler();
-            return (!!toggler && toggler.toggle(this.areChildrenIncludedInIssue(itemView.getContentId()))) || alreadyMade;
+            return (toggler && toggler.toggle(this.areChildrenIncludedInIssue(itemView.getContentId()))) || alreadyMade;
         }, false);
-        return changesMade;
     }
 
     private saveComment(text: string, action: Action) {

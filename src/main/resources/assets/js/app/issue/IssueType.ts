@@ -3,25 +3,12 @@ export enum IssueType {
 }
 
 export class IssueTypeFormatter {
-    public static parseType(value: string): IssueType {
-        switch (value) {
-        case 'STANDARD':
-            return IssueType.STANDARD;
-        case 'PUBLISH_REQUEST':
-            return IssueType.PUBLISH_REQUEST;
-        default:
-            return null;
-        }
+    static parseType(value: string): IssueType | undefined {
+        return (<any>IssueType)[value];
     }
 
-    public static parseTypeName(value: IssueType): string {
-        switch (value) {
-        case IssueType.STANDARD:
-            return 'standard';
-        case IssueType.PUBLISH_REQUEST:
-            return 'publish-request';
-        default:
-            return '';
-        }
+    static parseTypeName(value: IssueType): string {
+        const typeName = IssueType[value] || '';
+        return typeName.toLowerCase().replace(/_/g, '-');
     }
 }
