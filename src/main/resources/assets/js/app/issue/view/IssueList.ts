@@ -80,6 +80,7 @@ export class IssueList
     updateIssueStatus(issueStatus: IssueStatus) {
         this.issueStatus = issueStatus;
         this.issuesOfType = this.countIssuesOfType();
+        this.filter();
     }
 
     hasIssueType(): boolean {
