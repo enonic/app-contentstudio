@@ -202,14 +202,14 @@ export class PublishProcessor {
     }
 
     public containsItemsInProgress(): boolean {
-        return this.itemList.getItems().some(this.isItemInProgress) || this.dependantList.getItems().some(this.isDependantItemInProgress);
+        return this.itemList.getItems().some(this.isOfflineItemInProgress) || this.dependantList.getItems().some(this.isItemInProgress);
     }
 
-    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+    private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
         return !item.isOnline() && item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
     }
 
-    private isDependantItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
         return item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
     }
 
