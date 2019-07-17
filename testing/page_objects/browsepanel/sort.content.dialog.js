@@ -24,13 +24,15 @@ class SortContentDialog extends Page {
         return XPATH.container + XPATH.menuButton;
     }
 
-    clickOnSaveButton() {
-        return this.clickOnElement(this.saveButton).then(() => {
-            return this.waitForDialogClosed();
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_save_order_button');
+    async clickOnSaveButton() {
+        try {
+            await this.clickOnElement(this.saveButton);
+            await this.waitForDialogClosed();
+            return await this.pause(1200);
+        } catch (err) {
+            this.saveScreenshot('err_click_sort_save_button');
             throw new Error(err);
-        })
+        }
     }
 
     waitForDialogVisible() {
@@ -66,7 +68,6 @@ class SortContentDialog extends Page {
         await this.clickOnElement(fullSelector);
         return await this.pause(300);
     }
-
 
     getMenuItems() {
         let selector = xpath.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";

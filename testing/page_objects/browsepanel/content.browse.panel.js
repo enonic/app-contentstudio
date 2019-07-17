@@ -63,6 +63,7 @@ class ContentBrowsePanel extends Page {
     get previewButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
     }
+
     get sortButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
     }
@@ -182,11 +183,15 @@ class ContentBrowsePanel extends Page {
     }
 
     waitForPublishTreeButtonVisible() {
-        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_browse_publish_tree_button");
+            throw new Error("'Publish Tree' button should be present on the browse-toolbar " + err);
+        })
     }
 
-    clickOnPublishTreeButton() {
-        return this.clickOnElement(this.publishTreeButton);
+    async clickOnPublishTreeButton() {
+        await this.waitForPublishTreeButtonVisible();
+        return await this.clickOnElement(this.publishTreeButton);
     }
 
     waitForGridLoaded(ms) {
@@ -211,6 +216,7 @@ class ContentBrowsePanel extends Page {
         return await this.clickOnElement(this.publishButton);
 
     }
+
     async clickOnSortButton() {
         await this.waitForElementEnabled(this.sortButton);
         await this.pause(200);
@@ -392,18 +398,21 @@ class ContentBrowsePanel extends Page {
             throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
         })
     }
+
     waitForSortButtonEnabled() {
         return this.waitForElementEnabled(this.sortButton, 3000).catch(err => {
             this.saveScreenshot('err_sort_enabled_button');
             throw Error('Sort button should be enabled, timeout: ' + 3000 + 'ms')
         })
     }
+
     waitForMoveButtonEnabled() {
         return this.waitForElementEnabled(this.moveButton, 3000).catch(err => {
             this.saveScreenshot('err_move_enabled_button');
             throw Error('Move button should be enabled, timeout: ' + 3000 + 'ms')
         })
     }
+
     waitForMoveButtonDisabled() {
         return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
             this.saveScreenshot('err_move_disabled_button');
