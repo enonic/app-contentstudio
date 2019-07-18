@@ -18,6 +18,8 @@ export class ContentWizardToolbar
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
     private mobileItemStatisticsButton: TogglerButton;
     private stateElement: api.dom.Element;
+    private hasUnsavedChanges: boolean;
+    private isValid: boolean;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -38,6 +40,11 @@ export class ContentWizardToolbar
         super.setItem(item);
 
         this.contentWizardToolbarPublishControls.setContent(item);
+    }
+
+    setHasUnsavedChanges(value: boolean) {
+        this.hasUnsavedChanges = value;
+        this.updateStateIconElement();
     }
 
     private addHomeButton(application: Application) {
@@ -99,18 +106,20 @@ export class ContentWizardToolbar
     toggleValid(isValid: boolean) {
         super.toggleValid(isValid);
 
+        this.isValid = isValid;
+
         if (!this.getItem()) {
             return;
         }
 
-        this.updateStateIconElement(isValid);
+        this.updateStateIconElement();
     }
 
-    private updateStateIconElement(isValid: boolean) {
-        const isReady: boolean = isValid && this.isContentReady();
-        const isInProgress: boolean = isValid && this.isContentInProgress();
+    private updateStateIconElement() {
+        const isReady: boolean = this.isValid && !this.hasUnsavedChanges && this.isContentReady();
+        const isInProgress: boolean = this.isValid && (this.hasUnsavedChanges || this.isContentInProgress());
         this.stateElement.getEl().removeAttribute('title');
-        this.stateElement.toggleClass('invalid', !isValid);
+        this.stateElement.toggleClass('invalid', !this.isValid);
         this.stateElement.toggleClass('ready', isReady);
         this.stateElement.toggleClass('in-progress', isInProgress);
 

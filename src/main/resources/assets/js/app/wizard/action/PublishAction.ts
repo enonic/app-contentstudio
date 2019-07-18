@@ -18,8 +18,9 @@ export class PublishAction extends BasePublishAction {
         this.wizard = wizard;
 
         this.onBeforeExecute(() => {
-            if (this.wizard.getContent().getContentSummary().isInProgress()) {
+            if (this.wizard.getContent().getContentSummary().isInProgress() || this.wizard.hasUnsavedChanges()) {
                 this.wizard.setIsMarkedAsReady(true);
+                this.wizard.setIsMarkedAsReadyOnPublish(true);
             }
         });
     }

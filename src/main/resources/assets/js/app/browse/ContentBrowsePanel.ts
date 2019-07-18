@@ -604,5 +604,13 @@ export class ContentBrowsePanel
             (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));
 
         this.browseToolbar.appendChild(contentPublishMenuButton);
+
+        browseActions.onBeforeActionsStashed(() => {
+            contentPublishMenuButton.setRefreshDisabled(true);
+        });
+
+        browseActions.onActionsUnstashed(() => {
+            contentPublishMenuButton.setRefreshDisabled(false);
+        });
     }
 }

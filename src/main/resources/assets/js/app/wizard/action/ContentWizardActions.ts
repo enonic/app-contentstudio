@@ -108,6 +108,10 @@ export class ContentWizardActions
 
     private checkSaveActionStateHandler: () => void;
 
+    private beforeActionsStashedListeners: { (): void; }[] = [];
+
+    private actionsUnstashedListeners: { (): void; }[] = [];
+
     constructor(wizardPanel: ContentWizardPanel) {
         super(
             new ContentSaveAction(wizardPanel),
@@ -167,9 +171,11 @@ export class ContentWizardActions
 
         ManagedActionManager.instance().onManagedActionStateChanged((state: ManagedActionState, executor: ManagedActionExecutor) => {
             if (state === ManagedActionState.PREPARING) {
+                this.notifyBeforeActionsStashed();
                 this.stateManager.stashActions(stashableActionsMap, false);
             } else if (state === ManagedActionState.ENDED) {
                 this.stateManager.unstashActions(stashableActionsMap);
+                this.notifyActionsUnstashed();
             }
         });
     }
@@ -335,6 +341,26 @@ export class ContentWizardActions
                     });
             }
 
+        });
+    }
+
+    onBeforeActionsStashed(listener: () => void) {
+        this.beforeActionsStashedListeners.push(listener);
+    }
+
+    private notifyBeforeActionsStashed() {
+        this.beforeActionsStashedListeners.forEach((listener) => {
+            listener();
+        });
+    }
+
+    onActionsUnstashed(listener: () => void) {
+        this.actionsUnstashedListeners.push(listener);
+    }
+
+    private notifyActionsUnstashed() {
+        this.actionsUnstashedListeners.forEach((listener) => {
+            listener();
         });
     }
 
