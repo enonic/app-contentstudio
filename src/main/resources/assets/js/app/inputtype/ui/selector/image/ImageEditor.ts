@@ -89,6 +89,7 @@ export class ImageEditor
     private editResetButton: Button;
     private rotateButton: Button;
     private mirrorButton: Button;
+    private resetButton: Button;
     private uploadButton: Button;
 
     private editModeListeners: { (edit: boolean, position: Rect, zoom: Rect, focus: Point): void }[] = [];
@@ -750,9 +751,9 @@ export class ImageEditor
 
         editContainer.appendChildren(this.editResetButton, applyButton, cancelButton);
 
-        let standbyContainer = new DivEl('standby-container');
-        let resetButton = new Button(i18n('editor.resetfilters'));
-        resetButton.addClass('button-reset transparent').setVisible(false).onClicked((event: MouseEvent) => {
+        const standbyContainer: DivEl = new DivEl('standby-container');
+        this.resetButton = new Button(i18n('editor.resetfilters'));
+        this.resetButton.setEnabled(false).addClass('button-reset transparent').setVisible(false).onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
             this.resetCropPosition();
@@ -769,20 +770,20 @@ export class ImageEditor
         this.onFocusAutoPositionedChanged((auto) => {
             this.editResetButton.setVisible(!auto);
             this.toggleClass('autofocused', auto);
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
         this.onCropAutoPositionedChanged((auto) => {
             this.editResetButton.setVisible(!auto);
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
 
         this.onOrientationChanged(() => {
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
 
         this.uploadButton = new Button();
-        this.uploadButton.addClass('button-upload');
-        standbyContainer.appendChildren(resetButton, this.uploadButton);
+        this.uploadButton.setEnabled(false).addClass('button-upload');
+        standbyContainer.appendChildren(this.resetButton, this.uploadButton);
 
         this.editCropButton = new Button().setEnabled(false);
         // tslint:disable-next-line:no-unused-expression
@@ -864,10 +865,20 @@ export class ImageEditor
         } else {
             this.imageMask.hide();
         }
+
+        this.uploadButton.setEnabled(value);
+        this.resetButton.setEnabled(value);
         this.rotateButton.setEnabled(value);
         this.mirrorButton.setEnabled(value);
         this.editCropButton.setEnabled(value);
         this.editFocusButton.setEnabled(value);
+        if (!value) {
+            this.disableButtonsTooltip();
+        }
+    }
+
+    private disableButtonsTooltip() {
+        wemjq('.button-rotate, .button-mirror').mouseleave();
     }
 
     private rotate90() {
@@ -1649,6 +1660,10 @@ export class ImageEditor
 
     getCropPosition(): Rect {
         return this.rectFromSVG(this.normalizeRect(this.getCropPositionPx()));
+    }
+
+    isCropAutoPositioned(): boolean {
+        return this.cropData.auto;
     }
 
     private getCropPositionPx(): SVGRect {

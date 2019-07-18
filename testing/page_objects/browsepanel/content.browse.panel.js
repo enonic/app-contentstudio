@@ -13,8 +13,8 @@ const XPATH = {
     treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
     appBar: `//div[contains(@id,'AppBar')]`,
-    selectedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-row') and contains(@class,'selected')]`,
-    checkedRows: `//div[@class='slick-viewport']//div[contains(@class,'slick-cell-checkboxsel selected')]`,
+    selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
+    checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
@@ -62,6 +62,10 @@ class ContentBrowsePanel extends Page {
 
     get previewButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
+    }
+
+    get sortButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
     }
 
     get searchButton() {
@@ -179,11 +183,15 @@ class ContentBrowsePanel extends Page {
     }
 
     waitForPublishTreeButtonVisible() {
-        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_browse_publish_tree_button");
+            throw new Error("'Publish Tree' button should be present on the browse-toolbar " + err);
+        })
     }
 
-    clickOnPublishTreeButton() {
-        return this.clickOnElement(this.publishTreeButton);
+    async clickOnPublishTreeButton() {
+        await this.waitForPublishTreeButtonVisible();
+        return await this.clickOnElement(this.publishTreeButton);
     }
 
     waitForGridLoaded(ms) {
@@ -207,6 +215,12 @@ class ContentBrowsePanel extends Page {
         await this.pause(400);
         return await this.clickOnElement(this.publishButton);
 
+    }
+
+    async clickOnSortButton() {
+        await this.waitForElementEnabled(this.sortButton);
+        await this.pause(200);
+        return await this.clickOnElement(this.sortButton);
     }
 
     clickOnDuplicateButton() {
@@ -385,6 +399,27 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    waitForSortButtonEnabled() {
+        return this.waitForElementEnabled(this.sortButton, 3000).catch(err => {
+            this.saveScreenshot('err_sort_enabled_button');
+            throw Error('Sort button should be enabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForMoveButtonEnabled() {
+        return this.waitForElementEnabled(this.moveButton, 3000).catch(err => {
+            this.saveScreenshot('err_move_enabled_button');
+            throw Error('Move button should be enabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForMoveButtonDisabled() {
+        return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
+            this.saveScreenshot('err_move_disabled_button');
+            throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
     isDeleteButtonEnabled() {
         return this.isElementEnabled(this.deleteButton);
     }
@@ -463,11 +498,35 @@ class ContentBrowsePanel extends Page {
     }
 
     getNumberOfSelectedRows() {
-        return this.findElements(XPATH.selectedRows).then(result => {
+        return this.findElements(XPATH.selectedRow).then(result => {
             return result.length;
         }).catch(err => {
             throw new Error(`Error when getting selected rows ` + err);
         });
+    }
+
+    getNameOfSelectedRow() {
+        return this.findElements(XPATH.selectedRow).then(result => {
+            return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
+        }).catch(err => {
+            throw new Error(`Error when getting selected rows ` + err);
+        });
+    }
+
+    async getSortingIcon(name) {
+        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r2')]/span/div";
+        let elems = await this.findElements(selector);
+        if (elems.length === 0) {
+            return "Default";
+        }
+        let classAttr = await elems[0].getAttribute("class");
+        if (classAttr.includes('num-asc')) {
+            return "Date ascending";
+        } else if (classAttr.includes('num-desc')) {
+            return "Date descending";
+        } else if (classAttr === 'sort-dialog-trigger icon-menu') {
+            return appConst.sortMenuItem.MANUALLY_SORTED;
+        }
     }
 
     getNumberOfCheckedRows() {

@@ -718,7 +718,7 @@ export class PageComponentsView
             this.beforeActionHandler = (action: Action) => {
 
                 PageViewController.get().setContextMenuDisabled(true);
-                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('field.insert')) {
+                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.insert')) {
                     this.notifyBeforeInsertAction();
                 }
             };
@@ -728,12 +728,16 @@ export class PageComponentsView
             this.contextMenu.getMenu().unAfterAction(this.afterActionHandler);
         } else {
             this.afterActionHandler = (action: Action) => {
-
+                const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
                 this.hidePageComponentsIfInMobileView(action);
+
+                if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
+                    this.tree.getSelectedNodes()[0].getData().hideContextMenu();
+                }
 
                 setTimeout(() => {
                     PageViewController.get().setContextMenuDisabled(false);
-                    if (this.getHTMLElement().offsetHeight === 0) { // if PCV not visible, for example fragment created, hide highlighter
+                    if (!isViewVisible) { // if PCV not visible, for example fragment created, hide highlighter
 
                         Highlighter.get().hide();
                     }

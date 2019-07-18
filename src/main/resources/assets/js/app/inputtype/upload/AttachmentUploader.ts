@@ -33,22 +33,19 @@ export class AttachmentUploader
 
             this.uploaderEl.onUploadStarted(() => {
                 this.uploaderWrapper.removeClass('empty');
+                this.uploadButton.getEl().setDisabled(true);
             });
 
             this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
-
-                let attachment = <Attachment>event.getUploadItem().getModel();
-
+                const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
                 this.setFileNameProperty(attachment.getName().toString());
-
                 api.notify.showFeedback(`"${attachment.getName().toString()}" uploaded`);
             });
 
             this.uploaderEl.onUploadCompleted(() => {
-
                 this.validate(false);
+                this.uploadButton.getEl().setDisabled(false);
                 new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
-
             });
 
             this.uploaderEl.onUploadFailed(() => {

@@ -80,6 +80,9 @@ export class ImageModalDialog
         this.editorWidth = this.config.editorWidth;
         this.content = this.config.content;
         this.figure = new api.dom.FigureEl();
+        this.imageUploaderEl = this.createImageUploader();
+        this.createImagePreviewContainer();
+        this.imageLoadMask = new api.ui.mask.LoadMask(this.imagePreviewContainer);
         this.initPresetImage();
         this.setSubmitAction(new api.ui.Action(!!this.presetImageEl ? 'Update' : 'Insert'));
     }
@@ -102,6 +105,11 @@ export class ImageModalDialog
                 this.updateEditorElements();
                 this.close();
             }
+        });
+
+        this.imageSelectorFormItem.onRendered(() => {
+            this.addUploaderAndPreviewControls();
+            this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
         });
     }
 
@@ -175,11 +183,6 @@ export class ImageModalDialog
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
 
-        this.imageSelectorFormItem.onRendered(() => {
-            this.addUploaderAndPreviewControls();
-            this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
-        } );
-
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
         this.imageAltTextField = this.createFormItem(new ModalDialogFormItemBuilder('altText', i18n('dialog.image.formitem.alttext')));
 
@@ -245,12 +248,9 @@ export class ImageModalDialog
 
     private addUploaderAndPreviewControls() {
         const imageSelectorContainer = this.imageSelectorFormItem.getInput().getParentElement();
-        this.imageUploaderEl = this.createImageUploader();
 
         imageSelectorContainer.appendChild(this.imageUploaderEl);
         this.initDragAndDropUploaderEvents();
-
-        this.createImagePreviewContainer();
 
         this.scrollNavigationWrapperDiv = new DivEl('preview-panel-scroll-navigation-wrapper');
         const scrollBarWrapperDiv = new DivEl('preview-panel-scrollbar-wrapper');
@@ -261,8 +261,6 @@ export class ImageModalDialog
         this.scrollNavigationWrapperDiv.insertAfterEl(imageSelectorContainer);
 
         this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
-
-        this.imageLoadMask = new api.ui.mask.LoadMask(this.imagePreviewContainer);
 
         this.imagePreviewContainer.appendChild(<api.dom.Element>this.imageLoadMask);
 
@@ -367,7 +365,8 @@ export class ImageModalDialog
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
         const imgUrlResolver = new ImageUrlResolver()
             .setContentId(imageContent.getContentId())
-            .setTimestamp(imageContent.getModifiedTime());
+            .setTimestamp(imageContent.getModifiedTime())
+            .setScaleWidth(true);
 
         if (size && !isOriginalImage) {
             imgUrlResolver.setSize(size);

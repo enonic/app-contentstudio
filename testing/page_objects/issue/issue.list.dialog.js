@@ -85,6 +85,7 @@ class IssuesListDialog extends Page {
     }
 
     async clickOnShowClosedIssuesLink() {
+        await this.waitForElementDisplayed(this.showClosedIssuesLink,appConst.TIMEOUT_3);
         await this.clickOnElement(this.showClosedIssuesLink);
         return await this.pause(400);
     }

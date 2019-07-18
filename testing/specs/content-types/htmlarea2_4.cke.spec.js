@@ -24,6 +24,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     const TEXT_1 = "test text";
     const TEXT_2 = "test text 2";
     let htmlAreaContent;
+    let htmlAreaContentEmpty;
     let SITE;
     it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
         () => {
@@ -37,6 +38,40 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
                 return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             }).then(isDisplayed => {
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
+            });
+        });
+
+    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND Save pressed THEN content should be saved`,
+        () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
+            let displayName = contentBuilder.generateRandomName('htmlarea');
+            htmlAreaContentEmpty = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
+                return contentWizard.pause(1000);
+            }).then(() => {
+                return contentWizard.typeDisplayName(displayName);
+            }).then(() => {
+                return contentWizard.waitAndClickOnSave();
+            }).then(() => {
+                let EXPECTED_MESSAGE = appConstant.itemSavedNotificationMessage(displayName);
+                //'expected notification message should appear'
+                return contentWizard.waitForExpectedNotificationMessage(EXPECTED_MESSAGE);
+            });
+        });
+
+    it(`GIVEN existing 'htmlArea 2:4'(both areas are empty) WHEN it has been opened THEN validation record should be displayed in the form`,
+        () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
+            return studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName).then(() => {
+                return htmlAreaForm.getValidationRecord();
+            }).then(result => {
+                studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
+                assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
+            }).then(() => {
+                return assert.eventually.isTrue(contentWizard.isContentInvalid(),
+                    "Red icon should be present, because both inputs are empty");
             });
         });
 
@@ -55,7 +90,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             });
         });
 
-    it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area `,
+    it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the area`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4').then(() => {
@@ -93,12 +128,16 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     it(`GIVEN existing 'htmlArea 2:4' WHEN it has been opened THEN expected text should be displayed in the area`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
             return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
                 return htmlAreaForm.getTextFromHtmlArea();
             }).then(result => {
                 studioUtils.saveScreenshot('htmlarea_2_4_check_value');
-                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
-                assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equals');
+                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equal');
+                assert.equal(result[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equal');
+            }).then(() => {
+                return assert.eventually.isFalse(contentWizard.isContentInvalid(),
+                    "Red icon should not be present, because both inputs are filled");
             });
         });
 
@@ -118,7 +157,11 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             }).then(() => {
                 return assert.eventually.isTrue(contentWizard.isContentInvalid(),
                     "Red icon should appear in the wizard, because both inputs are required");
-            });
+            }).then(() => {
+                return htmlAreaForm.getValidationRecord();
+            }).then(result => {
+                assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
+            })
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

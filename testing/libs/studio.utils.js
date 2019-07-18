@@ -289,9 +289,7 @@ module.exports = {
     doPublishTree: function () {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
-        return browsePanel.waitForPublishTreeButtonVisible().then(() => {
-            return browsePanel.clickOnPublishTreeButton();
-        }).then(() => {
+        return browsePanel.clickOnPublishTreeButton().then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
             return contentPublishDialog.clickOnPublishButton();
