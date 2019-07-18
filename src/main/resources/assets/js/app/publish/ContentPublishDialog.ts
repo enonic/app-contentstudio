@@ -22,6 +22,7 @@ import i18n = api.util.i18n;
 import DateTimeRange = api.form.inputtype.time.DateTimeRange;
 import FormItem = api.form.FormItem;
 import KeyHelper = api.ui.KeyHelper;
+import PropertyEvent = api.data.PropertyEvent;
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -104,14 +105,16 @@ export class ContentPublishDialog
 
         this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), form, this.scheduleFormPropertySet);
 
-        this.scheduleFormPropertySet.onChanged(() => {
+        this.scheduleFormPropertySet.onChanged((event: PropertyEvent) => {
             this.scheduleFormView.validate(false, true);
             const isFormValid = this.isScheduleFormValid();
 
             this.toggleAction(isFormValid);
         });
 
-        this.scheduleFormWrapper.appendChildren<api.dom.Element>(this.scheduleFormView, removeButton);
+        const note = new api.dom.H6El('schedule-note').setHtml(i18n('dialog.schedule.subname'), false);
+
+        this.scheduleFormWrapper.appendChildren<api.dom.Element>(note, this.scheduleFormView, removeButton);
 
         this.loadCurrentUser();
     }
@@ -130,8 +133,6 @@ export class ContentPublishDialog
         this.publishProcessor.onLoadingStarted(() => {
             this.lockControls();
             this.showLoadMask();
-
-            // this.setSubTitle(i18n('dialog.publish.resolving'));
         });
 
         this.publishProcessor.onLoadingFinished(() => {
@@ -169,7 +170,6 @@ export class ContentPublishDialog
 
         this.publishProcessor.onLoadingFailed(() => {
             this.addClass('invalid');
-            // this.setSubTitle(i18n('dialog.publish.error.loadFailed'));
             this.toggleAction(false);
             this.hideLoadMask();
         });
@@ -182,7 +182,7 @@ export class ContentPublishDialog
             this.setSubTitleEl(this.publishSubTitle);
 
             this.prependChildToContentPanel(this.scheduleFormWrapper);
-            this.scheduleFormView.layout();
+            this.scheduleFormView.layout(false);
             this.scheduleFormView.displayValidationErrors(true);
 
             const scheduleButton = new api.ui.button.ActionButton(this.showScheduleFormAction);
@@ -338,8 +338,6 @@ export class ContentPublishDialog
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
-        // this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
-
         const selectedIds = this.getContentToPublishIds();
         const publishMessage = this.publishSubTitle.getValue();
 
@@ -469,11 +467,14 @@ export class ContentPublishDialogSubTitle
 
         this.message = new api.dom.AEl();
         this.message.setHtml(i18n('dialog.publish.messageHint'));
-        this.message.onClicked(() => {
+        this.message.onClicked((event: MouseEvent) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
             this.toggleInput(true);
         });
 
-        this.initKeyDownHandler();
+        this.initListeners();
     }
 
     private toggleInput(visible: boolean) {
@@ -488,7 +489,7 @@ export class ContentPublishDialogSubTitle
         }
     }
 
-    private initKeyDownHandler() {
+    private initListeners() {
         const keyDownHandler = (event: KeyboardEvent) => {
             const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
                                               (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
@@ -502,14 +503,23 @@ export class ContentPublishDialogSubTitle
             }
         };
 
+        const clickHandler = (event: MouseEvent) => {
+            if (this.input.isVisible()
+                && api.util.StringHelper.isBlank(this.input.getValue())
+                && event.target !== this.input.getHTMLElement()) {
+
+                this.toggleInput(false);
+            }
+        };
+
         this.onShown(() => {
             api.dom.Body.get().onKeyDown(keyDownHandler);
             this.toggleInput(false);
         });
+        this.onHidden(() => api.dom.Body.get().unKeyDown(keyDownHandler));
 
-        this.onHidden(() => {
-            api.dom.Body.get().unKeyDown(keyDownHandler);
-        });
+        this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
+        this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
     }
 
     public getValue(): string {

@@ -25,9 +25,20 @@
     .schedule-form-wrapper {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
+
+      .schedule-note {
+        width: 100%;
+        display: block;
+        margin: 0;
+        background-color: @form-button-bg;
+        padding: 10px 20px;
+        color: @admin-white;
+      }
 
       .form-view {
         flex: 1;
+        padding: 15px 0 !important;
       }
 
       a.remove-button {
