@@ -1025,7 +1025,7 @@ export class ItemView
     }
 
     protected createInsertAction(): api.ui.Action {
-        return new api.ui.Action(i18n('action.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+        return new api.ui.Action(i18n('live.view.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
     }
 
     protected createSelectParentAction(): api.ui.Action {
