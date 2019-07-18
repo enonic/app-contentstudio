@@ -4,7 +4,16 @@
 
   .modal-dialog-header {
     background-color: #eeeeee;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
+
+    .publish-dialog-sub-title {
+      margin-top: 6px;
+
+      a {
+        text-decoration: none;
+        line-height: 30px; // equal to the height of the input to prevent wiggle on switch
+      }
+    }
   }
 
   .modal-dialog-body {
@@ -12,6 +21,24 @@
 
     .dialog-togglable-item-list {
       padding-top: 15px;
+    }
+
+    .schedule-form-wrapper {
+      display: flex;
+      align-items: center;
+
+      .form-view {
+        flex: 1;
+      }
+
+      a.remove-button {
+        .icon-close();
+        font-size: 18px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-left: 8px;
+      }
     }
   }
 
@@ -68,20 +95,7 @@
   }
 
   .dialog-content {
-    .date-time-range-picker {
-      margin: 5px 0 10px 0;
 
-      input {
-        .input-glow();
-      }
-
-      &.invalid {
-        input {
-          .input-error();
-        }
-      }
-
-    }
 
     .start-label, .end-label {
       font-size: 14px;
