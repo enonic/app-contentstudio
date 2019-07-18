@@ -123,9 +123,14 @@ export class IssueSummaryBuilder {
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
         this.description = json.description;
         this.issueStatus = IssueStatusFormatter.parseStatus(json.issueStatus);
-        this.type = IssueTypeFormatter.parseType(json.type);
+        this.type = IssueSummaryBuilder.parseType(json.type);
 
         return this;
+    }
+
+    private static parseType(value: string) {
+        const type = value == null ? IssueType.STANDARD : IssueTypeFormatter.parseType(value);
+        return type == null ? IssueType.STANDARD : type;
     }
 
     setId(id: string): IssueSummaryBuilder {

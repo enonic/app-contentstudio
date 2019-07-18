@@ -95,7 +95,6 @@
             &.opened::before {
               background-image: url("../../icons/publish-request-open.svg");
             }
-
           }
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
@@ -113,14 +112,14 @@
         }
 
         .status {
-          width: 50px;
-          padding: 2px 20px;
+          min-width: 50px;
+          padding: 2px 20px 3px;
           text-transform: capitalize;
           font-size: 14px;
           font-weight: bold;
           text-align: center;
           color: white;
-          border-radius: 4px;
+          border-radius: 8px;
           margin-right: 5px;
 
           &.open {

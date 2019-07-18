@@ -1,32 +1,17 @@
 import i18n = api.util.i18n;
+
 export enum IssueStatus {
     OPEN, CLOSED
 }
 
 export class IssueStatusFormatter {
     public static formatStatus(issueStatus: IssueStatus): string {
-
-        let status;
-
-        switch (issueStatus) {
-        case IssueStatus.OPEN:
-            status = i18n('field.issue.status.open');
-            break;
-        case IssueStatus.CLOSED:
-            status = i18n('field.issue.status.closed');
-            break;
-        default:
-            status = i18n('field.issue.status.unknown');
-        }
-
-        if (IssueStatus[status]) {
-            return i18n('field.issue.status.unknown');
-        }
-
-        return status;
+        const statusName = IssueStatus[issueStatus] || 'unknown';
+        const status = statusName.toLowerCase();
+        return i18n(`field.issue.status.${status}`);
     }
 
-    public static fromString(value: string): IssueStatus {
+    static fromString(value: string): IssueStatus | null {
         switch (value) {
         case i18n('field.issue.status.open'):
             return IssueStatus.OPEN;
@@ -37,14 +22,28 @@ export class IssueStatusFormatter {
         }
     }
 
-    public static parseStatus(value: string): IssueStatus {
-        switch (value) {
-        case 'OPEN':
-            return IssueStatus.OPEN;
-        case 'CLOSED':
-            return IssueStatus.CLOSED;
-        default:
-            return null;
+    static parseStatus(value: string): IssueStatus | undefined {
+        return (<any>IssueStatus)[value];
+    }
+
+    static parseStatusName(value: IssueStatus): string {
+        const statusName = IssueStatus[value] || '';
+        return statusName.toLowerCase().replace(/_/g, '-');
+    }
+
+    static getStatuses(): IssueStatus[] {
+        const statuses = [];
+
+        for (let key in IssueStatus) {
+            if (Number.isInteger(<any>IssueStatus[key]) && IssueStatus.hasOwnProperty(key)) {
+                statuses.push(IssueStatus[key]);
+            }
         }
+
+        return statuses;
+    }
+
+    static getStatusNames(): string[] {
+        return IssueStatusFormatter.getStatuses().map(IssueStatusFormatter.parseStatusName);
     }
 }

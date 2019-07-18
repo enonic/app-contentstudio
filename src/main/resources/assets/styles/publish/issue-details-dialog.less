@@ -41,63 +41,13 @@
       }
     }
 
+    &.with-back-button {
+      .issue-details-sub-title {
+        margin-left: 38px;
+      }
+    }
     .issue-details-sub-title {
-      margin: 5px 0 0 39px;
-      font-size: 13px;
-
-      .creator, .assignee {
-        color: @admin-font-gray3;
-      }
-
-      .issue-status-selector {
-        float: right;
-        display: inline-block;
-        min-width: inherit;
-        margin: 0;
-        vertical-align: middle;
-
-        &.open {
-          .tab-menu-button {
-            background-color: @admin-green;
-          }
-        }
-        &.closed {
-          .tab-menu-button {
-            background-color: @admin-font-gray2;
-          }
-        }
-
-        .tab-menu-button {
-          display: inline-block;
-          font-weight: bold;
-          padding: 2px 20px;
-          border-radius: 4px;
-          margin: 0 0 5px 5px;
-
-          &:before {
-            content: '';
-          }
-
-          .label {
-            margin: 0;
-            color: white;
-          }
-        }
-
-        .menu {
-          text-align: center;
-          min-width: inherit;
-          li {
-            padding: 1px 5px;
-            border-radius: 4px;
-          }
-        }
-      }
-
-      .status-info {
-        vertical-align: middle;
-        color: @admin-font-gray1;
-      }
+      margin-left: 6px;
     }
 
     .sub-title {
@@ -111,9 +61,10 @@
     }
 
     .tab-bar {
-      margin-top: 5px;
-      background: transparent;
       display: flex;
+      margin-top: 5px;
+      border: none;
+      background: transparent;
 
       .tab-bar-item {
         flex: 1;

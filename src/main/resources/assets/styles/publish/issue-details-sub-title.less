@@ -1,0 +1,121 @@
+.issue-details-sub-title {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-size: 13px;
+
+  .creator, .assignee {
+    color: @admin-font-gray3;
+  }
+
+  .issue-status-selector {
+    display: inline-block;
+    position: relative;
+    min-width: inherit;
+    margin: 0;
+    vertical-align: middle;
+
+    &.open {
+      .tab-menu-button {
+        background-color: @admin-green;
+      }
+      &.standard .issue-icon::after {
+        background-image: url("../../icons/issue-open.svg");
+      }
+      &.publish-request .issue-icon::after {
+        background-image: url("../../icons/publish-request-open.svg");
+      }
+    }
+    &.closed {
+      .tab-menu-button {
+        background-color: @admin-font-gray2;
+      }
+      &.standard .issue-icon::after {
+        background-image: url("../../icons/issue-closed.svg");
+      }
+      &.publish-request .issue-icon::after {
+        background-image: url("../../icons/publish-request-closed.svg");
+      }
+    }
+
+    .issue-icon {
+      position: absolute;
+      top: -4px;
+      left: -20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      cursor: pointer;
+      z-index: 3;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        display: block;
+      }
+
+      &::before {
+        width: 28px;
+        height: 28px;
+        margin: 2px;
+        background-color: @admin-white;
+        border-radius: 14px;
+      }
+
+      &::after {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .tab-menu-button {
+      display: inline-block;
+      padding: 2px 20px 3px;
+      font-weight: bold;
+      line-height: 19px;
+      border-radius: 8px;
+
+      &:before {
+        content: '';
+      }
+
+      .label {
+        margin: 0;
+        color: white;
+      }
+    }
+
+    .menu {
+      min-width: inherit;
+      padding-top: 40px;
+      text-align: center;
+      border-radius: 4px 12px 4px 4px;
+
+      &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -4px;
+        left: -20px;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: @admin-white;
+        //box-shadow: -3px -1px 4px -2px rgba(0,0,0,0.75);
+        box-shadow: -3px -1px 4px 0px rgba(0, 0, 0, 0.3);
+      }
+
+      li {
+        padding: 2px 5px 3px;
+        border-radius: 4px;
+        line-height: 19px;
+      }
+    }
+  }
+
+  .status-info {
+    vertical-align: middle;
+    color: @admin-font-gray1;
+  }
+}
