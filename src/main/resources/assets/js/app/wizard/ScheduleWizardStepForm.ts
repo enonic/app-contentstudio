@@ -84,35 +84,46 @@ export class ScheduleWizardStepForm
     }
 
     private initPropertySet(content: Content) {
-        let publishFromDate = content.getPublishFromTime();
-        if (publishFromDate) {
-            this.propertySet.setLocalDateTimeByPath('publish.from', api.util.LocalDateTime.fromDate(publishFromDate));
+        let pSet = this.propertySet.getPropertySet('publish');
+        if (!pSet) {
+            pSet = new PropertySet();
+            this.propertySet.setPropertySet('publish', 0, pSet);
         }
-        let publishToDate = content.getPublishToTime();
+        const publishFromDate = content.getPublishFromTime();
+        if (publishFromDate) {
+            pSet.setLocalDateTime('from', 0, api.util.LocalDateTime.fromDate(publishFromDate));
+        }
+        const publishToDate = content.getPublishToTime();
         if (publishToDate) {
-            this.propertySet.setLocalDateTimeByPath('publish.to', api.util.LocalDateTime.fromDate(publishToDate));
+            pSet.setLocalDateTime('to', 0, api.util.LocalDateTime.fromDate(publishToDate));
         }
     }
 
     getPublishStatus(): PublishStatus {
-        let publishFrom = this.propertySet.getDateTime('publish.from');
-        if (publishFrom && publishFrom.toDate() > new Date()) {
-            return PublishStatus.PENDING;
-        }
+        const pSet = this.propertySet.getPropertySet('publish');
+        if (pSet) {
+            const publishFrom = pSet.getDateTime('from');
+            if (publishFrom && publishFrom.toDate() > new Date()) {
+                return PublishStatus.PENDING;
+            }
 
-        let publishTo = this.propertySet.getDateTime('publish.to');
-        if (publishTo && publishTo.toDate() < new Date()) {
-            return PublishStatus.EXPIRED;
+            const publishTo = pSet.getDateTime('publish.to');
+            if (publishTo && publishTo.toDate() < new Date()) {
+                return PublishStatus.EXPIRED;
+            }
         }
 
         return PublishStatus.ONLINE;
     }
 
     apply(builder: ContentBuilder) {
-        let publishFrom = this.propertySet.getDateTime('publish.from');
-        builder.setPublishFromTime(publishFrom && publishFrom.toDate());
-        let publishTo = this.propertySet.getDateTime('publish.to');
-        builder.setPublishToTime(publishTo && publishTo.toDate());
+        const pSet = this.propertySet.getPropertySet('publish');
+        if (pSet) {
+            const publishFrom = pSet.getDateTime('from');
+            builder.setPublishFromTime(publishFrom && publishFrom.toDate());
+            const publishTo = pSet.getDateTime('to');
+            builder.setPublishToTime(publishTo && publishTo.toDate());
+        }
     }
 
     giveFocus(): boolean {
