@@ -16,7 +16,7 @@ export class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
 
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'content');
+        this.resourcePath = Path.fromParent(super.getRestPath(), 'cms/default/base');
     }
 
     getResourcePath(): Path {
