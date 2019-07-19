@@ -18,11 +18,9 @@ export class ContentWizardToolbarPublishControls
     private requestPublishAction: Action;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
-    private leafContent: boolean = true;
     private isContentValid: boolean = false;
     private content: ContentSummaryAndCompareStatus;
     private publishButtonForMobile: ActionButton;
-    private refreshHandlerDebounced: Function;
 
     constructor(actions: ContentWizardActions) {
         super('toolbar-publish-controls');
@@ -48,9 +46,15 @@ export class ContentWizardToolbarPublishControls
         this.publishButtonForMobile.addClass('mobile-edit-publish-button');
         this.publishButtonForMobile.setVisible(false);
 
-        this.refreshHandlerDebounced = api.util.AppHelper.debounce(this.doRefreshState.bind(this), 200);
-
         this.appendChild(this.publishButton);
+
+        actions.onBeforeActionsStashed(() => {
+            this.publishButton.setRefreshDisabled(true);
+        });
+
+        actions.onActionsUnstashed(() => {
+            this.publishButton.setRefreshDisabled(false);
+        });
     }
 
     public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
@@ -78,14 +82,6 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
-    public setLeafContent(leafContent: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
-        this.leafContent = leafContent;
-        if (refresh) {
-            this.refreshState();
-        }
-        return this;
-    }
-
     public setIsValid(value: boolean): ContentWizardToolbarPublishControls {
         const isRefreshNeeded: boolean = value !== this.isContentValid;
         this.isContentValid = value;
@@ -101,7 +97,7 @@ export class ContentWizardToolbarPublishControls
             return;
         }
 
-        this.refreshHandlerDebounced();
+        this.doRefreshState();
     }
 
     private doRefreshState() {

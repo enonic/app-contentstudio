@@ -61,6 +61,8 @@ export class ContentPublishMenuButton
 
     protected item: ContentSummaryAndCompareStatus;
 
+    private isRefreshDisabled: boolean = false;
+
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction);
         this.addClass('content-publish-menu transparent');
@@ -127,6 +129,10 @@ export class ContentPublishMenuButton
         //
     }
 
+    setRefreshDisabled(value: boolean) {
+        this.isRefreshDisabled = value;
+    }
+
     private notifyInitialized() {
         this.initializedListeners.forEach((listener: () => void) => {
             listener();
@@ -161,9 +167,13 @@ export class ContentPublishMenuButton
     private handleActionsUpdated() {
         const actionUpdatedHandler: () => void = api.util.AppHelper.debounce(() => {
             this.updateActiveClass();
-        }, 500);
+        }, 50);
 
-        this.getActions().forEach((action: Action) => action.onPropertyChanged(actionUpdatedHandler));
+        this.getActions().forEach((action: Action) => action.onPropertyChanged(() => {
+            if (!this.isRefreshDisabled) {
+                actionUpdatedHandler();
+            }
+        }));
     }
 
     protected updateActiveClass() {
