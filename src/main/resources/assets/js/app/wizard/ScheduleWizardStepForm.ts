@@ -2,8 +2,7 @@ import FormView = api.form.FormView;
 import PropertySet = api.data.PropertySet;
 import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
 import i18n = api.util.i18n;
-import {PublishFrom} from '../inputtype/publish/PublishFrom';
-import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
+import DateTimeRange = api.form.inputtype.time.DateTimeRange;
 import {Content, ContentBuilder} from '../content/Content';
 import {PublishStatus} from '../publish/PublishStatus';
 
@@ -46,24 +45,19 @@ export class ScheduleWizardStepForm
 
     private initFormView(content: Content) {
         let formBuilder = new api.form.FormBuilder()
-            .addFormItem(new api.form.InputBuilder()
-                .setName('from')
-                .setInputType(PublishFrom.getName())
-                .setLabel(i18n('field.onlineFrom'))
-                .setHelpText(i18n('field.onlineFrom.help'))
-                .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
-                .setInputTypeConfig({})
-                .setMaximizeUIInputWidth(true)
-                .build())
-            .addFormItem(new api.form.InputBuilder()
-                .setName('to')
-                .setInputType(PublishToFuture.getName())
-                .setLabel(i18n('field.onlineTo'))
-                .setHelpText(i18n('field.onlineTo.help'))
-                .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
-                .setInputTypeConfig({})
-                .setMaximizeUIInputWidth(true)
-                .build());
+            .addFormItem(
+                new api.form.InputBuilder()
+                    .setName('publish')
+                    .setInputType(DateTimeRange.getName())
+                    .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                    .setInputTypeConfig({
+                        labelStart: i18n('field.onlineFrom'),
+                        labelEnd: i18n('field.onlineTo')
+                    })
+                    .setHelpText(i18n('field.onlineFrom.help'))
+                    .setMaximizeUIInputWidth(true)
+                    .build()
+            );
 
         this.initPropertySet(content);
         this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);
@@ -92,21 +86,21 @@ export class ScheduleWizardStepForm
     private initPropertySet(content: Content) {
         let publishFromDate = content.getPublishFromTime();
         if (publishFromDate) {
-            this.propertySet.setLocalDateTime('from', 0, api.util.LocalDateTime.fromDate(publishFromDate));
+            this.propertySet.setLocalDateTimeByPath('publish.from', api.util.LocalDateTime.fromDate(publishFromDate));
         }
         let publishToDate = content.getPublishToTime();
         if (publishToDate) {
-            this.propertySet.setLocalDateTime('to', 0, api.util.LocalDateTime.fromDate(publishToDate));
+            this.propertySet.setLocalDateTimeByPath('publish.to', api.util.LocalDateTime.fromDate(publishToDate));
         }
     }
 
     getPublishStatus(): PublishStatus {
-        let publishFrom = this.propertySet.getDateTime('from');
+        let publishFrom = this.propertySet.getDateTime('publish.from');
         if (publishFrom && publishFrom.toDate() > new Date()) {
             return PublishStatus.PENDING;
         }
 
-        let publishTo = this.propertySet.getDateTime('to');
+        let publishTo = this.propertySet.getDateTime('publish.to');
         if (publishTo && publishTo.toDate() < new Date()) {
             return PublishStatus.EXPIRED;
         }
@@ -115,9 +109,9 @@ export class ScheduleWizardStepForm
     }
 
     apply(builder: ContentBuilder) {
-        let publishFrom = this.propertySet.getDateTime('from');
+        let publishFrom = this.propertySet.getDateTime('publish.from');
         builder.setPublishFromTime(publishFrom && publishFrom.toDate());
-        let publishTo = this.propertySet.getDateTime('to');
+        let publishTo = this.propertySet.getDateTime('publish.to');
         builder.setPublishToTime(publishTo && publishTo.toDate());
     }
 

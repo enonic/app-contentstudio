@@ -2,6 +2,56 @@
 
   @toggler-width: 35px;
 
+  .modal-dialog-header {
+    background-color: @admin-bg-light-gray;
+
+    .publish-dialog-sub-title {
+      margin-top: 6px;
+
+      a {
+        text-decoration: none;
+        line-height: 30px; // equal to the height of the input to prevent wiggle on switch
+      }
+    }
+  }
+
+  .modal-dialog-body {
+    padding-top: 15px;
+
+    .dialog-togglable-item-list {
+      padding-top: 15px;
+    }
+
+    .schedule-form-wrapper {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .schedule-note {
+        width: 100%;
+        display: block;
+        margin: 0 25px 0 0;
+        background-color: @form-button-bg;
+        padding: 10px 20px;
+        color: @admin-white;
+      }
+
+      .form-view {
+        flex: 1;
+        padding: 15px 0 !important;
+      }
+
+      a.remove-button {
+        .icon-close();
+        font-size: 18px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-left: 8px;
+      }
+    }
+  }
+
   .browse-selection-item .remove {
     display: flex;
   }
@@ -55,26 +105,13 @@
   }
 
   .dialog-content {
-    .date-time-picker {
-      margin: 5px 0 10px 0;
 
-      input {
-        .input-glow();
-      }
 
-      &.invalid {
-        input {
-          .input-error();
-        }
-      }
-
-    }
-
-    .publish-from-label, .publish-to-label {
+    .start-label, .end-label {
       font-size: 14px;
     }
 
-    .publish-from-label {
+    .start-label {
       &:after {
         content: '*';
         color: @input-red-text;

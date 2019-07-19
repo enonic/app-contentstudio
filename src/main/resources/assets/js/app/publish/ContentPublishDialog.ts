@@ -17,11 +17,13 @@ import ContentId = api.content.ContentId;
 import ListBox = api.ui.selector.list.ListBox;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
-import ActionButton = api.ui.button.ActionButton;
 import Principal = api.security.Principal;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
-import DialogButton = api.ui.dialog.DialogButton;
 import i18n = api.util.i18n;
+import DateTimeRange = api.form.inputtype.time.DateTimeRange;
+import FormItem = api.form.FormItem;
+import KeyHelper = api.ui.KeyHelper;
+import PropertyEvent = api.data.PropertyEvent;
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -32,27 +34,30 @@ import i18n = api.util.i18n;
 export class ContentPublishDialog
     extends BasePublishDialog {
 
-    private publishButton: ActionButton;
-
-    private createIssueAction: Action;
-
     private publishAction: Action;
-
-    private createIssueButton: DialogButton;
 
     private publishProcessor: PublishProcessor;
 
-    private actionMenu: MenuButton;
-
     private currentUser: Principal;
+
+    private publishSubTitle: ContentPublishDialogSubTitle;
+
+    private scheduleFormView: api.form.FormView;
+
+    private scheduleFormWrapper: api.dom.DivEl;
+
+    private showScheduleFormAction: api.ui.Action;
+
+    private scheduleAction: api.ui.Action;
+
+    private scheduleFormPropertySet: api.data.PropertySet;
 
     private publishIssuesStateBar: PublishIssuesStateBar;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
-                dialogSubName: i18n('dialog.publish.resolving'),
             dependantsDescription: i18n('dialog.publish.dependants'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
@@ -63,22 +68,65 @@ export class ContentPublishDialog
         );
     }
 
+    protected initActions() {
+        super.initActions();
+
+        this.showScheduleFormAction = new api.ui.Action(i18n('dialog.publish.addSchedule'))
+            .onExecuted((action: Action) => {
+                this.setScheduleFormVisible(true);
+                this.toggleAction(this.isScheduleFormValid());
+            });
+
+        this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
+
+        this.scheduleAction = new api.ui.Action('action.schedule')
+            .onExecuted((action: Action) => this.doPublish(true));
+    }
+
     protected initElements() {
         super.initElements();
 
+        this.publishSubTitle = new ContentPublishDialogSubTitle();
+
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
-        this.createIssueButton = this.addAction(this.createIssueAction);
-        this.actionMenu = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction, this.createIssueAction]);
-        this.actionButton = this.actionMenu.getActionButton();
-        this.publishButton = this.actionMenu.getActionButton();
+
+        this.actionButton = this.addAction(this.publishAction);
+        this.addAction(this.scheduleAction);
+
+        const form = new api.form.FormBuilder().addFormItem(this.createRangeFormItem()).build();
+        this.scheduleFormPropertySet = new api.data.PropertySet();
+
+        this.scheduleFormWrapper = new api.dom.DivEl('schedule-form-wrapper');
+        const removeButton = new api.dom.AEl('remove-button');
+        removeButton.onClicked((event: MouseEvent) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            this.setScheduleFormVisible(false);
+            this.updateControls(this.countTotal());
+        });
+
+        this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), form, this.scheduleFormPropertySet);
+
+        this.scheduleFormPropertySet.onChanged((event: PropertyEvent) => {
+            this.scheduleFormView.validate(false, true);
+            const isFormValid = this.isScheduleFormValid();
+
+            this.toggleAction(isFormValid);
+        });
+
+        const note = new api.dom.H6El('schedule-note').setHtml(i18n('dialog.schedule.subname'), false);
+
+        this.scheduleFormWrapper.appendChildren<api.dom.Element>(note, this.scheduleFormView, removeButton);
+
         this.publishIssuesStateBar = new PublishIssuesStateBar();
+
         this.loadCurrentUser();
     }
 
     protected postInitElements() {
         super.postInitElements();
 
-        this.setElementToFocusOnShow(this.getButtonRow().getActionMenu().getDropdownHandle());
         this.addClickIgnoredElement(CreateIssueDialog.get());
 
         this.lockControls();
@@ -140,21 +188,49 @@ export class ContentPublishDialog
         this.setSubTitle('');
         this.publishIssuesStateBar.showLoadFailed();
         this.toggleAction(false);
-        this.actionMenu.setVisible(false);
-        this.createIssueButton.setVisible(true);
         this.hideLoadMask();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addCancelButtonToBottom();
+            this.setSubTitleEl(this.publishSubTitle);
             this.appendChildToHeader(this.publishIssuesStateBar);
-            this.actionMenu.getDropdownHandle().addClass('force-enabled');
-            this.createIssueButton.hide();
-            this.createIssueButton.addClass('force-enabled');
+
+            this.prependChildToContentPanel(this.scheduleFormWrapper);
+            this.scheduleFormView.layout(false);
+            this.scheduleFormView.displayValidationErrors(true);
+
+            const scheduleButton = new api.ui.button.ActionButton(this.showScheduleFormAction);
+            this.prependChildToContentPanel(scheduleButton);
 
             return rendered;
         });
+    }
+
+    protected createRangeFormItem(): FormItem {
+        return new api.form.InputBuilder()
+            .setName('publish')
+            .setInputType(DateTimeRange.getName())
+            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setInputTypeConfig({
+                labelStart: i18n('field.onlineFrom'),
+                labelEnd: i18n('field.onlineTo')
+            })
+            .setMaximizeUIInputWidth(true)
+            .build();
+    }
+
+    private setScheduleFormVisible(flag: boolean) {
+        this.scheduleFormWrapper.setVisible(flag);
+        this.showScheduleFormAction.setVisible(!flag);
+
+        this.scheduleAction.setVisible(flag);
+        this.publishAction.setVisible(!flag);
+
+        if (!flag) {
+            this.scheduleFormPropertySet.reset();
+            this.scheduleFormView.reset();
+        }
     }
 
     private loadCurrentUser() {
@@ -182,13 +258,6 @@ export class ContentPublishDialog
         return issue.getCreator() === this.currentUser.getKey().toString();
     }
 
-    protected initActions() {
-        super.initActions();
-
-        this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
-        this.createIssueAction = new CreateIssueDialogAction(this.createIssue.bind(this));
-    }
-
     protected createDependantList(): PublishDialogDependantList {
         return new PublishDialogDependantList();
     }
@@ -206,6 +275,8 @@ export class ContentPublishDialog
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
 
         CreateIssueDialog.get().reset();
+
+        this.setScheduleFormVisible(false);
 
         this.reloadPublishDependencies();
 
@@ -277,42 +348,31 @@ export class ContentPublishDialog
         return this;
     }
 
-    private showCreateIssueDialog() {
-        const createIssueDialog = CreateIssueDialog.get();
-
-        createIssueDialog.enableBackButton();
-        createIssueDialog.setItems(this.getItemList().getItems()/*idsToPublish, this.getItemList().getExcludeChildrenIds()*/);
-        createIssueDialog.setExcludedIds(this.getExcludedIds());
-        createIssueDialog.setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
-
-        createIssueDialog.lockPublishItems();
-        createIssueDialog.open(this);
-
-        this.mask();
-    }
-
-    private createIssue() {
-        //TODO: implement action
-        this.showCreateIssueDialog();
-    }
-
     private doPublish(scheduled: boolean = false) {
 
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
-        this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
-
         const selectedIds = this.getContentToPublishIds();
+        const publishMessage = this.publishSubTitle.getValue();
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
+            .setMessage(!api.util.StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 
         if (scheduled) {
-            publishRequest.setPublishFrom(this.getFromDate());
-            publishRequest.setPublishTo(this.getToDate());
+            const publishSet = this.scheduleFormPropertySet.getPropertySet('publish');
+            const from = publishSet.getLocalDateTime('from', 0);
+            if (from) {
+                publishRequest.setPublishFrom(from.toDate());
+            }
+
+            const to = publishSet.getLocalDateTime('to', 0);
+            if (to) {
+                publishRequest.setPublishTo(to.toDate());
+            }
         }
 
         publishRequest.sendAndParse().then((taskId: api.task.TaskId) => {
@@ -367,23 +427,31 @@ export class ContentPublishDialog
     private updateControls(itemsToPublish: number) {
         const allValid: boolean = this.areItemsAndDependantsValid();
         const allPublishable: boolean = this.isAllPublishable();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable && !this.containsItemsInProgress();
-        const showActionMenu: boolean = itemsToPublish > 0 && allPublishable;
+        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const scheduleValid = !this.scheduleAction.isVisible() || this.isScheduleFormValid();
 
-        this.toggleAction(canPublish);
-        this.actionMenu.setVisible(showActionMenu);
-        this.createIssueButton.setVisible(!showActionMenu);
+        this.toggleAction(canPublish && scheduleValid);
 
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
     }
 
-    protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
+    private isScheduleFormValid() {
+        const isFormValid = this.scheduleFormView.isValid();
+        const dateSet = this.scheduleFormPropertySet.getProperty('publish').getPropertySet();
+        if (!isFormValid || !dateSet) {
+            return false;
+        }
+        const from = dateSet.getProperty('from', 0);
+        const to = dateSet.getProperty('to', 0);
+        return from && from.hasNonNullValue() || to && to.hasNonNullValue();
+    }
 
-        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
-        this.showScheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.scheduleMore')));
-        this.createIssueAction.setLabel(labelWithNumber(this.getItemList().getItemCount(), i18n('action.createIssueMore')));
+    protected updateButtonCount(actionString: string, itemsToPublish: number) {
+        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
+
+        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
+        this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
     }
 
     protected doScheduledAction() {
@@ -409,12 +477,12 @@ export class ContentPublishDialog
 
     protected lockControls() {
         super.lockControls();
-        this.publishButton.setEnabled(false);
+        this.scheduleAction.setEnabled(false);
     }
 
     protected unlockControls() {
         super.unlockControls();
-        this.publishButton.setEnabled(true);
+        this.scheduleAction.setEnabled(true);
     }
 }
 
@@ -429,11 +497,82 @@ export class ContentPublishDialogButtonRow
 
 }
 
-export class CreateIssueDialogAction
-    extends api.ui.Action {
-    constructor(handler: () => wemQ.Promise<any> | void) {
-        super(i18n('action.createIssueMore'));
-        this.setIconClass('create-issue-action');
-        this.onExecuted(handler);
+export class ContentPublishDialogSubTitle
+    extends api.dom.DivEl {
+    private input: api.ui.text.AutosizeTextInput;
+    private message: api.dom.AEl;
+
+    constructor() {
+        super('publish-dialog-sub-title');
+        this.input = new api.ui.text.AutosizeTextInput();
+        this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
+        this.input.setVisible(false);
+
+        this.message = new api.dom.AEl();
+        this.message.setHtml(i18n('dialog.publish.messageHint'));
+        this.message.onClicked((event: MouseEvent) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
+            this.toggleInput(true);
+        });
+
+        this.initListeners();
+    }
+
+    private toggleInput(visible: boolean) {
+        if (visible) {
+            this.message.hide();
+            this.input.show();
+            this.input.giveFocus();
+        } else {
+            this.input.reset();
+            this.input.hide();
+            this.message.show();
+        }
+    }
+
+    private initListeners() {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
+                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
+            const isInputVisible = this.input.isVisible();
+
+            if (!isInputVisible && isLetterOrNumber) {
+                this.toggleInput(true);
+            } else if (isInputVisible && KeyHelper.isEscKey(event)) {
+                event.stopImmediatePropagation();
+                this.toggleInput(false);
+            }
+        };
+
+        const clickHandler = (event: MouseEvent) => {
+            if (this.input.isVisible()
+                && api.util.StringHelper.isBlank(this.input.getValue())
+                && event.target !== this.input.getHTMLElement()) {
+
+                this.toggleInput(false);
+            }
+        };
+
+        this.onShown(() => {
+            api.dom.Body.get().onKeyDown(keyDownHandler);
+            this.toggleInput(false);
+        });
+        this.onHidden(() => api.dom.Body.get().unKeyDown(keyDownHandler));
+
+        this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
+        this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
+    }
+
+    public getValue(): string {
+        return this.input.getValue();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren<api.dom.Element>(this.message, this.input);
+            return rendered;
+        });
     }
 }

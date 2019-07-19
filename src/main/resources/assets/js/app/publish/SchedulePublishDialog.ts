@@ -1,8 +1,7 @@
 import AEl = api.dom.AEl;
 import i18n = api.util.i18n;
 import FormItem = api.form.FormItem;
-import {PublishFrom} from '../inputtype/publish/PublishFrom';
-import {PublishToFuture} from '../inputtype/publish/PublishToFuture';
+import DateTimeRange = api.form.inputtype.time.DateTimeRange;
 import {SchedulableDialog} from '../dialog/SchedulableDialog';
 
 export class SchedulePublishDialog
@@ -60,18 +59,18 @@ export class SchedulePublishDialog
         this.onCloseCallback = onCloseCallback;
     }
 
-    protected createFromFormItem(): FormItem {
-        return new api.form.InputBuilder().setName('from').setInputType(PublishFrom.getName()).setLabel(
-            i18n('field.onlineFrom')).setHelpText(i18n('field.onlineFrom.help')).setOccurrences(
-            new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build()).setInputTypeConfig({}).setMaximizeUIInputWidth(
-            true).build();
-    }
-
-    protected createToFormItem(): FormItem {
-        return new api.form.InputBuilder().setName('to').setInputType(PublishToFuture.getName()).setLabel(
-            i18n('field.onlineTo')).setHelpText(i18n('field.onlineTo.help')).setOccurrences(
-            new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).setInputTypeConfig({}).setMaximizeUIInputWidth(
-            true).build();
+    protected createRangeFormItem(): FormItem {
+        return new api.form.InputBuilder()
+            .setName('publish')
+            .setInputType(DateTimeRange.getName())
+            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+            .setInputTypeConfig({
+                labelStart: i18n('field.onlineFrom'),
+                labelEnd: i18n('field.onlineTo')
+            })
+            .setHelpText(i18n('field.onlineFrom.help'))
+            .setMaximizeUIInputWidth(true)
+            .build();
     }
 
     private addSubtitle() {
