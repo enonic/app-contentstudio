@@ -194,14 +194,15 @@ export class ContentPublishDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
-            this.appendChildToHeader(this.publishIssuesStateBar);
 
             this.prependChildToContentPanel(this.scheduleFormWrapper);
             this.scheduleFormView.layout(false);
             this.scheduleFormView.displayValidationErrors(true);
 
-            const scheduleButton = new api.ui.button.ActionButton(this.showScheduleFormAction);
+            const scheduleButton = new api.ui.button.ActionButton(this.showScheduleFormAction).addClass('schedule-button');
             this.prependChildToContentPanel(scheduleButton);
+
+            this.prependChildToContentPanel(this.publishIssuesStateBar);
 
             return rendered;
         });
@@ -407,10 +408,11 @@ export class ContentPublishDialog
         const allPublishable: boolean = this.isAllPublishable();
 
         if (allPublishable && allValid && !containsItemsInProgress) {
-            this.setSubTitle(i18n('dialog.publish.changesReady'));
+            this.publishIssuesStateBar.removeClass('has-issues');
             return;
         }
 
+        this.publishIssuesStateBar.addClass('has-issues');
         if (containsItemsInProgress) {
             this.publishIssuesStateBar.showContainsInProgress();
         }
@@ -484,6 +486,10 @@ export class ContentPublishDialog
         super.unlockControls();
         this.scheduleAction.setEnabled(true);
     }
+
+    setSubTitle(text: string, escapeHtml?: boolean) {
+        this.publishSubTitle.setMessage(text.trim(), escapeHtml);
+    }
 }
 
 export class ContentPublishDialogButtonRow
@@ -518,6 +524,11 @@ export class ContentPublishDialogSubTitle
         });
 
         this.initListeners();
+    }
+
+    public setMessage(text: string, escapeHtml?: boolean) {
+        this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
+        this.toggleClass('custom-message', !!text);
     }
 
     private toggleInput(visible: boolean) {

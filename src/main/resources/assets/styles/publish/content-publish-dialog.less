@@ -9,8 +9,16 @@
       margin-top: 6px;
 
       a {
+        font-size: 14px;
         text-decoration: none;
         line-height: 30px; // equal to the height of the input to prevent wiggle on switch
+      }
+
+      &.custom-message {
+        a {
+          color: @admin-font-gray2;
+          pointer-events: none;
+        }
       }
     }
   }
@@ -20,6 +28,62 @@
 
     .dialog-togglable-item-list {
       padding-top: 15px;
+    }
+
+    .publish-dialog-issues {
+
+      &.has-issues + .schedule-button {
+        display: none;
+      }
+
+      h6 {
+        margin-top: 10px;
+      }
+
+      .invalid {
+        color: @admin-red;
+        line-height: 20px;
+
+        .invalid-part1 {
+          font-weight: bold;
+          padding-left: 25px;
+        }
+
+        .invalid-part2 {
+          padding-left: 5px;
+        }
+
+        &:before {
+          .icon-state-invalid;
+          position: absolute;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .in-progress {
+        line-height: 20px;
+
+        .in-progress-part1 {
+          font-weight: bold;
+          padding-left: 25px;
+        }
+
+        .in-progress-part2 {
+          padding-left: 5px;
+        }
+
+        &:before {
+          .icon-state-in-progress;
+          position: absolute;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .load-failed {
+        color: @admin-red;
+      }
     }
 
     .schedule-form-wrapper {
