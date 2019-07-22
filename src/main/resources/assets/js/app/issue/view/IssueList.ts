@@ -8,17 +8,22 @@ import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
 import ListBox = api.ui.selector.list.ListBox;
 import Principal = api.security.Principal;
-import PEl = api.dom.PEl;
 import SpanEl = api.dom.SpanEl;
 import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
 import DivEl = api.dom.DivEl;
 import Tooltip = api.ui.Tooltip;
 import Element = api.dom.Element;
-import i18n = api.util.i18n;
 import LoadMask = api.ui.mask.LoadMask;
 import NamesAndIconView = api.app.NamesAndIconView;
 import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
 import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
+import LiEl = api.dom.LiEl;
+
+export interface IssueListConfig {
+    storage: IssuesStorage;
+    noIssuesMessage: string;
+    issueType?: IssueType;
+}
 
 export class IssueList
     extends ListBox<IssueWithAssignees> {
@@ -43,24 +48,31 @@ export class IssueList
 
     private currentTotal: number;
 
+    private noIssues: LiEl;
+
     private loadMask: LoadMask;
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
     private issuesLoadedListeners: { (): void }[] = [];
 
-    constructor(storage: IssuesStorage, issueType?: IssueType) {
+    constructor(config: IssueListConfig) {
         super('issue-list');
         this.issueStatus = IssueStatus.OPEN;
-        this.issueType = issueType;
-        this.allIssuesStorage = storage;
+        this.issueType = config.issueType;
+        this.allIssuesStorage = config.storage;
         this.issuesOfType = 0;
+        this.initElements(config.noIssuesMessage);
         this.initListeners();
         this.loadCurrentUser();
         this.setupLazyLoading();
     }
 
-    private initListeners() {
+    protected initElements(noIssuesMessage: string) {
+        this.noIssues = new LiEl('no-issues-message').setHtml(noIssuesMessage);
+    }
+
+    protected initListeners() {
         this.allIssuesStorage.onIssuesUpdated(() => {
             const hasIssues = this.allIssuesStorage.hasIssues();
 
@@ -109,13 +121,28 @@ export class IssueList
         return wemQ(null);
     }
 
+    getTotalItems(): number {
+        return this.totalItems;
+    }
+
     updateTotalItems(totalItems: number): wemQ.Promise<void> {
         if (this.totalItems !== totalItems) {
             this.totalItems = totalItems;
-            return this.filterAndFetchItems();
+            return this.filterAndFetchItems().then(() => {
+                this.showNoIssuesMessage();
+            });
         }
 
-        return wemQ(null);
+        return wemQ.fcall(() => {
+            this.showNoIssuesMessage();
+        });
+    }
+
+    private showNoIssuesMessage() {
+        const hasNoIssues = this.totalItems === 0;
+        if (hasNoIssues && this.getItemCount() === 0) {
+            this.appendChild(this.noIssues);
+        }
     }
 
     filter() {
@@ -210,8 +237,6 @@ export class IssueList
                         this.allIssuesStorage.setIssues(issues);
                     } else {
                         this.allIssuesStorage.clear();
-                        const noIssuesEl = new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound'));
-                        this.appendChild(noIssuesEl);
                     }
                 }
 

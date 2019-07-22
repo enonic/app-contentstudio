@@ -6,7 +6,7 @@ import TabBar = api.ui.tab.TabBar;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
 import TabBarItem = api.ui.tab.TabBarItem;
 import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
-import {IssuesCount, IssuesPanel} from './IssuesPanel';
+import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
@@ -68,9 +68,24 @@ export class IssueListDialog
     protected initElements() {
         super.initElements();
         const storage = new IssuesStorage();
-        this.allPanel = this.createIssuePanel(storage);
-        this.publishRequestsPanel = this.createIssuePanel(storage, IssueType.PUBLISH_REQUEST);
-        this.issuesPanel = this.createIssuePanel(storage, IssueType.STANDARD);
+
+        this.allPanel = this.createIssuePanel({
+            storage,
+            noIssuesMessage: i18n('dialog.issue.noIssuesAndPublishRequests')
+        });
+
+        this.publishRequestsPanel = this.createIssuePanel({
+            storage,
+            issueType: IssueType.PUBLISH_REQUEST,
+            noIssuesMessage: i18n('dialog.issue.noPublishRequests')
+        });
+
+        this.issuesPanel = this.createIssuePanel({
+            storage,
+            issueType: IssueType.STANDARD,
+            noIssuesMessage: i18n('dialog.issue.noIssues')
+        });
+
         this.tabBar = this.createTabBar();
         this.deckPanel = this.createDeckPanel();
         this.createAction = new Action(i18n('action.newIssueMore'));
@@ -281,8 +296,8 @@ export class IssueListDialog
         return this.createAction.onExecuted(listener);
     }
 
-    private createIssuePanel(storage: IssuesStorage, issueType?: IssueType): IssuesPanel {
-        const issuePanel = new IssuesPanel(storage, issueType);
+    private createIssuePanel(config: IssuesPanelConfig): IssuesPanel {
+        const issuePanel = new IssuesPanel(config);
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));
