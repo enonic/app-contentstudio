@@ -65,6 +65,7 @@ export class IssueList
             const hasIssues = this.allIssuesStorage.hasIssues();
 
             if (hasIssues) {
+                // Issues updated, so full check required, which may cause performance problems
                 this.filter();
             } else {
                 this.clearItems();
@@ -80,7 +81,7 @@ export class IssueList
     updateIssueStatus(issueStatus: IssueStatus) {
         this.issueStatus = issueStatus;
         this.issuesOfType = this.countIssuesOfType();
-        this.filter();
+        this.filterIfChanged();
     }
 
     hasIssueType(): boolean {
@@ -102,7 +103,7 @@ export class IssueList
     updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
         if (this.currentTotal !== currentTotal) {
             this.currentTotal = currentTotal;
-            return this.fetchItems(true);
+            return this.filterAndFetchItems(true);
         }
 
         return wemQ(null);
@@ -111,7 +112,7 @@ export class IssueList
     updateTotalItems(totalItems: number): wemQ.Promise<void> {
         if (this.totalItems !== totalItems) {
             this.totalItems = totalItems;
-            return this.fetchItems();
+            return this.filterAndFetchItems();
         }
 
         return wemQ(null);
@@ -120,6 +121,17 @@ export class IssueList
     filter() {
         const issues = this.doFilter();
         this.setItems(issues);
+    }
+
+    filterIfChanged() {
+        const issues = this.doFilter();
+        const items = this.getItems();
+        const wasChanged = issues.length !== this.getItemCount() || issues.some((issue, index) => {
+            return issue.getIssue().getId() !== items[index].getIssue().getId();
+        });
+        if (wasChanged) {
+            this.setItems(issues);
+        }
     }
 
     private doFilter(): IssueWithAssignees[] {
@@ -153,13 +165,20 @@ export class IssueList
             });
     }
 
+    private filterAndFetchItems(append?: boolean): wemQ.Promise<void> {
+        this.filterIfChanged();
+        return this.fetchItems(append);
+    }
+
     private fetchItems(append?: boolean): wemQ.Promise<void> {
-        const skipLoad = !this.filterAndCheckIfNeedToLoad();
+        const skipLoad = !this.needToLoad();
         if (skipLoad) {
             return wemQ(null);
         }
 
         this.showLoadMask();
+
+        this.filterIfChanged();
 
         return this.doFetch(append)
             .catch(api.DefaultErrorHandler.handle)
@@ -219,11 +238,6 @@ export class IssueList
 
     private needToLoad(): boolean {
         return this.currentTotal > this.issuesOfType;
-    }
-
-    private filterAndCheckIfNeedToLoad(): boolean {
-        this.filter();
-        return this.needToLoad();
     }
 
     private showLoadMask() {

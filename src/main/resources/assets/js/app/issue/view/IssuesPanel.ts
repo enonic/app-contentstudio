@@ -169,7 +169,7 @@ export class IssuesPanel
     }
 
     private doFilter() {
-        this.issuesList.filter();
+        this.issuesList.filterIfChanged();
     }
 
     doRender(): Q.Promise<boolean> {
