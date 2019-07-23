@@ -20,6 +20,10 @@ export class WidgetItemView extends api.dom.DivEl {
         return wemQ<any>(null);
     }
 
+    public setNoContent() {
+        //
+    }
+
     private static getFullWidgetUrl(url: string, contentId: string) {
         const {repository, branch} = CONFIG;
         const repositoryParam = repository ? `repository=${repository}&` : '';

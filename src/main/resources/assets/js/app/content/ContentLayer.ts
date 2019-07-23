@@ -28,6 +28,29 @@ export class ContentLayer {
         return new ContentLayerBuilder().fromContentLayerJson(json).build();
     }
 
+    getName(): string {
+        return this.name;
+    }
+
+    getParentName(): string {
+        return this.parentName;
+    }
+
+    getDisplayName(): string {
+        return this.displayName;
+    }
+
+    getDescription(): string {
+        return this.description;
+    }
+
+    getLanguage(): string {
+        return this.language;
+    }
+
+    getIcon(): Attachment {
+        return this.icon;
+    }
 }
 
 export class ContentLayerBuilder {

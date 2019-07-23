@@ -23,6 +23,7 @@ import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
+import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -255,6 +256,7 @@ export class ContextView
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
         this.toggleClass('emulator', widgetView.isEmulator());
+        this.toggleClass('layers', widgetView.isLayers());
 
         if (this.widgetsSelectionRow) {
             this.widgetsSelectionRow.updateState(this.activeWidget);
@@ -295,6 +297,10 @@ export class ContextView
             return this.updateActiveWidget();
         }
 
+        if (activeWidgetVisible && selectionChanged && !itemSelected) {
+            this.updateActiveWidgetNoItem();
+        }
+
         return wemQ<any>(null);
     }
 
@@ -323,6 +329,14 @@ export class ContextView
 
             this.activeWidget.slideIn();
         });
+    }
+
+    private updateActiveWidgetNoItem() {
+        if (!this.activeWidget) {
+            return;
+        }
+
+        this.activeWidget.updateNoItem();
     }
 
     public showLoadMask() {
@@ -369,6 +383,15 @@ export class ContextView
                 new AttachmentsWidgetItemView()
             ]).build();
 
+        const layersWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.layers'))
+            .setDescription(i18n('field.contextPanel.layers.description'))
+            .setWidgetClass('layers-widget')
+            .setIconClass('icon-layers')
+            .setType(InternalWidgetType.LAYERS)
+            .setContextView(this)
+            .addWidgetItemView(new LayersWidgetItemView()).build();
+
         const versionsWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.versionHistory'))
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
@@ -398,7 +421,7 @@ export class ContextView
 
         this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        this.addWidgets([this.propertiesWidgetView, layersWidgetView, versionsWidgetView, dependenciesWidgetView]);
         if (!this.isInsideWizard()) {
             this.addWidget(this.emulatorWidgetView);
         }
