@@ -10,7 +10,8 @@ export enum InternalWidgetType {
     HISTORY,
     DEPENDENCIES,
     EMULATOR,
-    COMPONENTS
+    COMPONENTS,
+    LAYERS
 }
 
 export class WidgetView extends api.dom.DivEl {
@@ -140,6 +141,12 @@ export class WidgetView extends api.dom.DivEl {
         return wemQ.all(promises).finally(() => this.contextView.hideLoadMask());
     }
 
+    public updateNoItem() {
+        this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
+            widgetItemView.setNoContent();
+        });
+    }
+
     private createDefaultWidgetItemView() {
         this.widgetItemViews.push(new WidgetItemView());
         if (this.contextView.getItem()) {
@@ -232,6 +239,10 @@ export class WidgetView extends api.dom.DivEl {
 
     isEmulator(): boolean {
         return this.type === InternalWidgetType.EMULATOR;
+    }
+
+    isLayers(): boolean {
+        return this.type === InternalWidgetType.LAYERS;
     }
 
     getType(): InternalWidgetType {
