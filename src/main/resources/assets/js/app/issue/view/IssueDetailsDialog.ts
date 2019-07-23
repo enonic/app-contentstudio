@@ -251,18 +251,20 @@ export class IssueDetailsDialog
             this.setActionsEnabled(!editMode);
         });
 
-        this.itemSelector.onOptionSelected(o => {
+        this.itemSelector.onOptionSelected(option => {
             this.saveOnLoaded = true;
-            const ids = [o.getSelectedOption().getOption().displayValue.getContentId()];
+            const ids = [option.getSelectedOption().getOption().displayValue.getContentId()];
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
                 this.addListItems(result);
             });
         });
-        this.itemSelector.onOptionDeselected(o => {
+
+        this.itemSelector.onOptionDeselected(option => {
             this.saveOnLoaded = true;
-            const id = o.getSelectedOption().getOption().displayValue.getContentId();
+            const id = option.getSelectedOption().getOption().displayValue.getContentId();
             const items = [this.getItemList().getItem(id.toString())];
             this.removeListItems(items);
+            this.getItemList().refreshList();
         });
 
         this.tabPanel.onPanelShown(event => {
@@ -403,7 +405,7 @@ export class IssueDetailsDialog
             this.updateItemsCountAndButtons();
             this.updateShowScheduleDialogButton();
         });
-        itemList.onItemsRemoved(items => {
+        itemList.onItemsRemoved(() => {
             this.updateItemsCountAndButtons();
             this.updateShowScheduleDialogButton();
         });
