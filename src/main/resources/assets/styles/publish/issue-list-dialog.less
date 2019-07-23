@@ -25,6 +25,16 @@
   .panel {
     position: inherit;
     overflow: initial;
+  }
+
+  .issues-panel {
+
+    &.no-issues {
+      .row-selector,
+      .on-off-button {
+        display: none;
+      }
+    }
 
     .filters {
       margin-bottom: 20px;
@@ -153,9 +163,12 @@
     }
 
     .no-issues-message {
-      .watermark-text(18px, true);
-      top: calc(~'50% + 24px');
-      left: 0;
+      padding: 26px 0;
+      font-size: 18px;
+      color: rgba(0, 0, 0, 0.25);
+      line-height: 30px;
+      text-align: center;
+      .ellipsis();
     }
 
     .creator, .assignee {

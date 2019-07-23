@@ -187,6 +187,7 @@ export class ContentPublishDialog
     private handleLoadFailed() {
         this.setSubTitle('');
         this.publishIssuesStateBar.showLoadFailed();
+        this.publishIssuesStateBar.addClass('has-issues');
         this.toggleAction(false);
         this.hideLoadMask();
     }
@@ -422,14 +423,15 @@ export class ContentPublishDialog
         }
 
         if (!allPublishable) {
-            this.publishIssuesStateBar.showContainsReadOnly();
+            this.publishIssuesStateBar.showContainsNotPublishable();
         }
     }
 
     private updateControls(itemsToPublish: number) {
         const allValid: boolean = this.areItemsAndDependantsValid();
         const allPublishable: boolean = this.isAllPublishable();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const containsItemsInProgress: boolean = this.containsItemsInProgress();
+        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable && !containsItemsInProgress;
         const scheduleValid = !this.scheduleAction.isVisible() || this.isScheduleFormValid();
 
         this.toggleAction(canPublish && scheduleValid);
