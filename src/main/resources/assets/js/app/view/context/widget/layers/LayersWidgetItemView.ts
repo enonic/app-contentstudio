@@ -37,13 +37,21 @@ export class LayersWidgetItemView
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
         this.item = item;
 
-        if (item.getContentSummary().isInherited()) {
-            this.setState(LayersWidgetState.INHERITED);
-        } else {
-            this.setState(LayersWidgetState.LOCAL);
-        }
+        return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+            this.currentLayer = this.getCurrentLayer(layers);
 
-        return wemQ<any>(null);
+            if (layers.length > 1 && !this.currentLayer.isBaseLayer()) {
+                if (item.getContentSummary().isInherited()) {
+                    this.setState(LayersWidgetState.INHERITED);
+                } else {
+                    this.setState(LayersWidgetState.LOCAL);
+                }
+            } else {
+                this.setState(LayersWidgetState.MULTI_LAYERS);
+            }
+
+            return wemQ(null);
+        }).catch(api.DefaultErrorHandler.handle);
     }
 
     public setNoContent() {
