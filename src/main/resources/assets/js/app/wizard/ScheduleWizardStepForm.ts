@@ -26,7 +26,6 @@ export class ScheduleWizardStepForm
 
     update(content: Content, unchangedOnly: boolean = true) {
         this.updateUnchangedOnly = unchangedOnly;
-        this.propertySet.reset();
         this.initPropertySet(content);
         this.formView.update(this.propertySet, unchangedOnly);
     }
@@ -84,19 +83,15 @@ export class ScheduleWizardStepForm
     }
 
     private initPropertySet(content: Content) {
-        let pSet = this.propertySet.getPropertySet('publish');
-        if (!pSet) {
-            pSet = new PropertySet();
-            this.propertySet.setPropertySet('publish', 0, pSet);
-        }
+        const pSet = new PropertySet(this.propertySet.getTree());
+
         const publishFromDate = content.getPublishFromTime();
-        if (publishFromDate) {
-            pSet.setLocalDateTime('from', 0, api.util.LocalDateTime.fromDate(publishFromDate));
-        }
+        pSet.setLocalDateTime('from', 0, publishFromDate ? api.util.LocalDateTime.fromDate(publishFromDate) : null);
+
         const publishToDate = content.getPublishToTime();
-        if (publishToDate) {
-            pSet.setLocalDateTime('to', 0, api.util.LocalDateTime.fromDate(publishToDate));
-        }
+        pSet.setLocalDateTime('to', 0, publishToDate ? api.util.LocalDateTime.fromDate(publishToDate) : null);
+
+        this.propertySet.setPropertySet('publish', 0, pSet);
     }
 
     getPublishStatus(): PublishStatus {
