@@ -1,10 +1,8 @@
-import {IssueList} from './IssueList';
+import {IssueList, IssueListConfig} from './IssueList';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {RowSelector} from '../../inputtype/ui/selector/RowSelector';
 import {OnOffButton} from './OnOffButton';
-import {IssueType} from '../IssueType';
-import {IssuesStorage} from './IssuesStorage';
 import Panel = api.ui.panel.Panel;
 import LoadMask = api.ui.mask.LoadMask;
 import Option = api.ui.selector.Option;
@@ -23,6 +21,9 @@ export interface IssuesCount {
     assignedByMe: number;
 }
 
+export interface IssuesPanelConfig
+    extends IssueListConfig {}
+
 export class IssuesPanel
     extends Panel {
 
@@ -40,22 +41,22 @@ export class IssuesPanel
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
-    constructor(storage: IssuesStorage, issueType?: IssueType) {
+    constructor(config: IssuesPanelConfig) {
         super('issues-panel');
 
-        this.initElements(storage, issueType);
+        this.initElements(config);
     }
 
-    private initElements(storage: IssuesStorage, issueType?: IssueType) {
-        this.initIssuesList(storage, issueType);
+    private initElements(config: IssuesPanelConfig) {
+        this.initIssuesList(config);
         this.initOptionsCount();
         this.initFilterOptions();
         this.initFilter();
         this.initIssuesToggler();
     }
 
-    private initIssuesList(storage: IssuesStorage, issueType?: IssueType) {
-        this.issuesList = new IssueList(storage, issueType);
+    private initIssuesList(config: IssuesPanelConfig) {
+        this.issuesList = new IssueList(config);
         this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
     }
 
@@ -169,7 +170,7 @@ export class IssuesPanel
     }
 
     private doFilter() {
-        this.issuesList.filter();
+        this.issuesList.filterIfChanged();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -290,7 +291,6 @@ export class IssuesPanel
         this.closedIssues = closedIssues;
 
         return this.updateTotalItems()
-            .then(() => this.checkAndSwitchOptions())
             .then(() => this.updateIssuesTogglerAndOptions());
     }
 
@@ -300,20 +300,6 @@ export class IssuesPanel
             assignedToMe: this.openedIssues.assignedToMe + this.closedIssues.assignedToMe,
             assignedByMe: this.openedIssues.assignedByMe + this.closedIssues.assignedByMe
         };
-    }
-
-    private checkAndSwitchOptions(): wemQ.Promise<void> {
-        const total = this.getTotalIssues();
-
-        const allAreClosed = total.all > 0 && this.openedIssues.all === 0;
-        const switchToAllIssues = !this.isAllVisible() && allAreClosed;
-
-        if (switchToAllIssues) {
-            this.issuesToggler.turnOff();
-            return this.showClosedIssues();
-        }
-
-        return wemQ(null);
     }
 
     private updateIssuesTogglerAndOptions(): wemQ.Promise<void> {
@@ -342,9 +328,14 @@ export class IssuesPanel
             offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
 
-        const noClosedIssues = closedCount === 0;
-        const noOpenedIssues = openedCount === 0;
-        const disableToggler = noClosedIssues || noOpenedIssues;
+        this.updateIssuesTogglerStatus(closedCount, openedCount);
+    }
+
+    private updateIssuesTogglerStatus(closed: number, opened: number) {
+        const noClosedIssues = closed === 0;
+        const noOpenedIssues = opened === 0;
+        const showingClosedIssues = this.issuesToggler.isOff();
+        const disableToggler = (!showingClosedIssues && noClosedIssues) || (showingClosedIssues && noOpenedIssues);
         this.issuesToggler.setEnabled(!disableToggler);
     }
 
@@ -379,7 +370,15 @@ export class IssuesPanel
 
     private updateTotalItems(): wemQ.Promise<void> {
         const total = this.getTotalIssues().all;
-        return this.issuesList.updateTotalItems(total);
+        const previousTotal = this.issuesList.getTotalItems();
+        const hasTotalChanged = total !== previousTotal;
+
+        return this.issuesList.updateTotalItems(total).then(() => {
+            if (hasTotalChanged) {
+                const hasNoIssues = total === 0;
+                this.toggleClass('no-issues', hasNoIssues);
+            }
+        });
     }
 
     private updateCurrentTotal(): wemQ.Promise<void> {

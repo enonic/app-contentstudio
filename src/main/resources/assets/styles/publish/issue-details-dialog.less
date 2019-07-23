@@ -69,10 +69,31 @@
       .tab-bar-item {
         flex: 1;
       }
+
+      .comments-tab {
+        order: 1;
+      }
+      .items-tab {
+        order: 2;
+      }
+      .assignees-tab {
+        order: 3;
+      }
     }
   }
 
-  .modal-dialog-body {
+  &.publish-request {
+    .modal-dialog-header .tab-bar {
+      .comments-tab {
+        order: 2;
+      }
+      .items-tab {
+        order: 1;
+      }
+    }
+  }
+
+  &.tab-comments .modal-dialog-body {
     overflow: auto !important;
   }
 

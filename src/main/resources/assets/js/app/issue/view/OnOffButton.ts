@@ -33,6 +33,10 @@ export class OnOffButton
 
         this.addClass('on-off-button');
 
+        this.initListeners(clickHandler);
+    }
+
+    protected initListeners(clickHandler: (event: MouseEvent) => void) {
         this.onClicked((event: MouseEvent) => {
             this.off = !this.off;
 
@@ -52,6 +56,10 @@ export class OnOffButton
 
         this.refreshCurrentLabel();
 
+    }
+
+    isOff(): boolean {
+        return this.off;
     }
 
     turnOn() {
