@@ -7,6 +7,7 @@ import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveCont
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
+import WorkflowState = api.content.WorkflowState;
 import i18n = api.util.i18n;
 
 export class VersionsView
@@ -123,6 +124,31 @@ export class VersionsView
             let statusDiv = new api.dom.DivEl('status ' + contentVersionStatus.workspace);
             statusDiv.setHtml(contentVersionStatus.status);
             itemEl.appendChild(statusDiv);
+
+            if (contentVersionStatus.status.toLowerCase() === 'modified') {
+                statusDiv.addClass('modified');
+                itemEl.addClass('modified');
+                this.createModifiedTooltip(item, itemEl);
+            }
+
+            if (contentVersionStatus.status.toLowerCase() === 'published') {
+                statusDiv.addClass('published');
+                itemEl.addClass('published');
+                this.createPublishedTooltip(item, itemEl);
+            }
+        }
+    }
+
+    private createModifiedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
+        const tooltip = new api.ui.Tooltip(itemEl, i18n('tooltip.state.modified', item.modified.toUTCString(), item.modifierDisplayName),
+            1000);
+    }
+
+    private createPublishedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
+        if (item.publishInfo) {
+            const tooltip = new api.ui.Tooltip(itemEl,
+                i18n('tooltip.state.published', item.publishInfo.timestamp.toUTCString(), item.publishInfo.publisherDisplayName),
+                1000);
         }
     }
 
@@ -148,17 +174,25 @@ export class VersionsView
     private createVersionInfoBlock(item: ContentVersion): api.dom.Element {
         let versionInfoDiv = new api.dom.DivEl('version-info hidden');
 
-        let timestampDiv = new api.dom.DivEl('version-info-timestamp');
-        timestampDiv.appendChildren(new api.dom.SpanEl('label').setHtml(i18n('field.timestamp') + ': '),
-            new api.dom.SpanEl().setHtml(api.ui.treegrid.DateTimeFormatter.createHtml(item.modified)));
 
-        let versionIdDiv = new api.dom.DivEl('version-info-version-id');
-        versionIdDiv.appendChildren(new api.dom.SpanEl('label').setHtml(i18n('field.version.id') + ': '),
-            new api.dom.SpanEl().setHtml(item.id));
+        if (item.publishInfo) {
+            if (item.publishInfo.message) {
+                const messageDiv = new api.dom.DivEl('version-info-message');
+                messageDiv.appendChildren(new api.dom.PEl('message').setHtml(item.publishInfo.message));
+                versionInfoDiv.appendChild(messageDiv);
+            }
 
-        let displayNameDiv = new api.dom.DivEl('version-info-display-name');
-        displayNameDiv.appendChildren(new api.dom.SpanEl('label').setHtml(i18n('field.displayName') + ': '),
-            new api.dom.SpanEl().setHtml(item.displayName));
+            const publisher = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+            publisher
+                .setMainName(item.publishInfo.publisherDisplayName)
+                .setSubName(api.util.DateHelper.getModifiedString(item.publishInfo.timestamp))
+                .setIconClass(item.workflowInfo && WorkflowState.READY === item.workflowInfo.getState()
+                              ? 'icon-state-ready'
+                              : 'icon-state-in-progress');
+
+            versionInfoDiv.appendChild(publisher);
+
+        }
 
         let isActive = item.id === this.activeVersion.id;
         let restoreButton = new api.ui.button.ActionButton(
@@ -186,7 +220,7 @@ export class VersionsView
             event.stopPropagation();
         });
 
-        versionInfoDiv.appendChildren(timestampDiv, versionIdDiv, displayNameDiv, restoreButton);
+        versionInfoDiv.appendChildren(restoreButton);
 
         return versionInfoDiv;
     }
@@ -194,7 +228,10 @@ export class VersionsView
     private addOnClickHandler(itemContainer: api.dom.Element) {
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
-            itemContainer.toggleClass('expanded');
+
+            if (!itemContainer.hasClass('modified')) {
+                itemContainer.toggleClass('expanded');
+            }
         });
     }
 

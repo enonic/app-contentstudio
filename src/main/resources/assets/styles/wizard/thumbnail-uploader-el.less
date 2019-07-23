@@ -54,24 +54,24 @@
     }
   }
 
-  &.invalid .result-container:after {
+  &.invalid .result-container {
     .icon-state-invalid;
-
   }
 
-  &.in-progress:not(.invalid) .result-container:after {
+  &.in-progress:not(.invalid) .result-container {
     .icon-state-in-progress;
   }
 
-  &.ready:not(.invalid) .result-container:after {
+  &.ready:not(.invalid) .result-container {
     .icon-state-ready;
   }
 
   &.invalid, &.in-progress, &.ready {
-    .result-container:after {
+    .result-container:before {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      font-size: 20px;
+      border-radius: 10px;
+      background-color: @admin-white;
       right: -8px;
       top: 5px;
     }

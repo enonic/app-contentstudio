@@ -28,10 +28,33 @@
           .close-version-info-button {
             background-color: @admin-bg-light-gray;
           }
+
+          &.published {
+            .close-version-info-button {
+              background-color: @admin-green;
+            }
+          }
+
+          &.modified {
+            .close-version-info-button {
+              background-color: @admin-dark-gray;
+            }
+          }
         }
 
         &.active {
           box-shadow: 0 0 5px 2px @admin-input-blue;
+        }
+
+        .viewer {
+          .names-and-icon-view {
+            .font-icon-default {
+              &:before {
+                font-size: 26px;
+                color: @admin-dark-gray;
+              }
+            }
+          }
         }
 
         .description {
@@ -40,7 +63,8 @@
 
         .status {
           line-height: 26px;
-          text-align: center;
+          text-align: left;
+          padding-left: 5px;
           margin-top: 9px;
           overflow: hidden;
           font-size: 14px;
@@ -49,11 +73,16 @@
           &.draft {
             color: @admin-black;
             background-color: @admin-bg-light-gray;
+
+            &.modified {
+              color: @admin-white;
+              background-color: @admin-dark-gray;
+            }
           }
 
           &.master {
             color: @admin-white;
-            background-color: forestgreen;
+            background-color: @admin-green;
           }
         }
 
@@ -65,6 +94,20 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+          }
+
+          .version-info-message {
+            margin: 7px 0px;
+
+            .message {
+              border-left: 2px solid @admin-bg-light-gray;
+              padding-left: 20px;
+              margin-left: 15px;
+            }
+          }
+
+          .icon-state-in-progress, .icon-state-invalid, .icon-state-ready {
+            font-size: 28px;
           }
 
           .label {
@@ -79,7 +122,7 @@
             display: block !important;
 
             &:not(.active) {
-              background-color: @admin-button-blue2;
+              background-color: @admin-dark-gray;
             }
 
             &.active {
@@ -107,6 +150,7 @@
           cursor: pointer;
           float: right;
           padding: 2px 16px 7px 7px;
+          margin-top: 2px;
 
           &:after {
             content: "";
@@ -124,9 +168,62 @@
 
         }
 
+        box-sizing: border-box;
+        border: 2px solid transparent;
+
+        &.published {
+          color: @admin-white;
+          background-color: @admin-green;
+
+          .close-version-info-button {
+            background-color: @admin-green;
+          }
+
+          .version-info {
+            color: @admin-black;
+            background-color: @admin-white;
+          }
+
+        }
+
+        &.modified {
+          color: @admin-white;
+          background-color: @admin-dark-gray;
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-dark-gray;
+          }
+
+          .close-version-info-button {
+            background-color: @admin-dark-gray;
+          }
+        }
+
+        &.published {
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-green;
+          }
+        }
+
+        &.published, &.modified {
+          .icon-user, .version-modifier, .viewer .names-and-icon-view .font-icon-default:before {
+            color: @admin-white;
+          }
+
+          .close-version-info-button:after {
+            border-bottom: 10px solid @admin-white;
+          }
+        }
+
         &:not(.expanded) {
           .close-version-info-button, .version-info {
             display: none;
+          }
+        }
+
+        &.expanded {
+          &:not(.modified) {
+            border: 2px solid @admin-black;
           }
         }
 

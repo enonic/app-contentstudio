@@ -1,5 +1,6 @@
 import '../../../../../api.ts';
 import {ContentVersion} from '../../../../ContentVersion';
+import WorkflowState = api.content.WorkflowState;
 
 export class ContentVersionViewer
     extends api.ui.Viewer<ContentVersion> {
@@ -30,7 +31,10 @@ export class ContentVersionViewer
         this.namesAndIconView
             .setMainName(contentVersion.modifierDisplayName)
             .setSubNameElements(this.getSubNameElements(contentVersion))
-            .setIconClass('icon-user');
+            .setIconClass(contentVersion.publishInfo ? 'icon-version-published' : contentVersion.workflowInfo && WorkflowState.READY ===
+                                                                                  contentVersion.workflowInfo.getState()
+                                                                                  ? 'icon-state-ready'
+                                                                                  : 'icon-version-modified');
 
         return super.setObject(contentVersion);
     }
