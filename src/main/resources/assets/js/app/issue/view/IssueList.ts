@@ -115,20 +115,7 @@ export class IssueList
     updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
         if (this.currentTotal !== currentTotal) {
             this.currentTotal = currentTotal;
-            return this.filterAndFetchItems(true);
-        }
-
-        return wemQ(null);
-    }
-
-    getTotalItems(): number {
-        return this.totalItems;
-    }
-
-    updateTotalItems(totalItems: number): wemQ.Promise<void> {
-        if (this.totalItems !== totalItems) {
-            this.totalItems = totalItems;
-            return this.filterAndFetchItems().then(() => {
+            return this.filterAndFetchItems(true).then(() => {
                 this.showNoIssuesMessage();
             });
         }
@@ -139,10 +126,23 @@ export class IssueList
     }
 
     private showNoIssuesMessage() {
-        const hasNoIssues = this.totalItems === 0;
+        const hasNoIssues = this.currentTotal === 0;
         if (hasNoIssues && this.getItemCount() === 0) {
             this.appendChild(this.noIssues);
         }
+    }
+
+    getTotalItems(): number {
+        return this.totalItems;
+    }
+
+    updateTotalItems(totalItems: number): wemQ.Promise<void> {
+        if (this.totalItems !== totalItems) {
+            this.totalItems = totalItems;
+            return this.filterAndFetchItems();
+        }
+
+        return wemQ(null);
     }
 
     filter() {

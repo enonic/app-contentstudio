@@ -291,7 +291,6 @@ export class IssuesPanel
         this.closedIssues = closedIssues;
 
         return this.updateTotalItems()
-            .then(() => this.checkAndSwitchOptions())
             .then(() => this.updateIssuesTogglerAndOptions());
     }
 
@@ -301,20 +300,6 @@ export class IssuesPanel
             assignedToMe: this.openedIssues.assignedToMe + this.closedIssues.assignedToMe,
             assignedByMe: this.openedIssues.assignedByMe + this.closedIssues.assignedByMe
         };
-    }
-
-    private checkAndSwitchOptions(): wemQ.Promise<void> {
-        const total = this.getTotalIssues();
-
-        const allAreClosed = total.all > 0 && this.openedIssues.all === 0;
-        const switchToAllIssues = !this.isAllVisible() && allAreClosed;
-
-        if (switchToAllIssues) {
-            this.issuesToggler.turnOff();
-            return this.showClosedIssues();
-        }
-
-        return wemQ(null);
     }
 
     private updateIssuesTogglerAndOptions(): wemQ.Promise<void> {
@@ -343,9 +328,14 @@ export class IssuesPanel
             offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
 
-        const noClosedIssues = closedCount === 0;
-        const noOpenedIssues = openedCount === 0;
-        const disableToggler = noClosedIssues || noOpenedIssues;
+        this.updateIssuesTogglerStatus(closedCount, openedCount);
+    }
+
+    private updateIssuesTogglerStatus(closed: number, opened: number) {
+        const noClosedIssues = closed === 0;
+        const noOpenedIssues = opened === 0;
+        const showingClosedIssues = this.issuesToggler.isOff();
+        const disableToggler = (!showingClosedIssues && noClosedIssues) || (showingClosedIssues && noOpenedIssues);
         this.issuesToggler.setEnabled(!disableToggler);
     }
 
