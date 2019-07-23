@@ -422,7 +422,7 @@ export class ContentPublishDialog
         }
 
         if (!allPublishable) {
-            this.publishIssuesStateBar.showContainsReadOnly();
+            this.publishIssuesStateBar.showContainsNotPublishable();
         }
     }
 
