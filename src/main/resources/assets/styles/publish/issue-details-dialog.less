@@ -134,6 +134,25 @@
     .publish-dialog-item-list {
       margin-top: 20px;
     }
+
+    &:not(.no-action) {
+      .modal-dialog-footer {
+        .button-container {
+          .close-issue {
+            display: block !important;
+          }
+        }
+      }
+    }
+  }
+  &.closed {
+    .modal-dialog-footer {
+      .button-container {
+        .reopen-issue {
+          display: block !important;
+        }
+      }
+    }
   }
 
   .publish-dialog-item-list {
@@ -247,7 +266,7 @@
         }
 
         .button-container {
-          .close-issue, .comment-issue {
+          .comment-issue {
             display: block !important;
           }
         }
@@ -285,7 +304,7 @@
 
   &.tab-assignees {
     .dialog-content {
-      min-height: 256px;
+      min-height: 220px;
     }
     .modal-dialog-footer {
       padding-top: 0;
