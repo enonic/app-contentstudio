@@ -60,7 +60,7 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnShowClosedIssuesLink();
+                return issueListDialog.clickOnShowClosedIssuesButton();
             }).then(() => {
                 return issueListDialog.clickOnIssue(issueTitle);
             }).then(() => {
@@ -71,7 +71,7 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
                 return createIssueDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_OPENED_MESSAGE);
             }).then(result => {
                 studioUtils.saveScreenshot("empty_issue_reopened");
-                return assert.isTrue(result, 'Correct notification should appear');
+                return assert.isTrue(result, 'The issue is Open. - notification message should appear');
             }).then(() => {
                 return assert.eventually.isTrue(issueDetailsDialog.isCloseIssueButtonDisplayed(),
                     '`Close Issue` button should be displayed, because the issue is reopened');
@@ -89,10 +89,11 @@ describe('issue.no.items.spec: create issue without items, close the issue and r
             }).then(() => {
                 return issueDetailsDialog.pressEscKey();
             }).then(() => {
+                //issues list dialog should be loaded
                 return issueListDialog.waitForDialogOpened();
             }).then(result => {
                 studioUtils.saveScreenshot("issue_details_esc_key");
-                return assert.isTrue(result, 'Correct notification should appear');
+                return assert.isTrue(result, 'Issues list dialog should be loaded');
             });
         });
 

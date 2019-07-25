@@ -120,5 +120,19 @@ module.exports = Object.freeze({
         MODIFIED_DATE: "Modified date",
         CREATED_DATE: "Created date",
         PUBLISHED_DATE: "Published date",
+    },
+    CONTENT_STATUS: {
+        NEW: 'New',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+    },
+    PUBLISH_MENU: {
+        REQUEST_PUBLISH: "Request Publish",
+        PUBLISH: "Publish...",
+        PUBLISH_TREE: "Publish Tree...",
+        MARK_AS_READY: "Mark as ready",
+        UNPUBLISH: "Unpublish...",
+        CREATE_ISSUE: "Create Issue..."
+
     }
 });

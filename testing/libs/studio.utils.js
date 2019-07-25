@@ -196,6 +196,18 @@ module.exports = {
             return this.doCloseWizardAndSwitchToGrid();
         });
     },
+    doAddReadyFolder: function (folder) {
+        let contentWizardPanel = new ContentWizardPanel();
+        return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
+            return contentWizardPanel.typeData(folder);
+        }).then(() => {
+            return contentWizardPanel.clickOnMarkedAsReadyButton();
+        }).then(() => {
+            return this.doCloseWizardAndSwitchToGrid()
+        }).then(() => {
+            return webDriverHelper.browser.pause(1000);
+        });
+    },
     doAddFolder: function (folder) {
         let contentWizardPanel = new ContentWizardPanel();
         return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
@@ -281,7 +293,7 @@ module.exports = {
         }).then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
@@ -292,7 +304,7 @@ module.exports = {
         return browsePanel.clickOnPublishTreeButton().then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
@@ -303,11 +315,12 @@ module.exports = {
         return contentWizardPanel.clickOnPublishButton().then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
     },
+
     doUnPublishInWizard: function () {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();

@@ -22,24 +22,26 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             }).then(title => {
                 assert.strictEqual(title, 'Publishing Issues');
             }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.isShowClosedIssuesLinkVisible(),
+                return assert.eventually.isTrue(issueListDialog.isShowClosedIssuesButtonVisible(),
                     "`Show Closed Issues ` link should be displayed");
             }).then(() => {
                 return assert.eventually.isTrue(issueListDialog.isNewIssueButtonVisible(),
                     "`New Issue...` button should be displayed");
             }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.isMyOpenedIssuesCheckboxVisible(), '`My Issues` checkbox should be present')
+                return issueListDialog.getAssignedSelectedOption();
+            }).then(result => {
+                assert.isTrue(result.includes(`Assigned by Me`), '`Assigned by Me` option should be selected in Show combobox')
             })
         });
 
-    it(`GIVEN 'Issues List Dialog' is opened WHEN 'Show closed issues' has been clicked THEN 'Show open issues' link is getting visible`,
+    it(`GIVEN 'Issues List Dialog' is opened WHEN 'Show closed issues' button has been clicked THEN 'Hide closed issues' button is getting visible`,
         () => {
             let issueListDialog = new IssueListDialog();
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnShowClosedIssuesLink();
-            }).then(title => {
-                return assert.eventually.isTrue(issueListDialog.waitForShowOpenIssuesLinkVisible(),
-                    "`Show open issues` link should be displayed");
+                return issueListDialog.clickOnShowClosedIssuesButton();
+            }).then(() => {
+                return assert.eventually.isTrue(issueListDialog.waitForHideClosedIssuesButtonVisible(),
+                    "`Hide closed issues` button should be displayed");
             });
         });
 
