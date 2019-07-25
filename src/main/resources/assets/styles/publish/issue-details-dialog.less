@@ -193,13 +193,19 @@
     .dialog-button {
 
       &.close-issue {
-        background-color: @admin-button-gray3;
         margin-left: 0;
+        background-color: @admin-button-gray3;
+        &:hover:not(:disabled) {
+          background-color: @admin-button-gray3;
+        }
       }
 
       &.reopen-issue,
       &.publish-issue {
         background-color: @admin-green;
+        &:hover:not(:disabled) {
+          background-color: @admin-green;
+        }
       }
 
       .cancel-button-bottom {

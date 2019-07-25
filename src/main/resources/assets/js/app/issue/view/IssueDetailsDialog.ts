@@ -18,7 +18,6 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
-import {BasePublishDialog} from '../../dialog/BasePublishDialog';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -311,7 +310,11 @@ export class IssueDetailsDialog
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
+        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count));
+    }
+
+    private static makeLabelWithCounter(label: string, count: number = 0): string {
+        return (count > 0 ? `${label} (${count})` : label);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -371,10 +374,23 @@ export class IssueDetailsDialog
         return this.isPublishRequestViewed() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
     }
 
+    private getPublishButtonLabel(itemsCount: number = 0): string {
+        const isPublishRequestViewed = this.isPublishRequestViewed();
+
+        if (isPublishRequestViewed) {
+            return IssueDetailsDialog.makeLabelWithCounter(i18n('action.publishNow'), itemsCount);
+        } else {
+            return i18n('action.publishMore');
+        }
+    }
+
     private updateItemsCountAndButtonLabels() {
         const count: number = this.countTotal();
+        const hasItems = count > 0;
+
         this.updateItemsCount();
-        this.toggleAction(count > 0);
+        this.toggleAction(hasItems);
+        this.actionButton.setLabel(this.getPublishButtonLabel(count));
     }
 
     private updateItemsCount() {
@@ -610,7 +626,7 @@ export class IssueDetailsDialog
     protected initActions() {
         this.closeAction = new Action(this.getCloseButtonLabel());
         this.reopenAction = new Action(this.getReopenButtonLabel());
-        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(), i18n('action.publishMore'));
+        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(), this.getPublishButtonLabel());
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
 
