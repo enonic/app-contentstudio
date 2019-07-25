@@ -137,17 +137,22 @@ export class VersionsView
                 this.createPublishedTooltip(item, itemEl);
             }
         }
+        else {
+            item.publishInfo ? this.createPublishedTooltip(item, itemEl) : this.createModifiedTooltip(item, itemEl);
+        }
     }
 
     private createModifiedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
-        const tooltip = new api.ui.Tooltip(itemEl, i18n('tooltip.state.modified', item.modified.toUTCString(), item.modifierDisplayName),
+        const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(item.modified);
+        const tooltip = new api.ui.Tooltip(itemEl, i18n('tooltip.state.modified', dateAsString, item.modifierDisplayName),
             1000);
     }
 
     private createPublishedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
         if (item.publishInfo) {
+            const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(item.publishInfo.timestamp);
             const tooltip = new api.ui.Tooltip(itemEl,
-                i18n('tooltip.state.published', item.publishInfo.timestamp.toUTCString(), item.publishInfo.publisherDisplayName),
+                i18n('tooltip.state.published', dateAsString, item.publishInfo.publisherDisplayName),
                 1000);
         }
     }
@@ -155,13 +160,8 @@ export class VersionsView
     private createDataBlocks(item: ContentVersion, itemEl: api.dom.Element) {
         let descriptionDiv = this.createDescriptionBlock(item);
         let versionInfoDiv = this.createVersionInfoBlock(item);
-        let closeButton = this.createCloseButton();
 
-        itemEl.appendChildren(closeButton, descriptionDiv, versionInfoDiv);
-    }
-
-    private createCloseButton(): api.dom.Element {
-        return new api.dom.DivEl('close-version-info-button hidden');
+        itemEl.appendChildren(descriptionDiv, versionInfoDiv);
     }
 
     private createDescriptionBlock(item: ContentVersion): api.dom.Element {
@@ -229,7 +229,7 @@ export class VersionsView
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
 
-            if (!itemContainer.hasClass('modified')) {
+            if (!itemContainer.hasClass('active')) {
                 itemContainer.toggleClass('expanded');
             }
         });
