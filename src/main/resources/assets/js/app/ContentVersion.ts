@@ -1,4 +1,6 @@
 import {ContentVersionJson} from './resource/json/ContentVersionJson';
+import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
+import Workflow = api.content.Workflow;
 
 export class ContentVersion {
 
@@ -16,6 +18,10 @@ export class ContentVersion {
 
     workspaces: string[];
 
+    publishInfo: ContentVersionPublishInfo;
+
+    workflowInfo: Workflow;
+
     static fromJson(contentVersionJson: ContentVersionJson, workspaces?: string[]): ContentVersion {
 
         let contentVersion: ContentVersion = new ContentVersion();
@@ -26,6 +32,9 @@ export class ContentVersion {
         contentVersion.comment = contentVersionJson.comment;
         contentVersion.id = contentVersionJson.id;
         contentVersion.workspaces = workspaces || [];
+
+        contentVersion.publishInfo = ContentVersionPublishInfo.fromJson(contentVersionJson.publishInfo);
+        contentVersion.workflowInfo = Workflow.fromJson(contentVersionJson.workflow);
 
         return contentVersion;
     }

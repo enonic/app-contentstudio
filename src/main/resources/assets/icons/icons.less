@@ -193,19 +193,45 @@
 }
 
 .icon-state-invalid {
-  content: "";
-  background-image: url('../icons/invalid.svg');
-  background-repeat: no-repeat;
+  .icon;
+  &:before {
+    color: #CB0300;
+    content: "\e905";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
 }
 
 .icon-state-in-progress {
-  content: "";
-  background-image: url('../icons/in-progress.svg');
-  background-repeat: no-repeat;
+  .icon;
+  &:before {
+    color: #CBAD00;
+    content: "\e904";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
 }
 
 .icon-state-ready {
-  content: "";
-  background-image: url('../icons/ready.svg');
-  background-repeat: no-repeat;
+  .icon;
+  &:before {
+    color: #609E24;
+    content: "\e907";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-version-modified {
+  .icon;
+  &:before {
+    content: "\e908";
+  }
+}
+
+.icon-version-published {
+  .icon;
+  &:before {
+    content: "\e909";
+  }
 }

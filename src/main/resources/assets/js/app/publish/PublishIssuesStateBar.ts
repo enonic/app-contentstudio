@@ -1,5 +1,6 @@
 import i18n = api.util.i18n;
 import SpanEl = api.dom.SpanEl;
+import DivEl = api.dom.DivEl;
 
 export class PublishIssuesStateBar
     extends api.dom.DivEl {
@@ -22,17 +23,19 @@ export class PublishIssuesStateBar
     }
 
     private createContainsInvalidElement() {
-        this.containsInvalidElement = new api.dom.H6El('invalid');
+        this.containsInvalidElement = new api.dom.H6El('state-line');
+        const icon: DivEl = new DivEl('invalid');
         const span1: SpanEl = new SpanEl('invalid-part1').setHtml(i18n('dialog.publish.invalidError.part1'));
         const span2: SpanEl = new SpanEl('invalid-part2').setHtml(i18n('dialog.publish.invalidError.part2'));
-        this.containsInvalidElement.appendChildren(span1, span2);
+        this.containsInvalidElement.appendChildren(icon, span1, span2);
     }
 
     private createContainsInProgressElement() {
-        this.containsInProgressElement = new api.dom.H6El('in-progress');
+        this.containsInProgressElement = new api.dom.H6El('state-line');
+        const icon: DivEl = new DivEl('in-progress');
         const span1: SpanEl = new SpanEl('in-progress-part1').setHtml(i18n('dialog.publish.in-progress.part1'));
         const span2: SpanEl = new SpanEl('in-progress-part2').setHtml(i18n('dialog.publish.in-progress.part2'));
-        this.containsInProgressElement.appendChildren(span1, span2);
+        this.containsInProgressElement.appendChildren(icon, span1, span2);
     }
 
     private createContainsNotPublishableElement() {
