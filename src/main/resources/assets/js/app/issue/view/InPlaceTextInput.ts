@@ -78,24 +78,25 @@ export class InPlaceTextInput
         return !api.util.StringHelper.isBlank(this.input.getValue());
     }
 
-    public setEditMode(flag: boolean, cancel?: boolean) {
+    public setEditMode(enableEdit: boolean, cancel?: boolean) {
         if (cancel) {
             this.input.setValue(this.persistedValue, true);
             this.input.removeClass('invalid');
             this.removeClass('invalid');
         }
-        this.toggleClass('edit-mode', flag);
+        this.toggleClass('edit-mode', enableEdit);
         const newValue = this.input.getValue().trim();
-        if (flag) {
+        if (enableEdit) {
             this.persistedValue = newValue;
+            this.input.giveFocus();
         } else {
             this.h2.setHtml(this.formatTextToDisplay(newValue), false);
         }
-        this.bindOutsideClickListener(flag);
-        this.notifyEditModeChanged(flag, newValue, this.persistedValue);
+        this.bindOutsideClickListener(enableEdit);
+        this.notifyEditModeChanged(enableEdit, newValue, this.persistedValue);
     }
 
-    private bindOutsideClickListener(flag: boolean) {
+    private bindOutsideClickListener(enableEdit: boolean) {
         const body = api.dom.Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
@@ -104,7 +105,7 @@ export class InPlaceTextInput
                 }
             };
         }
-        if (flag) {
+        if (enableEdit) {
             body.onClicked(this.outsideClickListener);
         } else {
             body.unClicked(this.outsideClickListener);
