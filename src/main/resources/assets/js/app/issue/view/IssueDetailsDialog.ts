@@ -308,7 +308,7 @@ export class IssueDetailsDialog
     }
 
     private updateCloseButtonLabel(canComment: boolean) {
-        const label = canComment ? i18n('action.commentAndCloseIssue') : i18n('action.closeIssue');
+        const label = this.getCloseButtonLabel(canComment);
         this.closeAction.setLabel(label);
     }
 
@@ -356,6 +356,23 @@ export class IssueDetailsDialog
         return !!this.issue && this.issue.getType() === IssueType.PUBLISH_REQUEST;
     }
 
+    private getItemsTabLabel(): string {
+        return this.isPublishRequestViewed() ? i18n('field.issue.publishRequests') : i18n('field.items');
+    }
+
+    private getCloseButtonLabel(canComment?: boolean): string {
+        const isPublishRequest = this.isPublishRequestViewed();
+        if (isPublishRequest) {
+            return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
+        } else {
+            return canComment ? i18n('action.commentAndCloseIssue') : i18n('action.closeIssue');
+        }
+    }
+
+    private getReopenButtonLabel(): string {
+        return this.isPublishRequestViewed() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
+    }
+
     private updateItemsCountAndButtonLabels() {
         const count: number = this.countTotal();
         this.updateItemsCount();
@@ -364,7 +381,7 @@ export class IssueDetailsDialog
 
     private updateItemsCount() {
         const count: number = this.countTotal();
-        const label = this.isPublishRequestViewed() ? i18n('field.issue.publishRequests') : i18n('field.items');
+        const label = this.getItemsTabLabel();
         this.updateTabLabel(1, label, count);
     }
 
@@ -540,7 +557,7 @@ export class IssueDetailsDialog
         this.issue = issue;
 
         if (shouldUpdateDialog) {
-            this.updateItemsCount();
+            this.updateLabels();
 
             this.tabBar.selectNavigationItem(isPublishRequest ? 1 : 0);
 
@@ -548,6 +565,15 @@ export class IssueDetailsDialog
         }
 
         return this;
+    }
+
+    private updateLabels() {
+        const isComments = this.tabPanel.getPanelShown() === this.commentsPanel;
+        const hasComment = isComments && !api.util.StringHelper.isEmpty(this.commentTextArea.getValue());
+
+        this.updateItemsCount();
+        this.closeAction.setLabel(this.getCloseButtonLabel(hasComment));
+        this.reopenAction.setLabel(this.getReopenButtonLabel());
     }
 
     hideBackButton() {
@@ -588,8 +614,8 @@ export class IssueDetailsDialog
     protected initActions() {
         super.initActions();
 
-        this.closeAction = new Action(i18n('action.closeIssue'));
-        this.reopenAction = new Action(i18n('action.reopenIssue'));
+        this.closeAction = new Action(this.getCloseButtonLabel());
+        this.reopenAction = new Action(this.getReopenButtonLabel());
         this.publishAction = new ContentPublishDialogAction(() => this.doPublish(false), i18n('action.publishMore'));
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
