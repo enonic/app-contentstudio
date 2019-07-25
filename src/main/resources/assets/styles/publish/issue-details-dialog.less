@@ -185,19 +185,21 @@
     flex-direction: row-reverse;
     width: 100%;
 
-    .dialog-button, .menu-button {
+    .dialog-button,
+    .menu-button {
       display: none !important; // need important here because dialog sets display style inline
     }
 
     .dialog-button {
 
       &.close-issue {
-        .dialog-button(@form-button-font, @admin-button-gray3);
+        background-color: @admin-button-gray3;
         margin-left: 0;
       }
 
-      &.reopen-issue {
-        .dialog-button(@form-button-font, @admin-green);
+      &.reopen-issue,
+      &.publish-issue {
+        background-color: @admin-green;
       }
 
       .cancel-button-bottom {

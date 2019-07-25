@@ -12,7 +12,7 @@ import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {DetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
-import {DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
@@ -28,7 +28,6 @@ import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import TaskState = api.task.TaskState;
 import ListBox = api.ui.selector.list.ListBox;
-import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import Principal = api.security.Principal;
 import i18n = api.util.i18n;
@@ -47,7 +46,7 @@ import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentId = api.content.ContentId;
 
 export class IssueDetailsDialog
-    extends BasePublishDialog {
+    extends DependantItemsWithProgressDialog {
 
     private issue: Issue;
 
@@ -74,8 +73,6 @@ export class IssueDetailsDialog
     private detailsSubTitle: DetailsDialogSubTitle;
 
     private publishAction: ContentPublishDialogAction;
-
-    private publishButton: api.ui.button.MenuButton;
 
     private backButton: AEl;
 
@@ -132,6 +129,8 @@ export class IssueDetailsDialog
     protected initElements() {
         super.initElements();
 
+        this.initActions();
+
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
         this.commentTextArea = new IssueCommentTextArea();
         this.detailsSubTitle = new DetailsDialogSubTitle(this.issue);
@@ -150,10 +149,9 @@ export class IssueDetailsDialog
         this.tabBar = new TabBar();
         this.tabPanel = new NavigatedDeckPanel(this.tabBar);
 
-        this.publishButton = this.createPublishButton();
-        this.actionButton = this.publishButton.getActionButton();
+        this.actionButton = this.createPublishButton();
 
-        this.errorTooltip = new Tooltip(this.publishButton, i18n('dialog.publish.invalidError'), 500);
+        this.errorTooltip = new Tooltip(this.actionButton, i18n('dialog.publish.invalidError'), 500);
     }
 
     protected initTabs() {
@@ -386,8 +384,9 @@ export class IssueDetailsDialog
     }
 
     protected toggleAction(enable: boolean) {
-        super.toggleAction(enable);
-        this.publishButton.setEnabled(!this.publishProcessor.containsInvalidItems() && this.publishProcessor.isAllPublishable());
+        this.toggleControls(enable);
+        this.toggleClass('no-action', !enable);
+        this.actionButton.setEnabled(!this.publishProcessor.containsInvalidItems() && this.publishProcessor.isAllPublishable());
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
     }
 
@@ -419,7 +418,6 @@ export class IssueDetailsDialog
             this.initItemListTogglers(this.getItemList());
 
             this.updateItemsCountAndButtonLabels();
-            this.updateShowScheduleDialogButton();
         });
     }
 
@@ -438,11 +436,9 @@ export class IssueDetailsDialog
         itemList.onItemsAdded(() => {
             this.ignoreNextExcludeChildrenEvent = this.initItemListTogglers(itemList);
             this.updateItemsCountAndButtonLabels();
-            this.updateShowScheduleDialogButton();
         });
         itemList.onItemsRemoved(() => {
             this.updateItemsCountAndButtonLabels();
-            this.updateShowScheduleDialogButton();
         });
         itemList.onItemRemoveClicked(handleRemoveItemClicked);
         itemList.onChildrenListChanged(() => {
@@ -612,11 +608,9 @@ export class IssueDetailsDialog
     }
 
     protected initActions() {
-        super.initActions();
-
         this.closeAction = new Action(this.getCloseButtonLabel());
         this.reopenAction = new Action(this.getReopenButtonLabel());
-        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(false), i18n('action.publishMore'));
+        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(), i18n('action.publishMore'));
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
 
@@ -643,10 +637,10 @@ export class IssueDetailsDialog
         commentButton.addClass('comment-issue force-enabled');
     }
 
-    private createPublishButton(): MenuButton {
-        const menuButton = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction]);
-        menuButton.addClass('publish-issue');
-        return menuButton;
+    private createPublishButton(): DialogButton {
+        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction);
+        publishButton.addClass('publish-issue');
+        return publishButton;
     }
 
     private createNoActionMessage() {
@@ -655,9 +649,9 @@ export class IssueDetailsDialog
         this.getButtonRow().appendChild(divEl);
     }
 
-    private doPublish(scheduled: boolean): wemQ.Promise<void> {
+    private doPublish(): wemQ.Promise<void> {
 
-        return this.createPublishContentRequest(scheduled).sendAndParse()
+        return this.createPublishContentRequest().sendAndParse()
             .then((taskId: api.task.TaskId) => {
                 const issue = this.issue;
                 this.ignoreNextExcludeChildrenEvent = true;
@@ -745,22 +739,15 @@ export class IssueDetailsDialog
         return !this.publishProcessor.getExcludeChildrenIds().some(contentId => contentId.equals(id));
     }
 
-    private createPublishContentRequest(scheduled?: boolean): PublishContentRequest {
+    private createPublishContentRequest(): PublishContentRequest {
         const selectedIds = this.publishProcessor.getContentToPublishIds();
         const excludedIds = this.publishProcessor.getExcludedIds();
         const excludedChildrenIds = this.publishProcessor.getExcludeChildrenIds();
 
-        const publishRequest = new PublishContentRequest()
+        return new PublishContentRequest()
             .setIds(selectedIds)
             .setExcludedIds(excludedIds)
             .setExcludeChildrenIds(excludedChildrenIds);
-
-        if (scheduled) {
-            publishRequest.setPublishFrom(this.getFromDate());
-            publishRequest.setPublishTo(this.getToDate());
-        }
-
-        return publishRequest;
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -797,29 +784,8 @@ export class IssueDetailsDialog
         this.updateCloseButtonLabel(false);
     }
 
-    private areSomeItemsOffline(): boolean {
-        let summaries: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
-        return summaries.every((summary) => !summary.isOnline());
-    }
-
-    protected doScheduledAction() {
-        this.doPublish(true);
-        this.close();
-    }
-
-    protected updateButtonCount(actionString: string, count: number) {
-        super.updateButtonCount(actionString, count);
-
-        const labelWithNumber = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
-        this.showScheduleAction.setLabel(labelWithNumber(count, i18n('action.scheduleMore')));
-    }
-
     private toggleControlsAccordingToStatus(status: IssueStatus) {
         this.toggleClass('closed', (status === IssueStatus.CLOSED));
-    }
-
-    protected isScheduleButtonAllowed(): boolean {
-        return this.areSomeItemsOffline();
     }
 
     public onIssueUpdated(listener: (issue: Issue) => void) {
