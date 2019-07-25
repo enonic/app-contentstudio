@@ -1,5 +1,4 @@
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
-import {ConfirmContentDeleteDialog} from './ConfirmContentDeleteDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
@@ -9,6 +8,7 @@ import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ConfirmDeleteDialog} from './ConfirmDeleteDialog';
 import i18n = api.util.i18n;
 import NotifyManager = api.notify.NotifyManager;
 
@@ -201,7 +201,13 @@ export class ContentDeleteDialog
 
             this.close();
 
-            new ConfirmContentDeleteDialog({totalItemsToDelete, deleteRequest, yesCallback, title: i18n('dialog.confirmDelete')}).open();
+            new ConfirmDeleteDialog({
+                valueToCheck: totalItemsToDelete,
+                yesCallback,
+                title: i18n('dialog.confirmDelete'),
+                subtitle: i18n('dialog.confirmDelete.subname'),
+                forbiddenChars: /[^0-9]/
+            }).open();
         } else {
             if (this.yesCallback) {
                 this.instantDeleteCheckbox.isChecked() ? this.yesCallback([]) : this.yesCallback();

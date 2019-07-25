@@ -1,30 +1,30 @@
-import {DeleteContentRequest} from '../resource/DeleteContentRequest';
-import {CompareStatus} from '../content/CompareStatus';
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import i18n = api.util.i18n;
 
-export interface ConfirmContentDeleteDialogConfig
+export interface ConfirmDeleteDialogConfig
     extends ModalDialogConfig {
 
-    totalItemsToDelete: number;
+    valueToCheck: any;
 
-    deleteRequest: DeleteContentRequest;
+    yesCallback: () => void;
 
-    yesCallback: (exclude?: CompareStatus[]) => void;
+    subtitle: string;
+
+    forbiddenChars?: RegExp;
 }
 
-export class ConfirmContentDeleteDialog
+export class ConfirmDeleteDialog
     extends api.ui.dialog.ModalDialog {
 
     private confirmDeleteButton: api.ui.dialog.DialogButton;
 
     private confirmDeleteAction: api.ui.Action;
 
-    private input: api.ui.text.TextInput;
+    protected input: api.ui.text.TextInput;
 
-    protected config: ConfirmContentDeleteDialogConfig;
+    protected config: ConfirmDeleteDialogConfig;
 
-    constructor(deleteConfig: ConfirmContentDeleteDialogConfig) {
+    constructor(deleteConfig: ConfirmDeleteDialogConfig) {
         super(deleteConfig);
 
         this.getEl().addClass('confirm-delete-dialog');
@@ -58,7 +58,7 @@ export class ConfirmContentDeleteDialog
                 return;
             }
 
-            if (this.isCorrectNumberEntered()) {
+            if (this.isCorrectValueEntered()) {
                 this.input.removeClass('invalid').addClass('valid');
                 this.confirmDeleteAction.setEnabled(true);
                 setTimeout(() => {
@@ -74,10 +74,10 @@ export class ConfirmContentDeleteDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildToHeader(new api.dom.H6El('confirm-delete-subtitle').setHtml(i18n('dialog.confirmDelete.subname')));
+            this.appendChildToHeader(new api.dom.H6El('confirm-delete-subtitle').setHtml(this.config.subtitle));
 
             const confirmationText = new api.dom.PEl('confirm-delete-text')
-                .setHtml(i18n('dialog.confirmDelete.enterAmount', this.config.totalItemsToDelete), false);
+                .setHtml(i18n('dialog.confirmDelete.enterAmount', this.config.valueToCheck), false);
             const confirmationDiv = new api.dom.DivEl('confirm-delete-block').appendChildren(confirmationText, this.input);
             this.appendChildToContentPanel(confirmationDiv);
 
@@ -106,14 +106,18 @@ export class ConfirmContentDeleteDialog
     }
 
     private initConfirmationInput() {
-        this.input = api.ui.text.TextInput.middle('text').setForbiddenCharsRe(/[^0-9]/);
+        this.input = api.ui.text.TextInput.middle('text');
+
+        if (this.config.forbiddenChars) {
+            this.input.setForbiddenCharsRe(this.config.forbiddenChars);
+        }
     }
 
     private isInputEmpty(): boolean {
         return this.input.getValue() === '';
     }
 
-    private isCorrectNumberEntered(): boolean {
-        return this.input.getValue() === this.config.totalItemsToDelete.toString();
+    private isCorrectValueEntered(): boolean {
+        return this.input.getValue() === this.config.valueToCheck.toString();
     }
 }

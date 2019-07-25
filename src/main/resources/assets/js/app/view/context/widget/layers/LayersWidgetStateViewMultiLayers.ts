@@ -1,12 +1,12 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
 import {ContentLayer} from '../../../../content/ContentLayer';
-import {LayerWidgetViewer} from './LayerWidgetViewer';
+import {LayerViewer} from '../../../../layer/LayerViewer';
 import i18n = api.util.i18n;
 
 export class LayersWidgetStateViewMultiLayers
     extends LayersWidgetStateView {
 
-    private viewer: LayerWidgetViewer;
+    private viewer: LayerViewer;
 
     constructor(layer: ContentLayer) {
         super('multi-layers');
@@ -16,7 +16,7 @@ export class LayersWidgetStateViewMultiLayers
 
     protected initElements() {
         this.button = new api.ui.button.ActionButton(this.getAction());
-        this.viewer = new LayerWidgetViewer();
+        this.viewer = new LayerViewer();
     }
 
     protected doAppendChildren() {
