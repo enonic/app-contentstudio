@@ -135,12 +135,10 @@
       margin-top: 20px;
     }
 
-    &:not(.no-action) {
-      .modal-dialog-footer {
-        .button-container {
-          .close-issue {
-            display: block !important;
-          }
+    .modal-dialog-footer {
+      .button-container {
+        .close-issue {
+          display: block !important;
         }
       }
     }
@@ -182,10 +180,12 @@
   }
 
   .button-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
     width: 100%;
 
     .dialog-button, .menu-button {
-      float: right;
       display: none !important; // need important here because dialog sets display style inline
     }
 
@@ -210,7 +210,8 @@
       display: none;
       line-height: 36px;
       font-size: 15px;
-      float: right;
+      white-space: nowrap;
+      order: -1;
     }
   }
 
@@ -245,10 +246,6 @@
     .sub-title {
       display: none;
     }
-  }
-
-  .dialog-buttons {
-    position: relative;
   }
 
   &.tab-comments {
@@ -315,6 +312,12 @@
     .dependants {
       display: none;
     }
+  }
+
+  .dialog-buttons {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
   }
 
 }
