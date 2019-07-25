@@ -6,6 +6,7 @@ const ContentDuplicateDialog = require('../content.duplicate.dialog');
 const CreateIssueDialog = require('../issue/create.issue.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const ConfirmationDialog = require('../confirmation.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -18,6 +19,8 @@ const XPATH = {
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
+    markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
+    requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
     createIssueButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Issue...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
@@ -28,7 +31,7 @@ const XPATH = {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
     publishMenuItemByName: function (name) {
-        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']]`
+        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -84,6 +87,14 @@ class ContentBrowsePanel extends Page {
         return XPATH.toolbar + XPATH.createIssueMenuItem;
     }
 
+    get requestPublishMenuItem() {
+        return XPATH.toolbar + XPATH.requestPublishMenuItem;
+    }
+
+    get markAsReadyMenuItem() {
+        return XPATH.toolbar + XPATH.markAsReadyMenuItem;
+    }
+
     get createIssueButton() {
         return XPATH.toolbar + XPATH.createIssueButton;
     }
@@ -113,16 +124,20 @@ class ContentBrowsePanel extends Page {
     }
 
     get publishButton() {
-        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
+        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
     }
 
     get unpublishButton() {
 
-        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
+        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
     }
 
     get publishTreeButton() {
-        return XPATH.toolbar + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`;
+        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`;
+    }
+
+    get markAsReadyButton() {
+        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Mark as ready')]]`;
     }
 
     get displayNames() {
@@ -169,6 +184,7 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    //Wait for `Publish Menu` Button gets `Publish...`
     waitForPublishButtonVisible() {
         return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_publish_button");
@@ -176,12 +192,22 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    //Wait for `Publish Menu` Button gets 'Mark as ready'
+    waitForMarkAsReadyButtonVisible() {
+        return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_publish_button_mark_as_ready");
+            throw new Error("Publish button is not visible! " + err);
+        })
+    }
+
+    //Wait for `Publish Menu` Button gets 'Unpublish'
     waitForUnPublishButtonVisible() {
         return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
         })
     }
 
+    //Wait for `Publish Menu` Button gets 'Publish Tree...'
     waitForPublishTreeButtonVisible() {
         return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_browse_publish_tree_button");
@@ -192,6 +218,14 @@ class ContentBrowsePanel extends Page {
     async clickOnPublishTreeButton() {
         await this.waitForPublishTreeButtonVisible();
         return await this.clickOnElement(this.publishTreeButton);
+    }
+
+    async clickOnMarkAsReadyButtonAndConfirm() {
+        await this.waitForMarkAsReadyButtonVisible();
+        await this.clickOnElement(this.markAsReadyButton);
+        let confirmationDialog = new ConfirmationDialog();
+        await confirmationDialog.waitForDialogOpened();
+        return await confirmationDialog.clickOnYesButton();
     }
 
     waitForGridLoaded(ms) {
@@ -289,19 +323,6 @@ class ContentBrowsePanel extends Page {
             this.saveScreenshot('err_click_on_details_panel_toggle');
             throw new Error(`Error when getting display names in grid` + err);
         });
-    }
-
-    async openPublishMenuSelectItem(menuItem) {
-        await this.waitForShowPublishMenuButtonVisible();
-        await this.clickOnElement(this.showPublishMenuButton);
-        await this.waitForElementDisplayed(this.createIssueMenuItem);
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        await this.clickOnElement(selector).catch(err => {
-            this.saveScreenshot("err_click_issue_menuItem");
-            throw new Error('error when try to click on publish menu item, ' + err);
-        });
-        let createIssueDialog = new CreateIssueDialog();
-        return await createIssueDialog.waitForDialogLoaded();
     }
 
     waitForPanelVisible(ms) {
@@ -564,7 +585,7 @@ class ContentBrowsePanel extends Page {
         return this.getText(selector);
     }
 
-    waitForShowPublishMenuButtonVisible() {
+    waitForShowPublishMenuDropDownVisible() {
         return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.TIMEOUT_3);
     }
 
@@ -584,20 +605,35 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-    openPublishMenuAndClickOnCreateIssue() {
-        return this.waitForShowPublishMenuButtonVisible().then(() => {
-            return this.clickOnElement(this.showPublishMenuButton);
-        }).then(() => {
-            return this.waitForElementDisplayed(this.createIssueMenuItem);
-        }).then(() => {
-            return this.clickOnElement(this.createIssueMenuItem);
-        }).catch(err => {
-            this.saveScreenshot("err_click_create_issue_menuItem");
-            throw new Error('error when try to click on Create Issue menu item, ' + err);
-        }).then(() => {
-            let createIssueDialog = new CreateIssueDialog();
-            return createIssueDialog.waitForDialogLoaded();
-        })
+    async openPublishMenuSelectItem(menuItem) {
+        try {
+            await this.waitForShowPublishMenuDropDownVisible();
+            await this.clickOnElement(this.showPublishMenuButton);
+            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            await this.waitForElementEnabled(selector);
+            await this.clickOnElement(selector);
+            return this.pause(300);
+        } catch (err) {
+            this.saveScreenshot("err_click_issue_menuItem");
+            throw new Error('error when try to click on publish menu item, ' + err);
+        }
+    }
+
+    async openPublishMenuAndClickOnCreateIssue() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_ISSUE);
+        let createIssueDialog = new CreateIssueDialog();
+        return await createIssueDialog.waitForDialogLoaded();
+    }
+
+    async openPublishMenuAndClickOnRequestPublish() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        //TODO
+    }
+
+    async openPublishMenuAndClickOnMarAsReady() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
+        let confirmationDialog = new ConfirmationDialog();
+        return await confirmationDialog.clickOnYesButton();
     }
 };
 module.exports = ContentBrowsePanel;

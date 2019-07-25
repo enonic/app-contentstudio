@@ -20,7 +20,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
     let SITE;
     it(`Precondition: site should be added`,
         () => {
-        let contentBrowsePanel = new ContentBrowsePanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
             return studioUtils.doAddSite(SITE).then(() => {
@@ -32,12 +32,14 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
                 assert.isTrue(isDisplayed, 'site should be listed in the grid');
             });
         });
-    //verifies : app-contentstudio#43 Cancel button should be enabled, when site has invalid items
-    it(`GIVEN existing site with not valid folder is selected WHEN 'Publish Dialog' has been opened  AND 'include child' pressed THEN Cancel(bottom) button should be enabled`,
+
+    it(`GIVEN existing site with not valid folder is selected WHEN 'Publish Dialog' has been opened  AND 'include child' pressed THEN Publish Now button should be disabled`,
         () => {
-        let contentPublishDialog = new ContentPublishDialog();
+            let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             return addNotValidFolder(SITE.displayName).then(() => {
+            }).then(() => {
+                return contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
             }).then(() => {
                 return contentBrowsePanel.clickOnPublishButton();
             }).then(() => {
@@ -45,7 +47,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             }).then(() => {
                 return contentPublishDialog.clickOnIncludeChildrenToogler();
             }).then(() => {
-                return contentPublishDialog.waitForCancelButtonBottomEnabled();
+                return contentPublishDialog.waitForPublishNowButtonDisabled();
             })
         });
 

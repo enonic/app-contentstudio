@@ -33,7 +33,7 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
         return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
         }).then(() => {
-            return contentBrowsePanel.waitForPublishButtonVisible();
+            return contentBrowsePanel.waitForMarkAsReadyButtonVisible();
         }).then(() => {
             //open 'Create Issue' dialog
             return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
@@ -58,6 +58,7 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
+                //TODO change the test
                 return issueDetailsDialogItemsTab.clickOnPublishAndCloseIssueButton();
             }).then(() => {
                 return issueDetailsDialog.waitForNotificationMessages();
@@ -78,7 +79,7 @@ describe('publish.close.issue.spec: publish a content and close issue spec', fun
         return studioUtils.openIssuesListDialog().then(() => {
         }).then(() => {
             studioUtils.saveScreenshot("verify_issue_246");
-            return issueListDialog.clickOnShowClosedIssuesLink();
+            return issueListDialog.clickOnShowClosedIssuesButton();
         }).then(() => {
             studioUtils.saveScreenshot('closed_issue');
             return issueListDialog.isIssuePresent(issueTitle);

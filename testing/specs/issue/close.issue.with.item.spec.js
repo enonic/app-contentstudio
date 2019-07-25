@@ -34,7 +34,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             })
         });
 
-    it(`Precondition: new folder and new issue should be added`,
+    it(`Precondition: new published-folder and new issue have been created`,
         () => {
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -43,6 +43,9 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            }).then(() => {
+                //Click on 'Mark as ready' and confirm it in the modal dialog
+                return contentBrowsePanel.openPublishMenuAndClickOnMarAsReady();
             }).then(() => {
                 // Publish button is getting visible, because the content is 'New' and valid
                 return contentBrowsePanel.waitForPublishButtonVisible();
@@ -58,7 +61,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             })
         });
 
-    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed AND modal dialog closed THEN issue-menu button should not be visible`,
+    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed THEN issue-menu button gets not visible`,
         () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -67,12 +70,14 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             }).then(() => {
                 return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
+                //the issue has been closed
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {
+                //modal dialog has been closed
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
                 return assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueMenuButtonNotVisible(),
-                    'issue-menu button is getting not visible on the preview toolbar, (when the content is selected)');
+                    'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');
             })
         });
 

@@ -32,7 +32,7 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
             });
         });
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
-    it(`WHEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
+    it(`GIVEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
         () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -43,9 +43,26 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
                 return contentPublishDialog.waitForDialogOpened();
             }).then(result => {
                 assert.isTrue(result, 'Publish Dialog should be present');
+            }).then(() => {
+                //Publish button should be disabled, because this content is "Work in progress"
+                return contentPublishDialog.waitForPublishNowButtonDisabled();
             })
         });
 
+    it(`GIVEN Marked as ready folder is selected WHEN 'Ctrl+Alt+P' has been pressed THEN Publish now button should be enabled now`,
+        async () => {
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(folder.displayName);
+            // folder has been Marked as Ready
+            await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            await contentBrowsePanel.waitForPublishButtonVisible();
+            await contentBrowsePanel.hotKeyPublish();
+            await contentPublishDialog.waitForDialogOpened();
+            //Publish button should be disabled, because this content is "Marked as Ready"
+            return contentPublishDialog.waitForPublishNowButtonEnabled();
+
+        });
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

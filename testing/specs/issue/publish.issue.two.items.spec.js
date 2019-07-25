@@ -40,7 +40,7 @@ describe('publish.issue.two.items.spec: 2 item added and published', function ()
                 assert.isTrue(isDisplayed, 'folder should be listed in the grid');
             });
         });
-    it(`GIVEN two folders are selected WHEN new issue has been created THEN items tab on 'Issue Details Dialog' should be loaded with correct data`,
+    it(`GIVEN two folders are selected WHEN new issue has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
@@ -48,6 +48,8 @@ describe('publish.issue.two.items.spec: 2 item added and published', function ()
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             return studioUtils.findContentAndClickCheckBox(folder1.displayName).then(() => {
                 return studioUtils.findContentAndClickCheckBox(folder2.displayName)
+            }).then(() => {
+                return contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
             }).then(() => {
                 return contentBrowsePanel.waitForPublishButtonVisible();
             }).then(() => {

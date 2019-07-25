@@ -32,7 +32,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             }).then(() => {
-                return contentBrowsePanel.waitForPublishButtonVisible();
+                return contentBrowsePanel.waitForMarkAsReadyButtonVisible();
             }).then(()=>{
                 //open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
@@ -41,6 +41,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             }).then(result => {
                 return createIssueDialog.clickOnCreateIssueButton();
             }).then(() => {
+                //issue details dialog should be loaded
                 return issueDetailsDialog.waitForDialogOpened();
             })
         });
@@ -59,7 +60,8 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                     return issueDetailsDialog.waitForNotificationMessage();
                 }).then(message => {
                     studioUtils.saveScreenshot('status_menu_closed_issue');
-                    assert.isTrue(message == appConstant.ISSUE_CLOSED_MESSAGE, 'notification message should be displayed');
+                    assert.isTrue(message == appConstant.ISSUE_CLOSED_MESSAGE,
+                        '`The issue is Closed.` -notification message should be displayed');
                 }).then(() => {
                     return assert.eventually.isTrue(issueDetailsDialog.waitForReopenButtonLoaded(),
                         '`Reopen Issue` button should be loaded');
@@ -75,7 +77,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 let createIssueDialog = new CreateIssueDialog();
                 let issueListDialog = new IssueListDialog();
                 return studioUtils.openIssuesListDialog().then(() => {
-                    return issueListDialog.clickOnShowClosedIssuesLink();
+                    return issueListDialog.clickOnShowClosedIssuesButton();
                 }).then(() => {
                     return issueListDialog.clickOnIssue(issueTitle);
                 }).then(() => {
@@ -94,9 +96,9 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 let createIssueDialog = new CreateIssueDialog();
                 let issueListDialog = new IssueListDialog();
                 return studioUtils.openIssuesListDialog().then(() => {
-                    return issueListDialog.isShowClosedIssuesLinkVisible().then(result => {
+                    return issueListDialog.isShowClosedIssuesButtonVisible().then(result => {
                         if (result) {
-                            return issueListDialog.clickOnShowClosedIssuesLink();
+                            return issueListDialog.clickOnShowClosedIssuesButton();
                         }
                     })
                 }).then(() => {
