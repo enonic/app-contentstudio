@@ -7,22 +7,27 @@ import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler'
 import {Issue} from '../issue/Issue';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishIssuesStateBar} from './PublishIssuesStateBar';
+import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
+import {PublishRequest} from '../issue/PublishRequest';
+import {PublishRequestItem} from '../issue/PublishRequestItem';
+import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {IssueType} from '../issue/IssueType';
 import {PublishScheduleForm} from './PublishScheduleForm';
 import ContentId = api.content.ContentId;
 import ListBox = api.ui.selector.list.ListBox;
-import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import Principal = api.security.Principal;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
-import KeyHelper = api.ui.KeyHelper;
 import PropertyEvent = api.data.PropertyEvent;
+import TextLine = api.form.inputtype.text.TextLine;
+import PrincipalSelector = api.form.inputtype.principal.PrincipalSelector;
+import ArrayHelper = api.util.ArrayHelper;
+import PrincipalType = api.security.PrincipalType;
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -30,35 +35,41 @@ import PropertyEvent = api.data.PropertyEvent;
  * Dependant items number will change depending on includeChildren checkbox state as
  * resolved dependencies usually differ in that case.
  */
-export class ContentPublishDialog
+export class RequestContentPublishDialog
     extends BasePublishDialog {
 
-    private publishAction: Action;
+    private requestPublishAction: Action;
 
     private publishProcessor: PublishProcessor;
 
     private currentUser: Principal;
 
-    private publishSubTitle: ContentPublishDialogSubTitle;
-
     private publishScheduleForm: PublishScheduleForm;
 
-    private scheduleAction: api.ui.Action;
-
-    private scheduleFormPropertySet: api.data.PropertySet;
+    private requestDetailsPropertySet: api.data.PropertySet;
 
     private publishIssuesStateBar: PublishIssuesStateBar;
 
+    private requestDetailsStep: api.dom.DivEl;
+
+    private publishItemsStep: api.dom.DivEl;
+
+    private prevAction: api.ui.Action;
+
+    private nextAction: api.ui.Action;
+
+    private detailsFormView: api.form.FormView;
+
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
-            title: i18n('dialog.publish'),
-            class: 'publish-dialog',
-            dependantsDescription: i18n('dialog.publish.dependants'),
+                title: i18n('dialog.requestPublish'),
+                dialogSubName: i18n('dialog.requestPublish.subname1'),
+                class: 'request-publish-dialog',
+                dependantsDescription: i18n('dialog.requestPublish.dependants'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();
-                },
-                buttonRow: new ContentPublishDialogButtonRow(),
+                    new ContentPublishPromptEvent([]).fire();   //TODO ?
+                }
             }
         );
     }
@@ -66,36 +77,47 @@ export class ContentPublishDialog
     protected initActions() {
         super.initActions();
 
-        this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
+        this.requestPublishAction = new ContentPublishDialogAction(() => {
+            this.doPublish();
+        }, i18n('action.createRequest'));
 
-        this.scheduleAction = new api.ui.Action('action.schedule')
-            .onExecuted((action: Action) => this.doPublish(true));
+        this.prevAction = new api.ui.Action(i18n('action.previous'))
+            .onExecuted((action: Action) => this.goToStep(0));
+
+        this.nextAction = new api.ui.Action(i18n('action.next'))
+            .onExecuted((action: Action) => this.goToStep(1));
     }
 
     protected initElements() {
         super.initElements();
-
-        this.publishSubTitle = new ContentPublishDialogSubTitle();
-
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
 
-        this.actionButton = this.addAction(this.publishAction);
-        this.addAction(this.scheduleAction);
+        this.actionButton = this.addAction(this.requestPublishAction);
 
-        this.scheduleFormPropertySet = new api.data.PropertySet();
-        this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
-        this.publishScheduleForm.setScheduleNote(i18n('dialog.schedule.subname'));
+        this.requestDetailsPropertySet = new api.data.PropertySet();
+
+        this.publishScheduleForm = new PublishScheduleForm(this.requestDetailsPropertySet);
         this.publishScheduleForm.layout(false);
-        this.scheduleFormPropertySet.onChanged((event: PropertyEvent) => {
-            this.updateControls();
-        });
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             this.updateControls();
-            this.publishAction.setVisible(!visible);
-            this.scheduleAction.setVisible(visible);
+
         });
+        const detailsForm = this.createDetailsForm();
 
         this.publishIssuesStateBar = new PublishIssuesStateBar();
+        this.publishItemsStep = new api.dom.DivEl('publish-items-step');
+        this.requestDetailsStep = new api.dom.DivEl('request-details-step');
+
+        this.detailsFormView = new api.form.FormView(api.form.FormContext.create().build(), detailsForm, this.requestDetailsPropertySet);
+        this.detailsFormView.displayValidationErrors(false);
+        this.detailsFormView.layout(false);
+
+        this.requestDetailsPropertySet.onChanged((event: PropertyEvent) => {
+            this.detailsFormView.validate(false, true);
+            this.detailsFormView.displayValidationErrors(!this.detailsFormView.getData().isEmpty());
+
+            this.updateControls();
+        });
 
         this.loadCurrentUser();
     }
@@ -161,23 +183,62 @@ export class ContentPublishDialog
     }
 
     private handleLoadFailed() {
-        this.setSubTitle('');
+        this.setSubTitle(i18n('dialog.requestPublish.error.loadFailed'));
         this.publishIssuesStateBar.showLoadFailed();
-        this.publishIssuesStateBar.addClass('has-issues');
-        this.toggleAction(false);
+        this.updateControls();
         this.hideLoadMask();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.setSubTitleEl(this.publishSubTitle);
+            this.appendChildToContentPanel(this.publishIssuesStateBar);
 
-            this.prependChildToContentPanel(this.publishScheduleForm);
+            this.publishItemsStep.appendChildren(this.getItemList(), this.getDependantsContainer());
+            this.appendChildToContentPanel(this.publishItemsStep);
 
-            this.prependChildToContentPanel(this.publishIssuesStateBar);
+            this.requestDetailsStep.appendChildren<api.dom.Element>(this.publishScheduleForm, this.detailsFormView);
+            this.appendChildToContentPanel(this.requestDetailsStep);
+
+            this.addAction(this.prevAction).addClass('force-enabled').addClass('prev');
+            this.addAction(this.nextAction).addClass('force-enabled').addClass('next');
 
             return rendered;
         });
+    }
+
+    private createDetailsForm(): api.form.Form {
+        const changes = new api.form.InputBuilder()
+            .setName('changes')
+            .setLabel(i18n('dialog.requestPublish.changes'))
+            .setInputType(TextLine.getName())
+            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setMaximizeUIInputWidth(true)
+            .build();
+
+        const assignees = new api.form.InputBuilder()
+            .setName('assignees')
+            .setLabel(i18n('dialog.requestPublish.assignees'))
+            .setInputType(PrincipalSelector.getName())
+            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
+            .setInputTypeConfig({
+                principalTypes: PrincipalType[PrincipalType.USER],
+                skipPrincipals: [api.security.PrincipalKey.ofAnonymous(), api.security.PrincipalKey.ofSU()]
+            })
+            .build();
+
+        return new api.form.FormBuilder().addFormItem(changes).addFormItem(assignees).build();
+    }
+
+    private goToStep(num: number) {
+        this.requestPublishAction.setVisible(num === 1);
+        this.publishItemsStep.setVisible(num === 0);
+        this.requestDetailsStep.setVisible(num === 1);
+        this.prevAction.setVisible(num === 1);
+        this.nextAction.setVisible(num === 0);
+    }
+
+    private getCurrentStep(): number {
+        return this.detailsFormView.isVisible() ? 1 : 0;
     }
 
     private loadCurrentUser() {
@@ -213,17 +274,15 @@ export class ContentPublishDialog
         return <PublishDialogDependantList>super.getDependantList();
     }
 
-    getButtonRow(): ContentPublishDialogButtonRow {
-        return <ContentPublishDialogButtonRow>super.getButtonRow();
-    }
-
     open() {
         this.publishProcessor.resetExcludedIds();
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
 
         CreateIssueDialog.get().reset();
 
-        this.publishScheduleForm.setFormVisible(false);
+        this.publishScheduleForm.setFormVisible(false, true);   // this.requestDetailsPropertySet will be reset here
+        this.detailsFormView.update(this.requestDetailsPropertySet, false);     // all we need is to update second form data
+        this.goToStep(0);
 
         this.reloadPublishDependencies();
 
@@ -270,6 +329,49 @@ export class ContentPublishDialog
         this.publishProcessor.reloadPublishDependencies(true);
     }
 
+    private doPublish() {
+
+        this.lockControls();
+        this.publishProcessor.setIgnoreDependantItemsChanged(true);
+
+        const selectedIds = this.getContentToPublishIds();
+        const exludeChildrenIds = this.getItemList().getExcludeChildrenIds();
+        const publishRequest = PublishRequest.create()
+            .addPublishRequestItems(selectedIds.map(id =>
+                PublishRequestItem.create()
+                    .setId(id)
+                    .setIncludeChildren(!ArrayHelper.contains(exludeChildrenIds, id))
+                    .build()))
+            .addExcludeIds(this.getExcludedIds())
+            .build();
+
+        const publishSet = this.requestDetailsPropertySet.getPropertySet('publish');
+        const from = publishSet ? publishSet.getLocalDateTime('from') : null;
+        const to = publishSet ? publishSet.getLocalDateTime('to') : null;
+        const changes = this.requestDetailsPropertySet.getString('changes');
+        const assignees = this.requestDetailsPropertySet.getPropertyArray('assignees');
+
+        const createIssueRequest = new CreateIssueRequest()
+            .setTitle(changes)
+            .setType(IssueType.PUBLISH_REQUEST)
+            .setPublishFrom(from ? from.toDate() : undefined)
+            .setPublishTo(to ? to.toDate() : undefined)
+            .setApprovers(assignees ? assignees.map((prop) => {
+                return api.security.PrincipalKey.fromString(prop.getReference().getNodeId());
+            }) : undefined)
+            .setPublishRequest(publishRequest);
+
+        createIssueRequest.sendAndParse().then((issue: Issue) => {
+            IssueDialogsManager.get().openDetailsDialog(issue);
+        }).catch((reason) => {
+            this.unlockControls();
+            this.close();
+            if (reason && reason.message) {
+                api.notify.showError(reason.message);
+            }
+        });
+    }
+
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {
         if (this.isProgressBarEnabled()) {
             return;
@@ -295,44 +397,6 @@ export class ContentPublishDialog
         return this;
     }
 
-    private doPublish(scheduled: boolean = false) {
-
-        this.lockControls();
-        this.publishProcessor.setIgnoreDependantItemsChanged(true);
-
-        const selectedIds = this.getContentToPublishIds();
-        const publishMessage = this.publishSubTitle.getValue();
-
-        const publishRequest = new PublishContentRequest()
-            .setIds(selectedIds)
-            .setMessage(!api.util.StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
-            .setExcludedIds(this.getExcludedIds())
-            .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
-
-        if (scheduled) {
-            const publishSet = this.scheduleFormPropertySet.getPropertySet('publish');
-            const from = publishSet.getLocalDateTime('from', 0);
-            if (from) {
-                publishRequest.setPublishFrom(from.toDate());
-            }
-
-            const to = publishSet.getLocalDateTime('to', 0);
-            if (to) {
-                publishRequest.setPublishTo(to.toDate());
-            }
-        }
-
-        publishRequest.sendAndParse().then((taskId: api.task.TaskId) => {
-            this.pollTask(taskId);
-        }).catch((reason) => {
-            this.unlockControls();
-            this.close();
-            if (reason && reason.message) {
-                api.notify.showError(reason.message);
-            }
-        });
-    }
-
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
         return new PublishDialogItemList();
     }
@@ -342,10 +406,10 @@ export class ContentPublishDialog
     }
 
     private updateSubTitle(itemsToPublish: number) {
-        this.setSubTitle('');
+        this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
 
         if (itemsToPublish === 0) {
-            this.setSubTitle(i18n('dialog.publish.noItems'));
+            this.setSubTitle(i18n('dialog.requestPublish.noItems'));
             return;
         }
 
@@ -375,36 +439,21 @@ export class ContentPublishDialog
     private updateControls(itemsToPublish: number = this.countTotal()) {
         const allValid: boolean = this.areItemsAndDependantsValid();
         const allPublishable: boolean = this.isAllPublishable();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable && !containsItemsInProgress;
-        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.isScheduleFormValid();
+        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
+        const detailsValid = this.detailsFormView.isValid();
 
-        this.toggleAction(canPublish && scheduleValid);
+        this.toggleAction(canPublish && scheduleValid && detailsValid);
 
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
     }
 
-    private isScheduleFormValid() {
-        const isFormValid = this.publishScheduleForm.isFormValid();
-        const dateSet = this.scheduleFormPropertySet.getProperty('publish').getPropertySet();
-        if (!isFormValid || !dateSet) {
-            return false;
-        }
-        const from = dateSet.getProperty('from', 0);
-        const to = dateSet.getProperty('to', 0);
-        return from && from.hasNonNullValue() || to && to.hasNonNullValue();
-    }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
         const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
-        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
-        this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
-    }
-
-    protected doScheduledAction() {
-        this.doPublish(true);
+        this.requestPublishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.createRequest')));
     }
 
     protected isScheduleButtonAllowed(): boolean {
@@ -423,114 +472,5 @@ export class ContentPublishDialog
     private containsItemsInProgress(): boolean {
         return this.publishProcessor.containsItemsInProgress();
     }
-
-    protected lockControls() {
-        super.lockControls();
-        this.scheduleAction.setEnabled(false);
-    }
-
-    protected unlockControls() {
-        super.unlockControls();
-        this.scheduleAction.setEnabled(true);
-    }
-
-    setSubTitle(text: string, escapeHtml?: boolean) {
-        this.publishSubTitle.setMessage(text.trim(), escapeHtml);
-    }
 }
 
-export class ContentPublishDialogButtonRow
-    extends DropdownButtonRow {
-
-    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
-        super.makeActionMenu(mainAction, menuActions, useDefault);
-
-        return <MenuButton>this.actionMenu.addClass('publish-dialog-menu');
-    }
-
-}
-
-export class ContentPublishDialogSubTitle
-    extends api.dom.DivEl {
-    private input: api.ui.text.AutosizeTextInput;
-    private message: api.dom.AEl;
-
-    constructor() {
-        super('publish-dialog-sub-title');
-        this.input = new api.ui.text.AutosizeTextInput();
-        this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
-        this.input.setVisible(false);
-
-        this.message = new api.dom.AEl();
-        this.message.setHtml(i18n('dialog.publish.messageHint'));
-        this.message.onClicked((event: MouseEvent) => {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-
-            this.toggleInput(true);
-        });
-
-        this.initListeners();
-    }
-
-    public setMessage(text: string, escapeHtml?: boolean) {
-        this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
-        this.toggleClass('custom-message', !!text);
-    }
-
-    private toggleInput(visible: boolean) {
-        if (visible) {
-            this.message.hide();
-            this.input.show();
-            this.input.giveFocus();
-        } else {
-            this.input.reset();
-            this.input.hide();
-            this.message.show();
-        }
-    }
-
-    private initListeners() {
-        const keyDownHandler = (event: KeyboardEvent) => {
-            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
-                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
-            const isInputVisible = this.input.isVisible();
-
-            if (!isInputVisible && isLetterOrNumber) {
-                this.toggleInput(true);
-            } else if (isInputVisible && KeyHelper.isEscKey(event)) {
-                event.stopImmediatePropagation();
-                this.toggleInput(false);
-            }
-        };
-
-        const clickHandler = (event: MouseEvent) => {
-            if (this.input.isVisible()
-                && api.util.StringHelper.isBlank(this.input.getValue())
-                && event.target !== this.input.getHTMLElement()) {
-
-                this.toggleInput(false);
-            }
-        };
-
-        this.onShown(() => {
-            api.dom.Body.get().onKeyDown(keyDownHandler);
-            this.toggleInput(false);
-        });
-        this.onHidden(() => api.dom.Body.get().unKeyDown(keyDownHandler));
-
-        this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
-        this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
-    }
-
-    public getValue(): string {
-        return this.input.getValue();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildren<api.dom.Element>(this.message, this.input);
-            return rendered;
-        });
-    }
-}

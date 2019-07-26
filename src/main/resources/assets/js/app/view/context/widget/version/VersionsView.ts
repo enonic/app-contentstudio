@@ -136,8 +136,7 @@ export class VersionsView
                 itemEl.addClass('published');
                 this.createPublishedTooltip(item, itemEl);
             }
-        }
-        else {
+        } else {
             item.publishInfo ? this.createPublishedTooltip(item, itemEl) : this.createModifiedTooltip(item, itemEl);
         }
     }

@@ -1,0 +1,132 @@
+.request-publish-dialog {
+
+  @toggler-width: 35px;
+
+  .modal-dialog-header {
+    background-color: @admin-bg-light-gray;
+
+    .sub-title {
+      margin: 10px 0;
+    }
+  }
+
+  .modal-dialog-body {
+    padding-top: 15px;
+
+    .dialog-togglable-item-list {
+      padding-top: 15px;
+    }
+
+    .publish-dialog-issues {
+
+      &.has-issues + .schedule-button {
+        display: none;
+      }
+
+      h6 {
+        margin-top: 10px;
+      }
+
+      .not-publishable {
+        color: @admin-red;
+        line-height: 16px;
+      }
+
+      .invalid {
+        color: @admin-red;
+        line-height: 16px;
+
+        .invalid-part1 {
+          font-weight: bold;
+          padding-left: 23px;
+        }
+
+        .invalid-part2 {
+          padding-left: 5px;
+        }
+
+        &:before {
+          .icon-state-invalid;
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background-size: 16px;
+        }
+      }
+
+      .in-progress {
+        line-height: 16px;
+
+        .in-progress-part1 {
+          font-weight: bold;
+          padding-left: 23px;
+        }
+
+        .in-progress-part2 {
+          padding-left: 5px;
+        }
+
+        &:before {
+          .icon-state-in-progress;
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background-size: 16px;
+        }
+      }
+
+      .load-failed {
+        color: @admin-red;
+      }
+    }
+  }
+
+  .button-container {
+    width: 100%;
+    text-align: right;
+
+    .dialog-button.prev {
+      float: left;
+      margin: 0;
+    }
+  }
+
+  .browse-selection-item .remove {
+    display: flex;
+  }
+
+  .include-child-check {
+    position: absolute;
+    bottom: 40px;
+    left: 38px;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+
+    @media screen and (max-height: 360px) {
+      bottom: 25px;
+    }
+  }
+
+  &.is-processing {
+    .item-list,
+    .include-child-check,
+    .dialog-buttons button.publish-action,
+    .dialog-buttons button.show-schedule-action {
+      display: none;
+    }
+  }
+
+  &.masked {
+    opacity: 0;
+  }
+}
+
+.@{_COMMON_PREFIX}modal-dialog {
+  &._0-240, &._240-360 {
+    &.request-publish-dialog .include-child-check {
+      left: 16px;
+    }
+  }
+}

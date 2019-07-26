@@ -1,6 +1,8 @@
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import {ContentWizardPanel} from '../ContentWizardPanel';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {RequestContentPublishPromptEvent} from '../../browse/RequestContentPublishPromptEvent';
 
 export class RequestPublishAction
     extends Action {
@@ -16,6 +18,7 @@ export class RequestPublishAction
     }
 
     private handleExecuted() {
-        // execute
+        const content = ContentSummaryAndCompareStatus.fromContentSummary(this.wizard.getPersistedItem());
+        new RequestContentPublishPromptEvent([content]).fire();
     }
 }

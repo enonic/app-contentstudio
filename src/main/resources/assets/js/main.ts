@@ -40,6 +40,7 @@ import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
 import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
+import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -238,7 +239,7 @@ function updateFavicon(content: Content) {
     }
 }
 
-const refreshTab = function(content: Content) {
+const refreshTab = function (content: Content) {
     updateFavicon(content);
     updateTabTitle(content.getDisplayName());
 };
@@ -331,6 +332,16 @@ function startApplication() {
         ContentUnpublishPromptEvent.on((event) => {
             contentUnpublishDialog
                 .setContentToUnpublish(event.getModels())
+                .open();
+        });
+    });
+
+    import('./app/publish/RequestContentPublishDialog').then(def => {
+        const requestContentPublishDialog = new def.RequestContentPublishDialog();
+        RequestContentPublishPromptEvent.on((event) => {
+            requestContentPublishDialog
+                .setContentToPublish(event.getModels())
+                .setIncludeChildItems(event.isIncludeChildItems())
                 .open();
         });
     });
