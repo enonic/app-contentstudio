@@ -15,7 +15,7 @@ export class ContentLayer {
 
     private icon: Attachment;
 
-    private static DEFAULT_LAYER_NAME: string = 'base';
+    static DEFAULT_LAYER_NAME: string = 'base';
 
     constructor(builder: ContentLayerBuilder) {
         this.name = builder.name;

@@ -1,10 +1,11 @@
-import {ContentLayer} from '../../../../content/ContentLayer';
+import {ContentLayer} from '../content/ContentLayer';
 
-export class LayerWidgetViewer
+
+export class LayerViewer
     extends api.ui.NamesAndIconViewer<ContentLayer> {
 
     constructor() {
-        super('layer-widget-item-viewer');
+        super('layer-viewer');
     }
 
     resolveDisplayName(object: ContentLayer): string {
