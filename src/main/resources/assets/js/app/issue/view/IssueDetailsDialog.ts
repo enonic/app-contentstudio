@@ -12,13 +12,12 @@ import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {DetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
-import {DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
-import {BasePublishDialog} from '../../dialog/BasePublishDialog';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -28,7 +27,6 @@ import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import TaskState = api.task.TaskState;
 import ListBox = api.ui.selector.list.ListBox;
-import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import Principal = api.security.Principal;
 import i18n = api.util.i18n;
@@ -47,7 +45,7 @@ import ComboBox = api.ui.selector.combobox.ComboBox;
 import ContentId = api.content.ContentId;
 
 export class IssueDetailsDialog
-    extends BasePublishDialog {
+    extends DependantItemsWithProgressDialog {
 
     private issue: Issue;
 
@@ -74,8 +72,6 @@ export class IssueDetailsDialog
     private detailsSubTitle: DetailsDialogSubTitle;
 
     private publishAction: ContentPublishDialogAction;
-
-    private publishButton: api.ui.button.MenuButton;
 
     private backButton: AEl;
 
@@ -132,6 +128,8 @@ export class IssueDetailsDialog
     protected initElements() {
         super.initElements();
 
+        this.initActions();
+
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
         this.commentTextArea = new IssueCommentTextArea();
         this.detailsSubTitle = new DetailsDialogSubTitle(this.issue);
@@ -150,10 +148,9 @@ export class IssueDetailsDialog
         this.tabBar = new TabBar();
         this.tabPanel = new NavigatedDeckPanel(this.tabBar);
 
-        this.publishButton = this.createPublishButton();
-        this.actionButton = this.publishButton.getActionButton();
+        this.actionButton = this.createPublishButton();
 
-        this.errorTooltip = new Tooltip(this.publishButton, i18n('dialog.publish.invalidError'), 500);
+        this.errorTooltip = new Tooltip(this.actionButton, i18n('dialog.publish.invalidError'), 500);
     }
 
     protected initTabs() {
@@ -196,6 +193,7 @@ export class IssueDetailsDialog
         this.commentTextArea.onValueChanged(event => {
             const saveAllowed = event.getNewValue().trim().length > 0;
             this.commentAction.setEnabled(saveAllowed);
+            this.updateCloseButtonLabel(saveAllowed);
         });
 
         this.commentTextArea.onKeyDown(event => {
@@ -273,10 +271,23 @@ export class IssueDetailsDialog
             this.toggleClass('tab-assignees', isAssignees);
             this.toggleClass('tab-comments', isComments);
             this.toggleClass('tab-items', !isAssignees && !isComments);
+            const hasComment = isComments && !api.util.StringHelper.isEmpty(this.commentTextArea.getValue());
+            this.updateCloseButtonLabel(hasComment);
         });
 
-        this.closeAction.onExecuted(() => {
-            this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+        this.closeAction.onExecuted(action => {
+            const comment = this.commentTextArea.getValue();
+            const hasComment = !api.util.StringHelper.isEmpty(comment);
+            if (hasComment) {
+                action.setEnabled(false);
+                this.saveComment(comment, this.commentAction).then(() => {
+                    this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+                }).catch(api.DefaultErrorHandler.handle).finally(() => {
+                    action.setEnabled(true);
+                });
+            } else {
+                this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+            }
         });
 
         this.reopenAction.onExecuted(() => {
@@ -293,8 +304,17 @@ export class IssueDetailsDialog
         this.handleIssueGlobalEvents();
     }
 
+    private updateCloseButtonLabel(canComment: boolean) {
+        const label = this.getCloseButtonLabel(canComment);
+        this.closeAction.setLabel(label);
+    }
+
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
+        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count));
+    }
+
+    private static makeLabelWithCounter(label: string, count: number = 0): string {
+        return (count > 0 ? `${label} (${count})` : label);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -323,7 +343,7 @@ export class IssueDetailsDialog
             this.appendChildToContentPanel(this.tabPanel);
             this.prependChildToFooter(this.commentTextArea);
 
-            this.updateItemsCountAndButtons();
+            this.updateItemsCountAndButtonLabels();
 
             if (this.issue) {
                 this.setIssue(this.issue);
@@ -337,22 +357,52 @@ export class IssueDetailsDialog
         return !!this.issue && this.issue.getType() === IssueType.PUBLISH_REQUEST;
     }
 
-    private updateItemsCountAndButtons() {
+    private getItemsTabLabel(): string {
+        return this.isPublishRequestViewed() ? i18n('field.issue.publishRequests') : i18n('field.items');
+    }
+
+    private getCloseButtonLabel(canComment?: boolean): string {
+        const isPublishRequest = this.isPublishRequestViewed();
+        if (isPublishRequest) {
+            return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
+        } else {
+            return canComment ? i18n('action.commentAndCloseIssue') : i18n('action.closeIssue');
+        }
+    }
+
+    private getReopenButtonLabel(): string {
+        return this.isPublishRequestViewed() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
+    }
+
+    private getPublishButtonLabel(itemsCount: number = 0): string {
+        const isPublishRequestViewed = this.isPublishRequestViewed();
+
+        if (isPublishRequestViewed) {
+            return IssueDetailsDialog.makeLabelWithCounter(i18n('action.publishNow'), itemsCount);
+        } else {
+            return i18n('action.publishMore');
+        }
+    }
+
+    private updateItemsCountAndButtonLabels() {
         const count: number = this.countTotal();
+        const hasItems = count > 0;
+
         this.updateItemsCount();
-        this.updateButtonCount(i18n('action.publishAndCloseIssue'), count);
-        this.toggleAction(count > 0);
+        this.toggleAction(hasItems);
+        this.actionButton.setLabel(this.getPublishButtonLabel(count));
     }
 
     private updateItemsCount() {
         const count: number = this.countTotal();
-        const label = this.isPublishRequestViewed() ? i18n('field.issue.publishRequests') : i18n('field.items');
+        const label = this.getItemsTabLabel();
         this.updateTabLabel(1, label, count);
     }
 
     protected toggleAction(enable: boolean) {
-        super.toggleAction(enable);
-        this.publishButton.setEnabled(!this.publishProcessor.containsInvalidItems() && this.publishProcessor.isAllPublishable());
+        this.toggleControls(enable);
+        this.toggleClass('no-action', !enable);
+        this.actionButton.setEnabled(!this.publishProcessor.containsInvalidItems() && this.publishProcessor.isAllPublishable());
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
     }
 
@@ -383,8 +433,7 @@ export class IssueDetailsDialog
 
             this.initItemListTogglers(this.getItemList());
 
-            this.updateItemsCountAndButtons();
-            this.updateShowScheduleDialogButton();
+            this.updateItemsCountAndButtonLabels();
         });
     }
 
@@ -402,12 +451,10 @@ export class IssueDetailsDialog
         const itemList = this.getItemList();
         itemList.onItemsAdded(() => {
             this.ignoreNextExcludeChildrenEvent = this.initItemListTogglers(itemList);
-            this.updateItemsCountAndButtons();
-            this.updateShowScheduleDialogButton();
+            this.updateItemsCountAndButtonLabels();
         });
         itemList.onItemsRemoved(() => {
-            this.updateItemsCountAndButtons();
-            this.updateShowScheduleDialogButton();
+            this.updateItemsCountAndButtonLabels();
         });
         itemList.onItemRemoveClicked(handleRemoveItemClicked);
         itemList.onChildrenListChanged(() => {
@@ -423,7 +470,7 @@ export class IssueDetailsDialog
         this.getDependantList().onItemRemoveClicked(handleRemoveItemClicked);
 
         this.publishProcessor.onLoadingFinished(() => {
-            this.updateItemsCountAndButtons();
+            this.updateItemsCountAndButtonLabels();
             if (this.saveOnLoaded) {
                 this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
                 this.saveOnLoaded = false;
@@ -522,7 +569,7 @@ export class IssueDetailsDialog
         this.issue = issue;
 
         if (shouldUpdateDialog) {
-            this.updateItemsCount();
+            this.updateLabels();
 
             this.tabBar.selectNavigationItem(isPublishRequest ? 1 : 0);
 
@@ -530,6 +577,15 @@ export class IssueDetailsDialog
         }
 
         return this;
+    }
+
+    private updateLabels() {
+        const isComments = this.tabPanel.getPanelShown() === this.commentsPanel;
+        const hasComment = isComments && !api.util.StringHelper.isEmpty(this.commentTextArea.getValue());
+
+        this.updateItemsCount();
+        this.closeAction.setLabel(this.getCloseButtonLabel(hasComment));
+        this.reopenAction.setLabel(this.getReopenButtonLabel());
     }
 
     hideBackButton() {
@@ -554,13 +610,13 @@ export class IssueDetailsDialog
         }, false);
     }
 
-    private saveComment(text: string, action: Action) {
+    private saveComment(text: string, action: Action): wemQ.Promise<void> {
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
-        new CreateIssueCommentRequest(this.issue.getId())
+        return new CreateIssueCommentRequest(this.issue.getId())
             .setCreator(this.currentUser.getKey())
             .setText(text).sendAndParse()
-            .done(issueComment => {
+            .then(issueComment => {
                 this.commentsList.addItem(issueComment);
                 this.commentTextArea.setValue('').giveFocus();
                 api.notify.showFeedback(i18n('notify.issue.commentAdded'));
@@ -568,17 +624,15 @@ export class IssueDetailsDialog
     }
 
     protected initActions() {
-        super.initActions();
-
-        this.closeAction = new Action(i18n('action.closeIssue'));
-        this.reopenAction = new Action(i18n('action.reopenIssue'));
-        this.publishAction = new ContentPublishDialogAction(this.doPublishAndClose.bind(this, false), i18n('action.publishAndCloseIssue'));
+        this.closeAction = new Action(this.getCloseButtonLabel());
+        this.reopenAction = new Action(this.getReopenButtonLabel());
+        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(), this.getPublishButtonLabel());
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
 
     protected createHeader(title: string): api.ui.dialog.ModalDialogHeader {
         const header = new IssueDetailsDialogHeader(title);
-        header.onTitleChanged((newTitle, oldTitle) => {
+        header.onTitleChanged(() => {
             this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
         });
         return header;
@@ -599,10 +653,10 @@ export class IssueDetailsDialog
         commentButton.addClass('comment-issue force-enabled');
     }
 
-    private createPublishButton(): MenuButton {
-        const menuButton = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction]);
-        menuButton.addClass('publish-issue');
-        return menuButton;
+    private createPublishButton(): DialogButton {
+        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction);
+        publishButton.addClass('publish-issue');
+        return publishButton;
     }
 
     private createNoActionMessage() {
@@ -611,16 +665,15 @@ export class IssueDetailsDialog
         this.getButtonRow().appendChild(divEl);
     }
 
-    private doPublish(scheduled: boolean): wemQ.Promise<void> {
+    private doPublish(): wemQ.Promise<void> {
 
-        return this.createPublishContentRequest(scheduled).sendAndParse()
+        return this.createPublishContentRequest().sendAndParse()
             .then((taskId: api.task.TaskId) => {
                 const issue = this.issue;
                 this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
                         new UpdateIssueRequest(issue.getId())
-                            .setStatus(IssueStatus.CLOSED)
                             .setIsPublish(true)
                             .sendAndParse()
                             .then((updatedIssue: Issue) => {
@@ -652,10 +705,6 @@ export class IssueDetailsDialog
 
     protected countDependantItems(): number {
         return this.publishProcessor.getDependantIds().length;
-    }
-
-    private doPublishAndClose(scheduled: boolean) {
-        return this.doPublish(scheduled);
     }
 
     private doUpdateIssue(newStatus: IssueStatus, autoSave: boolean = false): wemQ.Promise<void> {
@@ -706,22 +755,15 @@ export class IssueDetailsDialog
         return !this.publishProcessor.getExcludeChildrenIds().some(contentId => contentId.equals(id));
     }
 
-    private createPublishContentRequest(scheduled?: boolean): PublishContentRequest {
+    private createPublishContentRequest(): PublishContentRequest {
         const selectedIds = this.publishProcessor.getContentToPublishIds();
         const excludedIds = this.publishProcessor.getExcludedIds();
         const excludedChildrenIds = this.publishProcessor.getExcludeChildrenIds();
 
-        const publishRequest = new PublishContentRequest()
+        return new PublishContentRequest()
             .setIds(selectedIds)
             .setExcludedIds(excludedIds)
             .setExcludeChildrenIds(excludedChildrenIds);
-
-        if (scheduled) {
-            publishRequest.setPublishFrom(this.getFromDate());
-            publishRequest.setPublishTo(this.getToDate());
-        }
-
-        return publishRequest;
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -743,35 +785,23 @@ export class IssueDetailsDialog
     close() {
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();
+
         super.close();
+
         this.commentsList.clearItems();
-        this.updateItemsCountAndButtons();
+        this.updateItemsCountAndButtonLabels();
+        this.resetCommentsTabButtons();
+
         Router.back();
     }
 
-    private areSomeItemsOffline(): boolean {
-        let summaries: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
-        return summaries.every((summary) => !summary.isOnline());
-    }
-
-    protected doScheduledAction() {
-        this.doPublish(true);
-        this.close();
-    }
-
-    protected updateButtonCount(actionString: string, count: number) {
-        super.updateButtonCount(actionString, count);
-
-        const labelWithNumber = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
-        this.showScheduleAction.setLabel(labelWithNumber(count, i18n('action.scheduleMore')));
+    resetCommentsTabButtons() {
+        this.commentAction.setEnabled(false);
+        this.updateCloseButtonLabel(false);
     }
 
     private toggleControlsAccordingToStatus(status: IssueStatus) {
         this.toggleClass('closed', (status === IssueStatus.CLOSED));
-    }
-
-    protected isScheduleButtonAllowed(): boolean {
-        return this.areSomeItemsOffline();
     }
 
     public onIssueUpdated(listener: (issue: Issue) => void) {
