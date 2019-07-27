@@ -60,7 +60,7 @@ export class LayersWidgetItemView
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             if (layers.length > 1) {
                 this.currentLayer = this.getCurrentLayer(layers);
-                this.setState(LayersWidgetState.MULTI_LAYERS);
+                this.setState(LayersWidgetState.NO_LAYERS); // after details dialog done this.setState(LayersWidgetState.MULTI_LAYERS);
             } else {
                 this.setState(LayersWidgetState.NO_LAYERS);
             }

@@ -4,9 +4,10 @@ import ActionButton = api.ui.button.ActionButton;
 import Action = api.ui.Action;
 import {LayersList} from './LayersList';
 import {ListContentLayerRequest} from '../resource/layer/ListContentLayerRequest';
-import {ContentLayer, ContentLayerBuilder} from '../content/ContentLayer';
+import {ContentLayer} from '../content/ContentLayer';
 import {ConfirmDeleteDialog} from '../remove/ConfirmDeleteDialog';
 import {DeleteContentLayerRequest} from '../resource/layer/DeleteContentLayerRequest';
+import {CreateLayerDialog} from './CreateLayerDialog';
 
 export class LayersListDialog
     extends ModalDialog {
@@ -35,7 +36,8 @@ export class LayersListDialog
         super.initListeners();
 
         this.button.getAction().onExecuted(() => {
-            console.log('Add Layer');
+            new CreateLayerDialog().open();
+            this.close();
         });
 
         this.layersList.onEditClicked((layer: ContentLayer) => {
@@ -64,43 +66,8 @@ export class LayersListDialog
         this.showLoadMask();
 
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            this.addTestLayers(layers); // remove after layer creation implemented
             this.layersList.setItems(layers);
         }).catch(api.DefaultErrorHandler.handle).finally(this.hideLoadMask.bind(this));
-    }
-
-    private addTestLayers(layers: ContentLayer[]) {
-        const layer1: ContentLayer = new ContentLayerBuilder()
-            .setDisplayName('China')
-            .setDescription('Chinese characters')
-            .setName('en-UK')
-            .setParentName('base')
-            .build();
-        layers.splice(0, 0, layer1);
-
-        const layer2: ContentLayer = new ContentLayerBuilder()
-            .setDisplayName('Norway')
-            .setDescription('Norwegian characters')
-            .setName('nn-NO')
-            .setParentName('base')
-            .build();
-        layers.splice(2, 0, layer2);
-
-        const layer3: ContentLayer = new ContentLayerBuilder()
-            .setDisplayName('Patong')
-            .setDescription('Patong characters')
-            .setName('zh-PG')
-            .setParentName('zh-HK')
-            .build();
-        layers.splice(0, 0, layer3);
-
-        const layer4: ContentLayer = new ContentLayerBuilder()
-            .setDisplayName('Honkong')
-            .setDescription('Honkong characters')
-            .setName('zh-HK')
-            .setParentName('en-UK')
-            .build();
-        layers.splice(0, 0, layer4);
     }
 
     private openConfirmDeleteDialog(layer: ContentLayer) {
@@ -116,7 +83,8 @@ export class LayersListDialog
             valueToCheck: layer.getName(),
             yesCallback: this.deleteLayer.bind(this, layer),
             title: i18n('dialog.confirmDelete'),
-            subtitle: i18n('dialog.layers.confirmDelete.subname')
+            subtitle: i18n('dialog.layers.confirmDelete.subname'),
+            class: 'layer-dialog'
         });
     }
 
