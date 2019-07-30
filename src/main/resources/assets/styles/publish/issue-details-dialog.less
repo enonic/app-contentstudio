@@ -12,6 +12,10 @@
       & > .panel {
         overflow: visible;
 
+        .content-combo-box {
+          margin-top: 15px;
+        }
+
         input {
           .input-glow();
         }
@@ -290,10 +294,30 @@
 
   &.tab-items:not(.closed) {
     &:not(.no-action) {
-      .modal-dialog-footer {
-        .button-container {
-          .publish-issue {
-            display: block !important;
+      &.with-schedule-form {
+        .modal-dialog-footer {
+          .button-container {
+            .publish-issue {
+              display: none !important;
+            }
+
+            .schedule-issue {
+              display: block !important;
+            }
+          }
+        }
+      }
+
+      &:not(.with-schedule-form) {
+        .modal-dialog-footer {
+          .button-container {
+            .publish-issue {
+              display: block !important;
+            }
+
+            .schedule-issue {
+              display: none !important;
+            }
           }
         }
       }

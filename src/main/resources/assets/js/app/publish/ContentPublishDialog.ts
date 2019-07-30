@@ -377,23 +377,12 @@ export class ContentPublishDialog
         const allPublishable: boolean = this.isAllPublishable();
         const containsItemsInProgress: boolean = this.containsItemsInProgress();
         const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable && !containsItemsInProgress;
-        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.isScheduleFormValid();
+        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
 
         this.toggleAction(canPublish && scheduleValid);
 
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
-    }
-
-    private isScheduleFormValid() {
-        const isFormValid = this.publishScheduleForm.isFormValid();
-        const dateSet = this.scheduleFormPropertySet.getProperty('publish').getPropertySet();
-        if (!isFormValid || !dateSet) {
-            return false;
-        }
-        const from = dateSet.getProperty('from', 0);
-        const to = dateSet.getProperty('to', 0);
-        return from && from.hasNonNullValue() || to && to.hasNonNullValue();
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {

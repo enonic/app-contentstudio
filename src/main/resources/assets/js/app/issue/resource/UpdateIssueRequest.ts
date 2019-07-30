@@ -22,6 +22,10 @@ export class UpdateIssueRequest
 
     private approvers: PrincipalKey[];
 
+    private publishFrom: Date;
+
+    private publishTo: Date;
+
     private publishRequest: PublishRequest;
 
     constructor(id: string) {
@@ -70,6 +74,16 @@ export class UpdateIssueRequest
         return this;
     }
 
+    setPublishFrom(publishFrom: Date): UpdateIssueRequest {
+        this.publishFrom = publishFrom;
+        return this;
+    }
+
+    setPublishTo(publishTo: Date): UpdateIssueRequest {
+        this.publishTo = publishTo;
+        return this;
+    }
+
     getParams(): Object {
         const approvers = this.approvers ? this.approvers.map((el) => el.toString()) : undefined;
         const publishRequest = this.publishRequest ? this.publishRequest.toJson() : undefined;
@@ -78,6 +92,10 @@ export class UpdateIssueRequest
             title: this.title,
             description: this.description,
             status: IssueStatus[this.status],
+            publishSchedule: {
+                from: this.publishFrom ? this.publishFrom.toISOString() : null,
+                to: this.publishTo ? this.publishTo.toISOString() : null
+            },
             isPublish: this.isPublish,
             autoSave: this.autoSave,
             approvers,

@@ -70,6 +70,10 @@ export class PublishScheduleForm
         this.appendChildren(this.showScheduleFormButton, this.scheduleFormWrapper);
     }
 
+    public update(propertySet: PropertySet): wemQ.Promise<void> {
+        return this.scheduleFormView.update(propertySet);
+    }
+
     public setFormVisible(flag: boolean, silent?: boolean) {
         this.scheduleFormWrapper.setVisible(flag);
         this.showScheduleFormAction.setVisible(!flag);

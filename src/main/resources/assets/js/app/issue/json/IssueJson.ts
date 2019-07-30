@@ -10,4 +10,9 @@ export interface IssueJson
     publishRequest: PublishRequestJson;
 
     comments: IssueCommentJson[];
+
+    publishSchedule: {
+        from: string,
+        to: string
+    };
 }
