@@ -322,6 +322,7 @@ function startApplication() {
             contentPublishDialog
                 .setContentToPublish(event.getModels())
                 .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
+                .setMessage(event.getMessage())
                 .open();
         });
     });

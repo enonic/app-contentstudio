@@ -119,7 +119,7 @@ export class IssueDetailsDialog
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 buttonRow: new IssueDetailsDialogButtonRow(),
                 processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();
+                    new ContentPublishPromptEvent({model: []}).fire();
                 },
             }
         );
@@ -775,11 +775,14 @@ export class IssueDetailsDialog
             this.doPublish();
         } else {
             const contents = this.getItemList().getItems();
-            const contentWithChildrenIds = contents.filter(content => {
+            const exceptedContentIds = contents.filter(content => {
                 return this.areChildrenIncludedInIssue(content.getContentId());
             }).map(content => content.getContentId());
 
-            new ContentPublishPromptEvent(contents, false, contentWithChildrenIds).fire();
+            const includeChildItems = false;
+            const message = this.issue.getTitle();
+
+            new ContentPublishPromptEvent({model: contents, includeChildItems, exceptedContentIds, message}).fire();
 
         }
     }
@@ -897,9 +900,11 @@ export class IssueDetailsDialog
         const selectedIds = this.publishProcessor.getContentToPublishIds();
         const excludedIds = this.publishProcessor.getExcludedIds();
         const excludedChildrenIds = this.publishProcessor.getExcludeChildrenIds();
+        const message = this.getIssue().getTitle();
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
+            .setMessage(message)
             .setExcludedIds(excludedIds)
             .setExcludeChildrenIds(excludedChildrenIds);
 

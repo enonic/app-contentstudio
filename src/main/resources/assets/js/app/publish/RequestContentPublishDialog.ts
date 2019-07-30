@@ -68,7 +68,7 @@ export class RequestContentPublishDialog
                 dependantsDescription: i18n('dialog.requestPublish.dependants'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();   //TODO ?
+                    new ContentPublishPromptEvent({model: []}).fire();
                 }
             }
         );

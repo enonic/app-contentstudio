@@ -51,6 +51,8 @@ export class ContentPublishDialog
 
     private publishIssuesStateBar: PublishIssuesStateBar;
 
+    private message: string;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
@@ -58,7 +60,7 @@ export class ContentPublishDialog
             dependantsDescription: i18n('dialog.publish.dependants'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();
+                    new ContentPublishPromptEvent({model: []}).fire();
                 },
                 buttonRow: new ContentPublishDialogButtonRow(),
             }
@@ -243,6 +245,8 @@ export class ContentPublishDialog
     close() {
         super.close();
         this.getItemList().clearExcludeChildrenIds();
+        this.resetSubTitleMessage();
+        this.message = null;
 
         CreateIssueDialog.get().reset();
     }
@@ -312,6 +316,11 @@ export class ContentPublishDialog
         return this;
     }
 
+    setMessage(message: string): ContentPublishDialog {
+        this.message = message;
+        return this;
+    }
+
     private doPublish(scheduled: boolean = false) {
 
         this.lockControls();
@@ -365,6 +374,8 @@ export class ContentPublishDialog
             this.setSubTitle(i18n('dialog.publish.noItems'));
             return;
         }
+
+        this.setSubTitleMessage(this.message);
 
         const allValid: boolean = this.areItemsAndDependantsValid();
         const containsItemsInProgress: boolean = this.containsItemsInProgress();
@@ -443,6 +454,14 @@ export class ContentPublishDialog
     setSubTitle(text: string, escapeHtml?: boolean) {
         this.publishSubTitle.setMessage(text.trim(), escapeHtml);
     }
+
+    setSubTitleMessage(message: string) {
+        this.publishSubTitle.setValue(message);
+    }
+
+    resetSubTitleMessage() {
+        this.publishSubTitle.resetValue();
+    }
 }
 
 export class ContentPublishDialogButtonRow
@@ -479,7 +498,21 @@ export class ContentPublishDialogSubTitle
         this.initListeners();
     }
 
-    public setMessage(text: string, escapeHtml?: boolean) {
+    getValue(): string {
+        return this.input.getValue();
+    }
+
+    setValue(text: string) {
+        this.input.setValue(text);
+        this.toggleInput(true);
+    }
+
+    resetValue() {
+        this.input.reset();
+        this.input.resetBaseValues();
+    }
+
+    setMessage(text: string, escapeHtml?: boolean) {
         this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
         this.toggleClass('custom-message', !!text);
     }
@@ -527,10 +560,6 @@ export class ContentPublishDialogSubTitle
 
         this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
         this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
-    }
-
-    public getValue(): string {
-        return this.input.getValue();
     }
 
     doRender(): Q.Promise<boolean> {
