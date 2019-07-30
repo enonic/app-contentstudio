@@ -1,17 +1,25 @@
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import ContentId = api.content.ContentId;
 
 export class ContentPublishPromptEvent extends BaseContentModelEvent {
 
     private includeChildItems: boolean;
 
-    constructor(model: ContentSummaryAndCompareStatus[], includeChildItems: boolean = false) {
+    private exceptedContentIds: ContentId[];
+
+    constructor(model: ContentSummaryAndCompareStatus[], includeChildItems: boolean = false, exceptedContentIds?: ContentId[]) {
         super(model);
         this.includeChildItems = includeChildItems;
+        this.exceptedContentIds = exceptedContentIds;
     }
 
     isIncludeChildItems(): boolean {
         return this.includeChildItems;
+    }
+
+    getExceptedContentIds(): ContentId[] {
+        return this.exceptedContentIds;
     }
 
     static on(handler: (event: ContentPublishPromptEvent) => void) {

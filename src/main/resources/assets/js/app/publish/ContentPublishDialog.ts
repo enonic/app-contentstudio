@@ -33,6 +33,8 @@ import PropertyEvent = api.data.PropertyEvent;
 export class ContentPublishDialog
     extends BasePublishDialog {
 
+    private static INSTANCE: ContentPublishDialog;
+
     private publishAction: Action;
 
     private publishProcessor: PublishProcessor;
@@ -49,7 +51,7 @@ export class ContentPublishDialog
 
     private publishIssuesStateBar: PublishIssuesStateBar;
 
-    constructor() {
+    protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
@@ -61,6 +63,14 @@ export class ContentPublishDialog
                 buttonRow: new ContentPublishDialogButtonRow(),
             }
         );
+    }
+
+    public static get(): ContentPublishDialog {
+        if (!ContentPublishDialog.INSTANCE) {
+            ContentPublishDialog.INSTANCE = new ContentPublishDialog();
+        }
+
+        return ContentPublishDialog.INSTANCE;
     }
 
     protected initActions() {
@@ -277,7 +287,7 @@ export class ContentPublishDialog
         super.setDependantItems(items);
     }
 
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]) {
+    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): ContentPublishDialog {
         if (this.isProgressBarEnabled()) {
             return this;
         }
@@ -287,11 +297,18 @@ export class ContentPublishDialog
         return this;
     }
 
-    setIncludeChildItems(include: boolean, silent?: boolean) {
+    setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
+        const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
+        const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
+
         this.getItemList().getItemViews()
-            .filter(itemView => itemView.getIncludeChildrenToggler())
-            .forEach(itemView => itemView.getIncludeChildrenToggler().toggle(include, silent)
-            );
+            .forEach(itemView => {
+                const hasToggler = itemView.getIncludeChildrenToggler() != null;
+                if (hasToggler) {
+                    const isIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                    itemView.getIncludeChildrenToggler().toggle(isIncluded);
+                }
+            });
         return this;
     }
 
