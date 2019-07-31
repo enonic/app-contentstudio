@@ -39,10 +39,12 @@ export class LayerDialogForm
         this.description = new TextInput('description');
     }
 
-    private setInitialValues() {
+    public setInitialValues() {
         this.parentLayer.setValue(ContentLayer.DEFAULT_LAYER_NAME);
+        this.defaultLanguage.clearSelection();
+        this.identifier.reset();
+        this.description.reset();
     }
-
 
     private initFormView() {
         const fieldSet: api.ui.form.Fieldset = new api.ui.form.Fieldset();
@@ -92,13 +94,16 @@ export class LayerDialogForm
     private initListeners() {
         this.parentLayer.onValueChanged((event: api.ValueChangedEvent) => {
             if (!StringHelper.isEmpty(event.getNewValue())) {
-                this.defaultLanguage.setValue(event.getNewValue());
+                const selectedParentLayer: ContentLayer = this.parentLayer.getSelectedOptions()[0].getOption().displayValue;
+                if (selectedParentLayer.getLanguage()) {
+                    this.defaultLanguage.setValue(selectedParentLayer.getLanguage());
+                }
             }
             this.validate(true);
         });
 
         this.defaultLanguage.onValueChanged((event: api.ValueChangedEvent) => {
-            if (!StringHelper.isEmpty(event.getNewValue())) {
+            if (!StringHelper.isEmpty(event.getNewValue()) && !this.identifier.isReadOnly()) {
                 this.identifier.setValue(event.getNewValue());
             }
             this.validate(true);
@@ -121,16 +126,40 @@ export class LayerDialogForm
         return this.parentLayer.getValue();
     }
 
+    public setParentLayer(value: string) {
+        this.parentLayer.setValue(value, true);
+    }
+
+    public setParentLayerReadOnly(value: boolean) {
+        this.parentLayer.setReadOnly(value);
+    }
+
     public getDefaultLanguage(): string {
         return this.defaultLanguage.getValue().trim();
+    }
+
+    public setDefaultLanguage(value: string) {
+        this.defaultLanguage.setValue(value, true);
     }
 
     public getIdentifier(): string {
         return this.identifier.getValue().trim();
     }
 
+    public setIdentifier(value: string) {
+        this.identifier.setValue(value);
+    }
+
+    public setIdentifierReadOnly(value: boolean) {
+        this.identifier.setReadOnly(value);
+    }
+
     public getDescription(): string {
         return this.description.getValue().trim();
+    }
+
+    public setDescription(value: string) {
+        this.description.setValue(value);
     }
 
     doRender(): Q.Promise<boolean> {

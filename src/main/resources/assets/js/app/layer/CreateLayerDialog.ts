@@ -1,87 +1,42 @@
-import ModalDialog = api.ui.dialog.ModalDialog;
-import i18n = api.util.i18n;
-import DialogButton = api.ui.dialog.DialogButton;
-import Action = api.ui.Action;
-import TextInput = api.ui.text.TextInput;
-import StringHelper = api.util.StringHelper;
-import {LayerDialogForm} from './LayerDialogForm';
-import {CreateContentLayerRequest} from '../resource/layer/CreateContentLayerRequest';
+import {LayerCreateUpdateDialog} from './LayerCreateUpdateDialog';
 import {ContentLayer} from '../content/ContentLayer';
+import {CreateContentLayerRequest} from '../resource/layer/CreateContentLayerRequest';
+import i18n = api.util.i18n;
+import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 
 export class CreateLayerDialog
-    extends ModalDialog {
+    extends LayerCreateUpdateDialog {
 
-    private form: LayerDialogForm;
+    private static INSTANCE: CreateLayerDialog;
 
-    private displayName: LayerDisplayNameTextInput;
+    private layerCreatedListeners: { (layer: ContentLayer): void }[] = [];
 
-    private createLayerButton: DialogButton;
-
-    constructor() {
-        super(<api.ui.dialog.ModalDialogConfig>{
+    private constructor() {
+        super(<ModalDialogConfig>{
             title: i18n('dialog.layers.create.title'),
-            class: 'layer-dialog layers-create-dialog'
+            class: 'layer-create-dialog'
         });
     }
 
-    initElements() {
-        super.initElements();
-
-        this.form = new LayerDialogForm();
-        this.createLayerButton = this.addAction(new Action(i18n('dialog.layers.button.create')), true);
-        this.displayName = new LayerDisplayNameTextInput();
-    }
-
-    postInitElements() {
-        super.postInitElements();
-
-        this.displayName.setPlaceholder(`<${i18n('dialog.layers.field.displayName')}>`);
-    }
-
-    protected initListeners() {
-        super.initListeners();
-
-        this.createLayerButton.getAction().onExecuted(this.createLayer.bind(this));
-    }
-
-    private createLayer() {
-        const isFormValid: boolean = this.form.validate(true).isValid();
-        const isDisplayNameValid: boolean = this.displayName.isValid();
-
-        this.form.displayValidationErrors(!isFormValid);
-        this.displayName.updateValidationStatusOnUserInput(isDisplayNameValid);
-
-        if (!isDisplayNameValid) {
-            this.displayName.giveFocus();
+    static get(): CreateLayerDialog {
+        if (!CreateLayerDialog.INSTANCE) {
+            CreateLayerDialog.INSTANCE = new CreateLayerDialog();
         }
 
-        if (isFormValid && isDisplayNameValid) {
-            this.doCreateLayer();
-        }
+        return CreateLayerDialog.INSTANCE;
     }
 
-    private doCreateLayer() {
-        this.showLoadMask();
-        this.createLayerButton.setEnabled(false);
-        this.getCancelButton().setEnabled(false);
-        this.displayName.getEl().setDisabled(true);
-
-        this.sendCreateRequest().then((layer: ContentLayer) => {
-            api.notify.showSuccess(i18n('notify.layer.created'));
-            this.close();
-        }).catch((reason) => {
-            if (reason && reason.message) {
-                api.notify.showError(reason.message);
-            }
-        }).finally(() => {
-            this.hideLoadMask();
-            this.createLayerButton.setEnabled(true);
-            this.getCancelButton().setEnabled(true);
-            this.displayName.getEl().setDisabled(false);
-        });
+    open() {
+        super.open();
+        this.displayName.reset();
+        this.form.setInitialValues();
     }
 
-    private sendCreateRequest(): wemQ.Promise<ContentLayer> {
+    protected getActionLabel(): string {
+        return i18n('dialog.layers.button.create');
+    }
+
+    protected sendActionRequest(): wemQ.Promise<ContentLayer> {
         return new CreateContentLayerRequest()
             .setDisplayName(this.displayName.getValue().trim())
             .setParentLayer(this.form.getParentLayer())
@@ -91,34 +46,19 @@ export class CreateLayerDialog
             .sendAndParse();
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildToContentPanel(this.form);
-            this.addCancelButtonToBottom();
-            this.prependChildToHeader(this.displayName);
+    protected handleActionExecutedSuccessfully(layer: ContentLayer) {
+        api.notify.showSuccess(i18n('notify.layer.created'));
+        this.notifyLayerCreated(layer);
+        this.close();
+    }
 
-            return rendered;
+    onLayerCreated(listener: (layer: ContentLayer) => void) {
+        this.layerCreatedListeners.push(listener);
+    }
+
+    private notifyLayerCreated(layer: ContentLayer) {
+        this.layerCreatedListeners.forEach((listener: (layer: ContentLayer) => void) => {
+            listener(layer);
         });
     }
-}
-
-class LayerDisplayNameTextInput
-    extends TextInput {
-
-    constructor() {
-        super('displayName');
-
-        this.initValidationListeners();
-    }
-
-    private initValidationListeners() {
-        this.onValueChanged(() => {
-            this.updateValidationStatusOnUserInput(this.isValid());
-        });
-    }
-
-    isValid(): boolean {
-        return !StringHelper.isEmpty(this.getValue().trim());
-    }
-
 }

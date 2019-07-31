@@ -63,7 +63,6 @@ class ContentLayerSelectedOptionView
 class LayerLoader
     extends api.util.loader.BaseLoader<ContentLayerJson[], ContentLayer> {
 
-    private preservedSearchString: string;
     protected request: ListContentLayerRequest;
 
     protected createRequest(): ListContentLayerRequest {

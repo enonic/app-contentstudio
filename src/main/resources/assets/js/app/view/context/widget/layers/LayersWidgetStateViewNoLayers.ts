@@ -21,7 +21,7 @@ export class LayersWidgetStateViewNoLayers
         const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.create'));
 
         action.onExecuted(() => {
-            new LayersListDialog().open();
+            LayersListDialog.get().open();
         });
 
         return action;

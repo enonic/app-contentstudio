@@ -8,21 +8,30 @@ import {ContentLayer} from '../content/ContentLayer';
 import {ConfirmDeleteDialog} from '../remove/ConfirmDeleteDialog';
 import {DeleteContentLayerRequest} from '../resource/layer/DeleteContentLayerRequest';
 import {CreateLayerDialog} from './CreateLayerDialog';
+import {LayerDetailsDialog} from './LayerDetailsDialog';
 
 export class LayersListDialog
     extends ModalDialog {
+
+    private static INSTANCE: LayersListDialog;
 
     private button: ActionButton;
 
     private layersList: LayersList;
 
-    constructor() {
+    private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
             title: i18n('dialog.layers.list.title'),
             class: 'layer-dialog layers-list-dialog'
         });
+    }
 
-        this.loadLayers();
+    static get(): LayersListDialog {
+        if (!LayersListDialog.INSTANCE) {
+            LayersListDialog.INSTANCE = new LayersListDialog();
+        }
+
+        return LayersListDialog.INSTANCE;
     }
 
     initElements() {
@@ -36,17 +45,30 @@ export class LayersListDialog
         super.initListeners();
 
         this.button.getAction().onExecuted(() => {
-            new CreateLayerDialog().open();
+            CreateLayerDialog.get().open();
             this.close();
         });
 
         this.layersList.onEditClicked((layer: ContentLayer) => {
-            console.log('edit');
+            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(layer);
+            layerDetailsDialog.open();
+            layerDetailsDialog.onBackButtonClicked(() => {
+                this.open();
+            });
+            this.close();
         });
 
         this.layersList.onRemoveClicked((layer: ContentLayer) => {
             this.openConfirmDeleteDialog(layer);
             this.close();
+        });
+
+        CreateLayerDialog.get().onLayerCreated((layer: ContentLayer) => {
+            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(layer);
+            layerDetailsDialog.open();
+            layerDetailsDialog.onBackButtonClicked(() => {
+                this.open();
+            });
         });
     }
 
@@ -60,6 +82,11 @@ export class LayersListDialog
 
             return rendered;
         });
+    }
+
+    open() {
+        super.open();
+        this.loadLayers();
     }
 
     private loadLayers() {

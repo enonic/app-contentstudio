@@ -76,12 +76,15 @@
             margin-left: 45px;
           }
 
+          &.level-5 {
+            margin-left: 60px;
+          }
         }
       }
     }
   }
 
-  &.layers-create-dialog {
+  &.layer-create-update-dialog {
     .modal-dialog-header {
       background-color: @admin-font-gray;
 
@@ -91,12 +94,16 @@
 
       .displayName {
         width: 100%;
+        border: none;
         font-size: 24px;
         line-height: 38px;
         padding-left: 0px;
 
         &:not(.invalid):not(:focus) {
           background-color: @admin-font-gray;
+        }
+
+        &:hover {
           border: none;
         }
       }
@@ -107,6 +114,43 @@
         width: 100%;
       }
     }
+  }
+
+  &.layer-update-dialog {
+    .modal-dialog-header {
+      .back-button {
+        background-color: @admin-font-gray;
+        width: 7%;
+        position: relative;
+        left: -9px;
+
+        &:before {
+          left: -7px;
+          top: 3px;
+        }
+      }
+
+      .displayName {
+        width: 93%;
+      }
+    }
+
+    .modal-dialog-body {
+      .layer-dialog-form {
+        .identifier {
+          border: none;
+          outline: none;
+          box-shadow: none;
+        }
+
+        .parentLayer {
+          .remove {
+            display: none;
+          }
+        }
+      }
+    }
+
   }
 
   &.confirm-delete-dialog {
