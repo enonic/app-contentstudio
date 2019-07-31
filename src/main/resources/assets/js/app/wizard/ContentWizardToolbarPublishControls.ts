@@ -2,6 +2,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import i18n = api.util.i18n;
@@ -9,16 +10,18 @@ import i18n = api.util.i18n;
 export class ContentWizardToolbarPublishControls
     extends api.dom.DivEl {
 
-    private publishButton: ContentPublishMenuButton;
+    private publishButton: ContentWizardPublishMenuButton;
     private publishAction: Action;
     private createIssueAction: Action;
     private unpublishAction: Action;
     private publishMobileAction: Action;
     private markAsReadyAction: Action;
     private requestPublishAction: Action;
+    private showRequestAction: Action;
     private contentCanBePublished: boolean = false;
     private userCanPublish: boolean = true;
     private isContentValid: boolean = false;
+    private hasPublishRequest: boolean = false;
     private content: ContentSummaryAndCompareStatus;
     private publishButtonForMobile: ActionButton;
 
@@ -32,13 +35,15 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction = actions.getPublishMobileAction();
         this.markAsReadyAction = actions.getMarkAsReadyAction();
         this.requestPublishAction = actions.getRequestPublishAction();
+        this.showRequestAction = actions.getOpenRequestAction();
 
-        this.publishButton = new ContentPublishMenuButton({
+        this.publishButton = new ContentWizardPublishMenuButton({
             publishAction: this.publishAction,
             unpublishAction: this.unpublishAction,
             markAsReadyAction: this.markAsReadyAction,
             createIssueAction: this.createIssueAction,
-            requestPublishAction: this.requestPublishAction
+            requestPublishAction: this.requestPublishAction,
+            openRequestAction: this.showRequestAction
         });
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
@@ -55,9 +60,15 @@ export class ContentWizardToolbarPublishControls
         actions.onActionsUnstashed(() => {
             this.publishButton.setRefreshDisabled(false);
         });
+
+        this.publishButton.onPublishRequestActionChanged((added: boolean) => {
+            this.hasPublishRequest = added;
+            this.refreshState();
+        });
+
     }
 
-    public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
+    setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
         this.content = content;
         this.publishButton.setItem(content);
         if (refresh) {
@@ -66,7 +77,7 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
-    public setContentCanBePublished(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
+    setContentCanBePublished(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
         this.contentCanBePublished = value;
         if (refresh) {
             this.refreshState();
@@ -74,7 +85,7 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
-    public setUserCanPublish(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
+    setUserCanPublish(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
         this.userCanPublish = value;
         if (refresh) {
             this.refreshState();
@@ -82,7 +93,7 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
-    public setIsValid(value: boolean): ContentWizardToolbarPublishControls {
+    setIsValid(value: boolean): ContentWizardToolbarPublishControls {
         const isRefreshNeeded: boolean = value !== this.isContentValid;
         this.isContentValid = value;
         if (isRefreshNeeded) {
@@ -91,7 +102,7 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
-    public refreshState() {
+    refreshState() {
 
         if (!this.content) {
             return;
@@ -114,24 +125,26 @@ export class ContentWizardToolbarPublishControls
         this.publishMobileAction.setVisible(canBePublished);
         this.markAsReadyAction.setEnabled(canBeMarkedAsReady);
         this.requestPublishAction.setEnabled(canBeRequestedPublish);
+        this.showRequestAction.setEnabled(this.hasPublishRequest);
+        this.showRequestAction.setVisible(this.hasPublishRequest);
 
         this.publishButtonForMobile.setLabel(
             i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));
     }
 
-    public isOnline(): boolean {
+    isOnline(): boolean {
         return !!this.content && this.content.isOnline();
     }
 
-    public isPendingDelete(): boolean {
+    isPendingDelete(): boolean {
         return !!this.content && this.content.isPendingDelete();
     }
 
-    public getPublishButtonForMobile(): ActionButton {
+    getPublishButtonForMobile(): ActionButton {
         return this.publishButtonForMobile;
     }
 
-    public getPublishButton(): ContentPublishMenuButton {
+    getPublishButton(): ContentWizardPublishMenuButton {
         return this.publishButton;
     }
 }

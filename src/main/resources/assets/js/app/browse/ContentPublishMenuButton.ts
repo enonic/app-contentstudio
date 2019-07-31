@@ -3,10 +3,12 @@ import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {IssueType} from '../issue/IssueType';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
 import ActionButton = api.ui.button.ActionButton;
+import ContentId = api.content.ContentId;
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
@@ -224,20 +226,28 @@ export class ContentPublishMenuButton
             this.removeMenuSeparator();
         }
         if (!this.issuesRequest && highlightedOrSelected) {
-            const id = highlightedOrSelected.getContentSummary().getContentId();
-            this.issuesRequest =
-                new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-                    this.issueActionsList = issues.map(this.setupIssueAction);
-                    if (this.issueActionsList.length > 0) {
-                        this.addMenuSeparator();
-                        this.addMenuActions(this.issueActionsList);
-                    }
-                })
-                    .catch(api.DefaultErrorHandler.handle)
-                    .finally(() => {
-                        this.issuesRequest = undefined;
-                    });
+            const contentId = highlightedOrSelected.getContentSummary().getContentId();
+            this.issuesRequest = this.findIssues(contentId)
+                .catch(api.DefaultErrorHandler.handle)
+                .finally(() => {
+                    this.issuesRequest = undefined;
+                });
         }
+    }
+
+    protected findIssues(contentId: ContentId): wemQ.Promise<Issue[]> {
+        return new FindIssuesRequest()
+            .addContentId(contentId)
+            .setIssueStatus(IssueStatus.OPEN)
+            .sendAndParse()
+            .then((issues: Issue[]) => {
+                this.issueActionsList = issues.map(this.setupIssueAction);
+                if (this.issueActionsList.length > 0) {
+                    this.addMenuSeparator();
+                    this.addMenuActions(this.issueActionsList);
+                }
+                return issues;
+            });
     }
 
     private setupIssueAction(issue: Issue): Action {
@@ -247,5 +257,4 @@ export class ContentPublishMenuButton
         });
         return action;
     }
-
 }
