@@ -233,11 +233,9 @@ export class IssueList
                         this.allIssuesStorage.addIssues(issues);
                     }
                 } else {
-                    if (hasLoadedIssues) {
-                        this.allIssuesStorage.setIssues(issues);
-                    } else {
-                        this.allIssuesStorage.clear();
-                    }
+                    // Clear storage anyway, cause the new items are prepended to the list on the server
+                    // Received items will be the old one
+                    this.allIssuesStorage.clear();
                 }
 
                 this.allIssuesStorage.setTotalIssues(totalHits);
