@@ -26,7 +26,7 @@ export class PublishAction extends BasePublishAction {
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new ContentPublishPromptEvent(summary).fire();
+        new ContentPublishPromptEvent({model: summary}).fire();
     }
 
 

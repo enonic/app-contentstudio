@@ -2,16 +2,26 @@ import {BaseContentModelEvent} from './BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
 
+export interface ContentPublishPromptEventConfig {
+    model: ContentSummaryAndCompareStatus[];
+    includeChildItems?: boolean;
+    exceptedContentIds?: ContentId[];
+    message?: string;
+}
+
 export class ContentPublishPromptEvent extends BaseContentModelEvent {
 
     private includeChildItems: boolean;
 
     private exceptedContentIds: ContentId[];
 
-    constructor(model: ContentSummaryAndCompareStatus[], includeChildItems: boolean = false, exceptedContentIds?: ContentId[]) {
-        super(model);
-        this.includeChildItems = includeChildItems;
-        this.exceptedContentIds = exceptedContentIds;
+    private message: string;
+
+    constructor(config: ContentPublishPromptEventConfig) {
+        super(config.model);
+        this.includeChildItems = config.includeChildItems != null ? config.includeChildItems : false;
+        this.exceptedContentIds = config.exceptedContentIds;
+        this.message = config.message;
     }
 
     isIncludeChildItems(): boolean {
@@ -20,6 +30,10 @@ export class ContentPublishPromptEvent extends BaseContentModelEvent {
 
     getExceptedContentIds(): ContentId[] {
         return this.exceptedContentIds;
+    }
+
+    getMessage(): string {
+        return this.message;
     }
 
     static on(handler: (event: ContentPublishPromptEvent) => void) {
