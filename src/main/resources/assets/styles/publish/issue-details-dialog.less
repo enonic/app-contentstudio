@@ -97,8 +97,17 @@
     }
   }
 
-  &.tab-comments .modal-dialog-body {
-    overflow: auto !important;
+  &:not(.publish-request) {
+    .publish-schedule-form {
+      display: none;
+    }
+  }
+
+  &.tab-items,
+  &.tab-comments {
+    .modal-dialog-body {
+      overflow: auto !important;
+    }
   }
 
   .panel {

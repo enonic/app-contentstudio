@@ -29,7 +29,6 @@ export class PublishScheduleForm
 
         const scheduleForm = new api.form.FormBuilder().addFormItem(this.createRangeFormItem()).build();
         this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), scheduleForm, propertySet);
-        this.scheduleFormView.displayValidationErrors(false);
 
         const removeButton = new api.dom.AEl('remove-button');
         removeButton.onClicked((event: MouseEvent) => {
@@ -77,6 +76,7 @@ export class PublishScheduleForm
     public setFormVisible(flag: boolean, silent?: boolean) {
         this.scheduleFormWrapper.setVisible(flag);
         this.showScheduleFormAction.setVisible(!flag);
+        this.scheduleFormView.displayValidationErrors(false);   // hide validation
 
         if (!flag) {
             const data = this.scheduleFormView.getData();

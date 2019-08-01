@@ -33,6 +33,8 @@ import PropertyEvent = api.data.PropertyEvent;
 export class ContentPublishDialog
     extends BasePublishDialog {
 
+    private static INSTANCE: ContentPublishDialog;
+
     private publishAction: Action;
 
     private publishProcessor: PublishProcessor;
@@ -49,18 +51,25 @@ export class ContentPublishDialog
 
     private publishIssuesStateBar: PublishIssuesStateBar;
 
-    constructor() {
+    private message: string;
+
+    protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
             dependantsDescription: i18n('dialog.publish.dependants'),
-                processingLabel: `${i18n('field.progress.publishing')}...`,
-                processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();
-                },
-                buttonRow: new ContentPublishDialogButtonRow(),
-            }
-        );
+            processingLabel: `${i18n('field.progress.publishing')}...`,
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            buttonRow: new ContentPublishDialogButtonRow()
+        });
+    }
+
+    public static get(): ContentPublishDialog {
+        if (!ContentPublishDialog.INSTANCE) {
+            ContentPublishDialog.INSTANCE = new ContentPublishDialog();
+        }
+
+        return ContentPublishDialog.INSTANCE;
     }
 
     protected initActions() {
@@ -233,6 +242,8 @@ export class ContentPublishDialog
     close() {
         super.close();
         this.getItemList().clearExcludeChildrenIds();
+        this.resetSubTitleMessage();
+        this.message = null;
 
         CreateIssueDialog.get().reset();
     }
@@ -277,7 +288,7 @@ export class ContentPublishDialog
         super.setDependantItems(items);
     }
 
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]) {
+    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): ContentPublishDialog {
         if (this.isProgressBarEnabled()) {
             return this;
         }
@@ -287,11 +298,23 @@ export class ContentPublishDialog
         return this;
     }
 
-    setIncludeChildItems(include: boolean, silent?: boolean) {
+    setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
+        const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
+        const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
+
         this.getItemList().getItemViews()
-            .filter(itemView => itemView.getIncludeChildrenToggler())
-            .forEach(itemView => itemView.getIncludeChildrenToggler().toggle(include, silent)
-            );
+            .forEach(itemView => {
+                const hasToggler = itemView.getIncludeChildrenToggler() != null;
+                if (hasToggler) {
+                    const isIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                    itemView.getIncludeChildrenToggler().toggle(isIncluded);
+                }
+            });
+        return this;
+    }
+
+    setMessage(message: string): ContentPublishDialog {
+        this.message = message;
         return this;
     }
 
@@ -348,6 +371,8 @@ export class ContentPublishDialog
             this.setSubTitle(i18n('dialog.publish.noItems'));
             return;
         }
+
+        this.setSubTitleMessage(this.message);
 
         const allValid: boolean = this.areItemsAndDependantsValid();
         const containsItemsInProgress: boolean = this.containsItemsInProgress();
@@ -426,6 +451,14 @@ export class ContentPublishDialog
     setSubTitle(text: string, escapeHtml?: boolean) {
         this.publishSubTitle.setMessage(text.trim(), escapeHtml);
     }
+
+    setSubTitleMessage(message: string) {
+        this.publishSubTitle.setValue(message);
+    }
+
+    resetSubTitleMessage() {
+        this.publishSubTitle.resetValue();
+    }
 }
 
 export class ContentPublishDialogButtonRow
@@ -462,7 +495,24 @@ export class ContentPublishDialogSubTitle
         this.initListeners();
     }
 
-    public setMessage(text: string, escapeHtml?: boolean) {
+    getValue(): string {
+        return this.input.getValue();
+    }
+
+    setValue(text: string) {
+        if (!text) {
+            return;
+        }
+        this.input.setValue(text);
+        this.toggleInput(true);
+    }
+
+    resetValue() {
+        this.input.reset();
+        this.input.resetBaseValues();
+    }
+
+    setMessage(text: string, escapeHtml?: boolean) {
         this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
         this.toggleClass('custom-message', !!text);
     }
@@ -510,10 +560,6 @@ export class ContentPublishDialogSubTitle
 
         this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
         this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
-    }
-
-    public getValue(): string {
-        return this.input.getValue();
     }
 
     doRender(): Q.Promise<boolean> {

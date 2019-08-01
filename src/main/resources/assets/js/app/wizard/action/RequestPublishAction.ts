@@ -10,7 +10,7 @@ export class RequestPublishAction
     private wizard: ContentWizardPanel;
 
     constructor(wizard: ContentWizardPanel) {
-        super(i18n('action.requestPublish'));
+        super(i18n('action.requestPublishMore'));
 
         this.wizard = wizard;
 
