@@ -243,6 +243,20 @@ module.exports = {
             return webDriverHelper.browser.pause(1000);
         })
     },
+    async doAddReadySite(site) {
+        let contentWizardPanel = new ContentWizardPanel();
+        await this.openContentWizard(appConst.contentTypes.SITE);
+        await contentWizardPanel.typeData(site);
+
+        if (site.data.controller) {
+            await contentWizardPanel.selectPageDescriptor(site.data.controller);
+        } else {
+            await contentWizardPanel.clickOnMarkedAsReadyButton();
+        }
+        await this.doCloseCurrentBrowserTab();
+        await this.doSwitchToContentBrowsePanel();
+        return await webDriverHelper.browser.pause(1000);
+    },
     doOpenSiteWizard: function () {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
@@ -625,5 +639,8 @@ module.exports = {
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
+    },
+    isStringEmpty(str) {
+        return (!str || 0 === str.length);
     }
 };
