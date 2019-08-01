@@ -50,7 +50,7 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
         });
 
-    it(`GIVEN browse panel is loaded WHEN tno selected content THEN all buttons on the toolbar should be in expected state`,
+    it(`WHEN no selected content THEN all buttons on the toolbar should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForNewButtonEnabled();
@@ -82,11 +82,11 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             let displayName = contentBuilder.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(folder)
-            await studioUtils.findAndSelectItem(appConstant.TEST_IMAGES.HAND);
+            await studioUtils.findAndSelectItem(folder.displayName);
             await contentBrowsePanel.waitForEditButtonEnabled();
             //Sort button should be disabled, because this folder is empty!
             await contentBrowsePanel.waitForSortButtonDisabled();
-            //New button should be enabled, because children are not allowed for images.
+            //New button should be enabled, because children are allowed for folder-content.
             await contentBrowsePanel.waitForNewButtonEnabled();
         });
 

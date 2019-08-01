@@ -398,7 +398,7 @@ class ContentBrowsePanel extends Page {
     waitForNewButtonEnabled() {
         return this.waitForElementEnabled(this.newButton, 3000).catch(err => {
             this.saveScreenshot('err_new_button');
-            return false;
+            throw new Error('New button is not enabled in : ' + err);
         })
     }
 
