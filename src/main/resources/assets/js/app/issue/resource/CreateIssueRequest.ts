@@ -73,10 +73,10 @@ export class CreateIssueRequest
             }) : undefined,
             publishRequest: this.publishRequest.toJson(),
             type: this.type ? IssueType[this.type] : undefined,
-            schedule: {
-                from: this.publishFrom,
-                to: this.publishTo
-            }
+            schedule: this.publishFrom ? {
+                from: this.publishFrom.toISOString(),
+                to: this.publishTo ? this.publishTo.toISOString() : null
+            } : null,
         };
     }
 

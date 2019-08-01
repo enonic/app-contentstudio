@@ -72,10 +72,10 @@ export class PublishContentRequest
             excludeChildrenIds: this.excludeChildrenIds.map((el) => {
                 return el.toString();
             }),
-            schedule: {
-                from: this.publishFrom ? this.publishFrom.toISOString() : null,
+            schedule: this.publishFrom ? {
+                from: this.publishFrom.toISOString(),
                 to: this.publishTo ? this.publishTo.toISOString() : null
-            },
+            } : null,
             message: this.message
         };
     }
