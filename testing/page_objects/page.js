@@ -118,6 +118,9 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
         return el[0].waitForEnabled(ms);
     }
 
@@ -126,14 +129,19 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
         return el[0].waitForEnabled(ms);
     }
-
 
     async waitForElementDisabled(selector, ms) {
         let element = await this.findElements(selector);
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
+        }
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
         }
         return element[0].waitForEnabled(ms, true);
     }
@@ -143,9 +151,12 @@ class Page {
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+
         return element[0].waitForEnabled(ms, true);
     }
-
 
     waitForElementNotDisplayed(selector, ms) {
         return this.getBrowser().waitUntil(() => {
@@ -154,6 +165,16 @@ class Page {
             })
         }, ms).catch(err => {
             throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
+        });
+    }
+
+    waitUntilDisplayed(selector, ms) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length > 0;
+            })
+        }, ms).catch(err => {
+            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
     }
 
@@ -332,4 +353,5 @@ class Page {
         return await elems[0].isSelected();
     }
 }
+
 module.exports = Page;

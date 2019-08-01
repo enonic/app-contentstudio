@@ -59,5 +59,13 @@ class ScheduleForm extends Page {
             throw new Error('getting Validation text: ' + err);
         })
     }
+
+    waitForDisplayed() {
+        return this.waitUntilDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    waitForNotDisplayed() {
+        return this.waitUntilElementNotVisible(XPATH.container, appConst.TIMEOUT_2);
+    }
 };
 module.exports = ScheduleForm;

@@ -30,6 +30,9 @@ const XPATH = {
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
+    contentSummaryByDisplayName: function (displayName) {
+        return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+    },
     publishMenuItemByName: function (name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
     },
@@ -420,6 +423,56 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    waitForPreviewButtonDisabled() {
+        return this.waitForElementDisabled(this.previewButton, 3000).catch(err => {
+            this.saveScreenshot('err_preview_disabled_button');
+            throw Error('Preview button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForDetailsPanelToggleButtonDisplayed() {
+        return this.waitForElementDisplayed(this.detailsPanelToggleButton, 3000).catch(err => {
+            this.saveScreenshot('err_details_panel_displayed');
+            throw Error('Details Panel toggle button should be displayed, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+
+    waitForSortButtonDisabled() {
+        return this.waitForElementDisabled(this.sortButton, 3000).catch(err => {
+            this.saveScreenshot('err_sort_disabled_button');
+            throw Error('Sort button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForNewButtonDisabled() {
+        return this.waitForElementDisabled(this.newButton, 3000).catch(err => {
+            this.saveScreenshot('err_new_disabled_button');
+            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForEditButtonDisabled() {
+        return this.waitForElementDisabled(this.editButton, 3000).catch(err => {
+            this.saveScreenshot('err_edit_disabled_button');
+            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForDuplicateButtonDisabled() {
+        return this.waitForElementDisabled(this.duplicateButton, 3000).catch(err => {
+            this.saveScreenshot('err_duplicate_disabled_button');
+            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForMoveButtonDisabled() {
+        return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
+            this.saveScreenshot('err_move_disabled_button');
+            throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
     waitForSortButtonEnabled() {
         return this.waitForElementEnabled(this.sortButton, 3000).catch(err => {
             this.saveScreenshot('err_sort_enabled_button');
@@ -634,6 +687,29 @@ class ContentBrowsePanel extends Page {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
         let confirmationDialog = new ConfirmationDialog();
         return await confirmationDialog.clickOnYesButton();
+    }
+
+    async getWorkflowState(displayName) {
+        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(xpath, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
+            return appConst.WORKFLOW_STATE.PUBLISHED;
+
+        } else {
+            throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    isRedIconDisplayed(contentName) {
+        let xpath = XPATH.contentSummaryByName(contentName);
+        return this.getAttribute(xpath, 'class').then(result => {
+            return result.includes('invalid');
+        });
     }
 };
 module.exports = ContentBrowsePanel;
