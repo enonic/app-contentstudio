@@ -452,8 +452,10 @@ export class IssueDetailsDialog
     private updateControls(itemsToPublish: number = this.countTotal()) {
         this.toggleAction(itemsToPublish > 0);
 
+        const isIssue = !this.isPublishRequestViewed();
+
         const canPublish = this.isCanPublish(itemsToPublish);
-        this.publishAction.setEnabled(canPublish);
+        this.publishAction.setEnabled(isIssue || canPublish);
         this.scheduleAction.setEnabled(canPublish);
 
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
@@ -603,6 +605,10 @@ export class IssueDetailsDialog
         (<IssueDetailsDialogHeader>this.header).setReadOnly(value);
     }
 
+    getIssue(): Issue {
+        return this.issue;
+    }
+
     setIssue(issue: Issue): IssueDetailsDialog {
 
         const shouldUpdateDialog = (this.isRendered() || this.isRendering()) && issue;
@@ -716,8 +722,8 @@ export class IssueDetailsDialog
     protected initActions() {
         this.closeAction = new Action(this.getCloseButtonLabel());
         this.reopenAction = new Action(this.getReopenButtonLabel());
-        this.publishAction = new ContentPublishDialogAction(() => this.doPublish(), this.getPublishButtonLabel());
-        this.scheduleAction = new api.ui.Action('action.schedule').onExecuted((action: Action) => this.doPublish());
+        this.publishAction = new ContentPublishDialogAction(() => this.publish(), this.getPublishButtonLabel());
+        this.scheduleAction = new api.ui.Action('action.schedule').onExecuted(() => this.publish());
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
 
@@ -760,6 +766,22 @@ export class IssueDetailsDialog
         const divEl = new api.dom.DivEl('no-action-message');
         divEl.setHtml(i18n('dialog.issue.noItems'));
         this.getButtonRow().appendChild(divEl);
+    }
+
+    private publish() {
+        const isPublishRequest = this.isPublishRequestViewed();
+
+        if (isPublishRequest) {
+            this.doPublish();
+        } else {
+            const contents = this.getItemList().getItems();
+            const contentWithChildrenIds = contents.filter(content => {
+                return this.areChildrenIncludedInIssue(content.getContentId());
+            }).map(content => content.getContentId());
+
+            new ContentPublishPromptEvent(contents, false, contentWithChildrenIds).fire();
+
+        }
     }
 
     private doPublish(): wemQ.Promise<void> {

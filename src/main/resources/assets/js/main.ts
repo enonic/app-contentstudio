@@ -317,11 +317,11 @@ function startApplication() {
     });
 
     import('./app/publish/ContentPublishDialog').then(def => {
-        const contentPublishDialog = new def.ContentPublishDialog();
+        const contentPublishDialog = def.ContentPublishDialog.get();
         ContentPublishPromptEvent.on((event) => {
             contentPublishDialog
                 .setContentToPublish(event.getModels())
-                .setIncludeChildItems(event.isIncludeChildItems())
+                .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
                 .open();
         });
     });
