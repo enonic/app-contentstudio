@@ -4,8 +4,8 @@ import {ContentLayer} from '../content/ContentLayer';
 export class LayerViewer
     extends api.ui.NamesAndIconViewer<ContentLayer> {
 
-    constructor() {
-        super('layer-viewer');
+    constructor(className?: string) {
+        super('layer-viewer ' + (className || ''));
     }
 
     resolveDisplayName(object: ContentLayer): string {
