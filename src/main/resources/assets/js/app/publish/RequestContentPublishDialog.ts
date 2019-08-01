@@ -62,16 +62,13 @@ export class RequestContentPublishDialog
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.requestPublish'),
-                dialogSubName: i18n('dialog.requestPublish.subname1'),
-                class: 'request-publish-dialog',
-                dependantsDescription: i18n('dialog.requestPublish.dependants'),
-                processingLabel: `${i18n('field.progress.publishing')}...`,
-                processHandler: () => {
-                    new ContentPublishPromptEvent({model: []}).fire();
-                }
-            }
-        );
+            title: i18n('dialog.requestPublish'),
+            dialogSubName: i18n('dialog.requestPublish.subname1'),
+            class: 'request-publish-dialog',
+            dependantsDescription: i18n('dialog.publish.dependants'),
+            processingLabel: `${i18n('field.progress.publishing')}...`,
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
+        });
     }
 
     protected initActions() {

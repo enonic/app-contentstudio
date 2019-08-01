@@ -10,7 +10,7 @@ export class RequestPublishContentAction
     private grid: ContentTreeGrid;
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.requestPublish'));
+        super(i18n('action.requestPublishMore'));
         this.setEnabled(false);
 
         this.grid = grid;

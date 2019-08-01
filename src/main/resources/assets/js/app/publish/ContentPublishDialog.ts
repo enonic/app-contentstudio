@@ -58,13 +58,10 @@ export class ContentPublishDialog
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
             dependantsDescription: i18n('dialog.publish.dependants'),
-                processingLabel: `${i18n('field.progress.publishing')}...`,
-                processHandler: () => {
-                    new ContentPublishPromptEvent({model: []}).fire();
-                },
-                buttonRow: new ContentPublishDialogButtonRow(),
-            }
-        );
+            processingLabel: `${i18n('field.progress.publishing')}...`,
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            buttonRow: new ContentPublishDialogButtonRow()
+        });
     }
 
     public static get(): ContentPublishDialog {
@@ -503,6 +500,9 @@ export class ContentPublishDialogSubTitle
     }
 
     setValue(text: string) {
+        if (!text) {
+            return;
+        }
         this.input.setValue(text);
         this.toggleInput(true);
     }

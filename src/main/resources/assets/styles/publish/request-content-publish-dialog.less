@@ -11,73 +11,12 @@
   }
 
   .modal-dialog-body {
-    padding-top: 15px;
-
     .dialog-togglable-item-list {
       padding-top: 15px;
     }
 
-    .publish-dialog-issues {
-
-      &.has-issues + .schedule-button {
-        display: none;
-      }
-
-      h6 {
-        margin-top: 10px;
-      }
-
-      .not-publishable {
-        color: @admin-red;
-        line-height: 16px;
-      }
-
-      .invalid {
-        color: @admin-red;
-        line-height: 16px;
-
-        .invalid-part1 {
-          font-weight: bold;
-          padding-left: 23px;
-        }
-
-        .invalid-part2 {
-          padding-left: 5px;
-        }
-
-        &:before {
-          .icon-state-invalid;
-          position: absolute;
-          width: 16px;
-          height: 16px;
-          background-size: 16px;
-        }
-      }
-
-      .in-progress {
-        line-height: 16px;
-
-        .in-progress-part1 {
-          font-weight: bold;
-          padding-left: 23px;
-        }
-
-        .in-progress-part2 {
-          padding-left: 5px;
-        }
-
-        &:before {
-          .icon-state-in-progress;
-          position: absolute;
-          width: 16px;
-          height: 16px;
-          background-size: 16px;
-        }
-      }
-
-      .load-failed {
-        color: @admin-red;
-      }
+    .publish-schedule-form {
+      padding-top: 10px;
     }
   }
 
