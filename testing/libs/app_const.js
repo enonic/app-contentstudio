@@ -14,11 +14,14 @@ module.exports = Object.freeze({
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
     },
-    sortOrderTitle: function (by,order) {
+    sortOrderTitle: function (by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
     permissionsAppliedNotificationMessage: function (name) {
         return `Permissions for \"${name}\" are applied.`
+    },
+    markedAsReadyMessage: function (name) {
+        return `Item \"${name}\" is marked as ready`;
     },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
@@ -125,6 +128,8 @@ module.exports = Object.freeze({
         NEW: 'New',
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
+        MODIFIED: 'Modified',
+        DELETED: 'Deleted',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publish",
@@ -133,6 +138,10 @@ module.exports = Object.freeze({
         MARK_AS_READY: "Mark as ready",
         UNPUBLISH: "Unpublish...",
         CREATE_ISSUE: "Create Issue..."
-
-    }
+    },
+    WORKFLOW_STATE: {
+        WORK_IN_PROGRESS: 'Work in progress',
+        READY_FOR_PUBLISHING: 'Ready for publishing',
+        PUBLISHED: 'Published'
+    },
 });

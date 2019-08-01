@@ -8,6 +8,7 @@ const xpath = {
     widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionsWidgetItemView')]`,
     versionsList: `//ul[contains(@id,'VersionsView')]`,
     versionItem: `//li[contains(@class,'content-version-item')]`,
+    versionItemExpanded: `//li[contains(@class,'content-version-item expanded')]`,
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -38,15 +39,15 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         });
     }
 
-    clickOnRestoreThisVersion() {
-        let selector = xpath.versionItem + "//button";
-        return this.getDisplayedElements(selector).then(result => {
-            return this.getBrowser().elementClick(result[0].ELEMENT);
-        }).then(() => {
-            return this.pause(2000);
-        }).catch(err => {
-            throw new Error("Version Widget - error when clicking on 'Restore Version' button " + err);
-        });
+    async clickOnRestoreThisVersion() {
+        try {
+            let selector = xpath.versionItemExpanded + "//button";
+            await this.waitForElementDisplayed(selector);
+            await this.clickOnElement(selector);
+            return await this.pause(2000);
+        } catch (err) {
+            throw new Error("Version Widget - error when clicking on 'Restore' button " + err);
+        }
     }
 };
 module.exports = WizardVersionsWidget;
