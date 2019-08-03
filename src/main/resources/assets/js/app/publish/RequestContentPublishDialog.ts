@@ -64,7 +64,7 @@ export class RequestContentPublishDialog
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
-            class: 'request-publish-dialog',
+            class: 'request-publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
