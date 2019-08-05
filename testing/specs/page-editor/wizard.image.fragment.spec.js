@@ -131,7 +131,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     return wizardVersionsWidget.clickAndExpandVersion(1);
                 }).then(() => {
                     // click on Restore button
-                    return wizardVersionsWidget.clickOnRestoreThisVersion();
+                    return wizardVersionsWidget.clickOnRestoreButton();
                 }).then(() => {
                     //wait for the notification message
                     return contentWizard.waitForNotificationMessage();

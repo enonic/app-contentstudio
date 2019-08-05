@@ -120,7 +120,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             }).then(() => {
                 return versionsWidget.clickAndExpandVersion(2);
             }).then(() => {
-                return versionsWidget.clickOnRestoreThisVersion();
+                return versionsWidget.clickOnRestoreButton();
             }).then(() => {
                 return versionsWidget.pause(2000);
             }).then(() => {
@@ -248,7 +248,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             }).then(() => {
                 return versionsWidget.clickAndExpandVersion(1);
             }).then(() => {
-                return versionsWidget.clickOnRestoreThisVersion();
+                return versionsWidget.clickOnRestoreButton();
             }).then(() => {
                 return versionsWidget.pause(2000);
             }).then(() => {

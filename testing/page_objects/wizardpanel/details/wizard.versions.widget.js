@@ -25,21 +25,21 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         return this.isElementDisplayed(xpath.widget);
     }
 
-//waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
+    //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
     waitForVersionsLoaded() {
         return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
             throw new Error('Content Wizard: Version Widget was not loaded in ' + appConst.TIMEOUT_2);
         });
     }
 
-//waits for Version Widget is loaded, returns false after the timeout exceeded
+    //waits for Version Widget is loaded, returns false after the timeout exceeded
     isWidgetLoaded() {
         return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
             return false;
         });
     }
 
-    async clickOnRestoreThisVersion() {
+    async clickOnRestoreButton() {
         try {
             let selector = xpath.versionItemExpanded + "//button";
             await this.waitForElementDisplayed(selector);

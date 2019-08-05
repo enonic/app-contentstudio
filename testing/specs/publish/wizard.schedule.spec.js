@@ -41,7 +41,7 @@ describe('Wizard page - verify schedule form`', function () {
     it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear`,
         () => {
             let contentWizard = new ContentWizard();
-            return studioUtils.openContentInWizard(TEST_FOLDER.displayName).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName).then(() => {
             }).then(() => {
                 return contentWizard.openPublishMenuAndPublish();
             }).then(() => {
@@ -63,7 +63,7 @@ describe('Wizard page - verify schedule form`', function () {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
             let expectedDate = new Date().toISOString().substring(0, 10);
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             let from = await scheduleForm.getOnlineFrom();
             assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
         });
@@ -71,7 +71,7 @@ describe('Wizard page - verify schedule form`', function () {
     it(`GIVEN existing online-content is opened WHEN content has been unpublished THEN 'Schedule' form is getting not visible`,
         () => {
             let contentWizard = new ContentWizard();
-            return studioUtils.openContentInWizard(TEST_FOLDER.displayName).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName).then(() => {
             }).then(() => {
                 return studioUtils.doUnPublishInWizard();
             }).then(() => {

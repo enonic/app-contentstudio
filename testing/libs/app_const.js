@@ -132,7 +132,7 @@ module.exports = Object.freeze({
         DELETED: 'Deleted',
     },
     PUBLISH_MENU: {
-        REQUEST_PUBLISH: "Request Publish",
+        REQUEST_PUBLISH: "Request Publishing...",
         PUBLISH: "Publish...",
         PUBLISH_TREE: "Publish Tree...",
         MARK_AS_READY: "Mark as ready",

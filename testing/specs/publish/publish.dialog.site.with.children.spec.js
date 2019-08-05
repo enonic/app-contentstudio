@@ -33,7 +33,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             });
         });
 
-    it(`GIVEN existing site with not valid folder is selected WHEN 'Publish Dialog' has been opened  AND 'include child' pressed THEN Publish Now button should be disabled`,
+    it(`GIVEN existing site with not valid folder is selected WHEN 'Publish Dialog' has been opened  AND 'include child' pressed THEN 'Publish Now' button should be disabled`,
         () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();

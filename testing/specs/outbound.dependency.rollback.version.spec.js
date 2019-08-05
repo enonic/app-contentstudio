@@ -66,7 +66,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             () => {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
-                return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+                return studioUtils.selectAndOpenContentInWizard(CONTENT_NAME).then(() => {
                     return openWizardDependencyWidget();
                 }).then(() => {
                     return wizardDependenciesWidget.clickOnShowOutboundButton();
@@ -110,7 +110,7 @@ function rollbackVersion() {
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
     }).then(() => {
-        return wizardVersionsWidget.clickOnRestoreThisVersion();
+        return wizardVersionsWidget.clickOnRestoreButton();
     });
 }
 

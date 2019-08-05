@@ -12,6 +12,8 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Add schedule')]]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    contentSummaryByDisplayName:
+        displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
         displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     contentStatus:
@@ -107,9 +109,25 @@ class ContentPublishDialog extends Page {
         return this.getText(selector);
     }
 
+    async getWorkflowState(displayName) {
+        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(xpath, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
+            return appConst.WORKFLOW_STATE.PUBLISHED;
+
+        } else {
+            throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
     isAddScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error("`Add schedule` button is not present " + err);
+            throw new Error("`Add Schedule` button is not present " + err);
         })
     }
 
@@ -117,8 +135,13 @@ class ContentPublishDialog extends Page {
         return this.isElementDisplayed(this.logMessageLink, appConst.TIMEOUT_2);
     }
 
-    waitForPublishNowButtonEnabled() {
-        return this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2);
+    async waitForPublishNowButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("publish_now_disabled");
+            throw new Error("Publish Wizard - Publish Now button should be enabled " + err);
+        }
     }
 
     waitForPublishNowButtonDisabled() {
@@ -161,6 +184,12 @@ class ContentPublishDialog extends Page {
         let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
         let result = await this.getTextInDisplayedElements(selector);
         return [].concat(result);
+    }
+
+    async clickOnItemToPublishAndSwitchToWizard(displayName) {
+        let selector = XPATH.publishItemList + XPATH.itemToPublish(displayName);
+        await this.clickOnElement(selector);
+        return await this.getBrowser().switchWindow(displayName);
     }
 };
 module.exports = ContentPublishDialog;

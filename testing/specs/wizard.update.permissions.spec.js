@@ -57,7 +57,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 let contentWizard = new ContentWizard();
                 let editPermissionsDialog = new EditPermissionsDialog();
                 let accessStepForm = new AccessStepForm();
-                return studioUtils.openContentInWizard(displayName).then(() => {
+                return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
                     return contentWizard.typeDisplayName(newDisplayName);
                 }).then(() => {
                     return accessStepForm.clickOnEditPermissionsButton();
@@ -80,7 +80,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 let editPermissionsDialog = new EditPermissionsDialog();
                 let userAccessWidget = new UserAccessWidget();
                 let contentWizard = new ContentWizard();
-                return studioUtils.openContentInWizard(displayName).then(() => {
+                return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
                     return studioUtils.doSwitchToContentBrowsePanel();
                 }).then(() => {
                     return studioUtils.openBrowseDetailsPanel();

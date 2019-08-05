@@ -181,7 +181,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
                 return versionsWidget.clickAndExpandVersion(1);
             }).then(() => {
                 //rollback the version with 'Custom Width'
-                return versionsWidget.clickOnRestoreThisVersion();
+                return versionsWidget.clickOnRestoreButton();
             }).then(() => {
                 //open 'Insert Image Dialog'
                 return htmlAreaForm.doubleClickOnHtmlArea();
