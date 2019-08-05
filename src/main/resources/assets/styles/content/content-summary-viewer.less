@@ -1,0 +1,17 @@
+.content-summary-viewer {
+  &.invalid .names-and-icon-view {
+    .@{_COMMON_PREFIX}wrapper {
+      .icon-state-invalid;
+    }
+
+    &.small .@{_COMMON_PREFIX}wrapper::before {
+      font-size: 16px;
+    }
+  }
+
+  &.pending-delete .names-and-icon-view .@{_COMMON_PREFIX}names-view {
+    .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
+      text-decoration: line-through;
+    }
+  }
+}
