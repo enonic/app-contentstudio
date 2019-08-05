@@ -149,7 +149,7 @@ export class RequestContentPublishDialog
         this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
 
-        if (this.publishProcessor.containsInvalidDependants() || !this.isAllPublishable()) {
+        if (this.publishProcessor.containsInvalidDependants()) {
             this.setDependantListVisible(true);
         }
 
@@ -314,10 +314,6 @@ export class RequestContentPublishDialog
         return this.publishProcessor.getExcludedIds();
     }
 
-    public isAllPublishable(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPublishable();
-    }
-
     private reloadPublishDependencies() {
         if (this.isProgressBarEnabled()) {
             return;
@@ -413,9 +409,8 @@ export class RequestContentPublishDialog
 
         const allValid: boolean = this.areItemsAndDependantsValid();
         const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const allPublishable: boolean = this.isAllPublishable();
 
-        if (allPublishable && allValid && !containsItemsInProgress) {
+        if (allValid && !containsItemsInProgress) {
             this.publishIssuesStateBar.removeClass('has-issues');
             return;
         }
@@ -429,15 +424,12 @@ export class RequestContentPublishDialog
             this.publishIssuesStateBar.showContainsInvalid();
         }
 
-        if (!allPublishable) {
-            this.publishIssuesStateBar.showContainsNotPublishable();
-        }
     }
 
     private updateControls(itemsToPublish: number = this.countTotal()) {
         const allValid: boolean = this.areItemsAndDependantsValid();
-        const allPublishable: boolean = this.isAllPublishable();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
+        const containsItemsInProgress: boolean = this.containsItemsInProgress();
+        const canPublish: boolean = itemsToPublish > 0 && allValid && !containsItemsInProgress;
         const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
         const detailsValid = this.detailsFormView.isValid();
 
@@ -456,7 +448,7 @@ export class RequestContentPublishDialog
     }
 
     protected isScheduleButtonAllowed(): boolean {
-        return this.isAllPublishable() && this.areSomeItemsOffline();
+        return this.areSomeItemsOffline();
     }
 
     private areSomeItemsOffline(): boolean {
