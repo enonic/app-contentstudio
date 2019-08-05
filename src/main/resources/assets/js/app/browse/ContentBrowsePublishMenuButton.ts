@@ -31,9 +31,9 @@ export class ContentBrowsePublishMenuButton
 
     protected getActions(): Action[] {
         return [
+            this.markAsReadyAction.getAction(),
             this.publishAction.getAction(),
             this.publishTreeAction.getAction(),
-            this.markAsReadyAction.getAction(),
             this.unpublishAction.getAction(),
             this.requestPublishAction.getAction(),
             this.createIssueAction.getAction()
