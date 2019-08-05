@@ -3,7 +3,6 @@
   @toggler-width: 35px;
 
   .modal-dialog-header {
-    background-color: @admin-bg-light-gray;
 
     .publish-dialog-sub-title {
       margin-top: 6px;
@@ -12,6 +11,11 @@
         font-size: 14px;
         text-decoration: none;
         line-height: 30px; // equal to the height of the input to prevent wiggle on switch
+      }
+
+      input {
+        background-color: @admin-bg-light-gray;
+        border: none;
       }
 
       &.custom-message {
@@ -46,6 +50,7 @@
   }
 
   &.is-processing {
+    .publish-schedule-form,
     .item-list,
     .include-child-check,
     .dialog-buttons button.publish-action,

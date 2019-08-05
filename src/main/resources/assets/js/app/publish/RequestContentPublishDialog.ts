@@ -64,7 +64,7 @@ export class RequestContentPublishDialog
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
-            class: 'request-publish-dialog',
+            class: 'request-publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
@@ -154,7 +154,6 @@ export class RequestContentPublishDialog
         }
 
         this.hideLoadMask();
-        this.updateShowScheduleDialogButton();
 
         const itemsToPublish: number = this.countTotal();
         this.updateSubTitle(itemsToPublish);
@@ -232,6 +231,7 @@ export class RequestContentPublishDialog
         this.requestDetailsStep.setVisible(num === 1);
         this.prevAction.setVisible(num === 1);
         this.nextAction.setVisible(num === 0);
+        this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
     }
 
     private getCurrentStep(): number {
@@ -359,6 +359,7 @@ export class RequestContentPublishDialog
             .setPublishRequest(publishRequest);
 
         createIssueRequest.sendAndParse().then((issue: Issue) => {
+            api.notify.showSuccess(i18n('notify.publishRequest.created'));
             IssueDialogsManager.get().openDetailsDialog(issue);
         }).catch((reason) => {
             this.unlockControls();
@@ -441,6 +442,7 @@ export class RequestContentPublishDialog
         const detailsValid = this.detailsFormView.isValid();
 
         this.toggleAction(canPublish && scheduleValid && detailsValid);
+        this.nextAction.setEnabled(canPublish);
 
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();

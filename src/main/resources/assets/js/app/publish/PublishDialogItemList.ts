@@ -12,6 +12,7 @@ export class PublishDialogItemList
     extends DialogTogglableItemList {
 
     private excludeChildrenIds: ContentId[] = [];
+
     constructor() {
         super(false, 'publish-dialog-item-list');
     }
@@ -25,10 +26,21 @@ export class PublishDialogItemList
             }
         };
 
-        ContentServerEventsHandler.getInstance().onContentDeleted(deletedHandler);
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            const updatedContent = data.find((d) => d.getContentId().equals(item.getContentId()));
+            if (updatedContent) {
+                view.getViewer().setObject(updatedContent);
+            }
+        };
+
+        const serverEvents = ContentServerEventsHandler.getInstance();
+
+        serverEvents.onContentUpdated(updatedHandler);
+        serverEvents.onContentDeleted(deletedHandler);
 
         view.onRemoved(() => {
-            ContentServerEventsHandler.getInstance().unContentDeleted(deletedHandler);
+            serverEvents.unContentUpdated(updatedHandler);
+            serverEvents.unContentDeleted(deletedHandler);
         });
 
         return view;

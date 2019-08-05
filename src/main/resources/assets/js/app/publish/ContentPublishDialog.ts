@@ -23,6 +23,7 @@ import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
 import KeyHelper = api.ui.KeyHelper;
 import PropertyEvent = api.data.PropertyEvent;
+import TaskState = api.task.TaskState;
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -56,11 +57,20 @@ export class ContentPublishDialog
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
-            class: 'publish-dialog',
+            class: 'publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
             buttonRow: new ContentPublishDialogButtonRow()
+        });
+
+        this.onProgressComplete((taskState) => {
+            switch (taskState) {
+            case TaskState.FINISHED:
+            case TaskState.FAILED:
+                this.setSubTitleMessage('');
+                break;
+            }
         });
     }
 
@@ -170,7 +180,7 @@ export class ContentPublishDialog
     }
 
     private handleLoadFailed() {
-        this.setSubTitle('');
+        this.setSubTitleMessage('');
         this.publishIssuesStateBar.showLoadFailed();
         this.publishIssuesStateBar.addClass('has-issues');
         this.toggleAction(false);
@@ -322,6 +332,8 @@ export class ContentPublishDialog
 
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
+
+        this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
 
         const selectedIds = this.getContentToPublishIds();
         const publishMessage = this.publishSubTitle.getValue();
