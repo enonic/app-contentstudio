@@ -233,9 +233,7 @@ class ContentBrowsePanel extends Page {
 
     waitForGridLoaded(ms) {
         return this.waitForElementDisplayed(lib.GRID_CANVAS, ms).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
-        }).then(() => {
-            return console.log('content browse panel is loaded')
+            return this.waitForSpinnerNotVisible(ms);
         }).catch(err => {
             throw new Error('content browse panel was not loaded in ' + ms);
         });
@@ -291,10 +289,12 @@ class ContentBrowsePanel extends Page {
     }
 
     async clickOnShowIssuesListButton() {
-        await this.waitForElementDisplayed(this.showIssuesListButton);
-        return await this.clickOnElement(this.showIssuesListButton).catch(err => {
+        try {
+            await this.waitForElementDisplayed(this.showIssuesListButton);
+            return await this.clickOnElement(this.showIssuesListButton);
+        } catch (err) {
             throw new Error('error when click on the button ' + err);
-        })
+        }
     }
 
     clickOnSearchButton() {
@@ -352,14 +352,13 @@ class ContentBrowsePanel extends Page {
         return this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
             console.log("item is not displayed:" + contentName);
             this.saveScreenshot('err_find_' + contentName)
-            throw new Error('content was not found! ' + contentName);
+            throw new Error('content is not displayed ! ' + contentName + "  " + err);
         });
     }
 
-    waitForItemNotDisplayed(contentName) {
+    waitForContentNotDisplayed(contentName) {
         return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
-            console.log("content is still displayed:" + contentName);
-            return false;
+            throw new Error("Content is still displayed :" + err);
         });
     }
 

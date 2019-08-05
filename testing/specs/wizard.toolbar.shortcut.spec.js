@@ -35,7 +35,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, () => {
         let deleteContentDialog = new DeleteContentDialog();
-        return studioUtils.openContentInWizard(displayName).then(() => {
+        return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
             let contentWizard = new ContentWizard();
             return contentWizard.hotKeyDelete();
         }).then(() => {
@@ -49,7 +49,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, () => {
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
-        return studioUtils.openContentInWizard(displayName).then(() => {
+        return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
             return contentWizard.hotKeyPublish();
         }).then(() => {
             return contentPublishDialog.waitForDialogOpened();

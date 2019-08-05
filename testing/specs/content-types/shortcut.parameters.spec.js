@@ -133,7 +133,7 @@ describe('Shortcut parameters specification', function () {
                 return wizardVersionsWidget.clickAndExpandVersion(1);
             }).then(result => {
                 studioUtils.saveScreenshot("shortcut_version_selected");
-                return wizardVersionsWidget.clickOnRestoreThisVersion();
+                return wizardVersionsWidget.clickOnRestoreButton();
             }).then(() => {
                 studioUtils.saveScreenshot("shortcut_parameter_version_rollback");
                 return shortcutForm.getParameterName();

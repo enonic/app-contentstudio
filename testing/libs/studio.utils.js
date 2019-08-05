@@ -174,7 +174,7 @@ module.exports = {
             return contentWizardPanel.waitForOpened();
         })
     },
-    openContentInWizard: function (contentName) {
+    selectAndOpenContentInWizard: function (contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
         return this.findAndSelectItem(contentName).then(() => {
@@ -260,28 +260,21 @@ module.exports = {
     doOpenSiteWizard: function () {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
-    doOpenPageTemplateWizard: function (siteName) {
+    async doOpenPageTemplateWizard(siteName) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return this.typeNameInFilterPanel(siteName).then(() => {
-            return browsePanel.waitForContentDisplayed(siteName);
-        }).then(() => {
-            return browsePanel.pause(300);
-        }).then(() => {
-            return browsePanel.clickOnExpanderIcon(siteName);
-        }).then(() => {
-            return browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
-        }).then(() => {
-            return browsePanel.clickOnNewButton();
-        }).then(() => {
-            return newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        });
+        await this.typeNameInFilterPanel(siteName);
+        await browsePanel.waitForContentDisplayed(siteName);
+        await browsePanel.pause(300);
+        await browsePanel.clickOnExpanderIcon(siteName);
+        await browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
+        await browsePanel.clickOnNewButton();
+        await newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
+
     doAddPageTemplate: function (siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
         return this.doOpenPageTemplateWizard(siteName).then(() => {
@@ -504,7 +497,7 @@ module.exports = {
         let launcherPanel = new LauncherPanel();
         return launcherPanel.waitForPanelDisplayed(3000).then(result => {
             if (result) {
-                console.log("Launcher Panel is opened, click on the `Users` link...");
+                console.log("Launcher Panel is opened, click on the `Content Studio` link...");
                 return launcherPanel.clickOnContentStudioLink();
             } else {
                 console.log("Login Page is opened, type a password and name...");
@@ -524,15 +517,14 @@ module.exports = {
             let launcherPanel = new LauncherPanel();
             return launcherPanel.clickOnContentStudioLink();
         }).then(() => {
-            return loginPage.pause(1000);
+            return loginPage.pause(700);
         })
     },
     doSwitchToContentBrowsePanel: function () {
-        console.log('testUtils:switching to users app...');
+        console.log('testUtils:switching to Content Browse panel...');
         let browsePanel = new BrowsePanel();
         return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
             console.log("switched to content browse panel...");
-            return browsePanel.waitForSpinnerNotVisible();
         }).then(() => {
             return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
         }).catch(err => {
