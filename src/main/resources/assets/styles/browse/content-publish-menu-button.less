@@ -77,6 +77,14 @@
     .dropdown-toggler(@admin-button-blue2);
   }
 
+  &.open-request {
+    .open-request-action-button {
+      .menu-action-button(@admin-green);
+    }
+
+    .dropdown-toggler(@admin-green);
+  }
+
   .menu {
     right: 0;
   }
@@ -102,7 +110,6 @@
 
   &:not([disabled]):hover {
     span {
-      color: darken(@color, 10%);
       color: @color;
     }
   }

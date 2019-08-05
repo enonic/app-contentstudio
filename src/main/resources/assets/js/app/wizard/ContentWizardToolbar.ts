@@ -93,6 +93,10 @@ export class ContentWizardToolbar
             // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
             setTimeout(() => this.foldOrExpand());
         });
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+            this.toggleClass('publish-request', added);
+        });
     }
 
     private addTogglerButtons(actions: ContentWizardActions) {

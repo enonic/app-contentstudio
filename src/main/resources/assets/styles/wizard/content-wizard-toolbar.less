@@ -61,7 +61,7 @@
 
     .content-publish-menu {
       .action-button {
-        margin-left: 0px;
+        margin-left: 0;
       }
     }
   }
@@ -116,6 +116,15 @@
     &.in-progress {
       .icon-state-in-progress;
     }
+  }
+
+  &.publish-request .toolbar-state-icon.ready::before {
+    display: block;
+    width: 20px;
+    height: 20px;
+    content: "";
+    background-image: url("../../icons/publish-request-open.svg");
+    background-size: contain;
   }
 
 }
