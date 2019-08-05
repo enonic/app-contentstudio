@@ -133,6 +133,7 @@ export class ContentPublishDialog
         this.publishProcessor.onLoadingStarted(this.handleLoadStarted.bind(this));
         this.publishProcessor.onLoadingFinished(this.handleLoadFinished.bind(this));
         this.publishProcessor.onLoadingFailed(this.handleLoadFailed.bind(this));
+        this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
 
         this.handleIssueGlobalEvents();
     }
@@ -376,7 +377,7 @@ export class ContentPublishDialog
         return <PublishDialogItemList>super.getItemList();
     }
 
-    private updateSubTitle(itemsToPublish: number) {
+    private updateSubTitle(itemsToPublish: number = this.countTotal()) {
         this.setSubTitle('');
 
         if (itemsToPublish === 0) {
@@ -392,6 +393,7 @@ export class ContentPublishDialog
 
         if (allPublishable && allValid && !containsItemsInProgress) {
             this.publishIssuesStateBar.removeClass('has-issues');
+            this.publishIssuesStateBar.reset();
             return;
         }
 

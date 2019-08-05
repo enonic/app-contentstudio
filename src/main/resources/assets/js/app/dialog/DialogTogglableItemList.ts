@@ -82,6 +82,11 @@ export class DialogTogglableItemList
         return itemView;
     }
 
+    protected updateItemView(itemView: api.dom.Element, item: ContentSummaryAndCompareStatus) {
+        const view = <TogglableStatusSelectionItem>itemView;
+        view.getViewer().setObject(item);
+    }
+
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: BrowseItem<ContentSummaryAndCompareStatus>): TogglableStatusSelectionItem {
 

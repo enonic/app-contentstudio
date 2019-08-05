@@ -306,4 +306,11 @@ export class PublishProcessor {
         });
     }
 
+    public onItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.onItemsChanged(listener);
+    }
+
+    public unItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.unItemsChanged(listener);
+    }
 }

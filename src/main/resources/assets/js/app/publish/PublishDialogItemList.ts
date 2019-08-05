@@ -29,7 +29,7 @@ export class PublishDialogItemList
         const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             const updatedContent = data.find((d) => d.getContentId().equals(item.getContentId()));
             if (updatedContent) {
-                view.getViewer().setObject(updatedContent);
+                this.replaceItems([updatedContent]);
             }
         };
 
