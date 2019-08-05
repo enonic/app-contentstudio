@@ -111,7 +111,7 @@ export class IssueListDialog
         const tabBar = new TabBar();
 
         this.allTab = IssueListDialog.createTab(i18n('field.all'));
-        this.publishRequestsTab = IssueListDialog.createTab(i18n('field.issue.publishRequests'));
+        this.publishRequestsTab = IssueListDialog.createTab(i18n('field.publishRequests'));
         this.issuesTab = IssueListDialog.createTab(i18n('field.issues'));
 
         return tabBar;
@@ -252,7 +252,7 @@ export class IssueListDialog
         ]).then((results: IssueStatsJson[]) => {
             [
                 i18n('field.all'),
-                i18n('field.issue.publishRequests'),
+                i18n('field.publishRequests'),
                 i18n('field.issues')
             ].forEach((label, index) => {
                 const {open, closed} = results[index];

@@ -383,7 +383,7 @@ export class IssueDetailsDialog
     }
 
     private getItemsTabLabel(): string {
-        return this.isPublishRequestViewed() ? i18n('field.issue.publishRequests') : i18n('field.items');
+        return this.isPublishRequestViewed() ? i18n('field.publishRequest') : i18n('field.items');
     }
 
     private getCloseButtonLabel(canComment?: boolean): string {
