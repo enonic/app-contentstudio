@@ -12,7 +12,7 @@ export class LayersList
     private removeClickedListeners: { (layer: ContentLayer): void; }[] = [];
 
     constructor() {
-        super('layers-list-dialog-items');
+        super('layers-list-items');
     }
 
     setItems(items: ContentLayer[], silent?: boolean) {
@@ -20,7 +20,7 @@ export class LayersList
         super.setItems(items, silent);
     }
 
-    protected createItemView(item: ContentLayer, readOnly: boolean): api.dom.Element {
+    protected createItemView(item: ContentLayer, readOnly: boolean): LayersListItem {
         const layersHelper: LayersHelper = new LayersHelper(this.getItems());
         const layersListItem: LayersListItem = new LayersListItem(item, layersHelper.hasChildLayers(item),
             layersHelper.getLayerLevel(item));
@@ -61,7 +61,7 @@ export class LayersList
     }
 }
 
-class LayersListItem
+export class LayersListItem
     extends api.dom.DivEl {
 
     private layer: ContentLayer;
@@ -81,7 +81,7 @@ class LayersListItem
     private removeClickedListeners: { (layer: ContentLayer): void; }[] = [];
 
     constructor(layer: ContentLayer, hasChildLayers: boolean, level: number) {
-        super('layers-list-dialog-item');
+        super('layers-list-item');
 
         this.layer = layer;
         this.hasChildLayers = hasChildLayers;
@@ -114,6 +114,10 @@ class LayersListItem
         this.removeButton.getAction().onExecuted(() => {
             this.notifyRemoveClicked();
         });
+    }
+
+    getLayer(): ContentLayer {
+        return this.layer;
     }
 
     doRender(): wemQ.Promise<boolean> {

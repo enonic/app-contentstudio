@@ -40,6 +40,10 @@ import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
 import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
+import {ListContentLayerRequest} from './app/resource/layer/ListContentLayerRequest';
+import {ContentLayer} from './app/content/ContentLayer';
+import {LayerContext} from './app/layer/LayerContext';
+import {LayerSelector} from './app/layer/LayerSelector';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -432,6 +436,18 @@ function startContentApplication(application: api.app.Application) {
 
         buttonWrapper.appendChild(new ShowIssuesDialogButton());
         appBar.appendChild(buttonWrapper);
+
+        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+            const baseLayer: ContentLayer = layers.filter((layer: ContentLayer) => layer.isBaseLayer())[0];
+            LayerContext.get().setCurrentLayer(baseLayer);
+
+            if (layers.length > 1) {
+                const layerSelector: LayerSelector = new LayerSelector(layers);
+                appBar.insertChild(layerSelector, 1);
+                appBar.addClass('has-layers');
+            }
+
+        }).catch(api.DefaultErrorHandler.handle);
 
         initSearchPanelListener(appPanel);
 
