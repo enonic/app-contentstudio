@@ -1,10 +1,10 @@
 import {Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
+import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import ContentId = api.content.ContentId;
-import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 
 export interface ContentWizardPublishMenuButtonConfig extends ContentPublishMenuButtonConfig {
     openRequestAction: Action;
@@ -69,8 +69,10 @@ export class ContentWizardPublishMenuButton
         });
     }
 
-    protected updateActiveClass() {
-        if (this.openRequestAction.isEnabled()) {
+    updateActiveClass() {
+        if (this.isItemPendingDelete() && this.publishAction.isEnabled()) {
+            this.setActiveClass(this.publishAction.getActionClass());
+        } else if (this.openRequestAction.isEnabled()) {
             this.setActiveClass(this.openRequestAction.getActionClass());
         } else {
             super.updateActiveClass();
