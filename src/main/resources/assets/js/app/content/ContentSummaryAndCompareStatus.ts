@@ -2,6 +2,7 @@ import UploadItem = api.ui.uploader.UploadItem;
 import ContentSummary = api.content.ContentSummary;
 import ContentPath = api.content.ContentPath;
 import ContentId = api.content.ContentId;
+import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
 import {PublishStatus, PublishStatusFormatter} from '../publish/PublishStatus';
 
@@ -187,5 +188,16 @@ export class ContentSummaryAndCompareStatus
 
     isNew(): boolean {
         return CompareStatusChecker.isNew(this.getCompareStatus());
+    }
+
+    clone(): ContentSummaryAndCompareStatus {
+        const contentSummary = new ContentSummaryBuilder(this.getContentSummary()).build();
+        const clone = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+            contentSummary,
+            this.compareStatus,
+            this.publishStatus
+        );
+        clone.setReadOnly(this.readOnly);
+        return clone;
     }
 }
