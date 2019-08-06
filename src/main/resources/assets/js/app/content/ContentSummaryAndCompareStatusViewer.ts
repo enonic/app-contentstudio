@@ -61,7 +61,7 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     private toggleState(object: ContentSummaryAndCompareStatus) {
-        if (!object.hasContentSummary()) {
+        if (!object || !object.hasContentSummary()) {
             return;
         }
         const contentSummary: ContentSummary = object.getContentSummary();
@@ -75,6 +75,9 @@ export class ContentSummaryAndCompareStatusViewer
             this.getNamesAndIconView().setIconToolTip(i18n(`status.workflow.${status}`));
             this.toggleClass('ready', contentSummary.isReady());
             this.toggleClass('in-progress', contentSummary.isInProgress());
+        } else {
+            this.removeClass('ready');
+            this.removeClass('in-progress');
         }
     }
 
@@ -90,13 +93,8 @@ export class ContentSummaryAndCompareStatusViewer
         return '';
     }
 
-    resolveIconClass(): string {
-        return '';
-    }
-
     resolveIconUrl(object: ContentSummaryAndCompareStatus): string {
-
-        let contentSummary = object.getContentSummary();
-        return !!contentSummary ? new api.content.util.ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
+        const contentSummary = object.getContentSummary();
+        return contentSummary ? new api.content.util.ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
     }
 }
