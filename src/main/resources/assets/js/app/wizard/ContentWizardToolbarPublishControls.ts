@@ -1,5 +1,4 @@
 import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
 import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
@@ -115,8 +114,7 @@ export class ContentWizardToolbarPublishControls
         const canBePublished: boolean = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.isContentValid && !this.content.isOnline() && !this.content.getContentSummary().isReady();
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() &&
-                                               !this.content.getContentSummary().isInProgress();
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
 
         this.publishAction.setEnabled(canBePublished);
         this.createIssueAction.setEnabled(true);
