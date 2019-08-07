@@ -48,6 +48,8 @@ export class RequestContentPublishDialog
 
     private requestDetailsPropertySet: api.data.PropertySet;
 
+    private publishSchedulePropertySet: api.data.PropertySet;
+
     private publishIssuesStateBar: PublishIssuesStateBar;
 
     private requestDetailsStep: api.dom.DivEl;
@@ -92,12 +94,15 @@ export class RequestContentPublishDialog
         this.actionButton = this.addAction(this.requestPublishAction);
 
         this.requestDetailsPropertySet = new api.data.PropertySet();
+        this.publishSchedulePropertySet = new api.data.PropertySet();
 
-        this.publishScheduleForm = new PublishScheduleForm(this.requestDetailsPropertySet);
+        this.publishScheduleForm = new PublishScheduleForm(this.publishSchedulePropertySet);
         this.publishScheduleForm.layout(false);
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             this.updateControls();
-
+        });
+        this.publishSchedulePropertySet.onChanged((event: PropertyEvent) => {
+            this.updateControls();
         });
         const detailsForm = this.createDetailsForm();
 
@@ -232,6 +237,7 @@ export class RequestContentPublishDialog
         this.prevAction.setVisible(num === 1);
         this.nextAction.setVisible(num === 0);
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
+        this.updateControls();
     }
 
     private getCurrentStep(): number {
@@ -277,8 +283,10 @@ export class RequestContentPublishDialog
 
         CreateIssueDialog.get().reset();
 
-        this.publishScheduleForm.setFormVisible(false, true);   // this.requestDetailsPropertySet will be reset here
-        this.detailsFormView.update(this.requestDetailsPropertySet, false);     // all we need is to update second form data
+        this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
+
+        this.requestDetailsPropertySet.reset();
+        this.detailsFormView.update(this.requestDetailsPropertySet, false);
         this.goToStep(0);
 
         this.reloadPublishDependencies();
@@ -338,7 +346,7 @@ export class RequestContentPublishDialog
             .addExcludeIds(this.getExcludedIds())
             .build();
 
-        const publishSet = this.requestDetailsPropertySet.getPropertySet('publish');
+        const publishSet = this.publishSchedulePropertySet.getPropertySet('publish');
         const from = publishSet ? publishSet.getLocalDateTime('from') : null;
         const to = publishSet ? publishSet.getLocalDateTime('to') : null;
         const changes = this.requestDetailsPropertySet.getString('changes');
