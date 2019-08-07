@@ -83,7 +83,7 @@ export class IssueDetailsDialog
     private updatedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.issue'),
             class: 'issue-dialog issue-details-dialog grey-header',
                 dialogSubName: i18n('dialog.issue.resolving'),
@@ -673,6 +673,9 @@ export class IssueDetailsDialog
     }
 
     close() {
+        // FormInputEl:32
+        // setValue(originalValue) will be called on show() after setIssue() so reset originalValue to current
+        this.itemSelector.resetBaseValues();
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();
         super.close();
@@ -694,7 +697,7 @@ export class IssueDetailsDialog
     protected updateButtonCount(actionString: string, count: number) {
         super.updateButtonCount(actionString, count);
 
-        const labelWithNumber = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
+        const labelWithNumber = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
         this.showScheduleAction.setLabel(labelWithNumber(count, i18n('action.scheduleMore')));
     }
 
