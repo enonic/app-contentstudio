@@ -64,7 +64,7 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selector 
         () => {
             let contentWizard = new ContentWizard();
             let customSelectorForm = new CustomSelectorForm();
-            return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(CONTENT_NAME).then(() => {
                 return customSelectorForm.selectOption(OPTION_2);
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
@@ -85,7 +85,7 @@ describe('custom.selector.0_2.cke.spec:  tests for content with custom selector 
     it(`GIVEN wizard with 'custom-selector' is opened AND 2 options are selected WHEN options have been swapped THEN order of selected options should be changed`,
         () => {
             let customSelectorForm = new CustomSelectorForm();
-            return studioUtils.openContentInWizard(CONTENT_NAME).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(CONTENT_NAME).then(() => {
                 return customSelectorForm.swapOptions(OPTION_2, OPTION_1);
             }).then(() => {
                 return customSelectorForm.getSelectedOptions()

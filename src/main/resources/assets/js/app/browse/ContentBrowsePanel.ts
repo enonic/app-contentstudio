@@ -594,11 +594,20 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        this.treeGrid.onSelectionChanged(
-            (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
-             highlighted: boolean) => {
-                return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
-            });
+        let previousSelectionSize = this.treeGrid.getRoot().getFullSelection().length;
+        this.treeGrid.onSelectionChanged((
+            currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
+            fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]
+        ) => {
+            const isSingleSelected = fullSelection.length === 1;
+            const hadMultipleSelection = previousSelectionSize > 1;
+
+            previousSelectionSize = fullSelection.length;
+            contentPublishMenuButton.setItem(isSingleSelected ? fullSelection[0].getData() : null);
+            if (hadMultipleSelection && isSingleSelected) {
+                contentPublishMenuButton.updateActiveClass();
+            }
+        });
 
         this.treeGrid.onHighlightingChanged(
             (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));

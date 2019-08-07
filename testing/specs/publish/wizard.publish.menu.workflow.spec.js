@@ -27,7 +27,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.doPublish();
 
             let status = await contentWizard.getContentStatus();
@@ -40,7 +40,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             let status = await contentWizard.getContentStatus();
@@ -60,7 +60,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //'MARK AS READY' button should be present on the toolbar
             //So need to open the publish-menu and select 'Unpublish' menu item
             await contentWizard.openPublishMenuSelectItem("Unpublish");
@@ -87,7 +87,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             let scheduleForm = new ScheduleForm();
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been deleted:

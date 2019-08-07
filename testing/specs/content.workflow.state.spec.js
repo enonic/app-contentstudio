@@ -11,6 +11,9 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -33,7 +36,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizard = new ContentWizard();
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             let state = await wizard.getWorkflowState();
             assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
@@ -42,11 +45,12 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizard = new ContentWizard();
-            await studioUtils.openContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await wizard.clickOnMarkedAsReadyButton();
             let message = await wizard.waitForNotificationMessage();
+            studioUtils.saveScreenshot("marked_as_ready_workflow_state");
             //TODO this assert fails now. (bug)
-            //assert.equal(message, appConstant.markedAsReadymessage(TEST_FOLDER.displayName),
+            //assert.equal(message, appConstant.markedAsReadyMessage(TEST_FOLDER.displayName),
             //   "Message: 'Item is marked as ready' should appear");
             let state = await wizard.getWorkflowState();
             assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -59,6 +63,21 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
             assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+        });
+
+    it(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
+        async () => {
+            let versionPanel = new WizardVersionsWidget();
+            let wizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await wizard.openVersionsHistoryPanel();
+            await versionPanel.clickAndExpandVersion(1);
+            await versionPanel.clickOnRestoreButton();
+            studioUtils.saveScreenshot("rollback_workflow_state");
+
+            let state = await wizard.getWorkflowState(TEST_FOLDER.displayName);
+            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS,
+                "'Work in progress' -state should appear after rolback the previous version");
         });
 
 

@@ -47,6 +47,18 @@ class ConfirmContentDeleteDialog extends Page {
         })
     }
 
+    waitForConfirmButtonDisabled() {
+        return this.waitForElementDisabled(this.confirmButton, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Confirm button is not disabled in " + err);
+        })
+    }
+
+    waitForCancelButtonEnabled() {
+        return this.waitForElementEnabled(this.cancelButton, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Confirm Delete Dialog - Cancel button is not enabled in " + err);
+        })
+    }
+
     isWarningMessageVisible() {
         return this.isElementDisplayed(this.warningMessage);
     }
@@ -60,11 +72,16 @@ class ConfirmContentDeleteDialog extends Page {
     }
 
     async clickOnConfirmButton() {
-        await this.clickOnElement(this.confirmButton);
-        return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
-            this.saveScreenshot('err_close_confirmation_dialog');
-            throw new Error('Confirmation dialog must be closed!' + err);
-        })
+        try {
+            await this.waitForElementEnabled(this.confirmButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(this.confirmButton);
+            //modal dialog closes:
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_confirmation_dialog');
+            throw new Error('Confirmation dialog - Error when clicking on Confirm button.' + err);
+        }
     }
 
     typeNumberOfContent(number) {

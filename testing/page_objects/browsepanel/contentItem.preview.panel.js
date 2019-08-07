@@ -45,24 +45,35 @@ class ContentItemPreviewPanel extends Page {
         return this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_2);
     }
 
-    clickOnIssueMenuDropDownHandle() {
-        return this.clickOnElement(this.issueDropdownHandle).catch(err => {
+    async clickOnIssueMenuDropDownHandle() {
+        try {
+            await this.waitForIssueDropDownHandleDisplayed();
+            return await this.clickOnElement(this.issueDropdownHandle);
+        } catch (err) {
             throw new Error('error when clicking on the dropdown handle ' + err);
-        })
+        }
     }
 
     waitForIssueDropDownHandleDisplayed() {
         return this.waitForElementDisplayed(this.issueDropdownHandle, appConst.TIMEOUT_2);
     }
 
-    clickOnIssueMenuItem(issueName) {
-        let selector = xpath.issueMenuItemByName(issueName);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch((err) => {
-            throw new Error("Menu item was not found! " + issueName + "  " + err);
-            this.saveScreenshot("err_issue_menu_item");
-        }).then(() => {
-            return this.clickOnElement(selector);
+    waitForIssueDropDownHandleNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.issueDropdownHandle, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Item Preview Toolbar - dropdown handle should not be displayed !  ' + err);
+
         });
+    }
+
+    async clickOnIssueMenuItem(issueName) {
+        try {
+            let selector = xpath.issueMenuItemByName(issueName);
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.clickOnElement(selector);
+        } catch (err) {
+            this.saveScreenshot("err_issue_menu_item");
+            throw new Error("Menu item was not found! " + issueName + "  " + err);
+        }
     }
 
     waitForIssueMenuButtonNotVisible() {
@@ -72,12 +83,13 @@ class ContentItemPreviewPanel extends Page {
         });
     }
 
-    clickOnIssueMenuButton() {
-        return this.waitForElementDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3).catch(err => {
+    async clickOnIssueMenuButton() {
+        try {
+            await this.waitForElementDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3);
+            return await this.clickOnElement(xpath.toolbar + xpath.issueMenuButton);
+        } catch (err) {
             throw new Error('issue menu button was not found!  ' + err);
-        }).then(() => {
-            return this.clickOnElement(xpath.toolbar + xpath.issueMenuButton);
-        });
+        }
     }
 
     async getContentStatus() {
@@ -96,13 +108,14 @@ class ContentItemPreviewPanel extends Page {
         return this.getText(selector);
     }
 
+    //switches to iframe and gets text in the panel
     async getTextInAttachmentPreview() {
         try {
             let attachmentFrame = "//iframe[contains(@src,'/admin/rest/content/media/')]";
             await this.switchToFrame(attachmentFrame);
             return await this.getText("//body/pre");
         } catch (err) {
-            throw new Error(err);
+            throw new Error("Content Item Preview Panel - " + err);
         }
     }
 };

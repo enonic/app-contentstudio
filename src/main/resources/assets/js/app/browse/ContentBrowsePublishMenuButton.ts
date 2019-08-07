@@ -58,7 +58,7 @@ export class ContentBrowsePublishMenuButton
         });
     }
 
-    protected updateActiveClass() {
+    updateActiveClass() {
         if (!this.item) {
             if (this.markAsReadyAction.isEnabled()) {
                 this.setActiveClass(this.markAsReadyAction.getActionClass());
@@ -67,6 +67,8 @@ export class ContentBrowsePublishMenuButton
             } else {
                 this.setActiveClass('no-item');
             }
+        } else if (this.publishAction.isEnabled() && this.isItemPendingDelete()) {
+            this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.markAsReadyAction.isEnabled()) {
             this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.publishAction.isEnabled()) {

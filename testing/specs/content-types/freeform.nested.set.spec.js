@@ -68,7 +68,7 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
         () => {
             let contentWizard = new ContentWizard();
             let freeFormOptionSet1 = new FreeFormOptionSet1();
-            return studioUtils.openContentInWizard(contentDisplayName).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(contentDisplayName).then(() => {
                 return freeFormOptionSet1.clickOnTextRadioButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();

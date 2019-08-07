@@ -147,6 +147,22 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 assert.isTrue(result == firstIssueTitle, "required issue should be loaded in the modal dialog");
             })
         });
+
+    it(`GIVEN existing folder with 2 issues is selected WHEN this folder has been unselected THEN 'issues drop down handle' gets not visible`,
+        async () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            //select the folder with 2 issues:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            //Drop down handle for issues should be displayed on the Preview Panel:
+            await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
+
+            //unselect the folder:
+            await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
+            //Drop down handle for issues gets not visible(exception will be thrown after the timeout)
+            await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
+        });
 //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
     it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
         () => {

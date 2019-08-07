@@ -11,6 +11,7 @@ const ContextWindow = require('./liveform/liveform.context.window');
 const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -155,6 +156,14 @@ class ContentWizardPanel extends Page {
         })
     }
 
+    async openVersionsHistoryPanel() {
+        let detailsPanel = new DetailsPanel();
+        let versionPanel = new VersionsWidget();
+        await this.openDetailsPanel();
+        await detailsPanel.openVersionHistory();
+        return versionPanel.waitForVersionsLoaded();
+    }
+
     waitForXdataTogglerVisible() {
         return this.waitForElementDisplayed(XPATH.xDataToggler, appConst.TIMEOUT_1).catch(err => {
             this.saveScreenshot("err_x-data_toogler");
@@ -288,6 +297,9 @@ class ContentWizardPanel extends Page {
         return this.typeTextInInput(this.displayNameInput, displayName);
     }
 
+    getDisplayName() {
+        return this.getTextInInput(this.displayNameInput);
+    }
     clearDisplayNameInput() {
         return this.clearInputText(this.displayNameInput);
     }

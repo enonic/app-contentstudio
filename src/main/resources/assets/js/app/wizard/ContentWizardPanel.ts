@@ -886,8 +886,12 @@ export class ContentWizardPanel
     }
 
     private updateContent(compareStatus: CompareStatus) {
-        this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
-        this.getMainToolbar().setItem(this.currentContent);
+        const newContent = this.currentContent.clone();
+        newContent.setCompareStatus(compareStatus);
+
+        this.currentContent = newContent;
+        this.persistedContent = newContent;
+        this.getMainToolbar().setItem(newContent);
         this.updateWorkflowStateIcons();
 
         this.wizardActions.refreshPendingDeleteDecorations();
@@ -1003,7 +1007,8 @@ export class ContentWizardPanel
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
-                    this.persistedContent = this.currentContent = content;
+                    this.currentContent = content;
+                    this.persistedContent = content;
                     this.getMainToolbar().setItem(content);
                     this.updateWorkflowStateIcons();
                     this.refreshScheduleWizardStep();
@@ -1150,7 +1155,8 @@ export class ContentWizardPanel
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
-        this.persistedContent = this.currentContent = updatedContent;
+        this.currentContent = updatedContent;
+        this.persistedContent = updatedContent;
         this.getMainToolbar().setItem(updatedContent);
         this.updateWorkflowStateIcons();
         this.contextSplitPanel.setContent(updatedContent);
@@ -1371,10 +1377,10 @@ export class ContentWizardPanel
 
     private updatePersistedContent(persistedContent: Content) {
         return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
-            this.persistedContent = this.currentContent = summaryAndStatus;
-
+            this.currentContent = summaryAndStatus;
+            this.persistedContent = summaryAndStatus;
+            this.getMainToolbar().setItem(summaryAndStatus);
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
-            this.getMainToolbar().setItem(this.currentContent);
             this.updateWorkflowStateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
@@ -2342,9 +2348,7 @@ export class ContentWizardPanel
 
             } else {
                 if (this.currentContent === this.persistedContent) {
-                    this.currentContent =
-                        ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(this.persistedContent.getContentSummary(),
-                            this.persistedContent.getCompareStatus(), this.persistedContent.getPublishStatus());
+                    this.currentContent = this.persistedContent.clone();
                 }
                 if (publishControls.isOnline()) {
                     this.currentContent.setCompareStatus(CompareStatus.NEWER);

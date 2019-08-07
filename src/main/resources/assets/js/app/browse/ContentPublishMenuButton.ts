@@ -3,7 +3,6 @@ import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {IssueType} from '../issue/IssueType';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
@@ -167,7 +166,7 @@ export class ContentPublishMenuButton
     }
 
     private handleActionsUpdated() {
-        const actionUpdatedHandler: () => void = api.util.AppHelper.debounce(() => {
+        const actionUpdatedHandler = api.util.AppHelper.debounce(() => {
             this.updateActiveClass();
         }, 50);
 
@@ -178,7 +177,11 @@ export class ContentPublishMenuButton
         }));
     }
 
-    protected updateActiveClass() {
+    protected isItemPendingDelete(): boolean {
+        return this.item != null && this.item.isPendingDelete();
+    }
+
+    updateActiveClass() {
         if (this.markAsReadyAction.isEnabled()) {
             this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.publishAction.isEnabled()) {
