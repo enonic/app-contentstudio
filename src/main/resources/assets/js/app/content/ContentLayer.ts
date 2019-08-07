@@ -1,7 +1,8 @@
 import {ContentLayerJson} from '../resource/json/ContentLayerJson';
 import {Attachment, AttachmentBuilder} from '../attachment/Attachment';
 
-export class ContentLayer {
+export class ContentLayer
+    implements api.Equitable {
 
     private name: string;
 
@@ -56,6 +57,16 @@ export class ContentLayer {
 
     isBaseLayer(): boolean {
         return this.name === ContentLayer.DEFAULT_LAYER_NAME;
+    }
+
+    equals(o: api.Equitable): boolean {
+        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentLayer)) {
+            return false;
+        }
+
+        const other: ContentLayer = <ContentLayer>o;
+
+        return api.ObjectHelper.stringEquals(this.name, other.getName());
     }
 }
 

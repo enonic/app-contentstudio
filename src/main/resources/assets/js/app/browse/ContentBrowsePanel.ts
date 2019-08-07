@@ -26,6 +26,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
+import {LayerChangedEvent} from '../layer/LayerChangedEvent';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -305,6 +306,10 @@ export class ContentBrowsePanel
                     this.updateContextPanelOnItemChange(fullSelection);
                 });
             }
+        });
+
+        LayerChangedEvent.on(() => {
+            this.treeGrid.reload();
         });
     }
 
