@@ -16,6 +16,8 @@ export class CreateLayerDialog
             title: i18n('dialog.layers.create.title'),
             class: 'layer-create-dialog'
         });
+
+        this.setElementToFocusOnShow(this.displayName);
     }
 
     static get(): CreateLayerDialog {

@@ -113,7 +113,7 @@ class LayerDisplayNameTextInput
     extends TextInput {
 
     constructor() {
-        super('displayName');
+        super('layer-display-name');
 
         this.initValidationListeners();
     }

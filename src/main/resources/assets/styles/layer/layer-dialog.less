@@ -1,13 +1,12 @@
 .layer-dialog {
 
+  .modal-dialog-header {
+    background-color: @admin-font-gray;
+  }
+
   &.layers-list-dialog {
     .modal-dialog-header {
-      background-color: @admin-font-gray;
       padding-bottom: 20px;
-
-      .subtitle {
-        margin-top: 14px;
-      }
 
       .action-button {
         .icon-plus;
@@ -48,16 +47,17 @@
             }
 
             &:before {
-              font-size: 20px;
+              font-size: 16px;
             }
           }
 
           .remove-button {
             .icon-close;
-            .icon-large;
+            .icon-medium;
             .button(@admin-black, @admin-white);
             border: none;
             padding: 0px;
+            padding-top: 5px;
 
             &:focus {
               outline-color: @admin-white;
@@ -86,18 +86,19 @@
 
   &.layer-create-update-dialog {
     .modal-dialog-header {
-      background-color: @admin-font-gray;
 
       .title {
         font-size: 14px;
+        color: @admin-font-gray3;
+        line-height: 25px;
       }
 
-      .displayName {
+      .layer-display-name {
         width: 100%;
         border: none;
         font-size: 24px;
         line-height: 38px;
-        padding-left: 0px;
+        padding: 0 5px;
 
         &:not(.invalid):not(:focus) {
           background-color: @admin-font-gray;
@@ -110,7 +111,7 @@
     }
 
     .layer-dialog-form {
-      .displayName, .parentLayer, .defaultLanguage, .identifier, .icon, .description {
+      .parent-layer, .default-language, .identifier, .icon, .description {
         width: 100%;
       }
     }
@@ -118,9 +119,13 @@
 
   &.layer-update-dialog {
     .modal-dialog-header {
+
+      .title {
+        padding-left: 45px;
+      }
+
       .back-button {
         background-color: @admin-font-gray;
-        width: 7%;
         position: relative;
         left: -9px;
 
@@ -128,9 +133,13 @@
           left: -7px;
           top: 3px;
         }
+
+        &:hover:before {
+          color: @admin-font-gray3;
+        }
       }
 
-      .displayName {
+      .layer-display-name {
         width: 93%;
       }
     }
@@ -143,7 +152,7 @@
           box-shadow: none;
         }
 
-        .parentLayer {
+        .parent-layer {
           .remove {
             display: none;
           }
