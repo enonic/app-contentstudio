@@ -22,6 +22,8 @@ export class LayerDialogForm
 
     private description: TextInput;
 
+    private identifierFormItem: FormItem;
+
     constructor() {
         super('layer-dialog-form');
 
@@ -61,12 +63,12 @@ export class LayerDialogForm
                 .build());
         fieldSet.add(defaultLanguageFormItem);
 
-        const identifierFormItem = this.addValidationViewer(
+        this.identifierFormItem = this.addValidationViewer(
             new FormItemBuilder(this.identifier)
                 .setLabel(i18n('dialog.layers.field.identifier'))
                 .setValidator(Validators.required)
                 .build());
-        fieldSet.add(identifierFormItem);
+        fieldSet.add(this.identifierFormItem);
 
         const iconFormItem = this.addValidationViewer(
             new FormItemBuilder(this.icon).setLabel(i18n('dialog.layers.field.icon')).build());
@@ -152,6 +154,7 @@ export class LayerDialogForm
 
     public setIdentifierReadOnly(value: boolean) {
         this.identifier.setReadOnly(value);
+        this.identifierFormItem.setLabel(value ? i18n('dialog.layers.field.identifier.readonly') : i18n('dialog.layers.field.identifier'));
     }
 
     public getDescription(): string {
@@ -164,8 +167,8 @@ export class LayerDialogForm
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.parentLayer.addClass('parentLayer');
-            this.defaultLanguage.addClass('defaultLanguage');
+            this.parentLayer.addClass('parent-layer');
+            this.defaultLanguage.addClass('default-language');
 
             return rendered;
         });
