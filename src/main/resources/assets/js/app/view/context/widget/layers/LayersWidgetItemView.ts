@@ -6,6 +6,7 @@ import {LayersWidgetStateViewNoLayers} from './LayersWidgetStateViewNoLayers';
 import {LayersWidgetStateViewMultiLayers} from './LayersWidgetStateViewMultiLayers';
 import {LayersWidgetStateViewInherited} from './LayersWidgetStateViewInherited';
 import {LayersWidgetStateViewLocal} from './LayersWidgetStateViewLocal';
+import {LayerContext} from '../../../../layer/LayerContext';
 
 enum LayersWidgetState {
     NO_LAYERS, MULTI_LAYERS, INHERITED, LOCAL
@@ -38,7 +39,7 @@ export class LayersWidgetItemView
         this.item = item;
 
         return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            this.currentLayer = this.getCurrentLayer(layers);
+            this.currentLayer = this.getCurrentLayer();
 
             if (layers.length > 1 && !this.currentLayer.isBaseLayer()) {
                 if (item.getContentSummary().isInherited()) {
@@ -59,7 +60,7 @@ export class LayersWidgetItemView
 
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             if (layers.length > 1) {
-                this.currentLayer = this.getCurrentLayer(layers);
+                this.currentLayer = this.getCurrentLayer();
                 this.setState(LayersWidgetState.MULTI_LAYERS);
             } else {
                 this.setState(LayersWidgetState.NO_LAYERS);
@@ -92,8 +93,8 @@ export class LayersWidgetItemView
         }
     }
 
-    private getCurrentLayer(layers: ContentLayer[]): ContentLayer {
-        return layers[0];
+    private getCurrentLayer(): ContentLayer {
+        return LayerContext.get().getCurrentLayer();
     }
 
     private showNoLayers() {

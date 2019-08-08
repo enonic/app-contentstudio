@@ -107,7 +107,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         this.dependenciesSection.reset();
         this.resetConstraints();
         this.search();
-        Router.back();
+        Router.get().back();
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string) {

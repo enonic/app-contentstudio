@@ -69,7 +69,7 @@ export class ContentItemViewPanel
 
         this.onShown((event: api.dom.ElementShownEvent) => {
             if (this.getItem()) {
-                Router.setHash('view/' + this.getItem().getModel().getId());
+                Router.get().setHash('view/' + this.getItem().getModel().getId());
             }
         });
     }

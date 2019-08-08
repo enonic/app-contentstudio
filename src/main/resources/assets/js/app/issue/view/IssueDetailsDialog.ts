@@ -321,7 +321,7 @@ export class IssueDetailsDialog
             this.tabPanel.selectPanelByIndex(0);
         }
 
-        Router.setHash('issue/' + this.issue.getId());
+        Router.get().setHash('issue/' + this.issue.getId());
     }
 
     public reloadItemList() {
@@ -678,7 +678,7 @@ export class IssueDetailsDialog
         super.close();
         this.commentsList.clearItems();
         this.updateItemsCountAndButtons();
-        Router.back();
+        Router.get().back();
     }
 
     private areSomeItemsOffline(): boolean {

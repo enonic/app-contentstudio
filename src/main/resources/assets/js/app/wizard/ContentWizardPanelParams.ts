@@ -1,7 +1,5 @@
 import '../../api.ts';
-import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentId = api.content.ContentId;
+import {LayerContext} from '../layer/LayerContext';
 import Application = api.app.Application;
 
 export class ContentWizardPanelParams {
@@ -49,43 +47,13 @@ export class ContentWizardPanelParams {
     }
 
     toString(): string {
+        const layer: string = LayerContext.get().getCurrentLayer().getName();
 
         return this.tabId && this.tabId.getMode() === 'browse'
             ? this.tabId.getMode() + '/' + this.tabId.getId()
             : this.contentId
-                   ? 'edit/' + this.contentId.toString()
-                   : 'new/' + this.contentTypeName.toString() +
+              ? `${layer}/edit/${this.contentId.toString()}`
+              : `${layer}/new/${this.contentTypeName.toString()}` +
                      (this.parentContentId ? '/' + this.parentContentId.toString() : '');
-    }
-
-    static fromApp(app: Application): ContentWizardPanelParams {
-        let path = app.getPath();
-        let tabId;
-        let wizardParams;
-        switch (path.getElement(0)) {
-        case 'new':
-            let contentTypeName = new ContentTypeName(path.getElement(1));
-            let parentContentId;
-            if (path.getElement(2)) {
-                parentContentId = new ContentId(path.getElement(2));
-            }
-            tabId = AppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
-            wizardParams = new ContentWizardPanelParams()
-                .setApplication(app)
-                .setContentTypeName(contentTypeName)
-                .setParentContentId(parentContentId)
-                .setCreateSite(contentTypeName.isSite())
-                .setTabId(tabId);
-            break;
-        case 'edit':
-            let contentId = new ContentId(path.getElement(1));
-            tabId = AppBarTabId.forEdit(contentId.toString());
-            wizardParams = new ContentWizardPanelParams()
-                .setApplication(app)
-                .setContentId(contentId)
-                .setTabId(tabId);
-            break;
-        }
-        return wizardParams;
     }
 }

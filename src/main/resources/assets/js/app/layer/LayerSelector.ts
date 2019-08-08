@@ -57,11 +57,11 @@ export class LayerSelector
     }
 
     private setInitialData(layers: ContentLayer[]) {
-        const selectedLayer: ContentLayer = layers.filter((layer: ContentLayer) => layer.isBaseLayer())[0];
+        const selectedLayer: ContentLayer = LayerContext.get().getCurrentLayer();
         this.headerLayerViewer.setObject(selectedLayer);
 
         this.layersList.setItems(layers);
-        this.layersList.selectBaseLayer();
+        this.layersList.selectLayer(selectedLayer);
     }
 
     private initListeners() {
@@ -144,9 +144,9 @@ class SelectableLayersList
         this.selectedListItem = layersListItem;
     }
 
-    selectBaseLayer() {
+    selectLayer(layer: ContentLayer) {
         this.getItemViews().some((view: LayersListItem) => {
-            if (view.getLayer().isBaseLayer()) {
+            if (view.getLayer().equals(layer)) {
                 view.addClass('selected');
                 this.selectedListItem = view;
                 return true;
