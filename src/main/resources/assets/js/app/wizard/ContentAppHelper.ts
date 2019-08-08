@@ -26,11 +26,11 @@ export class ContentAppHelper {
 
     private static createWizardParamsForNew(app: api.app.Application): ContentWizardPanelParams {
         const path: Path = app.getPath();
-        const contentTypeName: ContentTypeName = new ContentTypeName(path.getElement(1));
+        const contentTypeName: ContentTypeName = new ContentTypeName(path.getElement(2));
         const tabId: AppBarTabId = AppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
         let parentContentId;
-        if (path.getElement(2)) {
-            parentContentId = new ContentId(path.getElement(2));
+        if (path.getElement(3)) {
+            parentContentId = new ContentId(path.getElement(3));
         }
 
         return new ContentWizardPanelParams()
