@@ -4,7 +4,6 @@ import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
-import ContentId = api.content.ContentId;
 
 export class MarkAsReadyContentAction
     extends Action {
@@ -23,17 +22,32 @@ export class MarkAsReadyContentAction
     }
 
     private handleExecuted() {
-        const selectedContents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
-        const contentsToMarkAsReady: ContentId[] = selectedContents
-            .filter(this.canBeMarkedAsReady)
-            .map(item => item.getContentId());
+        const contentToMarkAsReady = this.grid.getSelectedDataList().filter(MarkAsReadyContentAction.canBeMarkedAsReady);
+        const isSingleItem = contentToMarkAsReady.length === 1;
 
-        this.confirmDialog.setYesCallback(() => {
-            new MarkAsReadyRequest(contentsToMarkAsReady).sendAndParse().catch(api.DefaultErrorHandler.handle);
-        }).open();
+        if (isSingleItem) {
+            MarkAsReadyContentAction.markAsReady(contentToMarkAsReady);
+        } else {
+            this.confirmDialog.setYesCallback(() => {
+                MarkAsReadyContentAction.markAsReady(contentToMarkAsReady);
+            }).open();
+        }
     }
 
-    private canBeMarkedAsReady(item: ContentSummaryAndCompareStatus): boolean {
+    private static markAsReady(content: ContentSummaryAndCompareStatus[]): wemQ.Promise<void> {
+        const contentIds = content.map(item => item.getContentId());
+        const isSingleItem = content.length === 0;
+        return new MarkAsReadyRequest(contentIds).sendAndParse().then(() => {
+            if (isSingleItem) {
+                const name = content[0].getContentSummary().getName();
+                api.notify.showFeedback(i18n('notify.item.isMarkedAsReady', name));
+            } else {
+                api.notify.showFeedback(i18n('notify.item.isMarkedAsReady.multiple', content.length));
+            }
+        }).catch(api.DefaultErrorHandler.handle);
+    }
+
+    private static canBeMarkedAsReady(item: ContentSummaryAndCompareStatus): boolean {
         return !item.isOnline() && item.getContentSummary().isValid() && !item.getContentSummary().isReady();
     }
 }

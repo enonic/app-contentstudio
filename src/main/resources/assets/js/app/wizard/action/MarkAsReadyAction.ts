@@ -12,7 +12,7 @@ export class MarkAsReadyAction
 
         this.wizard = wizard;
 
-        this.onExecuted(this.handleExecuted.bind(this));
+        this.onExecuted(() => this.handleExecuted());
     }
 
     private handleExecuted() {
