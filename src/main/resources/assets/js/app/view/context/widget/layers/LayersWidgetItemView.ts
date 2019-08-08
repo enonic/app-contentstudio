@@ -41,14 +41,18 @@ export class LayersWidgetItemView
         return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             this.currentLayer = this.getCurrentLayer();
 
-            if (layers.length > 1 && !this.currentLayer.isBaseLayer()) {
-                if (item.getContentSummary().isInherited()) {
-                    this.setState(LayersWidgetState.INHERITED);
+            if (layers.length > 1) {
+                if (this.currentLayer.isBaseLayer()) {
+                    this.setState(LayersWidgetState.MULTI_LAYERS);
                 } else {
-                    this.setState(LayersWidgetState.LOCAL);
+                    if (item.getContentSummary().isInherited()) {
+                        this.setState(LayersWidgetState.INHERITED);
+                    } else {
+                        this.setState(LayersWidgetState.LOCAL);
+                    }
                 }
             } else {
-                this.setState(LayersWidgetState.MULTI_LAYERS);
+                this.setState(LayersWidgetState.NO_LAYERS);
             }
 
             return wemQ(null);
