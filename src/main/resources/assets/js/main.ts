@@ -44,6 +44,7 @@ import {ListContentLayerRequest} from './app/resource/layer/ListContentLayerRequ
 import {ContentLayer} from './app/content/ContentLayer';
 import {LayerContext} from './app/layer/LayerContext';
 import {LayerSelector} from './app/layer/LayerSelector';
+import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -248,10 +249,10 @@ const refreshTab = function(content: Content) {
 };
 
 function preLoadApplication() {
-    let application: api.app.Application = getApplication();
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
+    const application: api.app.Application = getApplication();
+    if (ContentAppHelper.isContentWizard(application)) {
         clearFavicon();
+        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromApp(application);
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
@@ -283,14 +284,15 @@ function startApplication() {
 
     initApplicationEventListener();
 
-    let connectionDetector = startLostConnectionDetector();
+    new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+        initCurrentContentLayer(application, layers);
 
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
-        startContentWizard(wizardParams, connectionDetector);
-    } else {
-        startContentApplication(application);
-    }
+        if (ContentAppHelper.isContentWizard(application)) {
+            startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+        } else {
+            startContentApplication(application, layers);
+        }
+    }).catch(api.DefaultErrorHandler.handle);
 
     initToolTip();
 
@@ -357,6 +359,17 @@ function startApplication() {
     IssueServerEventsHandler.getInstance().start();
 }
 
+function initCurrentContentLayer(application: api.app.Application, layers: ContentLayer[]) {
+    const layerName: string = application.getPath().getElement(0);
+    let currentLayer: ContentLayer = layers.filter((layer: ContentLayer) => layer.getName() === layerName)[0];
+
+    if (!currentLayer) {
+        currentLayer = layers.filter((layer: ContentLayer) => layer.isBaseLayer())[0];
+    }
+
+    LayerContext.get().setCurrentLayer(currentLayer);
+}
+
 const refreshTabOnContentUpdate = (content: Content) => {
     ContentUpdatedEvent.on((event: ContentUpdatedEvent) => {
         if (event.getContentId().equals(content.getContentId())) {
@@ -366,7 +379,8 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: LostConnectionDetector) {
+function startContentWizard(wizardParams: ContentWizardPanelParams) {
+    let connectionDetector = startLostConnectionDetector();
 
     import('./app/wizard/ContentWizardPanel').then(def => {
 
@@ -425,7 +439,7 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
     });
 }
 
-function startContentApplication(application: api.app.Application) {
+function startContentApplication(application: api.app.Application, layers: ContentLayer[]) {
 
     import('./app/ContentAppPanel').then(cdef => {
 
@@ -437,17 +451,11 @@ function startContentApplication(application: api.app.Application) {
         buttonWrapper.appendChild(new ShowIssuesDialogButton());
         appBar.appendChild(buttonWrapper);
 
-        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            const baseLayer: ContentLayer = layers.filter((layer: ContentLayer) => layer.isBaseLayer())[0];
-            LayerContext.get().setCurrentLayer(baseLayer);
-
-            if (layers.length > 1) {
-                const layerSelector: LayerSelector = new LayerSelector(layers);
-                appBar.insertChild(layerSelector, 1);
-                appBar.addClass('has-layers');
-            }
-
-        }).catch(api.DefaultErrorHandler.handle);
+        if (layers.length > 1) {
+            const layerSelector: LayerSelector = new LayerSelector(layers);
+            appBar.insertChild(layerSelector, 1);
+            appBar.addClass('has-layers');
+        }
 
         initSearchPanelListener(appPanel);
 

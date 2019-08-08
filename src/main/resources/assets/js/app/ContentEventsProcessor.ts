@@ -8,6 +8,7 @@ import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {LayerContext} from './layer/LayerContext';
 import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;
 
@@ -85,14 +86,12 @@ export class ContentEventsProcessor {
     }
 
     static handleSort(event: SortContentEvent) {
-
-        let contents: ContentSummaryAndCompareStatus[] = event.getModels();
+        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenSortDialogEvent(contents[0]).fire();
     }
 
     static handleMove(event: MoveContentEvent) {
-
-        let contents: ContentSummaryAndCompareStatus[] = event.getModels();
+        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getRootNode()).fire();
     }
 
@@ -100,7 +99,8 @@ export class ContentEventsProcessor {
         const mode: string = event.isInbound() ? 'inbound' : 'outbound';
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
-        const url = !!type ? `main#/${mode}/${id}/${type}` : `main#/${mode}/${id}`;
+        const layer: string = LayerContext.get().getCurrentLayer().getName();
+        const url: string = `main#/${layer}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }

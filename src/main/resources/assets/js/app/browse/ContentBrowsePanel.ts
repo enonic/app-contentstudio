@@ -60,7 +60,7 @@ export class ContentBrowsePanel
         super();
 
         this.onShown(() => {
-            Router.setHash('browse');
+            Router.get().setHash('browse');
         });
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {

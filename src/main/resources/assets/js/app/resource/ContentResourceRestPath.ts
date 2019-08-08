@@ -1,7 +1,6 @@
 import Path = api.rest.Path;
 import {LayerChangedEvent} from '../layer/LayerChangedEvent';
 import {LayerContext} from '../layer/LayerContext';
-import {ContentLayer} from '../content/ContentLayer';
 
 export class ContentResourceRestPath {
 
@@ -13,7 +12,7 @@ export class ContentResourceRestPath {
 
     private constructor() {
         this.parentPath = Path.fromString(api.util.UriHelper.getRestUri(''));
-        this.resourcePath = Path.fromParent(this.parentPath, `cms/default/${ContentLayer.DEFAULT_LAYER_NAME}`);
+        this.resourcePath = Path.fromParent(this.parentPath, `cms/default/${LayerContext.get().getCurrentLayer().getName()}`);
 
         LayerChangedEvent.on(() => {
             const layerName: string = LayerContext.get().getCurrentLayer().getName();
