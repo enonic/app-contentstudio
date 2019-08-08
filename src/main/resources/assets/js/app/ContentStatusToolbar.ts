@@ -19,7 +19,7 @@ export class ContentStatusToolbar
         statusWrapper.appendChildren(this.status, this.author);
     }
 
-    setItem(item: ContentSummaryAndCompareStatus, silent?: boolean) {
+    setItem(item: ContentSummaryAndCompareStatus) {
         if (item && !item.equals(this.getItem())) {
             const content = ContentSummaryAndCompareStatus
                 .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
