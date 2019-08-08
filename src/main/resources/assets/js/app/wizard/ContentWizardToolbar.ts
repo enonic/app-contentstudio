@@ -20,6 +20,7 @@ export class ContentWizardToolbar
     private stateElement: api.dom.Element;
     private hasUnsavedChanges: boolean;
     private isValid: boolean;
+    private skipNextIconStateUpdate: boolean;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -45,6 +46,10 @@ export class ContentWizardToolbar
     setHasUnsavedChanges(value: boolean) {
         this.hasUnsavedChanges = value;
         this.updateStateIconElement();
+    }
+
+    setSkipNextIconStateUpdate(skipIconStateUpdate: boolean) {
+        this.skipNextIconStateUpdate = skipIconStateUpdate;
     }
 
     private addHomeButton(application: Application) {
@@ -120,6 +125,11 @@ export class ContentWizardToolbar
     }
 
     private updateStateIconElement() {
+        if (this.skipNextIconStateUpdate) {
+            this.skipNextIconStateUpdate = false;
+            return;
+        }
+
         const isReady: boolean = this.isValid && !this.hasUnsavedChanges && this.isContentReady();
         const isInProgress: boolean = this.isValid && (this.hasUnsavedChanges || this.isContentInProgress());
         this.stateElement.getEl().removeAttribute('title');
