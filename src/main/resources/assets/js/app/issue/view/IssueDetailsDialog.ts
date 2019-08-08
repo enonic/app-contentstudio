@@ -941,6 +941,7 @@ export class IssueDetailsDialog
     }
 
     close() {
+        this.itemSelector.resetBaseValues();
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();
 
