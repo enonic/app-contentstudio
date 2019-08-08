@@ -19,13 +19,14 @@ export class ContentStatusToolbar
         statusWrapper.appendChildren(this.status, this.author);
     }
 
-    setItem(item: ContentSummaryAndCompareStatus) {
+    setItem(item: ContentSummaryAndCompareStatus, silent?: boolean) {
         if (item && !item.equals(this.getItem())) {
             const content = ContentSummaryAndCompareStatus
                 .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
                 .setPublishStatus(item.getPublishStatus());
+            const isValid = content.getContentSummary() && content.getContentSummary().isValid();
             super.setItem(content);
-            this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
+            this.toggleValid(isValid);
             this.updateStatus(content);
             this.updateAuthor(content);
         }

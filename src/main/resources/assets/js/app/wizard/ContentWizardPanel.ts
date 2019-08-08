@@ -1155,11 +1155,37 @@ export class ContentWizardPanel
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
+        const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         this.currentContent = updatedContent;
         this.persistedContent = updatedContent;
+        this.getMainToolbar().setSkipNextIconStateUpdate(true);
         this.getMainToolbar().setItem(updatedContent);
-        this.updateWorkflowStateIcons();
+        if (!isUpdatedAndRenamed) {
+            this.updateWorkflowStateIcons();
+        }
         this.contextSplitPanel.setContent(updatedContent);
+    }
+
+    private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
+        // When the content without displayName and name is saved with new
+        // names and became valid, the server will generate 2 sequential
+        // `NodeServerChangeType.UPDATE` events.
+        const noContent = updatedContent == null ||
+                          this.currentContent == null ||
+                          updatedContent.getContentSummary() == null ||
+                          this.currentContent.getContentSummary() == null;
+
+        if (noContent) {
+            return false;
+        }
+
+        const oldItem = this.currentContent.getContentSummary();
+        const wasUnnamed = !oldItem.getDisplayName() && (oldItem.getName() != null && oldItem.getName().isUnnamed());
+
+        const newContent = updatedContent.getContentSummary();
+        const hasName = !!newContent.getDisplayName() && (newContent.getName() != null && !newContent.getName().isUnnamed());
+
+        return wasUnnamed && hasName;
     }
 
     private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
