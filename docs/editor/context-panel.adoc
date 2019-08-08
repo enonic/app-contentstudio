@@ -6,7 +6,7 @@ This panel is a multi-function tool that can be toggled open and closed with the
 
 == Components
 
-Using the components widget, you can choose the template for the page, then drag and drop components onto the page.
+Using the components widget, you can choose the template for the page, then drag and drop components onto the page.  This widget consist of two tabs, Insert and Inspect.
 
 === Insert tab
 
@@ -14,11 +14,11 @@ This tab has a list of Component types that can be added to the page in a two st
 
 For example, to add a part component called “Categories” to the page, simply click the part icon (puzzle piece) and drag it to a region in the page editor. A red circle appears when the component is dragged over an area where it cannot be dropped. A green checkbox appears when dragged over valid locations and a blue box shows where the component will land.
 
-image::context-panel_insert.png[]
+image::context-panel_insert.png[Placing the part component, 697px]
 
 Once the part placeholder is dropped, it will have a combo-box where the “Categories” part can be selected from the list. When a component placeholder is selected, the inspection panel will also show a combo-box with a list of available part components.
 
-image::context-panel_insert2.png[]
+image::context-panel_insert2.png[Selecting the categories part, 440px]
 
 === Inspect tab
 
@@ -32,22 +32,22 @@ The inspect tab is also used for changing the default page template of a selecte
 
 The details widget will show some basic information about the selected component, including location, status, permissions, basic meta data, component type and attachments.
 
-image::context-panel_details.png[]
+image::context-panel_details.png[Details Panel, 275px]
 
 == Version History
 
 This widget lists all versions of the selected content, highlighting the published version, if there is one, and makes it possible to restore old versions.
 
-image::context-panel_history.png[]
+image::context-panel_history.png[Version history, 275px]
 
 == Dependencies
 
 Here are two quick links to content that are referencing the current content (inbound) and content that the current conntent is referencing (outbound).  Click on either box to see the content in a new window.
 
-image::context-panel_dependencies.png[]
+image::context-panel_dependencies.png[Dependencies, 276px]
 
 == Emulator
 
 This widget has buttons for emulating various sized devices. The page editor will shrink and expand to fit the selected device size.
 
-image::context-panel_emulator.png[]
+image::context-panel_emulator.png[Emulator, 631px]
