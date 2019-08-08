@@ -941,6 +941,8 @@ export class IssueDetailsDialog
     }
 
     close() {
+        // FormInputEl:32
+        // setValue(originalValue) will be called on show() after setIssue() so reset originalValue to current
         this.itemSelector.resetBaseValues();
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();
