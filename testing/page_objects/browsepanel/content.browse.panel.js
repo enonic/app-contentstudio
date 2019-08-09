@@ -7,6 +7,7 @@ const CreateIssueDialog = require('../issue/create.issue.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
+const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -223,6 +224,7 @@ class ContentBrowsePanel extends Page {
         return await this.clickOnElement(this.publishTreeButton);
     }
 
+    //waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
     async clickOnMarkAsReadyButtonAndConfirm() {
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(this.markAsReadyButton);
@@ -461,7 +463,7 @@ class ContentBrowsePanel extends Page {
     waitForDuplicateButtonDisabled() {
         return this.waitForElementDisabled(this.duplicateButton, 3000).catch(err => {
             this.saveScreenshot('err_duplicate_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         })
     }
 
@@ -657,12 +659,32 @@ class ContentBrowsePanel extends Page {
         });
     }
 
+    waitUntilInvalid(selector) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, 'class').then(result => {
+                return result.includes('invalid');
+            });
+        }, 3000).catch(err => {
+            return false;
+        });
+    }
+
+    async waitForPublishMenuItemDisabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+    }
+
+    async waitForPublishMenuItemEnabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+    }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuDropDownVisible();
             await this.clickOnElement(this.showPublishMenuButton);
             let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-            await this.waitForElementEnabled(selector);
+            await this.waitForPublishMenuItemEnabled(menuItem);
             await this.clickOnElement(selector);
             return this.pause(300);
         } catch (err) {
@@ -679,10 +701,15 @@ class ContentBrowsePanel extends Page {
 
     async openPublishMenuAndClickOnRequestPublish() {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-        //TODO
+        let requestContentPublishDialog = new RequestContentPublishDialog();
+        return await requestContentPublishDialog.waitForDialogLoaded();
     }
 
     async openPublishMenuAndClickOnMarAsReady() {
+        return await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
+    }
+
+    async openPublishMenuAndClickOnMarAsReadyAndConfirm() {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
         let confirmationDialog = new ConfirmationDialog();
         return await confirmationDialog.clickOnYesButton();
