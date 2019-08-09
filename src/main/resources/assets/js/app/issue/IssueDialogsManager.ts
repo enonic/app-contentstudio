@@ -7,6 +7,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
+import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
 import ModalDialog = api.ui.dialog.ModalDialog;
 
 export class IssueDialogsManager {
@@ -17,6 +18,7 @@ export class IssueDialogsManager {
     private listDialog: IssueListDialog;
     private createDialog: CreateIssueDialog;
     private publishDialog: ContentPublishDialog;
+    private requestPublishDialog: RequestContentPublishDialog;
 
     private issue: Issue;
 
@@ -33,6 +35,7 @@ export class IssueDialogsManager {
         this.listDialog = IssueListDialog.get();
         this.createDialog = CreateIssueDialog.get();
         this.publishDialog = ContentPublishDialog.get();
+        this.requestPublishDialog = RequestContentPublishDialog.get();
 
         this.initHandlers();
         this.initListeners();
@@ -78,6 +81,7 @@ export class IssueDialogsManager {
         this.listenListDialog();
         this.listenDetailsDialog();
         this.listenPublishDialog();
+        this.listenRequestPublishDialog();
     }
 
     private listenCreateDialog() {
@@ -131,6 +135,13 @@ export class IssueDialogsManager {
                 IssueDialogsManager.closeDialog(this.detailsDialog);
                 IssueServerEventsHandler.getInstance().onIssueUpdated(this.issueUpdateHandler);
             }
+        });
+    }
+
+    private listenRequestPublishDialog() {
+        this.requestPublishDialog.onIssueCreated(issue => {
+            this.notifyIssueCreated(issue);
+            IssueDialogsManager.get().openDetailsDialog(issue);
         });
     }
 
