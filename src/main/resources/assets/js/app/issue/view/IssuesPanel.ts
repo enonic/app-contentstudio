@@ -383,6 +383,10 @@ export class IssuesPanel
 
     private updateCurrentTotal(): wemQ.Promise<void> {
         const total = this.isAllVisible() ? this.getTotalIssues() : this.openedIssues;
+
+        const shouldDisableFilter = total.all === 0;
+        this.toggleClass('no-filter', shouldDisableFilter);
+
         let count = 0;
         if (this.isAllOptionsSelected() || this.isNoOptionsSelected()) {
             count = total.all;
@@ -391,7 +395,7 @@ export class IssuesPanel
         } else if (this.isAssignedByMeSelected()) {
             count = total.assignedByMe;
         }
-        return this.issuesList.updateCurrentTotal(count);
+        return this.issuesList.updateCurrentTotal(count); //
     }
 
     private updateAssignedToMeOption(total: number) {
