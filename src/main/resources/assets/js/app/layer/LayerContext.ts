@@ -1,4 +1,5 @@
 import {ContentLayer} from '../content/ContentLayer';
+import {LayerChangedEvent} from './LayerChangedEvent';
 
 export class LayerContext {
 
@@ -23,6 +24,11 @@ export class LayerContext {
     }
 
     setCurrentLayer(layer: ContentLayer) {
+        this.currentLayer = layer;
+        new LayerChangedEvent().fire();
+    }
+
+    updateCurrentLayer(layer: ContentLayer) {
         this.currentLayer = layer;
     }
 }

@@ -1,140 +1,146 @@
-.appbar.has-layers {
-
-  overflow: visible;
-
+.content-appbar {
   .layer-selector {
-    flex-grow: 1;
-    max-width: 360px;
-    height: 100%;
-    margin: auto;
-    position: relative;
-    z-index: @z-index-mask + 1;
+    display: none;
+  }
 
-    .selected-layer-view {
+  &.has-layers {
+    overflow: visible;
+
+    .layer-selector {
+      display: block;
+      flex-grow: 1;
+      max-width: 360px;
       height: 100%;
-      display: flex;
-      justify-content: center;
-      cursor: pointer;
+      margin: auto;
+      position: relative;
+      z-index: @z-index-mask + 1;
 
-      .layer-viewer {
+      .selected-layer-view {
         height: 100%;
         display: flex;
-        align-items: center;
-        margin-right: 10px;
+        justify-content: center;
+        cursor: pointer;
 
-        .names-and-icon-view {
+        .layer-viewer {
+          height: 100%;
           display: flex;
           align-items: center;
+          margin-right: 10px;
 
-          .xp-admin-common-names-view {
-            margin-left: 0px;
+          .names-and-icon-view {
+            display: flex;
+            align-items: center;
 
-            .xp-admin-common-main-name {
-              height: 18px;
+            .xp-admin-common-names-view {
+              margin-left: 0px;
+
+              .xp-admin-common-main-name {
+                height: 18px;
+              }
+
+              .xp-admin-common-sub-name {
+                display: none;
+              }
             }
+          }
+        }
+      }
 
-            .xp-admin-common-sub-name {
-              display: none;
-            }
+      .layer-viewer {
+        cursor: pointer;
+
+        .names-and-icon-view {
+          cursor: pointer;
+
+          .xp-admin-common-main-name {
+            color: @admin-white;
+            cursor: pointer;
+          }
+
+          .xp-admin-common-sub-name {
+            color: @admin-font-gray1;
+            cursor: pointer;
+          }
+
+          .icon-layers {
+            color: @admin-white;
+          }
+        }
+      }
+
+      .xp-admin-common-dropdown-handle {
+        position: relative;
+        width: 44px;
+
+        &::after {
+          border-top-color: @admin-white;
+        }
+      }
+
+      .layers-list-items {
+        position: absolute;
+        z-index: 2;
+        width: 100%;
+        background-color: @admin-bg-dark-gray;
+
+        .list-header {
+          padding: 10px 10px 10px 25px;
+          background-color: #242424;
+
+          .main {
+            color: @admin-white;
+          }
+
+          .sub {
+            color: @admin-font-gray1;
+          }
+        }
+
+        .layers-list-item {
+          .edit-button, .remove-button {
+            display: none;
+          }
+
+          padding: 5px 10px 5px 0px;
+          cursor: pointer;
+
+          &.level-1 {
+            padding-left: 15px;
+          }
+
+          &.level-2 {
+            padding-left: 30px;
+          }
+
+          &.level-3 {
+            padding-left: 45px;
+          }
+
+          &.level-4 {
+            padding-left: 60px;
+          }
+
+          &.level-5 {
+            padding-left: 75px;
+          }
+
+          .layer-viewer {
+            padding: 5px 10px;
+          }
+
+          &:hover {
+            background-color: @admin-dark-gray;
+          }
+
+          &.selected {
+            background-color: #3e77ac;
           }
         }
       }
     }
 
-    .layer-viewer {
-      cursor: pointer;
-
-      .names-and-icon-view {
-        cursor: pointer;
-
-        .xp-admin-common-main-name {
-          color: @admin-white;
-          cursor: pointer;
-        }
-
-        .xp-admin-common-sub-name {
-          color: @admin-font-gray1;
-          cursor: pointer;
-        }
-
-        .icon-layers {
-          color: @admin-white;
-        }
-      }
+    .show-issues-button-wrapper {
+      width: auto;
     }
-
-    .xp-admin-common-dropdown-handle {
-      position: relative;
-      width: 44px;
-
-      &::after {
-        border-top-color: @admin-white;
-      }
-    }
-
-    .layers-list-items {
-      position: absolute;
-      z-index: 2;
-      width: 100%;
-      background-color: @admin-bg-dark-gray;
-
-      .list-header {
-        padding: 10px 10px 10px 25px;
-        background-color: #242424;
-
-        .main {
-          color: @admin-white;
-        }
-
-        .sub {
-          color: @admin-font-gray1;
-        }
-      }
-
-      .layers-list-item {
-        .edit-button, .remove-button {
-          display: none;
-        }
-
-        padding: 5px 10px 5px 0px;
-        cursor: pointer;
-
-        &.level-1 {
-          padding-left: 15px;
-        }
-
-        &.level-2 {
-          padding-left: 30px;
-        }
-
-        &.level-3 {
-          padding-left: 45px;
-        }
-
-        &.level-4 {
-          padding-left: 60px;
-        }
-
-        &.level-5 {
-          padding-left: 75px;
-        }
-
-        .layer-viewer {
-          padding: 5px 10px;
-        }
-
-        &:hover {
-          background-color: @admin-dark-gray;
-        }
-
-        &.selected {
-          background-color: #3e77ac;
-        }
-      }
-    }
-  }
-
-  .show-issues-button-wrapper {
-    width: auto;
   }
 }

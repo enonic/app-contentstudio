@@ -43,8 +43,9 @@ import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
 import {ListContentLayerRequest} from './app/resource/layer/ListContentLayerRequest';
 import {ContentLayer} from './app/content/ContentLayer';
 import {LayerContext} from './app/layer/LayerContext';
-import {LayerSelector} from './app/layer/LayerSelector';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
+import {LayerServerEventsHandler} from './app/layer/event/LayerServerEventsHandler';
+import {ContentAppBar} from './app/ContentAppBar';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -357,6 +358,7 @@ function startApplication() {
 
     ContentServerEventsHandler.getInstance().start();
     IssueServerEventsHandler.getInstance().start();
+    LayerServerEventsHandler.getInstance().start();
 }
 
 function initCurrentContentLayer(application: api.app.Application, layers: ContentLayer[]) {
@@ -443,19 +445,14 @@ function startContentApplication(application: api.app.Application, layers: Conte
 
     import('./app/ContentAppPanel').then(cdef => {
 
-        const appBar = new api.app.bar.AppBar(application);
+        const appBar = new ContentAppBar(application);
 
         const appPanel = new cdef.ContentAppPanel(application.getPath());
         const buttonWrapper = new api.dom.DivEl('show-issues-button-wrapper');
 
         buttonWrapper.appendChild(new ShowIssuesDialogButton());
         appBar.appendChild(buttonWrapper);
-
-        if (layers.length > 1) {
-            const layerSelector: LayerSelector = new LayerSelector(layers);
-            appBar.insertChild(layerSelector, 1);
-            appBar.addClass('has-layers');
-        }
+        appBar.setLayers(layers);
 
         initSearchPanelListener(appPanel);
 

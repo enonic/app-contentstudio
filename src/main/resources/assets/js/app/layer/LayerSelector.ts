@@ -24,15 +24,14 @@ export class LayerSelector
 
     private clickOutsideListener: (event: MouseEvent) => void;
 
-    constructor(layers: ContentLayer[]) {
+    constructor() {
         super('layer-selector');
 
-        this.initElements(layers);
-        this.setInitialData(layers);
+        this.initElements();
         this.initListeners();
     }
 
-    private initElements(layers: ContentLayer[]) {
+    private initElements() {
         this.header = new DivEl('selected-layer-view');
         this.headerLayerViewer = new LayerViewer();
         this.dropdownHandle = new DropdownHandle();
@@ -56,23 +55,12 @@ export class LayerSelector
         };
     }
 
-    private setInitialData(layers: ContentLayer[]) {
+    setLayers(layers: ContentLayer[]) {
         const selectedLayer: ContentLayer = LayerContext.get().getCurrentLayer();
         this.headerLayerViewer.setObject(selectedLayer);
 
         this.layersList.setItems(layers);
         this.layersList.selectLayer(selectedLayer);
-    }
-
-    private initListeners() {
-
-        this.header.onClicked((event: MouseEvent) => {
-            if (this.isLayersListShown) {
-                this.hideLayersList();
-            } else {
-                this.showLayersList();
-            }
-        });
 
         this.layersList.getItemViews().forEach((layersListItem: LayersListItem) => {
             layersListItem.onClicked(() => {
@@ -81,11 +69,23 @@ export class LayerSelector
         });
     }
 
+    private initListeners() {
+        this.header.onClicked((event: MouseEvent) => {
+            if (this.isLayersListShown) {
+                this.hideLayersList();
+            } else {
+                this.showLayersList();
+            }
+        });
+
+        LayerChangedEvent.on(() => {
+            this.headerLayerViewer.setObject(LayerContext.get().getCurrentLayer());
+        });
+    }
+
     private handleListItemSelected(layersListItem: LayersListItem) {
         if (!layersListItem.getLayer().equals(LayerContext.get().getCurrentLayer())) {
-            this.headerLayerViewer.setObject(layersListItem.getLayer());
             LayerContext.get().setCurrentLayer(layersListItem.getLayer());
-            new LayerChangedEvent().fire();
         }
 
         this.hideLayersList();

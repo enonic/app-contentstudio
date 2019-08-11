@@ -1,22 +1,19 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
-import {ContentLayer} from '../../../../content/ContentLayer';
 import {LayerViewer} from '../../../../layer/LayerViewer';
 import {LayerDetailsDialog} from '../../../../layer/LayerDetailsDialog';
 import {LayersListDialog} from '../../../../layer/LayersListDialog';
+import {LayerContext} from '../../../../layer/LayerContext';
 import i18n = api.util.i18n;
 
-export class LayersWidgetStateViewMultiLayers
+export class LayersWidgetStateViewCurrentLayer
     extends LayersWidgetStateView {
 
     private viewer: LayerViewer;
 
-    private layer: ContentLayer;
-
-    constructor(layer: ContentLayer) {
+    constructor() {
         super('multi-layers');
 
-        this.layer = layer;
-        this.viewer.setObject(layer);
+        this.viewer.setObject(LayerContext.get().getCurrentLayer());
     }
 
     protected initElements() {
@@ -33,7 +30,7 @@ export class LayersWidgetStateViewMultiLayers
         const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.settings'));
 
         action.onExecuted(() => {
-            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(this.layer);
+            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(LayerContext.get().getCurrentLayer());
             layerDetailsDialog.open();
             layerDetailsDialog.onBackButtonClicked(() => {
                 LayersListDialog.get().open();

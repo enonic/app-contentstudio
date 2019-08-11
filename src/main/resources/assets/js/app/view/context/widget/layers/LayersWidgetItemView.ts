@@ -3,13 +3,15 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {ListContentLayerRequest} from '../../../../resource/layer/ListContentLayerRequest';
 import {ContentLayer} from '../../../../content/ContentLayer';
 import {LayersWidgetStateViewNoLayers} from './LayersWidgetStateViewNoLayers';
-import {LayersWidgetStateViewMultiLayers} from './LayersWidgetStateViewMultiLayers';
 import {LayersWidgetStateViewInherited} from './LayersWidgetStateViewInherited';
 import {LayersWidgetStateViewLocal} from './LayersWidgetStateViewLocal';
 import {LayerContext} from '../../../../layer/LayerContext';
+import {LayerServerEventsHandler} from '../../../../layer/event/LayerServerEventsHandler';
+import {LayerChangedEvent} from '../../../../layer/LayerChangedEvent';
+import {LayersWidgetStateViewCurrentLayer} from './LayersWidgetStateViewCurrentLayer';
 
 enum LayersWidgetState {
-    NO_LAYERS, MULTI_LAYERS, INHERITED, LOCAL
+    NO_LAYERS, CURRENT_LAYER, INHERITED, LOCAL
 }
 
 export class LayersWidgetItemView
@@ -19,10 +21,50 @@ export class LayersWidgetItemView
 
     private item: ContentSummaryAndCompareStatus;
 
-    private currentLayer: ContentLayer;
-
     constructor() {
         super('layers-widget-item-view');
+
+        this.listenLayerEvents();
+    }
+
+    private listenLayerEvents() {
+        const updateWidgetStateFunc: (layers: ContentLayer[]) => void = this.updateWidgetState.bind(this);
+        LayerServerEventsHandler.getInstance().onLayerCreated(updateWidgetStateFunc);
+        LayerServerEventsHandler.getInstance().onLayerDeleted(updateWidgetStateFunc);
+        LayerServerEventsHandler.getInstance().onLayerUpdated(updateWidgetStateFunc);
+        LayerChangedEvent.on(this.refresh.bind(this));
+    }
+
+    private updateWidgetState(layers: ContentLayer[]) {
+        if (this.item) {
+            this.updateWidgetStateItemSelected(layers);
+        } else {
+            this.updateWidgetStateNoItemSelected(layers);
+        }
+    }
+
+    private updateWidgetStateItemSelected(layers: ContentLayer[]) {
+        if (layers.length > 1) {
+            if (LayerContext.get().getCurrentLayer().isBaseLayer()) {
+                this.setState(LayersWidgetState.CURRENT_LAYER);
+            } else {
+                if (this.item.getContentSummary().isInherited()) {
+                    this.setState(LayersWidgetState.INHERITED);
+                } else {
+                    this.setState(LayersWidgetState.LOCAL);
+                }
+            }
+        } else {
+            this.setState(LayersWidgetState.NO_LAYERS);
+        }
+    }
+
+    private updateWidgetStateNoItemSelected(layers: ContentLayer[]) {
+        if (layers.length > 1) {
+            this.setState(LayersWidgetState.CURRENT_LAYER);
+        } else {
+            this.setState(LayersWidgetState.NO_LAYERS);
+        }
     }
 
     public layout(): wemQ.Promise<any> {
@@ -39,22 +81,7 @@ export class LayersWidgetItemView
         this.item = item;
 
         return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            this.currentLayer = this.getCurrentLayer();
-
-            if (layers.length > 1) {
-                if (this.currentLayer.isBaseLayer()) {
-                    this.setState(LayersWidgetState.MULTI_LAYERS);
-                } else {
-                    if (item.getContentSummary().isInherited()) {
-                        this.setState(LayersWidgetState.INHERITED);
-                    } else {
-                        this.setState(LayersWidgetState.LOCAL);
-                    }
-                }
-            } else {
-                this.setState(LayersWidgetState.NO_LAYERS);
-            }
-
+            this.updateWidgetStateItemSelected(layers);
             return wemQ(null);
         }).catch(api.DefaultErrorHandler.handle);
     }
@@ -63,16 +90,11 @@ export class LayersWidgetItemView
         this.item = null;
 
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            if (layers.length > 1) {
-                this.currentLayer = this.getCurrentLayer();
-                this.setState(LayersWidgetState.MULTI_LAYERS);
-            } else {
-                this.setState(LayersWidgetState.NO_LAYERS);
-            }
+            this.updateWidgetStateNoItemSelected(layers);
         }).catch(api.DefaultErrorHandler.handle);
     }
 
-    setState(value: LayersWidgetState) {
+    private setState(value: LayersWidgetState) {
         this.state = value;
 
         this.refresh();
@@ -85,8 +107,8 @@ export class LayersWidgetItemView
         case LayersWidgetState.NO_LAYERS:
             this.showNoLayers();
             break;
-        case LayersWidgetState.MULTI_LAYERS:
-            this.showMultiLayers();
+        case LayersWidgetState.CURRENT_LAYER:
+            this.showCurrentLayer();
             break;
         case LayersWidgetState.INHERITED:
             this.showInherited();
@@ -97,16 +119,12 @@ export class LayersWidgetItemView
         }
     }
 
-    private getCurrentLayer(): ContentLayer {
-        return LayerContext.get().getCurrentLayer();
-    }
-
     private showNoLayers() {
         this.appendChild(new LayersWidgetStateViewNoLayers());
     }
 
-    private showMultiLayers() {
-        this.appendChild(new LayersWidgetStateViewMultiLayers(this.currentLayer));
+    private showCurrentLayer() {
+        this.appendChild(new LayersWidgetStateViewCurrentLayer());
     }
 
     private showInherited() {
