@@ -32,10 +32,7 @@ export class ContentItemPreviewToolbar
             const item = this.getItem();
             if (item) {
                 const itemId = item.getContentSummary().getContentId();
-                const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(itemId));
-                if (issueHasSelectedContent) {
-                    this.fetchIssues(itemId);
-                }
+                this.fetchIssues(itemId);
             }
         };
 
