@@ -338,7 +338,7 @@ function startApplication() {
     });
 
     import('./app/publish/RequestContentPublishDialog').then(def => {
-        const requestContentPublishDialog = new def.RequestContentPublishDialog();
+        const requestContentPublishDialog = def.RequestContentPublishDialog.get();
         RequestContentPublishPromptEvent.on((event) => {
             requestContentPublishDialog
                 .setContentToPublish(event.getModels())

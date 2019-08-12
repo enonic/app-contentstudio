@@ -1,22 +1,35 @@
-import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {RequestContentPublishPromptEvent} from '../../browse/RequestContentPublishPromptEvent';
+import {BasePublishAction} from './BasePublishAction';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class RequestPublishAction
-    extends Action {
+    extends BasePublishAction {
 
     private wizard: ContentWizardPanel;
 
     constructor(wizard: ContentWizardPanel) {
-        super(i18n('action.requestPublishMore'));
+        super({
+            wizard,
+            label: i18n('action.requestPublishMore')
+        });
 
         this.wizard = wizard;
 
-        this.onExecuted(this.handleExecuted.bind(this));
+        this.onBeforeExecute(() => {
+            if (this.isSaveRequired() || this.wizard.hasUnsavedChanges()) {
+                this.wizard.setIsMarkedAsReady(true);
+                this.wizard.setIsMarkedAsReadyOnPublish(true);
+            }
+        });
     }
 
-    private handleExecuted() {
-        new RequestContentPublishPromptEvent([this.wizard.getContent()]).fire();
+    protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
+        new RequestContentPublishPromptEvent(summary).fire();
+    }
+
+    protected isSaveRequired(): boolean {
+        return this.wizard.getContent().getContentSummary().isInProgress();
     }
 }

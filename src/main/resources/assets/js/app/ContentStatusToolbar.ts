@@ -24,8 +24,9 @@ export class ContentStatusToolbar
             const content = ContentSummaryAndCompareStatus
                 .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
                 .setPublishStatus(item.getPublishStatus());
+            const isValid = content.getContentSummary() && content.getContentSummary().isValid();
             super.setItem(content);
-            this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
+            this.toggleValid(isValid);
             this.updateStatus(content);
             this.updateAuthor(content);
         }

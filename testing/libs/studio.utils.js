@@ -495,7 +495,7 @@ module.exports = {
 
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
-        return launcherPanel.waitForPanelDisplayed(3000).then(result => {
+        return launcherPanel.waitForPanelDisplayed(2000).then(result => {
             if (result) {
                 console.log("Launcher Panel is opened, click on the `Content Studio` link...");
                 return launcherPanel.clickOnContentStudioLink();

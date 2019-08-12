@@ -41,16 +41,13 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             let issueDetailsDialog = new IssueDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
+            return studioUtils.doAddReadyFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            }).then(() => {
-                //Click on 'Mark as ready' and confirm it in the modal dialog
-                return contentBrowsePanel.openPublishMenuAndClickOnMarAsReady();
             }).then(() => {
                 // Publish button is getting visible, because the content is 'New' and valid
                 return contentBrowsePanel.waitForPublishButtonVisible();
             }).then(() => {
-                //open 'Create Issue' dialog
+                //expand the menu and open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);

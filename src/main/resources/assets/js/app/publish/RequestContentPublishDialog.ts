@@ -7,7 +7,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
 import {PublishRequest} from '../issue/PublishRequest';
 import {PublishRequestItem} from '../issue/PublishRequestItem';
-import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {IssueType} from '../issue/IssueType';
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
@@ -26,6 +25,8 @@ import PrincipalType = api.security.PrincipalType;
 export class RequestContentPublishDialog
     extends BasePublishDialog {
 
+    private static INSTANCE: RequestContentPublishDialog;
+
     private requestPublishAction: Action;
 
     private requestDetailsPropertySet: api.data.PropertySet;
@@ -40,7 +41,9 @@ export class RequestContentPublishDialog
 
     private detailsFormView: api.form.FormView;
 
-    constructor() {
+    private issueCreatedListeners: { (issue: Issue): void }[] = [];
+
+    protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
@@ -51,6 +54,14 @@ export class RequestContentPublishDialog
         });
     }
 
+    public static get(): RequestContentPublishDialog {
+        if (!RequestContentPublishDialog.INSTANCE) {
+            RequestContentPublishDialog.INSTANCE = new RequestContentPublishDialog();
+        }
+
+        return RequestContentPublishDialog.INSTANCE;
+    }
+
     protected initActions() {
         super.initActions();
 
@@ -58,11 +69,8 @@ export class RequestContentPublishDialog
             this.doRequestPublish();
         }, i18n('action.createRequest'));
 
-        this.prevAction = new api.ui.Action(i18n('action.previous'))
-            .onExecuted((action: Action) => this.goToStep(0));
-
-        this.nextAction = new api.ui.Action(i18n('action.next'))
-            .onExecuted((action: Action) => this.goToStep(1));
+        this.prevAction = new api.ui.Action(i18n('action.previous')).onExecuted(() => this.goToStep(0));
+        this.nextAction = new api.ui.Action(i18n('action.next')).onExecuted(() => this.goToStep(1));
     }
 
     protected initElements() {
@@ -198,7 +206,7 @@ export class RequestContentPublishDialog
 
         createIssueRequest.sendAndParse().then((issue: Issue) => {
             api.notify.showSuccess(i18n('notify.publishRequest.created'));
-            IssueDialogsManager.get().openDetailsDialog(issue);
+            this.notifyIssueCreated(issue);
         }).catch((reason) => {
             this.unlockControls();
             this.close();
@@ -246,11 +254,22 @@ export class RequestContentPublishDialog
         this.nextAction.setEnabled(canPublish);
     }
 
-
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
         const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
         this.requestPublishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.createRequest')));
+    }
+
+    private notifyIssueCreated(issue: Issue) {
+        this.issueCreatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onIssueCreated(listener: (issue: Issue) => void) {
+        this.issueCreatedListeners.push(listener);
+    }
+
+    public unIssueCreated(listener: (issue: Issue) => void) {
+        this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
     }
 }
 

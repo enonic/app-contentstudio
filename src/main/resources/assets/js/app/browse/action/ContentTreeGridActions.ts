@@ -548,11 +548,12 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
 
         const allValid: boolean = items.every(item => item.getContentSummary().isValid());
+
         if (!allValid) {
             return false;
         }
 
-        return items.some(item => (!item.isOnline() && !item.getContentSummary().isInProgress()));
+        return items.some(item => (!item.isOnline() && !item.isPendingDelete()));
     }
 
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
