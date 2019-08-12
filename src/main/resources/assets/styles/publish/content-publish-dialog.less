@@ -1,6 +1,6 @@
 .publish-dialog {
 
-  @toggler-width: 35px;
+  .base-publish-dialog();
 
   .modal-dialog-header {
 
@@ -31,71 +31,9 @@
     padding-top: 15px;
   }
 
-  .browse-selection-item .remove {
-    display: flex;
-  }
-
-  .include-child-check {
-    position: absolute;
-    bottom: 40px;
-    left: 38px;
-
-    &.disabled {
-      opacity: 0.5;
-    }
-
-    @media screen and (max-height: 360px) {
-      bottom: 25px;
-    }
-  }
-
   &.is-processing {
-    .publish-schedule-form,
-    .item-list,
-    .include-child-check,
-    .dialog-buttons button.publish-action,
-    .dialog-buttons button.show-schedule-action {
+    .publish-schedule-form {
       display: none;
-    }
-  }
-
-  &.masked {
-    opacity: 0;
-  }
-}
-
-.schedule-publish-dialog {
-  max-width: 580px;
-
-  .modal-dialog-header {
-
-    .schedule-publish-dialog-subtitle {
-      margin-top: 20px;
-      background-color: @form-button-bg;
-      padding: 10px 20px;
-      color: @admin-white;
-      line-height: 22px;
-    }
-  }
-
-  .dialog-buttons {
-    button.confirm-schedule-action {
-      .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
-    }
-  }
-
-  .dialog-content {
-
-
-    .start-label, .end-label {
-      font-size: 14px;
-    }
-
-    .start-label {
-      &:after {
-        content: '*';
-        color: @input-red-text;
-      }
     }
   }
 }

@@ -1,28 +1,15 @@
-import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {PublishDialogItemList} from './PublishDialogItemList';
-import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
-import {PublishProcessor} from './PublishProcessor';
-import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
-import {Issue} from '../issue/Issue';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
-import {PublishIssuesStateBar} from './PublishIssuesStateBar';
-import {PublishScheduleForm} from './PublishScheduleForm';
 import ContentId = api.content.ContentId;
-import ListBox = api.ui.selector.list.ListBox;
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
-import Principal = api.security.Principal;
 import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
 import KeyHelper = api.ui.KeyHelper;
-import PropertyEvent = api.data.PropertyEvent;
 import TaskState = api.task.TaskState;
 
 /**
@@ -38,19 +25,9 @@ export class ContentPublishDialog
 
     private publishAction: Action;
 
-    private publishProcessor: PublishProcessor;
-
-    private currentUser: Principal;
-
     private publishSubTitle: ContentPublishDialogSubTitle;
 
-    private publishScheduleForm: PublishScheduleForm;
-
     private scheduleAction: api.ui.Action;
-
-    private scheduleFormPropertySet: api.data.PropertySet;
-
-    private publishIssuesStateBar: PublishIssuesStateBar;
 
     private message: string;
 
@@ -96,96 +73,24 @@ export class ContentPublishDialog
 
         this.publishSubTitle = new ContentPublishDialogSubTitle();
 
-        this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
-
         this.actionButton = this.addAction(this.publishAction);
         this.addAction(this.scheduleAction);
 
-        this.scheduleFormPropertySet = new api.data.PropertySet();
-        this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
         this.publishScheduleForm.setScheduleNote(i18n('dialog.schedule.subname'));
         this.publishScheduleForm.layout(false);
-        this.scheduleFormPropertySet.onChanged((event: PropertyEvent) => {
-            this.updateControls();
-        });
+
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
-            this.updateControls();
             this.publishAction.setVisible(!visible);
             this.scheduleAction.setVisible(visible);
         });
-
-        this.publishIssuesStateBar = new PublishIssuesStateBar();
-
-        this.loadCurrentUser();
-    }
-
-    protected postInitElements() {
-        super.postInitElements();
-
-        this.addClickIgnoredElement(CreateIssueDialog.get());
-
-        this.lockControls();
     }
 
     protected initListeners() {
         super.initListeners();
 
-        this.publishProcessor.onLoadingStarted(this.handleLoadStarted.bind(this));
-        this.publishProcessor.onLoadingFinished(this.handleLoadFinished.bind(this));
-        this.publishProcessor.onLoadingFailed(this.handleLoadFailed.bind(this));
-        this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
-
-        this.handleIssueGlobalEvents();
-    }
-
-    private handleLoadStarted() {
-        this.lockControls();
-        this.showLoadMask();
-        this.setSubTitle(i18n('dialog.publish.resolving'));
-        this.publishIssuesStateBar.reset();
-    }
-
-    private handleLoadFinished() {
-        const header: string = this.getDependantsHeader(this.getDependantList().isVisible());
-        this.updateDependantsHeader(header);
-        this.updateChildItemsToggler();
-
-        if (this.publishProcessor.containsInvalidDependants() || !this.isAllPublishable()) {
-            this.setDependantListVisible(true);
-        }
-
-        this.hideLoadMask();
-        this.updateShowScheduleDialogButton();
-
-        const itemsToPublish: number = this.countTotal();
-        this.updateSubTitle(itemsToPublish);
-        this.updateButtonCount(null, itemsToPublish);
-        this.updateControls(itemsToPublish);
-    }
-
-    private updateChildItemsToggler() {
-        const ids: ContentId[] = this.getContentToPublishIds();
-
-        new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
-            const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
-            this.getItemList().setContainsToggleable(toggleable);
-
-            children.getResult().forEach((requestedResult) => {
-                const item = this.getItemList().getItemViewById(requestedResult.getId());
-
-                if (item) {
-                    item.setTogglerActive(requestedResult.getHasChildren());
-                }
-            });
+        this.publishProcessor.onLoadingFailed(() => {
+            this.setSubTitleMessage('');
         });
-    }
-
-    private handleLoadFailed() {
-        this.setSubTitleMessage('');
-        this.publishIssuesStateBar.showLoadFailed();
-        this.publishIssuesStateBar.addClass('has-issues');
-        this.toggleAction(false);
-        this.hideLoadMask();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -200,113 +105,26 @@ export class ContentPublishDialog
         });
     }
 
-    private loadCurrentUser() {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-            this.currentUser = loginResult.getUser();
-        });
-    }
-
-    private handleIssueGlobalEvents() {
-
-        IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
-            if (this.isVisible()) {
-                if (issues.some((issue) => this.isIssueCreatedByCurrentUser(issue))) {
-                    this.close();
-                }
-            }
-        });
-    }
-
-    isIssueCreatedByCurrentUser(issue: Issue): boolean {
-        if (!issue.getCreator()) {
-            return false;
-        }
-
-        return issue.getCreator() === this.currentUser.getKey().toString();
-    }
-
-    protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
-    }
-
-    protected getDependantList(): PublishDialogDependantList {
-        return <PublishDialogDependantList>super.getDependantList();
-    }
 
     getButtonRow(): ContentPublishDialogButtonRow {
         return <ContentPublishDialogButtonRow>super.getButtonRow();
     }
 
     open() {
-        this.publishProcessor.resetExcludedIds();
-        this.publishProcessor.setIgnoreDependantItemsChanged(false);
-
-        CreateIssueDialog.get().reset();
-
         this.publishScheduleForm.setFormVisible(false);
-
-        this.reloadPublishDependencies();
 
         super.open();
     }
 
     close() {
         super.close();
-        this.getItemList().clearExcludeChildrenIds();
+
         this.resetSubTitleMessage();
         this.message = null;
-
-        CreateIssueDialog.get().reset();
-    }
-
-    protected countTotal(): number {
-        return this.publishProcessor.countTotal();
-    }
-
-    protected getDependantIds(): ContentId[] {
-        return this.publishProcessor.getDependantIds();
-    }
-
-    protected setIgnoreItemsChanged(value: boolean) {
-        super.setIgnoreItemsChanged(value);
-        this.publishProcessor.setIgnoreItemsChanged(value);
-    }
-
-    public getContentToPublishIds(): ContentId[] {
-        return this.publishProcessor.getContentToPublishIds();
-    }
-
-    public getExcludedIds(): ContentId[] {
-        return this.publishProcessor.getExcludedIds();
-    }
-
-    public isAllPublishable(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPublishable();
-    }
-
-    private reloadPublishDependencies() {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-
-        this.publishProcessor.reloadPublishDependencies(true);
-    }
-
-    setDependantItems(items: ContentSummaryAndCompareStatus[]) {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-        super.setDependantItems(items);
     }
 
     setContentToPublish(contents: ContentSummaryAndCompareStatus[]): ContentPublishDialog {
-        if (this.isProgressBarEnabled()) {
-            return this;
-        }
-        this.setIgnoreItemsChanged(true);
-        this.setListItems(contents);
-        this.setIgnoreItemsChanged(false);
-        return this;
+        return <ContentPublishDialog>super.setContentToPublish(contents);
     }
 
     setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
@@ -369,15 +187,8 @@ export class ContentPublishDialog
         });
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new PublishDialogItemList();
-    }
 
-    protected getItemList(): PublishDialogItemList {
-        return <PublishDialogItemList>super.getItemList();
-    }
-
-    private updateSubTitle(itemsToPublish: number = this.countTotal()) {
+    protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
         this.setSubTitle('');
 
         if (itemsToPublish === 0) {
@@ -387,41 +198,17 @@ export class ContentPublishDialog
 
         this.setSubTitleMessage(this.message);
 
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const allPublishable: boolean = this.isAllPublishable();
-
-        if (allPublishable && allValid && !containsItemsInProgress) {
-            this.publishIssuesStateBar.removeClass('has-issues');
-            this.publishIssuesStateBar.reset();
-            return;
-        }
-
-        this.publishIssuesStateBar.addClass('has-issues');
-        if (containsItemsInProgress) {
-            this.publishIssuesStateBar.showContainsInProgress();
-        }
-
-        if (!allValid) {
-            this.publishIssuesStateBar.showContainsInvalid();
-        }
-
-        if (!allPublishable) {
-            this.publishIssuesStateBar.showContainsNotPublishable();
-        }
+        super.updateSubTitle(itemsToPublish);
     }
 
-    private updateControls(itemsToPublish: number = this.countTotal()) {
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const allPublishable: boolean = this.isAllPublishable();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable && !containsItemsInProgress;
-        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
+
+    protected updateControls(itemsToPublish: number = this.countTotal()) {
+        super.updateControls(itemsToPublish);
+
+        const canPublish = this.isCanPublish(itemsToPublish);
+        const scheduleValid = this.isScheduleFormValid();
 
         this.toggleAction(canPublish && scheduleValid);
-
-        this.getButtonRow().focusDefaultAction();
-        this.updateTabbable();
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
@@ -429,27 +216,6 @@ export class ContentPublishDialog
 
         this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
         this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
-    }
-
-    protected doScheduledAction() {
-        this.doPublish(true);
-    }
-
-    protected isScheduleButtonAllowed(): boolean {
-        return this.isAllPublishable() && this.areSomeItemsOffline();
-    }
-
-    private areSomeItemsOffline(): boolean {
-        let summaries: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
-        return summaries.some((summary) => summary.getCompareStatus() === CompareStatus.NEW);
-    }
-
-    private areItemsAndDependantsValid(): boolean {
-        return !this.publishProcessor.containsInvalidItems();
-    }
-
-    private containsItemsInProgress(): boolean {
-        return this.publishProcessor.containsItemsInProgress();
     }
 
     protected lockControls() {
