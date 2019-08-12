@@ -163,7 +163,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             //Drop down handle for issues gets not visible(exception will be thrown after the timeout)
             await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
         });
-//verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
+    //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
     it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
         () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();

@@ -342,6 +342,22 @@ class Page {
         });
     }
 
+    waitForAttributeHasValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value:" + value);
+    }
+
+    waitForAttributeNotIncludesValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return !result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value: " + value);
+    }
+
     //is checkbox selected...
     async isSelected(selector) {
         let elems = await this.findElements(selector);
