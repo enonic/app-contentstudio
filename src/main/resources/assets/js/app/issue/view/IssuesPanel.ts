@@ -281,7 +281,6 @@ export class IssuesPanel
             this.updateCurrentTotal();
         }
 
-        this.issuesToggler.setEnabled(true);
         this.issuesToggler.turnOn();
         this.issuesList.updateIssueStatus(IssueStatus.OPEN);
     }
@@ -310,33 +309,19 @@ export class IssuesPanel
 
     private updateIssuesToggler() {
         let closedCount = 0;
-        let openedCount = 0;
         const allCanBeSelected = this.isNoOptionsSelected() && this.isAllOptionsSelectable();
         if (this.isAllOptionsSelected() || allCanBeSelected) {
             closedCount = this.closedIssues.all;
-            openedCount = this.openedIssues.all;
         } else if (this.isAssignedToMeSelected()) {
             closedCount = this.closedIssues.assignedToMe;
-            openedCount = this.openedIssues.assignedToMe;
         } else if (this.isAssignedByMeSelected()) {
             closedCount = this.closedIssues.assignedByMe;
-            openedCount = this.openedIssues.assignedByMe;
         }
 
         this.issuesToggler.updateLabels({
             onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), closedCount),
             offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
-
-        this.updateIssuesTogglerStatus(closedCount, openedCount);
-    }
-
-    private updateIssuesTogglerStatus(closed: number, opened: number) {
-        const noClosedIssues = closed === 0;
-        const noOpenedIssues = opened === 0;
-        const showingClosedIssues = this.issuesToggler.isOff();
-        const disableToggler = (!showingClosedIssues && noClosedIssues) || (showingClosedIssues && noOpenedIssues);
-        this.issuesToggler.setEnabled(!disableToggler);
     }
 
     private updateOptions(): wemQ.Promise<void> {
@@ -383,6 +368,10 @@ export class IssuesPanel
 
     private updateCurrentTotal(): wemQ.Promise<void> {
         const total = this.isAllVisible() ? this.getTotalIssues() : this.openedIssues;
+
+        const shouldDisableFilter = total.all === 0;
+        this.toggleClass('no-filter', shouldDisableFilter);
+
         let count = 0;
         if (this.isAllOptionsSelected() || this.isNoOptionsSelected()) {
             count = total.all;
