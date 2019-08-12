@@ -2,6 +2,7 @@ import {Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
+import {BasePublishAction} from '../wizard/action/BasePublishAction';
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
 import ContentId = api.content.ContentId;
@@ -23,6 +24,7 @@ export class ContentWizardPublishMenuButton
 
     constructor(config: ContentWizardPublishMenuButtonConfig) {
         super(config);
+        this.initMenuActionsListeners();
     }
 
     protected initMenuActions(config: ContentWizardPublishMenuButtonConfig) {
@@ -35,6 +37,32 @@ export class ContentWizardPublishMenuButton
         });
     }
 
+    protected initButtons() {
+        super.initButtons();
+        this.openRequestButton = new ActionButton(this.openRequestAction.getAction());
+    }
+
+    protected initMenuActionsListeners() {
+        const actionsWithSaveBeforeExecution: BasePublishAction[] = [
+            <BasePublishAction>this.publishAction.getAction(),
+            <BasePublishAction>this.requestPublishAction.getAction()
+        ];
+        actionsWithSaveBeforeExecution.forEach(action => {
+            action.onBeforeExecute(() => {
+                if (action.mustSaveBeforeExecution()) {
+                    this.hideDropdown();
+                }
+            });
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.openRequestButton.addClass('open-request-action-button');
+            return rendered;
+        });
+    }
+
     protected getActions(): Action[] {
         return [
             this.markAsReadyAction.getAction(),
@@ -44,18 +72,6 @@ export class ContentWizardPublishMenuButton
             this.openRequestAction.getAction(),
             this.createIssueAction.getAction()
         ];
-    }
-
-    protected initButtons() {
-        super.initButtons();
-        this.openRequestButton = new ActionButton(this.openRequestAction.getAction());
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.openRequestButton.addClass('open-request-action-button');
-            return rendered;
-        });
     }
 
     protected getButtons(): ActionButton[] {

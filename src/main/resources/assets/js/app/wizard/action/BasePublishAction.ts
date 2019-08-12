@@ -21,10 +21,10 @@ export abstract class BasePublishAction extends api.ui.Action {
         this.setEnabled(false);
 
         const callback = () => {
-            if (config.wizard.hasUnsavedChanges() || this.isSaveRequired()) {
+            if (this.mustSaveBeforeExecution()) {
 
                 this.setEnabled(false);
-                config.wizard.saveChanges().then((content) => {
+                this.config.wizard.saveChanges().then((content) => {
                     if (content) {
                         this.firePromptEvent();
                     }
@@ -59,5 +59,9 @@ export abstract class BasePublishAction extends api.ui.Action {
 
     protected isSaveRequired(): boolean {
         return false;
+    }
+
+    mustSaveBeforeExecution(): boolean {
+        return this.config.wizard.hasUnsavedChanges() || this.isSaveRequired();
     }
 }
