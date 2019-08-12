@@ -307,7 +307,7 @@ export class IssueListDialog
     }
 
     private static createTabLabel(label: string, count: number) {
-        return count > 0 ? (label + ' (' + count + ')') : label;
+        return count > 0 ? `${label} (${count})` : label;
     }
 
     onCreateButtonClicked(listener: (action: Action) => void) {
