@@ -1,8 +1,7 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
 import {LayerViewer} from '../../../../layer/LayerViewer';
-import {LayerDetailsDialog} from '../../../../layer/LayerDetailsDialog';
-import {LayersListDialog} from '../../../../layer/LayersListDialog';
 import {LayerContext} from '../../../../layer/LayerContext';
+import {LayerDialogsManager} from '../../../../layer/LayerDialogsManager';
 import i18n = api.util.i18n;
 
 export class LayersWidgetStateViewCurrentLayer
@@ -30,11 +29,7 @@ export class LayersWidgetStateViewCurrentLayer
         const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.settings'));
 
         action.onExecuted(() => {
-            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(LayerContext.get().getCurrentLayer());
-            layerDetailsDialog.open();
-            layerDetailsDialog.onBackButtonClicked(() => {
-                LayersListDialog.get().open();
-            });
+            LayerDialogsManager.get().openLayerDetailsDialog(LayerContext.get().getCurrentLayer());
         });
 
         return action;

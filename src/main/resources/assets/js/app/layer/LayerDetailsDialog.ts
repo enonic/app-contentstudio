@@ -8,20 +8,25 @@ import ActionButton = api.ui.button.ActionButton;
 export class LayerDetailsDialog
     extends LayerCreateUpdateDialog {
 
-    private layer: ContentLayer;
+    private static INSTANCE: LayerDetailsDialog;
 
     private backButton: ActionButton;
 
     private backButtonClickedListeners: { (): void }[] = [];
 
-    constructor(layer: ContentLayer) {
+    private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
             title: i18n('dialog.layers.update.title'),
             class: 'layer-update-dialog'
         });
+    }
 
-        this.layer = layer;
-        this.setInitialValues();
+    static get(): LayerDetailsDialog {
+        if (!LayerDetailsDialog.INSTANCE) {
+            LayerDetailsDialog.INSTANCE = new LayerDetailsDialog();
+        }
+
+        return LayerDetailsDialog.INSTANCE;
     }
 
     initElements() {
@@ -30,17 +35,17 @@ export class LayerDetailsDialog
         this.backButton = new ActionButton(new Action(''));
     }
 
-    private setInitialValues() {
-        this.displayName.setValue(this.layer.getDisplayName());
-        if (this.layer.getParentName()) {
-            this.form.setParentLayer(this.layer.getParentName());
+    setLayer(layer: ContentLayer) {
+        this.displayName.setValue(layer.getDisplayName());
+        if (layer.getParentName()) {
+            this.form.setParentLayer(layer.getParentName());
         }
         this.form.setParentLayerReadOnly(true);
-        if (this.layer.getLanguage()) {
-            this.form.setDefaultLanguage(this.layer.getLanguage());
+        if (layer.getLanguage()) {
+            this.form.setDefaultLanguage(layer.getLanguage());
         }
-        this.form.setDescription(this.layer.getDescription());
-        this.form.setIdentifier(this.layer.getName());
+        this.form.setDescription(layer.getDescription());
+        this.form.setIdentifier(layer.getName());
         this.form.setIdentifierReadOnly(true);
     }
 

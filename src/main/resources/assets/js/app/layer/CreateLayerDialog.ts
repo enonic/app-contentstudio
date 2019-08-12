@@ -51,7 +51,6 @@ export class CreateLayerDialog
     protected handleActionExecutedSuccessfully(layer: ContentLayer) {
         api.notify.showSuccess(i18n('notify.layer.created'));
         this.notifyLayerCreated(layer);
-        this.close();
     }
 
     onLayerCreated(listener: (layer: ContentLayer) => void) {

@@ -5,19 +5,22 @@ import Action = api.ui.Action;
 import {LayersList} from './LayersList';
 import {ListContentLayerRequest} from '../resource/layer/ListContentLayerRequest';
 import {ContentLayer} from '../content/ContentLayer';
-import {ConfirmDeleteDialog} from '../remove/ConfirmDeleteDialog';
-import {DeleteContentLayerRequest} from '../resource/layer/DeleteContentLayerRequest';
-import {CreateLayerDialog} from './CreateLayerDialog';
-import {LayerDetailsDialog} from './LayerDetailsDialog';
+import {LayerServerEventsHandler} from './event/LayerServerEventsHandler';
 
 export class LayersListDialog
     extends ModalDialog {
 
     private static INSTANCE: LayersListDialog;
 
-    private button: ActionButton;
+    private createButton: ActionButton;
 
     private layersList: LayersList;
+
+    private createButtonClickedListeners: { (): void }[] = [];
+
+    private editClickedListeners: { (layer: ContentLayer): void; }[] = [];
+
+    private removeClickedListeners: { (layer: ContentLayer): void; }[] = [];
 
     private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
@@ -37,46 +40,46 @@ export class LayersListDialog
     initElements() {
         super.initElements();
 
-        this.button = new ActionButton(new Action(''));
+        this.createButton = new ActionButton(new Action(''));
         this.layersList = new LayersList();
     }
 
     initListeners() {
         super.initListeners();
 
-        this.button.getAction().onExecuted(() => {
-            CreateLayerDialog.get().open();
+        this.listenElementEvents();
+        this.listenLayerServerEvents();
+    }
+
+    private listenElementEvents() {
+        this.createButton.getAction().onExecuted(() => {
             this.close();
+            this.notifyCreateButtonClicked();
         });
 
         this.layersList.onEditClicked((layer: ContentLayer) => {
-            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(layer);
-            layerDetailsDialog.open();
-            layerDetailsDialog.onBackButtonClicked(() => {
-                this.open();
-            });
             this.close();
+            this.notifyEditClicked(layer);
         });
 
         this.layersList.onRemoveClicked((layer: ContentLayer) => {
-            this.openConfirmDeleteDialog(layer);
             this.close();
+            this.notifyRemoveClicked(layer);
         });
+    }
 
-        CreateLayerDialog.get().onLayerCreated((layer: ContentLayer) => {
-            const layerDetailsDialog: LayerDetailsDialog = new LayerDetailsDialog(layer);
-            layerDetailsDialog.open();
-            layerDetailsDialog.onBackButtonClicked(() => {
-                this.open();
-            });
-        });
+    private listenLayerServerEvents() {
+        const updateFunction: () => void = this.loadLayers.bind(this);
+        LayerServerEventsHandler.getInstance().onLayerCreated(updateFunction);
+        LayerServerEventsHandler.getInstance().onLayerDeleted(updateFunction);
+        LayerServerEventsHandler.getInstance().onLayerUpdated(updateFunction);
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const subHeader: api.dom.Element = new api.dom.H6El('subtitle');
             subHeader.setHtml(i18n('dialog.layers.list.subtitle'));
-            this.appendChildToHeader(this.button);
+            this.appendChildToHeader(this.createButton);
             this.appendChildToHeader(subHeader);
             this.appendChildToContentPanel(this.layersList);
 
@@ -97,31 +100,33 @@ export class LayersListDialog
         }).catch(api.DefaultErrorHandler.handle).finally(this.hideLoadMask.bind(this));
     }
 
-    private openConfirmDeleteDialog(layer: ContentLayer) {
-        const confirmDeleteDialog: ConfirmDeleteDialog = this.createConfirmDeleteDialog(layer);
-        confirmDeleteDialog.onClosed(() => {
-            this.open();
-        });
-        confirmDeleteDialog.open();
+    onCreateButtonClicked(listener: () => void) {
+        this.createButtonClickedListeners.push(listener);
     }
 
-    private createConfirmDeleteDialog(layer: ContentLayer): ConfirmDeleteDialog {
-        return new ConfirmDeleteDialog({
-            valueToCheck: layer.getName(),
-            yesCallback: this.deleteLayer.bind(this, layer),
-            title: i18n('dialog.confirmDelete'),
-            subtitle: i18n('dialog.layers.confirmDelete.subname'),
-            class: 'layer-dialog'
+    private notifyCreateButtonClicked() {
+        this.createButtonClickedListeners.forEach((listener: () => void) => {
+            listener();
         });
     }
 
-    private deleteLayer(layer: ContentLayer) {
-        this.showLoadMask();
+    onEditClicked(listener: (layer: ContentLayer) => void) {
+        this.editClickedListeners.push(listener);
+    }
 
-        new DeleteContentLayerRequest(layer.getName()).sendAndParse()
-            .catch(api.DefaultErrorHandler.handle)
-            .finally(() => {
-                this.loadLayers();
-            });
+    private notifyEditClicked(layer: ContentLayer) {
+        this.editClickedListeners.forEach((listener) => {
+            listener(layer);
+        });
+    }
+
+    onRemoveClicked(listener: (layer: ContentLayer) => void) {
+        this.removeClickedListeners.push(listener);
+    }
+
+    private notifyRemoveClicked(layer: ContentLayer) {
+        this.removeClickedListeners.forEach((listener) => {
+            listener(layer);
+        });
     }
 }

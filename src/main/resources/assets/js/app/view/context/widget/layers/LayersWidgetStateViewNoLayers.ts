@@ -1,5 +1,5 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
-import {CreateLayerDialog} from '../../../../layer/CreateLayerDialog';
+import {LayerDialogsManager} from '../../../../layer/LayerDialogsManager';
 import i18n = api.util.i18n;
 
 export class LayersWidgetStateViewNoLayers
@@ -21,7 +21,7 @@ export class LayersWidgetStateViewNoLayers
         const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.create'));
 
         action.onExecuted(() => {
-            CreateLayerDialog.get().open();
+            LayerDialogsManager.get().openCreateLayerDialog();
         });
 
         return action;
