@@ -65,10 +65,7 @@ export class RequestContentPublishDialog
     protected initActions() {
         super.initActions();
 
-        this.requestPublishAction = new ContentPublishDialogAction(() => {
-            this.doRequestPublish();
-        }, i18n('action.createRequest'));
-
+        this.requestPublishAction = new api.ui.Action(i18n('action.createRequest')).onExecuted(() => this.doRequestPublish());
         this.prevAction = new api.ui.Action(i18n('action.previous')).onExecuted(() => this.goToStep(0));
         this.nextAction = new api.ui.Action(i18n('action.next')).onExecuted(() => this.goToStep(1));
     }
@@ -81,7 +78,6 @@ export class RequestContentPublishDialog
         this.requestDetailsPropertySet = new api.data.PropertySet();
 
         this.publishScheduleForm.layout(false);
-
 
         const detailsForm = this.createDetailsForm();
 
@@ -118,8 +114,8 @@ export class RequestContentPublishDialog
             this.requestDetailsStep.appendChildren<api.dom.Element>(this.publishScheduleForm, this.detailsFormView);
             this.appendChildToContentPanel(this.requestDetailsStep);
 
-            this.addAction(this.prevAction).addClass('force-enabled').addClass('prev');
-            this.addAction(this.nextAction).addClass('force-enabled').addClass('next');
+            this.addAction(this.prevAction).addClass('force-enabled prev');
+            this.addAction(this.nextAction).addClass('force-enabled next');
 
             return rendered;
         });

@@ -4,13 +4,14 @@
 
   .form-wrapper {
     display: flex;
+    position: relative;
     align-items: center;
     flex-wrap: wrap;
+    background-color: @admin-bg-light-gray;
 
     .schedule-note {
       width: 100%;
       display: block;
-      margin: 0 25px 0 0;
       background-color: @form-button-bg;
       padding: 10px 20px;
       color: @admin-white;
@@ -18,7 +19,8 @@
 
     .form-view {
       flex: 1;
-      padding: 15px 0 !important;
+      padding: 0 !important;
+      padding-right: 20px !important;
     }
 
     a.remove-button {
@@ -27,7 +29,13 @@
       text-decoration: none;
       font-weight: bold;
       cursor: pointer;
-      margin-left: 8px;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+
+    .schedule-note + .form-view + a.remove-button {
+      top: 57px;
     }
   }
 }
