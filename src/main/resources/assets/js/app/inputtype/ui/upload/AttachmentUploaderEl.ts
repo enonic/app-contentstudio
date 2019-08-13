@@ -3,6 +3,7 @@ import {FileUploaderEl} from './FileUploaderEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
+import {LayerBasedRestPath} from '../../../resource/LayerBasedRestPath';
 
 export class AttachmentUploaderEl
     extends FileUploaderEl<Attachment> {
@@ -15,7 +16,7 @@ export class AttachmentUploaderEl
     constructor(config: any) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/createAttachment');
+            config.url = 'createAttachment';
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -38,6 +39,10 @@ export class AttachmentUploaderEl
         noAttachmentsDescription.insertAfterEl(this.getResultContainer());
 
         this.addClass('attachment-uploader-el');
+    }
+
+    protected beforeSubmit() {
+        this.uploader.setEndpoint(api.util.UriHelper.getRestUri(`${LayerBasedRestPath.get().getLayerPath()}/${this.config.url}`));
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {

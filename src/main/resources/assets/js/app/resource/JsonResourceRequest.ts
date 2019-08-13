@@ -1,12 +1,12 @@
-import ResourceRequest = api.rest.ResourceRequest;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import {Content, ContentBuilder} from '../content/Content';
 import {SiteBuilder} from '../content/Site';
 import {PageTemplateBuilder} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
+import {LayerBasedResourceRequest} from './LayerBasedResourceRequest';
 
 export class JsonResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+    extends LayerBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
     fromJsonToContent(json: ContentJson): Content {
         let type = new ContentTypeName(json.type);

@@ -4,6 +4,7 @@ import UploaderEl = api.ui.uploader.UploaderEl;
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
 import {ContentJson} from '../../../content/ContentJson';
+import {LayerBasedRestPath} from '../../../resource/LayerBasedRestPath';
 
 export enum MediaUploaderElOperation {
     create,
@@ -26,7 +27,7 @@ export class MediaUploaderEl
     constructor(config: MediaUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/' + MediaUploaderElOperation[config.operation] + 'Media');
+            config.url = MediaUploaderElOperation[config.operation] + 'Media';
         }
 
         super(config);
@@ -34,6 +35,10 @@ export class MediaUploaderEl
         this.addClass('media-uploader-el');
 
         this.initImageDropHandler();
+    }
+
+    protected beforeSubmit() {
+        this.uploader.setEndpoint(api.util.UriHelper.getRestUri(`${LayerBasedRestPath.get().getLayerPath()}/${this.config.url}`));
     }
 
     private initImageDropHandler() {
@@ -151,7 +156,8 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): api.dom.Element {
-        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + value), '_blank');
+        this.link =
+            new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri(`${LayerBasedRestPath.get().getLayerPath()}/media/${value}`), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;

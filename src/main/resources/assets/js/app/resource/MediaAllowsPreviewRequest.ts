@@ -25,7 +25,7 @@ export class MediaAllowsPreviewRequest
     }
 
     getRequestPath(): Path {
-        return Path.fromParent(super.getRestPath(), 'content', 'media', 'isAllowPreview');
+        return Path.fromParent(super.getRestPath(), 'media', 'isAllowPreview');
     }
 
     sendAndParse(): wemQ.Promise<boolean> {

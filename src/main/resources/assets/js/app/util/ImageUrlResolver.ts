@@ -1,11 +1,12 @@
 import ContentId = api.content.ContentId;
 import IconUrlResolver = api.icon.IconUrlResolver;
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
+import {LayerBasedRestPath} from '../resource/LayerBasedRestPath';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
 
-    static readonly URL_PREFIX_PREVIEW: string = 'content/image/';
+    static readonly URL_PREFIX_PREVIEW: string = 'image/';
     static readonly URL_PREFIX_RENDER: string = 'image://';
     static readonly URL_PREFIX_RENDER_ORIGINAL: string = 'media://';
     static readonly DEFAULT_IMAGE_SIZE: number = 768;
@@ -88,7 +89,7 @@ export class ImageUrlResolver
 
     resolveForPreview(): string {
 
-        let url = this.getBaseUrl(ImageUrlResolver.URL_PREFIX_PREVIEW, true);
+        let url = this.getBaseUrl(`${LayerBasedRestPath.get().getLayerPath()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
