@@ -44,8 +44,12 @@ export class LayerDialogForm
     public setInitialValues() {
         this.parentLayer.setValue(ContentLayer.DEFAULT_LAYER_NAME);
         this.defaultLanguage.clearSelection();
+        this.defaultLanguage.getComboBox().getInput().reset();
+        this.defaultLanguage.resetBaseValues();
         this.identifier.reset();
+        this.identifier.resetBaseValues();
         this.description.reset();
+        this.description.resetBaseValues();
     }
 
     private initFormView() {

@@ -17,8 +17,6 @@ export class LayerCreateUpdateDialog
 
     protected layerActionButton: DialogButton;
 
-    protected parentDialog: ModalDialog;
-
     constructor(config: ModalDialogConfig) {
         super(config);
     }
@@ -47,16 +45,11 @@ export class LayerCreateUpdateDialog
         this.layerActionButton.getAction().onExecuted(this.executeAction.bind(this));
     }
 
-    open(parentDialog?: ModalDialog) {
-        super.open();
-
-        this.parentDialog = parentDialog;
-    }
-
     close() {
         super.close();
-
-        this.parentDialog = null;
+        this.displayName.reset();
+        this.displayName.resetBaseValues();
+        this.form.setInitialValues();
     }
 
     private executeAction() {

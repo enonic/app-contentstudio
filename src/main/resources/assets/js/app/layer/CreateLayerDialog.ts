@@ -28,12 +28,6 @@ export class CreateLayerDialog
         return CreateLayerDialog.INSTANCE;
     }
 
-    open() {
-        super.open();
-        this.displayName.reset();
-        this.form.setInitialValues();
-    }
-
     protected getActionLabel(): string {
         return i18n('dialog.layers.button.create');
     }
