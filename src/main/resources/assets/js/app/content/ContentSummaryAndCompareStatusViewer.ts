@@ -9,12 +9,16 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
-        let contentSummary = object.getContentSummary();
-        let uploadItem = object.getUploadItem();
+        const contentSummary = object.getContentSummary();
+        const uploadItem = object.getUploadItem();
 
         if (contentSummary) {
-            return contentSummary.getDisplayName();
-        } else if (uploadItem) {
+            const language = contentSummary.getLanguage();
+            const languageStr = language ? `<el>(${language})</el>` : '';
+            return contentSummary.getDisplayName() + languageStr;
+        }
+
+        if (uploadItem) {
             return uploadItem.getName();
         }
 
@@ -40,12 +44,14 @@ export class ContentSummaryAndCompareStatusViewer
             if (relativePath) {
                 return !contentName.isUnnamed() ? contentName.toString() :
                        api.content.ContentUnnamed.prettifyUnnamed();
-            } else {
-                return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-                       ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                           api.content.ContentUnnamed.prettifyUnnamed()).toString();
             }
-        } else if (uploadItem) {
+
+            return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
+                   ContentPath.fromParent(contentSummary.getPath().getParentPath(),
+                       api.content.ContentUnnamed.prettifyUnnamed()).toString();
+        }
+
+        if (uploadItem) {
             return uploadItem.getName();
         }
 
