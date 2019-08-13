@@ -19,6 +19,11 @@
       opacity: 0.5;
     }
 
+    .@{_COMMON_PREFIX}main-name el {
+      margin-left: 5px;
+      color: @admin-font-gray2;
+    }
+
     &:not(.selected) {
       .slick-cell {
         &.status {
@@ -27,6 +32,10 @@
         &.selected, &.highlight {
           &.status > * {
             color: @admin-white;
+          }
+
+          .@{_COMMON_PREFIX}main-name el {
+            color: @admin-font-gray;
           }
         }
       }
