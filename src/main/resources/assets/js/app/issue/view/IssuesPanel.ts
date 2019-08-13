@@ -22,7 +22,10 @@ export interface IssuesCount {
 }
 
 export interface IssuesPanelConfig
-    extends IssueListConfig {}
+    extends IssueListConfig {
+
+    issuesToggledHandler: () => void;
+}
 
 export class IssuesPanel
     extends Panel {
@@ -52,7 +55,7 @@ export class IssuesPanel
         this.initOptionsCount();
         this.initFilterOptions();
         this.initFilter();
-        this.initIssuesToggler();
+        this.initIssuesToggler(config);
     }
 
     private initIssuesList(config: IssuesPanelConfig) {
@@ -122,29 +125,37 @@ export class IssuesPanel
         this.filter.onOptionDeselected(createSelectionHandler(false));
     }
 
-    private initIssuesToggler() {
+    private initIssuesToggler(config: IssuesPanelConfig) {
         this.issuesToggler = new OnOffButton({
             onLabel: i18n('field.issue.showClosedIssues'),
             offLabel: i18n('field.issue.hideClosedIssues'),
             off: false,
             clickHandler: () => {
-                this.toggleClosedIssues();
+                this.toggleClosedIssues()
+                    .then(config.issuesToggledHandler)
+                    .catch(api.DefaultErrorHandler.handle);
             }
         });
+    }
+
+    getActiveTotal(): number {
+        const openedTotal = this.openedIssues.all;
+        const closedTotal = this.closedIssues.all;
+        const total = openedTotal + closedTotal;
+        return this.issuesToggler.isOff() ? total : openedTotal;
     }
 
     getIssueList(): IssueList {
         return this.issuesList;
     }
 
-    private toggleClosedIssues() {
+    private toggleClosedIssues(): wemQ.Promise<void> {
         const allVisible = this.isAllVisible();
 
         if (allVisible) {
-            this.hideClosedIssues();
-        } else {
-            this.showClosedIssues();
+            return this.hideClosedIssues();
         }
+        return this.showClosedIssues();
     }
 
     private isAllVisible(): boolean {
