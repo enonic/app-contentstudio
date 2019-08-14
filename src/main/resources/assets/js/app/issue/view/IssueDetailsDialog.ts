@@ -802,7 +802,7 @@ export class IssueDetailsDialog
                 this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
-                        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true);
+                        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
 
                         this.populateSchedule(request).sendAndParse()
                             .then((updatedIssue: Issue) => {
