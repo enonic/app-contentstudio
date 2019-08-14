@@ -1,9 +1,36 @@
 .dependant-dialog {
 
+  .modal-dialog-header {
+
+    .back-button {
+      line-height: 38px;
+    }
+
+    .icon.icon-calendar {
+      float: right;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+
+      &[disabled] {
+        opacity: .5;
+        pointer-events: none;
+      }
+
+      &:before {
+        font-size: 24px;
+        line-height: 38px;
+      }
+
+      &.active {
+        color: @admin-blue;
+      }
+    }
+  }
+
   .modal-dialog-body {
     padding-top: 0;
   }
-
 
   .browse-selection-item {
     .remove {
@@ -77,10 +104,12 @@
         .viewer {
           margin-left: 35px;
         }
+
         .include-children-toggler {
           & + .viewer {
             margin-left: 0;
           }
+
           display: block;
           visibility: hidden;
         }
@@ -214,6 +243,7 @@
               .@{_COMMON_PREFIX}wrapper {
                 .icon-state-invalid;
               }
+
               .state;
             }
           }
@@ -223,7 +253,8 @@
               .@{_COMMON_PREFIX}wrapper {
                 .icon-state-ready;
               }
-          }
+            }
+
             .state;
           }
 
@@ -232,7 +263,8 @@
               .@{_COMMON_PREFIX}wrapper {
                 .icon-state-in-progress;
               }
-          }
+            }
+
             .state;
           }
 
@@ -251,6 +283,7 @@
             * {
               pointer-events: none;
             }
+
             .@{_COMMON_PREFIX}wrapper {
               margin: 0;
               height: 16px;

@@ -1,6 +1,5 @@
 import DivEl = api.dom.DivEl;
 import Principal = api.security.Principal;
-import SpanEl = api.dom.SpanEl;
 import {Issue} from '../Issue';
 import {IssueStatusSelector} from './IssueStatusSelector';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
@@ -14,8 +13,6 @@ export class DetailsDialogSubTitle
 
     private currentUser: Principal;
 
-    private statusSpan: api.dom.SpanEl;
-
     private issueStatusSelector: IssueStatusSelector;
 
     private issueStatusChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
@@ -24,7 +21,6 @@ export class DetailsDialogSubTitle
         super('issue-details-sub-title');
         this.issue = issue;
         this.issueStatusSelector = new IssueStatusSelector();
-        this.statusSpan = new SpanEl('status-info');
     }
 
     setIssue(issue: Issue, silent?: boolean) {
@@ -36,7 +32,7 @@ export class DetailsDialogSubTitle
     }
 
     private updateStatusInfo() {
-        this.statusSpan.setHtml(this.makeStatusInfo(), false);
+        this.issueStatusSelector.getEl().setTitle(this.makeStatusInfo());
     }
 
     private updateTypeClass() {
@@ -59,7 +55,7 @@ export class DetailsDialogSubTitle
             this.issueStatusSelector.onValueChanged((event) => {
                 this.notifyIssueStatusChanged(event);
             });
-            this.appendChildren<api.dom.Element>(this.statusSpan, this.issueStatusSelector);
+            this.appendChild<api.dom.Element>(this.issueStatusSelector);
             if (this.issue) {
                 this.setIssue(this.issue, true);
             }

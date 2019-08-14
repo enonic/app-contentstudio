@@ -8,10 +8,20 @@ export class PublishScheduleForm
 
     private scheduleFormView: api.form.FormView;
     private scheduleFormWrapper: api.dom.DivEl;
-    private showScheduleFormAction: api.ui.Action;
-    private showScheduleFormButton: api.dom.Element;
     private formVisibilityListeners: { (flag: boolean): void }[] = [];
     private scheduleNote: api.dom.H6El;
+    private externalToggles: api.dom.ButtonEl[] = [];
+
+    createExternalToggle(): api.dom.ButtonEl {
+        const b = new api.dom.ButtonEl();
+        b.setClass('icon icon-calendar');
+        b.onClicked(() => {
+            const isVis = this.isFormVisible();
+            this.setFormVisible(!isVis);
+        });
+        this.externalToggles.push(b);
+        return b;
+    }
 
     constructor(propertySet: PropertySet) {
         super('publish-schedule-form');
@@ -20,12 +30,6 @@ export class PublishScheduleForm
             this.scheduleFormView.validate(false, true);
             this.scheduleFormView.displayValidationErrors(this.scheduleFormView.isVisible());
         });
-
-        this.showScheduleFormAction = new api.ui.Action(i18n('dialog.publish.addSchedule'))
-            .onExecuted((action: api.ui.Action) => {
-                this.setFormVisible(true);
-            });
-        this.showScheduleFormButton = new api.ui.button.ActionButton(this.showScheduleFormAction).addClass('schedule-button');
 
         const scheduleForm = new api.form.FormBuilder().addFormItem(this.createRangeFormItem()).build();
         this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), scheduleForm, propertySet);
@@ -66,7 +70,7 @@ export class PublishScheduleForm
         this.scheduleFormView.displayValidationErrors(false);
         this.scheduleFormView.layout(validate);
 
-        this.appendChildren(this.showScheduleFormButton, this.scheduleFormWrapper);
+        this.appendChild(this.scheduleFormWrapper);
     }
 
     public update(propertySet: PropertySet): wemQ.Promise<void> {
@@ -75,7 +79,6 @@ export class PublishScheduleForm
 
     public setFormVisible(flag: boolean, silent?: boolean) {
         this.scheduleFormWrapper.setVisible(flag);
-        this.showScheduleFormAction.setVisible(!flag);
         this.scheduleFormView.displayValidationErrors(false);   // hide validation
 
         if (!flag) {
@@ -87,6 +90,8 @@ export class PublishScheduleForm
         if (!silent) {
             this.notifyFormVisibilityChanged(flag);
         }
+
+        this.updateTogglesState(flag);
     }
 
     public isFormVisible(): boolean {
@@ -114,5 +119,9 @@ export class PublishScheduleForm
 
     public unFormVisibilityChanged(listener: (flag: boolean) => void) {
         this.formVisibilityListeners = this.formVisibilityListeners.filter(curr => curr !== listener);
+    }
+
+    private updateTogglesState(flag: boolean) {
+        this.externalToggles.forEach((toggle) => toggle.toggleClass('active', flag));
     }
 }

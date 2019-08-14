@@ -111,6 +111,8 @@ export class IssueDetailsDialog
 
     private updatedListeners: { (issue: Issue): void }[] = [];
 
+    private scheduleFormToggle: api.dom.ButtonEl;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.issue'),
@@ -160,6 +162,8 @@ export class IssueDetailsDialog
             }
             this.toggleClass('with-schedule-form', visible);
         });
+
+        this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
 
         this.backButton = new AEl('back-button');
         this.header.addClass('with-back-button');
@@ -269,7 +273,7 @@ export class IssueDetailsDialog
         this.commentsList.onItemsRemoved(updateCommentsCount);
         this.commentsList.onEditModeChanged(editMode => {
             this.commentTextArea.setReadOnly(editMode);
-            (<IssueDetailsDialogHeader>this.header).setReadOnly(editMode);
+            this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
         });
 
@@ -345,6 +349,7 @@ export class IssueDetailsDialog
         return super.doRender().then((rendered: boolean) => {
             const isPublishRequest = this.isPublishRequestViewed();
 
+            this.prependChildToHeader(this.scheduleFormToggle);
             this.setSubTitleEl(this.detailsSubTitle);
             this.prependChildToHeader(this.backButton);
             this.createAddCommentButton();
@@ -418,7 +423,6 @@ export class IssueDetailsDialog
         this.scheduleAction.setLabel(IssueDetailsDialog.makeLabelWithCounter(i18n('action.schedule'), count));
     }
 
-
     protected lockControls() {
         super.lockControls();
         this.scheduleAction.setEnabled(false);
@@ -463,7 +467,6 @@ export class IssueDetailsDialog
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
     }
-
 
     public isAllPublishable(): boolean {
         return this.publishProcessor && this.publishProcessor.isAllPublishable();
@@ -602,7 +605,11 @@ export class IssueDetailsDialog
         this.commentsList.setReadOnly(value);
         this.itemSelector.setReadOnly(value);
         this.assigneesCombobox.setReadOnly(value);
-        (<IssueDetailsDialogHeader>this.header).setReadOnly(value);
+        this.getHeader().setReadOnly(value);
+    }
+
+    private getHeader(): IssueDetailsDialogHeader {
+        return <IssueDetailsDialogHeader>this.header;
     }
 
     getIssue(): Issue {
@@ -630,7 +637,7 @@ export class IssueDetailsDialog
                 this.getItemList().clearItems();
             }
 
-            (<IssueDetailsDialogHeader>this.header).setTitleId(issue.getIndex()).setTitle(issue.getTitle());
+            this.getHeader().setTitleId(issue.getIndex()).setTitle(issue.getTitle());
 
             this.detailsSubTitle.setIssue(issue, true);
             this.toggleControlsAccordingToStatus(issue.getIssueStatus());

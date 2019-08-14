@@ -43,6 +43,8 @@ export class RequestContentPublishDialog
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
+    private scheduleFormToggle: api.dom.ButtonEl;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
@@ -80,8 +82,11 @@ export class RequestContentPublishDialog
 
         this.requestDetailsPropertySet = new api.data.PropertySet();
 
+        this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
+        this.scheduleFormToggle.onClicked((event) => {
+            this.goToStep(1);   // go to the form step
+        });
         this.publishScheduleForm.layout(false);
-
 
         const detailsForm = this.createDetailsForm();
 
@@ -111,6 +116,8 @@ export class RequestContentPublishDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildToContentPanel(this.publishIssuesStateBar);
+
+            this.prependChildToHeader(this.scheduleFormToggle);
 
             this.publishItemsStep.appendChildren(this.getItemList(), this.getDependantsContainer());
             this.appendChildToContentPanel(this.publishItemsStep);
@@ -252,6 +259,7 @@ export class RequestContentPublishDialog
 
         this.toggleAction(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);
+        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
