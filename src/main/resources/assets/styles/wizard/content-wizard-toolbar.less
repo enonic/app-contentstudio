@@ -52,10 +52,43 @@
     }
   }
 
+  .layer-viewer {
+    margin: auto;
+
+    .names-and-icon-view {
+      display: flex;
+      align-items: center;
+
+      .xp-admin-common-wrapper {
+        margin-right: 10px;
+
+        .icon-layers {
+          font-size: 28px;
+        }
+      }
+
+      .xp-admin-common-names-view {
+        margin-left: 0px;
+
+        .xp-admin-common-sub-name {
+          display: none;
+        }
+      }
+
+    }
+
+  }
+
   .content-status-wrapper {
     display: none; // Is made visible in content-wizard-panel.less
     order: 1;
     margin-left: auto;
+  }
+
+  &.has-layers {
+    .content-status-wrapper {
+      margin-left: 0px;
+    }
   }
 
   .toolbar-publish-controls {
