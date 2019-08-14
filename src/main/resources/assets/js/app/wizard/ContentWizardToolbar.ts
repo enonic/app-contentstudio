@@ -2,6 +2,10 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {LayerViewer} from '../layer/LayerViewer';
+import {LayerContext} from '../layer/LayerContext';
+import {ListContentLayerRequest} from '../resource/layer/ListContentLayerRequest';
+import {ContentLayer} from '../content/ContentLayer';
 import TogglerButton = api.ui.button.TogglerButton;
 import CycleButton = api.ui.button.CycleButton;
 import AppIcon = api.app.bar.AppIcon;
@@ -22,6 +26,7 @@ export class ContentWizardToolbar
 
         this.addHomeButton(application);
         this.addActionButtons(actions);
+        this.addLayerInfo();
         this.addPublishMenuButton(actions);
         this.addTogglerButtons(actions);
         this.addMobileItemStatisticsButton();
@@ -55,6 +60,17 @@ export class ContentWizardToolbar
             actions.getUndoPendingDeleteAction()
         ]);
         super.addGreedySpacer();
+    }
+
+    private addLayerInfo() {
+        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+            if (layers.length > 1) {
+                const layerViewer: LayerViewer = new LayerViewer();
+                layerViewer.setObject(LayerContext.get().getCurrentLayer());
+                super.addElement(layerViewer);
+                this.addClass('has-layers');
+            }
+        }).catch(api.DefaultErrorHandler.handle);
     }
 
     private addPublishMenuButton(actions: ContentWizardActions) {
