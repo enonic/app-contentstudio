@@ -31,6 +31,10 @@
 
     .inplace-text-input {
 
+      .inplace-input {
+        width: calc(100% - 55px);
+      }
+
       .inplace-text {
         line-height: 38px;
 
@@ -44,6 +48,21 @@
     &.with-back-button {
       .issue-details-sub-title {
         margin-left: 34px;
+
+        .issue-status-selector {
+          margin-left: 25px;
+        }
+      }
+
+      .inplace-text-input {
+
+        .inplace-input {
+          width: calc(100% - 90px);
+        }
+
+        .inplace-text {
+          margin-left: 38px;
+        }
       }
     }
 
@@ -99,7 +118,8 @@
   }
 
   &:not(.publish-request) {
-    .publish-schedule-form {
+
+    .publish-schedule-form, .icon-calendar {
       display: none;
     }
   }
