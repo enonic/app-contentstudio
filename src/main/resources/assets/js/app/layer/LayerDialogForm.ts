@@ -8,6 +8,7 @@ import LocaleComboBox = api.ui.locale.LocaleComboBox;
 import StringHelper = api.util.StringHelper;
 import {LayerComboBox} from './LayerComboBox';
 import {ContentLayer} from '../content/ContentLayer';
+import {LayerIconUploader} from './LayerIconUploader';
 
 export class LayerDialogForm
     extends api.ui.form.Form {
@@ -18,7 +19,7 @@ export class LayerDialogForm
 
     private identifier: TextInput;
 
-    private icon: TextInput;
+    private icon: LayerIconUploader;
 
     private description: TextInput;
 
@@ -38,8 +39,8 @@ export class LayerDialogForm
     private initElements() {
         this.parentLayer = new LayerComboBox(1);
         this.defaultLanguage = new LocaleComboBox(1);
-        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^a-z0-9\-_]/);
-        this.icon = new TextInput('icon');
+        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^A-Za-z0-9\-_]/);
+        this.icon = new LayerIconUploader();
         this.description = new TextInput('description');
     }
 
@@ -52,6 +53,7 @@ export class LayerDialogForm
         this.identifier.resetBaseValues();
         this.description.reset();
         this.description.resetBaseValues();
+        this.icon.reset();
     }
 
     private parentLayerValidator(input: api.dom.FormInputEl): string {
@@ -122,9 +124,11 @@ export class LayerDialogForm
         });
 
         this.defaultLanguage.onValueChanged((event: api.ValueChangedEvent) => {
-            if (!StringHelper.isEmpty(event.getNewValue()) && !this.identifier.isReadOnly()) {
-                this.identifier.setValue(event.getNewValue().toLocaleLowerCase());
+            const value = event.getNewValue();
+            if (!StringHelper.isEmpty(value) && !this.identifier.isReadOnly()) {
+                this.identifier.setValue(event.getNewValue());
             }
+            this.setIcon(value);
             this.validate(true);
         });
 
@@ -177,6 +181,12 @@ export class LayerDialogForm
     public setIdentifierReadOnly(value: boolean) {
         this.identifier.setReadOnly(value);
         this.identifierFormItem.setLabel(value ? i18n('dialog.layers.field.identifier.readonly') : i18n('dialog.layers.field.identifier'));
+    }
+
+    public setIcon(value: string) {
+        const option = StringHelper.isEmpty(value) ? null : this.defaultLanguage.getOptionByValue(value);
+        const locale = option != null ? option.displayValue : null;
+        this.icon.updateIcon(locale);
     }
 
     public getDescription(): string {

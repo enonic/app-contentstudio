@@ -45,6 +45,7 @@ export class LayerDetailsDialog
         this.form.setParentLayerReadOnly(true);
         if (layer.getLanguage()) {
             this.form.setDefaultLanguage(layer.getLanguage());
+            this.form.setIcon(layer.getLanguage());
         }
         this.form.setDescription(layer.getDescription());
         this.form.setIdentifier(layer.getName());
