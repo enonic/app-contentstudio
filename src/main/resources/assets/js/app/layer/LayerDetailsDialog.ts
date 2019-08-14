@@ -39,6 +39,8 @@ export class LayerDetailsDialog
         this.displayName.setValue(layer.getDisplayName());
         if (layer.getParentName()) {
             this.form.setParentLayer(layer.getParentName());
+        } else {
+            this.form.hideParentLayer();
         }
         this.form.setParentLayerReadOnly(true);
         if (layer.getLanguage()) {

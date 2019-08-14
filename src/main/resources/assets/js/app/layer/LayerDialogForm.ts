@@ -45,12 +45,9 @@ export class LayerDialogForm
     }
 
     public setInitialValues() {
-        if (this.parentLayerFormItem) {
-            this.parentLayerFormItem.hide();
-        }
-        this.parentLayer.setValue(ContentLayer.DEFAULT_LAYER_NAME);
-        this.defaultLanguage.clearSelection();
-        this.defaultLanguage.getComboBox().getInput().reset();
+        this.parentLayer.clearCombobox();
+        this.parentLayer.resetBaseValues();
+        this.defaultLanguage.clearCombobox();
         this.defaultLanguage.resetBaseValues();
         this.identifier.reset();
         this.identifier.resetBaseValues();
@@ -59,13 +56,22 @@ export class LayerDialogForm
         this.icon.reset();
     }
 
+    private parentLayerValidator(input: api.dom.FormInputEl): string {
+        const value = input.getValue();
+        const isValueRequired = this.isVisible() && api.util.StringHelper.isBlank(value);
+        return isValueRequired ? i18n('field.value.required') : undefined;
+    }
+
     private initFormView() {
         const fieldSet: api.ui.form.Fieldset = new api.ui.form.Fieldset();
 
         this.parentLayerFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.parentLayer).setLabel(i18n('dialog.layers.field.parentLayer')).setValidator(
-                Validators.required).build());
+            new FormItemBuilder(this.parentLayer)
+                .setLabel(i18n('dialog.layers.field.parentLayer'))
+                .setValidator(Validators.required)
+                .build());
         fieldSet.add(this.parentLayerFormItem);
+        this.parentLayerFormItem.setValidator(this.parentLayerValidator);
 
         const defaultLanguageFormItem = this.addValidationViewer(
             new FormItemBuilder(this.defaultLanguage)
@@ -81,12 +87,14 @@ export class LayerDialogForm
                 .build());
         fieldSet.add(this.identifierFormItem);
 
-        const iconFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.icon).setLabel(i18n('dialog.layers.field.icon')).build());
+        const iconFormItem = new FormItemBuilder(this.icon)
+            .setLabel(i18n('dialog.layers.field.icon'))
+            .build();
         fieldSet.add(iconFormItem);
 
-        const descriptionFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.description).setLabel(i18n('dialog.layers.field.description')).build());
+        const descriptionFormItem = new FormItemBuilder(this.description)
+            .setLabel(i18n('dialog.layers.field.description'))
+            .build();
         fieldSet.add(descriptionFormItem);
 
         this.add(fieldSet);
@@ -109,7 +117,7 @@ export class LayerDialogForm
             if (!StringHelper.isEmpty(event.getNewValue())) {
                 const selectedParentLayer: ContentLayer = this.parentLayer.getSelectedOptions()[0].getOption().displayValue;
                 if (selectedParentLayer.getLanguage()) {
-                    this.defaultLanguage.setValue(selectedParentLayer.getLanguage());
+                    this.defaultLanguage.setValue(selectedParentLayer.getLanguage(), true);
                 }
             }
             this.validate(true);
@@ -144,6 +152,10 @@ export class LayerDialogForm
     public setParentLayer(value: string) {
         this.parentLayer.setValue(value, true);
         this.parentLayerFormItem.show();
+    }
+
+    public hideParentLayer() {
+        this.parentLayerFormItem.hide();
     }
 
     public setParentLayerReadOnly(value: boolean) {
