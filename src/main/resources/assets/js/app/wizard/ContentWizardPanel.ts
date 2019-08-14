@@ -56,6 +56,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
+import {UpdateContentInherited} from '../resource/UpdateContentInherited';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -269,6 +270,7 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
+                    this.updateInheritedContentLanguage();
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -280,6 +282,14 @@ export class ContentWizardPanel
                     );
 
             }).then(() => super.doLoadData());
+    }
+
+    private updateInheritedContentLanguage() {
+        if (this.getPersistedItem().isInherited()) {
+            new UpdateContentInherited(this.getPersistedItem().getContentId()).sendAndParse().then(() => {
+                api.notify.showFeedback('A local item is created with language "en"');
+            }).catch(api.DefaultErrorHandler.handle);
+        }
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
