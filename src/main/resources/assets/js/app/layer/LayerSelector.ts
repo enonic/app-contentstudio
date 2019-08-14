@@ -8,6 +8,8 @@ import DropdownHandle = api.ui.button.DropdownHandle;
 import H6El = api.dom.H6El;
 import i18n = api.util.i18n;
 import PEl = api.dom.PEl;
+import ButtonEl = api.dom.ButtonEl;
+import {LayerDialogsManager} from './LayerDialogsManager';
 
 export class LayerSelector
     extends DivEl {
@@ -17,6 +19,8 @@ export class LayerSelector
     private headerLayerViewer: LayerViewer;
 
     private layersList: SelectableLayersList;
+
+    private layersListHeader: DivEl;
 
     private dropdownHandle: DropdownHandle;
 
@@ -35,6 +39,7 @@ export class LayerSelector
         this.header = new DivEl('selected-layer-view');
         this.headerLayerViewer = new LayerViewer();
         this.dropdownHandle = new DropdownHandle();
+        this.layersListHeader = this.createLayersListHeader();
         this.layersList = new SelectableLayersList();
         this.clickOutsideListener = this.createClickOutsideListener();
     }
@@ -95,8 +100,11 @@ export class LayerSelector
         return super.doRender().then((rendered: boolean) => {
             this.header.appendChild(this.headerLayerViewer);
             this.header.appendChild(this.dropdownHandle);
-            this.appendChild(this.header);
-            this.appendChild(this.layersList);
+            this.appendChildren(
+                this.header,
+                this.layersListHeader,
+                this.layersList
+            );
 
             this.hideLayersList();
 
@@ -109,6 +117,7 @@ export class LayerSelector
         api.ui.mask.BodyMask.get().show();
         this.isLayersListShown = true;
         this.dropdownHandle.down();
+        this.layersListHeader.show();
         this.layersList.show();
 
     }
@@ -118,9 +127,29 @@ export class LayerSelector
         api.ui.mask.BodyMask.get().hide();
         this.isLayersListShown = false;
         this.dropdownHandle.up();
+        this.layersListHeader.hide();
         this.layersList.hide();
     }
 
+    private createOpenLayerListIcon(): ButtonEl {
+        const cogIcon = new ButtonEl();
+        cogIcon.addClass('icon-cog');
+        cogIcon.onClicked(() => LayerDialogsManager.get().openLayersListDialog());
+
+        return cogIcon;
+    }
+
+    private createLayersListHeader(): DivEl {
+        const header: DivEl = new DivEl('list-header');
+
+        header.appendChildren(
+            new H6El('main').setHtml(i18n('field.layers.list.header.main')),
+            new PEl('sub').setHtml(i18n('field.layers.list.header.sub')),
+            this.createOpenLayerListIcon()
+        );
+
+        return header;
+    }
 }
 
 class SelectableLayersList
@@ -153,18 +182,6 @@ class SelectableLayersList
             }
 
             return false;
-        });
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            const header: DivEl = new DivEl('list-header');
-            header.appendChild(new H6El('main').setHtml(i18n('field.layers.list.header.main')));
-            header.appendChild(new PEl('sub').setHtml(i18n('field.layers.list.header.sub')));
-
-            this.prependChild(header);
-
-            return rendered;
         });
     }
 
