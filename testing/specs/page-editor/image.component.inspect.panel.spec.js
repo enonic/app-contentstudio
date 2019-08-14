@@ -3,7 +3,6 @@
  *
  * Verifies : https://github.com/enonic/app-contentstudio/issues/77
  * Incorrect behavior after applying changes in Inspection Panel
- *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -11,7 +10,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -28,20 +26,12 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
         let IMAGE_DISPLAY_NAME = 'kotey';
         let SITE;
         let CONTROLLER_NAME = 'main region';
-        it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+
+        it(`Preconditions: new site should be created`,
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    studioUtils.saveScreenshot(displayName + '_created');
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`GIVEN existing site is opened AND an image has been inserted WHEN a caption has been typed AND 'Apply' button pressed THEN the site is getting 'saved'`,
@@ -98,7 +88,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                     return imageInspectPanel.typeCaption("test caption");
                 }).then(() => {
                     return imageInspectPanel.clickOnApplyButton();
-                }).then(()=>{
+                }).then(() => {
                     return imageInspectPanel.pause(1000);
                 }).then(() => {
                     return imageInspectPanel.getCaptionText();

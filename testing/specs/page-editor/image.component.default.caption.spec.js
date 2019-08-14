@@ -1,6 +1,5 @@
 /**
  * Created on 21.03.2019.
- *
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -8,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
@@ -16,7 +14,6 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
-
 
 describe("image.component.default.caption.spec: Type a caption in image-wizard and check it in an inserted image component",
     function () {
@@ -28,20 +25,11 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
         let CONTROLLER_NAME = 'main region';
         let EXPECTED_CAPTION = "bro caption";
 
-        it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+        it(`Preconditions: new site should be created`,
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    studioUtils.saveScreenshot(displayName + '_created');
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`GIVEN existing image is opened WHEN caption has been typed in the wizard AND the image has been saved THEN the caption should be saved`,

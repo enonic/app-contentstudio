@@ -18,18 +18,12 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     webDriverHelper.setupBrowser();
 
     let folder;
-    it(`Precondition: WHEN folder has been added THEN folder should be present in the grid`,
-        () => {
+    it(`Precondition:new folder should be added in the root`,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(folder).then(() => {
-                return studioUtils.typeNameInFilterPanel(folder.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'folder should be listed in the grid');
-            });
+            await studioUtils.doAddFolder(folder);
         });
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
     it(`GIVEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
@@ -55,7 +49,7 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(folder.displayName);
             // folder has been Marked as Ready
-            await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForPublishButtonVisible();
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();

@@ -303,13 +303,16 @@ class Page {
     }
 
     async switchToFrame(selector) {
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        let el = await this.findElement(selector);
-        //await browser.switchToFrame(frame.elementId); // Fail! Firefox and Chrome
-        return await this.getBrowser().switchToFrame(el).catch(err => {
+        try {
+            await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+            let els = await this.findElements(selector);
+            let el = await this.findElement(selector);
+            //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
+            return await this.getBrowser().switchToFrame(el);
+        } catch (err) {
             console.log('Error when switch to frame ' + selector);
             throw new Error('Error when switch to frame  ' + err);
-        })
+        }
     }
 
     clickOnCloseIconInBrowser() {
@@ -321,11 +324,13 @@ class Page {
     }
 
     async doDoubleClick(selector) {
-        let el = await this.findElement(selector);
-        await el.moveTo();
-        return await this.getBrowser().positionDoubleClick().catch(err => {
+        try {
+            let el = await this.findElement(selector);
+            await el.moveTo();
+            return await el.doubleClick();
+        } catch (err) {
             throw Error('Error when doubleClick on the element' + err);
-        })
+        }
     }
 
     switchToParentFrame() {

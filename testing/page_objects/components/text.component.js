@@ -56,7 +56,7 @@ class TextComponent extends Page {
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame("//iframe[contains(@class,'live-edit-frame')]");
+        return this.switchToFrame("//iframe[contains(@class,'live-edit-frame shown')]");
     }
 
     switchToCKETableFrameAndInsertTable() {

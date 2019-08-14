@@ -65,7 +65,7 @@ class ImageSelectorForm extends Page {
             return this.findElements(imgSelector);
         }).then(result => {
             result.forEach(el => {
-                titles.push(this.getBrowser().getElementAttribute(el.ELEMENT,'title'));
+                titles.push(this.getBrowser().getElementAttribute(el.elementId, 'title'));
             });
             return Promise.all(titles).then(p => {
                 return p;

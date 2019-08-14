@@ -23,20 +23,12 @@ describe('Text Component with CKE - insert email link  specification', function 
     let CONTROLLER_NAME = 'main region';
     const EXPECTED_SRC = '<p><a href="mailto:test@mail.com">test</a></p>';
 
-    it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'email-link' has been inserted THEN correct data should be present in the CKE`,
@@ -56,7 +48,7 @@ describe('Text Component with CKE - insert email link  specification', function 
                 return textComponentCke.clickOnInsertLinkButton();
             }).then(() => {
                 return studioUtils.insertEmailLinkInCke("test", TEST_EMAIL);
-            }).then(()=>{
+            }).then(() => {
                 return contentWizard.pause(1000);
             }).then(() => {
                 return textComponentCke.switchToLiveEditFrame();
@@ -77,7 +69,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
                 return contentBrowsePanel.clickOnPreviewButton();
-            }).then(()=>{
+            }).then(() => {
                 return contentBrowsePanel.pause(1000);
             }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName)

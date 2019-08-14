@@ -22,20 +22,12 @@ describe('content.image.selector: Image content specification', function () {
     let SITE;
     let imageSelectorContent;
     let FOLDER_WITH_FILES = 'selenium-tests-folder';
-    it(`Precondition: WHEN site with content types has been added THEN the site should be listed in the grid`,
-        () => {
-        let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot('site_should_be_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN 'zzzzzz' string typed in the filter input THEN 'No matching items' should appears`,

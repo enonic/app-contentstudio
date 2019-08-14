@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
@@ -22,19 +21,11 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     let IMAGE_DISPLAY_NAME = "Pop_03";
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
-    it(`Preconditions: site should be added`,
-        () => {
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            let contentBrowsePanel = new ContentBrowsePanel();
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN custom styles should be present`,
