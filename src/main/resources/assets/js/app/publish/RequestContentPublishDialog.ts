@@ -1,6 +1,5 @@
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {Issue} from '../issue/Issue';
-import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -43,8 +42,6 @@ export class RequestContentPublishDialog
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
-    private scheduleFormToggle: api.dom.ButtonEl;
-
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
@@ -79,7 +76,6 @@ export class RequestContentPublishDialog
 
         this.requestDetailsPropertySet = new api.data.PropertySet();
 
-        this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
         this.scheduleFormToggle.onClicked((event) => {
             this.goToStep(1);   // go to the form step
         });

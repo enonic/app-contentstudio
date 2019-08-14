@@ -28,6 +28,8 @@ export abstract class BasePublishDialog
 
     protected scheduleFormPropertySet: api.data.PropertySet;
 
+    protected scheduleFormToggle: api.dom.ButtonEl;
+
     constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
 
@@ -61,6 +63,8 @@ export abstract class BasePublishDialog
 
         this.scheduleFormPropertySet = new api.data.PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
+
+        this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
 
         this.publishScheduleForm.layout(false);
         this.scheduleFormPropertySet.onChanged((event: PropertyEvent) => {

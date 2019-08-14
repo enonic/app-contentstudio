@@ -97,6 +97,8 @@ export class ContentPublishDialog
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
 
+            this.prependChildToHeader(this.scheduleFormToggle);
+
             this.prependChildToContentPanel(this.publishScheduleForm);
 
             this.prependChildToContentPanel(this.publishIssuesStateBar);
