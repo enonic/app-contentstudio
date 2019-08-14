@@ -38,7 +38,7 @@ export class LayerDialogForm
     private initElements() {
         this.parentLayer = new LayerComboBox(1);
         this.defaultLanguage = new LocaleComboBox(1);
-        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^A-Za-z0-9\-_]/);
+        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^a-z0-9\-_]/);
         this.icon = new TextInput('icon');
         this.description = new TextInput('description');
     }
@@ -123,7 +123,7 @@ export class LayerDialogForm
 
         this.defaultLanguage.onValueChanged((event: api.ValueChangedEvent) => {
             if (!StringHelper.isEmpty(event.getNewValue()) && !this.identifier.isReadOnly()) {
-                this.identifier.setValue(event.getNewValue());
+                this.identifier.setValue(event.getNewValue().toLocaleLowerCase());
             }
             this.validate(true);
         });
