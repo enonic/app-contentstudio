@@ -19,14 +19,12 @@
         .icon-plus;
         .button(@form-button-font, @admin-button-blue2);
 
-        float: right;
-        position: relative;
-        padding: 0px 6px;
-        height: 40px;
-
         position: absolute;
         top: 35px;
         right: 35px;
+        height: 40px;
+        padding: 0 6px;
+        float: right;
 
         &:before {
           font-size: 38px;
@@ -39,7 +37,7 @@
 
         .layers-list-item {
           display: flex;
-          padding: 10px 0px;
+          padding: 10px 0;
 
           .layer-viewer {
             flex-grow: 1;
@@ -49,7 +47,7 @@
             .icon-pencil;
             .button(@admin-black, @admin-white);
             border: none;
-            padding: 4px 0px 0px 0px;
+            padding: 4px 0 0 0;
             margin-right: 20px;
 
             &:focus {
@@ -66,7 +64,7 @@
             .icon-medium;
             .button(@admin-black, @admin-white);
             border: none;
-            padding: 0px;
+            padding: 0;
             padding-top: 5px;
 
             &:focus {
