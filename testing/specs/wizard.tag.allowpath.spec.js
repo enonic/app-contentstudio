@@ -23,23 +23,20 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     let TAG_TEXT2 = "test enonic";
 
     it(`Preconditions: site and child folder should be added`,
-        () => {
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             FOLDER = contentBuilder.buildFolder("mytags");
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return studioUtils.doAddFolder(FOLDER);
-            });
+            await studioUtils.doAddSite(SITE);
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.doAddFolder(FOLDER);
         });
 
     it(`Precondition, new tag should be added in the root of the site: tag-content wizard has been opened and tag with text 'enonic' has been saved`,
         () => {
             let contentWizard = new ContentWizard();
             let tagForm = new TagForm();
-           //do add new tag-content in the root of the site
+            //do add new tag-content in the root of the site
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'tag0_5').then(() => {
                 return contentWizard.typeDisplayName("test-tag1");
             }).then(() => {
@@ -57,7 +54,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
         () => {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
-           //select 'mytags' folder and open wizard for tag-content
+            //select 'mytags' folder and open wizard for tag-content
             return studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5').then(() => {
                 return contentWizard.typeDisplayName("test-tag2");
             }).then(() => {
@@ -71,7 +68,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             });
         });
 
-    //<allowPath>${site}/mytags/</allowPath>
+//<allowPath>${site}/mytags/</allowPath>
     it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that is not in 'allowPath' has been typed THEN tag-suggestion should not appear`,
         () => {
             let tagForm = new TagForm();
@@ -111,7 +108,6 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
                 assert.isTrue(result === TAG_TEXT2, "Tag- Suggestion should appear")
             });
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

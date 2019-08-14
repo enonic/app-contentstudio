@@ -60,7 +60,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
@@ -148,6 +148,8 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             })
         });
 
+    //verifies : https://github.com/enonic/app-contentstudio/issues/721
+    //drop down handle for issues remains after the content is unselected
     it(`GIVEN existing folder with 2 issues is selected WHEN this folder has been unselected THEN 'issues drop down handle' gets not visible`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();

@@ -15,7 +15,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
-describe('Text Component with CKE - insert download link  specification', function () {
+describe('Text Component with CKE - insert download-link  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -25,21 +25,14 @@ describe('Text Component with CKE - insert download link  specification', functi
     const EXPECTED_SRC = '<p><a href="media://download/';
 
     it(`Precondition: new site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
-    it.skip(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'download-link' has been inserted THEN correct data should be present in the CKE`,
+    it.skip(
+        `GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'download-link' has been inserted THEN correct data should be present in the CKE`,
         () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();

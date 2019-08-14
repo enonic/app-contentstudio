@@ -56,7 +56,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     it(`WHEN existing new folder has been selected THEN 'Publish' button should appear on browse-toolbar`, () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         return studioUtils.findAndSelectItem(FOLDER.displayName).then(() => {
-            return contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            return contentBrowsePanel.clickOnMarkAsReadyButton();
         }).then(() => {
             // do publish the folder
             return studioUtils.doPublish();

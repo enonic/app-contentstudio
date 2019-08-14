@@ -94,13 +94,12 @@ class ContentItemPreviewPanel extends Page {
 
     async getContentStatus() {
         let result = await this.getDisplayedElements(this.contentStatus);
-        //return await result[0].getElementText();
-        return await this.getBrowser().getElementText(result[0].ELEMENT);
+        return await result[0].getText(this.contentStatus);
     }
 
     async getContentAuthor() {
         let result = await this.getDisplayedElements(this.author);
-        return await this.getBrowser().getElementText(result[0].ELEMENT);
+        return await result[0].getText();
     }
 
     getIssueNameOnMenuButton() {

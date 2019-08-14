@@ -23,27 +23,21 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
         let newTitle = "new title";
 
         let TEST_FOLDER;
-        it(`Precondition: create a folder and create new issue`, () => {
+        it(`Precondition: create a folder and create new issue`, async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
-                return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForMarkAsReadyButtonVisible();
-            }).then(()=>{
-                //open 'Create Issue' dialog
-                return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            }).then(() => {
-                return createIssueDialog.typeTitle(issueTitle);
-            }).then(result => {
-                return createIssueDialog.clickOnCreateIssueButton();
-            }).then(() => {
-                //issue details dialog should be loaded
-                return issueDetailsDialog.waitForDialogOpened();
-            })
+            await studioUtils.doAddReadyFolder(TEST_FOLDER);
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+
+            //open 'Create Issue' dialog and create new issue.
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(issueTitle);
+            await createIssueDialog.clickOnCreateIssueButton();
+            //issue details dialog should be loaded
+            await issueDetailsDialog.waitForDialogOpened();
         });
 
         it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been opened and 'Closed'-item selected THEN issue should be 'Closed' and 'Reopen Issue' button is getting visible`,
@@ -72,22 +66,20 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             });
 
         it(`GIVEN existing 'closed' issue WHEN 'Issue Details'  Dialog is opened THEN 'Edit' button should not be visible on the dialog header`,
-            () => {
+            async () => {
                 let issueDetailsDialog = new IssueDetailsDialog();
-                let createIssueDialog = new CreateIssueDialog();
                 let issueListDialog = new IssueListDialog();
-                return studioUtils.openIssuesListDialog().then(() => {
-                    return issueListDialog.clickOnShowClosedIssuesButton();
-                }).then(() => {
-                    return issueListDialog.clickOnIssue(issueTitle);
-                }).then(() => {
-                    return issueDetailsDialog.waitForDialogOpened();
-                }).then(() => {
-                    return issueDetailsDialog.waitForIssueTitleInputToggleNotVisible();
-                }).then(result => {
-                    studioUtils.saveScreenshot("issue_details_edit_toggle_hidden");
-                    return assert.isTrue(result, 'Edit toggle should not be visible, because the issue is closed');
-                });
+                await studioUtils.openIssuesListDialog();
+                await issueListDialog.clickOnShowClosedIssuesButton();
+
+                //Open issue-details dialog:
+                await issueListDialog.clickOnIssue(issueTitle);
+                await issueDetailsDialog.waitForDialogOpened();
+
+                // the issue is closed, so it is not editable.
+                let result = await issueDetailsDialog.waitForIssueTitleInputToggleNotVisible();
+                studioUtils.saveScreenshot("issue_details_edit_toggle_hidden");
+                return assert.isTrue(result, 'Edit toggle should not be visible, because the issue is closed');
             });
 
         it(`GIVEN existing 'closed' issue AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the issue is getting 'open' AND 'Close Issue' button is getting visible`,
@@ -118,7 +110,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 });
             });
 
-        it(`GIVEN existing 'open' issue AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed on the dialog`,
+        it(`GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
             () => {
                 let issueDetailsDialog = new IssueDetailsDialog();
                 let createIssueDialog = new CreateIssueDialog();
@@ -148,4 +140,5 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
         before(() => {
             return console.log('specification is starting: ' + this.title);
         });
-    });
+    })
+;

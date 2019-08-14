@@ -118,7 +118,8 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             //Date time range should be displayed
             await dateTimeRange.waitForDisplayed();
             studioUtils.saveScreenshot("request_publishing_add_schedule");
-            await requestPublishDialog.waitForAddScheduleButtonNotDisplayed();
+            // Add Schedule icon should be displayed as well.
+            await requestPublishDialog.waitForAddScheduleButtonDisplayed();
             //'Create Request' button should be disabled , because empty 'date time range' was added to the form:
             await requestPublishDialog.waitForCreateRequestButtonDisabled();
         });

@@ -7,9 +7,13 @@ const xpath = {
     nextButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
-    addScheduleButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Add schedule')]]`,
+    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
+    warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
+    contentSummaryByDisplayName:
+        displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
         displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     contentStatus:
@@ -43,6 +47,10 @@ class RequestContentPublishDialog extends Page {
         return xpath.container + xpath.showDependentItemsLink;
     }
 
+    get warningMessagePart1() {
+        return xpath.container + xpath.warningMessagePart1;
+    }
+
     async isItemRemovable(displayName) {
         let selector = xpath.itemToRequest(displayName);
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
@@ -62,6 +70,12 @@ class RequestContentPublishDialog extends Page {
 
     waitForNextButtonDisplayed() {
         return this.waitForElementDisplayed(this.nextButton, appConst.TIMEOUT_3);
+    }
+
+    waitForNextButtonEnabled() {
+        return this.waitForElementEnabled(this.nextButton, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Request Publishing dialog:  'Next' button should be enabled :" + err);
+        })
     }
 
     waitForPreviousButtonDisplayed() {
@@ -159,6 +173,26 @@ class RequestContentPublishDialog extends Page {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Request Publishing Dialog - Show dependent Link " + err);
         })
+    }
+
+    async getWorkflowState(displayName) {
+        let selector = xpath.contentSummaryByDisplayName(displayName);
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(selector, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
+            return appConst.WORKFLOW_STATE.PUBLISHED;
+
+        } else {
+            throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    isWarningMessageDisplayed() {
+        return this.isElementDisplayed(this.warningMessagePart1);
     }
 };
 module.exports = RequestContentPublishDialog;

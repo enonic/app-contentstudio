@@ -233,6 +233,13 @@ class ContentBrowsePanel extends Page {
         return await confirmationDialog.clickOnYesButton();
     }
 
+    //When single content is selected, confirmation is no needed
+    async clickOnMarkAsReadyButton() {
+        await this.waitForMarkAsReadyButtonVisible();
+        await this.clickOnElement(this.markAsReadyButton);
+        return this.pause(500);
+    }
+
     waitForGridLoaded(ms) {
         return this.waitForElementDisplayed(lib.GRID_CANVAS, ms).then(() => {
             return this.waitForSpinnerNotVisible(ms);

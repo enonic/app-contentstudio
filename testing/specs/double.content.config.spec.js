@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DoubleForm = require('../page_objects/wizardpanel/double.form.panel');
@@ -17,19 +16,11 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
     webDriverHelper.setupBrowser();
     let SITE;
 
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN number from the allowed range has been typed THEN validation message should not be present`,

@@ -55,7 +55,7 @@ class CreateIssueDialog extends Page {
     }
 
     clickOnCreateIssueButton() {
-        return this.waitForElementDisplayed(this.createIssueButton, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementEnabled(this.createIssueButton, appConst.TIMEOUT_2).then(() => {
             return this.clickOnElement(this.createIssueButton)
         }).catch(err => {
             this.saveScreenshot('err_click_create_issue_button');

@@ -8,7 +8,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
@@ -31,19 +30,10 @@ describe('Content with image-selector, select images and verify that Outbound de
         let contentName = contentBuilder.generateRandomName('image-selector');
 
         it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    studioUtils.saveScreenshot(displayName + '_created');
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`GIVEN existing site with the configurator is opened WHEN image has been inserted in the site configurator THEN 'Outbound dependency' should appear`,

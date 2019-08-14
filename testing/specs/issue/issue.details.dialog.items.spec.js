@@ -60,8 +60,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isContentOptionsFilterInputPresent(),
                     'Content option filter input should be present');
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishAndCloseIssueButtonPresent(),
-                    '`Publish & Close Issue` should be present');
+                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishButtonDisplayed(), '`Publish...` should be present');
             });
         });
 

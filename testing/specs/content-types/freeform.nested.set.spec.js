@@ -12,8 +12,6 @@ const contentBuilder = require("../../libs/content.builder");
 const FreeFormNestedSet = require('../../page_objects/wizardpanel/itemset/freeform.form.view');
 const FreeFormOptionSet1 = require('../../page_objects/wizardpanel/itemset/freeform.optionset1.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-
 
 describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button on the wizard-toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -22,18 +20,12 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
     let SITE;
     let contentDisplayName;
 
-    it(`Preconditions: site should be added`, () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            siteDisplayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(siteDisplayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+
+    it(`Preconditions: new site should be created`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button should appear on the wizard-toolbar`,

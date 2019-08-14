@@ -62,7 +62,9 @@ class ContentPublishDialog extends Page {
     }
 
     clickOnPublishNowButton() {
-        return this.clickOnElement(this.publishNowButton).catch(err => {
+        return this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.publishNowButton);
+        }).catch(err => {
             this.saveScreenshot('err_click_on_publish_button_publish_dialog');
             throw new Error('Error when clicking Publish Now button ' + err);
         })

@@ -8,7 +8,7 @@ const XPATH = {
     issueTitleInputToggle: `//button[@class='inplace-toggle']`,
     closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
-    addCommentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Add Comment']]`,
+    commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
     assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
     commentsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Comments')]]",
@@ -49,8 +49,8 @@ class IssueDetailsDialog extends Page {
         return XPATH.container + XPATH.reopenIssueButton;
     }
 
-    get addCommentButton() {
-        return XPATH.container + XPATH.addCommentButton;
+    get commentButton() {
+        return XPATH.container + XPATH.commentButton;
     }
 
     get issueCommentTextArea() {
@@ -107,8 +107,9 @@ class IssueDetailsDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
+        await this.waitForElementDisplayed(this.cancelTopButton);
         await this.clickOnElement(this.cancelTopButton);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     clickOnIssueStatusSelector() {
@@ -196,12 +197,12 @@ class IssueDetailsDialog extends Page {
         return this.isElementDisplayed(this.closeIssueButton);
     }
 
-    isAddCommentButtonDisplayed() {
-        return this.isElementDisplayed(this.addCommentButton);
+    isCommentButtonDisplayed() {
+        return this.isElementDisplayed(this.commentButton);
     }
 
-    async clickOnAddCommentButton() {
-        await this.clickOnElement(this.addCommentButton);
+    async clickOnCommentButton() {
+        await this.clickOnElement(this.commentButton);
         return await this.pause(500);
     }
 
@@ -209,18 +210,18 @@ class IssueDetailsDialog extends Page {
         return this.isElementDisplayed(this.issueCommentTextArea);
     }
 
-    isAddCommentButtonEnabled() {
-        return this.isElementEnabled(this.addCommentButton);
+    isCommentButtonEnabled() {
+        return this.isElementEnabled(this.commentButton);
     }
 
-    waitForAddCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.addCommentButton).catch(err => {
+    waitForCommentButtonEnabled() {
+        return this.waitForElementEnabled(this.commentButton).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
 
-    waitForAddCommentButtonDisabled() {
-        return this.waitForElementDisabled(this.addCommentButton).catch(err => {
+    waitForCommentButtonDisabled() {
+        return this.waitForElementDisabled(this.commentButton).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }

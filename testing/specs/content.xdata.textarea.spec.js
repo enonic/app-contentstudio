@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const XDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
@@ -24,19 +23,11 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
     let TEST_TEXT = 'test text';
     let X_DATA_STEP_WIZARD = 'Html Area x-data';
 
-    it(`Preconditions: site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be present in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/487
