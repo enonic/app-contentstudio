@@ -18,6 +18,8 @@ export class LayerDialogsManager {
 
     private openListDialogOnCreateDialogClosed: boolean;
 
+    private openListDialogOnDetailsDialogClosed: boolean;
+
     private constructor() {
         this.createLayerDialog = CreateLayerDialog.get();
         this.layersListDialog = LayersListDialog.get();
@@ -44,10 +46,17 @@ export class LayerDialogsManager {
                 this.openLayersListDialog();
             }
         });
+
+        this.layerDetailsDialog.onClosed(() => {
+            if (this.openListDialogOnDetailsDialogClosed) {
+                this.openLayersListDialog();
+            }
+        });
     }
 
     private initLayerDetailsDialogListeners() {
         this.layerDetailsDialog.onBackButtonClicked(() => {
+            this.openListDialogOnDetailsDialogClosed = false;
             this.openLayersListDialog();
         });
     }
@@ -60,6 +69,7 @@ export class LayerDialogsManager {
 
         this.layersListDialog.onEditClicked((layer: ContentLayer) => {
             this.openLayerDetailsDialog(layer);
+            this.openListDialogOnDetailsDialogClosed = true;
         });
 
         this.layersListDialog.onRemoveClicked((layer: ContentLayer) => {
@@ -83,6 +93,7 @@ export class LayerDialogsManager {
     openLayerDetailsDialog(layer: ContentLayer) {
         this.layerDetailsDialog.setLayer(layer);
         this.layerDetailsDialog.open();
+        this.openListDialogOnDetailsDialogClosed = false;
     }
 
     openLayersListDialog() {
