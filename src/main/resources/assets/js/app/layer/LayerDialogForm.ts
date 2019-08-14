@@ -24,6 +24,8 @@ export class LayerDialogForm
 
     private identifierFormItem: FormItem;
 
+    private parentLayerFormItem: FormItem;
+
     constructor() {
         super('layer-dialog-form');
 
@@ -42,6 +44,9 @@ export class LayerDialogForm
     }
 
     public setInitialValues() {
+        if (this.parentLayerFormItem) {
+            this.parentLayerFormItem.hide();
+        }
         this.parentLayer.setValue(ContentLayer.DEFAULT_LAYER_NAME);
         this.defaultLanguage.clearSelection();
         this.defaultLanguage.getComboBox().getInput().reset();
@@ -55,10 +60,10 @@ export class LayerDialogForm
     private initFormView() {
         const fieldSet: api.ui.form.Fieldset = new api.ui.form.Fieldset();
 
-        const parentLayerFormItem = this.addValidationViewer(
+        this.parentLayerFormItem = this.addValidationViewer(
             new FormItemBuilder(this.parentLayer).setLabel(i18n('dialog.layers.field.parentLayer')).setValidator(
                 Validators.required).build());
-        fieldSet.add(parentLayerFormItem);
+        fieldSet.add(this.parentLayerFormItem);
 
         const defaultLanguageFormItem = this.addValidationViewer(
             new FormItemBuilder(this.defaultLanguage)
@@ -134,6 +139,7 @@ export class LayerDialogForm
 
     public setParentLayer(value: string) {
         this.parentLayer.setValue(value, true);
+        this.parentLayerFormItem.show();
     }
 
     public setParentLayerReadOnly(value: boolean) {

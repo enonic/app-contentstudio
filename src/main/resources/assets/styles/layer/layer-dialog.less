@@ -6,7 +6,14 @@
 
   &.layers-list-dialog {
     .modal-dialog-header {
-      padding-bottom: 20px;
+      padding-bottom: 15px;
+
+      .title {
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: @admin-font-gray3;
+      }
 
       .action-button {
         .icon-plus;
@@ -14,9 +21,12 @@
 
         float: right;
         position: relative;
-        top: -25px;
         padding: 0px 6px;
         height: 40px;
+
+        position: absolute;
+        top: 35px;
+        right: 35px;
 
         &:before {
           font-size: 38px;
