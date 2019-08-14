@@ -103,6 +103,10 @@
 
     &.invalid, &.ready, &.in-progress {
       display: block;
+
+      + .toggle-button {
+        margin-left: auto;
+      }
     }
 
     &.invalid {
@@ -116,6 +120,10 @@
     &.in-progress {
       .icon-state-in-progress;
     }
+  }
+
+  .content-wizard-toolbar-publish-button {
+    border-left: 1px solid @admin-bg-light-gray;
   }
 
   &.publish-request .toolbar-state-icon.ready::before {
@@ -160,6 +168,19 @@
     .icon-clipboard {
       margin-left: auto;
     }
+
+
+    .toolbar-state-icon {
+      margin-left: auto;
+
+      &.invalid, &.ready, &.in-progress {
+
+        + .cycle-button {
+          margin-left: 0;
+        }
+      }
+    }
+
   }
 }
 

@@ -765,7 +765,7 @@ export class IssueDetailsDialog
 
     private createScheduleButton(): DialogButton {
         const scheduleButton: DialogButton = this.getButtonRow().addAction(this.scheduleAction);
-        scheduleButton.addClass('schedule-issue');
+        scheduleButton.addClass('schedule-issue publish-issue');
         return scheduleButton;
     }
 

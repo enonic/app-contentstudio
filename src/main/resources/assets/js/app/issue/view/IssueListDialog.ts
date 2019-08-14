@@ -71,19 +71,22 @@ export class IssueListDialog
 
         this.allPanel = this.createIssuePanel({
             storage,
-            noIssuesMessage: i18n('dialog.issue.noIssuesAndPublishRequests')
+            noIssuesMessage: i18n('dialog.issue.noIssuesAndPublishRequests'),
+            issuesToggledHandler: () => this.updateAllTabLabel()
         });
 
         this.publishRequestsPanel = this.createIssuePanel({
             storage,
             issueType: IssueType.PUBLISH_REQUEST,
-            noIssuesMessage: i18n('dialog.issue.noPublishRequests')
+            noIssuesMessage: i18n('dialog.issue.noPublishRequests'),
+            issuesToggledHandler: () => this.updatePublishRequestsTabLabel()
         });
 
         this.issuesPanel = this.createIssuePanel({
             storage,
             issueType: IssueType.STANDARD,
-            noIssuesMessage: i18n('dialog.issue.noIssues')
+            noIssuesMessage: i18n('dialog.issue.noIssues'),
+            issuesToggledHandler: () => this.updateIssuesTabLabel()
         });
 
         this.tabBar = this.createTabBar();
@@ -250,19 +253,10 @@ export class IssueListDialog
             new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST).sendAndParse(),
             new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse()
         ]).then((results: IssueStatsJson[]) => {
-            [
-                i18n('field.all'),
-                i18n('field.publishRequests'),
-                i18n('field.issues')
-            ].forEach((label, index) => {
-                const {open, closed} = results[index];
-                const total = open + closed;
-                this.updateTabLabel(index, label, total);
-            });
-
             return IssueListDialog.updatePanelIssuesCount(this.allPanel, results[0])
                 .then(() => IssueListDialog.updatePanelIssuesCount(this.publishRequestsPanel, results[1]))
-                .then(() => IssueListDialog.updatePanelIssuesCount(this.issuesPanel, results[2]));
+                .then(() => IssueListDialog.updatePanelIssuesCount(this.issuesPanel, results[2]))
+                .then(() => this.updateTabsLabels());
         });
     }
 
@@ -288,8 +282,32 @@ export class IssueListDialog
         };
     }
 
-    private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(count > 0 ? (label + ' (' + count + ')') : label);
+    updateTabsLabels() {
+        this.updateAllTabLabel();
+        this.updatePublishRequestsTabLabel();
+        this.updateIssuesTabLabel();
+    }
+
+    private updateAllTabLabel() {
+        const total = this.allPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.all'), total);
+        this.allTab.setLabel(label);
+    }
+
+    private updatePublishRequestsTabLabel() {
+        const total = this.publishRequestsPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.publishRequests'), total);
+        this.publishRequestsTab.setLabel(label);
+    }
+
+    private updateIssuesTabLabel() {
+        const total = this.issuesPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.issues'), total);
+        this.issuesTab.setLabel(label);
+    }
+
+    private static createTabLabel(label: string, count: number) {
+        return count > 0 ? `${label} (${count})` : label;
     }
 
     onCreateButtonClicked(listener: (action: Action) => void) {

@@ -28,9 +28,9 @@ export class ContentWizardToolbar
         this.addHomeButton(application);
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
-        this.addStateIcon();
-        this.addTogglerButtons(actions);
         this.addMobileItemStatisticsButton();
+        this.addTogglerButtons(actions);
+        this.addStateIcon();
 
         if (item) {
             this.setItem(item);
@@ -108,8 +108,8 @@ export class ContentWizardToolbar
         this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
 
-        super.addElement(this.cycleViewModeButton);
         super.addElement(this.componentsViewToggler);
+        super.addElement(this.cycleViewModeButton);
     }
 
     toggleValid(isValid: boolean) {

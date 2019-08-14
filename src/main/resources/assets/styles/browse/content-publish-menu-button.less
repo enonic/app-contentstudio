@@ -1,12 +1,20 @@
 .content-publish-menu {
   margin-left: auto;
   display: flex;
+  border-right: 1px solid @admin-bg-light-gray;
+  margin-right: 10px;
+
+  @media screen and (max-width: 720px) {
+    border-left: 1px solid @admin-bg-light-gray;
+    border-right: none;
+    margin-right: 0;
+  }
 
   .action-button {
     text-align: left;
     padding-left: 12px;
-    padding-right: 12px;
-    border-left: 1px solid @admin-bg-light-gray;
+    padding-right: 5px;
+    border-left: none;
     margin-left: 38px;
     display: none !important;
     min-width: unset;
@@ -19,6 +27,7 @@
   &.no-item {
     .action-button.create-issue-action-button {
       border-left: none;
+      padding-right: 12px;
       .menu-action-button(@admin-button-blue2);
     }
 
@@ -87,6 +96,8 @@
 
   .menu {
     right: 0;
+    top: @toolbar-height;
+    width: auto;
   }
 
   .progress-bar {
