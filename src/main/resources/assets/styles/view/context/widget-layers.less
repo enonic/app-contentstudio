@@ -1,0 +1,44 @@
+.widget-view.layers-widget {
+  .layers-widget-item-view {
+
+    .header {
+      margin-bottom: 10px;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .sub-header {
+      display: inline-block;
+    }
+
+    .local {
+      button {
+        .button(@form-button-font, @input-red-text);
+      }
+    }
+
+    .inherited {
+      button {
+        .button(@form-button-font, @admin-button-blue2);
+      }
+    }
+
+    .local,
+    .inherited,
+    .multi-layers {
+      button {
+        display: block;
+        width: 100%;
+        height: 28px;
+        margin: 15px auto 0;
+        text-align: center;
+      }
+    }
+
+    .local .content-of-layer-viewer,
+    .multi-layers .layer-viewer {
+      margin-bottom: 15px;
+    }
+  }
+}

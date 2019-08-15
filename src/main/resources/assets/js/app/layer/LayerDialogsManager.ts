@@ -85,7 +85,10 @@ export class LayerDialogsManager {
         return LayerDialogsManager.INSTANCE;
     }
 
-    openCreateLayerDialog() {
+    openCreateLayerDialog(parentLayer?: string) {
+        if (parentLayer) {
+            this.createLayerDialog.getForm().setParentLayer(parentLayer);
+        }
         this.createLayerDialog.open();
         this.openListDialogOnCreateDialogClosed = false;
     }

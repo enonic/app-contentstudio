@@ -14,7 +14,7 @@ export class ContentSummaryAndCompareStatusViewer
 
         if (contentSummary) {
             const language = contentSummary.getLanguage();
-            const languageStr = language ? `<el>(${language})</el>` : '';
+            const languageStr = language ? `<span>(${language})</span>` : '';
             return contentSummary.getDisplayName() + languageStr;
         }
 
