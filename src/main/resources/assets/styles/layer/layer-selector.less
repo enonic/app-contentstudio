@@ -20,20 +20,18 @@
       z-index: @z-index-mask + 1;
 
       .selected-layer-view {
-        height: 100%;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         cursor: pointer;
 
         .layer-viewer {
-          height: 100%;
-          display: flex;
-          align-items: center;
-          margin-right: 10px;
 
           .names-and-icon-view {
             display: flex;
             align-items: center;
+            justify-content: center;
+            height: @app-header-height;
 
             .xp-admin-common-names-view {
               margin-left: 0px;
@@ -74,7 +72,7 @@
       }
 
       .xp-admin-common-dropdown-handle {
-        position: relative;
+        position: absolute;
         width: 44px;
 
         &::after {
@@ -99,9 +97,10 @@
           .icon-medium;
           background-color: darken(@admin-bg-dark-gray, 10%);
           position: absolute;
-          top: 14px;
-          right: 8px;
+          top: 7px;
+          right: 5px;
           border: none;
+          height: 38px;
 
           &:before {
             color: @admin-white;

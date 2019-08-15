@@ -98,11 +98,13 @@ export class LayerSelector
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.header.appendChild(this.headerLayerViewer);
-            this.header.appendChild(this.dropdownHandle);
+            this.header.appendChildren(
+                this.headerLayerViewer,
+                this.dropdownHandle,
+                this.layersListHeader
+            );
             this.appendChildren(
                 this.header,
-                this.layersListHeader,
                 this.layersList
             );
 
@@ -134,7 +136,10 @@ export class LayerSelector
     private createOpenLayerListIcon(): ButtonEl {
         const cogIcon = new ButtonEl();
         cogIcon.addClass('icon-cog');
-        cogIcon.onClicked(() => LayerDialogsManager.get().openLayersListDialog());
+        cogIcon.onClicked(() => {
+            this.hideLayersList();
+            LayerDialogsManager.get().openLayersListDialog();
+        });
 
         return cogIcon;
     }
