@@ -9,6 +9,7 @@ import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {LayerContext} from './layer/LayerContext';
+import {ContentAppBarTabId} from './ContentAppBarTabId';
 import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;
 
@@ -62,7 +63,7 @@ export class ContentEventsProcessor {
             let contentSummary = content.getContentSummary();
             let contentTypeName = contentSummary.getType();
 
-            let tabId = AppBarTabId.forEdit(contentSummary.getId());
+            let tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
 
             let wizardParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
