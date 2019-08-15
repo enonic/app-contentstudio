@@ -3,13 +3,13 @@ import {LayerViewer} from './LayerViewer';
 import {LayersList, LayersListItem} from './LayersList';
 import {LayerContext} from './LayerContext';
 import {LayerChangedEvent} from './LayerChangedEvent';
+import {LayerDialogsManager} from './LayerDialogsManager';
 import DivEl = api.dom.DivEl;
 import DropdownHandle = api.ui.button.DropdownHandle;
 import H6El = api.dom.H6El;
 import i18n = api.util.i18n;
 import PEl = api.dom.PEl;
 import ButtonEl = api.dom.ButtonEl;
-import {LayerDialogsManager} from './LayerDialogsManager';
 
 export class LayerSelector
     extends DivEl {
@@ -106,7 +106,9 @@ export class LayerSelector
                 this.layersList
             );
 
-            this.hideLayersList();
+            this.dropdownHandle.up();
+            this.layersListHeader.hide();
+            this.layersList.hide();
 
             return rendered;
         });
@@ -134,7 +136,10 @@ export class LayerSelector
     private createOpenLayerListIcon(): ButtonEl {
         const cogIcon = new ButtonEl();
         cogIcon.addClass('icon-cog');
-        cogIcon.onClicked(() => LayerDialogsManager.get().openLayersListDialog());
+        cogIcon.onClicked(() => {
+            this.hideLayersList();
+            LayerDialogsManager.get().openLayersListDialog();
+        });
 
         return cogIcon;
     }
