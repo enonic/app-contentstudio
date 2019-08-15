@@ -83,10 +83,6 @@ export abstract class BasePublishDialog
         this.lockControls();
     }
 
-    protected shouldCheckPublish(): boolean {
-        return true;
-    }
-
     protected initListeners() {
         super.initListeners();
 
@@ -110,7 +106,8 @@ export abstract class BasePublishDialog
         this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
 
-        if (this.publishProcessor.containsInvalidDependants() || this.shouldCheckPublish() && !this.isAllPublishable()) {
+        if (this.publishProcessor.containsInvalidDependants() ||
+            this.publishProcessor.isCheckPublishable() && !this.isAllPublishable()) {
             this.setDependantListVisible(true);
         }
 
@@ -149,7 +146,7 @@ export abstract class BasePublishDialog
     protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
         const allValid: boolean = this.areItemsAndDependantsValid();
         const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const needPublish = this.shouldCheckPublish();
+        const needPublish = this.publishProcessor.isCheckPublishable();
         const allPublishable: boolean = this.isAllPublishable();
 
         if ((!needPublish || allPublishable) && allValid && !containsItemsInProgress) {
@@ -175,14 +172,6 @@ export abstract class BasePublishDialog
     protected updateControls(itemsToPublish: number = this.countTotal()) {
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
-    }
-
-    protected isCanPublish(itemsToPublish: number): boolean {
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const needPublishable = this.shouldCheckPublish();
-        const allPublishable: boolean = this.isAllPublishable();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        return itemsToPublish > 0 && allValid && (!needPublishable || allPublishable) && !containsItemsInProgress;
     }
 
     protected isScheduleFormValid(): boolean {

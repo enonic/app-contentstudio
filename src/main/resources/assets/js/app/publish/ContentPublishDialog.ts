@@ -207,7 +207,7 @@ export class ContentPublishDialog
     protected updateControls(itemsToPublish: number = this.countTotal()) {
         super.updateControls(itemsToPublish);
 
-        const canPublish = this.isCanPublish(itemsToPublish);
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid = this.isScheduleFormValid();
 
         this.toggleAction(canPublish && scheduleValid);

@@ -141,6 +141,7 @@ export class IssueDetailsDialog
         this.initActions();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+
         this.commentTextArea = new IssueCommentTextArea();
         this.detailsSubTitle = new DetailsDialogSubTitle(this.issue);
         this.loadCurrentUser().done(currentUser => {
@@ -347,7 +348,7 @@ export class IssueDetailsDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const isPublishRequest = this.isPublishRequestViewed();
+            const isPublishRequest = this.isPublishRequest();
 
             this.prependChildToHeader(this.scheduleFormToggle);
             this.setSubTitleEl(this.detailsSubTitle);
@@ -383,16 +384,16 @@ export class IssueDetailsDialog
         });
     }
 
-    private isPublishRequestViewed(): boolean {
+    private isPublishRequest(): boolean {
         return !!this.issue && this.issue.getType() === IssueType.PUBLISH_REQUEST;
     }
 
     private getItemsTabLabel(): string {
-        return this.isPublishRequestViewed() ? i18n('field.publishRequest') : i18n('field.items');
+        return this.isPublishRequest() ? i18n('field.publishRequest') : i18n('field.items');
     }
 
     private getCloseButtonLabel(canComment?: boolean): string {
-        const isPublishRequest = this.isPublishRequestViewed();
+        const isPublishRequest = this.isPublishRequest();
         if (isPublishRequest) {
             return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
         } else {
@@ -401,11 +402,11 @@ export class IssueDetailsDialog
     }
 
     private getReopenButtonLabel(): string {
-        return this.isPublishRequestViewed() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
+        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
     }
 
     private getPublishButtonLabel(itemsCount: number = 0): string {
-        const isPublishRequestViewed = this.isPublishRequestViewed();
+        const isPublishRequestViewed = this.isPublishRequest();
 
         if (isPublishRequestViewed) {
             return IssueDetailsDialog.makeLabelWithCounter(i18n('action.publishNow'), itemsCount);
@@ -444,40 +445,19 @@ export class IssueDetailsDialog
         this.toggleClass('no-action', !enable);
     }
 
-    private isCanPublish(itemsCount: number = this.countTotal()): boolean {
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const allPublishable: boolean = this.isAllPublishable();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const canPublish: boolean = itemsCount > 0 && allValid && allPublishable && !containsItemsInProgress;
-        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
-        return canPublish && scheduleValid;
-    }
-
     private updateControls(itemsToPublish: number = this.countTotal()) {
         this.toggleAction(itemsToPublish > 0);
 
-        const isIssue = !this.isPublishRequestViewed();
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const scheduleValid = !this.publishScheduleForm.isFormVisible() || this.publishScheduleForm.isFormValid();
 
-        const canPublish = this.isCanPublish(itemsToPublish);
-        this.publishAction.setEnabled(isIssue || canPublish);
-        this.scheduleAction.setEnabled(canPublish);
+        this.publishAction.setEnabled(canPublish && scheduleValid);
+        this.scheduleAction.setEnabled(canPublish && scheduleValid);
 
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
 
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
-    }
-
-    public isAllPublishable(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPublishable();
-    }
-
-    private areItemsAndDependantsValid(): boolean {
-        return !this.publishProcessor.containsInvalidItems();
-    }
-
-    private containsItemsInProgress(): boolean {
-        return this.publishProcessor.containsItemsInProgress();
     }
 
     private setActionsEnabled(flag: boolean) {
@@ -494,7 +474,7 @@ export class IssueDetailsDialog
     open() {
         super.open();
         if (this.isRendered()) {
-            this.tabPanel.selectPanelByIndex(this.isPublishRequestViewed() ? 1 : 0);
+            this.tabPanel.selectPanelByIndex(this.isPublishRequest() ? 1 : 0);
         }
 
         Router.setHash('issue/' + this.issue.getId());
@@ -619,7 +599,8 @@ export class IssueDetailsDialog
     setIssue(issue: Issue): IssueDetailsDialog {
 
         const shouldUpdateDialog = (this.isRendered() || this.isRendering()) && issue;
-        const isPublishRequest = !!issue && issue.getType() === IssueType.PUBLISH_REQUEST;
+        const isPublishRequest = this.isPublishRequest();
+        this.publishProcessor.setCheckPublishable(!isPublishRequest);
 
         if (shouldUpdateDialog) {
             this.getItemList().setCanBeEmpty(!isPublishRequest);
@@ -776,7 +757,7 @@ export class IssueDetailsDialog
     }
 
     private publish() {
-        const isPublishRequest = this.isPublishRequestViewed();
+        const isPublishRequest = this.isPublishRequest();
 
         if (isPublishRequest) {
             this.doPublish();

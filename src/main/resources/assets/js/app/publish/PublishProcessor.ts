@@ -27,6 +27,8 @@ export class PublishProcessor {
 
     private ignoreDependantItemsChanged: boolean;
 
+    private checkPublishable: boolean = true;
+
     private loadingStartedListeners: { (): void }[] = [];
 
     private loadingFinishedListeners: { (): void }[] = [];
@@ -195,6 +197,21 @@ export class PublishProcessor {
 
     public containsInvalidItems() {
         return this.containsInvalid;
+    }
+
+    public setCheckPublishable(flag: boolean) {
+        this.checkPublishable = flag;
+    }
+
+    public isCheckPublishable(): boolean {
+        return this.checkPublishable;
+    }
+
+    public areAllConditionsSatisfied(itemsToPublish: number): boolean {
+        const allValid: boolean = !this.containsInvalidItems();
+        const allPublishable: boolean = this.isAllPublishable();
+        const containsItemsInProgress: boolean = this.containsItemsInProgress();
+        return itemsToPublish > 0 && allValid && !containsItemsInProgress && (!this.checkPublishable || allPublishable);
     }
 
     public containsInvalidDependants(): boolean {

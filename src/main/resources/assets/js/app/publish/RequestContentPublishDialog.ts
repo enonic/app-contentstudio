@@ -72,6 +72,8 @@ export class RequestContentPublishDialog
     protected initElements() {
         super.initElements();
 
+        this.publishProcessor.setCheckPublishable(false);
+
         this.actionButton = this.addAction(this.requestPublishAction);
 
         this.requestDetailsPropertySet = new api.data.PropertySet();
@@ -228,10 +230,6 @@ export class RequestContentPublishDialog
         return this;
     }
 
-    protected shouldCheckPublish(): boolean {
-        return false;
-    }
-
     protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
 
@@ -246,7 +244,7 @@ export class RequestContentPublishDialog
     protected updateControls(itemsToPublish: number = this.countTotal()) {
         super.updateControls(itemsToPublish);
 
-        const canPublish = this.isCanPublish(itemsToPublish);
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid = this.isScheduleFormValid();
         const detailsValid = this.detailsFormView.isValid();
 
