@@ -28,7 +28,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
             //the folder should be marked as ready.
-            await contentWizard.clickOnMarkedAsReadyButton();
+            await contentWizard.clickOnMarkAsReadyButton();
 
             //expand the Publish Menu and select 'Request Publishing...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);

@@ -63,7 +63,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                 }).then(message => {
                     studioUtils.saveScreenshot('inspect_image_panel_applied');
                     let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
-                    assert.isTrue(message == expectedMessage, "expected notification message should appear")
+                    assert.equal(message, expectedMessage, "expected notification message should appear")
                 })
             });
 
@@ -93,7 +93,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                 }).then(() => {
                     return imageInspectPanel.getCaptionText();
                 }).then(result => {
-                    assert.isTrue(result == "test caption", "caption should be updated successfully");
+                    assert.equal(result, "test caption", "caption should be updated successfully");
                 })
             });
 

@@ -51,7 +51,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             let onlineFrom = await scheduleForm.getOnlineFrom();
             assert.isFalse(studioUtils.isStringEmpty(onlineFrom), "Online from input should not be empty");
 
-            let workflow = await contentWizard.getWorkflowState();
+            let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
 
         });
@@ -77,7 +77,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //Schedule form gets not visible
             await scheduleForm.waitForNotDisplayed();
 
-            let workflow = await contentWizard.getWorkflowState();
+            let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
@@ -97,7 +97,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 
-            let workflow = await contentWizard.getWorkflowState();
+            let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
 
             //AND: Status should be 'Deleted'
