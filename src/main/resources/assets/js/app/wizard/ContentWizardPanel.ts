@@ -56,7 +56,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
-import {UpdateContentInherited} from '../resource/UpdateContentInherited';
+import {LayerContext} from '../layer/LayerContext';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -136,6 +136,8 @@ export class ContentWizardPanel
     private requireValid: boolean;
 
     private isContentFormValid: boolean;
+
+    private isUpdatingInheritedItem: boolean;
 
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
@@ -270,7 +272,6 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
-                    this.updateInheritedContentLanguage();
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -282,14 +283,6 @@ export class ContentWizardPanel
                     );
 
             }).then(() => super.doLoadData());
-    }
-
-    private updateInheritedContentLanguage() {
-        if (this.getPersistedItem().isInherited()) {
-            new UpdateContentInherited(this.getPersistedItem().getContentId()).sendAndParse().then(() => {
-                api.notify.showFeedback('A local item is created with language "en"');
-            }).catch(api.DefaultErrorHandler.handle);
-        }
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
@@ -743,6 +736,17 @@ export class ContentWizardPanel
                 shownAndLoadedHandler();
             } else {
                 this.onDataLoaded(shownAndLoadedHandler);
+            }
+        });
+
+        this.onRendered(() => {
+            if (this.getPersistedItem().isInherited()) {
+                this.isUpdatingInheritedItem = true;
+                this.saveChanges().then(() => {
+                    api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
+                }).catch(api.DefaultErrorHandler.handle).finally(() => {
+                    this.isUpdatingInheritedItem = false;
+                });
             }
         });
 
@@ -1836,7 +1840,9 @@ export class ContentWizardPanel
                 this.notifyContentNamed(content);
             }
 
-            this.showFeedbackContentSaved(content);
+            if (!this.isUpdatingInheritedItem) {
+                this.showFeedbackContentSaved(content);
+            }
 
             this.getWizardHeader().resetBaseValues();
 
@@ -1870,12 +1876,24 @@ export class ContentWizardPanel
             .setData(viewedContent.getContentData())
             .setExtraData(viewedContent.getAllExtraData())
             .setOwner(viewedContent.getOwner())
-            .setLanguage(viewedContent.getLanguage())
+            .setLanguage(this.getLanguageForUpdateRequest(viewedContent))
             .setPublishFrom(viewedContent.getPublishFromTime())
             .setPublishTo(viewedContent.getPublishToTime())
             .setPermissions(viewedContent.getPermissions())
             .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
             .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled());
+    }
+
+    private getLanguageForUpdateRequest(viewedContent: Content): string {
+        if (viewedContent.getLanguage()) {
+            return viewedContent.getLanguage();
+        }
+
+        if (viewedContent.isInherited()) {
+            return LayerContext.get().getCurrentLayer().getLanguage();
+        }
+
+        return null;
     }
 
     private isDisplayNameUpdated(): boolean {
