@@ -16,6 +16,7 @@ import {Cursor} from './Cursor';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
 import {DefaultItemViewFactory} from './ItemViewFactory';
+import {LayerContext} from '../app/layer/LayerContext';
 import Exception = api.Exception;
 
 declare const CONFIG;
@@ -61,6 +62,8 @@ export class LiveEditPage {
         if (LiveEditPage.debug) {
             console.debug('LiveEditPage: starting live edit initialization');
         }
+
+        LayerContext.get().setCurrentLayer(event.getCurrentLayer());
 
         api.util.i18nInit(CONFIG.i18nUrl).then(() => {
 

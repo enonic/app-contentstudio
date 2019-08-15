@@ -1,5 +1,7 @@
 import './../api.ts';
 import {LiveEditModel} from './LiveEditModel';
+import {ContentLayer} from '../app/content/ContentLayer';
+import {LayerContext} from '../app/layer/LayerContext';
 
 export class InitializeLiveEditEvent
     extends api.event.Event {
@@ -8,10 +10,13 @@ export class InitializeLiveEditEvent
 
     private writePermissions: boolean;
 
+    private currentLayer: ContentLayer;
+
     constructor(liveEditModel: LiveEditModel, writePermissions: boolean = false) {
         super();
         this.liveEditModel = liveEditModel;
         this.writePermissions = writePermissions;
+        this.currentLayer = LayerContext.get().getCurrentLayer();
     }
 
     getLiveEditModel(): LiveEditModel {
@@ -20,6 +25,10 @@ export class InitializeLiveEditEvent
 
     hasWritePermissions(): boolean {
         return this.writePermissions;
+    }
+
+    getCurrentLayer(): ContentLayer {
+        return this.currentLayer;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {
