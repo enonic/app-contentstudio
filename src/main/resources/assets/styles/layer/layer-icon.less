@@ -1,8 +1,9 @@
 .layer-icon {
   &.flag.flag-icon {
+
     border: none;
 
-    &::before {
+    &:not([data-code])::before {
       content: "\e92e";
       padding-left: 0;
       background-color: transparent;
@@ -11,5 +12,9 @@
       line-height: 32px;
       color: @admin-dark-gray;
     }
+  }
+
+  &.flag-icon[data-code] {
+    border: 1px solid @admin-medium-gray-border;
   }
 }

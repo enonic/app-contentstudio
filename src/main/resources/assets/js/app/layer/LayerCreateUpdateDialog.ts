@@ -104,6 +104,10 @@ export class LayerCreateUpdateDialog
         throw new Error('Must be implemented by inheritors');
     }
 
+    getForm(): LayerDialogForm {
+        return this.form;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('layer-dialog layer-create-update-dialog');
