@@ -16,7 +16,7 @@ export class LayersWidgetStateViewLocal
         super('local');
 
         this.item = item;
-        this.viewer.setObjects(LayerContext.get().getCurrentLayer(), this.item);
+        this.viewer.setObjects(this.item, LayerContext.get().getCurrentLayer());
     }
 
     protected initElements() {

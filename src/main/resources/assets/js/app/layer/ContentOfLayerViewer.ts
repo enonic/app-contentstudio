@@ -1,37 +1,26 @@
 import {ContentLayer} from '../content/ContentLayer';
-import {LayerViewer} from './LayerViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ContentPath = api.content.ContentPath;
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {LayerIcon} from './LayerIcon';
 
 
 export class ContentOfLayerViewer
-    extends LayerViewer {
+    extends ContentSummaryAndCompareStatusViewer {
 
-    protected content: ContentSummaryAndCompareStatus;
+    protected layer: ContentLayer;
 
     constructor() {
-        super('content-of-layer-viewer');
+        super();
+        this.addClass('content-of-layer-viewer');
     }
 
-    setObjects(object: ContentLayer, content: ContentSummaryAndCompareStatus) {
-        this.content = content;
+    setObjects(object: ContentSummaryAndCompareStatus, layer: ContentLayer) {
+        this.layer = layer;
         return this.setObject(object);
     }
 
-    resolveDisplayName(object: ContentLayer): string {
-        return `${object.getDisplayName()} (${object.getName()})`;
-    }
-
-    resolveSubName(): string {
-        if (this.content && this.content.getContentSummary()) {
-            const contentSummary = this.content.getContentSummary();
-            const contentName = contentSummary.getName();
-            return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-                   ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                       api.content.ContentUnnamed.prettifyUnnamed()).toString();
-        }
-
-        return '';
+    resolveIconEl(object: ContentSummaryAndCompareStatus): api.dom.Element {
+        return this.layer ? new LayerIcon(this.layer.getLanguage()) : null;
     }
 
 }
