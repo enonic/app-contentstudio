@@ -3,6 +3,8 @@ import {Branch} from '../versioning/Branch';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {RepositoryId} from '../repository/RepositoryId';
 import {RepositoryHelper} from '../repository/RepositoryHelper';
+import {ContentLayer} from '../content/ContentLayer';
+import {LayerContext} from '../layer/LayerContext';
 
 export class UriHelper {
 
@@ -12,11 +14,22 @@ export class UriHelper {
 
         const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
 
-        const branchName: string = Branch[branch].toLowerCase();
+        const branchName: string = UriHelper.getBranchName(branch);
         const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
 
         return api.util.UriHelper.addSitePrefix(
             renderingModeName + elementDivider + repositoryName + elementDivider + branchName + elementDivider + path);
+    }
+
+    private static getBranchName(branch: Branch): string {
+        const branchName: string = Branch[branch].toLowerCase();
+        const currentLayer: ContentLayer = LayerContext.get().getCurrentLayer();
+
+        if (currentLayer.isBaseLayer()) {
+            return branchName;
+        }
+
+        return `${branchName}-${currentLayer.getName()}`;
     }
 
     public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
