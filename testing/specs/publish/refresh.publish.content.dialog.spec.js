@@ -39,7 +39,7 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             //3. click on the folder-name in the modal dialog and switches to new wizard-tab:
             await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
             //4. Click on 'Mark as Ready' button and that content gets "Ready for Publishing" in its wizard-page
-            await contentWizard.clickOnMarkedAsReadyButton();
+            await contentWizard.clickOnMarkAsReadyButton();
 
             await studioUtils.doCloseWizardAndSwitchToGrid();
             let workflowStatus = await contentPublishDialog.getWorkflowState(FOLDER.displayName);

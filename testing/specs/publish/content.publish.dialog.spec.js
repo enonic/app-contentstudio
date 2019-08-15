@@ -29,7 +29,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
             //the folder should be marked as ready.
-            await contentWizard.clickOnMarkedAsReadyButton();
+            await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.clickOnPublishButton();
             studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);

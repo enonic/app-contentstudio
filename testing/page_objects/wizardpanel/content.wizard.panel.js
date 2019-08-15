@@ -300,6 +300,7 @@ class ContentWizardPanel extends Page {
     getDisplayName() {
         return this.getTextInInput(this.displayNameInput);
     }
+
     clearDisplayNameInput() {
         return this.clearInputText(this.displayNameInput);
     }
@@ -541,7 +542,9 @@ class ContentWizardPanel extends Page {
     }
 
     waitForShowPublishMenuButtonVisible() {
-        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Wizard - drop down handle in Publish menu is not visible!" + err);
+        })
     }
 
     waitForMarkAsReadyButtonVisible() {
@@ -608,11 +611,11 @@ class ContentWizardPanel extends Page {
         return await dialog.clickOnYesButton();
     }
 
-    async clickOnMarkedAsReadyButton() {
+    async clickOnMarkAsReadyButton() {
         let selector = XPATH.container + XPATH.markAsReadyButton;
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(selector);
-        return this.pause(600);
+        return this.pause(1000);
     }
 
     async clickOnUnpublishButton() {
@@ -627,7 +630,12 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
     }
 
-    async getWorkflowState() {
+    waitForPublishButtonDisplayed() {
+        let selector = XPATH.container + XPATH.publishButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    }
+
+    async getToolbarWorkflowState() {
         let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         let result = await this.getAttribute(selector, 'class');
@@ -640,6 +648,19 @@ class ContentWizardPanel extends Page {
 
         } else {
             throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    async getIconWorkflowState() {
+        let selector = XPATH.thumbnailUploader;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(selector, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else {
+            return undefined;
         }
     }
 };

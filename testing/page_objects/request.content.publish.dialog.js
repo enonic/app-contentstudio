@@ -27,6 +27,10 @@ class RequestContentPublishDialog extends Page {
         return xpath.container + xpath.nextButton;
     }
 
+    get cancelButtonTop() {
+        return xpath.container + lib.CANCEL_BUTTON_TOP;
+    }
+
     get previousButton() {
         return xpath.container + xpath.previousButton;
     }
@@ -49,6 +53,11 @@ class RequestContentPublishDialog extends Page {
 
     get warningMessagePart1() {
         return xpath.container + xpath.warningMessagePart1;
+    }
+
+    async clickOnCancelButtonTop() {
+        await this.clickOnElement(this.cancelButtonTop);
+        return await this.waitForDialogClosed();
     }
 
     async isItemRemovable(displayName) {

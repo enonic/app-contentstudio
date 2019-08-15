@@ -37,7 +37,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            let state = await wizard.getWorkflowState();
+            let state = await wizard.getToolbarWorkflowState();
             assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
@@ -46,13 +46,13 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await wizard.clickOnMarkedAsReadyButton();
+            await wizard.clickOnMarkAsReadyButton();
             let message = await wizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("marked_as_ready_workflow_state");
             //TODO this assert fails now. (bug)
             //assert.equal(message, appConstant.markedAsReadyMessage(TEST_FOLDER.displayName),
             //   "Message: 'Item is marked as ready' should appear");
-            let state = await wizard.getWorkflowState();
+            let state = await wizard.getToolbarWorkflowState();
             assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
@@ -75,9 +75,9 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await versionPanel.clickOnRestoreButton();
             studioUtils.saveScreenshot("rollback_workflow_state");
 
-            let state = await wizard.getWorkflowState(TEST_FOLDER.displayName);
+            let state = await wizard.getToolbarWorkflowState(TEST_FOLDER.displayName);
             assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS,
-                "'Work in progress' -state should appear after rolback the previous version");
+                "'Work in progress' -state should appear after rollback the previous version");
         });
 
 
