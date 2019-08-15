@@ -1,10 +1,14 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentDeletePromptEvent} from '../../../../browse/ContentDeletePromptEvent';
+import {LayerContext} from '../../../../layer/LayerContext';
+import {ContentOfLayerViewer} from '../../../../layer/ContentOfLayerViewer';
 import i18n = api.util.i18n;
 
 export class LayersWidgetStateViewLocal
     extends LayersWidgetStateView {
+
+    private viewer: ContentOfLayerViewer;
 
     private item: ContentSummaryAndCompareStatus;
 
@@ -12,10 +16,18 @@ export class LayersWidgetStateViewLocal
         super('local');
 
         this.item = item;
+        this.viewer.setObjects(this.item, LayerContext.get().getCurrentLayer());
     }
 
-    protected getHeaderText(): string {
-        return i18n('widget.layers.header.local');
+    protected initElements() {
+        super.initElements();
+        this.viewer = new ContentOfLayerViewer();
+    }
+
+    protected doAppendChildren() {
+        this.appendChild(this.viewer);
+        this.appendChild(this.subHeader);
+        this.appendChild(this.button);
     }
 
     protected getSubHeaderText(): string {
