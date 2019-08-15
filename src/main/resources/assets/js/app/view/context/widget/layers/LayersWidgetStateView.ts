@@ -1,11 +1,16 @@
+import H6El = api.dom.H6El;
+import SpanEl = api.dom.SpanEl;
+import ActionButton = api.ui.button.ActionButton;
+import DivEl = api.dom.DivEl;
+
 export abstract class LayersWidgetStateView
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    protected header: api.dom.Element;
+    protected header: H6El;
 
-    protected subHeader: api.dom.Element;
+    protected subHeader: SpanEl;
 
-    protected button: api.ui.button.ActionButton;
+    protected button: ActionButton;
 
     protected constructor(className: string) {
         super(className);
@@ -14,14 +19,14 @@ export abstract class LayersWidgetStateView
     }
 
     protected initElements() {
-        this.header = new api.dom.H6El('header');
+        this.header = new H6El('header');
         this.header.setHtml(this.getHeaderText());
-        this.subHeader = new api.dom.SpanEl('sub-header');
+        this.subHeader = new SpanEl('sub-header');
         this.subHeader.setHtml(this.getSubHeaderText());
-        this.button = new api.ui.button.ActionButton(this.getAction());
+        this.button = new ActionButton(this.getAction());
     }
 
-    doRender(): Q.Promise<boolean> {
+    doRender(): wemQ.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.doAppendChildren();
 
