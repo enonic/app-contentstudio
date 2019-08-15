@@ -1,5 +1,7 @@
 import {StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
+import {LayerContext} from '../../../../layer/LayerContext';
+
 declare var CONFIG;
 
 export interface GetStylesResponse {
@@ -41,7 +43,8 @@ export class StylesRequest
 
     getParams(): Object {
         return {
-            contentId: this.contentId
+            contentId: this.contentId,
+            layer: LayerContext.get().getCurrentLayer().getName()
         };
     }
 

@@ -9,8 +9,16 @@ exports.get = function (req) {
             body: 'Missing required parameter: contentId'
         }
     }
+    var layer = req.params.layer;
+    if (!layer) {
+        return {
+            status: 400,
+            contentType: 'text/plain',
+            body: 'Missing required parameter: layer'
+        }
+    }
 
-    var styles = getStyles(contentId);
+    var styles = getStyles(contentId, layer);
     for (var i = 0; i < styles.css.length; i++) {
         styles.css[i] = portalLib.assetUrl({
             path: styles.css[i],
@@ -26,8 +34,9 @@ exports.get = function (req) {
     }
 };
 
-var getStyles = function (contentId) {
+var getStyles = function (contentId, layer) {
     var bean = __.newBean('com.enonic.xp.app.contentstudio.style.StyleHandler');
     bean.contentId = __.nullOrValue(contentId);
+    bean.layer = __.nullOrValue(layer);
     return __.toNativeObject(bean.getStyles());
 };

@@ -7,7 +7,11 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.Context;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.layer.ContentLayerName;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 import com.enonic.xp.site.Site;
@@ -27,21 +31,29 @@ public final class StyleHandler
 
     private String contentId;
 
+    private String layer;
+
     public StyleDescriptorMapper getStyles()
     {
-        final ContentId contentId = ContentId.from( this.contentId );
-
-        final ApplicationKeys applicationKeys = resolveKeysFromApps( contentId );
+        final ApplicationKeys applicationKeys = resolveKeysFromApps();
 
         final StyleDescriptors styles = this.styleDescriptorService.getByApplications( applicationKeys );
 
         return new StyleDescriptorMapper( styles, localeService );
     }
 
-    private ApplicationKeys resolveKeysFromApps( final ContentId contentId )
+    private ApplicationKeys resolveKeysFromApps()
     {
+        final ContentId contentId = ContentId.from( this.contentId );
+
         final Set<ApplicationKey> keys = new LinkedHashSet<>();
         keys.add( SYSTEM_APPLICATION_KEY );
+
+        final Context context = ContextBuilder.
+            from( ContextAccessor.current() ).
+            branch( ContentLayerName.from( layer ).getDraftBranch() ).
+            build();
+        ContextAccessor.INSTANCE.set( context );
 
         final Site site = this.contentService.getNearestSite( contentId );
 
@@ -62,6 +74,11 @@ public final class StyleHandler
     public void setContentId( final String contentId )
     {
         this.contentId = contentId;
+    }
+
+    public void setLayer( final String layer )
+    {
+        this.layer = layer;
     }
 
     @Override
