@@ -4,6 +4,7 @@ import Action = api.ui.Action;
 import i18n = api.util.i18n;
 import TabBar = api.ui.tab.TabBar;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
+import NavigatorEvent = api.ui.NavigatorEvent;
 import TabBarItem = api.ui.tab.TabBarItem;
 import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
 import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
@@ -45,7 +46,7 @@ export class IssueListDialog
 
     private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('text.publishingissues'),
+            title: i18n('field.issues'),
             class: 'issue-dialog issue-list-dialog grey-header'
         });
 
@@ -117,12 +118,16 @@ export class IssueListDialog
         this.publishRequestsTab = IssueListDialog.createTab(i18n('field.publishRequests'));
         this.issuesTab = IssueListDialog.createTab(i18n('field.issues'));
 
+        tabBar.onNavigationItemSelected((event: NavigatorEvent) => {
+            this.toggleClass('show-footer', event.getItem() === this.issuesTab);
+        });
+
         return tabBar;
     }
 
     private static createTab(label: string): TabBarItem {
         const builder = new TabBarItemBuilder();
-        return builder.setLabel(label).build();
+        return builder.setLabel(label).setAddLabelTitleAttribute(false).build();
     }
 
     private createDeckPanel(): NavigatedDeckPanel {
@@ -291,19 +296,19 @@ export class IssueListDialog
     private updateAllTabLabel() {
         const total = this.allPanel.getActiveTotal();
         const label = IssueListDialog.createTabLabel(i18n('field.all'), total);
-        this.allTab.setLabel(label);
+        this.allTab.setLabel(label, false, false);
     }
 
     private updatePublishRequestsTabLabel() {
         const total = this.publishRequestsPanel.getActiveTotal();
         const label = IssueListDialog.createTabLabel(i18n('field.publishRequests'), total);
-        this.publishRequestsTab.setLabel(label);
+        this.publishRequestsTab.setLabel(label, false, false);
     }
 
     private updateIssuesTabLabel() {
         const total = this.issuesPanel.getActiveTotal();
         const label = IssueListDialog.createTabLabel(i18n('field.issues'), total);
-        this.issuesTab.setLabel(label);
+        this.issuesTab.setLabel(label, false, false);
     }
 
     private static createTabLabel(label: string, count: number) {
