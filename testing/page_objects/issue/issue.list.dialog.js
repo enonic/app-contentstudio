@@ -12,9 +12,9 @@ const xpath = {
     assignedOption: function (name) {
         return `//div[contains(@class,'slick-row') and descendant::div[contains(@id,'RowOptionDisplayValueViewer') and contains(.,''${name}')]]`
     },
-    publishRequestsTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and @title='Publish requests']",
-    issuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and @title='Issues']",
-    allTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and @title='All']",
+    publishRequestsTab: "//li[contains(@id,'api.ui.tab.TabBarItem')and child::a[ contains(.,'Publish requests')]]",
+    allIssuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and child::a[contains(.,'All issues')]]",
+    issuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and child::a[ contains(.,'Issues')]]",
     assignedSelector: "//div[contains(@id,'RowSelector')]",
     assignedSelectedOption: "//div[contains(@class,'selected-options')]"
 };
@@ -41,8 +41,8 @@ class IssuesListDialog extends Page {
         return xpath.container + xpath.issuesTab;
     }
 
-    get allTab() {
-        return xpath.container + xpath.allTab;
+    get allIssuesTab() {
+        return xpath.container + xpath.allIssuesTab;
     }
 
     get showClosedIssuesButton() {
@@ -62,7 +62,7 @@ class IssuesListDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.newIssueButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.allIssuesTab, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_load_issues_list_dlg");
             throw new Error("Issues list dialog not loaded in " + appConst.TIMEOUT_3)
         })
@@ -88,8 +88,8 @@ class IssuesListDialog extends Page {
         return this.clickOnElement(this.issuesTab);
     }
 
-    clickOnAllTab() {
-        return this.clickOnElement(this.allTab);
+    clickOnAllIssuesTab() {
+        return this.clickOnElement(this.allIssuesTab);
     }
 
     clickOnNewIssueButton() {
@@ -97,6 +97,18 @@ class IssuesListDialog extends Page {
             this.saveScreenshot('err_click_issue_list_new');
             throw  new Error('Error when click on the `New Issue`  ' + err);
         })
+    }
+
+    isPublishRequestsTabDisplayed() {
+        return this.isElementDisplayed(this.publishRequestsTab);
+    }
+
+    isAllIssuesTabDisplayed() {
+        return this.isElementDisplayed(this.allIssuesTab);
+    }
+
+    isIssuesTabDisplayed() {
+        return this.isElementDisplayed(this.issuesTab);
     }
 
     getTitle() {

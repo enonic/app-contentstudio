@@ -12,6 +12,8 @@ const xpath = {
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     issueMenuItemByName:
         name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem')]/i[contains(.,'${name}')]`,
+    issueMenuButtonByName:
+        name => `//div[contains(@id,'MenuButton') and descendant::i[contains(.,'${name}')]]`,
 };
 
 class ContentItemPreviewPanel extends Page {
@@ -102,9 +104,14 @@ class ContentItemPreviewPanel extends Page {
         return await result[0].getText();
     }
 
-    getIssueNameOnMenuButton() {
+    getIssueNameInMenuButton() {
         let selector = xpath.toolbar + xpath.issueMenuButton + '//span/i';
         return this.getText(selector);
+    }
+
+    waitForIssueNameInMenuButton(issueName) {
+        let selector = xpath.toolbar + xpath.issueMenuButtonByName(issueName);
+        return this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
     }
 
     //switches to iframe and gets text in the panel

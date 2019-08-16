@@ -44,7 +44,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
         await issueDetailsDialog.waitForDialogOpened();
     });
 
-    it(`GIVEN Issue Details Dialog is opened AND Items-tab activated WHEN 'Publish & Close Issue' button has been pressed THEN issue should be closed and the content should be published`,
+    it(`GIVEN Issue Details Dialog is opened AND Items-tab activated WHEN 'Publish...' button has been pressed AND Publish Now has been pressed on the loaded wizard THEN the content should be published`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -58,17 +58,16 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             //2. Click on Publish... button and open Publish Wizard dialog:
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();
-            //3. Click on Publish Now button :
+            //3. Click on 'Publish Now' button :
             await contentPublishDialog.clickOnPublishNowButton();
 
-            //4. Verify messages:
-            let messages = await issueDetailsDialog.waitForNotificationMessages();
-            let expected1 = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
-            let expected2 = appConstant.issueClosedNotificationMessage(issueTitle);
-            assert.isTrue(messages.includes(expected1), '`Item is published` message should be displayed');
-            assert.isTrue(messages.includes(expected2), '`Issue is closed` message should be displayed');
+            //4. Verify the notification message:
+            let message = await issueDetailsDialog.waitForNotificationMessage();
+            let expected = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
+            assert.equal(message, expected, 'expected message should be displayed');
+            //TODO this behaviour will be changed!!!
             //eventually, Issues List dialog should be loaded:
-            await issueListDialog.waitForDialogOpened();
+            //await issueListDialog.waitForDialogOpened();
         });
 
     //verifies: Issue List Dialog - closed issues are not displayed until you create a new issue (app-contentstudio/issues/246)

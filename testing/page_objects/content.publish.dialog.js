@@ -9,7 +9,7 @@ const XPATH = {
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     hideDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Hide dependent items')]`,
-    addScheduleButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Add schedule')]]`,
+    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     contentSummaryByDisplayName:

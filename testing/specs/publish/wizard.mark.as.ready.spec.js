@@ -11,6 +11,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 
 describe('wizard.publish.menu.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,6 +54,34 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
 
             //Close Request Publishing dialog:
             await requestContentPublishDialog.clickOnCancelButtonTop();
+            let toolbarState = await contentWizard.getToolbarWorkflowState();
+            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+
+            let iconState = await contentWizard.getIconWorkflowState();
+            assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            //Drop Down handle should be visible after closing the dialog!
+            await contentWizard.waitForShowPublishMenuButtonVisible();
+        });
+
+    //verifies https://github.com/enonic/app-contentstudio/issues/717
+    //Default action is not updated after creation of a new Publish Request
+    it(`GIVEN new folder-wizard is opened, a name has been typed WHEN new 'Publish Request' has been created THEN default action gets OPEN REQUEST`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let displayName = contentBuilder.generateRandomName('folder');
+            TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.typeDisplayName(displayName);
+            // Request Publishing dialog has been opened and new request created.
+            await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
+
+            // 'Issue Details' Dialog should be loaded now, do close it:
+            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.clickOnCancelTopButton();
+
+            await contentWizard.waitForOpenRequestButtonVisible();
+
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
 

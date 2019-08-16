@@ -39,7 +39,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             let contentBrowsePanel = new ContentBrowsePanel();
             return addNotValidFolder(SITE.displayName).then(() => {
             }).then(() => {
-                return contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+                return contentBrowsePanel.clickOnMarkAsReadyButton();
             }).then(() => {
                 return contentBrowsePanel.clickOnPublishButton();
             }).then(() => {

@@ -11,7 +11,6 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -84,7 +83,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 //close the modal dialog
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
+                return contentItemPreviewPanel.getIssueNameInMenuButton();
             }).then(result => {
                 assert.isTrue(result == firstIssueTitle);
             })
@@ -108,10 +107,9 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed(),
                     '`Issues-dropdown handle` should should appear on the toolbar');
             }).then(() => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
-            }).then(result => {
-                assert.isTrue(result == secondIssueTitle, "issue-name should be update on the menu-button");
-            })
+                //issue name should be updated on the preview panel
+                return contentItemPreviewPanel.waitForIssueNameInMenuButton(secondIssueTitle);
+            });
         });
 
     it(`GIVEN existing folder is selected WHEN issue menu button has been clicked THEN 'IssueDetails' modal dialog should appear`,
@@ -148,7 +146,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             })
         });
 
-    //verifies : https://github.com/enonic/app-contentstudio/issues/721
+    //verifies  https://github.com/enonic/app-contentstudio/issues/721
     //drop down handle for issues remains after the content is unselected
     it(`GIVEN existing folder with 2 issues is selected WHEN this folder has been unselected THEN 'issues drop down handle' gets not visible`,
         async () => {
@@ -166,7 +164,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
             await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
         });
     //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
-    it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
+    it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated in the issue-menu`,
         () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -180,11 +178,10 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 //dialog is closing.
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(result => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
-            }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_updated");
-                assert.equal(result, firstIssueTitle, "Expected issue-title should be displayed on the Item Preview Panel");
-            })
+                //issue name should be updated on tne preview panel
+                return contentItemPreviewPanel.waitForIssueNameInMenuButton(firstIssueTitle);
+            });
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

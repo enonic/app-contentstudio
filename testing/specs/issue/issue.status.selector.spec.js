@@ -51,17 +51,13 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 }).then(() => {
                     return issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
                 }).then(() => {
-                    return issueDetailsDialog.waitForNotificationMessage();
+                    return issueDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
                 }).then(message => {
-                    studioUtils.saveScreenshot('status_menu_closed_issue');
-                    assert.isTrue(message == appConstant.ISSUE_CLOSED_MESSAGE,
-                        '`The issue is Closed.` -notification message should be displayed');
+                    // studioUtils.saveScreenshot('status_menu_closed_issue');
+                    //assert.equal(message, appConstant.ISSUE_CLOSED_MESSAGE, 'expected -notification message should be displayed');
                 }).then(() => {
                     return assert.eventually.isTrue(issueDetailsDialog.waitForReopenButtonLoaded(),
                         '`Reopen Issue` button should be loaded');
-                }).then(() => {
-                    return assert.eventually.isTrue(issueDetailsDialog.waitForIssueTitleInputToggleNotVisible(),
-                        '`Edit title` toggle is getting hidden');
                 });
             });
 
@@ -77,9 +73,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 await issueDetailsDialog.waitForDialogOpened();
 
                 // the issue is closed, so it is not editable.
-                let result = await issueDetailsDialog.waitForIssueTitleInputToggleNotVisible();
-                studioUtils.saveScreenshot("issue_details_edit_toggle_hidden");
-                return assert.isTrue(result, 'Edit toggle should not be visible, because the issue is closed');
+                await issueDetailsDialog.waitForIssueTitleInputNotEditable();
             });
 
         it(`GIVEN existing 'closed' issue AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the issue is getting 'open' AND 'Close Issue' button is getting visible`,
@@ -120,16 +114,17 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 }).then(() => {
                     return issueDetailsDialog.waitForDialogOpened();
                 }).then(() => {
-                    return issueDetailsDialog.clickOnIssueTitleInputToggle();
+                    return issueDetailsDialog.clickOnEditTitle();
                 }).then(() => {
                     return issueDetailsDialog.typeTitle(newTitle);
                 }).then(() => {
-                    return issueDetailsDialog.clickOnIssueTitleInputToggle();
+                    //just for closing edit mode in title-input:
+                    return issueDetailsDialog.clickOnCommentsTabBarItem();
                 }).then(() => {
                     return createIssueDialog.waitForNotificationMessage();
                 }).then(result => {
                     studioUtils.saveScreenshot("issue_title_updated");
-                    return assert.isTrue(result == 'Issue has been updated.', 'Correct notification should appear');
+                    return assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
                 }).then(() => {
                     return expect(issueDetailsDialog.getIssueTitle()).to.eventually.equal(newTitle);
                 });
