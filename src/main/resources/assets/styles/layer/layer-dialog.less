@@ -98,32 +98,69 @@
 
   &.layer-create-update-dialog {
     .modal-dialog-header {
+      display: flex;
 
-      .title {
-        font-size: 14px;
-        color: @admin-font-gray3;
-        line-height: 25px;
-        padding-left: 5px;
-      }
+      .layer-icon-uploader {
+        display: flex;
+        align-items: center;
+        padding: 0px;
 
-      .layer-display-name {
-        width: 100%;
-        border: none;
-        font-size: 24px;
-        line-height: 38px;
-        padding: 0 5px;
+        .layer-icon {
+          width: 40px;
+          height: 40px;
 
-        background-color: @admin-font-gray;
+          &:before {
+            font-size: 20px;
+            line-height: 34px;
+          }
 
-        &:hover {
-          border: none;
+          &.flag-icon-unknown {
+            height: 34px;
+
+            &:before {
+              font-size: 38px;
+            }
+          }
         }
       }
+
+      .name-and-title {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        padding-left: 15px;
+
+        .title {
+          font-size: 14px;
+          color: @admin-font-gray3;
+          line-height: 25px;
+          padding-left: 5px;
+        }
+
+        .layer-display-name {
+          width: 100%;
+          border: none;
+          font-size: 24px;
+          line-height: 38px;
+          padding: 0 5px;
+
+          background-color: @admin-font-gray;
+
+          &:hover {
+            border: none;
+          }
+        }
+      }
+
     }
 
     .layer-dialog-form {
       .parent-layer, .default-language, .identifier, .icon, .description {
         width: 100%;
+      }
+
+      .help-text-toggler {
+        bottom: 1px;
       }
     }
   }
@@ -135,18 +172,23 @@
         padding-left: 45px;
       }
 
-      .back-button {
-        background-color: @admin-font-gray;
-        position: relative;
-        left: -9px;
+      .back-button-wrapper {
+        display: flex;
+        align-items: center;
 
-        &:before {
-          left: -7px;
-          top: 3px;
-        }
+        .back-button {
+          background-color: @admin-font-gray;
+          position: relative;
+          left: -9px;
 
-        &:hover:before {
-          color: @admin-font-gray3;
+          &:before {
+            left: 0px;
+            top: 0px;
+          }
+
+          &:hover:before {
+            color: @admin-font-gray3;
+          }
         }
       }
 
@@ -167,6 +209,10 @@
           .remove {
             display: none;
           }
+        }
+
+        .help-text-toggler {
+          display: none;
         }
       }
     }

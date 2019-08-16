@@ -5,10 +5,10 @@ import i18n = api.util.i18n;
 import FormItem = api.ui.form.FormItem;
 import ValidityChangedEvent = api.ValidityChangedEvent;
 import LocaleComboBox = api.ui.locale.LocaleComboBox;
-import StringHelper = api.util.StringHelper;
+import Locale = api.locale.Locale;
+import Option = api.ui.selector.Option;
+import HelpTextContainer = api.form.HelpTextContainer;
 import {LayerComboBox} from './LayerComboBox';
-import {ContentLayer} from '../content/ContentLayer';
-import {LayerIconUploader} from './LayerIconUploader';
 
 export class LayerDialogForm
     extends api.ui.form.Form {
@@ -19,13 +19,13 @@ export class LayerDialogForm
 
     private identifier: TextInput;
 
-    private icon: LayerIconUploader;
-
     private description: TextInput;
 
     private identifierFormItem: FormItem;
 
     private parentLayerFormItem: FormItem;
+
+    private helpTextContainer: HelpTextContainer;
 
     constructor() {
         super('layer-dialog-form');
@@ -39,9 +39,9 @@ export class LayerDialogForm
     private initElements() {
         this.parentLayer = new LayerComboBox(1);
         this.defaultLanguage = new LocaleComboBox(1);
-        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^A-Za-z0-9\-_]/);
-        this.icon = new LayerIconUploader();
+        this.identifier = new TextInput('identifier').setForbiddenCharsRe(/[^a-z0-9\-_]/);
         this.description = new TextInput('description');
+        this.helpTextContainer = new HelpTextContainer(i18n('dialog.layers.field.identifier.helptext'));
     }
 
     public setInitialValues() {
@@ -53,7 +53,7 @@ export class LayerDialogForm
         this.identifier.resetBaseValues();
         this.description.reset();
         this.description.resetBaseValues();
-        this.icon.reset();
+        this.helpTextContainer.toggleHelpText(false);
     }
 
     private parentLayerValidator(input: api.dom.FormInputEl): string {
@@ -64,6 +64,13 @@ export class LayerDialogForm
 
     private initFormView() {
         const fieldSet: api.ui.form.Fieldset = new api.ui.form.Fieldset();
+
+        this.identifierFormItem = this.addValidationViewer(
+            new FormItemBuilder(this.identifier)
+                .setLabel(i18n('dialog.layers.field.identifier'))
+                .setValidator(Validators.required)
+                .build());
+        fieldSet.add(this.identifierFormItem);
 
         this.parentLayerFormItem = this.addValidationViewer(
             new FormItemBuilder(this.parentLayer)
@@ -79,18 +86,6 @@ export class LayerDialogForm
                 .setValidator(Validators.required)
                 .build());
         fieldSet.add(defaultLanguageFormItem);
-
-        this.identifierFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.identifier)
-                .setLabel(i18n('dialog.layers.field.identifier'))
-                .setValidator(Validators.required)
-                .build());
-        fieldSet.add(this.identifierFormItem);
-
-        const iconFormItem = new FormItemBuilder(this.icon)
-            .setLabel(i18n('dialog.layers.field.icon'))
-            .build();
-        fieldSet.add(iconFormItem);
 
         const descriptionFormItem = new FormItemBuilder(this.description)
             .setLabel(i18n('dialog.layers.field.description'))
@@ -114,21 +109,10 @@ export class LayerDialogForm
 
     private initListeners() {
         this.parentLayer.onValueChanged((event: api.ValueChangedEvent) => {
-            if (!StringHelper.isEmpty(event.getNewValue())) {
-                const selectedParentLayer: ContentLayer = this.parentLayer.getSelectedOptions()[0].getOption().displayValue;
-                if (selectedParentLayer.getLanguage()) {
-                    this.defaultLanguage.setValue(selectedParentLayer.getLanguage(), true);
-                }
-            }
             this.validate(true);
         });
 
         this.defaultLanguage.onValueChanged((event: api.ValueChangedEvent) => {
-            const value = event.getNewValue();
-            if (!StringHelper.isEmpty(value) && !this.identifier.isReadOnly()) {
-                this.identifier.setValue(event.getNewValue());
-            }
-            this.setIcon(value);
             this.validate(true);
         });
 
@@ -166,6 +150,14 @@ export class LayerDialogForm
         return this.defaultLanguage.getValue().trim();
     }
 
+    public getDefaultLanguageOptionByValue(value: string): Option<Locale> {
+        return this.defaultLanguage.getOptionByValue(value);
+    }
+
+    public onDefaultLanguageValueChanged(handler: (event: api.ValueChangedEvent) => void) {
+        this.defaultLanguage.onValueChanged(handler);
+    }
+
     public setDefaultLanguage(value: string) {
         this.defaultLanguage.setValue(value, true);
     }
@@ -183,12 +175,6 @@ export class LayerDialogForm
         this.identifierFormItem.setLabel(value ? i18n('dialog.layers.field.identifier.readonly') : i18n('dialog.layers.field.identifier'));
     }
 
-    public setIcon(value: string) {
-        const option = StringHelper.isEmpty(value) ? null : this.defaultLanguage.getOptionByValue(value);
-        const locale = option != null ? option.displayValue : null;
-        this.icon.updateIcon(locale);
-    }
-
     public getDescription(): string {
         return this.description.getValue().trim();
     }
@@ -201,6 +187,9 @@ export class LayerDialogForm
         return super.doRender().then((rendered: boolean) => {
             this.parentLayer.addClass('parent-layer');
             this.defaultLanguage.addClass('default-language');
+
+            this.helpTextContainer.getToggler().insertBeforeEl(this.identifier);
+            this.helpTextContainer.getHelpText().insertAfterEl(this.identifier);
 
             return rendered;
         });

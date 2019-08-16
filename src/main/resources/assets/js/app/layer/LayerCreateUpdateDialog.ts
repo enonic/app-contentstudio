@@ -5,17 +5,26 @@ import Action = api.ui.Action;
 import TextInput = api.ui.text.TextInput;
 import StringHelper = api.util.StringHelper;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
+import Locale = api.locale.Locale;
+import Option = api.ui.selector.Option;
+import ModalDialogHeader = api.ui.dialog.ModalDialogHeader;
+import DivEl = api.dom.DivEl;
 import {LayerDialogForm} from './LayerDialogForm';
 import {ContentLayer} from '../content/ContentLayer';
+import {LayerIconUploader} from './LayerIconUploader';
 
 export class LayerCreateUpdateDialog
     extends ModalDialog {
 
     protected form: LayerDialogForm;
 
+    protected layerActionButton: DialogButton;
+
     protected displayName: LayerDisplayNameTextInput;
 
-    protected layerActionButton: DialogButton;
+    protected icon: LayerIconUploader;
+
+    protected header: LayerDialogHeader;
 
     constructor(config: ModalDialogConfig) {
         super(config);
@@ -26,7 +35,8 @@ export class LayerCreateUpdateDialog
 
         this.form = new LayerDialogForm();
         this.layerActionButton = this.addAction(new Action(this.getActionLabel()), true);
-        this.displayName = new LayerDisplayNameTextInput();
+        this.displayName = this.header.getDisplayName();
+        this.icon = this.header.getIcon();
     }
 
     protected getActionLabel(): string {
@@ -43,12 +53,16 @@ export class LayerCreateUpdateDialog
         super.initListeners();
 
         this.layerActionButton.getAction().onExecuted(this.executeAction.bind(this));
+        this.form.onDefaultLanguageValueChanged((event: api.ValueChangedEvent) => {
+            this.setIcon(event.getNewValue());
+        });
     }
 
     close() {
         super.close();
         this.displayName.reset();
         this.displayName.resetBaseValues();
+        this.icon.reset();
         this.form.setInitialValues();
     }
 
@@ -113,10 +127,19 @@ export class LayerCreateUpdateDialog
             this.addClass('layer-dialog layer-create-update-dialog');
             this.appendChildToContentPanel(this.form);
             this.addCancelButtonToBottom();
-            this.prependChildToHeader(this.displayName);
 
             return rendered;
         });
+    }
+
+    protected setIcon(value: string) {
+        const option: Option<Locale> = StringHelper.isEmpty(value) ? null : this.form.getDefaultLanguageOptionByValue(value);
+        const locale: Locale = option != null ? option.displayValue : null;
+        this.icon.updateIcon(locale);
+    }
+
+    protected createHeader(title: string): ModalDialogHeader {
+        return new LayerDialogHeader(title);
     }
 }
 
@@ -139,4 +162,53 @@ class LayerDisplayNameTextInput
         return !StringHelper.isEmpty(this.getValue().trim());
     }
 
+}
+
+class LayerDialogHeader
+    extends api.dom.DivEl
+    implements ModalDialogHeader {
+
+    private titleEl: api.dom.H2El;
+
+    private icon: LayerIconUploader;
+
+    private displayName: LayerDisplayNameTextInput;
+
+    private nameAndTitleWrapper: DivEl;
+
+    constructor(title: string) {
+        super('modal-dialog-header');
+
+        this.icon = new LayerIconUploader();
+        this.displayName = new LayerDisplayNameTextInput();
+        this.titleEl = new api.dom.H2El('title');
+        this.titleEl.setHtml(title);
+        this.nameAndTitleWrapper = new DivEl('name-and-title');
+
+    }
+
+    setTitle(value: string, escapeHtml: boolean = true) {
+        this.titleEl.setHtml(value, escapeHtml);
+    }
+
+    getTitle(): string {
+        return this.titleEl.getHtml();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.nameAndTitleWrapper.appendChildren(this.displayName, this.titleEl);
+            this.appendChildren(this.icon, this.nameAndTitleWrapper);
+
+            return rendered;
+        });
+    }
+
+    getIcon(): LayerIconUploader {
+        return this.icon;
+    }
+
+    getDisplayName(): LayerDisplayNameTextInput {
+        return this.displayName;
+    }
 }

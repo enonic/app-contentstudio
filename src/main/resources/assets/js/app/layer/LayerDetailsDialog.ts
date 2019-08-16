@@ -4,6 +4,7 @@ import {UpdateContentLayerRequest} from '../resource/layer/UpdateContentLayerReq
 import i18n = api.util.i18n;
 import Action = api.ui.Action;
 import ActionButton = api.ui.button.ActionButton;
+import DivEl = api.dom.DivEl;
 
 export class LayerDetailsDialog
     extends LayerCreateUpdateDialog {
@@ -45,7 +46,7 @@ export class LayerDetailsDialog
         this.form.setParentLayerReadOnly(true);
         if (layer.getLanguage()) {
             this.form.setDefaultLanguage(layer.getLanguage());
-            this.form.setIcon(layer.getLanguage());
+            this.setIcon(layer.getLanguage());
         }
         this.form.setDescription(layer.getDescription());
         this.form.setIdentifier(layer.getName());
@@ -80,8 +81,10 @@ export class LayerDetailsDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            const backButtonWrapper: DivEl = new api.dom.DivEl('back-button-wrapper');
+            backButtonWrapper.appendChild(this.backButton);
             this.backButton.addClass('back-button');
-            this.prependChildToHeader(this.backButton);
+            this.prependChildToHeader(backButtonWrapper);
 
             return rendered;
         });
