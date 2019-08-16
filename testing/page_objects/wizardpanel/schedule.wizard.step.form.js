@@ -10,7 +10,6 @@ const XPATH = {
 
 class ScheduleForm extends Page {
 
-
     typeOnlineFrom(value) {
         let dateTimeRange = new DateTimeRange();
         return dateTimeRange.typeOnlineFrom(value, XPATH.container);

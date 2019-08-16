@@ -46,13 +46,14 @@ module.exports = {
     },
 
     async switchToFrameBySrc(src) {
-        let selector = `//iframe[contains(@src,'${src}')]`;
-        let el = await webDriverHelper.browser.$(selector);
-        await el.waitForDisplayed(1500);
-        return await webDriverHelper.browser.switchToFrame(el).catch(err => {
-            console.log('Error when switch to frame ' + selector);
+        try {
+            let selector = `//iframe[contains(@src,'${src}')]`;
+            let el = await webDriverHelper.browser.$(selector);
+            await el.waitForDisplayed(1500);
+            return await webDriverHelper.browser.switchToFrame(el);
+        } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
-        })
+        }
     },
     getTitle() {
         return webDriverHelper.browser.getTitle();
@@ -201,7 +202,7 @@ module.exports = {
         return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
             return contentWizardPanel.typeData(folder);
         }).then(() => {
-            return contentWizardPanel.clickOnMarkedAsReadyButton();
+            return contentWizardPanel.clickOnMarkAsReadyButton();
         }).then(() => {
             return this.doCloseWizardAndSwitchToGrid()
         }).then(() => {
@@ -251,7 +252,7 @@ module.exports = {
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
         } else {
-            await contentWizardPanel.clickOnMarkedAsReadyButton();
+            await contentWizardPanel.clickOnMarkAsReadyButton();
         }
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
