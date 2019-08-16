@@ -767,10 +767,18 @@ export class IssueDetailsDialog
                 return this.areChildrenIncludedInIssue(content.getContentId());
             }).map(content => content.getContentId());
 
+            const excludedIds = this.publishProcessor.getExcludedIds();
+
             const includeChildItems = false;
             const message = this.issue.getTitle();
 
-            new ContentPublishPromptEvent({model: contents, includeChildItems, exceptedContentIds, message}).fire();
+            new ContentPublishPromptEvent({
+                model: contents,
+                includeChildItems,
+                exceptedContentIds,
+                excludedIds,
+                message
+            }).fire();
 
         }
     }

@@ -259,6 +259,11 @@ export abstract class BasePublishDialog
         return this.publishProcessor.getExcludedIds();
     }
 
+    public setExcludedIds(ids: ContentId[]): BasePublishDialog {
+        this.publishProcessor.setExcludedIds(ids);
+        return this;
+    }
+
     protected reloadPublishDependencies() {
         if (this.isProgressBarEnabled()) {
             return;
@@ -287,7 +292,6 @@ export abstract class BasePublishDialog
     }
 
     open() {
-        this.publishProcessor.resetExcludedIds();
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
 
         CreateIssueDialog.get().reset();
@@ -300,6 +304,7 @@ export abstract class BasePublishDialog
     close() {
         super.close();
         this.getItemList().clearExcludeChildrenIds();
+        this.publishProcessor.resetExcludedIds();
 
         CreateIssueDialog.get().reset();
     }

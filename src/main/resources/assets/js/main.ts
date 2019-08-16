@@ -323,6 +323,7 @@ function startApplication() {
                 .setContentToPublish(event.getModels())
                 .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
                 .setMessage(event.getMessage())
+                .setExcludedIds(event.getExcludedIds())
                 .open();
         });
     });

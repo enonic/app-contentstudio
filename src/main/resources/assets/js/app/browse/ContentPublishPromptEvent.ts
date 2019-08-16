@@ -6,14 +6,18 @@ export interface ContentPublishPromptEventConfig {
     model: ContentSummaryAndCompareStatus[];
     includeChildItems?: boolean;
     exceptedContentIds?: ContentId[];
+    excludedIds?: ContentId[];
     message?: string;
 }
 
-export class ContentPublishPromptEvent extends BaseContentModelEvent {
+export class ContentPublishPromptEvent
+    extends BaseContentModelEvent {
 
     private includeChildItems: boolean;
 
     private exceptedContentIds: ContentId[];
+
+    private excludedIds: ContentId[];
 
     private message: string;
 
@@ -21,6 +25,7 @@ export class ContentPublishPromptEvent extends BaseContentModelEvent {
         super(config.model);
         this.includeChildItems = config.includeChildItems != null ? config.includeChildItems : false;
         this.exceptedContentIds = config.exceptedContentIds;
+        this.excludedIds = config.excludedIds;
         this.message = config.message;
     }
 
@@ -30,6 +35,10 @@ export class ContentPublishPromptEvent extends BaseContentModelEvent {
 
     getExceptedContentIds(): ContentId[] {
         return this.exceptedContentIds;
+    }
+
+    getExcludedIds(): ContentId[] {
+        return this.excludedIds;
     }
 
     getMessage(): string {
