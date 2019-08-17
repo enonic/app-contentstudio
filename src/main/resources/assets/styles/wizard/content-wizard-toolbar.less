@@ -53,7 +53,12 @@
   }
 
   .layer-viewer {
-    margin: auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    order: -1;
+    border-right: 1px solid #cccccc;
+    padding-right: 14px;
 
     .names-and-icon-view {
       display: flex;
@@ -83,12 +88,6 @@
     display: none; // Is made visible in content-wizard-panel.less
     order: 1;
     margin-left: auto;
-  }
-
-  &.has-layers {
-    .content-status-wrapper {
-      margin-left: 0px;
-    }
   }
 
   .toolbar-publish-controls {

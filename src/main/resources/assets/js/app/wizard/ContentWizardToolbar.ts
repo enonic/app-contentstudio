@@ -24,9 +24,8 @@ export class ContentWizardToolbar
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
 
-        this.addHomeButton(application);
+        this.addHomeButtonOrLayerInfo(application);
         this.addActionButtons(actions);
-        this.addLayerInfo();
         this.addPublishMenuButton(actions);
         this.addTogglerButtons(actions);
         this.addMobileItemStatisticsButton();
@@ -34,6 +33,19 @@ export class ContentWizardToolbar
         if (item) {
             this.setItem(item);
         }
+    }
+
+    private addHomeButtonOrLayerInfo(application: Application) {
+        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+            if (layers.length > 1) {
+                this.addLayerInfo();
+            } else {
+                this.addHomeButton(application);
+            }
+        }).catch((reason: any) => {
+            api.DefaultErrorHandler.handle(reason);
+            this.addHomeButton(application);
+        });
     }
 
     private addHomeButton(application: Application) {
@@ -48,7 +60,7 @@ export class ContentWizardToolbar
             return wemQ(null);
         });
 
-        super.addElement(new AppIcon(application, homeAction));
+        this.prependChild(new AppIcon(application, homeAction));
     }
 
     private addActionButtons(actions: ContentWizardActions) {
@@ -63,14 +75,10 @@ export class ContentWizardToolbar
     }
 
     private addLayerInfo() {
-        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            if (layers.length > 1) {
-                const layerViewer: LayerViewer = new LayerViewer();
-                layerViewer.setObject(LayerContext.get().getCurrentLayer());
-                super.addElement(layerViewer);
-                this.addClass('has-layers');
-            }
-        }).catch(api.DefaultErrorHandler.handle);
+        const layerViewer: LayerViewer = new LayerViewer();
+        layerViewer.setObject(LayerContext.get().getCurrentLayer());
+        super.addElement(layerViewer);
+        this.addClass('has-layers');
     }
 
     private addPublishMenuButton(actions: ContentWizardActions) {
