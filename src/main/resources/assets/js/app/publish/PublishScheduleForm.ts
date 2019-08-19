@@ -9,7 +9,6 @@ export class PublishScheduleForm
     private scheduleFormView: api.form.FormView;
     private scheduleFormWrapper: api.dom.DivEl;
     private formVisibilityListeners: { (flag: boolean): void }[] = [];
-    private scheduleNote: api.dom.H6El;
     private externalToggles: api.dom.ButtonEl[] = [];
 
     createExternalToggle(): api.dom.ButtonEl {
@@ -27,8 +26,9 @@ export class PublishScheduleForm
         super('publish-schedule-form');
 
         propertySet.onChanged((event) => {
-            this.scheduleFormView.validate(false, true);
+            const record = this.scheduleFormView.validate(false, true);
             this.scheduleFormView.displayValidationErrors(this.scheduleFormView.isVisible());
+            this.toggleClass('invalid', !record.isValid());
         });
 
         const scheduleForm = new api.form.FormBuilder().addFormItem(this.createRangeFormItem()).build();
@@ -48,6 +48,8 @@ export class PublishScheduleForm
     private createRangeFormItem(): FormItem {
         return new api.form.InputBuilder()
             .setName('publish')
+            .setLabel(i18n('field.scheduledPublishing'))
+            .setHelpText(i18n('field.scheduledPublishing.helptext'))
             .setInputType(DateTimeRange.getName())
             .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
             .setInputTypeConfig({
@@ -56,14 +58,6 @@ export class PublishScheduleForm
             })
             .setMaximizeUIInputWidth(true)
             .build();
-    }
-
-    public setScheduleNote(text: string) {
-        if (!this.scheduleNote) {
-            this.scheduleNote = new api.dom.H6El('schedule-note');
-            this.scheduleFormWrapper.prependChild(this.scheduleNote);
-        }
-        this.scheduleNote.setHtml(text, false);
     }
 
     public layout(validate: boolean) {
@@ -85,6 +79,7 @@ export class PublishScheduleForm
             const data = this.scheduleFormView.getData();
             data.reset();
             this.scheduleFormView.update(data, false);
+            this.removeClass('invalid');
         }
 
         if (!silent) {

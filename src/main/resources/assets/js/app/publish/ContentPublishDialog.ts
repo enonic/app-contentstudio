@@ -5,9 +5,7 @@ import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
-import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import i18n = api.util.i18n;
 import KeyHelper = api.ui.KeyHelper;
 import TaskState = api.task.TaskState;
@@ -37,8 +35,7 @@ export class ContentPublishDialog
             class: 'publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
-            buttonRow: new ContentPublishDialogButtonRow()
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
 
         this.onProgressComplete((taskState) => {
@@ -76,7 +73,6 @@ export class ContentPublishDialog
         this.actionButton = this.addAction(this.publishAction);
         this.addAction(this.scheduleAction);
 
-        this.publishScheduleForm.setScheduleNote(i18n('dialog.schedule.subname'));
         this.publishScheduleForm.layout(false);
 
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
@@ -97,7 +93,8 @@ export class ContentPublishDialog
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
 
-            this.prependChildToHeader(this.scheduleFormToggle);
+            this.scheduleFormToggle.addClass('force-enabled');
+            this.getButtonRow().addElement(this.scheduleFormToggle);
 
             this.prependChildToContentPanel(this.publishScheduleForm);
 
@@ -105,11 +102,6 @@ export class ContentPublishDialog
 
             return rendered;
         });
-    }
-
-
-    getButtonRow(): ContentPublishDialogButtonRow {
-        return <ContentPublishDialogButtonRow>super.getButtonRow();
     }
 
     open() {
@@ -241,17 +233,6 @@ export class ContentPublishDialog
     resetSubTitleMessage() {
         this.publishSubTitle.resetValue();
     }
-}
-
-export class ContentPublishDialogButtonRow
-    extends DropdownButtonRow {
-
-    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
-        super.makeActionMenu(mainAction, menuActions, useDefault);
-
-        return <MenuButton>this.actionMenu.addClass('publish-dialog-menu');
-    }
-
 }
 
 export class ContentPublishDialogSubTitle

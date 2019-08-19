@@ -78,9 +78,6 @@ export class RequestContentPublishDialog
 
         this.requestDetailsPropertySet = new api.data.PropertySet();
 
-        this.scheduleFormToggle.onClicked((event) => {
-            this.goToStep(1);   // go to the form step
-        });
         this.publishScheduleForm.layout(false);
 
         const detailsForm = this.createDetailsForm();
@@ -110,9 +107,10 @@ export class RequestContentPublishDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildToContentPanel(this.publishIssuesStateBar);
+            const issueIcon = new api.dom.DivEl('icon-publish-request opened');
+            this.prependChildToHeader(issueIcon);
 
-            this.prependChildToHeader(this.scheduleFormToggle);
+            this.appendChildToContentPanel(this.publishIssuesStateBar);
 
             this.publishItemsStep.appendChildren(this.getItemList(), this.getDependantsContainer());
             this.appendChildToContentPanel(this.publishItemsStep);
@@ -158,6 +156,9 @@ export class RequestContentPublishDialog
         this.nextAction.setVisible(num === 0);
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
         this.updateControls();
+        if (num === 1) {
+            this.detailsFormView.giveFocus();
+        }
     }
 
     private getCurrentStep(): number {
@@ -190,17 +191,12 @@ export class RequestContentPublishDialog
             .addExcludeIds(this.getExcludedIds())
             .build();
 
-        const publishSet = this.scheduleFormPropertySet.getPropertySet('publish');
-        const from = publishSet ? publishSet.getLocalDateTime('from') : null;
-        const to = publishSet ? publishSet.getLocalDateTime('to') : null;
         const changes = this.requestDetailsPropertySet.getString('changes');
         const assignees = this.requestDetailsPropertySet.getPropertyArray('assignees');
 
         const createIssueRequest = new CreateIssueRequest()
             .setTitle(changes)
             .setType(IssueType.PUBLISH_REQUEST)
-            .setPublishFrom(from ? from.toDate() : undefined)
-            .setPublishTo(to ? to.toDate() : undefined)
             .setApprovers(assignees ? assignees.map((prop) => {
                 return api.security.PrincipalKey.fromString(prop.getReference().getNodeId());
             }) : undefined)

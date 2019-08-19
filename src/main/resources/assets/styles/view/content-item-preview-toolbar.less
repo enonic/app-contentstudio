@@ -9,6 +9,24 @@
 
   .menu-button {
 
+    .icon {
+      &.icon-issue,
+      &.icon-publish-request {
+        margin-right: 6px;
+        vertical-align: middle;
+        color: #609E24;
+      }
+    }
+
+    &:not([disabled]):hover {
+      .icon {
+        &.icon-issue,
+        &.icon-publish-request {
+          color: #609e24;
+        }
+      }
+    }
+
     .action-button {
       margin-left: 0;
       margin-right: 40px;

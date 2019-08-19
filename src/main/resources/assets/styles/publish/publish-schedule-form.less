@@ -1,24 +1,24 @@
 .publish-schedule-form {
+  background-color: @admin-bg-light-gray;
+
+  &.invalid {
+    background: @input-light-red;
+  }
 
   .form-wrapper {
     display: flex;
     position: relative;
     align-items: center;
     flex-wrap: wrap;
-    background-color: @admin-bg-light-gray;
-
-    .schedule-note {
-      width: 100%;
-      display: block;
-      background-color: @form-button-bg;
-      padding: 10px 20px;
-      color: @admin-white;
-    }
 
     .form-view {
       flex: 1;
       padding: 0 !important;
       padding-right: 20px !important;
+
+      .input-view {
+        padding: 10px;
+      }
     }
 
     a.remove-button {
@@ -32,8 +32,9 @@
       top: 5px;
     }
 
-    .schedule-note + .form-view + a.remove-button {
-      top: 57px;
+    .help-text-toggler {
+      top: -2px;
+      right: 5px;
     }
   }
 }

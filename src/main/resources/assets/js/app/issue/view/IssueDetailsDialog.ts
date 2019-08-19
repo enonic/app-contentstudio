@@ -350,7 +350,7 @@ export class IssueDetailsDialog
         return super.doRender().then((rendered: boolean) => {
             const isPublishRequest = this.isPublishRequest();
 
-            this.prependChildToHeader(this.scheduleFormToggle);
+            this.getButtonRow().addElement(this.scheduleFormToggle);
             this.setSubTitleEl(this.detailsSubTitle);
             this.prependChildToHeader(this.backButton);
             this.createAddCommentButton();
@@ -384,8 +384,8 @@ export class IssueDetailsDialog
         });
     }
 
-    private isPublishRequest(): boolean {
-        return !!this.issue && this.issue.getType() === IssueType.PUBLISH_REQUEST;
+    private isPublishRequest(issue: Issue = this.issue): boolean {
+        return !!issue && issue.getType() === IssueType.PUBLISH_REQUEST;
     }
 
     private getItemsTabLabel(): string {
@@ -453,6 +453,7 @@ export class IssueDetailsDialog
 
         this.publishAction.setEnabled(canPublish && scheduleValid);
         this.scheduleAction.setEnabled(canPublish && scheduleValid);
+        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
 
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
 
@@ -599,8 +600,9 @@ export class IssueDetailsDialog
     setIssue(issue: Issue): IssueDetailsDialog {
 
         const shouldUpdateDialog = (this.isRendered() || this.isRendering()) && issue;
-        const isPublishRequest = this.isPublishRequest();
+        const isPublishRequest = this.isPublishRequest(issue);
         this.publishProcessor.setCheckPublishable(!isPublishRequest);
+        this.toggleClass('publish-request', isPublishRequest);
 
         if (shouldUpdateDialog) {
             this.getItemList().setCanBeEmpty(!isPublishRequest);
@@ -656,8 +658,6 @@ export class IssueDetailsDialog
             this.updateLabels();
 
             this.tabBar.selectNavigationItem(isPublishRequest ? 1 : 0);
-
-            this.toggleClass('publish-request', isPublishRequest);
         }
 
         return this;

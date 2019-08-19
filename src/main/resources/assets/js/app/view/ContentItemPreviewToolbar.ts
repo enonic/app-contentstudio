@@ -5,6 +5,7 @@ import {Issue} from '../issue/Issue';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
+import {IssueType} from '../issue/IssueType';
 import MenuButton = api.ui.button.MenuButton;
 import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
@@ -99,7 +100,8 @@ export class ContentItemPreviewToolbar
     }
 
     private createIssueAction(issue: Issue) {
-        const action = new Action(`#${issue.getIndex()} <i>${issue.getTitle()}</i>`);
+        const type = issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
+        const action = new Action(`<span class="icon icon-${type} opened"></span><i>${issue.getTitle()}</i>`);
         action.onExecuted((a) => {
             IssueDialogsManager.get().openDetailsDialog(issue);
         });

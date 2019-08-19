@@ -57,6 +57,8 @@ export class CreateIssueDialog
         return super.doRender().then((rendered: boolean) => {
             this.getEl().addClass('create-issue-dialog');
             this.itemsLabel.insertBeforeEl(this.getItemList());
+            const issueIcon = new api.dom.DivEl('icon-issue opened');
+            this.prependChildToHeader(issueIcon);
             this.prependChildToHeader(this.backButton);
             this.addCancelButtonToBottom();
 

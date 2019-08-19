@@ -9,7 +9,6 @@ import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {PublishIssuesStateBar} from '../publish/PublishIssuesStateBar';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
 import ContentId = api.content.ContentId;
 import ListBox = api.ui.selector.list.ListBox;
 import i18n = api.util.i18n;
@@ -184,10 +183,6 @@ export abstract class BasePublishDialog
 
             return rendered;
         });
-    }
-
-    getButtonRow(): DropdownButtonRow {
-        return <DropdownButtonRow>super.getButtonRow();
     }
 
     protected initActions() {

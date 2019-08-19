@@ -5,30 +5,6 @@
     .back-button {
       line-height: 38px;
     }
-
-    .icon.icon-calendar {
-      float: right;
-      cursor: pointer;
-      background: transparent;
-      border: none;
-      padding-right: 7px;
-      margin-right: -10px;
-      width: 40px;
-
-      &[disabled] {
-        opacity: .5;
-        pointer-events: none;
-      }
-
-      &:before {
-        font-size: 24px;
-        line-height: 38px;
-      }
-
-      &.active {
-        color: @admin-blue;
-      }
-    }
   }
 
   &.closed {
@@ -336,6 +312,30 @@
             }
           }
         }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    .icon.icon-calendar {
+      float: left;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 40px;
+      height: 36px;
+
+      &[disabled] {
+        display: none;
+      }
+
+      &:before {
+        font-size: 24px;
+        line-height: 34px;
+      }
+
+      &.active {
+        color: @admin-blue;
       }
     }
   }
