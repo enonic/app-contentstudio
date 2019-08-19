@@ -3,6 +3,7 @@ import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
@@ -63,10 +64,13 @@ export class ContentPublishMenuButton
     protected item: ContentSummaryAndCompareStatus;
 
     private isRefreshDisabled: boolean = false;
+    private debouncedFetch: (highlightedOrSelected: ContentSummaryAndCompareStatus) => void;
 
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction);
         this.addClass('content-publish-menu transparent');
+
+        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 500);
 
         this.initMenuActions(config);
         this.addMenuActions(this.getActions());
@@ -151,18 +155,16 @@ export class ContentPublishMenuButton
     }
 
     private handleIssueCreatedOrUpdated() {
-        const reloadList = (issue: Issue) => {
+        const reloadList = () => {
             if (this.item) {
-                const nodeId = this.item.getContentSummary().getContentId();
-                const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(nodeId));
-                if (issueHasSelectedContent) {
-                    this.fetchIssues(this.item);
-                }
+                // item might've been removed from issue, so reload even if it's not listed
+                this.debouncedFetch(this.item);
             }
         };
 
-        IssueDialogsManager.get().onIssueCreated(reloadList);
-        IssueDialogsManager.get().onIssueUpdated(reloadList);
+        const handler = IssueServerEventsHandler.getInstance();
+        handler.onIssueCreated(reloadList);
+        handler.onIssueUpdated(reloadList);
     }
 
     private handleActionsUpdated() {
@@ -212,7 +214,7 @@ export class ContentPublishMenuButton
 
     setItem(item: ContentSummaryAndCompareStatus) {
         if (item && (!this.item || !item.getContentId().equals(this.item.getContentId()))) {
-            this.fetchIssues(item);
+            this.debouncedFetch(item);
         }
 
         this.item = item;
@@ -244,6 +246,9 @@ export class ContentPublishMenuButton
             .setIssueStatus(IssueStatus.OPEN)
             .sendAndParse()
             .then((issues: Issue[]) => {
+                if (this.issueActionsList && this.issueActionsList.length > 0) {
+                    this.removeMenuActions(this.issueActionsList);
+                }
                 this.issueActionsList = issues.map(this.setupIssueAction);
                 if (this.issueActionsList.length > 0) {
                     this.addMenuSeparator();

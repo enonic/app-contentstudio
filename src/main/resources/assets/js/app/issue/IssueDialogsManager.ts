@@ -22,9 +22,6 @@ export class IssueDialogsManager {
 
     private issue: Issue;
 
-    private issueCreatedListeners: { (issue: Issue): void }[] = [];
-    private issueUpdatedListeners: { (issue: Issue): void }[] = [];
-
     private publishDialogBeforeClosedHandler: () => void;
     private publishDialogCloseHandler: () => void;
     private detailsDialogCloseHandler: () => void;
@@ -89,7 +86,6 @@ export class IssueDialogsManager {
         this.createDialog.onIssueCreated(issue => {
             ignoreNextClosedEvent = true;
             this.createDialog.close();
-            this.notifyIssueCreated(issue);
             this.openDetailsDialogWithListDialog(issue);
         });
         this.createDialog.onClosed(() => {
@@ -120,7 +116,6 @@ export class IssueDialogsManager {
     }
 
     private listenDetailsDialog() {
-        this.detailsDialog.onIssueUpdated(this.notifyIssueUpdated.bind(this));
         this.detailsDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.detailsDialog));
         this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
     }
@@ -140,7 +135,6 @@ export class IssueDialogsManager {
 
     private listenRequestPublishDialog() {
         this.requestPublishDialog.onIssueCreated(issue => {
-            this.notifyIssueCreated(issue);
             IssueDialogsManager.get().openDetailsDialog(issue);
         });
     }
@@ -181,30 +175,6 @@ export class IssueDialogsManager {
         this.createDialog
             .forceResetOnClose(true)
             .open();
-    }
-
-    private notifyIssueCreated(issue: Issue) {
-        this.issueCreatedListeners.forEach(listener => listener(issue));
-    }
-
-    public onIssueCreated(listener: (issue: Issue) => void) {
-        this.issueCreatedListeners.push(listener);
-    }
-
-    public unIssueCreated(listener: (issue: Issue) => void) {
-        this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
-    }
-
-    private notifyIssueUpdated(issue: Issue) {
-        this.issueUpdatedListeners.forEach(listener => listener(issue));
-    }
-
-    public onIssueUpdated(listener: (issue: Issue) => void) {
-        this.issueUpdatedListeners.push(listener);
-    }
-
-    public unIssueUpdated(listener: (issue: Issue) => void) {
-        this.issueUpdatedListeners = this.issueUpdatedListeners.filter(curr => curr !== listener);
     }
 
 }
