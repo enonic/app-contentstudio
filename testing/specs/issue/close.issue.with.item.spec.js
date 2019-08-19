@@ -24,14 +24,12 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     //verifies https://github.com/enonic/app-contentstudio/issues/356
     //Endless spinner after clicking on Create Issue button
     it(`GIVEN user just is 'logged in' AND no selections in the grid WHEN 'Create Issue' button has been pressed  THEN Create Issue dialog should appear`,
-        () => {
+        async () => {
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            return contentBrowsePanel.clickOnCreateIssueButton().then(() => {
-                return createIssueDialog.waitForDialogLoaded();
-            }).then(() => {
-                return createIssueDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
-            })
+            await contentBrowsePanel.clickOnCreateIssueButton();
+            await createIssueDialog.waitForDialogLoaded();
+            await createIssueDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
         });
 
     it(`Precondition: new published-folder and new issue have been created`,

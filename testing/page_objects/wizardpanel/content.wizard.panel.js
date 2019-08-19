@@ -12,6 +12,7 @@ const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const RequestPublishDialog = require('../../page_objects/request.content.publish.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -25,6 +26,7 @@ const XPATH = {
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
+    openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
@@ -552,6 +554,11 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
     }
 
+    waitForOpenRequestButtonVisible() {
+        let selector = XPATH.container + XPATH.openRequestButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+    }
+
     waitForPublishButtonVisible() {
         let selector = XPATH.container + XPATH.publishButton;
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
@@ -602,6 +609,16 @@ class ContentWizardPanel extends Page {
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
+    }
+
+    async openPublishMenuAndCreateRequestPublish(changes, assignees) {
+        let requestPublishDialog = new RequestPublishDialog();
+        let contentWizardPanel = new ContentWizardPanel();
+        await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        await requestPublishDialog.waitForDialogLoaded();
+        await requestPublishDialog.clickOnNextButton();
+        await requestPublishDialog.typeInChangesInput(changes);
+        return await requestPublishDialog.clickOnCreateRequestButton();
     }
 
     async showPublishMenuClickOnMarkAsReadyMenuItem() {

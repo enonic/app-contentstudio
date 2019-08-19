@@ -50,7 +50,7 @@ export class ContentWizardPublishMenuButton
         actionsWithSaveBeforeExecution.forEach(action => {
             action.onBeforeExecute(() => {
                 if (action.mustSaveBeforeExecution()) {
-                    this.hideDropdown();
+                    this.collapseMenu();
                 }
             });
         });

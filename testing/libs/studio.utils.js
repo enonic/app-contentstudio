@@ -125,17 +125,19 @@ module.exports = {
             return issueListDialog.pause(300);
         });
     },
-    openCreateIssueDialog: function () {
-        let browsePanel = new BrowsePanel();
-        let createIssueDialog = new CreateIssueDialog();
-        let issueListDialog = new IssueListDialog();
-        return browsePanel.clickOnShowIssuesListButton().then(() => {
-            return issueListDialog.waitForDialogOpened();
-        }).then(() => {
-            return issueListDialog.clickOnNewIssueButton();
-        }).then(() => {
-            return createIssueDialog.waitForDialogLoaded();
-        });
+    async openCreateIssueDialog() {
+        try {
+            let browsePanel = new BrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            let issueListDialog = new IssueListDialog();
+            await browsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssuesTab();
+            await issueListDialog.clickOnNewIssueButton();
+            await createIssueDialog.waitForDialogLoaded();
+        } catch (err) {
+            throw new Error("Error when opening Create Issue Dialog " + err);
+        }
     },
     openPublishMenuAndClickOnCreateIssue: function () {
         let browsePanel = new BrowsePanel();

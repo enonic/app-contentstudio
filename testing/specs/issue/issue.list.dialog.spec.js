@@ -15,24 +15,38 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
     webDriverHelper.setupBrowser();
 
     it(`WHEN 'Issues List Dialog' has been opened THEN required control elements should be present`,
-        () => {
+        async () => {
             let issueListDialog = new IssueListDialog();
-            return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.getTitle();
-            }).then(title => {
-                assert.strictEqual(title, 'Publishing Issues');
-            }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.isShowClosedIssuesButtonVisible(),
-                    "`Show Closed Issues ` link should be displayed");
-            }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.isNewIssueButtonVisible(),
-                    "`New Issue...` button should be displayed");
-            }).then(() => {
-                return issueListDialog.getAssignedSelectedOption();
-            }).then(result => {
-                assert.isTrue(result.includes(`Assigned by Me`), '`Assigned by Me` option should be selected in Show combobox')
-            })
+            await studioUtils.openIssuesListDialog();
+            let title = await issueListDialog.getTitle();
+            assert.strictEqual(title, 'Issues');
+            let showClosedIssuesLink = await issueListDialog.isShowClosedIssuesButtonVisible();
+            assert.isTrue(showClosedIssuesLink, "'Show closed Issues' link should be present");
+
+            let pubReqTab = await issueListDialog.isPublishRequestsTabDisplayed();
+            assert.isTrue(pubReqTab, "`Publish Requests` tab should be displayed");
+
+            let allIssuesTab = await issueListDialog.isAllIssuesTabDisplayed();
+            assert.isTrue(allIssuesTab, "`All Issues` tab should be displayed");
+            let issuesTab = await issueListDialog.isIssuesTabDisplayed();
+            assert.isTrue(issuesTab, "`Issues` tab should be displayed");
+
+            let result = await issueListDialog.getAssignedSelectedOption();
+            assert.isTrue(result.includes(`Assigned by Me`), '`Assigned by Me` option should be selected in Show combobox')
+
         });
+
+    it(`GIVEN 'Issues List Dialog' has been opened WHEN Issues tab has been clicked THEN 'New Issue...' button should be present`,
+        async () => {
+            let issueListDialog = new IssueListDialog();
+            await studioUtils.openIssuesListDialog();
+            //Issues tab has been clicked:
+            await issueListDialog.clickOnIssuesTab();
+
+            let isNewButtonDisplayed = await issueListDialog.isNewIssueButtonVisible();
+            assert.isTrue(isNewButtonDisplayed, "`New Issue...` button should be displayed");
+        });
+
 
     it(`GIVEN 'Issues List Dialog' is opened WHEN 'Show closed issues' button has been clicked THEN 'Hide closed issues' button is getting visible`,
         () => {
@@ -50,4 +64,5 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
-});
+})
+;

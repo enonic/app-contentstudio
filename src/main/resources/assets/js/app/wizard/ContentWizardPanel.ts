@@ -1606,6 +1606,7 @@ export class ContentWizardPanel
                         if (this.formState.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
                         } else {
+                            this.contentWizardStepForm.validate();
                             this.displayValidationErrors(!this.isValid());
                         }
 
