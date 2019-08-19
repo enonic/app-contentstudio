@@ -1906,8 +1906,12 @@ export class ContentWizardPanel
         let message;
         if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
-        } else if (this.isMarkedAsReady && !this.isMarkedAsReadyOnPublish) {
-            message = i18n('notify.item.isMarkedAsReady', name);
+        } else if (this.isMarkedAsReady) {
+            if (this.isMarkedAsReadyOnPublish) {
+                message = i18n('notify.item.savedAndMarkedAsReady', name);
+            } else {
+                message = i18n('notify.item.markedAsReady', name);
+            }
         } else {
             message = i18n('notify.item.saved', name);
         }
