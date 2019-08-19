@@ -1,7 +1,11 @@
 .publish-dialog-issues {
 
-  &.has-issues + .publish-schedule-form {
-    display: none;
+  &.has-issues {
+    padding-bottom: 5px;
+
+    & + .publish-schedule-form {
+      display: none;
+    }
   }
 
   h6 {

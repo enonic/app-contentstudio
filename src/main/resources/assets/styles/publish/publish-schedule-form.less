@@ -6,6 +6,7 @@
   }
 
   .form-wrapper {
+    margin-bottom: 15px;
     display: flex;
     position: relative;
     align-items: center;
@@ -18,6 +19,10 @@
 
       .input-view {
         padding: 10px;
+
+        .label {
+          font-size: 14px;
+        }
       }
     }
 
@@ -29,12 +34,12 @@
       cursor: pointer;
       position: absolute;
       right: 5px;
-      top: 5px;
+      top: calc(50% - 9px);
     }
 
     .help-text-toggler {
       top: -2px;
-      right: 5px;
+      right: -24px;
     }
   }
 }

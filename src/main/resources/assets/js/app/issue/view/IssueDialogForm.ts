@@ -35,7 +35,7 @@ export class IssueDialogForm
     private contentItemsAddedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
 
     private contentItemsRemovedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
-    private addItemsButtonItem: api.ui.form.FormItem;
+    private addItemsButtonItem: api.ui.button.Button;
     private contentItemsFormItem: api.ui.form.FormItem;
     private contentItemsSelectorLocked: boolean;
 
@@ -115,13 +115,11 @@ export class IssueDialogForm
         this.contentItemsFormItem = new FormItemBuilder(this.contentItemsSelector).setLabel(i18n('field.items')).build();
         fieldSet.add(this.contentItemsFormItem);
 
-        const addItemsButton = new api.ui.button.Button(i18n('dialog.issue.addItems'));
-        addItemsButton.onClicked((e: MouseEvent) => {
+        this.addItemsButtonItem = new api.ui.button.Button(i18n('dialog.issue.addItems'));
+        this.addItemsButtonItem.onClicked((e: MouseEvent) => {
             this.contentItemsFormItem.show();
             this.addItemsButtonItem.hide();
         });
-        this.addItemsButtonItem = new FormItemBuilder(addItemsButton).build();
-        fieldSet.add(this.addItemsButtonItem);
 
         this.title.onValueChanged(() => {
             this.validate(true);
@@ -132,6 +130,7 @@ export class IssueDialogForm
         });
 
         this.add(fieldSet);
+        this.appendChild(this.addItemsButtonItem);
     }
 
     private toggleContentItemsSelector(value: boolean) {
