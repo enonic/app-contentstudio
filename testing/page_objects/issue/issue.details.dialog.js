@@ -5,7 +5,7 @@ const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     toIssueList: `//a[@title='To Issue List']`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
-    issueTitleInputToggle: `//button[@class='inplace-toggle']`,
+    editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
     closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
@@ -38,7 +38,7 @@ class IssueDetailsDialog extends Page {
     }
 
     get issueTitleInputToggle() {
-        return XPATH.issueNameInPlaceInput + XPATH.issueTitleInputToggle;
+        return XPATH.issueNameInPlaceInput + XPATH.editIssueTitleToggle;
     }
 
     get issueStatusSelector() {
@@ -74,7 +74,7 @@ class IssueDetailsDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.issueNameInPlaceInput, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot('err_load_issue_details_dialog');
             throw new Error('Issue Details dialog is not loaded ' + err)
         });
@@ -120,28 +120,27 @@ class IssueDetailsDialog extends Page {
         return this.clickOnElement(this.backButton);
     }
 
-    async clickOnIssueTitleInputToggle() {
+    async clickOnEditTitle() {
         await this.clickOnElement(this.issueTitleInputToggle);
         return await this.pause(500);
     }
 
-    typeTitle(title) {
-        return this.typeTextInInput(this.titleInput, title).catch(err => {
+    async typeTitle(title) {
+        try {
+            await this.typeTextInInput(this.titleInput, title);
+            await this.pause(400);
+        } catch (err) {
             this.saveScreenshot("err_type_issue_title");
             throw new Error('error when type issue-title ' + err);
-        })
+        }
     }
 
-    waitForIssueTitleInputToggleLoaded() {
-        return this.waitForElementDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
-            throw new Error('Issue Details dialog- `Title Input toggler` should be loaded! ' + err)
-        });
-    }
 
-    waitForIssueTitleInputToggleNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
-            throw new Error('Issue Details dialog- `Title Input toggler` should be not visible! ' + err)
-        });
+    waitForIssueTitleInputNotEditable() {
+        return this.getBrowser().waitUntil(() => {
+            return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'readonly')]`);
+        }, appConst.TIMEOUT_3, "Issue details dialog - title should not be editable!");
+
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {
@@ -177,7 +176,7 @@ class IssueDetailsDialog extends Page {
             this.saveScreenshot('err_click_close_issue_button');
             throw  new Error('Error when clicking on the `Close Issue`  ' + err);
         }).then(() => {
-            return this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
+            return this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_4).catch(err => {
                 this.saveScreenshot('err_issue_closed');
                 throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
             })
@@ -268,6 +267,11 @@ class IssueDetailsDialog extends Page {
         }).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
+    }
+
+    async clickOnCommentsTabBarItem() {
+        await this.clickOnElement(this.commentsTabBarItem);
+        return await this.pause(400);
     }
 
     isItemsTabBarItemActive() {

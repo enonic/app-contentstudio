@@ -8,6 +8,7 @@ const xpath = {
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
+    changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
@@ -44,7 +45,7 @@ class RequestContentPublishDialog extends Page {
     }
 
     get describeChangesInput() {
-        return xpath.container + xpath.addScheduleButton;
+        return xpath.container + xpath.changesInput + lib.TEXT_INPUT;
     }
 
     get showDependentItemsLink() {
@@ -127,8 +128,8 @@ class RequestContentPublishDialog extends Page {
     }
 
     waitForCreateRequestButtonEnabled() {
-        return this.waitForElementEnabled(this.createRequestButton).then(() => {
-            throw new Error("Request Publishing dialog - Create Request button should be enabled" + err);
+        return this.waitForElementEnabled(this.createRequestButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Request Publishing dialog - Create Request button should be enabled !" + err);
         })
     }
 
@@ -150,7 +151,8 @@ class RequestContentPublishDialog extends Page {
     async clickOnNextButton() {
         try {
             await this.waitForNextButtonDisplayed();
-            return await this.clickOnElement(this.nextButton);
+            await this.clickOnElement(this.nextButton);
+            await this.pause(300);
         } catch (err) {
             throw new Error("Request Publish Dialog -Error when clicking on Next button:" + err);
         }
@@ -202,6 +204,16 @@ class RequestContentPublishDialog extends Page {
 
     isWarningMessageDisplayed() {
         return this.isElementDisplayed(this.warningMessagePart1);
+    }
+
+    async typeInChangesInput(changes) {
+        await this.waitForElementDisplayed(this.describeChangesInput);
+        return await this.typeTextInInput(this.describeChangesInput, changes);
+    }
+
+    async clickOnCreateRequestButton() {
+        await this.waitForCreateRequestButtonEnabled();
+        return await this.clickOnElement(this.createRequestButton);
     }
 };
 module.exports = RequestContentPublishDialog;

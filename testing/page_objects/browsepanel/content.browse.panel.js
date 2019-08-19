@@ -657,13 +657,14 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-    clickOnCreateIssueButton() {
-        return this.waitForCreateIssueButtonVisible().then(() => {
-            return this.clickOnElement(this.createIssueButton);
-        }).catch(err => {
+    async clickOnCreateIssueButton() {
+        try {
+            await this.waitForCreateIssueButtonVisible();
+            return await this.clickOnElement(this.createIssueButton);
+        } catch (err) {
             this.saveScreenshot("err_click_create_issue_button");
             throw new Error("Browse Panel. Error when click on Create issue button on the toolbar! " + err);
-        });
+        }
     }
 
     waitUntilInvalid(selector) {

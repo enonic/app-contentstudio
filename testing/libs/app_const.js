@@ -34,6 +34,7 @@ module.exports = Object.freeze({
     SIMPLE_SITE_APP: 'Simple Site App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+    THIS_FIELD_IS_REQUIRED: 'This field is required',
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,
