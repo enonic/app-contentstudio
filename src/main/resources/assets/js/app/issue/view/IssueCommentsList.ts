@@ -13,6 +13,7 @@ import {Issue} from '../Issue';
 import {ListIssueCommentsRequest} from '../resource/ListIssueCommentsRequest';
 import {UpdateIssueCommentRequest} from '../resource/UpdateIssueCommentRequest';
 import {InPlaceTextArea} from './InPlaceTextArea';
+import {IssueType} from '../IssueType';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {
@@ -49,8 +50,12 @@ export class IssueCommentsList
         return item.getId();
     }
 
+    private isPublishRequest(): boolean {
+        return !!this.parentIssue && this.parentIssue.getType() === IssueType.PUBLISH_REQUEST;
+    }
+
     protected createItemView(item: IssueComment, readOnly: boolean): api.dom.Element {
-        const listItem = new IssueCommentsListItem(item);
+        const listItem = new IssueCommentsListItem(item, this.isPublishRequest());
         listItem.onContextMenuClicked((x: number, y: number, comment: IssueComment) => {
             this.activeItem = comment;
             this.menu.showAt(x, y);
@@ -71,7 +76,10 @@ export class IssueCommentsList
                         new DeleteIssueCommentRequest(activeItem.getId()).sendAndParse().done(result => {
                             if (result) {
                                 this.removeItem(activeItem);
-                                api.notify.showFeedback(i18n('notify.issue.commentDeleted'));
+                                const messageKey = this.isPublishRequest() ?
+                                                   'notify.publishRequest.commentDeleted' :
+                                                   'notify.issue.commentDeleted';
+                                api.notify.showFeedback(i18n(messageKey));
                             }
                         });
                     }).open();
@@ -110,12 +118,18 @@ class IssueCommentsListItem
     extends api.ui.Viewer<IssueComment> {
 
     private header: H6El;
+
     private text: InPlaceTextArea;
+
     private principalViewer: PrincipalViewerCompact;
+
     private contextMenuClickedListeners: { (x: number, y: number, comment: IssueComment): void }[] = [];
 
-    constructor(comment: IssueComment) {
+    private publishRequestComment: boolean;
+
+    constructor(comment: IssueComment, publishRequestComment: boolean) {
         super('issue-comments-list-item');
+        this.publishRequestComment = publishRequestComment;
         this.setObject(comment);
         this.text = new InPlaceTextArea(this.resolveSubName(comment));
     }
@@ -123,16 +137,16 @@ class IssueCommentsListItem
     protected doLayout(comment: IssueComment) {
         super.doLayout(comment);
 
-        const p = Principal.create()
+        const principal = Principal.create()
             .setKey(comment.getCreatorKey())
             .setDisplayName(comment.getCreatorDisplayName()).build();
 
         if (!this.principalViewer) {
             this.principalViewer = new PrincipalViewerCompact();
-            this.principalViewer.setObject(p);
+            this.principalViewer.setObject(principal);
             this.appendChild(this.principalViewer);
         } else {
-            this.principalViewer.doLayout(p);
+            this.principalViewer.doLayout(principal);
         }
 
         if (!this.header) {
@@ -141,7 +155,10 @@ class IssueCommentsListItem
             this.text.onEditModeChanged((editMode, newVal, oldVal) => {
                 if (!editMode && newVal !== oldVal) {
                     new UpdateIssueCommentRequest(comment.getId()).setText(newVal).sendAndParse().done(() => {
-                        api.notify.showFeedback(i18n('notify.issue.commentUpdated'));
+                        const messageKey = this.publishRequestComment ?
+                                           'notify.publishRequest.commentUpdated' :
+                                           'notify.issue.commentUpdated';
+                        api.notify.showFeedback(i18n(messageKey));
                     });
                 }
             });

@@ -703,7 +703,8 @@ export class IssueDetailsDialog
             .then(issueComment => {
                 this.commentsList.addItem(issueComment);
                 this.commentTextArea.setValue('').giveFocus();
-                api.notify.showFeedback(i18n('notify.issue.commentAdded'));
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.commentAdded' : 'notify.issue.commentAdded';
+                api.notify.showFeedback(i18n(messageKey));
             });
     }
 
@@ -797,9 +798,11 @@ export class IssueDetailsDialog
                             .then((updatedIssue: Issue) => {
                                 this.setIssue(updatedIssue);
                                 this.notifyIssueUpdated(updatedIssue);
-                                api.notify.showFeedback(i18n('notify.issue.closed', updatedIssue.getTitle()));
+                                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
+                                api.notify.showFeedback(i18n(messageKey, updatedIssue.getTitle()));
                             }).catch(() => {
-                            api.notify.showError(i18n('notify.issue.closeError', issue.getTitle()));
+                            const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
+                            api.notify.showError(i18n(messageKey, issue.getTitle()));
                         }).finally(() => {
                             this.unProgressComplete(issuePublishedHandler);
                         });
@@ -856,10 +859,12 @@ export class IssueDetailsDialog
         return this.populateSchedule(updateIssueRequest).sendAndParse()
             .then((updatedIssue: Issue) => {
                 if (statusChanged) {
-                    api.notify.showFeedback(i18n('notify.issue.status', IssueStatusFormatter.formatStatus(newStatus)));
+                    const messageKey = this.isPublishRequest() ? 'notify.publishRequest.status' : 'notify.issue.status';
+                    api.notify.showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(newStatus)));
                     this.toggleControlsAccordingToStatus(newStatus);
                 } else {
-                    api.notify.showFeedback(i18n('notify.issue.updated'));
+                    const messageKey = this.isPublishRequest() ? 'notify.publishRequest.updated' : 'notify.issue.updated';
+                    api.notify.showFeedback(i18n(messageKey));
                 }
                 this.notifyIssueUpdated(updatedIssue);
                 this.skipNextServerUpdatedEvent = true;
