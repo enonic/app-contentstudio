@@ -267,7 +267,7 @@ export class ContentPublishDialogSubTitle
             return;
         }
         this.input.setValue(text);
-        this.toggleInput(true);
+        this.toggleInput(true, false);
     }
 
     resetValue() {
@@ -280,11 +280,13 @@ export class ContentPublishDialogSubTitle
         this.toggleClass('custom-message', !!text);
     }
 
-    private toggleInput(visible: boolean) {
+    private toggleInput(visible: boolean, focus: boolean = true) {
         if (visible) {
             this.message.hide();
             this.input.show();
-            this.input.giveFocus();
+            if (focus) {
+                this.input.giveFocus();
+            }
         } else {
             this.input.reset();
             this.input.hide();
