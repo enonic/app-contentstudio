@@ -16,7 +16,19 @@
     }
 
     &.inherited {
-      opacity: 0.5;
+
+      .slick-cell {
+        opacity: 0.5;
+      }
+
+      .slick-cell {
+        &.highlight, &.selected {
+          opacity: 1;
+          > * {
+            opacity: 0.5;
+          }
+        }
+      }
     }
 
     .@{_COMMON_PREFIX}main-name span {
