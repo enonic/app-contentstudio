@@ -484,6 +484,7 @@ export class IssueDetailsDialog
         if (this.isRendered()) {
             this.tabPanel.selectPanelByIndex(this.isPublishRequest() ? 1 : 0);
         }
+        this.toggleClass('with-schedule-form', this.publishScheduleForm.isFormVisible());
 
         Router.setHash('issue/' + this.issue.getId());
     }
@@ -650,9 +651,9 @@ export class IssueDetailsDialog
                 if (issue.getPublishTo()) {
                     publishScheduleSet.setLocalDateTime('to', 0, api.util.LocalDateTime.fromDate(issue.getPublishTo()));
                 }
-                this.publishScheduleForm.setFormVisible(true);
+                this.publishScheduleForm.setFormVisible(true, true);
             } else {
-                this.publishScheduleForm.setFormVisible(false);
+                this.publishScheduleForm.setFormVisible(false, true);
             }
 
             this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
