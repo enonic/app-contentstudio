@@ -35,6 +35,7 @@ import Tooltip = api.ui.Tooltip;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
 import TabBar = api.ui.tab.TabBar;
 import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
+import NavigatorEvent = api.ui.NavigatorEvent;
 import Panel = api.ui.panel.Panel;
 import AppHelper = api.util.AppHelper;
 import TabBarItem = api.ui.tab.TabBarItem;
@@ -753,7 +754,7 @@ export class IssueDetailsDialog
 
     private createScheduleButton(): DialogButton {
         const scheduleButton: DialogButton = this.getButtonRow().addAction(this.scheduleAction);
-        scheduleButton.addClass('schedule-issue publish-issue');
+        scheduleButton.addClass('schedule-issue');
         return scheduleButton;
     }
 
@@ -761,6 +762,12 @@ export class IssueDetailsDialog
         const divEl = new api.dom.DivEl('no-action-message');
         divEl.setHtml(i18n('dialog.issue.noItems'));
         this.getButtonRow().appendChild(divEl);
+
+        this.tabBar.onNavigationItemSelected((event: NavigatorEvent) => {
+            if (this.hasClass('no-action')) {
+                divEl.setVisible(event.getItem() === this.itemsTab);
+            }
+        });
     }
 
     private publish() {
