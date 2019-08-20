@@ -155,11 +155,17 @@ export class IssueDetailsDialog
         this.scheduleFormPropertySet.onChanged(() => {
             if (this.isRendered()) {
                 this.updateItemsCountAndButtonLabels();
+                if (this.publishScheduleForm.isFormValid()) {
+                    this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+                }
             }
         });
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             if (this.isRendered()) {
                 this.updateItemsCountAndButtonLabels();
+                if (!visible) {
+                    this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+                }
             }
             this.toggleClass('with-schedule-form', visible);
         });
