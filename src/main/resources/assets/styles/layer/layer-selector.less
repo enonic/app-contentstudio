@@ -1,10 +1,6 @@
 .content-appbar {
   .layer-selector {
     display: none;
-
-    .layer-icon.flag-icon[data-code] {
-      border: none;
-    }
   }
 
   &.has-layers {
@@ -64,8 +60,24 @@
             cursor: pointer;
           }
 
-          .icon-layers,
-          .layer-icon::before {
+
+          .layer-icon {
+
+            &::before {
+              color: @admin-white;
+            }
+
+            &.flag-icon[data-code] {
+              border: none;
+            }
+
+            &.flag-icon-none::before {
+              background-color: @admin-white;
+              color: @admin-font-gray3;
+            }
+          }
+
+          .icon-layers {
             color: @admin-white;
           }
         }
