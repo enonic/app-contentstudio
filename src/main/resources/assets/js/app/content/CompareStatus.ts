@@ -31,12 +31,15 @@ export class CompareStatusFormatter {
     }
 
     public static formatStatus(compareStatus: CompareStatus, content?: ContentSummary, isClassName: boolean = false): string {
+        return this.doFormatStatus(compareStatus, content ? content.getPublishFirstTime() : new Date(), isClassName);
+    }
 
+    public static doFormatStatus(compareStatus: CompareStatus, publishFirstTime: Date, isClassName: boolean = false) {
         let status;
 
         switch (compareStatus) {
         case CompareStatus.NEW:
-            if (content && !content.getPublishFirstTime()) {
+            if (!publishFirstTime) {
                 status = isClassName ? 'New' : i18n('status.new');
             } else {
                 status = isClassName ? 'Offline' : i18n('status.offline');

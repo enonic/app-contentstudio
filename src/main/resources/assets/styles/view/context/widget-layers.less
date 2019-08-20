@@ -1,5 +1,67 @@
 .widget-view.layers-widget {
+
+  height: 100%;
+
   .layers-widget-item-view {
+
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .content-in-layers-view {
+      flex: 1;
+    }
+
+    .content-in-layer-item, .layers-widget-state-view, .layer-viewer {
+      box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+      margin: 10px 5px 5px 7px;
+
+      position: relative;
+      padding: 6px;
+    }
+
+
+    .content-in-layer-item, .layers-widget-state-view {
+
+      .content-in-layer-viewer {
+        margin-top: 6px;
+        padding: 6px;
+
+        .@{_COMMON_PREFIX}main-name span {
+          color: @admin-font-gray2;
+        }
+
+        .@{_COMMON_PREFIX}wrapper {
+          position: relative;
+          z-index: 1;
+        }
+      }
+
+      .layer-display-name, .content-status {
+        font-size: 14px;
+      }
+
+      .content-status {
+        float: right;
+      }
+
+      .content-status-mixin();
+
+
+      &:not(:last-child):not(.no-layers) {
+        &::after {
+          content: '';
+          position: absolute;
+          left: calc(50% - 2px);
+          border-left: 4px solid #ccc;
+          height: 10px;
+          bottom: -10px;
+        }
+      }
+    }
 
     .header {
       margin-bottom: 10px;
@@ -36,10 +98,12 @@
         text-align: center;
       }
     }
+  }
 
-    .local .content-of-layer-viewer,
-    .multi-layers .layer-viewer {
-      margin-bottom: 15px;
-    }
+  .settings-button {
+    bottom: 10px;
+    text-align: center;
+    width: 60%;
+    margin: 10px auto;
   }
 }

@@ -2,17 +2,17 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ListContentLayerRequest} from '../../../../resource/layer/ListContentLayerRequest';
 import {ContentLayer} from '../../../../content/ContentLayer';
-import {LayersWidgetStateViewNoLayers} from './LayersWidgetStateViewNoLayers';
-import {LayersWidgetStateViewInherited} from './LayersWidgetStateViewInherited';
-import {LayersWidgetStateViewLocal} from './LayersWidgetStateViewLocal';
 import {LayerContext} from '../../../../layer/LayerContext';
 import {LayerServerEventsHandler} from '../../../../layer/event/LayerServerEventsHandler';
 import {LayerChangedEvent} from '../../../../layer/LayerChangedEvent';
-import {LayersWidgetStateViewCurrentLayer} from './LayersWidgetStateViewCurrentLayer';
-
-enum LayersWidgetState {
-    NO_LAYERS, CURRENT_LAYER, INHERITED, LOCAL
-}
+import {ContentsInLayersView} from './ContentsInLayersView';
+import {LayersWidgetState} from './LayersWidgetState';
+import {LayersWidgetStateViewNoLayers} from './LayersWidgetStateViewNoLayers';
+import {LayersWidgetStateView} from './LayersWidgetStateView';
+import {LayerDialogsManager} from '../../../../layer/LayerDialogsManager';
+import {LayerViewer} from '../../../../layer/LayerViewer';
+import i18n = api.util.i18n;
+import ActionButton = api.ui.button.ActionButton;
 
 export class LayersWidgetItemView
     extends WidgetItemView {
@@ -21,8 +21,25 @@ export class LayersWidgetItemView
 
     private item: ContentSummaryAndCompareStatus;
 
+    private contentsInLayersView: ContentsInLayersView;
+
+    private layerInfo: LayersWidgetStateView | LayerViewer;
+
+    private settingsButton: ActionButton;
+
     constructor() {
         super('layers-widget-item-view');
+
+        this.contentsInLayersView = new ContentsInLayersView();
+
+        const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.settings'));
+
+        action.onExecuted(() => {
+            LayerDialogsManager.get().openLayerDetailsDialog(LayerContext.get().getCurrentLayer());
+        });
+
+        this.settingsButton = new api.ui.button.ActionButton(action);
+        this.settingsButton.addClass('settings-button');
 
         this.listenLayerEvents();
     }
@@ -74,20 +91,24 @@ export class LayersWidgetItemView
     private doLayout(): wemQ.Promise<any> {
         this.setNoContent();
 
+        this.appendChild(this.contentsInLayersView);
+        this.appendChild(this.settingsButton);
+
         return wemQ(null);
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
         this.item = item;
+        this.contentsInLayersView.setContentData(this.item);
 
         return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             this.updateWidgetStateItemSelected(layers);
-            return wemQ(null);
         }).catch(api.DefaultErrorHandler.handle);
     }
 
     public setNoContent() {
         this.item = null;
+        this.contentsInLayersView.setContentData(this.item);
 
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             this.updateWidgetStateNoItemSelected(layers);
@@ -96,42 +117,42 @@ export class LayersWidgetItemView
 
     private setState(value: LayersWidgetState) {
         this.state = value;
+        this.contentsInLayersView.setState(value);
 
         this.refresh();
     }
 
     private refresh() {
-        this.removeChildren();
 
-        switch (this.state) {
-        case LayersWidgetState.NO_LAYERS:
-            this.showNoLayers();
-            break;
-        case LayersWidgetState.CURRENT_LAYER:
-            this.showCurrentLayer();
-            break;
-        case LayersWidgetState.INHERITED:
-            this.showInherited();
-            break;
-        case LayersWidgetState.LOCAL:
-            this.showLocal();
-            break;
-        }
+        this.contentsInLayersView.reload().then(() => {
+
+            if (this.layerInfo) {
+                this.removeChild(this.layerInfo);
+                this.layerInfo = null;
+            }
+
+            if (LayersWidgetState.NO_LAYERS === this.state) {
+                this.showNoLayers();
+                this.settingsButton.hide();
+            } else {
+                this.settingsButton.show();
+
+                if (this.item === null && LayersWidgetState.CURRENT_LAYER === this.state) {
+                    this.showCurrentLayer();
+                }
+            }
+        });
     }
 
     private showNoLayers() {
-        this.appendChild(new LayersWidgetStateViewNoLayers());
+        this.layerInfo = new LayersWidgetStateViewNoLayers();
+        this.layerInfo.insertBeforeEl(this.contentsInLayersView);
     }
 
     private showCurrentLayer() {
-        this.appendChild(new LayersWidgetStateViewCurrentLayer());
-    }
+        this.layerInfo = new LayerViewer();
 
-    private showInherited() {
-        this.appendChild(new LayersWidgetStateViewInherited(this.item));
-    }
-
-    private showLocal() {
-        this.appendChild(new LayersWidgetStateViewLocal(this.item));
+        this.layerInfo.setObject(LayerContext.get().getCurrentLayer());
+        this.layerInfo.insertBeforeEl(this.contentsInLayersView);
     }
 }

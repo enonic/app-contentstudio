@@ -13,7 +13,7 @@ export abstract class LayersWidgetStateView
     protected button: ActionButton;
 
     protected constructor(className: string) {
-        super(className);
+        super('layers-widget-state-view '+ className);
 
         this.initElements();
     }
