@@ -51,7 +51,10 @@ export class IssueDialogsManager {
             this.publishDialog.unCloseButtonClicked(this.publishDialogBeforeClosedHandler);
         };
         this.publishDialogCloseHandler = () => {
-            this.detailsDialog.setIssue(this.issue).open();
+            this.detailsDialog.unmask();
+            if (this.detailsDialog.isVisible()) {
+                this.detailsDialog.getEl().focus();
+            }
             this.publishDialog.unClosed(this.publishDialogCloseHandler);
             this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
             IssueServerEventsHandler.getInstance().unIssueUpdated(this.issueUpdateHandler);
@@ -127,7 +130,7 @@ export class IssueDialogsManager {
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();
-                IssueDialogsManager.closeDialog(this.detailsDialog);
+                this.detailsDialog.mask();
                 IssueServerEventsHandler.getInstance().onIssueUpdated(this.issueUpdateHandler);
             }
         });

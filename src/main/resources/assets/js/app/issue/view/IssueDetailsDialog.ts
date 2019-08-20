@@ -573,7 +573,7 @@ export class IssueDetailsDialog
 
             issues.some(issue => {
                 if (issue.getId() === this.issue.getId()) {
-                    if (this.isVisible() && !this.skipNextServerUpdatedEvent) {
+                    if (this.canUpdateDialog()) {
                         updateHandler(issue);
                     } else {
                         // we've probably triggered the save ourselves so just update the pojo and read-only status
@@ -586,6 +586,11 @@ export class IssueDetailsDialog
 
             this.skipNextServerUpdatedEvent = false;
         });
+    }
+
+    private canUpdateDialog(): boolean {
+        const isPresent = this.isVisible() || this.getParentElement() != null;
+        return isPresent && !this.skipNextServerUpdatedEvent;
     }
 
     setReadOnly(value: boolean) {
