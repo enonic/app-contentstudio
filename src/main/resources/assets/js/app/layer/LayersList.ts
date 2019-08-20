@@ -16,8 +16,8 @@ export class LayersList
     }
 
     setItems(items: ContentLayer[], silent?: boolean) {
-        new LayersSorter(items).sort();
-        super.setItems(items, silent);
+        const sortedItems: ContentLayer[] = new LayersSorter().sort(items);
+        super.setItems(sortedItems, silent);
     }
 
     protected createItemView(item: ContentLayer, readOnly: boolean): LayersListItem {
@@ -197,40 +197,32 @@ class LayersHelper {
     }
 }
 
-class LayersSorter
-    extends LayersHelper {
+class LayersSorter {
 
-    sort() {
-        this.layers.sort(this.doSort.bind(this));
+    private result: ContentLayer[];
+
+    private layersToSort: ContentLayer[];
+
+    sort(layers: ContentLayer[]): ContentLayer[] {
+        this.result = [];
+        this.layersToSort = layers;
+
+        this.doSort(null);
+
+        return this.result;
     }
 
-    private doSort(a: ContentLayer, b: ContentLayer): number {
-        if (this.isLayerAParentOfB(a, b)) {
-            return -1;
-        }
+    private doSort(parentName: string) {
+        const children: ContentLayer[] = this.findDirectChildren(parentName);
 
-        if (this.isLayerAParentOfB(b, a)) {
-            return 1;
-        }
-
-        return 0;
+        children.forEach((child: ContentLayer) => {
+            this.result.push(child);
+            this.doSort(child.getName());
+        });
     }
 
-    private isLayerAParentOfB(a: ContentLayer, b: ContentLayer): boolean {
-        if (a.isBaseLayer()) {
-            return true;
-        }
-
-        if (a.getName() === b.getParentName()) {
-            return true;
-        }
-
-        const parentLayer: ContentLayer = this.getParentLayer(b);
-
-        if (!!parentLayer) {
-            return this.isLayerAParentOfB(a, parentLayer);
-        }
-
-        return false;
+    private findDirectChildren(parentName: string) {
+        return this.layersToSort.filter((item: ContentLayer) => item.getParentName() === parentName);
     }
+
 }
