@@ -75,7 +75,7 @@ export class LayerSelector
     }
 
     private initListeners() {
-        this.header.onClicked((event: MouseEvent) => {
+        this.headerLayerViewer.onClicked((event: MouseEvent) => {
             if (this.isLayersListShown) {
                 this.hideLayersList();
             } else {
