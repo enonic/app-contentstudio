@@ -75,8 +75,6 @@ import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
 import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import i18n = api.util.i18n;
 import FormOptionSet = api.form.FormOptionSet;
 import Property = api.data.Property;
 import PropertyArray = api.data.PropertyArray;
@@ -92,6 +90,7 @@ import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
 import Workflow = api.content.Workflow;
 import WorkflowState = api.content.WorkflowState;
+import i18n = api.util.i18n;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -189,6 +188,8 @@ export class ContentWizardPanel
 
     private debouncedEditorRefresh: (clearInspection: boolean) => void;
 
+    private isFirstUpdateAndRenameEventSkiped: boolean;
+
     public static debug: boolean = false;
 
     constructor(params: ContentWizardPanelParams) {
@@ -210,6 +211,7 @@ export class ContentWizardPanel
         this.dataChangedListeners = [];
         this.contentUpdateDisabled = false;
         this.applicationLoadCount = 0;
+        this.isFirstUpdateAndRenameEventSkiped = false;
 
         this.displayNameResolver = new DisplayNameResolver();
 
@@ -500,6 +502,7 @@ export class ContentWizardPanel
         }
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
+        this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         return super.saveChanges().then((content: Content) => {
 
@@ -1064,12 +1067,12 @@ export class ContentWizardPanel
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            let indexOfCurrentContent;
-            let wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
+            let indexOfCurrentContent = null;
+            const wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
                 indexOfCurrentContent = index;
                 return this.isCurrentContentId(sorted.getContentId());
             });
-            if (wasSorted) {
+            if (wasSorted && indexOfCurrentContent != null) {
                 this.getContentWizardToolbarPublishControls().setContent(data[indexOfCurrentContent]);
             }
 
@@ -1097,7 +1100,16 @@ export class ContentWizardPanel
         };
 
         const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (!this.contentUpdateDisabled) {
+            if (this.contentUpdateDisabled && !this.isFirstUpdateAndRenameEventSkiped) {
+                data.some(content => {
+                    const isCurrentContent = this.isCurrentContentId(content.getContentId());
+                    if (isCurrentContent) {
+                        this.isFirstUpdateAndRenameEventSkiped = this.isContentUpdatedAndRenamed(content);
+                        return this.isFirstUpdateAndRenameEventSkiped;
+                    }
+                    return false;
+                });
+            } else if (!this.contentUpdateDisabled) {
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updateHandler(updated);
                 });
@@ -1109,17 +1121,6 @@ export class ContentWizardPanel
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updatePermissionsHandler(updated);
                 });
-            }
-        };
-
-        const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
-
-        const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
-            const childUpdated = data.some(item => isChild(item.getPath()));
-            if (childUpdated) {
-                this.fetchPersistedContent().then((content: Content) => {
-                    const isLeaf = !content.hasChildren();
-                }).catch(api.DefaultErrorHandler.handle).done();
             }
         };
 
@@ -1135,9 +1136,6 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
-        serverEvents.onContentCreated(childrenModifiedHandler);
-        serverEvents.onContentDeleted(childrenModifiedHandler);
-
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
             ContentDeletedEvent.un(deleteHandler);
@@ -1148,9 +1146,6 @@ export class ContentWizardPanel
             serverEvents.unContentPermissionsUpdated(contentPermissionsUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
-
-            serverEvents.unContentCreated(childrenModifiedHandler);
-            serverEvents.unContentDeleted(childrenModifiedHandler);
         });
     }
 
@@ -1160,7 +1155,8 @@ export class ContentWizardPanel
         this.persistedContent = updatedContent;
         this.getMainToolbar().setSkipNextIconStateUpdate(true);
         this.getMainToolbar().setItem(updatedContent);
-        if (!isUpdatedAndRenamed) {
+        if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
+            this.isFirstUpdateAndRenameEventSkiped = false;
             this.updateWorkflowStateIcons();
         }
         this.contextSplitPanel.setContent(updatedContent);
