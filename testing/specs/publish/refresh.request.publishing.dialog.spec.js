@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('refresh.request.publish.dialog.spec - opens request publish modal dialog and checks control elements`', function () {

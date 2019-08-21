@@ -7,7 +7,7 @@ const CreateIssueDialog = require('../issue/create.issue.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
-const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",

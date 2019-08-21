@@ -1,13 +1,12 @@
-const Page = require('./page');
-const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
-const ComboBox = require('./components/loader.combobox');
+const Page = require('../page');
+const appConst = require('../../libs/app_const');
+const lib = require('./../../libs/elements');
+
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
     nextButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
-    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
@@ -38,10 +37,6 @@ class RequestContentPublishDialog extends Page {
 
     get createRequestButton() {
         return xpath.container + xpath.createRequestButton;
-    }
-
-    get addScheduleButton() {
-        return xpath.container + xpath.addScheduleButton;
     }
 
     get describeChangesInput() {
@@ -109,18 +104,6 @@ class RequestContentPublishDialog extends Page {
         })
     }
 
-    waitForAddScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error("`Request Publish dialog` - Add schedule button is not present " + err);
-        })
-    }
-
-    waitForAddScheduleButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error("`Request Publish dialog` - Add schedule button should not be displayed! " + err);
-        })
-    }
-
     waitForCreateRequestButtonDisabled() {
         return this.waitForElementDisabled(this.createRequestButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Request Publishing dialog - Create Request button should be disabled " + err);
@@ -131,16 +114,6 @@ class RequestContentPublishDialog extends Page {
         return this.waitForElementEnabled(this.createRequestButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Request Publishing dialog - Create Request button should be enabled !" + err);
         })
-    }
-
-    async clickOnAddScheduleButton() {
-        try {
-            await this.waitForAddScheduleButtonDisplayed();
-            return await this.clickOnElement(this.addScheduleButton);
-        } catch (err) {
-            this.saveScreenshot('err_publish_dialog_add_schedule_button');
-            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button  ' + err);
-        }
     }
 
     getContentStatus(name) {
@@ -213,7 +186,8 @@ class RequestContentPublishDialog extends Page {
 
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
-        return await this.clickOnElement(this.createRequestButton);
+        await this.clickOnElement(this.createRequestButton);
+        return this.pause(300);
     }
 };
 module.exports = RequestContentPublishDialog;

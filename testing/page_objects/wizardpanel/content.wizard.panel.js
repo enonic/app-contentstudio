@@ -12,7 +12,7 @@ const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const RequestPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
