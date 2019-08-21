@@ -2,14 +2,16 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const LoaderComboBox = require('../components/loader.combobox');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     hideDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Hide dependent items')]`,
     showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
+    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
-    publishButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish...')]]`,
+    publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
@@ -22,14 +24,18 @@ const xpath = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
 
-class IssueDetailsDialogItemsTab extends Page {
+class IssueDetailsDialogRequestTab extends Page {
 
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get publishButton() {
-        return xpath.container + xpath.buttonRow + xpath.publishButton;
+    get publishNowButton() {
+        return xpath.container + xpath.buttonRow + xpath.publishNowButton;
+    }
+
+    get addScheduleButton() {
+        return xpath.container + xpath.addScheduleButton;
     }
 
     get itemNamesToPublish() {
@@ -44,16 +50,23 @@ class IssueDetailsDialogItemsTab extends Page {
         return xpath.container + xpath.showDependentItemsLink;
     }
 
-    clickOnIncludeChildrenToggler(displayName) {
-        let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_1).then(() => {
-            return this.clickOnElement(selector);
-        }).then(() => {
-            return this.pause(1000);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_dependent');
-            throw new Error('Error when clicking on dependant ' + displayName + ' ' + err);
+    waitForAddScheduleButtonDisplayed() {
+        return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("`Request Publish dialog` Requests Tab - Add schedule button is not present " + err);
         })
+    }
+
+    async clickOnIncludeChildrenToggler(displayName) {
+        try {
+            let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_1);
+            await this.clickOnElement(selector);
+
+            return this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_click_on_include_children');
+            throw new Error('Error when clicking on Include Child ' + displayName + ' ' + err);
+        }
     }
 
     // clicks on Publish... button and  opens 'Publishing Wizard'
@@ -70,15 +83,15 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     isPublishButtonDisplayed() {
-        return this.isElementDisplayed(this.publishButton);
+        return this.isElementDisplayed(this.publishNowButton);
     }
 
-    isPublishAndCloseIssueButtonEnabled() {
-        return this.isElementEnabled(this.publishButton);
+    isPublishNowButtonEnabled() {
+        return this.isElementEnabled(this.publishNowButton);
     }
 
-    waitForPublishAndCloseIssueButtonEnabled() {
-        return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
+    waitForPublishNowButtonDisabled() {
+        return this.waitForElementDisabled(this.publishNowButton, appConst.TIMEOUT_4);
     }
 
     isContentOptionsFilterInputPresent() {
@@ -167,5 +180,30 @@ class IssueDetailsDialogItemsTab extends Page {
             throw new Error('error when clicking on `remove icon`: ' + err)
         })
     }
+
+    async doAddItem(displayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
+        } catch (err) {
+            throw new Error("Request Tab - Items were not added: " + err);
+        }
+    }
+
+    waitForTabLoaded() {
+        return this.waitForElementDisplayed(this.publishNowButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Issue Details Dialog , Requests Tab is not loaded! " + err);
+        });
+    }
+
+    async clickOnAddScheduleButton() {
+        try {
+            await this.waitForAddScheduleButtonDisplayed();
+            return await this.clickOnElement(this.addScheduleButton);
+        } catch (err) {
+            this.saveScreenshot('err_publish_dialog_add_schedule_button');
+            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button  ' + err);
+        }
+    }
 };
-module.exports = IssueDetailsDialogItemsTab;
+module.exports = IssueDetailsDialogRequestTab;

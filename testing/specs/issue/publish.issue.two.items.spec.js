@@ -59,7 +59,7 @@ describe('publish.issue.two.items.spec: 2 item added and published', function ()
             let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
             assert.isTrue(result.includes(folder1.displayName));
             assert.isTrue(result.includes(folder2.displayName));
-            let actualNumber = await issueDetailsDialog.getNumberOfItemsInTabMenuBar();
+            let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(actualNumber, '2', "2 items to publish should be present in the dialog");
             let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.displayName)
             assert.equal(status, 'New', "New content-status should be displayed in the dialog");

@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 
 describe('wizard.publish.menu.spec - publishes and unpublishes single folder in wizard`', function () {
@@ -63,7 +63,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/717
+    //verifies https://github.com/enonic/app-contentstudio/issues/717, https://github.com/enonic/app-contentstudio/issues/792
     //Default action is not updated after creation of a new Publish Request
     it(`GIVEN new folder-wizard is opened, a name has been typed WHEN new 'Publish Request' has been created THEN default action gets OPEN REQUEST`,
         async () => {

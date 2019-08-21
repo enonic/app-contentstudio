@@ -110,7 +110,7 @@ class Page {
 
     async isElementEnabled(selector) {
         let element = await this.findElement(selector);
-        return element.isEnabled();
+        return await element.isEnabled();
     }
 
     async waitForElementEnabled(selector, ms) {
@@ -121,7 +121,7 @@ class Page {
         if (el.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return el[0].waitForEnabled(ms);
+        return await el[0].waitForEnabled(ms);
     }
 
     async waitForDisplayedElementEnabled(selector, ms) {
@@ -132,7 +132,7 @@ class Page {
         if (el.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return el[0].waitForEnabled(ms);
+        return await el[0].waitForEnabled(ms);
     }
 
     async waitForElementDisabled(selector, ms) {
@@ -143,7 +143,7 @@ class Page {
         if (element.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return element[0].waitForEnabled(ms, true);
+        return await element[0].waitForEnabled(ms, true);
     }
 
     async waitForDisplayedElementDisabled(selector, ms) {
@@ -155,7 +155,7 @@ class Page {
             throw new Error("Element was not found:" + selector);
         }
 
-        return element[0].waitForEnabled(ms, true);
+        return await element[0].waitForEnabled(ms, true);
     }
 
     waitForElementNotDisplayed(selector, ms) {
@@ -180,7 +180,7 @@ class Page {
 
     async waitForElementDisplayed(selector, ms) {
         let element = await this.findElement(selector);
-        return element.waitForDisplayed(ms);
+        return await element.waitForDisplayed(ms);
     }
 
     waitForSpinnerNotVisible() {
@@ -205,7 +205,7 @@ class Page {
 
     async getAttribute(selector, attributeName) {
         let element = await this.findElement(selector);
-        return element.getAttribute(attributeName);
+        return await element.getAttribute(attributeName);
     }
 
     waitForNotificationMessage() {
