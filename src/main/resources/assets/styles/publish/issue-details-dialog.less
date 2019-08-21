@@ -33,6 +33,10 @@
     padding-right: 30px;
     position: relative;
 
+    h6 {
+      display: none;
+    }
+
     .inplace-text-input {
 
       .inplace-input {
@@ -274,9 +278,27 @@
   }
 
   &.is-processing {
-    .issue-dialog-form,
-    .edit-issue,
-    .items-header,
+
+    .modal-dialog-header {
+      h6 {
+        display: block;
+      }
+
+      .issue-details-sub-title {
+        display: none;
+      }
+    }
+
+    .dialog-content {
+      min-height: auto;
+    }
+
+    .progress-bar {
+      margin-top: 35px;
+    }
+
+    .tab-bar,
+    .deck-panel,
     .dialog-buttons div.checkbox {
       display: none;
     }

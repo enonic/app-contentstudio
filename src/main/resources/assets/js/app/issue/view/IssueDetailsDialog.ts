@@ -114,6 +114,8 @@ export class IssueDetailsDialog
 
     private scheduleFormToggle: api.dom.ButtonEl;
 
+    private publishMessage: api.dom.H6El;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.issue'),
@@ -156,7 +158,7 @@ export class IssueDetailsDialog
         this.scheduleFormPropertySet.onChanged(() => {
             if (this.isRendered()) {
                 this.updateItemsCountAndButtonLabels();
-                if (this.publishScheduleForm.isFormValid()) {
+                if (this.publishScheduleForm.isFormVisible() && this.publishScheduleForm.isFormValid()) {
                     this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
                 }
             }
@@ -376,6 +378,9 @@ export class IssueDetailsDialog
             this.tabPanel.addNavigablePanel(this.commentsTab, this.commentsPanel, !isPublishRequest);
             this.tabPanel.addNavigablePanel(this.itemsTab, this.itemsPanel, isPublishRequest);
             this.tabPanel.addNavigablePanel(this.assigneesTab, this.assigneesPanel);
+
+            this.publishMessage = new api.dom.H6El('sub-title');
+            this.appendChildToHeader(this.publishMessage);
 
             this.appendChildToHeader(this.tabBar);
             this.appendChildToContentPanel(this.tabPanel);
@@ -804,6 +809,8 @@ export class IssueDetailsDialog
     }
 
     private doPublish(): wemQ.Promise<void> {
+
+        this.publishMessage.setHtml(i18n('dialog.publish.publishing', this.countTotal()));
 
         return this.createPublishContentRequest().sendAndParse()
             .then((taskId: api.task.TaskId) => {
