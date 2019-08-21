@@ -180,4 +180,11 @@ export class IssueDialogsManager {
             .open();
     }
 
+    openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
+        this.requestPublishDialog
+            .setContentToPublish(summaries)
+            .setIncludeChildItems(isIncludeChildren)
+            .open();
+    }
+
 }

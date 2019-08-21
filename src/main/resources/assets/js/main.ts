@@ -338,15 +338,8 @@ function startApplication() {
         });
     });
 
-    import('./app/publish/RequestContentPublishDialog').then(def => {
-        const requestContentPublishDialog = def.RequestContentPublishDialog.get();
-        RequestContentPublishPromptEvent.on((event) => {
-            requestContentPublishDialog
-                .setContentToPublish(event.getModels())
-                .setIncludeChildItems(event.isIncludeChildItems())
-                .open();
-        });
-    });
+    RequestContentPublishPromptEvent.on(
+        (event) => IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()));
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
