@@ -75,7 +75,7 @@
     }
 
     .issue-details-sub-title {
-      margin-top: 10px;
+      margin-top: 15px;
       margin-left: 6px;
     }
 
@@ -121,6 +121,12 @@
 
       .items-tab {
         order: 1;
+      }
+    }
+
+    &:not(.tab-items) {
+      .icon-calendar {
+        display: none;
       }
     }
   }
@@ -241,7 +247,7 @@
         }
       }
 
-      &.publish-issue {
+      &.publish-issue, &.schedule-issue {
         background-color: @admin-green;
 
         &:hover:not(:disabled) {
