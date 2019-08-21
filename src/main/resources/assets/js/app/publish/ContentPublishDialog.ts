@@ -298,13 +298,18 @@ export class ContentPublishDialogSubTitle
         const keyDownHandler = (event: KeyboardEvent) => {
             const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
                                               (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
-            const isInputVisible = this.input.isVisible();
+            const isInputFocused = this.input.getHTMLElement() === document.activeElement;
 
-            if (!isInputVisible && isLetterOrNumber) {
+            if (!isInputFocused && isLetterOrNumber) {
                 this.toggleInput(true);
-            } else if (isInputVisible && KeyHelper.isEscKey(event)) {
-                event.stopImmediatePropagation();
-                this.toggleInput(false);
+            } else if (isInputFocused) {
+                if (KeyHelper.isEscKey(event)) {
+                    event.stopImmediatePropagation();
+                    this.toggleInput(false);
+                } else if (KeyHelper.isApplyKey(event)) {
+                    event.stopImmediatePropagation();
+                    this.input.giveBlur();
+                }
             }
         };
 
