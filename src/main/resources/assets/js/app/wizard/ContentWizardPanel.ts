@@ -57,6 +57,7 @@ import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {LayerContext} from '../layer/LayerContext';
+import {ConfirmLocalContentCreateDialog} from '../layer/ConfirmLocalContentCreateDialog';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -91,6 +92,8 @@ import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
 import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
+import BodyMask = api.ui.mask.BodyMask;
+import Body = api.dom.Body;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -459,6 +462,12 @@ export class ContentWizardPanel
 
             this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
+            this.formPanel.onRendered(() => {
+                if (this.getPersistedItem().isInherited()) {
+                    this.handleInheritedContent();
+                }
+            });
+
             return rendered;
         });
     }
@@ -739,16 +748,11 @@ export class ContentWizardPanel
             }
         });
 
-        this.onRendered(() => {
-            if (this.getPersistedItem().isInherited()) {
-                this.isUpdatingInheritedItem = true;
-                this.saveChanges().then(() => {
-                    api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
-                }).catch(api.DefaultErrorHandler.handle).finally(() => {
-                    this.isUpdatingInheritedItem = false;
-                });
-            }
-        });
+        // this.onRendered(() => {
+        //     if (this.getPersistedItem().isInherited()) {
+        //         this.handleInheritedContent();
+        //     }
+        // });
 
         this.onContentNamed(event => {
             // content path has changed so update site as well
@@ -846,6 +850,30 @@ export class ContentWizardPanel
             }
         });
 
+    }
+
+    private handleInheritedContent() {
+        const confirmDialog: ConfirmLocalContentCreateDialog = new ConfirmLocalContentCreateDialog();
+        confirmDialog.setLocalCopyCreateHandler(this.createLocalCopy.bind(this));
+        confirmDialog.setCancelHandler(() => {
+            Body.get().addClass('readonly');
+            BodyMask.get().show();
+            api.notify.showFeedback(i18n('notify.panel.readonly'));
+
+            Body.get().onMouseWheel((event: WheelEvent) => {
+                this.formPanel.getHTMLElement().scrollBy(0, event.deltaY);
+            });
+        });
+        confirmDialog.open();
+    }
+
+    private createLocalCopy() {
+        this.isUpdatingInheritedItem = true;
+        this.saveChanges().then(() => {
+            api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
+        }).catch(api.DefaultErrorHandler.handle).finally(() => {
+            this.isUpdatingInheritedItem = false;
+        });
     }
 
     private onFileUploaded(event: api.ui.uploader.UploadedEvent<Content>) {
@@ -2171,8 +2199,15 @@ export class ContentWizardPanel
     }
 
     private initWritePermissions(loginResult: LoginResult) {
-        this.writePermissions =
+        const isWriteAllowed: boolean =
             this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
+
+        this.updateWritePermissions(isWriteAllowed);
+    }
+
+    private updateWritePermissions(value: boolean) {
+        this.writePermissions = value;
+
         this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().updateWritePermissions(this.writePermissions);
