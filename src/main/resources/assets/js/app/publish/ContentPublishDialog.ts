@@ -70,8 +70,8 @@ export class ContentPublishDialog
 
         this.publishSubTitle = new ContentPublishDialogSubTitle();
 
-        this.actionButton = this.addAction(this.publishAction);
         this.addAction(this.scheduleAction);
+        this.actionButton = this.addAction(this.publishAction, true);
 
         this.publishScheduleForm.layout(false);
 
@@ -94,7 +94,7 @@ export class ContentPublishDialog
             this.setSubTitleEl(this.publishSubTitle);
 
             this.scheduleFormToggle.addClass('force-enabled');
-            this.getButtonRow().addElement(this.scheduleFormToggle);
+            this.getButtonRow().addElement(this.scheduleFormToggle, true);
 
             this.prependChildToContentPanel(this.publishScheduleForm);
 
@@ -197,12 +197,12 @@ export class ContentPublishDialog
 
 
     protected updateControls(itemsToPublish: number = this.countTotal()) {
-        super.updateControls(itemsToPublish);
-
         const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid = this.isScheduleFormValid();
 
         this.toggleAction(canPublish && scheduleValid);
+
+        super.updateControls(itemsToPublish);
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
