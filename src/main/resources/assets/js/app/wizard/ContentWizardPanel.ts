@@ -1419,13 +1419,11 @@ export class ContentWizardPanel
         this.skipValidation = true;
         this.reloadPageEditorOnSave = reloadPageEditor;
 
-        let result = this.saveChanges();
-        result.then(() => {
+        return this.saveChanges().then((content: Content) => {
             this.skipValidation = false;
             this.reloadPageEditorOnSave = true;
+            return content;
         });
-
-        return result;
     }
 
     private updateThumbnailWithContent(content: Content) {
