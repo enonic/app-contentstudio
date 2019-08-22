@@ -39,7 +39,7 @@ export class LayersWidgetItemView
         });
 
         this.settingsButton = new api.ui.button.ActionButton(action);
-        this.settingsButton.addClass('settings-button');
+        this.settingsButton.addClass('settings-button icon-cog');
 
         this.listenLayerEvents();
     }
@@ -92,7 +92,7 @@ export class LayersWidgetItemView
         this.setNoContent();
 
         this.appendChild(this.contentsInLayersView);
-        this.appendChild(this.settingsButton);
+        //this.appendChild(this.settingsButton);
 
         return wemQ(null);
     }
@@ -136,11 +136,17 @@ export class LayersWidgetItemView
                 this.settingsButton.hide();
             } else {
                 this.settingsButton.show();
-
+/*
                 if (this.item === null && LayersWidgetState.CURRENT_LAYER === this.state) {
                     this.showCurrentLayer();
-                }
+                }*/
             }
+
+
+            if (this.item === null) {
+                this.showCurrentLayer();
+            }
+
         });
     }
 
@@ -150,7 +156,7 @@ export class LayersWidgetItemView
     }
 
     private showCurrentLayer() {
-        this.layerInfo = new LayerViewer();
+        this.layerInfo = new LayerViewer('layer-info');
 
         this.layerInfo.setObject(LayerContext.get().getCurrentLayer());
         this.layerInfo.insertBeforeEl(this.contentsInLayersView);
