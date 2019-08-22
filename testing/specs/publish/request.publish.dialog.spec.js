@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const RequestContentPublishDialog = require('../../page_objects/request.content.publish.dialog');
+const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const DateTimeRange = require('../../page_objects/components/datetime.range');
 
@@ -92,37 +92,12 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await requestPublishDialog.clickOnNextButton();
 
             studioUtils.saveScreenshot("request_publishing_next");
-            await requestPublishDialog.waitForAddScheduleButtonDisplayed();
             //'Create Request' button should be disabled , because required input is empty:
             await requestPublishDialog.waitForCreateRequestButtonDisabled();
             //Previous button.
             await requestPublishDialog.waitForPreviousButtonDisplayed();
         });
 
-    it(`GIVEN 'Request Publishing' wizard is opened AND Add Schedule form is added WHEN 'Previous' then 'Next' buttons have been pressed THEN 'Schedule form' should be visible on the dialog`,
-        async () => {
-            let dateTimeRange = new DateTimeRange();
-            let requestPublishDialog = new RequestContentPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-
-            await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //expand the 'Publish Menu' and select 'Request Publishing...' menu item
-            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            await requestPublishDialog.clickOnNextButton();
-            //Add Schedule button has been pressed.
-            await requestPublishDialog.clickOnAddScheduleButton();
-            //Go to the first page
-            await requestPublishDialog.clickOnPreviousButton();
-            //Go to the second page again
-            await requestPublishDialog.clickOnNextButton();
-            //Date time range should be displayed
-            await dateTimeRange.waitForDisplayed();
-            studioUtils.saveScreenshot("request_publishing_add_schedule");
-            // Add Schedule icon should be displayed as well.
-            await requestPublishDialog.waitForAddScheduleButtonDisplayed();
-            //'Create Request' button should be disabled , because empty 'date time range' was added to the form:
-            await requestPublishDialog.waitForCreateRequestButtonDisabled();
-        });
 
 
     it(`GIVEN the second page in 'Request Publishing' wizard is opened WHEN 'Previous' button has been pressed THEN first wizard page should be loaded`,

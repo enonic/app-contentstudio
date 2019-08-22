@@ -138,6 +138,11 @@ export class IssueDialogsManager {
 
     private listenRequestPublishDialog() {
         this.requestPublishDialog.onIssueCreated(issue => {
+            if (this.requestPublishDialog.isVisible()) {
+                if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
+                    this.requestPublishDialog.close();
+                }
+            }
             IssueDialogsManager.get().openDetailsDialog(issue);
         });
     }

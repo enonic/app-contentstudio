@@ -758,7 +758,7 @@ export class IssueDetailsDialog
     }
 
     private createPublishButton(): DialogButton {
-        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction);
+        const publishButton: DialogButton = this.getButtonRow().addAction(this.publishAction, true);
         publishButton.addClass('publish-issue');
         return publishButton;
     }
