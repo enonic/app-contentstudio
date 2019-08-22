@@ -1,7 +1,6 @@
 import {ContentLayer} from '../content/ContentLayer';
 import {LayerIcon} from './LayerIcon';
 
-
 export class LayerViewer
     extends api.ui.NamesAndIconViewer<ContentLayer> {
 
@@ -18,12 +17,10 @@ export class LayerViewer
     }
 
     resolveIconEl(object: ContentLayer): api.dom.Element {
-        // const attachment = object.getIcon();
         return new LayerIcon(object.getLanguage());
     }
 
     resolveIconClass(): string {
         return 'icon-layers';
     }
-
 }

@@ -3,7 +3,7 @@ import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
 
-export class LayersWidgetStateViewInherited
+export class ContentInLayerItemViewInherited
     extends LayersWidgetStateView {
 
     private item: ContentSummaryAndCompareStatus;
