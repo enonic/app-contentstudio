@@ -90,6 +90,7 @@ export abstract class DependantItemsDialog
             if (this.autoUpdateTitle) {
                 this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
+            this.notifyResize();
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
@@ -333,6 +334,7 @@ export abstract class DependantItemsDialog
                     this.addDependantItems(newItems);
                     this.loading = false;
                     this.hideLoadMask();
+                    this.notifyResize();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();
