@@ -4,12 +4,15 @@ import {LayersList, LayersListItem} from './LayersList';
 import {LayerContext} from './LayerContext';
 import {LayerChangedEvent} from './LayerChangedEvent';
 import {LayerDialogsManager} from './LayerDialogsManager';
+import {LayersHelper} from './LayersHelper';
+import {ContentLayerExtended} from './ContentLayerExtended';
 import DivEl = api.dom.DivEl;
 import DropdownHandle = api.ui.button.DropdownHandle;
 import H6El = api.dom.H6El;
 import i18n = api.util.i18n;
 import PEl = api.dom.PEl;
 import ButtonEl = api.dom.ButtonEl;
+import Element = api.dom.Element;
 
 export class LayerSelector
     extends DivEl {
@@ -64,33 +67,51 @@ export class LayerSelector
         const selectedLayer: ContentLayer = LayerContext.get().getCurrentLayer();
         this.headerLayerViewer.setObject(selectedLayer);
 
-        this.layersList.setItems(layers);
+        this.layersList.setItems(LayersHelper.sortAndExtendLayers(layers));
         this.layersList.selectLayer(selectedLayer);
 
-        this.layersList.getItemViews().forEach((layersListItem: LayersListItem) => {
-            layersListItem.onClicked(() => {
-                this.handleListItemSelected(layersListItem);
-            });
+        this.layersList.onSelectionChanged((layer: ContentLayer) => {
+            this.handleSelectedLayerChanged(layer);
         });
     }
 
     private initListeners() {
         this.headerLayerViewer.onClicked((event: MouseEvent) => {
-            if (this.isLayersListShown) {
-                this.hideLayersList();
-            } else {
-                this.showLayersList();
-            }
+            this.toggleLayerListShown();
         });
 
         LayerChangedEvent.on(() => {
             this.headerLayerViewer.setObject(LayerContext.get().getCurrentLayer());
         });
+
+        this.handleDropdownKeyEvents();
     }
 
-    private handleListItemSelected(layersListItem: LayersListItem) {
-        if (!layersListItem.getLayer().equals(LayerContext.get().getCurrentLayer())) {
-            LayerContext.get().setCurrentLayer(layersListItem.getLayer());
+    private toggleLayerListShown() {
+        if (this.isLayersListShown) {
+            this.hideLayersList();
+        } else {
+            this.showLayersList();
+        }
+    }
+
+    private handleDropdownKeyEvents() {
+        const keyBindings = [
+            new api.ui.KeyBinding('space', this.toggleLayerListShown.bind(this)).setGlobal(true),
+            new api.ui.KeyBinding('enter', this.toggleLayerListShown.bind(this)).setGlobal(true)];
+
+        this.dropdownHandle.onFocus(() => {
+            api.ui.KeyBindings.get().bindKeys(keyBindings);
+        });
+
+        this.dropdownHandle.onFocusOut(() => {
+            api.ui.KeyBindings.get().unbindKeys(keyBindings);
+        });
+    }
+
+    private handleSelectedLayerChanged(layer: ContentLayer) {
+        if (!layer.equals(LayerContext.get().getCurrentLayer())) {
+            LayerContext.get().setCurrentLayer(layer);
         }
 
         this.hideLayersList();
@@ -117,16 +138,19 @@ export class LayerSelector
     }
 
     private showLayersList() {
+        this.addClass('open');
+        api.ui.KeyBindings.get().shelveBindings();
         api.dom.Body.get().onMouseDown(this.clickOutsideListener);
         api.ui.mask.BodyMask.get().show();
         this.isLayersListShown = true;
         this.dropdownHandle.down();
         this.layersListHeader.show();
         this.layersList.show();
-
     }
 
     private hideLayersList() {
+        this.removeClass('open');
+        api.ui.KeyBindings.get().unshelveBindings();
         api.dom.Body.get().unMouseDown(this.clickOutsideListener);
         api.ui.mask.BodyMask.get().hide();
         this.isLayersListShown = false;
@@ -164,20 +188,72 @@ class SelectableLayersList
 
     private selectedListItem: LayersListItem;
 
-    protected createItemView(item: ContentLayer, readOnly: boolean): LayersListItem {
+    private focusedListItem: LayersListItem;
+
+    private selectionChangedListeners: { (layer: ContentLayer): void } [] = [];
+
+    constructor() {
+        super();
+
+        this.initListeners();
+    }
+
+    private initListeners() {
+        this.onShown(() => {
+            if (this.selectedListItem) {
+                this.selectedListItem.giveFocus();
+            }
+
+            this.bindKeys();
+        });
+    }
+
+    private bindKeys() {
+        const keyBindings = [
+            new api.ui.KeyBinding('up', () => {
+                this.focusPreviousItem();
+            }).setGlobal(true),
+            new api.ui.KeyBinding('down', () => {
+                this.focusNextItem();
+            }).setGlobal(true),
+            new api.ui.KeyBinding('tab', (e: ExtendedKeyboardEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.focusNextItem();
+            }).setGlobal(true),
+            new api.ui.KeyBinding('enter', () => {
+                this.handleListItemSelected(this.focusedListItem);
+            }).setGlobal(true)];
+
+        api.ui.KeyBindings.get().bindKeys(keyBindings);
+    }
+
+    protected createItemView(item: ContentLayerExtended, readOnly: boolean): LayersListItem {
         const layersListItem: LayersListItem = super.createItemView(item, readOnly);
 
         layersListItem.onClicked(() => {
             this.handleListItemSelected(layersListItem);
         });
 
+        layersListItem.onFocus(() => {
+            this.focusedListItem = layersListItem;
+        });
+
+        layersListItem.getEl().setTabIndex(0);
+
         return layersListItem;
     }
 
     private handleListItemSelected(layersListItem: LayersListItem) {
+        if (layersListItem === this.selectedListItem) {
+            return;
+        }
+
         this.selectedListItem.removeClass('selected');
         layersListItem.addClass('selected');
         this.selectedListItem = layersListItem;
+
+        this.notifySelectionChanged();
     }
 
     selectLayer(layer: ContentLayer) {
@@ -189,6 +265,34 @@ class SelectableLayersList
             }
 
             return false;
+        });
+    }
+
+    private focusNextItem() {
+        const nextElement: Element = this.focusedListItem.getNextElement();
+        if (nextElement) {
+            nextElement.giveFocus();
+        } else {
+            this.getFirstChild().giveFocus();
+        }
+    }
+
+    private focusPreviousItem() {
+        const previousElement: Element = this.focusedListItem.getPreviousElement();
+        if (previousElement) {
+            previousElement.giveFocus();
+        } else {
+            this.getLastChild().giveFocus();
+        }
+    }
+
+    onSelectionChanged(listener: (layer: ContentLayer) => void) {
+        this.selectionChangedListeners.push(listener);
+    }
+
+    private notifySelectionChanged() {
+        this.selectionChangedListeners.forEach((listener) => {
+            listener(this.selectedListItem.getLayer());
         });
     }
 

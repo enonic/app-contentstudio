@@ -13,7 +13,10 @@
       height: 100%;
       margin: auto;
       position: relative;
-      z-index: @z-index-mask + 1;
+
+      &.open {
+        z-index: @z-index-mask + 1;
+      }
 
       .selected-layer-view {
         display: flex;
@@ -59,7 +62,6 @@
             color: @admin-font-gray1;
             cursor: pointer;
           }
-
 
           .layer-icon {
 
@@ -134,9 +136,6 @@
         width: 100%;
         background-color: @admin-bg-dark-gray;
         .layers-list-item {
-          .edit-button, .remove-button {
-            display: none;
-          }
 
           padding: 5px 10px 5px 0px;
           cursor: pointer;
@@ -167,6 +166,10 @@
 
           &:hover {
             background-color: @admin-dark-gray;
+          }
+
+          &:focus {
+            outline: solid 1px @admin-blue;
           }
 
           &.selected {
