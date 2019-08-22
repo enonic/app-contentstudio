@@ -46,13 +46,14 @@ module.exports = {
     },
 
     async switchToFrameBySrc(src) {
-        let selector = `//iframe[contains(@src,'${src}')]`;
-        let el = await webDriverHelper.browser.$(selector);
-        await el.waitForDisplayed(1500);
-        return await webDriverHelper.browser.switchToFrame(el).catch(err => {
-            console.log('Error when switch to frame ' + selector);
+        try {
+            let selector = `//iframe[contains(@src,'${src}')]`;
+            let el = await webDriverHelper.browser.$(selector);
+            await el.waitForDisplayed(1500);
+            return await webDriverHelper.browser.switchToFrame(el);
+        } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
-        })
+        }
     },
     getTitle() {
         return webDriverHelper.browser.getTitle();
@@ -124,17 +125,19 @@ module.exports = {
             return issueListDialog.pause(300);
         });
     },
-    openCreateIssueDialog: function () {
-        let browsePanel = new BrowsePanel();
-        let createIssueDialog = new CreateIssueDialog();
-        let issueListDialog = new IssueListDialog();
-        return browsePanel.clickOnShowIssuesListButton().then(() => {
-            return issueListDialog.waitForDialogOpened();
-        }).then(() => {
-            return issueListDialog.clickOnNewIssueButton();
-        }).then(() => {
-            return createIssueDialog.waitForDialogLoaded();
-        });
+    async openCreateIssueDialog() {
+        try {
+            let browsePanel = new BrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            let issueListDialog = new IssueListDialog();
+            await browsePanel.clickOnShowIssuesListButton();
+            await issueListDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssuesTab();
+            await issueListDialog.clickOnNewIssueButton();
+            await createIssueDialog.waitForDialogLoaded();
+        } catch (err) {
+            throw new Error("Error when opening Create Issue Dialog " + err);
+        }
     },
     openPublishMenuAndClickOnCreateIssue: function () {
         let browsePanel = new BrowsePanel();
@@ -174,7 +177,7 @@ module.exports = {
             return contentWizardPanel.waitForOpened();
         })
     },
-    openContentInWizard: function (contentName) {
+    selectAndOpenContentInWizard: function (contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
         return this.findAndSelectItem(contentName).then(() => {
@@ -194,6 +197,18 @@ module.exports = {
             return contentWizardPanel.waitAndClickOnSave();
         }).then(() => {
             return this.doCloseWizardAndSwitchToGrid();
+        });
+    },
+    doAddReadyFolder: function (folder) {
+        let contentWizardPanel = new ContentWizardPanel();
+        return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
+            return contentWizardPanel.typeData(folder);
+        }).then(() => {
+            return contentWizardPanel.clickOnMarkAsReadyButton();
+        }).then(() => {
+            return this.doCloseWizardAndSwitchToGrid()
+        }).then(() => {
+            return webDriverHelper.browser.pause(1000);
         });
     },
     doAddFolder: function (folder) {
@@ -231,31 +246,38 @@ module.exports = {
             return webDriverHelper.browser.pause(1000);
         })
     },
+    async doAddReadySite(site) {
+        let contentWizardPanel = new ContentWizardPanel();
+        await this.openContentWizard(appConst.contentTypes.SITE);
+        await contentWizardPanel.typeData(site);
+
+        if (site.data.controller) {
+            await contentWizardPanel.selectPageDescriptor(site.data.controller);
+        } else {
+            await contentWizardPanel.clickOnMarkAsReadyButton();
+        }
+        await this.doCloseCurrentBrowserTab();
+        await this.doSwitchToContentBrowsePanel();
+        return await webDriverHelper.browser.pause(1000);
+    },
     doOpenSiteWizard: function () {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
-    doOpenPageTemplateWizard: function (siteName) {
+    async doOpenPageTemplateWizard(siteName) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return this.typeNameInFilterPanel(siteName).then(() => {
-            return browsePanel.waitForContentDisplayed(siteName);
-        }).then(() => {
-            return browsePanel.pause(300);
-        }).then(() => {
-            return browsePanel.clickOnExpanderIcon(siteName);
-        }).then(() => {
-            return browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
-        }).then(() => {
-            return browsePanel.clickOnNewButton();
-        }).then(() => {
-            return newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        });
+        await this.typeNameInFilterPanel(siteName);
+        await browsePanel.waitForContentDisplayed(siteName);
+        await browsePanel.pause(300);
+        await browsePanel.clickOnExpanderIcon(siteName);
+        await browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
+        await browsePanel.clickOnNewButton();
+        await newContentDialog.clickOnContentType(appConst.contentTypes.PAGE_TEMPLATE);
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
+
     doAddPageTemplate: function (siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
         return this.doOpenPageTemplateWizard(siteName).then(() => {
@@ -281,7 +303,7 @@ module.exports = {
         }).then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
@@ -292,7 +314,7 @@ module.exports = {
         return browsePanel.clickOnPublishTreeButton().then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
@@ -303,11 +325,12 @@ module.exports = {
         return contentWizardPanel.clickOnPublishButton().then(() => {
             return contentPublishDialog.waitForDialogOpened();
         }).then(() => {
-            return contentPublishDialog.clickOnPublishButton();
+            return contentPublishDialog.clickOnPublishNowButton();
         }).then(() => {
             return contentPublishDialog.waitForDialogClosed();
         })
     },
+
     doUnPublishInWizard: function () {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
@@ -475,9 +498,9 @@ module.exports = {
 
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
-        return launcherPanel.waitForPanelDisplayed(3000).then(result => {
+        return launcherPanel.waitForPanelDisplayed(2000).then(result => {
             if (result) {
-                console.log("Launcher Panel is opened, click on the `Users` link...");
+                console.log("Launcher Panel is opened, click on the `Content Studio` link...");
                 return launcherPanel.clickOnContentStudioLink();
             } else {
                 console.log("Login Page is opened, type a password and name...");
@@ -497,15 +520,14 @@ module.exports = {
             let launcherPanel = new LauncherPanel();
             return launcherPanel.clickOnContentStudioLink();
         }).then(() => {
-            return loginPage.pause(1000);
+            return loginPage.pause(700);
         })
     },
     doSwitchToContentBrowsePanel: function () {
-        console.log('testUtils:switching to users app...');
+        console.log('testUtils:switching to Content Browse panel...');
         let browsePanel = new BrowsePanel();
         return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
             console.log("switched to content browse panel...");
-            return browsePanel.waitForSpinnerNotVisible();
         }).then(() => {
             return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
         }).catch(err => {
@@ -612,5 +634,8 @@ module.exports = {
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
+    },
+    isStringEmpty(str) {
+        return (!str || 0 === str.length);
     }
 };

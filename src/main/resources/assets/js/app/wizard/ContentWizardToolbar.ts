@@ -8,6 +8,7 @@ import AppIcon = api.app.bar.AppIcon;
 import Application = api.app.Application;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
+import DivEl = api.dom.DivEl;
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
@@ -16,6 +17,10 @@ export class ContentWizardToolbar
     private cycleViewModeButton: CycleButton;
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
     private mobileItemStatisticsButton: TogglerButton;
+    private stateElement: api.dom.Element;
+    private hasUnsavedChanges: boolean;
+    private isValid: boolean;
+    private skipNextIconStateUpdate: boolean;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
@@ -23,16 +28,32 @@ export class ContentWizardToolbar
         this.addHomeButton(application);
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
-        this.addTogglerButtons(actions);
         this.addMobileItemStatisticsButton();
+        this.addTogglerButtons(actions);
+        this.addStateIcon();
 
         if (item) {
             this.setItem(item);
         }
     }
 
+    setItem(item: ContentSummaryAndCompareStatus) {
+        super.setItem(item);
+
+        this.contentWizardToolbarPublishControls.setContent(item);
+    }
+
+    setHasUnsavedChanges(value: boolean) {
+        this.hasUnsavedChanges = value;
+        this.updateStateIconElement();
+    }
+
+    setSkipNextIconStateUpdate(skipIconStateUpdate: boolean) {
+        this.skipNextIconStateUpdate = skipIconStateUpdate;
+    }
+
     private addHomeButton(application: Application) {
-        let homeAction = new Action(application.getName());
+        const homeAction: Action = new Action(application.getName());
         homeAction.onExecuted(() => {
             let tabId;
             if (navigator.userAgent.search('Chrome') > -1) {
@@ -57,6 +78,11 @@ export class ContentWizardToolbar
         super.addGreedySpacer();
     }
 
+    private addStateIcon() {
+        this.stateElement = new DivEl('toolbar-state-icon');
+        super.addElement(this.stateElement);
+    }
+
     private addPublishMenuButton(actions: ContentWizardActions) {
         this.status.hide();
         this.author.hide();
@@ -72,14 +98,58 @@ export class ContentWizardToolbar
             // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
             setTimeout(() => this.foldOrExpand());
         });
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+            this.toggleClass('publish-request', added);
+        });
     }
 
     private addTogglerButtons(actions: ContentWizardActions) {
         this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
 
-        super.addElement(this.cycleViewModeButton);
         super.addElement(this.componentsViewToggler);
+        super.addElement(this.cycleViewModeButton);
+    }
+
+    toggleValid(isValid: boolean) {
+        super.toggleValid(isValid);
+
+        this.isValid = isValid;
+
+        if (!this.getItem()) {
+            return;
+        }
+
+        this.updateStateIconElement();
+    }
+
+    private updateStateIconElement() {
+        if (this.skipNextIconStateUpdate) {
+            this.skipNextIconStateUpdate = false;
+            return;
+        }
+
+        const isReady: boolean = this.isValid && !this.hasUnsavedChanges && this.isContentReady();
+        const isInProgress: boolean = this.isValid && (this.hasUnsavedChanges || this.isContentInProgress());
+        this.stateElement.getEl().removeAttribute('title');
+        this.stateElement.toggleClass('invalid', !this.isValid);
+        this.stateElement.toggleClass('ready', isReady);
+        this.stateElement.toggleClass('in-progress', isInProgress);
+
+        if (isReady) {
+            this.stateElement.getEl().setTitle(i18n('tooltip.state.ready'));
+        } else if (isInProgress) {
+            this.stateElement.getEl().setTitle(i18n('tooltip.state.in_progress'));
+        }
+    }
+
+    private isContentReady(): boolean {
+        return !this.getItem().isOnline() && this.getItem().getContentSummary().isReady();
+    }
+
+    private isContentInProgress(): boolean {
+        return !this.getItem().isOnline() && this.getItem().getContentSummary().isInProgress();
     }
 
     getCycleViewModeButton(): CycleButton {

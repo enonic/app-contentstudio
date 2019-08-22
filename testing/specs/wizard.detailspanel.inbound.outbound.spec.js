@@ -30,19 +30,10 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
         let SUPPORT = 'Site';
         let CONTROLLER_NAME = 'main region';
         it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    studioUtils.saveScreenshot(displayName + '_created');
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`Precondition: new template has been added`,
@@ -84,7 +75,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 }).then(() => {
                     return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                }).then(()=>{
+                }).then(() => {
                     return pageComponentView.pause(3000);
                 }).then(() => {
                     return contentWizard.openDetailsPanel();
@@ -132,7 +123,7 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     return wizardDetailsPanel.openDependencies();
                 }).then(() => {
                     return wizardDependenciesWidget.clickOnShowOutboundButton();
-                }).then(()=>{
+                }).then(() => {
                     return wizardDependenciesWidget.pause(1000);
                 }).then(() => {
                     return studioUtils.doSwitchToNextTab();
@@ -176,6 +167,6 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
         before(() => {
-            return console.log('specification starting: ' + this.title);
+            return console.log('specification is starting: ' + this.title);
         });
     });

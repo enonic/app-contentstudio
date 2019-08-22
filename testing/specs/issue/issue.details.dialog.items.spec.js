@@ -60,8 +60,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isContentOptionsFilterInputPresent(),
                     'Content option filter input should be present');
             }).then(() => {
-                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishAndCloseIssueButtonPresent(),
-                    '`Publish & Close Issue` should be present');
+                return assert.eventually.isTrue(issueDetailsDialogItemsTab.isPublishButtonDisplayed(), '`Publish...` should be present');
             });
         });
 
@@ -82,7 +81,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isShowDependentItemsLinkDisplayed(),
                     '`Show dependent items` link should appear');
             }).then(() => {
-                return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
+                return issueDetailsDialog.getNumberInItemsTab();
             }).then(result => {
                 assert.equal(result, '13', 'Number of items should be updated to 13');
             }).then(() => {
@@ -105,7 +104,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.isShowDependentItemsLinkDisplayed(),
                     '`Show dependent items` link should be present');
             }).then(() => {
-                return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
+                return issueDetailsDialog.getNumberInItemsTab();
             }).then(result => {
                 return assert.equal(result, '13', 'Correct number of items should be displayed');
             })
@@ -144,7 +143,7 @@ describe('issue.details.dialog.items.spec: add items and check it on ItemsTabIte
             }).then(() => {
                 return issueDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_WITH_IMAGES);
             }).then(() => {
-                return issueDetailsDialog.getNumberOfItemsInTabMenuBar();
+                return issueDetailsDialog.getNumberInItemsTab();
             }).then(result => {
                 return assert.equal(result, '1', 'only one item should be in the link');
             })

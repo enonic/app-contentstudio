@@ -19,19 +19,11 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
     let string42 = 'qwertyuiopasdfghjklzxcvbnm1234567890qwerty';
     let string41 = 'qwertyuiopasdfghjklzxcvbnm1234567890qwert';
 
-    it(`Preconditions: WHEN site with content types has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,

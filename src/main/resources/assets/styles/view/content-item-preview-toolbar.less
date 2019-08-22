@@ -9,11 +9,39 @@
 
   .menu-button {
 
+    margin-right: 2px;
+
+    .icon {
+      &.icon-issue,
+      &.icon-publish-request {
+        margin-right: 6px;
+        vertical-align: middle;
+        color: #609E24;
+      }
+    }
+
+    .menu {
+      margin-top: 2px;
+      position: absolute;
+      right: 0;
+      width: auto;
+      max-width: 200px;
+    }
+
+    &:not([disabled]):hover {
+      .icon {
+        &.icon-issue,
+        &.icon-publish-request {
+          color: #609e24;
+        }
+      }
+    }
+
     .action-button {
       margin-left: 0;
       margin-right: 40px;
       border-left: 0 none;
-      padding-right: 0;
+      padding-right: 2px;
       padding-left: 14px;
       min-width: auto;
       max-width: 200px;

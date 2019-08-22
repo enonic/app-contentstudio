@@ -4,14 +4,12 @@
  * https://github.com/enonic/xp/issues/6768
  * https://github.com/enonic/xp/issues/6795
  */
-
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
 const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
@@ -28,19 +26,11 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     let IMAGE_DISPLAY_NAME = "Pop_03";
     let CONTENT_NAME = contentBuilder.generateRandomName('htmlarea');
 
-    it(`Preconditions: site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN new 'htmlArea' content is opened WHEN image has been inserted in 'htmlarea' THEN the content should be updated`,
@@ -52,7 +42,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
                 return contentWizard.typeDisplayName(CONTENT_NAME);
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
+            }).then(() => {
                 return htmlAreaForm.pause(1000);
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
@@ -62,7 +52,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
                 return insertImageDialog.clickOnInsertButton();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
+            }).then(() => {
                 return contentWizard.waitForNotificationMessage();
             }).then(result => {
                 studioUtils.saveScreenshot('cke_image_is_inserted');

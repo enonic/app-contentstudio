@@ -75,8 +75,6 @@ import ApplicationKey = api.application.ApplicationKey;
 import ApplicationEvent = api.application.ApplicationEvent;
 import Toolbar = api.ui.toolbar.Toolbar;
 import CycleButton = api.ui.button.CycleButton;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import i18n = api.util.i18n;
 import FormOptionSet = api.form.FormOptionSet;
 import Property = api.data.Property;
 import PropertyArray = api.data.PropertyArray;
@@ -90,6 +88,9 @@ import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
 import LoginResult = api.security.auth.LoginResult;
 import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
+import Workflow = api.content.Workflow;
+import WorkflowState = api.content.WorkflowState;
+import i18n = api.util.i18n;
 
 export class ContentWizardPanel
     extends api.app.wizard.WizardPanel<Content> {
@@ -135,6 +136,10 @@ export class ContentWizardPanel
     private requireValid: boolean;
 
     private isContentFormValid: boolean;
+
+    private isMarkedAsReady: boolean;
+
+    private isMarkedAsReadyOnPublish: boolean;
 
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
@@ -183,6 +188,8 @@ export class ContentWizardPanel
 
     private debouncedEditorRefresh: (clearInspection: boolean) => void;
 
+    private isFirstUpdateAndRenameEventSkiped: boolean;
+
     public static debug: boolean = false;
 
     constructor(params: ContentWizardPanelParams) {
@@ -195,6 +202,8 @@ export class ContentWizardPanel
         this.loadData();
 
         this.isContentFormValid = false;
+        this.isMarkedAsReady = false;
+        this.isMarkedAsReadyOnPublish = false;
 
         this.requireValid = false;
         this.skipValidation = false;
@@ -202,6 +211,7 @@ export class ContentWizardPanel
         this.dataChangedListeners = [];
         this.contentUpdateDisabled = false;
         this.applicationLoadCount = 0;
+        this.isFirstUpdateAndRenameEventSkiped = false;
 
         this.displayNameResolver = new DisplayNameResolver();
 
@@ -433,18 +443,19 @@ export class ContentWizardPanel
             const thumbnailUploader = this.getFormIcon();
 
             this.onValidityChanged((event: api.ValidityChangedEvent) => {
-
                 if (!this.persistedContent) {
                     return;
                 }
 
-                let isThisValid = this.isValid(); // event.isValid() = false will prevent the call to this.isValid()
+                const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
                 if (thumbnailUploader) {
                     thumbnailUploader.toggleClass('invalid', !isThisValid);
                 }
                 this.getMainToolbar().toggleValid(isThisValid);
-                this.getContentWizardToolbarPublishControls().setContentCanBePublished(this.checkContentCanBePublished());
+                this.getContentWizardToolbarPublishControls()
+                    .setContentCanBePublished(this.checkContentCanBePublished(), false)
+                    .setIsValid(isThisValid);
                 if (!this.formState.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
@@ -491,6 +502,7 @@ export class ContentWizardPanel
         }
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
+        this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         return super.saveChanges().then((content: Content) => {
 
@@ -518,6 +530,8 @@ export class ContentWizardPanel
 
             return persistedItem;
         }).finally(() => {
+            this.isMarkedAsReady = false;
+            this.isMarkedAsReadyOnPublish = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
         });
@@ -875,11 +889,21 @@ export class ContentWizardPanel
     }
 
     private updateContent(compareStatus: CompareStatus) {
-        this.persistedContent = this.currentContent.setCompareStatus(compareStatus);
-        this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
-        this.getMainToolbar().setItem(this.currentContent);
+        const newContent = this.currentContent.clone();
+        newContent.setCompareStatus(compareStatus);
+
+        this.currentContent = newContent;
+        this.persistedContent = newContent;
+        this.getMainToolbar().setItem(newContent);
+        this.updateWorkflowStateIcons();
 
         this.wizardActions.refreshPendingDeleteDecorations();
+    }
+
+    private updateWorkflowStateIcons() {
+        const hasUnsavedChanges: boolean = this.hasUnsavedChanges();
+        this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
+        this.updateThumbnailStateIcon(hasUnsavedChanges);
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -986,9 +1010,10 @@ export class ContentWizardPanel
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
-                    this.persistedContent = this.currentContent = content;
-                    this.getContentWizardToolbarPublishControls().setContent(content, false);
+                    this.currentContent = content;
+                    this.persistedContent = content;
                     this.getMainToolbar().setItem(content);
+                    this.updateWorkflowStateIcons();
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
@@ -1030,7 +1055,8 @@ export class ContentWizardPanel
                     this.securityWizardStepForm.update(content, true);
                     this.updateSecurityWizardStepIcon(content);
                     new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                        const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
+                        this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
                         this.toggleStepFormsVisibility(loginResult);
                     });
                 });
@@ -1041,12 +1067,12 @@ export class ContentWizardPanel
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            let indexOfCurrentContent;
-            let wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
+            let indexOfCurrentContent = null;
+            const wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
                 indexOfCurrentContent = index;
                 return this.isCurrentContentId(sorted.getContentId());
             });
-            if (wasSorted) {
+            if (wasSorted && indexOfCurrentContent != null) {
                 this.getContentWizardToolbarPublishControls().setContent(data[indexOfCurrentContent]);
             }
 
@@ -1074,7 +1100,16 @@ export class ContentWizardPanel
         };
 
         const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (!this.contentUpdateDisabled) {
+            if (this.contentUpdateDisabled && !this.isFirstUpdateAndRenameEventSkiped) {
+                data.some(content => {
+                    const isCurrentContent = this.isCurrentContentId(content.getContentId());
+                    if (isCurrentContent) {
+                        this.isFirstUpdateAndRenameEventSkiped = this.isContentUpdatedAndRenamed(content);
+                        return this.isFirstUpdateAndRenameEventSkiped;
+                    }
+                    return false;
+                });
+            } else if (!this.contentUpdateDisabled) {
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updateHandler(updated);
                 });
@@ -1086,18 +1121,6 @@ export class ContentWizardPanel
                 data.forEach((updated: ContentSummaryAndCompareStatus) => {
                     updatePermissionsHandler(updated);
                 });
-            }
-        };
-
-        const isChild = (path: ContentPath) => path.isChildOf(this.persistedContent.getPath());
-
-        const childrenModifiedHandler = (data: Array<ContentSummaryAndCompareStatus | ContentServerChangeItem>) => {
-            const childUpdated = data.some(item => isChild(item.getPath()));
-            if (childUpdated) {
-                this.fetchPersistedContent().then((content: Content) => {
-                    const isLeaf = !content.hasChildren();
-                    this.getContentWizardToolbarPublishControls().setLeafContent(isLeaf);
-                }).catch(api.DefaultErrorHandler.handle).done();
             }
         };
 
@@ -1113,9 +1136,6 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
 
-        serverEvents.onContentCreated(childrenModifiedHandler);
-        serverEvents.onContentDeleted(childrenModifiedHandler);
-
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
             ContentDeletedEvent.un(deleteHandler);
@@ -1126,17 +1146,42 @@ export class ContentWizardPanel
             serverEvents.unContentPermissionsUpdated(contentPermissionsUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
-
-            serverEvents.unContentCreated(childrenModifiedHandler);
-            serverEvents.unContentDeleted(childrenModifiedHandler);
         });
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
-        this.persistedContent = this.currentContent = updatedContent;
-        this.getContentWizardToolbarPublishControls().setContent(this.currentContent);
+        const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
+        this.currentContent = updatedContent;
+        this.persistedContent = updatedContent;
+        this.getMainToolbar().setSkipNextIconStateUpdate(true);
         this.getMainToolbar().setItem(updatedContent);
+        if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
+            this.isFirstUpdateAndRenameEventSkiped = false;
+            this.updateWorkflowStateIcons();
+        }
         this.contextSplitPanel.setContent(updatedContent);
+    }
+
+    private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
+        // When the content without displayName and name is saved with new
+        // names and became valid, the server will generate 2 sequential
+        // `NodeServerChangeType.UPDATE` events.
+        const noContent = updatedContent == null ||
+                          this.currentContent == null ||
+                          updatedContent.getContentSummary() == null ||
+                          this.currentContent.getContentSummary() == null;
+
+        if (noContent) {
+            return false;
+        }
+
+        const oldItem = this.currentContent.getContentSummary();
+        const wasUnnamed = !oldItem.getDisplayName() && (oldItem.getName() != null && oldItem.getName().isUnnamed());
+
+        const newContent = updatedContent.getContentSummary();
+        const hasName = !!newContent.getDisplayName() && (newContent.getName() != null && !newContent.getName().isUnnamed());
+
+        return wasUnnamed && hasName;
     }
 
     private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
@@ -1354,13 +1399,14 @@ export class ContentWizardPanel
 
     private updatePersistedContent(persistedContent: Content) {
         return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
-            this.persistedContent = this.currentContent = summaryAndStatus;
-
+            this.currentContent = summaryAndStatus;
+            this.persistedContent = summaryAndStatus;
+            this.getMainToolbar().setItem(summaryAndStatus);
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
-            this.getMainToolbar().setItem(this.currentContent);
+            this.updateWorkflowStateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.getContentWizardToolbarPublishControls().setContent(this.currentContent).setLeafContent(
-                    !this.getPersistedItem().hasChildren()).setUserCanPublish(this.isContentPublishableByUser(loginResult));
+                const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
+                this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
             });
         });
     }
@@ -1373,17 +1419,15 @@ export class ContentWizardPanel
         this.skipValidation = true;
         this.reloadPageEditorOnSave = reloadPageEditor;
 
-        let result = this.saveChanges();
-        result.then(() => {
+        return this.saveChanges().then((content: Content) => {
             this.skipValidation = false;
             this.reloadPageEditorOnSave = true;
+            return content;
         });
-
-        return result;
     }
 
     private updateThumbnailWithContent(content: Content) {
-        let thumbnailUploader = this.getFormIcon();
+        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
         thumbnailUploader
             .setParams({
@@ -1393,6 +1437,16 @@ export class ContentWizardPanel
             .setValue(new api.content.util.ContentIconUrlResolver().setContent(content).resolve());
 
         thumbnailUploader.toggleClass('invalid', !content.isValid());
+    }
+
+    private updateThumbnailStateIcon(hasUnsavedChanges: boolean) {
+        const item: ContentSummaryAndCompareStatus = this.currentContent;
+        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        const isReady: boolean = !item.isOnline() && !hasUnsavedChanges && item.getContentSummary().isReady();
+        const isInProgress: boolean = !item.isOnline() && (hasUnsavedChanges || item.getContentSummary().isInProgress());
+
+        thumbnailUploader.toggleClass('ready', isReady);
+        thumbnailUploader.toggleClass('in-progress', isInProgress);
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): wemQ.Promise<void> {
@@ -1546,6 +1600,7 @@ export class ContentWizardPanel
                         if (this.formState.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
                         } else {
+                            this.contentWizardStepForm.validate();
                             this.displayValidationErrors(!this.isValid());
                         }
 
@@ -1790,7 +1845,9 @@ export class ContentWizardPanel
                     .setParent(parentPath)
                     .setContentType(this.contentType.getContentTypeName())
                     .setDisplayName('')     // new content is created on wizard open so display name is always empty
-                    .setData(new PropertyTree()).setExtraData([]));
+                    .setData(new PropertyTree())
+                    .setExtraData([])
+                    .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build()));
         }
 
         return deferred.promise;
@@ -1814,15 +1871,13 @@ export class ContentWizardPanel
     }
 
     updatePersistedItem(): wemQ.Promise<Content> {
-        let persistedContent = this.getPersistedItem();
+        const persistedContent: Content = this.getPersistedItem();
+        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
 
-        let viewedContent = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
-
-        let updatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
+        const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setUpdateContentRequestProducer(this.produceUpdateContentRequest);
 
-        return updatePersistedContentRoutine.execute().then((content: Content) => {
-
+        return updateContentRoutine.execute().then((content: Content) => {
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
@@ -1845,6 +1900,12 @@ export class ContentWizardPanel
         let message;
         if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
+        } else if (this.isMarkedAsReady) {
+            if (this.isMarkedAsReadyOnPublish) {
+                message = i18n('notify.item.savedAndMarkedAsReady', name);
+            } else {
+                message = i18n('notify.item.markedAsReady', name);
+            }
         } else {
             message = i18n('notify.item.saved', name);
         }
@@ -1853,6 +1914,8 @@ export class ContentWizardPanel
 
     private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {
         const persistedContent = this.getPersistedItem();
+        const state: WorkflowState = this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS;
+        const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(state).build();
 
         return new UpdateContentRequest(persistedContent.getId())
             .setRequireValid(this.requireValid)
@@ -1866,7 +1929,8 @@ export class ContentWizardPanel
             .setPublishTo(viewedContent.getPublishToTime())
             .setPermissions(viewedContent.getPermissions())
             .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
-            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled());
+            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled())
+            .setWorkflow(workflow);
     }
 
     private isDisplayNameUpdated(): boolean {
@@ -2009,6 +2073,14 @@ export class ContentWizardPanel
 
     setRequireValid(requireValid: boolean) {
         this.requireValid = requireValid;
+    }
+
+    setIsMarkedAsReady(value: boolean) {
+        this.isMarkedAsReady = value;
+    }
+
+    setIsMarkedAsReadyOnPublish(value: boolean) {
+        this.isMarkedAsReadyOnPublish = value;
     }
 
     showLiveEdit() {
@@ -2290,27 +2362,27 @@ export class ContentWizardPanel
     }
 
     private updatePublishStatusOnDataChange() {
-        let publishControls = this.getContentWizardToolbarPublishControls();
+        const publishControls = this.getContentWizardToolbarPublishControls();
 
         if (this.isContentFormValid) {
-            if (!this.hasUnsavedChanges()) {
+            const hasUnsavedChanges: boolean = this.hasUnsavedChanges();
+            if (!hasUnsavedChanges) {
                 // WARN: intended to restore status to persisted value if data is changed to original values,
                 // but if invoked after save this will revert status to persisted one as well
                 this.currentContent = this.persistedContent;
 
             } else {
                 if (this.currentContent === this.persistedContent) {
-                    this.currentContent =
-                        ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(this.persistedContent.getContentSummary(),
-                            this.persistedContent.getCompareStatus(), this.persistedContent.getPublishStatus());
+                    this.currentContent = this.persistedContent.clone();
                 }
                 if (publishControls.isOnline()) {
                     this.currentContent.setCompareStatus(CompareStatus.NEWER);
                 }
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
-            publishControls.setContent(this.currentContent);
             this.getMainToolbar().setItem(this.currentContent);
+            this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
+            this.updateThumbnailStateIcon(hasUnsavedChanges);
         }
     }
 

@@ -18,32 +18,24 @@ describe('content.selector.spec: content-selector specification', function () {
     let SITE;
     let articleContent;
 
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let displayName = contentBuilder.generateRandomName('cselector-site');
+    it(`Preconditions: new site should be added`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(()=> {
-            }).then(()=> {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(()=> {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed=> {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`WHEN article is saved THEN the article should be listed in the grid`,
         () => {
-        let contentBrowsePanel = new ContentBrowsePanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('article');
             articleContent =
                 contentBuilder.buildArticleContent(displayName, 'title', 'body', appConstant.contentTypes.ARTICLE);
-            return studioUtils.doAddArticleContent(SITE.displayName, articleContent).then(()=> {
+            return studioUtils.doAddArticleContent(SITE.displayName, articleContent).then(() => {
                 return studioUtils.typeNameInFilterPanel(articleContent.displayName);
-            }).then(()=> {
+            }).then(() => {
                 return contentBrowsePanel.waitForContentDisplayed(articleContent.displayName);
-            }).then(isDisplayed=> {
+            }).then(isDisplayed => {
                 studioUtils.saveScreenshot('article_content_added');
                 assert.isTrue(isDisplayed, 'the article should be listed in the grid');
             });
@@ -52,11 +44,11 @@ describe('content.selector.spec: content-selector specification', function () {
     it(`WHEN wizard for 'custom-relationship' is opened THEN mode toggler should be present in the content-selector AND mode should be 'Flat'`,
         () => {
             let contentSelector = new ContentSelector();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(() => {
                 return contentSelector.waitForModeTogglerDisplayed();
-            }).then(()=> {
+            }).then(() => {
                 return contentSelector.getMode();
-            }).then(mode=> {
+            }).then(mode => {
                 studioUtils.saveScreenshot('content_selector_default_mode');
                 assert.isTrue(mode == 'flat', 'Flat mode should be by default');
             });
@@ -64,13 +56,13 @@ describe('content.selector.spec: content-selector specification', function () {
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode  toggler has been clicked THEN the mode should be switched to 'Tree'`,
         () => {
             let contentSelector = new ContentSelector();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(() => {
                 return contentSelector.waitForModeTogglerDisplayed();
-            }).then(()=> {
+            }).then(() => {
                 return contentSelector.clickOnModeTogglerButton();
-            }).then(()=> {
+            }).then(() => {
                 return contentSelector.getMode();
-            }).then(mode=> {
+            }).then(mode => {
                 studioUtils.saveScreenshot('content_selector_tree_mode');
                 assert.isTrue(mode == 'tree', '`Tree` mode should be in selector when toggler has been clicked');
             });
@@ -79,11 +71,11 @@ describe('content.selector.spec: content-selector specification', function () {
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been pressed THEN mode should be switched to 'Tree' and site, that is parent for the image should be present in the options`,
         () => {
             let contentSelector = new ContentSelector();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(()=> {
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP).then(() => {
                 return contentSelector.clickOnModeTogglerButton();
-            }).then(()=> {
+            }).then(() => {
                 return contentSelector.getTreeModeOptionDisplayNames();
-            }).then(options=> {
+            }).then(options => {
                 studioUtils.saveScreenshot('content_sel_tree_mode_option');
                 assert.strictEqual(options[0], SITE.displayName);
             });
@@ -91,7 +83,7 @@ describe('content.selector.spec: content-selector specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification is starting: ' + this.title);
     });
 });

@@ -25,46 +25,32 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     let SUPPORT = 'Site';
     let CONTROLLER_NAME1 = 'main region';
     let CONTROLLER_NAME2 = 'default';
-    it(`Precondition: new site should be present in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
-    it(`Precondition: first template should be added `,
-        () => {
+    it(`Precondition: the first template should be added `,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             TEMPLATE1 = contentBuilder.buildPageTemplate("template1", SUPPORT, CONTROLLER_NAME1);
-            return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE1).then(() => {
-                return studioUtils.findAndSelectItem(TEMPLATE1.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(TEMPLATE1.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'template should be listed in the grid');
-            });
+            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE1);
+            await studioUtils.findAndSelectItem(TEMPLATE1.displayName);
+            await contentBrowsePanel.waitForContentDisplayed(TEMPLATE1.displayName);
         });
 
-    it(`Precondition: second template should be added `,
-        () => {
+    it(`Precondition: the second template should be added `,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             TEMPLATE2 = contentBuilder.buildPageTemplate("template2", SUPPORT, CONTROLLER_NAME2);
-            return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE2).then(() => {
-                return studioUtils.findAndSelectItem(TEMPLATE2.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(TEMPLATE2.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'template should be listed in the grid');
-            });
+            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE2);
+            await studioUtils.findAndSelectItem(TEMPLATE2.displayName);
+            await contentBrowsePanel.waitForContentDisplayed(TEMPLATE2.displayName);
         });
+
     it(`GIVEN site is opened AND Inspection Panel is opened WHEN the second template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
         () => {
             let contentWizard = new ContentWizard();

@@ -72,6 +72,7 @@ import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
+import WorkflowState = api.content.WorkflowState;
 
 export interface LiveFormPanelConfig {
 
@@ -684,6 +685,10 @@ export class LiveFormPanel
             let componentName = fragmentView.getComponent().getName().toString();
             api.notify.showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
+            const contentIsReady = this.content.getWorkflow().getState() === WorkflowState.READY;
+            if (contentIsReady) {
+                this.contentWizardPanel.setIsMarkedAsReady(true);
+            }
             this.saveAndReloadOnlyComponent(event.getComponentView());
 
             let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());

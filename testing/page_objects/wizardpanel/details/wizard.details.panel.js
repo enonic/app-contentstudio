@@ -26,7 +26,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             return this.findElement(xpath.container).catch(err => {
                 throw new Error("Error when checking Details Panel in wizard" + err);
             }).then(el => {
-                return this.getBrowser().getElementCSSValue(el.ELEMENT, "width");
+                return this.getBrowser().getElementCSSValue(el.elementId, "width");
             }).then(width => {
                 //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 100;
@@ -37,10 +37,9 @@ class WizardDetailsPanel extends BaseDetailsPanel {
     isDetailsPanelLoaded() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).then(el => {
-                return this.getBrowser().getElementCSSValue(el.ELEMENT, "width");
+                return this.getBrowser().getElementCSSValue(el.elementId, "width");
             }).then(width => {
                 console.log("width: " + width);
-                //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 0;
             });
         },  appConst.TIMEOUT_1).catch(err => {

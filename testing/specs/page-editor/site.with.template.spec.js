@@ -22,20 +22,12 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
     let TEMPLATE;
     let SUPPORT = 'Site';
     let CONTROLLER_NAME = 'main region';
-    it(`Precondition: new site should be present in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`WHEN new template has been added THEN the template should be listed in the grid`,

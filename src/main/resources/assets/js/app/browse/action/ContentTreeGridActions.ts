@@ -23,6 +23,8 @@ import {ContentType} from '../../inputtype/schema/ContentType';
 import {Permission} from '../../access/Permission';
 import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildrenRequest';
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
+import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
+import {RequestPublishContentAction} from './RequestPublishContentAction';
 import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
 import ActionsStateManager = api.ui.ActionsStateManager;
@@ -45,6 +47,8 @@ type ActionsMap = {
     PUBLISH?: Action,
     PUBLISH_TREE?: Action,
     UNPUBLISH?: Action,
+    MARK_AS_READY?: Action,
+    REQUEST_PUBLISH?: Action,
     CREATE_ISSUE?: Action,
     TOGGLE_SEARCH_PANEL?: Action,
     UNDO_PENDING_DELETE?: Action,
@@ -61,6 +65,8 @@ type ActionsState = {
     PUBLISH?: boolean,
     PUBLISH_TREE?: boolean,
     UNPUBLISH?: boolean,
+    MARK_AS_READY?: boolean,
+    REQUEST_PUBLISH?: boolean,
     CREATE_ISSUE?: boolean,
     TOGGLE_SEARCH_PANEL?: boolean,
     UNDO_PENDING_DELETE?: boolean
@@ -73,6 +79,10 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private actionsMap: ActionsMap;
 
     private stateManager: ActionsStateManager;
+
+    private beforeActionsStashedListeners: { (): void; }[] = [];
+
+    private actionsUnstashedListeners: { (): void; }[] = [];
 
     constructor(grid: ContentTreeGrid) {
         this.grid = grid;
@@ -88,6 +98,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             PUBLISH: new PublishContentAction(grid),
             PUBLISH_TREE: new PublishTreeContentAction(grid),
             UNPUBLISH: new UnpublishContentAction(grid),
+            MARK_AS_READY: new MarkAsReadyContentAction(grid),
+            REQUEST_PUBLISH: new RequestPublishContentAction(grid),
             CREATE_ISSUE: new CreateIssueAction(grid),
             TOGGLE_SEARCH_PANEL: new ToggleSearchPanelAction(),
             UNDO_PENDING_DELETE: new UndoPendingDeleteContentAction(grid)
@@ -109,6 +121,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             PUBLISH: this.actionsMap.PUBLISH,
             PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
             UNPUBLISH: this.actionsMap.UNPUBLISH,
+            MARK_AS_READY: this.actionsMap.MARK_AS_READY,
+            REQUEST_PUBLISH: this.actionsMap.REQUEST_PUBLISH,
             CREATE_ISSUE: this.actionsMap.CREATE_ISSUE,
             UNDO_PENDING_DELETE: this.actionsMap.UNDO_PENDING_DELETE
         };
@@ -121,9 +135,11 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         const managedActionsHandler = (state: ManagedActionState, executor: ManagedActionExecutor) => {
             if (state === ManagedActionState.PREPARING) {
+                this.notifyBeforeActionsStashed();
                 this.stateManager.stashActions(stashableActionsMap, false);
             } else if (state === ManagedActionState.ENDED) {
                 this.stateManager.unstashActions(stashableActionsMap);
+                this.notifyActionsUnstashed();
             }
         };
 
@@ -132,6 +148,26 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.grid.onRemoved(() => {
             this.getPreviewHandler().unPreviewStateChanged(previewStateChangedHandler);
             ManagedActionManager.instance().unManagedActionStateChanged(managedActionsHandler);
+        });
+    }
+
+    onBeforeActionsStashed(listener: () => void) {
+        this.beforeActionsStashedListeners.push(listener);
+    }
+
+    private notifyBeforeActionsStashed() {
+        this.beforeActionsStashedListeners.forEach((listener) => {
+            listener();
+        });
+    }
+
+    onActionsUnstashed(listener: () => void) {
+        this.actionsUnstashedListeners.push(listener);
+    }
+
+    private notifyActionsUnstashed() {
+        this.actionsUnstashedListeners.forEach((listener) => {
+            listener();
         });
     }
 
@@ -217,6 +253,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             PUBLISH_TREE: false,
             PUBLISH: false,
             UNPUBLISH: false,
+            MARK_AS_READY: false,
+            REQUEST_PUBLISH: false,
             CREATE_ISSUE: true,
         });
 
@@ -253,6 +291,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         const deleteEnabled: boolean = this.anyDeletable(contentSummaries) && noManagedActionExecuting;
         const duplicateEnabled: boolean = contentSummaries.length >= 1 && noManagedActionExecuting;
         const moveEnabled: boolean = !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
+        const markAsReadyEnabled: boolean = this.isMarkAsReadyHasToBeEnabled(contentBrowseItems);
+        const requestPublishEnabled: boolean = this.isRequestPublishHasToBeEnabled(contentBrowseItems);
 
         let allAreOnline: boolean = contentBrowseItems.length > 0;
         let allArePendingDelete: boolean = contentBrowseItems.length > 0;
@@ -304,6 +344,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             PUBLISH: publishEnabled,
             PUBLISH_TREE: treePublishEnabled,
             UNPUBLISH: unpublishEnabled,
+            MARK_AS_READY: markAsReadyEnabled,
+            REQUEST_PUBLISH: requestPublishEnabled,
             CREATE_ISSUE: true
         });
 
@@ -491,6 +533,29 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
+    private isMarkAsReadyHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
+        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
+
+        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
+        if (!allValid) {
+            return false;
+        }
+
+        return items.some(item => (!item.isOnline() && !item.getContentSummary().isReady()));
+    }
+
+    private isRequestPublishHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
+        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
+
+        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
+
+        if (!allValid) {
+            return false;
+        }
+
+        return items.some(item => (!item.isOnline() && !item.isPendingDelete()));
+    }
+
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
         // Need to check if parent allows content creation
         return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
@@ -546,6 +611,14 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     getShowNewDialogAction(): Action {
         return this.actionsMap.SHOW_NEW_DIALOG;
+    }
+
+    getMarkAsReadyAction(): Action {
+        return this.actionsMap.MARK_AS_READY;
+    }
+
+    getRequestPublishAction(): Action {
+        return this.actionsMap.REQUEST_PUBLISH;
     }
 
     getToggleSearchPanelAction(): Action {

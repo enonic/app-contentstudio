@@ -2,11 +2,13 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {PublishRequest} from '../PublishRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
+import {IssueType} from '../IssueType';
 import Path = api.rest.Path;
 import JsonResponse = api.rest.JsonResponse;
 import PrincipalKey = api.security.PrincipalKey;
 
-export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
+export class CreateIssueRequest
+    extends IssueResourceRequest<IssueJson, Issue> {
 
     private title: string;
 
@@ -15,6 +17,12 @@ export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
     private approvers: PrincipalKey[] = [];
 
     private publishRequest: PublishRequest;
+
+    private publishFrom: Date;
+
+    private publishTo: Date;
+
+    private type: IssueType;
 
     constructor() {
         super();
@@ -41,14 +49,34 @@ export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
         return this;
     }
 
+    setPublishFrom(date: Date): CreateIssueRequest {
+        this.publishFrom = date;
+        return this;
+    }
+
+    setPublishTo(date: Date): CreateIssueRequest {
+        this.publishTo = date;
+        return this;
+    }
+
+    setType(type: IssueType): CreateIssueRequest {
+        this.type = type;
+        return this;
+    }
+
     getParams(): Object {
         return {
             title: this.title ? this.title.toString() : '',
             description: this.description ? this.description.toString() : '',
-            approvers: this.approvers.map((el) => {
+            approvers: this.approvers ? this.approvers.map((el) => {
                 return el.toString();
-            }),
-            publishRequest: this.publishRequest.toJson()
+            }) : undefined,
+            publishRequest: this.publishRequest.toJson(),
+            type: this.type ? IssueType[this.type] : undefined,
+            schedule: this.publishFrom ? {
+                from: this.publishFrom.toISOString(),
+                to: this.publishTo ? this.publishTo.toISOString() : null
+            } : null,
         };
     }
 

@@ -14,11 +14,14 @@ module.exports = Object.freeze({
     issueClosedNotificationMessage: function (name) {
         return `Issue \"${name}\" is closed.`
     },
-    sortOrderTitle: function (by,order) {
+    sortOrderTitle: function (by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
     permissionsAppliedNotificationMessage: function (name) {
         return `Permissions for \"${name}\" are applied.`
+    },
+    markedAsReadyMessage: function (name) {
+        return `Item \"${name}\" is marked as ready`;
     },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
@@ -31,6 +34,8 @@ module.exports = Object.freeze({
     SIMPLE_SITE_APP: 'Simple Site App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+    THIS_FIELD_IS_REQUIRED: 'This field is required',
+    YOUR_COMMENT_ADDED: 'Your comment is added to issue.',
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,
@@ -120,5 +125,25 @@ module.exports = Object.freeze({
         MODIFIED_DATE: "Modified date",
         CREATED_DATE: "Created date",
         PUBLISHED_DATE: "Published date",
-    }
+    },
+    CONTENT_STATUS: {
+        NEW: 'New',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+        MODIFIED: 'Modified',
+        DELETED: 'Deleted',
+    },
+    PUBLISH_MENU: {
+        REQUEST_PUBLISH: "Request Publishing...",
+        PUBLISH: "Publish...",
+        PUBLISH_TREE: "Publish Tree...",
+        MARK_AS_READY: "Mark as ready",
+        UNPUBLISH: "Unpublish...",
+        CREATE_ISSUE: "Create Issue..."
+    },
+    WORKFLOW_STATE: {
+        WORK_IN_PROGRESS: 'Work in progress',
+        READY_FOR_PUBLISHING: 'Ready for publishing',
+        PUBLISHED: 'Published'
+    },
 });

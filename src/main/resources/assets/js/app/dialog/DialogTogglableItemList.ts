@@ -33,11 +33,11 @@ export class DialogTogglableItemList
 
         this.togglerEnabled = !!togglerEnabled;
 
-        this.onItemsAdded(this.itemChangedHandler.bind(this));
-        this.onItemsRemoved(() => {
+        const changeHandler = () => {
             this.itemChangedHandler();
-            this.getItemViews().forEach(this.updateRemovableState.bind(this));
-        });
+        };
+        this.onItemsAdded(changeHandler);
+        this.onItemsRemoved(changeHandler);
 
         this.debounceNotifyListChanged = api.util.AppHelper.debounce(() => {
             this.notifyChildrenListChanged();
@@ -53,8 +53,14 @@ export class DialogTogglableItemList
     }
 
     private itemChangedHandler() {
-        this.toggleClass('contains-toggleable', this.getItemViews()
-            .some(item => item.getBrowseItem().getModel().getContentSummary().hasChildren()));
+        const isTogglable = this.getItemViews().some(item => {
+            return item.getBrowseItem().getModel().getContentSummary().hasChildren();
+        });
+        this.toggleClass('contains-toggleable', isTogglable);
+
+        this.getItemViews().forEach(view => {
+            this.updateRemovableState(view);
+        });
     }
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): TogglableStatusSelectionItem {
@@ -74,6 +80,11 @@ export class DialogTogglableItemList
         this.initListItemListeners(item, itemView);
 
         return itemView;
+    }
+
+    protected updateItemView(itemView: api.dom.Element, item: ContentSummaryAndCompareStatus) {
+        const view = <TogglableStatusSelectionItem>itemView;
+        view.getViewer().setObject(item);
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,

@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
@@ -25,19 +24,11 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
     let IMAGE_DISPLAY_NAME = "Pop_03";
 
-    it(`Preconditions: site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox should be not selected by default`,
@@ -181,7 +172,7 @@ describe('insert.image.dlg.custom.width.spec:  click on the `custom width` check
                 return versionsWidget.clickAndExpandVersion(1);
             }).then(() => {
                 //rollback the version with 'Custom Width'
-                return versionsWidget.clickOnRestoreThisVersion();
+                return versionsWidget.clickOnRestoreButton();
             }).then(() => {
                 //open 'Insert Image Dialog'
                 return htmlAreaForm.doubleClickOnHtmlArea();

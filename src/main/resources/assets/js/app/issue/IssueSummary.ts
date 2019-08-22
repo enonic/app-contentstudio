@@ -1,5 +1,6 @@
 import {IssueStatus, IssueStatusFormatter} from './IssueStatus';
 import {IssueSummaryJson} from './json/IssueSummaryJson';
+import {IssueType, IssueTypeFormatter} from './IssueType';
 
 export class IssueSummary {
 
@@ -19,6 +20,8 @@ export class IssueSummary {
 
     private issueStatus: IssueStatus;
 
+    private type: IssueType;
+
     private modifiedTime: Date;
 
     constructor(builder: IssueSummaryBuilder) {
@@ -31,6 +34,7 @@ export class IssueSummary {
         this.modifiedTime = builder.modifiedTime;
         this.description = builder.description;
         this.issueStatus = builder.issueStatus;
+        this.type = builder.type;
     }
 
     static fromJson(json: IssueSummaryJson): IssueSummary {
@@ -81,6 +85,10 @@ export class IssueSummary {
         return this.issueStatus;
     }
 
+    getType(): IssueType {
+        return this.type;
+    }
+
 }
 
 export class IssueSummaryBuilder {
@@ -103,6 +111,8 @@ export class IssueSummaryBuilder {
 
     issueStatus: IssueStatus;
 
+    type: IssueType;
+
     fromJson(json: IssueSummaryJson): IssueSummaryBuilder {
         this.id = json.id;
         this.index = json.index;
@@ -113,8 +123,14 @@ export class IssueSummaryBuilder {
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
         this.description = json.description;
         this.issueStatus = IssueStatusFormatter.parseStatus(json.issueStatus);
+        this.type = IssueSummaryBuilder.parseType(json.type);
 
         return this;
+    }
+
+    private static parseType(value: string) {
+        const type = value == null ? IssueType.STANDARD : IssueTypeFormatter.parseType(value);
+        return type == null ? IssueType.STANDARD : type;
     }
 
     setId(id: string): IssueSummaryBuilder {
@@ -159,6 +175,11 @@ export class IssueSummaryBuilder {
 
     setIssueStatus(issueStatus: IssueStatus): IssueSummaryBuilder {
         this.issueStatus = issueStatus;
+        return this;
+    }
+
+    setType(type: IssueType): IssueSummaryBuilder {
+        this.type = type;
         return this;
     }
 

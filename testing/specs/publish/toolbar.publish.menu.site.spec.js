@@ -23,7 +23,7 @@ describe('toolbar.publish.menu.site.spec - publishes a site and checks publish m
             //1. add new site
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
-
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
             //2.  the site has been published:
             await studioUtils.doPublish();
             //'Publish Tree button should appear on the toolbar' ( exception will be thrown after the timeout)

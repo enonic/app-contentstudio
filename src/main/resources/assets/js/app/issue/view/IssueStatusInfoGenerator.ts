@@ -43,15 +43,11 @@ export class IssueStatusInfoGenerator {
             textKey = 'field.issue.opened';
         }
 
-        return i18n(textKey, this.getLastModifiedBy(), this.getModifiedDate());
+        return i18n(textKey, this.getModifiedBy(), this.getModifiedDate());
     }
 
     private getModifiedDate(): string {
         return DateHelper.getModifiedString(this.issue.getModifiedTime());
-    }
-
-    private getLastModifiedBy(): string {
-        return '\<span class="creator"\>' + this.getModifiedBy() + '\</span\>';
     }
 
     private getModifiedBy(): string {

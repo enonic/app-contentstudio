@@ -27,21 +27,13 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
         let IMAGE_DISPLAY_NAME1 = 'cape';
         let IMAGE_DISPLAY_NAME2 = 'man2';
         let SITE;
-        let SUPPORT = 'Site';
         let CONTROLLER_NAME = 'main region';
+
         it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`Precondition: image-fragment should be inserted in the site`,
@@ -131,7 +123,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     return wizardVersionsWidget.clickAndExpandVersion(1);
                 }).then(() => {
                     // click on Restore button
-                    return wizardVersionsWidget.clickOnRestoreThisVersion();
+                    return wizardVersionsWidget.clickOnRestoreButton();
                 }).then(() => {
                     //wait for the notification message
                     return contentWizard.waitForNotificationMessage();

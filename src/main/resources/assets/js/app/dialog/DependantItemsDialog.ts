@@ -346,12 +346,14 @@ export abstract class DependantItemsDialog
 
     protected lockControls() {
         this.addClass('locked');
-        this.actionButton.setEnabled(false);
+        // action has it's own disabled state management so using action.setEnabled() everywhere
+        this.actionButton.getAction().setEnabled(false);
     }
 
     protected unlockControls() {
         this.removeClass('locked');
-        this.actionButton.setEnabled(true);
+        // action has it's own disabled state management so using action.setEnabled() everywhere
+        this.actionButton.getAction().setEnabled(true);
     }
 
     protected toggleControls(enable: boolean) {

@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
@@ -18,22 +17,13 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
     let IMAGE_DISPLAY_NAME = "Pop_03";
 
-    it(`Preconditions: site should be added`,
-        () => {
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            let contentBrowsePanel = new ContentBrowsePanel();
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN expected options should be present`,

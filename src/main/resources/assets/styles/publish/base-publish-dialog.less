@@ -1,0 +1,40 @@
+.base-publish-dialog {
+
+  @toggler-width: 35px;
+
+  .browse-selection-item .remove {
+    display: flex;
+  }
+
+  .include-child-check {
+    position: absolute;
+    bottom: 40px;
+    left: 38px;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+
+    @media screen and (max-height: 360px) {
+      bottom: 25px;
+    }
+  }
+
+  &.is-processing {
+    .progress-bar {
+      margin-top: 35px;
+    }
+
+    .item-list,
+    .include-child-check,
+    .dialog-buttons button.publish-action,
+    .dialog-buttons button.show-schedule-action {
+      display: none;
+    }
+  }
+
+  &.masked {
+    opacity: 0;
+  }
+
+}

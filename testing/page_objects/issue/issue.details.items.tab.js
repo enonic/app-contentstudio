@@ -1,6 +1,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -8,7 +9,7 @@ const xpath = {
     showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
-    publishAndCloseIssueButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish & Close Issue')]]`,
+    publishButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish...')]]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
@@ -27,8 +28,8 @@ class IssueDetailsDialogItemsTab extends Page {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get publishAndCloseIssueButton() {
-        return xpath.buttonRow + xpath.publishAndCloseIssueButton;
+    get publishButton() {
+        return xpath.container + xpath.buttonRow + xpath.publishButton;
     }
 
     get itemNamesToPublish() {
@@ -36,16 +37,11 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     get hideDependentItemsLink() {
-        return `${xpath.container}` + `${xpath.hideDependentItemsLink}`;
+        return xpath.container + xpath.hideDependentItemsLink;
     }
 
     get showDependentItemsLink() {
         return xpath.container + xpath.showDependentItemsLink;
-    }
-
-
-    get menuScheduleDropDownHandle() {
-        return xpath.buttonRow + lib.DROP_DOWN_HANDLE;
     }
 
     clickOnIncludeChildrenToggler(displayName) {
@@ -60,36 +56,34 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    clickOnPublishAndCloseIssueButton() {
-        return this.clickOnElement(this.publishAndCloseIssueButton).catch(err => {
+    // clicks on Publish... button and  opens 'Publishing Wizard'
+    async clickOnPublishAndOpenPublishWizard() {
+        try {
+            let res = await this.findElements(this.publishButton);
+            await this.clickOnElement(this.publishButton);
+            let publishContentDialog = new ContentPublishDialog();
+            publishContentDialog.waitForDialogOpened();
+        } catch (err) {
             this.saveScreenshot('err_click_on_publish_and_close');
             throw new Error('Error when clicking on Publish and close ' + err);
-        }).then(()=>{
-            return this.pause(1700);
-        })
+        }
     }
 
-    isPublishAndCloseIssueButtonPresent() {
-        return this.isElementDisplayed(this.publishAndCloseIssueButton);
+    isPublishButtonDisplayed() {
+        return this.isElementDisplayed(this.publishButton);
     }
 
     isPublishAndCloseIssueButtonEnabled() {
-        return this.isElementEnabled(this.publishAndCloseIssueButton);
+        return this.isElementEnabled(this.publishButton);
     }
 
     waitForPublishAndCloseIssueButtonEnabled() {
-        return this.waitForElementEnabled(this.publishAndCloseIssueButton, appConst.TIMEOUT_3);
+        return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
     }
 
     isContentOptionsFilterInputPresent() {
         return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
-        })
-    }
-
-    clickAndShowScheduleMenuItem() {
-        return this.clickOnElement(this.menuScheduleDropDownHandle).pause(500).catch(err => {
-            throw new Error('Items Tab:error when click on dropdown handle : ' + err)
         })
     }
 
@@ -109,11 +103,10 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-
     async getContentStatus(displayName) {
         let selector = xpath.selectionItemByDisplayName(displayName) + `//div[contains(@class,'status')][last()]`;
         let result = await this.getDisplayedElements(selector);
-        return await this.getBrowser().getElementText(result[0].ELEMENT);
+        return await this.getBrowser().getElementText(result[0].elementId);
     };
 
 

@@ -1,26 +1,38 @@
 import {Issue} from '../Issue';
 import {IssueResponse} from '../resource/IssueResponse';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {IssueStatus} from '../IssueStatus';
+import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {IssuesStorage} from './IssuesStorage';
+import {IssueType} from '../IssueType';
 import ListBox = api.ui.selector.list.ListBox;
 import Principal = api.security.Principal;
-import PEl = api.dom.PEl;
 import SpanEl = api.dom.SpanEl;
 import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
 import DivEl = api.dom.DivEl;
 import Tooltip = api.ui.Tooltip;
 import Element = api.dom.Element;
-import i18n = api.util.i18n;
 import LoadMask = api.ui.mask.LoadMask;
+import NamesAndIconView = api.app.NamesAndIconView;
+import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
+import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
+import LiEl = api.dom.LiEl;
+
+export interface IssueListConfig {
+    storage: IssuesStorage;
+    noIssuesMessage: string;
+    issueType?: IssueType;
+}
 
 export class IssueList
     extends ListBox<IssueWithAssignees> {
 
+    private static MAX_VISIBLE_OPTIONS: number = 15;
+
     private issueStatus: IssueStatus;
 
-    private totalItems: number;
+    private issueType: IssueType;
 
     private currentUser: Principal;
 
@@ -28,24 +40,67 @@ export class IssueList
 
     private loadMyIssues: boolean = false;
 
+    private allIssuesStorage: IssuesStorage;
+
+    private issuesOfType: number;
+
+    private totalItems: number;
+
+    private currentTotal: number;
+
+    private noIssues: LiEl;
+
     private loadMask: LoadMask;
 
     private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
 
     private issuesLoadedListeners: { (): void }[] = [];
 
-    constructor(issueStatus: IssueStatus) {
+    constructor(config: IssueListConfig) {
         super('issue-list');
-        this.issueStatus = issueStatus;
+        this.issueStatus = IssueStatus.OPEN;
+        this.issueType = config.issueType;
+        this.allIssuesStorage = config.storage;
+        this.issuesOfType = 0;
+        this.initElements(config.noIssuesMessage);
+        this.initListeners();
         this.loadCurrentUser();
         this.setupLazyLoading();
     }
 
-    public reload(): wemQ.Promise<void> {
-        return this.fetchItems();
+    protected initElements(noIssuesMessage: string) {
+        this.noIssues = new LiEl('no-issues-message').setHtml(noIssuesMessage);
     }
 
-    public setLoadMask(loadMask: LoadMask) {
+    protected initListeners() {
+        this.allIssuesStorage.onIssuesUpdated(() => {
+            const hasIssues = this.allIssuesStorage.hasIssues();
+
+            if (hasIssues) {
+                // Issues updated, so full check required, which may cause performance problems
+                this.filter();
+            } else {
+                this.clearItems();
+            }
+            this.issuesOfType = this.countIssuesOfType();
+        });
+    }
+
+    getIssueStatus(): IssueStatus {
+        return this.issueStatus;
+    }
+
+    updateIssueStatus(issueStatus: IssueStatus) {
+        this.issueStatus = issueStatus;
+        this.issuesOfType = this.countIssuesOfType();
+        this.filterIfChanged();
+    }
+
+    hasIssueType(): boolean {
+        return this.issueType != null;
+    }
+
+    setLoadMask(loadMask: LoadMask) {
         this.loadMask = loadMask;
     }
 
@@ -57,43 +112,167 @@ export class IssueList
         this.loadAssignedToMe = value;
     }
 
-    private fetchItems(append?: boolean): wemQ.Promise<void> {
-        if (this.loadMask) {
-            this.loadMask.show();
+    updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
+        if (this.currentTotal !== currentTotal) {
+            this.currentTotal = currentTotal;
+            return this.filterAndFetchItems(true).then(() => {
+                this.showNoIssuesMessage();
+            });
         }
-        return new ListIssuesRequest()
-            .setIssueStatus(this.issueStatus)
-            .setAssignedToMe(this.loadAssignedToMe)
-            .setCreatedByMe(this.loadMyIssues)
-            .setResolveAssignees(true)
-            .setFrom(append ? this.getItemCount() : 0)
-            .setSize(20)
-            .sendAndParse()
-            .then((response: IssueResponse) => {
 
-                this.totalItems = response.getMetadata().getTotalHits();
-                const issues = response.getIssues();
+        return wemQ.fcall(() => {
+            this.showNoIssuesMessage();
+        });
+    }
 
-                if (append) {
-                    if (issues.length > 0) {
-                        this.addItems(issues);
-                    }
-                } else {
-                    if (issues.length > 0) {
-                        this.setItems(issues);
-                    } else {
-                        this.clearItems();
-                        this.appendChild(new PEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesFound')));
-                    }
-                }
-            })
+    private showNoIssuesMessage() {
+        const hasNoIssues = this.currentTotal === 0;
+        if (hasNoIssues && this.getItemCount() === 0) {
+            this.appendChild(this.noIssues);
+        }
+    }
+
+    getTotalItems(): number {
+        return this.totalItems;
+    }
+
+    updateTotalItems(totalItems: number): wemQ.Promise<void> {
+        if (this.totalItems !== totalItems) {
+            this.totalItems = totalItems;
+            return this.filterAndFetchItems();
+        }
+
+        return wemQ(null);
+    }
+
+    filter() {
+        const issues = this.doFilter();
+        this.setItems(issues);
+    }
+
+    filterIfChanged() {
+        const issues = this.doFilter();
+        const items = this.getItems();
+        const wasChanged = issues.length !== this.getItemCount() || issues.some((issue, index) => {
+            return issue.getIssue().getId() !== items[index].getIssue().getId();
+        });
+        if (wasChanged) {
+            this.setItems(issues);
+        }
+    }
+
+    private doFilter(): IssueWithAssignees[] {
+        const allIssues = this.allIssuesStorage.copyIssues();
+        const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe) || this.hasIssueType();
+
+        if (needToFilter) {
+            return allIssues.filter((issueWithAssignee: IssueWithAssignees) => {
+                const issue = issueWithAssignee.getIssue();
+                const assignees = issueWithAssignee.getAssignees();
+
+                const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
+                const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
+                const assignedByMeMatched = !this.loadMyIssues || issue.getCreator() === this.currentUser.getKey().toString();
+                const assignedToMeMatched = !this.loadAssignedToMe || assignees.some(assignee => assignee.equals(this.currentUser));
+                return typeMatches && statusMatches && assignedToMeMatched && assignedByMeMatched;
+            });
+        }
+
+        return allIssues;
+    }
+
+    reload(): wemQ.Promise<void> {
+        this.showLoadMask();
+
+        return this.doFetch()
             .catch(api.DefaultErrorHandler.handle)
             .finally(() => {
                 this.notifyIssuesLoaded();
-                if (this.loadMask) {
-                    this.loadMask.hide();
+                this.hideLoadMask();
+            });
+    }
+
+    private filterAndFetchItems(append?: boolean): wemQ.Promise<void> {
+        this.filterIfChanged();
+        return this.fetchItems(append);
+    }
+
+    private fetchItems(append?: boolean): wemQ.Promise<void> {
+        const skipLoad = !this.needToLoad();
+        if (skipLoad) {
+            return wemQ(null);
+        }
+
+        this.showLoadMask();
+
+        this.filterIfChanged();
+
+        return this.doFetch(append)
+            .catch(api.DefaultErrorHandler.handle)
+            .finally(() => {
+                this.notifyIssuesLoaded();
+                this.hideLoadMask();
+            });
+    }
+
+    private doFetch(append?: boolean): wemQ.Promise<void> {
+        return new ListIssuesRequest()
+            .setResolveAssignees(true)
+            .setFrom(append ? this.allIssuesStorage.getIssuesCount() : 0)
+            .setSize(IssueList.MAX_VISIBLE_OPTIONS)
+            .sendAndParse()
+            .then((response: IssueResponse) => {
+                const totalHits = response.getMetadata().getTotalHits();
+                const issuesCountChanged = totalHits !== this.allIssuesStorage.getTotalIssues();
+
+                const issues = response.getIssues();
+                const hasLoadedIssues = issues.length > 0;
+
+                if (append && !issuesCountChanged) {
+                    if (hasLoadedIssues) {
+                        this.allIssuesStorage.addIssues(issues);
+                    }
+                } else {
+                    // Clear storage anyway, cause the new items are prepended to the list on the server
+                    // Received items will be the old one
+                    this.allIssuesStorage.clear();
+                }
+
+                this.allIssuesStorage.setTotalIssues(totalHits);
+                this.issuesOfType = this.countIssuesOfType();
+
+                const loadMore = hasLoadedIssues && this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
+
+                if (loadMore) {
+                    return this.doFetch(true);
                 }
             });
+    }
+
+    private countIssuesOfType(): number {
+        return this.allIssuesStorage.copyIssues().filter((issueWithAssignee: IssueWithAssignees) => {
+            const issue = issueWithAssignee.getIssue();
+
+            const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
+            const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
+            return typeMatches && statusMatches;
+        }).length;
+    }
+
+    private needToLoad(): boolean {
+        return this.currentTotal > this.issuesOfType;
+    }
+
+    private showLoadMask() {
+        if (this.loadMask) {
+            this.loadMask.show();
+        }
+    }
+
+    private hideLoadMask() {
+        if (this.loadMask) {
+            this.loadMask.hide();
+        }
     }
 
     private loadCurrentUser() {
@@ -115,7 +294,7 @@ export class IssueList
     }
 
     private handleScroll() {
-        if (this.isScrolledToBottom() && !this.isAllItemsLoaded()) {
+        if (this.isScrolledToBottom()) {
             this.fetchItems(true);
         }
     }
@@ -157,10 +336,6 @@ export class IssueList
         let element = this.getHTMLElement();
         return (element.scrollHeight - element.scrollTop - 50) <= element.clientHeight; // 50px before bottom to start loading earlier
     }
-
-    private isAllItemsLoaded(): boolean {
-        return this.getItemCount() >= this.totalItems;
-    }
 }
 
 export class IssueListItem
@@ -182,26 +357,45 @@ export class IssueListItem
         this.currentUser = currentUser;
     }
 
-    public getIssue(): Issue {
-        return this.issue;
+    private createNamesAndIconView(): NamesAndIconView {
+        const typeClass = this.issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
+        const statusClass = this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'closed' : 'opened';
+        const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
+            .setMainName(this.issue.getTitleWithId())
+            .setIconClass(`icon-${typeClass} ${statusClass}`)
+            .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
+
+        if (this.issue.getDescription().length) {
+            new Tooltip(namesAndIconView, this.issue.getDescription(), 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
+        }
+
+        return namesAndIconView;
+    }
+
+    private createStatus(): DivEl {
+        const statusEl = new DivEl('status');
+
+        const issueStatus = this.issue.getIssueStatus();
+        const status = IssueStatusFormatter.formatStatus(issueStatus);
+        const statusClass = (issueStatus != null ? IssueStatus[issueStatus] : '').toLowerCase();
+
+        statusEl.setHtml(status, true);
+        statusEl.addClass(statusClass);
+
+        return statusEl;
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.getEl().setTabIndex(0);
 
-            const namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
-            namesAndIconView
-                .setMainName(this.issue.getTitleWithId())
-                .setIconClass(this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'icon-signup closed' : 'icon-signup')
-                .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
-
-            if (this.issue.getDescription().length) {
-                new Tooltip(namesAndIconView, this.issue.getDescription(), 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
-            }
+            const namesAndIconView = this.createNamesAndIconView();
+            const status = this.createStatus();
 
             this.appendChild(namesAndIconView);
-            this.appendChild(new AssigneesLine(this.assignees, this.currentUser));
+            this.appendChild(status);
+            // Removed, till the AssigneesLine is refactored
+            // this.appendChild(new AssigneesLine(this.assignees, this.currentUser));
 
             return rendered;
         });

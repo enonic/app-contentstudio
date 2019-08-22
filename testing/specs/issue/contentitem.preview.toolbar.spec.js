@@ -11,7 +11,6 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -56,21 +55,23 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
     });
 
     it(`GIVEN existing folder WHEN the folder is selected and published THEN 'Published' status should be displayed on the toolbar`,
-        () => {
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                return studioUtils.doPublish();
-            }).then(() => {
-                return expect(contentItemPreviewPanel.getContentStatus()).to.eventually.equal('Published');
-            });
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await studioUtils.doPublish();
+            let status = await contentItemPreviewPanel.getContentStatus();
+            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
         });
+
 
     it(`GIVEN existing 'published' folder is selected WHEN new issue has been created THEN menu button with the issue-name should appear on the ContentItemPreviewToolbar`,
         () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
-            let createIssueDialog = new  CreateIssueDialog();
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 //open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
@@ -82,7 +83,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 //close the modal dialog
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
+                return contentItemPreviewPanel.getIssueNameInMenuButton();
             }).then(result => {
                 assert.isTrue(result == firstIssueTitle);
             })
@@ -92,7 +93,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
         () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            let createIssueDialog = new  CreateIssueDialog();
+            let createIssueDialog = new CreateIssueDialog();
             return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
                 return studioUtils.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
@@ -106,10 +107,9 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed(),
                     '`Issues-dropdown handle` should should appear on the toolbar');
             }).then(() => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
-            }).then(result => {
-                assert.isTrue(result == secondIssueTitle, "issue-name should be update on the menu-button");
-            })
+                //issue name should be updated on the preview panel
+                return contentItemPreviewPanel.waitForIssueNameInMenuButton(secondIssueTitle);
+            });
         });
 
     it(`GIVEN existing folder is selected WHEN issue menu button has been clicked THEN 'IssueDetails' modal dialog should appear`,
@@ -145,8 +145,26 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 assert.isTrue(result == firstIssueTitle, "required issue should be loaded in the modal dialog");
             })
         });
+
+    //verifies  https://github.com/enonic/app-contentstudio/issues/721
+    //drop down handle for issues remains after the content is unselected
+    it(`GIVEN existing folder with 2 issues is selected WHEN this folder has been unselected THEN 'issues drop down handle' gets not visible`,
+        async () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            //select the folder with 2 issues:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            //Drop down handle for issues should be displayed on the Preview Panel:
+            await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
+
+            //unselect the folder:
+            await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
+            //Drop down handle for issues gets not visible(exception will be thrown after the timeout)
+            await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
+        });
     //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
-    it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated on the issue-menu `,
+    it(`GIVEN folder selected and 'IssueDetails' dialog is opened WHEN the issue has been closed  AND the dialog closed THEN issue-name should be updated in the issue-menu`,
         () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -160,11 +178,10 @@ describe('contentItem.preview.toolbar.spec: create an issue and check the toolba
                 //dialog is closing.
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(result => {
-                return contentItemPreviewPanel.getIssueNameOnMenuButton();
-            }).then(result => {
                 studioUtils.saveScreenshot("issue_menu_button_updated");
-                assert.equal(result, firstIssueTitle, "Expected issue-title should be displayed on the Item Preview Panel");
-            })
+                //issue name should be updated on tne preview panel
+                return contentItemPreviewPanel.waitForIssueNameInMenuButton(firstIssueTitle);
+            });
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

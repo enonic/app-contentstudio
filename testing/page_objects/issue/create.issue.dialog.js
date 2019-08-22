@@ -54,13 +54,15 @@ class CreateIssueDialog extends Page {
         return XPATH.container + XPATH.createIssueButton;
     }
 
-    clickOnCreateIssueButton() {
-        return this.waitForElementDisplayed(this.createIssueButton, appConst.TIMEOUT_2).then(() => {
-            return this.clickOnElement(this.createIssueButton)
-        }).catch(err => {
+    async clickOnCreateIssueButton() {
+        try {
+            await this.waitForElementEnabled(this.createIssueButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(this.createIssueButton);
+            await this.pause(400);
+        } catch (err) {
             this.saveScreenshot('err_click_create_issue_button');
             throw new Error('create issue dialog: ' + err);
-        });
+        }
     }
 
     clickOnAddItemsButton() {
