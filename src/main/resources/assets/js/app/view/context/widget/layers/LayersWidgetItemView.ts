@@ -11,8 +11,8 @@ import {LayersWidgetStateViewNoLayers} from './LayersWidgetStateViewNoLayers';
 import {LayersWidgetStateView} from './LayersWidgetStateView';
 import {LayerDialogsManager} from '../../../../layer/LayerDialogsManager';
 import {LayerViewer} from '../../../../layer/LayerViewer';
+import Button = api.ui.button.Button;
 import i18n = api.util.i18n;
-import ActionButton = api.ui.button.ActionButton;
 
 export class LayersWidgetItemView
     extends WidgetItemView {
@@ -24,22 +24,14 @@ export class LayersWidgetItemView
     private contentsInLayersView: ContentsInLayersView;
 
     private layerInfo: LayersWidgetStateView | LayerViewer;
+    private itemInfo: LayersWidgetStateView | LayerViewer;
 
-    private settingsButton: ActionButton;
+    private settingsButton: Button;
 
     constructor() {
         super('layers-widget-item-view');
 
         this.contentsInLayersView = new ContentsInLayersView();
-
-        const action: api.ui.Action = new api.ui.Action(i18n('widget.layers.button.settings'));
-
-        action.onExecuted(() => {
-            LayerDialogsManager.get().openLayerDetailsDialog(LayerContext.get().getCurrentLayer());
-        });
-
-        this.settingsButton = new api.ui.button.ActionButton(action);
-        this.settingsButton.addClass('settings-button icon-cog');
 
         this.listenLayerEvents();
     }
@@ -48,7 +40,14 @@ export class LayersWidgetItemView
         const updateWidgetStateFunc: (layers: ContentLayer[]) => void = this.updateWidgetState.bind(this);
         LayerServerEventsHandler.getInstance().onLayerCreated(updateWidgetStateFunc);
         LayerServerEventsHandler.getInstance().onLayerDeleted(updateWidgetStateFunc);
-        LayerServerEventsHandler.getInstance().onLayerUpdated(updateWidgetStateFunc);
+        LayerServerEventsHandler.getInstance().onLayerUpdated((updatedLayers: ContentLayer[]) => {
+            const currentLayer = LayerContext.get().getCurrentLayer();
+            if (updatedLayers.some(layer => layer === currentLayer)) {
+                this.layerInfo.getEl().remove();
+                this.appendCurrentLayerInfo();
+            }
+            updateWidgetStateFunc(updatedLayers);
+        });
         LayerChangedEvent.on(this.refresh.bind(this));
     }
 
@@ -89,10 +88,12 @@ export class LayersWidgetItemView
     }
 
     private doLayout(): wemQ.Promise<any> {
+
         this.setNoContent();
 
         this.appendChild(this.contentsInLayersView);
-        //this.appendChild(this.settingsButton);
+
+        this.appendCurrentLayerInfo();
 
         return wemQ(null);
     }
@@ -102,63 +103,51 @@ export class LayersWidgetItemView
         this.contentsInLayersView.setContentData(this.item);
 
         return new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            this.updateWidgetStateItemSelected(layers);
+            this.updateWidgetState(layers);
         }).catch(api.DefaultErrorHandler.handle);
     }
 
     public setNoContent() {
-        this.item = null;
-        this.contentsInLayersView.setContentData(this.item);
-
-        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
-            this.updateWidgetStateNoItemSelected(layers);
-        }).catch(api.DefaultErrorHandler.handle);
+        this.setContentAndUpdateView(null);
     }
 
     private setState(value: LayersWidgetState) {
         this.state = value;
         this.contentsInLayersView.setState(value);
 
-        this.refresh();
+        if (LayersWidgetState.NO_LAYERS === this.state) {
+            this.showNoLayerInfo();
+        } else {
+            this.refresh();
+        }
     }
 
     private refresh() {
-
-        this.contentsInLayersView.reload().then(() => {
-
-            if (this.layerInfo) {
-                this.removeChild(this.layerInfo);
-                this.layerInfo = null;
-            }
-
-            if (LayersWidgetState.NO_LAYERS === this.state) {
-                this.showNoLayers();
-                this.settingsButton.hide();
-            } else {
-                this.settingsButton.show();
-/*
-                if (this.item === null && LayersWidgetState.CURRENT_LAYER === this.state) {
-                    this.showCurrentLayer();
-                }*/
-            }
-
-
-            if (this.item === null) {
-                this.showCurrentLayer();
-            }
-
-        });
+        this.contentsInLayersView.reload();
     }
 
-    private showNoLayers() {
-        this.layerInfo = new LayersWidgetStateViewNoLayers();
-        this.layerInfo.insertBeforeEl(this.contentsInLayersView);
+    private showNoLayerInfo() {
+        if (this.itemInfo) {
+            return;
+        }
+        this.itemInfo = new LayersWidgetStateViewNoLayers();
+        this.itemInfo.insertBeforeEl(this.contentsInLayersView);
     }
 
-    private showCurrentLayer() {
+    private appendCurrentLayerInfo() {
         this.layerInfo = new LayerViewer('layer-info');
 
         this.layerInfo.setObject(LayerContext.get().getCurrentLayer());
-        this.layerInfo.insertBeforeEl(this.contentsInLayersView);
+
+        this.settingsButton = new Button();
+        this.settingsButton.addClass('settings-button icon-cog');
+        this.settingsButton.setTitle(i18n('widget.layers.button.settings'));
+        this.settingsButton.onClicked(() => {
+            LayerDialogsManager.get().openLayerDetailsDialog(LayerContext.get().getCurrentLayer());
+        });
+
+        this.layerInfo.appendChild(this.settingsButton);
+
+        this.layerInfo.insertAfterEl(this.contentsInLayersView);
     }
 }
