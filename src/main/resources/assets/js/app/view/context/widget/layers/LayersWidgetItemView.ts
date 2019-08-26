@@ -47,7 +47,10 @@ export class LayersWidgetItemView
             }
             updateWidgetStateFunc(updatedLayers);
         });
-        LayerChangedEvent.on(this.refresh.bind(this));
+        LayerChangedEvent.on(() => {
+            (<LayerViewer>this.layerInfo).setObject(LayerContext.get().getCurrentLayer());
+            this.refresh();
+        });
     }
 
     private updateWidgetState(layers: ContentLayer[]) {
@@ -92,7 +95,7 @@ export class LayersWidgetItemView
 
         this.appendChild(this.contentsInLayersView);
 
-        this.appendCurrentLayerInfo();
+        this.showCurrentLayerInfo();
 
         return wemQ(null);
     }
@@ -137,7 +140,7 @@ export class LayersWidgetItemView
         this.noLayerInfo.insertBeforeEl(this.contentsInLayersView);
     }
 
-    private appendCurrentLayerInfo() {
+    private showCurrentLayerInfo() {
         this.layerInfo = new LayerViewer('layer-info');
 
         this.layerInfo.setObject(LayerContext.get().getCurrentLayer());

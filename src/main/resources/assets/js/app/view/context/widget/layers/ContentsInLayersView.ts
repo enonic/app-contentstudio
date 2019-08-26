@@ -8,6 +8,7 @@ import {LayersWidgetState} from './LayersWidgetState';
 import {ContentInLayerItemView} from './ContentInLayerItemView';
 import {ContentInLayerLocalItemView} from './ContentInLayerLocalItemView';
 import ContentId = api.content.ContentId;
+import i18n = api.util.i18n;
 
 export class ContentsInLayersView
     extends api.ui.selector.list.ListBox<ContentInLayer> {
@@ -52,9 +53,10 @@ export class ContentsInLayersView
             return wemQ(null);
         }
 
+        const currentLayerName = LayerContext.get().getCurrentLayer().getName();
         return this.loadData().then((contentInLayers: ContentInLayer[]) => {
             const sortedContents = this.helper.sort(contentInLayers);
-            const currLayerContents = sortedContents.filter(item => LayerContext.get().getCurrentLayer().getName() === item.getLayer());
+            const currLayerContents = sortedContents.filter(item => currentLayerName === item.getLayer());
 
             currLayerContents.length > 0 ? this.updateView(this.helper.filter(currLayerContents[0])) : this.updateView(sortedContents);
 
@@ -62,10 +64,28 @@ export class ContentsInLayersView
         });
     }
 
+    private createToggleInheritedButton(): api.dom.ButtonEl {
+        const button = new api.dom.ButtonEl('button-toggle-inherited');
+
+        button.getEl().setInnerHtml('...').setTitle(i18n('widget.layers.button.toggle.inherited'));
+        button.onClicked(() => button.addClass('show-inherited'));
+
+        return button;
+    }
+
     createItemView(item: ContentInLayer, readOnly: boolean): api.dom.Element {
 
         if (LayerContext.get().getCurrentLayer().getName() !== item.getLayer()) {
-            return new ContentInLayerItemView(item);
+            const itemView = new ContentInLayerItemView(item);
+
+            if (item.isInherited()) {
+                const toggleButton = this.createToggleInheritedButton();
+                itemView.addClass('inherited');
+                itemView.prependChild(toggleButton);
+                itemView.onAdded(() => toggleButton.insertBeforeEl(itemView));
+            }
+
+            return itemView;
         }
 
         switch (this.state) {
@@ -126,9 +146,8 @@ class ContentInLayerHelper {
     }
 
     filter(target: ContentInLayer): ContentInLayer[] {
-        return this.contents.filter(current => {
-                return this.isLayerAParentOfB(current, target) || current.getLayer() === target.getLayer();
-            }
+        return this.contents.filter(current =>
+            this.isLayerAParentOfB(current, target) || current.getLayer() === target.getLayer()
         );
     }
 

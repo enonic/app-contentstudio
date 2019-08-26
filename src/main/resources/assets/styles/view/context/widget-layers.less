@@ -15,14 +15,48 @@
       flex: 1;
       padding: 10px;
       overflow: scroll;
-    }
+      display: flex;
+      flex-direction: column;
 
-    .content-in-layer-item {
-      margin-bottom: 10px;
-    }
+      .content-in-layer-item {
+        margin-bottom: 10px;
 
-    .layers-widget-state-view {
-      margin-top: 10px;
+        &.inherited {
+          display: none;
+
+          + .@{_COMMON_PREFIX}button-toggle-inherited:not(.show-inherited) {
+            display: none;
+          }
+
+        }
+      }
+
+      .@{_COMMON_PREFIX}button-toggle-inherited {
+        font-size: 18px;
+        margin: 0 auto;
+        border: none;
+        padding-bottom: 15px;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+        & + .@{_COMMON_PREFIX}button-toggle-inherited {
+          display: none;
+        }
+
+        &.show-inherited {
+          display: none;
+
+          & ~ .content-in-layer-item.inherited {
+            display: block;
+          }
+
+          & ~ .@{_COMMON_PREFIX}button-toggle-inherited {
+            display: none;
+          }
+        }
+      }
     }
 
     .content-in-layer-item, .layers-widget-state-view:not(.no-layers), .layer-viewer {
