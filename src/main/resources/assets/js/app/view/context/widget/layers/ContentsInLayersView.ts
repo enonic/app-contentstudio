@@ -40,6 +40,9 @@ export class ContentsInLayersView
 
     setState(value: LayersWidgetState) {
         this.state = value;
+        if (this.state === LayersWidgetState.NO_LAYERS) {
+            this.clearItems();
+        }
     }
 
     reload(): wemQ.Promise<void> {
@@ -61,31 +64,31 @@ export class ContentsInLayersView
 
     createItemView(item: ContentInLayer, readOnly: boolean): api.dom.Element {
 
-        if (LayerContext.get().getCurrentLayer().getName() === item.getLayer()) {
-            switch (this.state) {
-            case LayersWidgetState.NO_LAYERS:
-                break;
-            case LayersWidgetState.CURRENT_LAYER:
-                return new ContentInLayerItemView(item);
-            case LayersWidgetState.LOCAL:
-                return new ContentInLayerLocalItemView(item, this.content);
-            case LayersWidgetState.INHERITED:
-                return new ContentInLayerItemViewInherited(this.content);
-            }
-        } else {
+        if (LayerContext.get().getCurrentLayer().getName() !== item.getLayer()) {
             return new ContentInLayerItemView(item);
+        }
+
+        switch (this.state) {
+        case LayersWidgetState.NO_LAYERS:
+            break;
+        case LayersWidgetState.CURRENT_LAYER:
+            return new ContentInLayerItemView(item);
+        case LayersWidgetState.LOCAL:
+            return new ContentInLayerLocalItemView(item, this.content);
+        case LayersWidgetState.INHERITED:
+            return new ContentInLayerItemViewInherited(this.content);
         }
     }
 
     private loadData(): wemQ.Promise<ContentInLayer[]> {
-        if (this.getContentId()) {
-            return new GetContentsInLayersByIdRequest(this.getContentId(), false).sendAndParse().then(
-                (contentInLayers: ContentInLayer[]) => {
-                    return contentInLayers;
-                });
-        } else {
+        if (!this.getContentId()) {
             throw new Error('Required contentId is not set');
         }
+
+        return new GetContentsInLayersByIdRequest(this.getContentId(), false).sendAndParse().then(
+            (contentInLayers: ContentInLayer[]) => {
+                return contentInLayers;
+            });
     }
 
     private updateView(contentInLayers: ContentInLayer[]) {
