@@ -11,7 +11,6 @@ const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -72,11 +71,11 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             });
         });
 
-    it(`GIVEN site has been published (children are not included)  WHEN the site has been selected THEN 'PUBLISH TREE...' button should appear on browse-toolbar`,
+    it(`GIVEN site has been published (children were not included)  WHEN the site has been selected THEN 'PUBLISH TREE...' button should appear on browse-toolbar`,
         () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+                return contentBrowsePanel.clickOnMarkAsReadyButton();
             }).then(() => {
                 //site has been published and children are not included
                 return studioUtils.doPublish(SITE.displayName);
