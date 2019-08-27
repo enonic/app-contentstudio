@@ -195,7 +195,8 @@ export class IssueListDialog
             .then(() => {
                 this.notifyResize();
                 return this.updateTabAndFiltersLabels();
-            }).then(() => {
+            })
+            .then(() => {
                 if (this.isNotificationToBeShown(updatedIssues)) {
                     api.notify.NotifyManager.get().showFeedback(i18n('notify.issue.listUpdated'));
                 }
@@ -207,9 +208,9 @@ export class IssueListDialog
 
     private handleIssueGlobalEvents() {
 
-        const debouncedReload = api.util.AppHelper.debounce((issues?: Issue[]) => {
+        const debouncedReload = api.util.AppHelper.runOnceAndDebounce((issues?: Issue[]) => {
             this.reload(issues);
-        }, 3000, true);
+        }, 3000);
 
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
             if (this.isVisible()) {
