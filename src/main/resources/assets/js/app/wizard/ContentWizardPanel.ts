@@ -2120,7 +2120,7 @@ export class ContentWizardPanel
         return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-live');
     }
 
-    private assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
+    assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
 
         viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
         viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());

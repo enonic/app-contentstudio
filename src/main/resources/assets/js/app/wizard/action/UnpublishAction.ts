@@ -6,7 +6,7 @@ import i18n = api.util.i18n;
 
 export class UnpublishAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
-        super({wizard, label: i18n('action.unpublish'), omitCanPublishCheck: true});
+        super({wizard, label: i18n('action.unpublishMore'), omitCanPublishCheck: true});
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
