@@ -48,6 +48,7 @@ export class ContentsInLayersView
 
     reload(): wemQ.Promise<void> {
 
+        this.removeClass('show-inherited');
         if (!this.content || LayersWidgetState.NO_LAYERS === this.state) {
             this.clearItems();
             return wemQ(null);

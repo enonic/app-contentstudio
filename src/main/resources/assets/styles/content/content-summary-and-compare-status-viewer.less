@@ -2,33 +2,4 @@
   .@{_COMMON_PREFIX}main-name > span::before {
     content: ' ';
   }
-
-  &.invalid,
-  &.ready,
-  &.in-progress {
-    .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
-      &::before {
-        top: 1px;
-        font-size: 16px;
-      }
-    }
-  }
-
-  &.invalid .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
-    .icon-state-invalid;
-  }
-
-  &.ready .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
-    .icon-state-ready;
-  }
-
-  &.in-progress .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
-    .icon-state-in-progress;
-  }
-
-  &.pending-delete .names-and-icon-view .@{_COMMON_PREFIX}names-view {
-    .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
-      text-decoration: line-through;
-    }
-  }
 }

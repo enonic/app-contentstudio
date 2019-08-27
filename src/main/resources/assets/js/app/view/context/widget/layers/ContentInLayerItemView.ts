@@ -7,7 +7,7 @@ import {ContentInLayer} from '../../../../content/ContentInLayer';
 export class ContentInLayerItemView
     extends DivEl {
 
-    private header: ContentInLayerHeader;
+    protected header: ContentInLayerHeader;
 
     private viewer: ContentInLayerViewer;
 
@@ -25,12 +25,11 @@ export class ContentInLayerItemView
         this.viewer = new ContentInLayerViewer();
     }
 
-    private doSetItem(item: ContentInLayer) {
+    protected doSetItem(item: ContentInLayer) {
         this.item = item;
 
         this.header.setItem(this.item);
         this.viewer.setObject(this.item);
-
     }
 
     doRender(): wemQ.Promise<boolean> {
@@ -62,9 +61,13 @@ class ContentInLayerHeader
         this.appendChildren(this.layerDisplayName, this.status);
     }
 
+    setTitle(title: string) {
+        this.layerDisplayName.setHtml(title);
+    }
+
     setItem(item: ContentInLayer) {
 
-        this.layerDisplayName.setHtml(item.getLayerDisplayName());
+        this.setTitle(item.getLayerDisplayName());
 
         if (item.getStatus()) {
             const statusText = CompareStatusFormatter.doFormatStatus(item.getStatus().getCompareStatus(), item.getPublishFirstTime());

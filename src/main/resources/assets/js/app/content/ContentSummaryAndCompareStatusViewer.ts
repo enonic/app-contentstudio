@@ -8,7 +8,7 @@ export class ContentSummaryAndCompareStatusViewer
     extends api.ui.NamesAndIconViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
-        super('content-summary-and-compare-status-viewer');
+        super('content-summary-and-compare-status-viewer content-workflow-viewer');
     }
 
     doLayout(object: ContentSummaryAndCompareStatus) {

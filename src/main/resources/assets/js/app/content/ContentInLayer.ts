@@ -1,6 +1,7 @@
 import {Attachment, AttachmentBuilder} from '../attachment/Attachment';
 import {ContentInLayerJson} from '../resource/json/ContentInLayerJson';
 import {CompareContentResult} from '../resource/CompareContentResult';
+import Workflow = api.content.Workflow;
 
 export class ContentInLayer
     implements api.Equitable {
@@ -31,6 +32,8 @@ export class ContentInLayer
 
     private icon: Attachment;
 
+    private workflow: Workflow;
+
     constructor(builder: ContentInLayerBuilder) {
         this.id = builder.id;
         this.path = builder.path;
@@ -45,6 +48,7 @@ export class ContentInLayer
         this.parentLayer = builder.parentLayer;
         this.layerDisplayName = builder.layerDisplayName;
         this.icon = builder.icon;
+        this.workflow = builder.workflow;
     }
 
     static fromJson(json: ContentInLayerJson): ContentInLayer {
@@ -103,6 +107,10 @@ export class ContentInLayer
         return this.icon;
     }
 
+    getWorkflow(): Workflow {
+        return this.workflow;
+    }
+
     equals(o: api.Equitable): boolean {
         if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentInLayer)) {
             return false;
@@ -142,6 +150,8 @@ export class ContentInLayerBuilder {
 
     icon: Attachment;
 
+    workflow: Workflow;
+
     fromContentInLayerJson(json: ContentInLayerJson): ContentInLayerBuilder {
         this.id = json.id;
         this.path = json.path;
@@ -156,6 +166,7 @@ export class ContentInLayerBuilder {
         this.parentLayer = json.parentLayer;
         this.layerDisplayName = json.layerDisplayName;
         this.icon = !!json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
+        this.workflow = json.workflowInfo ? Workflow.fromJson(json.workflowInfo) : null;
 
         return this;
     }

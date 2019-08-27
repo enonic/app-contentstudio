@@ -1,5 +1,6 @@
 import {AttachmentJson} from '../../attachment/AttachmentJson';
 import {CompareContentResultJson} from './CompareContentResultJson';
+import WorkflowJson = api.content.json.WorkflowJson;
 
 export interface ContentInLayerJson {
 
@@ -29,5 +30,7 @@ export interface ContentInLayerJson {
     icon: AttachmentJson;
 
     status: CompareContentResultJson;
+
+    workflowInfo: WorkflowJson;
 
 }
