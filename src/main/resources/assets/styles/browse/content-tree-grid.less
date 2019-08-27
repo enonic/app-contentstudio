@@ -19,13 +19,22 @@
 
       .slick-cell {
         opacity: 0.5;
+
+        .toggle.icon {
+          z-index: 1;
+        }
       }
 
       .slick-cell {
         &.highlight, &.selected {
           opacity: 1;
+
           > * {
             opacity: 0.5;
+          }
+
+          &.slick-cell-checkboxsel > label {
+            opacity: 1;
           }
         }
       }
