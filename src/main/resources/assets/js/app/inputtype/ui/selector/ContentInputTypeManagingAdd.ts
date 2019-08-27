@@ -58,13 +58,13 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         let allowContentPathConfig = inputConfig['allowPath'] || [];
         this.allowedContentPaths =
             allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
-            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
-             ? [this.getDefaultAllowPath()]
+            (this.getDefaultAllowPaths() && this.getDefaultAllowPaths().length > 0
+             ? this.getDefaultAllowPaths()
              : []);
     }
 
-    protected getDefaultAllowPath(): string {
-        return '';
+    protected getDefaultAllowPaths(): string[] {
+        return [''];
     }
 
     private handleContentUpdatedEvent() {

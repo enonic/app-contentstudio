@@ -56,8 +56,8 @@ export class ContentSelector
         super.readConfig(inputConfig);
     }
 
-    protected getDefaultAllowPath(): string {
-        return '${site}/*';
+    protected getDefaultAllowPaths(): string[] {
+        return ['${site}/*', '${site}'];
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
