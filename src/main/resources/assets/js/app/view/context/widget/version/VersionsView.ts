@@ -228,7 +228,7 @@ export class VersionsView
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
 
-            if (!itemContainer.hasClass('active')) {
+            if (!itemContainer.hasClass('active') || itemContainer.hasClass('published')) {
                 itemContainer.toggleClass('expanded');
             }
         });
