@@ -8,6 +8,7 @@ import {LayersWidgetState} from './LayersWidgetState';
 import {ContentInLayerItemView} from './ContentInLayerItemView';
 import {ContentInLayerLocalItemView} from './ContentInLayerLocalItemView';
 import ContentId = api.content.ContentId;
+import i18n = api.util.i18n;
 
 export class ContentsInLayersView
     extends api.ui.selector.list.ListBox<ContentInLayer> {
@@ -40,6 +41,9 @@ export class ContentsInLayersView
 
     setState(value: LayersWidgetState) {
         this.state = value;
+        if (this.state === LayersWidgetState.NO_LAYERS) {
+            this.clearItems();
+        }
     }
 
     reload(): wemQ.Promise<void> {
@@ -49,9 +53,10 @@ export class ContentsInLayersView
             return wemQ(null);
         }
 
+        const currentLayerName = LayerContext.get().getCurrentLayer().getName();
         return this.loadData().then((contentInLayers: ContentInLayer[]) => {
             const sortedContents = this.helper.sort(contentInLayers);
-            const currLayerContents = sortedContents.filter(item => LayerContext.get().getCurrentLayer().getName() === item.getLayer());
+            const currLayerContents = sortedContents.filter(item => currentLayerName === item.getLayer());
 
             currLayerContents.length > 0 ? this.updateView(this.helper.filter(currLayerContents[0])) : this.updateView(sortedContents);
 
@@ -59,33 +64,51 @@ export class ContentsInLayersView
         });
     }
 
+    private createToggleInheritedButton(): api.dom.ButtonEl {
+        const button = new api.dom.ButtonEl('button-toggle-inherited');
+
+        button.getEl().setInnerHtml('...').setTitle(i18n('widget.layers.button.toggle.inherited'));
+        button.onClicked(() => button.addClass('show-inherited'));
+
+        return button;
+    }
+
     createItemView(item: ContentInLayer, readOnly: boolean): api.dom.Element {
 
-        if (LayerContext.get().getCurrentLayer().getName() === item.getLayer()) {
-            switch (this.state) {
-            case LayersWidgetState.NO_LAYERS:
-                break;
-            case LayersWidgetState.CURRENT_LAYER:
-                return new ContentInLayerItemView(item);
-            case LayersWidgetState.LOCAL:
-                return new ContentInLayerLocalItemView(item, this.content);
-            case LayersWidgetState.INHERITED:
-                return new ContentInLayerItemViewInherited(this.content);
+        if (LayerContext.get().getCurrentLayer().getName() !== item.getLayer()) {
+            const itemView = new ContentInLayerItemView(item);
+
+            if (item.isInherited()) {
+                const toggleButton = this.createToggleInheritedButton();
+                itemView.addClass('inherited');
+                itemView.prependChild(toggleButton);
+                itemView.onAdded(() => toggleButton.insertBeforeEl(itemView));
             }
-        } else {
+
+            return itemView;
+        }
+
+        switch (this.state) {
+        case LayersWidgetState.NO_LAYERS:
+            break;
+        case LayersWidgetState.CURRENT_LAYER:
             return new ContentInLayerItemView(item);
+        case LayersWidgetState.LOCAL:
+            return new ContentInLayerLocalItemView(item, this.content);
+        case LayersWidgetState.INHERITED:
+            return new ContentInLayerItemViewInherited(this.content);
         }
     }
 
     private loadData(): wemQ.Promise<ContentInLayer[]> {
-        if (this.getContentId()) {
-            return new GetContentsInLayersByIdRequest(this.getContentId(), false).sendAndParse().then(
-                (contentInLayers: ContentInLayer[]) => {
-                    return contentInLayers;
-                });
-        } else {
+        if (!this.getContentId()) {
             throw new Error('Required contentId is not set');
         }
+
+        return new GetContentsInLayersByIdRequest(this.getContentId(), false).sendAndParse().then(
+            (contentInLayers: ContentInLayer[]) => {
+                return contentInLayers;
+            });
     }
 
     private updateView(contentInLayers: ContentInLayer[]) {
@@ -123,9 +146,8 @@ class ContentInLayerHelper {
     }
 
     filter(target: ContentInLayer): ContentInLayer[] {
-        return this.contents.filter(current => {
-                return this.isLayerAParentOfB(current, target) || current.getLayer() === target.getLayer();
-            }
+        return this.contents.filter(current =>
+            this.isLayerAParentOfB(current, target) || current.getLayer() === target.getLayer()
         );
     }
 

@@ -24,7 +24,7 @@ export class LayersWidgetItemView
     private contentsInLayersView: ContentsInLayersView;
 
     private layerInfo: LayersWidgetStateView | LayerViewer;
-    private itemInfo: LayersWidgetStateView | LayerViewer;
+    private noLayerInfo: LayersWidgetStateView | LayerViewer;
 
     private settingsButton: Button;
 
@@ -43,12 +43,14 @@ export class LayersWidgetItemView
         LayerServerEventsHandler.getInstance().onLayerUpdated((updatedLayers: ContentLayer[]) => {
             const currentLayer = LayerContext.get().getCurrentLayer();
             if (updatedLayers.some(layer => layer === currentLayer)) {
-                this.layerInfo.getEl().remove();
-                this.appendCurrentLayerInfo();
+                (<LayerViewer>this.layerInfo).setObject(LayerContext.get().getCurrentLayer());
             }
             updateWidgetStateFunc(updatedLayers);
         });
-        LayerChangedEvent.on(this.refresh.bind(this));
+        LayerChangedEvent.on(() => {
+            (<LayerViewer>this.layerInfo).setObject(LayerContext.get().getCurrentLayer());
+            this.refresh();
+        });
     }
 
     private updateWidgetState(layers: ContentLayer[]) {
@@ -93,7 +95,7 @@ export class LayersWidgetItemView
 
         this.appendChild(this.contentsInLayersView);
 
-        this.appendCurrentLayerInfo();
+        this.showCurrentLayerInfo();
 
         return wemQ(null);
     }
@@ -118,6 +120,10 @@ export class LayersWidgetItemView
         if (LayersWidgetState.NO_LAYERS === this.state) {
             this.showNoLayerInfo();
         } else {
+            if (this.noLayerInfo) {
+                this.noLayerInfo.remove();
+                this.noLayerInfo = null;
+            }
             this.refresh();
         }
     }
@@ -127,14 +133,14 @@ export class LayersWidgetItemView
     }
 
     private showNoLayerInfo() {
-        if (this.itemInfo) {
+        if (this.noLayerInfo) {
             return;
         }
-        this.itemInfo = new LayersWidgetStateViewNoLayers();
-        this.itemInfo.insertBeforeEl(this.contentsInLayersView);
+        this.noLayerInfo = new LayersWidgetStateViewNoLayers();
+        this.noLayerInfo.insertBeforeEl(this.contentsInLayersView);
     }
 
-    private appendCurrentLayerInfo() {
+    private showCurrentLayerInfo() {
         this.layerInfo = new LayerViewer('layer-info');
 
         this.layerInfo.setObject(LayerContext.get().getCurrentLayer());
