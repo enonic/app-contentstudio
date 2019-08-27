@@ -68,7 +68,7 @@ export class ContentsInLayersView
         const button = new api.dom.ButtonEl('button-toggle-inherited');
 
         button.getEl().setInnerHtml('...').setTitle(i18n('widget.layers.button.toggle.inherited'));
-        button.onClicked(() => button.addClass('show-inherited'));
+        button.onClicked(() => this.addClass('show-inherited'));
 
         return button;
     }

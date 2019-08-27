@@ -26,7 +26,7 @@ export class ContentInLayerItemViewInherited
     }
 
     protected getHeaderText(): string {
-        return i18n('widget.layers.header.inherited');
+        return i18n('widget.layers.header.thisLayer');
     }
 
     protected getSubHeaderText(): string {

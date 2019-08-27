@@ -27,7 +27,6 @@
           + .@{_COMMON_PREFIX}button-toggle-inherited:not(.show-inherited) {
             display: none;
           }
-
         }
       }
 
@@ -40,28 +39,29 @@
         &:hover {
           cursor: pointer;
         }
+      }
 
-        & + .@{_COMMON_PREFIX}button-toggle-inherited {
+      &.show-inherited {
+        .@{_COMMON_PREFIX}button-toggle-inherited {
           display: none;
         }
-
-        &.show-inherited {
-          display: none;
-
-          & ~ .content-in-layer-item.inherited {
-            display: block;
-          }
-
-          & ~ .@{_COMMON_PREFIX}button-toggle-inherited {
-            display: none;
-          }
+        .content-in-layer-item.inherited {
+          display: block;
+          opacity: 0.5;
         }
       }
     }
 
-    .layers-widget-state-view.no-layers {
-      padding: 20px;
-      text-align: center;
+    .layers-widget-state-view {
+      &.no-layers {
+        padding: 20px;
+        text-align: center;
+      }
+      &.inherited {
+        .content-in-layer-viewer {
+          opacity: 0.5;
+        }
+      }
     }
 
     .content-in-layer-item, .layers-widget-state-view:not(.no-layers), .layer-viewer {
