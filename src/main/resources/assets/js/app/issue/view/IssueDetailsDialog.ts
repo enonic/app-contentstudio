@@ -888,6 +888,7 @@ export class IssueDetailsDialog
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.status' : 'notify.issue.status';
                     api.notify.showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(newStatus)));
                     this.toggleControlsAccordingToStatus(newStatus);
+                    this.detailsSubTitle.setIssue(updatedIssue, true);
                 } else {
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.updated' : 'notify.issue.updated';
                     api.notify.showFeedback(i18n(messageKey));
