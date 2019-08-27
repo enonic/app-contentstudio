@@ -90,7 +90,6 @@ class LayerViewerExtended
         super.doLayout(layer);
 
         const level: number = (<ContentLayerExtended>layer).getLevel();
-        this.removeClass('level-0 level-1 level-2 level-3 level-4 level-5');
-        this.addClass(`level-${level}`);
+        this.getEl().setPaddingLeft(`${level * 15}px`);
     }
 }

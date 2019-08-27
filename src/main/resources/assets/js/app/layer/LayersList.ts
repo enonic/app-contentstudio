@@ -46,6 +46,7 @@ export class LayersListItem
     doRender(): wemQ.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass(`level-${this.layer.getLevel()}`);
+            this.getEl().setPaddingLeft(`${this.layer.getLevel() * 15}px`);
             this.appendChild(this.layerViewer);
 
             return rendered;
