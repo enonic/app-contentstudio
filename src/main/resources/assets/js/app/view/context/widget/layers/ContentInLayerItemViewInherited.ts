@@ -1,17 +1,28 @@
 import {LayersWidgetStateView} from './LayersWidgetStateView';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentInLayerViewer} from './ContentInLayerViewer';
+import {ContentInLayer} from '../../../../content/ContentInLayer';
 import i18n = api.util.i18n;
 
 export class ContentInLayerItemViewInherited
     extends LayersWidgetStateView {
 
-    private item: ContentSummaryAndCompareStatus;
+    private content: ContentSummaryAndCompareStatus;
 
-    constructor(item: ContentSummaryAndCompareStatus) {
+    private viewer: ContentInLayerViewer;
+
+    constructor(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
         super('inherited');
 
-        this.item = item;
+        this.content = content;
+        this.viewer.setObject(item);
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.viewer = new ContentInLayerViewer();
     }
 
     protected getHeaderText(): string {
@@ -26,9 +37,15 @@ export class ContentInLayerItemViewInherited
         const action: api.ui.Action = new api.ui.Action(i18n('action.edit'));
 
         action.onExecuted(() => {
-            new EditContentEvent([this.item]).fire();
+            new EditContentEvent([this.content]).fire();
         });
 
         return action;
+    }
+
+    protected doAppendChildren() {
+        super.doAppendChildren();
+
+        this.insertChild(this.viewer, 1);
     }
 }

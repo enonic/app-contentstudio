@@ -96,7 +96,7 @@ export class ContentsInLayersView
         case LayersWidgetState.LOCAL:
             return new ContentInLayerLocalItemView(item, this.content);
         case LayersWidgetState.INHERITED:
-            return new ContentInLayerItemViewInherited(this.content);
+            return new ContentInLayerItemViewInherited(item, this.content);
         }
     }
 
