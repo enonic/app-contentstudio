@@ -1,6 +1,10 @@
 .issue-details-dialog {
   @toggler-width: 35px;
 
+  &.masked {
+    display: none !important;
+  }
+
   .dialog-content {
     padding: 5px 0;
     min-height: 200px;
@@ -11,6 +15,10 @@
 
       & > .panel {
         overflow: visible;
+
+        .content-combo-box {
+          margin-top: 15px;
+        }
 
         input {
           .input-glow();
@@ -25,12 +33,16 @@
     padding-right: 30px;
     position: relative;
 
-    .inplace-text-input {
-      margin-top: -4px;
+    h6 {
+      display: none;
+    }
 
-      .inplace-toggle {
-        margin-right: -7px;
+    .inplace-text-input {
+
+      .inplace-input {
+        width: calc(100% - 55px);
       }
+
       .inplace-text {
         line-height: 38px;
 
@@ -41,63 +53,30 @@
       }
     }
 
+    &.with-back-button {
+      .issue-details-sub-title {
+        margin-left: 34px;
+
+        .issue-status-selector {
+          margin-left: 25px;
+        }
+      }
+
+      .inplace-text-input {
+
+        .inplace-input {
+          width: calc(100% - 90px);
+        }
+
+        .inplace-text {
+          margin-left: 38px;
+        }
+      }
+    }
+
     .issue-details-sub-title {
-      margin: 5px 0 0 39px;
-      font-size: 13px;
-
-      .creator, .assignee {
-        color: @admin-font-gray3;
-      }
-
-      .issue-status-selector {
-        float: right;
-        display: inline-block;
-        min-width: inherit;
-        margin: 0;
-        vertical-align: middle;
-
-        &.open {
-          .tab-menu-button {
-            background-color: @admin-green;
-          }
-        }
-        &.closed {
-          .tab-menu-button {
-            background-color: @admin-font-gray2;
-          }
-        }
-
-        .tab-menu-button {
-          display: inline-block;
-          font-weight: bold;
-          padding: 2px 20px;
-          border-radius: 4px;
-          margin: 0 0 5px 5px;
-
-          &:before {
-            content: '';
-          }
-
-          .label {
-            margin: 0;
-            color: white;
-          }
-        }
-
-        .menu {
-          text-align: center;
-          min-width: inherit;
-          li {
-            padding: 1px 5px;
-            border-radius: 4px;
-          }
-        }
-      }
-
-      .status-info {
-        vertical-align: middle;
-        color: @admin-font-gray1;
-      }
+      margin-top: 15px;
+      margin-left: 6px;
     }
 
     .sub-title {
@@ -111,18 +90,52 @@
     }
 
     .tab-bar {
-      margin-top: 5px;
-      background: transparent;
       display: flex;
+      margin-top: 5px;
+      border: none;
+      background: transparent;
 
       .tab-bar-item {
         flex: 1;
       }
+
+      .comments-tab {
+        order: 1;
+      }
+
+      .items-tab {
+        order: 2;
+      }
+
+      .assignees-tab {
+        order: 3;
+      }
     }
   }
 
-  .modal-dialog-body {
-    overflow: auto !important;
+  &.publish-request {
+    .modal-dialog-header .tab-bar {
+      .comments-tab {
+        order: 2;
+      }
+
+      .items-tab {
+        order: 1;
+      }
+    }
+
+    &:not(.tab-items) {
+      .icon-calendar {
+        display: none;
+      }
+    }
+  }
+
+  &:not(.publish-request) {
+
+    .publish-schedule-form, .icon-calendar {
+      display: none;
+    }
   }
 
   .panel {
@@ -159,8 +172,26 @@
   }
 
   &:not(.closed) {
-    .publish-dialog-item-list {
-      margin-top: 20px;
+    &:not(.is-processing) {
+      .modal-dialog-footer {
+        .button-container {
+          .close-issue {
+            display: block !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.closed {
+    .modal-dialog-footer {
+      .button-container {
+        .reopen-issue {
+          display: block !important;
+          margin-left: 0;
+          margin-right: auto;
+        }
+      }
     }
   }
 
@@ -176,10 +207,12 @@
 
       .include-children-toggler {
         cursor: default;
+
         &:hover {
           &:before {
             color: @admin-font-gray2;
           }
+
           &.on {
             &:before {
               color: @admin-button-blue1;
@@ -191,22 +224,35 @@
   }
 
   .button-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
     width: 100%;
 
-    .dialog-button, .menu-button {
-      float: right;
+    .dialog-button,
+    .menu-button {
       display: none !important; // need important here because dialog sets display style inline
     }
 
     .dialog-button {
 
       &.close-issue {
-        .dialog-button(@form-button-font, @admin-button-gray3);
+        order: 1;
+        margin-right: auto;
         margin-left: 0;
+        background-color: @admin-button-gray3;
+
+        &:hover:not(:disabled) {
+          background-color: @admin-button-gray3;
+        }
       }
 
-      &.reopen-issue {
-        .dialog-button(@form-button-font, @admin-green);
+      &.publish-issue, &.schedule-issue {
+        background-color: @admin-green;
+
+        &:hover:not(:disabled) {
+          background-color: @admin-green;
+        }
       }
 
       .cancel-button-bottom {
@@ -219,7 +265,8 @@
       display: none;
       line-height: 36px;
       font-size: 15px;
-      float: right;
+      white-space: nowrap;
+      order: 0;
     }
   }
 
@@ -237,9 +284,27 @@
   }
 
   &.is-processing {
-    .issue-dialog-form,
-    .edit-issue,
-    .items-header,
+
+    .modal-dialog-header {
+      h6 {
+        display: block;
+      }
+
+      .issue-details-sub-title {
+        display: none;
+      }
+    }
+
+    .dialog-content {
+      min-height: auto;
+    }
+
+    .progress-bar {
+      margin-top: 35px;
+    }
+
+    .tab-bar,
+    .deck-panel,
     .dialog-buttons div.checkbox {
       display: none;
     }
@@ -247,6 +312,7 @@
     .button-container .cancel-button-bottom {
       float: none;
     }
+
     .title {
       padding-bottom: 10px;
     }
@@ -256,31 +322,30 @@
     }
   }
 
-  .dialog-buttons {
-    position: relative;
-  }
-
   &.tab-comments {
-    &:not(.closed) {
+    &:not(.closed):not(.is-processing) {
       .dialog-content {
         min-height: 124px; // subtract textarea height to keep overall dialog height
       }
+
       .modal-dialog-footer {
         // it's placed in footer to stick to bottom so show it manually
         .issue-comment-textarea {
           display: flex;
+
           textarea {
             min-height: 52px;
           }
         }
 
         .button-container {
-          .close-issue, .comment-issue {
+          .comment-issue {
             display: block !important;
           }
         }
       }
     }
+
     &.closed {
       .modal-dialog-footer {
         .button-container {
@@ -292,29 +357,51 @@
     }
   }
 
-  &.tab-items:not(.closed) {
-    &:not(.no-action) {
+  &.tab-items:not(.closed):not(.no-action):not(.is-processing) {
+
+    &.with-schedule-form {
       .modal-dialog-footer {
         .button-container {
           .publish-issue {
+            display: none !important;
+          }
+
+          .schedule-issue {
             display: block !important;
           }
         }
       }
     }
-    &.no-action {
+
+    &:not(.with-schedule-form) {
       .modal-dialog-footer {
-        .no-action-message {
-          display: inline-block;
+        .button-container {
+          .publish-issue {
+            display: block !important;
+          }
+
+          .schedule-issue {
+            display: none !important;
+          }
         }
       }
     }
   }
 
+  &.no-action {
+    .modal-dialog-footer {
+      .no-action-message {
+        display: inline-block;
+      }
+    }
+  }
+
+
   &.tab-assignees {
     .dialog-content {
-      min-height: 256px;
+      min-height: 220px;
     }
+
     .modal-dialog-footer {
       padding-top: 0;
     }
@@ -326,7 +413,14 @@
     }
   }
 
+  .dialog-buttons {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+  }
+
 }
+
 ._0-240, &._240-360, &._360-540, &._540-720 {
 
   .issue-details-dialog {

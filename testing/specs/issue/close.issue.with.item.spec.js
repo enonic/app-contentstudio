@@ -8,7 +8,6 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -24,30 +23,28 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     //verifies https://github.com/enonic/app-contentstudio/issues/356
     //Endless spinner after clicking on Create Issue button
     it(`GIVEN user just is 'logged in' AND no selections in the grid WHEN 'Create Issue' button has been pressed  THEN Create Issue dialog should appear`,
-        () => {
+        async () => {
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            return contentBrowsePanel.clickOnCreateIssueButton().then(() => {
-                return createIssueDialog.waitForDialogLoaded();
-            }).then(() => {
-                return createIssueDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
-            })
+            await contentBrowsePanel.clickOnCreateIssueButton();
+            await createIssueDialog.waitForDialogLoaded();
+            await createIssueDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
         });
 
-    it(`Precondition: new folder and new issue should be added`,
+    it(`Precondition: new published-folder and new issue have been created`,
         () => {
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let issueDetailsDialog = new IssueDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
+            return studioUtils.doAddReadyFolder(TEST_FOLDER).then(() => {
                 return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             }).then(() => {
                 // Publish button is getting visible, because the content is 'New' and valid
                 return contentBrowsePanel.waitForPublishButtonVisible();
             }).then(() => {
-                //open 'Create Issue' dialog
+                //expand the menu and open 'Create Issue' dialog
                 return contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             }).then(() => {
                 return createIssueDialog.typeTitle(issueTitle);
@@ -58,7 +55,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             })
         });
 
-    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed AND modal dialog closed THEN issue-menu button should not be visible`,
+    it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed THEN issue-menu button gets not visible`,
         () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -67,12 +64,14 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             }).then(() => {
                 return issueDetailsDialog.waitForDialogOpened();
             }).then(() => {
+                //the issue has been closed
                 return issueDetailsDialog.clickOnCloseIssueButton();
             }).then(() => {
+                //modal dialog has been closed
                 return issueDetailsDialog.clickOnCancelTopButton();
             }).then(() => {
                 return assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueMenuButtonNotVisible(),
-                    'issue-menu button is getting not visible on the preview toolbar, (when the content is selected)');
+                    'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');
             })
         });
 

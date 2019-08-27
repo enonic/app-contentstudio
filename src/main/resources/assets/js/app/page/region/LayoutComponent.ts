@@ -42,7 +42,8 @@ export class LayoutComponent
     }
 
     private updateRegionsParentPath(regions: Regions): Regions {
-        regions.getRegions().forEach((region: Region) => region.setParentPath(this.getPath()));
+        const newPath: ComponentPath = this.getPath();
+        regions.getRegions().forEach((region: Region) => region.setParentPath(newPath));
 
         return regions;
     }
@@ -82,6 +83,14 @@ export class LayoutComponent
                 console.debug('LayoutComponent[' + this.getPath().toString() + '].regions reassigned: ', event);
             }
             this.notifyPropertyChanged('regions');
+        }
+    }
+
+    setIndex(value: number) {
+        const indexChanged: boolean = value !== this.getIndex();
+        super.setIndex(value);
+        if (indexChanged && !!this.regions) {
+            this.updateRegionsParentPath(this.regions);
         }
     }
 

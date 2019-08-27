@@ -3,14 +3,18 @@ import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import MenuButton = api.ui.button.MenuButton;
 import Action = api.ui.Action;
 import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
 import ActionButton = api.ui.button.ActionButton;
+import ContentId = api.content.ContentId;
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
     unpublishAction: Action;
+    markAsReadyAction: Action;
+    requestPublishAction: Action;
     createIssueAction: Action;
 }
 
@@ -49,15 +53,24 @@ export class ContentPublishMenuButton
     protected publishAction: ContentPublishMenuAction;
     protected unpublishAction: ContentPublishMenuAction;
     protected createIssueAction: ContentPublishMenuAction;
+    protected markAsReadyAction: ContentPublishMenuAction;
+    protected requestPublishAction: ContentPublishMenuAction;
 
+    protected markAsReadyButton: ActionButton;
     protected unpublishButton: ActionButton;
     protected createIssueButton: ActionButton;
+    protected requestPublishButton: ActionButton;
 
     protected item: ContentSummaryAndCompareStatus;
+
+    private isRefreshDisabled: boolean = false;
+    private debouncedFetch: (highlightedOrSelected: ContentSummaryAndCompareStatus) => void;
 
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction);
         this.addClass('content-publish-menu transparent');
+
+        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 500);
 
         this.initMenuActions(config);
         this.addMenuActions(this.getActions());
@@ -71,15 +84,25 @@ export class ContentPublishMenuButton
         this.publishAction = new ContentPublishMenuAction(config.publishAction, 'publish');
         this.unpublishAction = new ContentPublishMenuAction(config.unpublishAction, 'unpublish');
         this.createIssueAction = new ContentPublishMenuAction(config.createIssueAction, 'create-issue');
+        this.markAsReadyAction = new ContentPublishMenuAction(config.markAsReadyAction, 'mark-as-ready');
+        this.requestPublishAction = new ContentPublishMenuAction(config.requestPublishAction, 'request-publish');
     }
 
     protected getActions(): Action[] {
-        return [this.publishAction.getAction(), this.unpublishAction.getAction(), this.createIssueAction.getAction()];
+        return [
+            this.markAsReadyAction.getAction(),
+            this.publishAction.getAction(),
+            this.unpublishAction.getAction(),
+            this.requestPublishAction.getAction(),
+            this.createIssueAction.getAction()
+        ];
     }
 
     protected initButtons() {
         this.unpublishButton = new ActionButton(this.unpublishAction.getAction());
         this.createIssueButton = new ActionButton(this.createIssueAction.getAction());
+        this.markAsReadyButton = new ActionButton(this.markAsReadyAction.getAction());
+        this.requestPublishButton = new ActionButton(this.requestPublishAction.getAction());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -88,15 +111,19 @@ export class ContentPublishMenuButton
             this.getActionButton().addClass('publish-action-button');
             this.unpublishButton.addClass('unpublish-action-button');
             this.createIssueButton.addClass('create-issue-action-button');
+            this.markAsReadyButton.addClass('mark-as-ready-action-button');
+            this.requestPublishButton.addClass('request-publish-action-button');
 
             this.appendChildren(...this.getButtons());
+            this.getDropdownHandle().remove();
+            this.appendChild(this.getDropdownHandle());
 
             return rendered;
         });
     }
 
     protected getButtons(): ActionButton[] {
-        return [this.unpublishButton, this.createIssueButton];
+        return [this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.createIssueButton];
     }
 
     minimize() {
@@ -105,6 +132,10 @@ export class ContentPublishMenuButton
 
     maximize() {
         //
+    }
+
+    setRefreshDisabled(value: boolean) {
+        this.isRefreshDisabled = value;
     }
 
     private notifyInitialized() {
@@ -124,33 +155,43 @@ export class ContentPublishMenuButton
     }
 
     private handleIssueCreatedOrUpdated() {
-        const reloadList = (issue: Issue) => {
+        const reloadList = () => {
             if (this.item) {
-                const nodeId = this.item.getContentSummary().getContentId();
-                const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(nodeId));
-                if (issueHasSelectedContent) {
-                    this.fetchIssues(this.item);
-                }
+                // item might've been removed from issue, so reload even if it's not listed
+                this.debouncedFetch(this.item);
             }
         };
 
-        IssueDialogsManager.get().onIssueCreated(reloadList);
-        IssueDialogsManager.get().onIssueUpdated(reloadList);
+        const handler = IssueServerEventsHandler.getInstance();
+        handler.onIssueCreated(reloadList);
+        handler.onIssueUpdated(reloadList);
     }
 
     private handleActionsUpdated() {
-        const actionUpdatedHandler: () => void = api.util.AppHelper.debounce(() => {
+        const actionUpdatedHandler = api.util.AppHelper.debounce(() => {
             this.updateActiveClass();
-        }, 500);
+        }, 50);
 
-        this.getActions().forEach((action: Action) => action.onPropertyChanged(actionUpdatedHandler));
+        this.getActions().forEach((action: Action) => action.onPropertyChanged(() => {
+            if (!this.isRefreshDisabled) {
+                actionUpdatedHandler();
+            }
+        }));
     }
 
-    protected updateActiveClass() {
-        if (this.publishAction.isEnabled()) {
+    protected isItemPendingDelete(): boolean {
+        return this.item != null && this.item.isPendingDelete();
+    }
+
+    updateActiveClass() {
+        if (this.markAsReadyAction.isEnabled()) {
+            this.setActiveClass(this.markAsReadyAction.getActionClass());
+        } else if (this.publishAction.isEnabled()) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
+        } else if (this.requestPublishAction.isEnabled()) {
+            this.setActiveClass(this.requestPublishAction.getActionClass());
         } else {
             this.setActiveClass(this.createIssueAction.getActionClass());
         }
@@ -173,7 +214,7 @@ export class ContentPublishMenuButton
 
     setItem(item: ContentSummaryAndCompareStatus) {
         if (item && (!this.item || !item.getContentId().equals(this.item.getContentId()))) {
-            this.fetchIssues(item);
+            this.debouncedFetch(item);
         }
 
         this.item = item;
@@ -190,20 +231,31 @@ export class ContentPublishMenuButton
             this.removeMenuSeparator();
         }
         if (!this.issuesRequest && highlightedOrSelected) {
-            const id = highlightedOrSelected.getContentSummary().getContentId();
-            this.issuesRequest =
-                new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-                    this.issueActionsList = issues.map(this.setupIssueAction);
-                    if (this.issueActionsList.length > 0) {
-                        this.addMenuSeparator();
-                        this.addMenuActions(this.issueActionsList);
-                    }
-                })
-                    .catch(api.DefaultErrorHandler.handle)
-                    .finally(() => {
-                        this.issuesRequest = undefined;
-                    });
+            const contentId = highlightedOrSelected.getContentSummary().getContentId();
+            this.issuesRequest = this.findIssues(contentId)
+                .catch(api.DefaultErrorHandler.handle)
+                .finally(() => {
+                    this.issuesRequest = undefined;
+                });
         }
+    }
+
+    protected findIssues(contentId: ContentId): wemQ.Promise<Issue[]> {
+        return new FindIssuesRequest()
+            .addContentId(contentId)
+            .setIssueStatus(IssueStatus.OPEN)
+            .sendAndParse()
+            .then((issues: Issue[]) => {
+                if (this.issueActionsList && this.issueActionsList.length > 0) {
+                    this.removeMenuActions(this.issueActionsList);
+                }
+                this.issueActionsList = issues.map(this.setupIssueAction);
+                if (this.issueActionsList.length > 0) {
+                    this.addMenuSeparator();
+                    this.addMenuActions(this.issueActionsList);
+                }
+                return issues;
+            });
     }
 
     private setupIssueAction(issue: Issue): Action {
@@ -213,5 +265,4 @@ export class ContentPublishMenuButton
         });
         return action;
     }
-
 }

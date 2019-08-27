@@ -9,16 +9,25 @@ const ContentStepForm = require('./content.wizard.step.form');
 const ContentSettingsForm = require('./settings.wizard.step.form');
 const ContextWindow = require('./liveform/liveform.context.window');
 const DetailsPanel = require('./details/wizard.details.panel');
+const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
+const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
+    toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
+    markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
+    openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
+    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
@@ -41,6 +50,9 @@ const XPATH = {
         name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
+    publishMenuItemByName: function (name) {
+        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+    },
 };
 
 class ContentWizardPanel extends Page {
@@ -89,7 +101,7 @@ class ContentWizardPanel extends Page {
         return lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
 
-//opens the ContextWindow with tabs:
+    //opens the ContextWindow with tabs:
     get showInspectionPanelToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.inspectionPanelToggler;
     }
@@ -144,6 +156,14 @@ class ContentWizardPanel extends Page {
                 console.log("Content wizard is opened and Details Panel is loaded");
             }
         })
+    }
+
+    async openVersionsHistoryPanel() {
+        let detailsPanel = new DetailsPanel();
+        let versionPanel = new VersionsWidget();
+        await this.openDetailsPanel();
+        await detailsPanel.openVersionHistory();
+        return versionPanel.waitForVersionsLoaded();
     }
 
     waitForXdataTogglerVisible() {
@@ -279,6 +299,10 @@ class ContentWizardPanel extends Page {
         return this.typeTextInInput(this.displayNameInput, displayName);
     }
 
+    getDisplayName() {
+        return this.getTextInInput(this.displayNameInput);
+    }
+
     clearDisplayNameInput() {
         return this.clearInputText(this.displayNameInput);
     }
@@ -301,6 +325,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
+    //clicks on 'Publish...' button
     clickOnPublishButton() {
         return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).then(() => {
             return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
@@ -311,6 +336,16 @@ class ContentWizardPanel extends Page {
             throw new Error('Error when Publish button has been clicked ' + err);
         });
     }
+
+    //Click on Publish... button on toolbar, then clicks on Publish Now button on the modal dialog
+    async doPublish() {
+        await this.clickOnPublishButton();
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.waitForDialogOpened();
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
+    }
+
 
     isContentInvalid() {
         let selector = this.thumbnailUploader;
@@ -508,16 +543,142 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().keys(['Control', 'Alt', 'p']);
     }
 
+    waitForShowPublishMenuButtonVisible() {
+        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).catch(err => {
+            throw new Error("Wizard - drop down handle in Publish menu is not visible!" + err);
+        })
+    }
+
+    waitForMarkAsReadyButtonVisible() {
+        let selector = XPATH.container + XPATH.markAsReadyButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+    }
+
+    waitForOpenRequestButtonVisible() {
+        let selector = XPATH.container + XPATH.openRequestButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+    }
+
+    waitForPublishButtonVisible() {
+        let selector = XPATH.container + XPATH.publishButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+    }
+
     async getContentStatus() {
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
-        //return await this.getBrowser().getElementText(result[0].ELEMENT);
+    }
+
+    waitForContentStatus(expectedStatus) {
+        let selector = XPATH.container +
+                       `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
+        let message = "Element still not displayed! timeout is " + appConst.TIMEOUT_3 + "  " + selector;
+        return this.getBrowser().waitUntil(() => {
+            return this.isElementDisplayed(selector);
+        }, appConst.TIMEOUT_3, message);
+
     }
 
     async getContentAuthor() {
         let result = await this.getDisplayedElements(XPATH.container + XPATH.author);
         return await result[0].getText();
-        //return await this.getBrowser().getElementText(result[0].ELEMENT);
+    }
+
+    async openPublishMenuSelectItem(menuItem) {
+        try {
+            await this.waitForShowPublishMenuButtonVisible();
+            await this.clickOnElement(this.publishDropDownHandle);
+            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
+            await this.clickOnElement(selector);
+            return this.pause(300);
+        } catch (err) {
+            this.saveScreenshot("err_click_issue_menuItem");
+            throw new Error('error when try to click on publish menu item, ' + err);
+        }
+    }
+
+    //Clicks on publish-menu dropdown handler then click on Publish... menu item
+    openPublishMenuAndPublish() {
+        let contentPublishDialog = new ContentPublishDialog();
+        let contentWizardPanel = new ContentWizardPanel();
+        return contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH).then(() => {
+            return contentPublishDialog.waitForDialogOpened();
+        }).then(() => {
+            return contentPublishDialog.clickOnPublishNowButton();
+        }).then(() => {
+            return contentPublishDialog.waitForDialogClosed();
+        })
+    }
+
+    async openPublishMenuAndCreateRequestPublish(changes, assignees) {
+        let requestPublishDialog = new RequestPublishDialog();
+        let contentWizardPanel = new ContentWizardPanel();
+        await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        await requestPublishDialog.waitForDialogLoaded();
+        await requestPublishDialog.clickOnNextButton();
+        await requestPublishDialog.typeInChangesInput(changes);
+        return await requestPublishDialog.clickOnCreateRequestButton();
+    }
+
+    async showPublishMenuClickOnMarkAsReadyMenuItem() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
+        let dialog = new ConfirmationDialog();
+        await dialog.waitForDialogOpened();
+        return await dialog.clickOnYesButton();
+    }
+
+    async clickOnMarkAsReadyButton() {
+        let selector = XPATH.container + XPATH.markAsReadyButton;
+        await this.waitForMarkAsReadyButtonVisible();
+        await this.clickOnElement(selector);
+        return this.pause(1000);
+    }
+
+    async clickOnUnpublishButton() {
+        let selector = XPATH.container + XPATH.unpublishButton;
+        await this.waitForUnpublishButtonDisplayed();
+        await this.clickOnElement(selector);
+        return this.pause(600);
+    }
+
+    waitForUnpublishButtonDisplayed() {
+        let selector = XPATH.container + XPATH.unpublishButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    }
+
+    waitForPublishButtonDisplayed() {
+        let selector = XPATH.container + XPATH.publishButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    }
+
+    async getToolbarWorkflowState() {
+        let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(selector, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else if (result === 'toolbar-state-icon pull-right') {
+            return appConst.WORKFLOW_STATE.PUBLISHED;
+
+        } else {
+            throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    async getIconWorkflowState() {
+        let selector = XPATH.thumbnailUploader;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(selector, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else {
+            return undefined;
+        }
     }
 };
 module.exports = ContentWizardPanel;

@@ -1,34 +1,49 @@
 .issue-list-dialog {
 
+  .dialog-buttons {
+    display: none;
+  }
+
+  &.show-footer .dialog-buttons {
+    display: block;
+  }
+
+  .modal-dialog-header,
+  &.grey-header .modal-dialog-header {
+    padding-bottom: 0;
+  }
+
+  .modal-dialog-header {
+    .tab-bar {
+      display: flex;
+      margin: 10px 0 0;
+      background-color: transparent;
+      border: none;
+
+      .tab-bar-item {
+        flex: 1;
+      }
+    }
+  }
+
   .docked-panel {
     width: auto;
     box-shadow: none;
     position: inherit !important;
     background-color: transparent;
-
-    .tab-bar {
-      position: relative !important;
-      background-color: transparent;
-      border: 0 none;
-      overflow: visible;
-
-      .tab-bar-item {
-        top: 0;
-        right: 0;
-        display: inline;
-        border: 0 none;
-        padding: 7px 5px;
-        position: absolute;
-
-        &.active {
-          display: none;
-        }
-      }
-    }
   }
 
   .panel {
     position: inherit;
+    overflow: initial;
+  }
+
+  .issues-panel {
+
+    &.no-issues .on-off-button,
+    &.no-filter .row-selector {
+        display: none;
+    }
 
     .filters {
       margin-bottom: 20px;
@@ -58,6 +73,7 @@
         display: flex;
         justify-content: space-between;
         padding: 5px 0;
+        align-items: center;
 
         &:hover {
           background-color: @admin-bg-light-gray;
@@ -70,13 +86,9 @@
         .names-and-icon-view {
           cursor: pointer;
 
-          .icon-signup {
-            color: @admin-font-gray2;
-            &:not(.closed) {
-              color: @admin-green;
-            }
-
+          .icon-issue, .icon-publish-request {
             font-size: 26px;
+            line-height: 32px;
           }
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
@@ -90,6 +102,25 @@
             line-height: 18px;
             color: @admin-black;
             font-family: @admin-font-family;
+          }
+        }
+
+        .status {
+          min-width: 50px;
+          padding: 2px 20px 3px;
+          text-transform: capitalize;
+          font-size: 14px;
+          font-weight: bold;
+          text-align: center;
+          color: white;
+          border-radius: 8px;
+          margin-right: 5px;
+
+          &.open {
+            background-color: @admin-green;
+          }
+          &.closed {
+            background-color: @admin-font-gray2;
           }
         }
 
@@ -116,9 +147,12 @@
     }
 
     .no-issues-message {
-      .watermark-text(18px, true);
-      top: calc(~'50% + 24px');
-      left: 0;
+      padding: 26px 0;
+      font-size: 18px;
+      color: rgba(0, 0, 0, 0.25);
+      line-height: 30px;
+      text-align: center;
+      .ellipsis();
     }
 
     .creator, .assignee {

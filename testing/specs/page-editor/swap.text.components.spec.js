@@ -20,20 +20,12 @@ describe('Swap two Text Component - specification', function () {
     let SITE;
     let CONTROLLER_NAME = 'main region';
 
-    it(`Precondition before tests: new site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN existing site is opened WHEN Page Component View has been opened THEN expected component's description should be displayed`,

@@ -18,21 +18,15 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     webDriverHelper.setupBrowser();
 
     let folder;
-    it(`Precondition: WHEN folder has been added THEN folder should be present in the grid`,
-        () => {
+    it(`Precondition:new folder should be added in the root`,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(folder).then(() => {
-                return studioUtils.typeNameInFilterPanel(folder.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'folder should be listed in the grid');
-            });
+            await studioUtils.doAddFolder(folder);
         });
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
-    it(`WHEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
+    it(`GIVEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
         () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -43,9 +37,26 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
                 return contentPublishDialog.waitForDialogOpened();
             }).then(result => {
                 assert.isTrue(result, 'Publish Dialog should be present');
+            }).then(() => {
+                //Publish button should be disabled, because this content is "Work in progress"
+                return contentPublishDialog.waitForPublishNowButtonDisabled();
             })
         });
 
+    it(`GIVEN Marked as ready folder is selected WHEN 'Ctrl+Alt+P' has been pressed THEN Publish now button should be enabled now`,
+        async () => {
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(folder.displayName);
+            // folder has been Marked as Ready
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await contentBrowsePanel.waitForPublishButtonVisible();
+            await contentBrowsePanel.hotKeyPublish();
+            await contentPublishDialog.waitForDialogOpened();
+            //Publish button should be disabled, because this content is "Marked as Ready"
+            return contentPublishDialog.waitForPublishNowButtonEnabled();
+
+        });
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

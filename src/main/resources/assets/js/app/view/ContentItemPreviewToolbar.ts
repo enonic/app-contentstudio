@@ -4,6 +4,8 @@ import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
 import {Issue} from '../issue/Issue';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
+import {IssueType} from '../issue/IssueType';
 import MenuButton = api.ui.button.MenuButton;
 import ContentId = api.content.ContentId;
 import Action = api.ui.Action;
@@ -15,6 +17,7 @@ export class ContentItemPreviewToolbar
     private mainIssue: Issue;
     private mainAction: Action;
     private issueActionsList: Action[];
+    private debouncedFetch: (id: ContentId) => void;
 
     constructor() {
         super('content-item-preview-toolbar');
@@ -28,19 +31,19 @@ export class ContentItemPreviewToolbar
         this.issueButton = new MenuButton(this.mainAction);
         this.issueButton.addClass('transparent');
 
-        const reloadList = (issue: Issue) => {
+        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 500);
+
+        const reloadList = (issues: Issue[]) => {
             const item = this.getItem();
             if (item) {
                 const itemId = item.getContentSummary().getContentId();
-                const issueHasSelectedContent = issue.getPublishRequest().getItemsIds().some(id => id.equals(itemId));
-                if (issueHasSelectedContent) {
-                    this.fetchIssues(itemId);
-                }
+                this.debouncedFetch(itemId);
             }
         };
 
-        IssueDialogsManager.get().onIssueCreated(reloadList);
-        IssueDialogsManager.get().onIssueUpdated(reloadList);
+        const handler = IssueServerEventsHandler.getInstance();
+        handler.onIssueCreated(reloadList);
+        handler.onIssueUpdated(reloadList);
     }
 
     doRender(): wemQ.Promise<boolean> {
@@ -53,7 +56,7 @@ export class ContentItemPreviewToolbar
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         if (this.getItem() !== item) {
-            this.fetchIssues(item.getContentSummary().getContentId());
+            this.debouncedFetch(item.getContentSummary().getContentId());
         }
         super.setItem(item);
     }
@@ -78,6 +81,10 @@ export class ContentItemPreviewToolbar
         return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
             this.toggleClass('has-issues', issues.length > 0);
             this.issueButton.getActionButton().setEnabled(issues.length > 0);
+            // do remove here again since it might have been changed during request flight
+            if (this.issueActionsList && this.issueActionsList.length > 0) {
+                this.issueButton.removeMenuActions(this.issueActionsList);
+            }
             this.issueActionsList = issues.map(this.createIssueAction);
 
             const latestAction = this.issueActionsList.shift();
@@ -93,7 +100,8 @@ export class ContentItemPreviewToolbar
     }
 
     private createIssueAction(issue: Issue) {
-        const action = new Action(`#${issue.getIndex()} <i>${issue.getTitle()}</i>`);
+        const type = issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
+        const action = new Action(`<span class="icon icon-${type} opened"></span><i>${issue.getTitle()}</i>`);
         action.onExecuted((a) => {
             IssueDialogsManager.get().openDetailsDialog(issue);
         });

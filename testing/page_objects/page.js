@@ -110,7 +110,7 @@ class Page {
 
     async isElementEnabled(selector) {
         let element = await this.findElement(selector);
-        return element.isEnabled();
+        return await element.isEnabled();
     }
 
     async waitForElementEnabled(selector, ms) {
@@ -118,7 +118,10 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return el[0].waitForEnabled(ms);
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await el[0].waitForEnabled(ms);
     }
 
     async waitForDisplayedElementEnabled(selector, ms) {
@@ -126,16 +129,21 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return el[0].waitForEnabled(ms);
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await el[0].waitForEnabled(ms);
     }
-
 
     async waitForElementDisabled(selector, ms) {
         let element = await this.findElements(selector);
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return element[0].waitForEnabled(ms, true);
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await element[0].waitForEnabled(ms, true);
     }
 
     async waitForDisplayedElementDisabled(selector, ms) {
@@ -143,9 +151,12 @@ class Page {
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return element[0].waitForEnabled(ms, true);
-    }
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
 
+        return await element[0].waitForEnabled(ms, true);
+    }
 
     waitForElementNotDisplayed(selector, ms) {
         return this.getBrowser().waitUntil(() => {
@@ -157,9 +168,19 @@ class Page {
         });
     }
 
+    waitUntilDisplayed(selector, ms) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length > 0;
+            })
+        }, ms).catch(err => {
+            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
+        });
+    }
+
     async waitForElementDisplayed(selector, ms) {
         let element = await this.findElement(selector);
-        return element.waitForDisplayed(ms);
+        return await element.waitForDisplayed(ms);
     }
 
     waitForSpinnerNotVisible() {
@@ -184,7 +205,7 @@ class Page {
 
     async getAttribute(selector, attributeName) {
         let element = await this.findElement(selector);
-        return element.getAttribute(attributeName);
+        return await element.getAttribute(attributeName);
     }
 
     waitForNotificationMessage() {
@@ -282,13 +303,16 @@ class Page {
     }
 
     async switchToFrame(selector) {
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        let el = await this.findElement(selector);
-        //await browser.switchToFrame(frame.elementId); // Fail! Firefox and Chrome
-        return await this.getBrowser().switchToFrame(el).catch(err => {
+        try {
+            await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+            let els = await this.findElements(selector);
+            let el = await this.findElement(selector);
+            //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
+            return await this.getBrowser().switchToFrame(el);
+        } catch (err) {
             console.log('Error when switch to frame ' + selector);
             throw new Error('Error when switch to frame  ' + err);
-        })
+        }
     }
 
     clickOnCloseIconInBrowser() {
@@ -300,11 +324,13 @@ class Page {
     }
 
     async doDoubleClick(selector) {
-        let el = await this.findElement(selector);
-        await el.moveTo();
-        return await this.getBrowser().positionDoubleClick().catch(err => {
+        try {
+            let el = await this.findElement(selector);
+            await el.moveTo();
+            return await el.doubleClick();
+        } catch (err) {
             throw Error('Error when doubleClick on the element' + err);
-        })
+        }
     }
 
     switchToParentFrame() {
@@ -321,6 +347,22 @@ class Page {
         });
     }
 
+    waitForAttributeHasValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value:" + value);
+    }
+
+    waitForAttributeNotIncludesValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return !result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value: " + value);
+    }
+
     //is checkbox selected...
     async isSelected(selector) {
         let elems = await this.findElements(selector);
@@ -332,4 +374,5 @@ class Page {
         return await elems[0].isSelected();
     }
 }
+
 module.exports = Page;

@@ -4,7 +4,7 @@ const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
     deleteButton: `//button/span[contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
-    itemList: `//div[contains(@id,'DeleteDialogItemList']`,
+    itemList: `//div[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
     deleteItemByDisplayName: function (displayName) {
         return `//div[contains(@id,'DeleteItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`

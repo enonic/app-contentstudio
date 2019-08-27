@@ -21,6 +21,10 @@
             "document" : "editor/page-editor"
         },
         {
+          "title": "Context Panel",
+          "document": "editor/context-panel"
+        },
+        {
           "title": "Components Type",
           "document" : "editor/component-types"
       },

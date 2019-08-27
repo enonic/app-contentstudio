@@ -24,20 +24,12 @@ describe('Move Fragment` specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    it(`Precondition: new site should be present in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
@@ -57,7 +49,7 @@ describe('Move Fragment` specification', function () {
                 return contentWizard.switchToMainFrame();
             }).then(() => {
                 return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
+            }).then(() => {
                 return contentWizard.pause(1500);
             }).then(() => {
                 // wait for (1500) page is rendered and open the menu

@@ -46,6 +46,7 @@ import {LayerContext} from './app/layer/LayerContext';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {LayerServerEventsHandler} from './app/layer/event/LayerServerEventsHandler';
 import {ContentAppBar} from './app/ContentAppBar';
+import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
 
 function getApplication(): api.app.Application {
     let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
@@ -244,7 +245,7 @@ function updateFavicon(content: Content) {
     }
 }
 
-const refreshTab = function(content: Content) {
+const refreshTab = function (content: Content) {
     updateFavicon(content);
     updateTabTitle(content.getDisplayName());
 };
@@ -323,11 +324,13 @@ function startApplication() {
     });
 
     import('./app/publish/ContentPublishDialog').then(def => {
-        const contentPublishDialog = new def.ContentPublishDialog();
+        const contentPublishDialog = def.ContentPublishDialog.get();
         ContentPublishPromptEvent.on((event) => {
             contentPublishDialog
                 .setContentToPublish(event.getModels())
-                .setIncludeChildItems(event.isIncludeChildItems())
+                .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
+                .setMessage(event.getMessage())
+                .setExcludedIds(event.getExcludedIds())
                 .open();
         });
     });
@@ -341,6 +344,9 @@ function startApplication() {
                 .open();
         });
     });
+
+    RequestContentPublishPromptEvent.on(
+        (event) => IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()));
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 

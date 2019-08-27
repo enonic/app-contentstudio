@@ -33,9 +33,9 @@ class LoaderComboBox extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        //await this.waitForElementDisplayed(xpath + this.optionsFilterInput);
         let elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
-        await this.getBrowser().elementSendKeys(elems[0].ELEMENT, [optionDisplayName]);
+        //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
+        await elems[0].setValue(optionDisplayName);
         await this.waitForElementDisplayed(optionSelector);
         await this.pause(300);
         await this.clickOnElement(optionSelector);

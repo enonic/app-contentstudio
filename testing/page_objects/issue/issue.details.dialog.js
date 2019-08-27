@@ -5,10 +5,12 @@ const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     toIssueList: `//a[@title='To Issue List']`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
-    issueTitleInputToggle: `//button[@class='inplace-toggle']`,
+    editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
     closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
+    closeRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Close Request')]]`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
-    addCommentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Add Comment']]`,
+    reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
+    commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
     assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
     commentsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Comments')]]",
@@ -29,6 +31,10 @@ class IssueDetailsDialog extends Page {
         return XPATH.container + XPATH.closeIssueButton;
     }
 
+    get closeRequestButton() {
+        return XPATH.container + XPATH.closeRequestButton;
+    }
+
     get backButton() {
         return XPATH.container + XPATH.toIssueList;
     }
@@ -38,7 +44,7 @@ class IssueDetailsDialog extends Page {
     }
 
     get issueTitleInputToggle() {
-        return XPATH.issueNameInPlaceInput + XPATH.issueTitleInputToggle;
+        return XPATH.issueNameInPlaceInput + XPATH.editIssueTitleToggle;
     }
 
     get issueStatusSelector() {
@@ -49,8 +55,8 @@ class IssueDetailsDialog extends Page {
         return XPATH.container + XPATH.reopenIssueButton;
     }
 
-    get addCommentButton() {
-        return XPATH.container + XPATH.addCommentButton;
+    get reopenRequestButton() {
+        return XPATH.container + XPATH.reopenRequestButton;
     }
 
     get issueCommentTextArea() {
@@ -74,7 +80,7 @@ class IssueDetailsDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.issueNameInPlaceInput, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot('err_load_issue_details_dialog');
             throw new Error('Issue Details dialog is not loaded ' + err)
         });
@@ -107,40 +113,46 @@ class IssueDetailsDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
+        await this.waitForElementDisplayed(this.cancelTopButton);
         await this.clickOnElement(this.cancelTopButton);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     clickOnIssueStatusSelector() {
         return this.clickOnElement(this.issueStatusSelector);
     }
 
-    clickOnBackButton() {
-        return this.clickOnElement(this.backButton);
+    // Click on "To Issues list"
+    async clickOnBackButton() {
+        try {
+            await this.waitForElementDisplayed(this.backButton, appConst.TIMEOUT_2);
+            return this.clickOnElement(this.backButton);
+        } catch (err) {
+            throw new Error("Issue Details Dialog-  button back(To issues list) is not present!" + err);
+        }
     }
 
-    async clickOnIssueTitleInputToggle() {
+    async clickOnEditTitle() {
         await this.clickOnElement(this.issueTitleInputToggle);
         return await this.pause(500);
     }
 
-    typeTitle(title) {
-        return this.typeTextInInput(this.titleInput, title).catch(err => {
+    async typeTitle(title) {
+        try {
+            await this.typeTextInInput(this.titleInput, title);
+            await this.pause(400);
+        } catch (err) {
             this.saveScreenshot("err_type_issue_title");
             throw new Error('error when type issue-title ' + err);
-        })
+        }
     }
 
-    waitForIssueTitleInputToggleLoaded() {
-        return this.waitForElementDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
-            throw new Error('Issue Details dialog- `Title Input toggler` should be loaded! ' + err)
-        });
-    }
 
-    waitForIssueTitleInputToggleNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.issueTitleInputToggle, appConst.TIMEOUT_5).catch(err => {
-            throw new Error('Issue Details dialog- `Title Input toggler` should be not visible! ' + err)
-        });
+    waitForIssueTitleInputNotEditable() {
+        return this.getBrowser().waitUntil(() => {
+            return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'readonly')]`);
+        }, appConst.TIMEOUT_3, "Issue details dialog - title should not be editable!");
+
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {
@@ -171,16 +183,28 @@ class IssueDetailsDialog extends Page {
         });
     }
 
-    clickOnCloseIssueButton() {
-        return this.clickOnElement(this.closeIssueButton).catch(err => {
+    async clickOnCloseIssueButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeIssueButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.closeIssueButton);
+            //reopen Issue button should appear!
+            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_3);
+        } catch (err) {
             this.saveScreenshot('err_click_close_issue_button');
             throw  new Error('Error when clicking on the `Close Issue`  ' + err);
-        }).then(() => {
-            return this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
-                this.saveScreenshot('err_issue_closed');
-                throw new Error('Close button has been clicked, but `Reopen Issue` button is not appeared');
-            })
-        })
+        }
+    }
+
+    async clickOnCloseRequestButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeRequestButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.closeIssueButton);
+            //reopen Issue button should appear!
+            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot('err_click_close_issue_button');
+            throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+        }
     }
 
     async clickOnReopenIssueButton() {
@@ -196,34 +220,7 @@ class IssueDetailsDialog extends Page {
         return this.isElementDisplayed(this.closeIssueButton);
     }
 
-    isAddCommentButtonDisplayed() {
-        return this.isElementDisplayed(this.addCommentButton);
-    }
 
-    async clickOnAddCommentButton() {
-        await this.clickOnElement(this.addCommentButton);
-        return await this.pause(500);
-    }
-
-    isCommentTextAreaDisplayed() {
-        return this.isElementDisplayed(this.issueCommentTextArea);
-    }
-
-    isAddCommentButtonEnabled() {
-        return this.isElementEnabled(this.addCommentButton);
-    }
-
-    waitForAddCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.addCommentButton).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
-        })
-    }
-
-    waitForAddCommentButtonDisabled() {
-        return this.waitForElementDisabled(this.addCommentButton).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
-        })
-    }
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');
@@ -231,27 +228,7 @@ class IssueDetailsDialog extends Page {
         return result.substring(0, endIndex).trim();
     }
 
-    typeComment(text) {
-        return this.typeTextInInput(this.issueCommentTextArea, text);
-    }
-
-    isCommentPresent(text) {
-        let selector = XPATH.issueCommentsListItemByText(text);
-        return this.isElementDisplayed(selector);
-    }
-
-    updateComment(comment, text) {
-        let commentTextarea = XPATH.issueCommentsListItemByText(comment) + `//textarea`;
-        return this.typeTextInInput(commentTextarea, text);
-    }
-
-    async clickOnSaveCommentButton(text) {
-        let saveButton = XPATH.issueCommentsListItemByText(text) + `//button[contains(@id,'Button') and child::span[text()='Save']]`;
-        await this.clickOnElement(saveButton);
-        return await this.pause(500);
-    }
-
-    async getNumberOfItemsInTabMenuBar() {
+    async getNumberInItemsTab() {
         let result = await this.getText(this.itemsTabBarItem);
         let startIndex = result.indexOf('(');
         if (startIndex == -1) {
@@ -269,6 +246,11 @@ class IssueDetailsDialog extends Page {
         })
     }
 
+    async clickOnCommentsTabBarItem() {
+        await this.clickOnElement(this.commentsTabBarItem);
+        return await this.pause(400);
+    }
+
     isItemsTabBarItemActive() {
         return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
             return result.includes('active');
@@ -277,7 +259,7 @@ class IssueDetailsDialog extends Page {
         })
     }
 
-    clickOnItemsTabBarItem(text) {
+    clickOnItemsTabBarItem() {
         return this.waitForElementDisplayed(this.itemsTabBarItem, appConst.TIMEOUT_2).then(() => {
             return this.clickOnElement(this.itemsTabBarItem);
         }).catch(err => {
@@ -286,29 +268,6 @@ class IssueDetailsDialog extends Page {
         }).then(() => {
             return this.pause(500);
         });
-    }
-
-    async clickOnEditCommentMenuItem(text) {
-        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        //clicks on menu and opens menu items
-        await this.clickOnElement(selector);
-        await this.pause(700);
-        let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
-        let elems = await this.getDisplayedElements(editMenuItem);
-        await elems[0].click();
-        await this.pause(500);
-    }
-
-    async clickOnDeleteCommentMenuItem(text) {
-        let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        await this.clickOnElement(selector);
-        await this.pause(500);
-        let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
-        let elems = await this.getDisplayedElements(deleteMenuItem);
-        await elems[0].click();
-        await this.pause(500);
     }
 };
 module.exports = IssueDetailsDialog;

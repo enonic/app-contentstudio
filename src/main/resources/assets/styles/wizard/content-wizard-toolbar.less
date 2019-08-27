@@ -97,6 +97,12 @@
   .toolbar-publish-controls {
     display: none;
     order: 2;
+
+    .content-publish-menu {
+      .action-button {
+        margin-left: 0;
+      }
+    }
   }
 
   .toggle-button {
@@ -119,6 +125,53 @@
     &.icon-cog:not(.details-toggle) {
       display: none !important;
     }
+  }
+
+  .toolbar-state-icon {
+    display: none;
+    height: 100%;
+    width: 20px;
+    order: 2;
+    padding: 0 10px;
+
+    &:before {
+      position: absolute;
+      top: 10px;
+      font-size: 20px;
+    }
+
+    &.invalid, &.ready, &.in-progress {
+      display: block;
+
+      + .toggle-button {
+        margin-left: auto;
+      }
+    }
+
+    &.invalid {
+      .icon-state-invalid;
+    }
+
+    &.ready {
+      .icon-state-ready;
+    }
+
+    &.in-progress {
+      .icon-state-in-progress;
+    }
+  }
+
+  .content-wizard-toolbar-publish-button {
+    border-left: 1px solid @admin-bg-light-gray;
+  }
+
+  &.publish-request .toolbar-state-icon.ready::before {
+    display: block;
+    width: 20px;
+    height: 20px;
+    content: "";
+    background-image: url("../../icons/publish-request-open.svg");
+    background-size: contain;
   }
 
 }
@@ -154,6 +207,19 @@
     .icon-clipboard {
       margin-left: auto;
     }
+
+
+    .toolbar-state-icon {
+      margin-left: auto;
+
+      &.invalid, &.ready, &.in-progress {
+
+        + .cycle-button {
+          margin-left: 0;
+        }
+      }
+    }
+
   }
 }
 

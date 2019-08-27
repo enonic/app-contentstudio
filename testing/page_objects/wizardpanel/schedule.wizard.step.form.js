@@ -2,34 +2,56 @@
  * Created on 21.11.2018.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const DateTimeRange = require('../components/datetime.range');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'ScheduleWizardStepForm')]`,
-    onlineFromInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Online from']]`,
-    onlineToInputView: "//div[contains(@id,'InputView') and descendant::div[text()='Online to']]",
 };
 
 class ScheduleForm extends Page {
 
-    get onlineFromInput() {
-        return XPATH.onlineFromInputView + lib.DATE_TIME_PICKER_INPUT;
-    }
-
-    get onlineToInput() {
-        return XPATH.onlineToInputView + lib.DATE_TIME_PICKER_INPUT;
-    }
-
     typeOnlineFrom(value) {
-        return this.typeTextInInput(this.onlineFromInput, value);
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.typeOnlineFrom(value, XPATH.container);
     }
 
-    waitForOnlineFromInputVisible() {
-        return this.waitForElementDisplayed(this.onlineFromInput, appConst.TIMEOUT_2);
+    async getOnlineFrom() {
+        let dateTimeRange = new DateTimeRange();
+        return await dateTimeRange.getOnlineFrom(XPATH.container);
     }
 
-    waitForOnlineToInputVisible() {
-        return this.waitForElementDisplayed(this.onlineToInput, appConst.TIMEOUT_2);
+    getOnlineTo() {
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.getOnlineTo(XPATH.container);
+    }
+
+    typeOnlineTo(value) {
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.typeOnlineTo(value, XPATH.container);
+    }
+
+
+    waitForValidationRecording(ms) {
+        let dateTimeRange = new DateTimeRange();
+        return this.waitForElementDisplayed(this.validationRecord, ms);
+    }
+
+    isValidationRecordingDisplayed() {
+        let dateTimeRange = new DateTimeRange();
+        return this.isElementDisplayed(this.validationRecord);
+    }
+
+    getValidationRecord() {
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.getValidationRecord(XPATH.container);
+    }
+
+    waitForDisplayed() {
+        return this.waitUntilDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    waitForNotDisplayed() {
+        return this.waitUntilElementNotVisible(XPATH.container, appConst.TIMEOUT_2);
     }
 };
 module.exports = ScheduleForm;

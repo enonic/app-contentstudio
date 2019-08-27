@@ -1,9 +1,17 @@
 .dependant-dialog {
 
-  .modal-dialog-body {
-    padding-top: 0;
+  .modal-dialog-header {
+
+    .back-button {
+      line-height: 38px;
+    }
   }
 
+  &.closed {
+    .icon.icon-calendar {
+      display: none;
+    }
+  }
 
   .browse-selection-item {
     .remove {
@@ -31,13 +39,7 @@
     width: @toggler-width;
   }
 
-  &.invalid {
-    .sub-title {
-      color: @admin-red;
-    }
-  }
-
-  .sub-title {
+  .sub-title:not(:empty) {
     margin-top: 20px;
   }
 
@@ -76,17 +78,18 @@
   }
 
   .dialog-togglable-item-list {
-    padding: 5px 0;
 
     &.contains-toggleable {
       .browse-selection-item:not(.toggleable) {
         .viewer {
           margin-left: 35px;
         }
+
         .include-children-toggler {
           & + .viewer {
             margin-left: 0;
           }
+
           display: block;
           visibility: hidden;
         }
@@ -205,23 +208,44 @@
             opacity: 0.5;
           }
 
-          &.invalid {
-
+          .state {
             .names-and-icon-view {
               cursor: pointer;
-
-              .@{_COMMON_PREFIX}wrapper:before {
-                content: "!";
-                background: #cb0300;
-                color: #ffffff;
-                top: 2px;
-                left: 30px;
-              }
 
               .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
                 cursor: pointer;
               }
             }
+          }
+
+          &.invalid {
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}wrapper {
+                .icon-state-invalid;
+              }
+
+              .state;
+            }
+          }
+
+          &.ready {
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}wrapper {
+                .icon-state-ready;
+              }
+            }
+
+            .state;
+          }
+
+          &.in-progress {
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}wrapper {
+                .icon-state-in-progress;
+              }
+            }
+
+            .state;
           }
 
           .dependant-item-viewer {
@@ -239,6 +263,7 @@
             * {
               pointer-events: none;
             }
+
             .@{_COMMON_PREFIX}wrapper {
               margin: 0;
               height: 16px;
@@ -248,11 +273,11 @@
 
             &.small {
               .@{_COMMON_PREFIX}wrapper:before {
-                left: 8px;
-                width: 8px;
-                height: 8px;
-                line-height: 8px;
-                border-radius: 15px;
+                top: 1px;
+                left: 11px;
+                width: 11px;
+                height: 11px;
+                line-height: 12px;
                 font-size: 12px;
               }
 
@@ -282,6 +307,30 @@
             }
           }
         }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    .icon.icon-calendar {
+      float: left;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 40px;
+      height: 36px;
+
+      &[disabled] {
+        display: none;
+      }
+
+      &:before {
+        font-size: 24px;
+        line-height: 34px;
+      }
+
+      &.active {
+        color: @admin-blue;
       }
     }
   }

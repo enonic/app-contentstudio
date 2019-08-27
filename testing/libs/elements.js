@@ -46,5 +46,6 @@ module.exports = Object.freeze({
     CHECKBOX_INPUT: "//input[@type='checkbox']",
     CONTENT_SELECTED_OPTION_VIEW:"//div[contains(@id,'ContentSelectedOptionView')]",
     DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
-    ACTION_BUTTON:`//button[contains(@id,'ActionButton')]`
+    ACTION_BUTTON: `//button[contains(@id,'ActionButton')]`,
+    SHOW_DEPENDENT_ITEM_LINK: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
 });

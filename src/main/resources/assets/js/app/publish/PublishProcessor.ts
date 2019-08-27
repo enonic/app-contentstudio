@@ -27,6 +27,8 @@ export class PublishProcessor {
 
     private ignoreDependantItemsChanged: boolean;
 
+    private checkPublishable: boolean = true;
+
     private loadingStartedListeners: { (): void }[] = [];
 
     private loadingFinishedListeners: { (): void }[] = [];
@@ -197,8 +199,35 @@ export class PublishProcessor {
         return this.containsInvalid;
     }
 
+    public setCheckPublishable(flag: boolean) {
+        this.checkPublishable = flag;
+    }
+
+    public isCheckPublishable(): boolean {
+        return this.checkPublishable;
+    }
+
+    public areAllConditionsSatisfied(itemsToPublish: number): boolean {
+        const allValid: boolean = !this.containsInvalidItems();
+        const allPublishable: boolean = this.isAllPublishable();
+        const containsItemsInProgress: boolean = this.containsItemsInProgress();
+        return itemsToPublish > 0 && allValid && !containsItemsInProgress && (!this.checkPublishable || allPublishable);
+    }
+
     public containsInvalidDependants(): boolean {
         return this.dependantList.getItems().some(item => !item.getContentSummary().isValid());
+    }
+
+    public containsItemsInProgress(): boolean {
+        return this.itemList.getItems().some(this.isOfflineItemInProgress) || this.dependantList.getItems().some(this.isItemInProgress);
+    }
+
+    private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.isOnline() && item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
+    }
+
+    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
     }
 
     public getDependantIds(): ContentId[] {
@@ -294,4 +323,11 @@ export class PublishProcessor {
         });
     }
 
+    public onItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.onItemsChanged(listener);
+    }
+
+    public unItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.unItemsChanged(listener);
+    }
 }

@@ -1,0 +1,37 @@
+.request-publish-dialog {
+
+  .base-publish-dialog();
+
+  .modal-dialog-header {
+
+    .icon-publish-request {
+      font-size: 26px;
+      line-height: 36px;
+      float: left;
+      margin-right: 15px;
+    }
+
+    .sub-title {
+      margin: 10px 43px;
+    }
+  }
+
+  .button-container {
+    width: 100%;
+    text-align: right;
+
+    .dialog-button.prev {
+      float: left;
+      margin: 0;
+      background-color: @form-button-bg;
+    }
+  }
+}
+
+.@{_COMMON_PREFIX}modal-dialog {
+  &._0-240, &._240-360 {
+    &.request-publish-dialog .include-child-check {
+      left: 16px;
+    }
+  }
+}

@@ -1,27 +1,40 @@
-import DockedPanel = api.ui.panel.DockedPanel;
 import ModalDialog = api.ui.dialog.ModalDialog;
 import Principal = api.security.Principal;
 import Action = api.ui.Action;
 import i18n = api.util.i18n;
-import {IssuesPanel} from './IssuesPanel';
+import TabBar = api.ui.tab.TabBar;
+import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
+import NavigatorEvent = api.ui.NavigatorEvent;
+import TabBarItem = api.ui.tab.TabBarItem;
+import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
+import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
-import {IssueStatus} from '../IssueStatus';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
+import {IssuesStorage} from './IssuesStorage';
+import {IssueType} from '../IssueType';
 
 export class IssueListDialog
     extends ModalDialog {
 
     private static INSTANCE: IssueListDialog;
 
-    private dockedPanel: DockedPanel;
+    private tabBar: TabBar;
 
-    private openIssuesPanel: IssuesPanel;
+    private allTab: TabBarItem;
 
-    private closedIssuesPanel: IssuesPanel;
+    private publishRequestsTab: TabBarItem;
 
-    private reload: Function;
+    private issuesTab: TabBarItem;
+
+    private deckPanel: NavigatedDeckPanel;
+
+    private allPanel: IssuesPanel;
+
+    private publishRequestsPanel: IssuesPanel;
+
+    private issuesPanel: IssuesPanel;
 
     private currentUser: Principal;
 
@@ -33,7 +46,7 @@ export class IssueListDialog
 
     private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
-            title: i18n('text.publishingissues'),
+            title: i18n('field.issues'),
             class: 'issue-dialog issue-list-dialog grey-header'
         });
 
@@ -55,42 +68,81 @@ export class IssueListDialog
 
     protected initElements() {
         super.initElements();
-        this.openIssuesPanel = this.createIssuePanel(IssueStatus.OPEN);
-        this.closedIssuesPanel = this.createIssuePanel(IssueStatus.CLOSED);
-        this.dockedPanel = this.createDockedPanel();
+        const storage = new IssuesStorage();
+
+        this.allPanel = this.createIssuePanel({
+            storage,
+            noIssuesMessage: i18n('dialog.issue.noIssuesAndPublishRequests'),
+            issuesToggledHandler: () => this.updateAllTabLabel()
+        });
+
+        this.publishRequestsPanel = this.createIssuePanel({
+            storage,
+            issueType: IssueType.PUBLISH_REQUEST,
+            noIssuesMessage: i18n('dialog.issue.noPublishRequests'),
+            issuesToggledHandler: () => this.updatePublishRequestsTabLabel()
+        });
+
+        this.issuesPanel = this.createIssuePanel({
+            storage,
+            issueType: IssueType.STANDARD,
+            noIssuesMessage: i18n('dialog.issue.noIssues'),
+            issuesToggledHandler: () => this.updateIssuesTabLabel()
+        });
+
+        this.tabBar = this.createTabBar();
+        this.deckPanel = this.createDeckPanel();
         this.createAction = new Action(i18n('action.newIssueMore'));
         this.loadCurrentUser();
     }
 
     protected initListeners() {
         super.initListeners();
-        this.initDeboundcedReloadFunc();
         this.handleIssueGlobalEvents();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.getButtonRow().addAction(this.createAction, true);
-            this.appendChildToContentPanel(this.dockedPanel);
+            this.appendChildToHeader(this.tabBar);
+            this.appendChildToContentPanel(this.deckPanel);
 
             return rendered;
         });
     }
 
-    private createDockedPanel(): DockedPanel {
-        const dockedPanel = new DockedPanel();
+    private createTabBar(): TabBar {
+        const tabBar = new TabBar();
 
-        dockedPanel.addItem(i18n('field.issue.openIssues'), true, this.openIssuesPanel);
-        dockedPanel.addItem(i18n('field.issue.closedIssues'), true, this.closedIssuesPanel);
+        this.allTab = IssueListDialog.createTab(i18n('field.all'));
+        this.publishRequestsTab = IssueListDialog.createTab(i18n('field.publishRequests'));
+        this.issuesTab = IssueListDialog.createTab(i18n('field.issues'));
 
-        return dockedPanel;
+        tabBar.onNavigationItemSelected((event: NavigatorEvent) => {
+            this.toggleClass('show-footer', event.getItem() === this.issuesTab);
+        });
+
+        return tabBar;
     }
 
-    private reloadDockPanel(): wemQ.Promise<any> {
-        return wemQ.all([
-            this.openIssuesPanel.reload(),
-            this.closedIssuesPanel.reload()
-        ]);
+    private static createTab(label: string): TabBarItem {
+        const builder = new TabBarItemBuilder();
+        return builder.setLabel(label).setAddLabelTitleAttribute(false).build();
+    }
+
+    private createDeckPanel(): NavigatedDeckPanel {
+        const deckPanel = new NavigatedDeckPanel(this.tabBar);
+
+        deckPanel.addNavigablePanel(this.allTab, this.allPanel, true);
+        deckPanel.addNavigablePanel(this.publishRequestsTab, this.publishRequestsPanel);
+        deckPanel.addNavigablePanel(this.issuesTab, this.issuesPanel);
+
+        return deckPanel;
+    }
+
+    private reloadDeckPanel(): wemQ.Promise<any> {
+        const panel = <IssuesPanel>(this.deckPanel.getPanelShown() || this.allPanel);
+        return panel.reload();
     }
 
     show() {
@@ -99,14 +151,13 @@ export class IssueListDialog
         if (!this.skipInitialLoad) {
             this.reload();
         } else {
-            this.updateTabAndFiltersLabels();
+            this.updateTabAndFiltersLabels().catch(api.DefaultErrorHandler.handle);
         }
     }
 
     close() {
         super.close();
-        this.openIssuesPanel.resetFilters();
-        this.closedIssuesPanel.resetFilters();
+        this.resetFiltersAndTab();
         this.remove();
     }
 
@@ -119,32 +170,32 @@ export class IssueListDialog
         super.open();
 
         this.skipInitialLoad = false;
-        this.openIssuesPanel.resetFilters();
-        this.closedIssuesPanel.resetFilters();
+        this.resetFiltersAndTab();
         if (assignedToMe) {
-            this.openIssuesPanel.setAssignedToMe(true, true);
-            this.closedIssuesPanel.setAssignedToMe(true, true);
-            return;
-        }
-        if (createdByMe) {
-            this.openIssuesPanel.setCreatedByMe(true, true);
-            this.closedIssuesPanel.setCreatedByMe(true, true);
-            return;
+            this.allPanel.selectAssignedToMe();
+            this.publishRequestsPanel.selectAssignedToMe();
+            this.issuesPanel.selectAssignedToMe();
+        } else if (createdByMe) {
+            this.allPanel.selectAssignedByMe();
+            this.publishRequestsPanel.selectAssignedByMe();
+            this.issuesPanel.selectAssignedByMe();
         }
     }
 
-    private initDeboundcedReloadFunc() {
-        this.reload = api.util.AppHelper.debounce((issues?: Issue[]) => {
-            this.doReload(issues);
-        }, 3000, true);
+    private resetFiltersAndTab() {
+        this.allTab.select();
+        this.allPanel.resetFilters();
+        this.publishRequestsPanel.resetFilters();
+        this.issuesPanel.resetFilters();
     }
 
-    private doReload(updatedIssues?: Issue[]) {
+    private reload(updatedIssues?: Issue[]) {
         this.showLoadMask();
-        this.reloadDockPanel()
+        this.reloadDeckPanel()
             .then(() => {
                 this.notifyResize();
-                this.updateTabAndFiltersLabels();
+                return this.updateTabAndFiltersLabels();
+            }).then(() => {
                 if (this.isNotificationToBeShown(updatedIssues)) {
                     api.notify.NotifyManager.get().showFeedback(i18n('notify.issue.listUpdated'));
                 }
@@ -156,15 +207,19 @@ export class IssueListDialog
 
     private handleIssueGlobalEvents() {
 
+        const debouncedReload = api.util.AppHelper.debounce((issues?: Issue[]) => {
+            this.reload(issues);
+        }, 3000, true);
+
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
             if (this.isVisible()) {
-                this.reload(issues);
+                debouncedReload(issues);
             }
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
             if (this.isVisible()) {
-                this.reload(issues);
+                debouncedReload(issues);
             }
         });
     }
@@ -193,38 +248,79 @@ export class IssueListDialog
         return issue.getCreator() === this.currentUser.getKey().toString();
     }
 
-    private openTab(issuePanel: IssuesPanel) {
-        this.dockedPanel.selectPanel(issuePanel);
-    }
-
     protected hasSubDialog(): boolean {
         return this.isMasked();
     }
 
-    private updateTabAndFiltersLabels() {
-        new GetIssueStatsRequest().sendAndParse().then((stats: IssueStatsJson) => {
-            this.updateTabLabel(0, i18n('field.issue.openIssues'), stats.open);
-            this.updateTabLabel(1, i18n('field.issue.closedIssues'), stats.closed);
-            this.openIssuesPanel.updateMyIssuesCheckbox(stats.openCreatedByMe);
-            this.openIssuesPanel.updateAssignedToMeCheckbox(stats.openAssignedToMe);
-            this.closedIssuesPanel.updateMyIssuesCheckbox(stats.closedCreatedByMe);
-            this.closedIssuesPanel.updateAssignedToMeCheckbox(stats.closedAssignedToMe);
-            this.dockedPanel.selectPanel(stats.open === 0 && stats.closed > 0 ? this.closedIssuesPanel : this.openIssuesPanel);
-        }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+    private updateTabAndFiltersLabels(): wemQ.Promise<void> {
+        return wemQ.all([
+            new GetIssueStatsRequest().sendAndParse(),
+            new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST).sendAndParse(),
+            new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse()
+        ]).then((results: IssueStatsJson[]) => {
+            return IssueListDialog.updatePanelIssuesCount(this.allPanel, results[0])
+                .then(() => IssueListDialog.updatePanelIssuesCount(this.publishRequestsPanel, results[1]))
+                .then(() => IssueListDialog.updatePanelIssuesCount(this.issuesPanel, results[2]))
+                .then(() => this.updateTabsLabels());
         });
     }
 
-    private updateTabLabel(tabIndex: number, label: string, issuesFound: number) {
-        this.dockedPanel.getNavigator().getNavigationItem(tabIndex).setLabel(issuesFound > 0 ? (label + ' (' + issuesFound + ')') : label);
+    private static updatePanelIssuesCount(panel: IssuesPanel, stats: IssueStatsJson): wemQ.Promise<void> {
+        const openedIssues = IssueListDialog.createOpenedIssues(stats);
+        const closedIssues = IssueListDialog.createClosedIssues(stats);
+        return panel.updateIssuesCount(openedIssues, closedIssues);
+    }
+
+    private static createOpenedIssues(stats: IssueStatsJson): IssuesCount {
+        return {
+            all: stats.open,
+            assignedToMe: stats.openAssignedToMe,
+            assignedByMe: stats.openCreatedByMe
+        };
+    }
+
+    private static createClosedIssues(stats: IssueStatsJson): IssuesCount {
+        return {
+            all: stats.closed,
+            assignedToMe: stats.closedAssignedToMe,
+            assignedByMe: stats.closedCreatedByMe
+        };
+    }
+
+    updateTabsLabels() {
+        this.updateAllTabLabel();
+        this.updatePublishRequestsTabLabel();
+        this.updateIssuesTabLabel();
+    }
+
+    private updateAllTabLabel() {
+        const total = this.allPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.all'), total);
+        this.allTab.setLabel(label, false, false);
+    }
+
+    private updatePublishRequestsTabLabel() {
+        const total = this.publishRequestsPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.publishRequests'), total);
+        this.publishRequestsTab.setLabel(label, false, false);
+    }
+
+    private updateIssuesTabLabel() {
+        const total = this.issuesPanel.getActiveTotal();
+        const label = IssueListDialog.createTabLabel(i18n('field.issues'), total);
+        this.issuesTab.setLabel(label, false, false);
+    }
+
+    private static createTabLabel(label: string, count: number) {
+        return count > 0 ? `${label} (${count})` : label;
     }
 
     onCreateButtonClicked(listener: (action: Action) => void) {
         return this.createAction.onExecuted(listener);
     }
 
-    private createIssuePanel(issueStatus: IssueStatus): IssuesPanel {
-        const issuePanel = new IssuesPanel(issueStatus);
+    private createIssuePanel(config: IssuesPanelConfig): IssuesPanel {
+        const issuePanel = new IssuesPanel(config);
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));

@@ -202,6 +202,8 @@ export class ImageUploaderEl
             imageEditor.onCropAutoPositionedChanged(cropAutoPositionedChangedHandler);
             imageEditor.getUploadButton().onClicked(uploadButtonClickedHandler);
             imageEditor.getLastButtonInContainer().onBlur(getLastButtonInContainerBlurHandler);
+
+            cropAutoPositionedChangedHandler(imageEditor.isCropAutoPositioned());
         });
 
         imageEditor.onImageError(imageErrorHandler);

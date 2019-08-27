@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
@@ -22,20 +21,14 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
     const TEXT_TO_TYPE = "test text";
     let SITE;
     let htmlAreaContent;
-    it(`WHEN site with content types has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
+
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN html area is empty and the content has been saved THEN red icon should not be present, because the input is not required`,
         () => {
             let contentWizard = new ContentWizard();

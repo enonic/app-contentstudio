@@ -72,6 +72,7 @@ import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
+import WorkflowState = api.content.WorkflowState;
 
 export interface LiveFormPanelConfig {
 
@@ -440,7 +441,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true) {
+    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true, updateInspection: boolean = true) {
 
         this.liveEditModel = liveEditModel;
 
@@ -475,7 +476,9 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        this.clearSelectionAndInspect(showPanel, showWidget);
+        if (updateInspection) {
+            this.clearSelectionAndInspect(showPanel, showWidget);
+        }
 
         this.handleContentUpdatedEvent();
     }
@@ -673,7 +676,6 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onPageInspected((event: PageInspectedEvent) => {
-            // this.contextWindow.slideIn();
             this.inspectPage(true);
         });
 
@@ -683,6 +685,10 @@ export class LiveFormPanel
             let componentName = fragmentView.getComponent().getName().toString();
             api.notify.showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
+            const contentIsReady = this.content.getWorkflow().getState() === WorkflowState.READY;
+            if (contentIsReady) {
+                this.contentWizardPanel.setIsMarkedAsReady(true);
+            }
             this.saveAndReloadOnlyComponent(event.getComponentView());
 
             let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
@@ -739,9 +745,11 @@ export class LiveFormPanel
         });
     }
 
-    private inspectPage(showPanel: boolean, showWidget: boolean = true) {
+    private inspectPage(showPanel: boolean, showWidget: boolean = true, keepPanelSelection?: boolean) {
         const unlocked = this.pageView ? !this.pageView.isLocked() : true;
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, unlocked && showWidget, unlocked && showPanel);
+        const canShowWidget = unlocked && showWidget;
+        const canShowPanel = unlocked && showPanel;
+        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, canShowWidget, canShowPanel, keepPanelSelection);
     }
 
     private clearSelection(showInsertables: boolean = true): boolean {
@@ -759,9 +767,9 @@ export class LiveFormPanel
     private clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
         const cleared = this.clearSelection(false);
         if (cleared) {
-            this.inspectPage(showPanel, showWidget);
+            this.inspectPage(showPanel, showWidget, true);
         } else {
-            this.inspectPage(false);
+            this.inspectPage(false, true, true);
         }
     }
 

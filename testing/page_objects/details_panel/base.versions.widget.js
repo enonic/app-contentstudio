@@ -10,7 +10,7 @@ class BaseVersionsWidget extends Page {
         return this.waitForElementDisplayed(this.versionItems).then(() => {
             return this.findElements(this.versionItems);
         }).then(items => {
-            return this.getBrowser().elementClick(items[index].ELEMENT);
+            return this.getBrowser().elementClick(items[index].elementId);
         }).catch(err => {
             throw new Error("Version Widget - error when clicking on version " + err);
         }).then(() => {

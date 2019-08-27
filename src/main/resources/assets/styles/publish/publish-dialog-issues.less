@@ -1,0 +1,51 @@
+.publish-dialog-issues {
+
+  &.has-issues {
+    padding-bottom: 5px;
+
+    & + .publish-schedule-form {
+      display: none;
+    }
+  }
+
+  h6 {
+    margin: 10px 0;
+  }
+
+  .not-publishable {
+    line-height: 16px;
+  }
+
+  .state-line {
+    line-height: 20px;
+
+    span {
+      padding-left: 5px;
+    }
+
+    .part1 {
+      font-weight: bold;
+    }
+
+    .state-icon {
+
+      display: inline-block;
+      &:before {
+        font-size: 16px;
+        line-height: 16px;
+      }
+    }
+  }
+
+  .invalid {
+    .icon-state-invalid;
+  }
+
+  .in-progress {
+    .icon-state-in-progress;
+  }
+
+  .load-failed, .invalid, .not-publishable {
+    color: @admin-red;
+  }
+}

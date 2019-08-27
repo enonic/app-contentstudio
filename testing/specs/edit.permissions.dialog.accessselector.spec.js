@@ -59,7 +59,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
         () => {
             let accessStepForm = new AccessStepForm();
             let contentWizardPanel = new ContentWizardPanel();
-            return studioUtils.openContentInWizard(FOLDER.displayName).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(FOLDER.displayName).then(() => {
                 return contentWizardPanel.clickOnAccessTabBarItem();
             }).then(() => {
                 return accessStepForm.clickOnEntryRow(appConstant.roleDisplayName.CONTENT_MANAGER_APP);
@@ -77,7 +77,7 @@ describe('edit.permissions.accessselector.spec:  Select `Custom...` permissions 
         () => {
             let contentWizardPanel = new ContentWizardPanel();
             let accessStepForm = new AccessStepForm();
-            return studioUtils.openContentInWizard(FOLDER.displayName).then(() => {
+            return studioUtils.selectAndOpenContentInWizard(FOLDER.displayName).then(() => {
                 return contentWizardPanel.clickOnAccessTabBarItem();
             }).then(() => {
                 return accessStepForm.clickOnEntryRow(appConstant.roleDisplayName.CONTENT_MANAGER_APP);

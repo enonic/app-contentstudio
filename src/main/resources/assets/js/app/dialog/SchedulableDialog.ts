@@ -86,12 +86,10 @@ export abstract class SchedulableDialog
         return to && to.toDate();
     }
 
-    protected abstract createFromFormItem(): FormItem;
-
-    protected abstract createToFormItem(): FormItem;
+    protected abstract createRangeFormItem(): FormItem;
 
     private initFormView() {
-        const formBuilder = new api.form.FormBuilder().addFormItem(this.createFromFormItem()).addFormItem(this.createToFormItem());
+        const formBuilder = new api.form.FormBuilder().addFormItem(this.createRangeFormItem());
 
         this.propertySet = new api.data.PropertyTree().getRoot();
         this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);

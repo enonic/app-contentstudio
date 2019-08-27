@@ -10,6 +10,6 @@ export class PublishTreeAction extends BasePublishAction {
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new ContentPublishPromptEvent(summary, true).fire();
+        new ContentPublishPromptEvent({model: summary, includeChildItems: true}).fire();
     }
 }

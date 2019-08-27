@@ -22,20 +22,11 @@ describe('Text Component with CKE - insert Anchor specification', function () {
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
 
-    it(`Precondition before tests: new site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be created`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN Text component is inserted AND 'Insert Anchor' dialog is opened WHEN 'anchor' has been inserted THEN correct data should be present in the CKE`,

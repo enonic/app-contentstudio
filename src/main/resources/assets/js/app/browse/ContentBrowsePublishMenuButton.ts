@@ -31,9 +31,11 @@ export class ContentBrowsePublishMenuButton
 
     protected getActions(): Action[] {
         return [
+            this.markAsReadyAction.getAction(),
             this.publishAction.getAction(),
             this.publishTreeAction.getAction(),
             this.unpublishAction.getAction(),
+            this.requestPublishAction.getAction(),
             this.createIssueAction.getAction()
         ];
     }
@@ -45,7 +47,7 @@ export class ContentBrowsePublishMenuButton
     }
 
     protected getButtons(): ActionButton[] {
-        return [this.publishTreeButton, this.unpublishButton, this.createIssueButton];
+        return [this.publishTreeButton, this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.createIssueButton];
     }
 
     doRender(): Q.Promise<boolean> {
@@ -56,19 +58,27 @@ export class ContentBrowsePublishMenuButton
         });
     }
 
-    protected updateActiveClass() {
+    updateActiveClass() {
         if (!this.item) {
-            if (this.publishAction.isEnabled()) {
+            if (this.markAsReadyAction.isEnabled()) {
+                this.setActiveClass(this.markAsReadyAction.getActionClass());
+            } else if (this.publishAction.isEnabled()) {
                 this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
             } else {
                 this.setActiveClass('no-item');
             }
+        } else if (this.publishAction.isEnabled() && this.isItemPendingDelete()) {
+            this.setActiveClass(this.publishAction.getActionClass());
+        } else if (this.markAsReadyAction.isEnabled()) {
+            this.setActiveClass(this.markAsReadyAction.getActionClass());
         } else if (this.publishAction.isEnabled()) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else if (this.publishTreeAction.isEnabled()) {
             this.setActiveClass(this.publishTreeAction.getActionClass());
         } else if (this.unpublishAction.isEnabled()) {
             this.setActiveClass(this.unpublishAction.getActionClass());
+        } else if (this.requestPublishAction.isEnabled()) {
+            this.setActiveClass(this.requestPublishAction.getActionClass());
         } else {
             this.setActiveClass(this.createIssueAction.getActionClass());
         }
