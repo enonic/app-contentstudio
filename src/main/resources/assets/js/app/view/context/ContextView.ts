@@ -95,9 +95,6 @@ export class ContextView
 
     private subscribeOnEvents() {
         this.onRendered(() => {
-            // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
-            this.layout(false);
-            this.updateContextContainerHeight();
             this.layout(!this.item);
         });
 
@@ -322,11 +319,6 @@ export class ContextView
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
-            // update active widget's height
-            setTimeout(() => {
-                this.updateContextContainerHeight();
-            }, 400);
-
             this.activeWidget.slideIn();
         });
     }
@@ -468,20 +460,6 @@ export class ContextView
             api.notify.showError(msg);
             return null;
         });
-    }
-
-    updateContextContainerHeight() {
-        const activeContextPanelEl = ActiveContextPanelManager.getActiveContextPanel().getEl();
-        if (activeContextPanelEl) {
-            const panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
-            const panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
-            const containerHeight = this.contextContainer.getEl().getHeight();
-            const containerOffset = this.contextContainer.getEl().getOffsetToParent();
-
-            if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
-                this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
-            }
-        }
     }
 
     private getWidgetByKey(key: string): WidgetView {

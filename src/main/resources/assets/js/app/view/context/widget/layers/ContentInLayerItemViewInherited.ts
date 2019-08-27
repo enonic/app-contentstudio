@@ -26,8 +26,6 @@ export class ContentInLayerItemViewInherited
         const action: api.ui.Action = new api.ui.Action(i18n('action.edit'));
 
         action.onExecuted(() => {
-            console.log('Edit');
-
             new EditContentEvent([this.item]).fire();
         });
 

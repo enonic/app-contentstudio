@@ -11,7 +11,6 @@ export class DockedContextPanel
     }
 
     protected subscribeOnEvents() {
-        this.onPanelSizeChanged(() => this.contextView.updateContextContainerHeight());
 
         this.onShown(() => {
             if (this.getItem()) {
