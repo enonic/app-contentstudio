@@ -21,6 +21,7 @@ export class ContentWizardToolbarPublishControls
     private userCanPublish: boolean = true;
     private isContentValid: boolean = false;
     private hasPublishRequest: boolean = false;
+    private contentCanBeMarkedAsReady: boolean = false;
     private content: ContentSummaryAndCompareStatus;
     private publishButtonForMobile: ActionButton;
 
@@ -101,6 +102,14 @@ export class ContentWizardToolbarPublishControls
         return this;
     }
 
+    setContentCanBeMarkedAsReady(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
+        this.contentCanBeMarkedAsReady = value;
+        if (refresh) {
+            this.refreshState();
+        }
+        return this;
+    }
+
     refreshState() {
 
         if (!this.content) {
@@ -113,7 +122,7 @@ export class ContentWizardToolbarPublishControls
     private doRefreshState() {
         const canBePublished: boolean = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
-        const canBeMarkedAsReady: boolean = this.isContentValid && !this.content.isOnline() && !this.content.getContentSummary().isReady();
+        const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
 
         this.publishAction.setEnabled(canBePublished);
