@@ -296,13 +296,13 @@ export class ContentPublishDialogSubTitle
 
     private initListeners() {
         const keyDownHandler = (event: KeyboardEvent) => {
-            const isAnyInputFocused = document.activeElement &&
+            const isTextInputFocused = document.activeElement &&
                                       (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
                                        document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
 
-            const isMyInputFocused = this.input.getHTMLElement() === document.activeElement;
+            const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
 
-            if (isAnyInputFocused && !isMyInputFocused) {
+            if (isTextInputFocused && !isPublishMessageInputFocused) {
                 // don't hijack focus from other inputs
                 return;
             }
@@ -310,9 +310,9 @@ export class ContentPublishDialogSubTitle
             const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
                                               (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
 
-            if (!isMyInputFocused && isLetterOrNumber) {
+            if (!isPublishMessageInputFocused && isLetterOrNumber) {
                 this.toggleInput(true);
-            } else if (isMyInputFocused) {
+            } else if (isPublishMessageInputFocused) {
                 if (KeyHelper.isEscKey(event)) {
                     event.stopImmediatePropagation();
                     this.toggleInput(false);
