@@ -466,6 +466,7 @@ export class IssueDetailsDialog
         this.publishAction.setEnabled(canPublish && scheduleValid);
         this.scheduleAction.setEnabled(canPublish && scheduleValid);
         this.scheduleFormToggle.getEl().setDisabled(!canPublish);
+        this.scheduleFormToggle.setVisible(!this.publishProcessor.isAllPendingDelete() && canPublish);
 
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
 

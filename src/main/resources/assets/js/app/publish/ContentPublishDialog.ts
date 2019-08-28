@@ -202,6 +202,8 @@ export class ContentPublishDialog
 
         this.toggleAction(canPublish && scheduleValid);
 
+        this.publishSubTitle.setVisible(!this.isAllPendingDelete());
+
         super.updateControls(itemsToPublish);
     }
 
