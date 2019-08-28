@@ -298,17 +298,27 @@ export class ContentPublishDialogSubTitle
 
     private initListeners() {
         const keyDownHandler = (event: KeyboardEvent) => {
+            const isTextInputFocused = document.activeElement &&
+                                      (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
+                                       document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
+
+            const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
+
+            if (isTextInputFocused && !isPublishMessageInputFocused) {
+                // don't hijack focus from other inputs
+                return;
+            }
+
             const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
                                               (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
-            const isInputFocused = this.input.getHTMLElement() === document.activeElement;
 
-            if (!isInputFocused && isLetterOrNumber) {
+            if (!isPublishMessageInputFocused && isLetterOrNumber) {
                 this.toggleInput(true);
-            } else if (isInputFocused) {
+            } else if (isPublishMessageInputFocused) {
                 if (KeyHelper.isEscKey(event)) {
                     event.stopImmediatePropagation();
                     this.toggleInput(false);
-                } else if (KeyHelper.isApplyKey(event)) {
+                } else if (KeyHelper.isEnterKey(event)) {
                     event.stopImmediatePropagation();
                     this.input.giveBlur();
                 }
