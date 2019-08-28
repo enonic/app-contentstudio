@@ -71,6 +71,7 @@ export abstract class BasePublishDialog
         });
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             this.updateControls();
+            this.notifyResize();
         });
     }
 
