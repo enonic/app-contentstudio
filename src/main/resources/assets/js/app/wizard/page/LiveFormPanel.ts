@@ -53,7 +53,7 @@ import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Branch} from '../../versioning/Branch';
-import {Content} from '../../content/Content';
+import {Content, ContentBuilder} from '../../content/Content';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Component} from '../../page/region/Component';
@@ -72,7 +72,6 @@ import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
-import WorkflowState = api.content.WorkflowState;
 
 export interface LiveFormPanelConfig {
 
@@ -685,11 +684,7 @@ export class LiveFormPanel
             let componentName = fragmentView.getComponent().getName().toString();
             api.notify.showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
-            const contentIsReady = this.content.getWorkflow().getState() === WorkflowState.READY;
-            if (contentIsReady) {
-                this.contentWizardPanel.setIsMarkedAsReady(true);
-            }
-            this.saveAndReloadOnlyComponent(event.getComponentView());
+            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
 
             let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
             new EditContentEvent([summaryAndStatus]).fire();
@@ -698,7 +693,7 @@ export class LiveFormPanel
         this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
             api.notify.showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
 
-            this.saveAndReloadOnlyComponent(event.getComponentView());
+            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
         });
 
         this.liveEditPageProxy.onFragmentReloadRequired((event: FragmentComponentReloadRequiredEvent) => {
@@ -711,9 +706,7 @@ export class LiveFormPanel
                 Branch.DRAFT);
 
             fragmentView.showLoadingSpinner();
-            this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).then(() => {
-                // fragmentView.hideLoadingSpinner();
-            }).catch((errorMessage: any) => {
+            this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
                 api.DefaultErrorHandler.handle(errorMessage);
 
                 fragmentView.hideLoadingSpinner();
@@ -743,6 +736,53 @@ export class LiveFormPanel
             let modalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
         });
+    }
+
+    private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
+        const componentPath = componentView.getComponentPath();
+        const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
+        if (canMarkContentAsReady) {
+            this.contentWizardPanel.setIsMarkedAsReady(true);
+        }
+        this.saveAndReloadOnlyComponent(componentView);
+    }
+
+    private canMarkContentAsReady(componentPath: ComponentPath): boolean {
+        if (!this.content.isReady()) {
+            return false;
+        }
+
+        const persistedContent = this.contentWizardPanel.getPersistedItem();
+        const persistedContentBuilder = LiveFormPanel.createContentBuilderWithoutModifiedDate(persistedContent);
+        const viewedContent = this.contentWizardPanel.assembleViewedContent(persistedContentBuilder).setPage(null).build();
+        const serverContent = LiveFormPanel.createContentBuilderWithoutModifiedDate(this.content).setPage(null).build();
+
+        const hasChangesOutsidePage = !viewedContent.equals(serverContent);
+
+        if (hasChangesOutsidePage) {
+            return false;
+        }
+
+        const viewedPage = this.getPage().clone();
+        const serverPage = persistedContent.getPage().clone();
+
+        const component = viewedPage.findComponentByPath(componentPath);
+        const originalComponent = serverPage.findComponentByPath(componentPath);
+
+        if (component) {
+            component.remove();
+        }
+        if (originalComponent) {
+            originalComponent.remove();
+        }
+
+        return viewedPage.equals(serverPage);
+    }
+
+    private static createContentBuilderWithoutModifiedDate(content: Content): ContentBuilder {
+        const builder = content.newBuilder();
+        builder.modifiedTime = null;
+        return builder;
     }
 
     private inspectPage(showPanel: boolean, showWidget: boolean = true, keepPanelSelection?: boolean) {
