@@ -77,7 +77,7 @@ export class PublishProcessor {
 
         this.dependantList.onItemRemoveClicked((item: ContentSummaryAndCompareStatus) => {
             this.excludedIds.push(item.getContentId());
-            this.reloadDependenciesDebounced();
+            this.reloadDependenciesDebounced(true);
         });
 
         this.dependantList.onListChanged(() => {
