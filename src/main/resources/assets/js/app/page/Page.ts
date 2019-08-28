@@ -166,30 +166,6 @@ export class Page
         });
     }
 
-    findComponentById(id: ContentId, regions?: Region[]): Component {
-        const regionsList = regions != null ? regions : this.getRegions().getRegions();
-        for (let i = 0; i < regionsList.length; i++) {
-            const components = regionsList[i].getComponents();
-            for (let j = 0; j < components.length; j++) {
-                const component = components[j];
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), FragmentComponentType)) {
-                    if ((<FragmentComponent>component).getFragment().equals(id)) {
-                        return component;
-                    }
-                } else if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ImageComponentType)) {
-                    if ((<ImageComponent>component).getImage().equals(id)) {
-                        return component;
-                    }
-                } else if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    const layout = <LayoutComponent>component;
-                    return this.findComponentById(id, layout.getRegions().getRegions());
-                }
-            }
-        }
-
-        return null;
-    }
-
     findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
         if (componentPath == null) {
             return null;
@@ -210,7 +186,8 @@ export class Page
                     if ((<Component>component).getPath().equals(componentPath)) {
                         return component;
                     }
-                } else if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
+                }
+                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
                     const layout = <LayoutComponent>component;
                     return this.findComponentByPath(componentPath, layout.getRegions().getRegions());
                 }

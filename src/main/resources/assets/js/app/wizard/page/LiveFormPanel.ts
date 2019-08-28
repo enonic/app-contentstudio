@@ -684,12 +684,7 @@ export class LiveFormPanel
             let componentName = fragmentView.getComponent().getName().toString();
             api.notify.showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
-            const fragmentPath = event.getComponentView().getComponentPath();
-            const canMarkContentAsReady = this.canMarkContentAsReady(fragmentPath);
-            if (canMarkContentAsReady) {
-                this.contentWizardPanel.setIsMarkedAsReady(true);
-            }
-            this.saveAndReloadOnlyComponent(event.getComponentView());
+            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
 
             let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
             new EditContentEvent([summaryAndStatus]).fire();
@@ -698,12 +693,7 @@ export class LiveFormPanel
         this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
             api.notify.showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
 
-            const componentPath = event.getComponentView().getComponentPath();
-            const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
-            if (canMarkContentAsReady) {
-                this.contentWizardPanel.setIsMarkedAsReady(true);
-            }
-            this.saveAndReloadOnlyComponent(event.getComponentView());
+            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
         });
 
         this.liveEditPageProxy.onFragmentReloadRequired((event: FragmentComponentReloadRequiredEvent) => {
@@ -748,37 +738,45 @@ export class LiveFormPanel
         });
     }
 
-    private canMarkContentAsReady(componentPath: ComponentPath): boolean {
-        const isReady = this.content.isReady();
-
-        if (isReady) {
-            const persistedContent = this.contentWizardPanel.getPersistedItem();
-            const persistedContentBuilder = LiveFormPanel.createContentBuilderWithoutModifiedDate(persistedContent);
-            const viewedContent = this.contentWizardPanel.assembleViewedContent(persistedContentBuilder).setPage(null).build();
-            const serverContent = LiveFormPanel.createContentBuilderWithoutModifiedDate(this.content).setPage(null).build();
-
-            const hasChangesOutsidePage = !viewedContent.equals(serverContent);
-
-            if (hasChangesOutsidePage) {
-                return false;
-            }
-
-            const viewedPage = this.getPage().clone();
-            const serverPage = persistedContent.getPage().clone();
-
-            const component = viewedPage.findComponentByPath(componentPath);
-            const originalComponent = serverPage.findComponentByPath(componentPath);
-
-            if (component) {
-                component.remove();
-            }
-            if (originalComponent) {
-                originalComponent.remove();
-            }
-
-            return viewedPage.equals(serverPage);
+    private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
+        const componentPath = componentView.getComponentPath();
+        const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
+        if (canMarkContentAsReady) {
+            this.contentWizardPanel.setIsMarkedAsReady(true);
         }
-        return false;
+        this.saveAndReloadOnlyComponent(componentView);
+    }
+
+    private canMarkContentAsReady(componentPath: ComponentPath): boolean {
+        if (!this.content.isReady()) {
+            return false;
+        }
+
+        const persistedContent = this.contentWizardPanel.getPersistedItem();
+        const persistedContentBuilder = LiveFormPanel.createContentBuilderWithoutModifiedDate(persistedContent);
+        const viewedContent = this.contentWizardPanel.assembleViewedContent(persistedContentBuilder).setPage(null).build();
+        const serverContent = LiveFormPanel.createContentBuilderWithoutModifiedDate(this.content).setPage(null).build();
+
+        const hasChangesOutsidePage = !viewedContent.equals(serverContent);
+
+        if (hasChangesOutsidePage) {
+            return false;
+        }
+
+        const viewedPage = this.getPage().clone();
+        const serverPage = persistedContent.getPage().clone();
+
+        const component = viewedPage.findComponentByPath(componentPath);
+        const originalComponent = serverPage.findComponentByPath(componentPath);
+
+        if (component) {
+            component.remove();
+        }
+        if (originalComponent) {
+            originalComponent.remove();
+        }
+
+        return viewedPage.equals(serverPage);
     }
 
     private static createContentBuilderWithoutModifiedDate(content: Content): ContentBuilder {
