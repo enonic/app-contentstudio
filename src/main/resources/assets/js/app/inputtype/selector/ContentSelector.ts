@@ -57,7 +57,7 @@ export class ContentSelector
     }
 
     protected getDefaultAllowPath(): string {
-        return '${site}/*';
+        return '${site}';
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {

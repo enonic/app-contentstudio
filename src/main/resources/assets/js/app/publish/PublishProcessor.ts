@@ -23,6 +23,8 @@ export class PublishProcessor {
 
     private allPublishable: boolean;
 
+    private allPendingDelete: boolean;
+
     private ignoreItemsChanged: boolean;
 
     private ignoreDependantItemsChanged: boolean;
@@ -75,7 +77,7 @@ export class PublishProcessor {
 
         this.dependantList.onItemRemoveClicked((item: ContentSummaryAndCompareStatus) => {
             this.excludedIds.push(item.getContentId());
-            this.reloadDependenciesDebounced();
+            this.reloadDependenciesDebounced(true);
         });
 
         this.dependantList.onListChanged(() => {
@@ -107,6 +109,7 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds([]);
         this.containsInvalid = false;
         this.allPublishable = false;
+        this.allPendingDelete = false;
 
         this.processResolveDescendantsResult([], resetDependantItems);
 
@@ -158,6 +161,7 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds(result.getRequired());
         this.containsInvalid = result.isContainsInvalid();
         this.allPublishable = result.isAllPublishable();
+        this.allPendingDelete = result.isAllPendingDelete();
     }
 
     private loadDescendants(): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
@@ -193,6 +197,10 @@ export class PublishProcessor {
 
     public isAllPublishable() {
         return this.allPublishable;
+    }
+
+    public isAllPendingDelete() {
+        return this.allPendingDelete;
     }
 
     public containsInvalidItems() {

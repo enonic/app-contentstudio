@@ -246,7 +246,6 @@ export class RequestContentPublishDialog
 
         this.toggleAction(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);
-        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {

@@ -8,6 +8,7 @@ export class ResolvePublishDependenciesResult {
     requiredContents: ContentId[];
     containsInvalid: boolean;
     allPublishable: boolean;
+    allPendingDelete: boolean;
 
     constructor(builder: Builder) {
         this.dependentContents = builder.dependentContents;
@@ -15,6 +16,7 @@ export class ResolvePublishDependenciesResult {
         this.requiredContents = builder.requiredContents;
         this.containsInvalid = builder.containsInvalid;
         this.allPublishable = builder.allPublishable;
+        this.allPendingDelete = builder.allPendingDelete;
     }
 
     getDependants(): ContentId[] {
@@ -37,6 +39,10 @@ export class ResolvePublishDependenciesResult {
         return this.allPublishable;
     }
 
+    isAllPendingDelete(): boolean {
+        return this.allPendingDelete;
+    }
+
     static fromJson(json: ResolvePublishContentResultJson): ResolvePublishDependenciesResult {
 
         let dependants: ContentId[] = json.dependentContents
@@ -46,12 +52,14 @@ export class ResolvePublishDependenciesResult {
         let required: ContentId[] = json.requiredContents ? json.requiredContents.map(dependant => new ContentId(dependant.id)) : [];
         let containsInvalid: boolean = json.containsInvalid;
         let allPublishable: boolean = json.allPublishable;
+        let allPendingDelete: boolean = json.allPendingDelete;
 
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
             .setRequiredContents(required)
             .setContainsInvalid(containsInvalid)
             .setAllPublishable(allPublishable)
+            .setAllPendingDelete(allPendingDelete)
             .build();
     }
 
@@ -66,6 +74,7 @@ export class Builder {
     requiredContents: ContentId[];
     containsInvalid: boolean;
     allPublishable: boolean;
+    allPendingDelete: boolean;
 
     setDependentContents(value: ContentId[]): Builder {
         this.dependentContents = value;
@@ -89,6 +98,11 @@ export class Builder {
 
     setAllPublishable(value: boolean): Builder {
         this.allPublishable = value;
+        return this;
+    }
+
+    setAllPendingDelete(value: boolean): Builder {
+        this.allPendingDelete = value;
         return this;
     }
 

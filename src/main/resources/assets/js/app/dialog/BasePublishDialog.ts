@@ -71,6 +71,7 @@ export abstract class BasePublishDialog
         });
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             this.updateControls();
+            this.notifyResize();
         });
     }
 
@@ -171,6 +172,10 @@ export abstract class BasePublishDialog
     protected updateControls(itemsToPublish: number = this.countTotal()) {
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
+
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
+        this.scheduleFormToggle.setVisible(!this.isAllPendingDelete() && canPublish);
     }
 
     protected isScheduleFormValid(): boolean {
@@ -284,6 +289,10 @@ export abstract class BasePublishDialog
 
     protected isAllPublishable(): boolean {
         return this.publishProcessor && this.publishProcessor.isAllPublishable();
+    }
+
+    protected isAllPendingDelete(): boolean {
+        return this.publishProcessor && this.publishProcessor.isAllPendingDelete();
     }
 
     open() {

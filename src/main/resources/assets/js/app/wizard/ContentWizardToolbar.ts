@@ -18,17 +18,28 @@ export class ContentWizardToolbar
     extends ContentStatusToolbar {
 
     private componentsViewToggler: TogglerButton;
+
     private cycleViewModeButton: CycleButton;
+
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
+
     private mobileItemStatisticsButton: TogglerButton;
+
     private stateElement: api.dom.Element;
+
     private hasUnsavedChanges: boolean;
+
     private isValid: boolean;
+
     private skipNextIconStateUpdate: boolean;
 
     constructor(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         super('content-wizard-toolbar');
 
+        this.initElements(application, actions, item);
+    }
+
+    protected initElements(application: Application, actions: ContentWizardActions, item?: ContentSummaryAndCompareStatus) {
         this.addHomeButtonOrLayerInfo(application);
         this.addActionButtons(actions);
         this.addPublishMenuButton(actions);
@@ -37,6 +48,7 @@ export class ContentWizardToolbar
         this.addStateIcon();
 
         if (item) {
+            this.updateCanBeMarkedAsReadyControl(true);
             this.setItem(item);
         }
     }
@@ -50,6 +62,7 @@ export class ContentWizardToolbar
     setHasUnsavedChanges(value: boolean) {
         this.hasUnsavedChanges = value;
         this.updateStateIconElement();
+        this.updateCanBeMarkedAsReadyControl();
     }
 
     setSkipNextIconStateUpdate(skipIconStateUpdate: boolean) {
@@ -146,6 +159,12 @@ export class ContentWizardToolbar
         }
 
         this.updateStateIconElement();
+        this.updateCanBeMarkedAsReadyControl();
+    }
+
+    private updateCanBeMarkedAsReadyControl(silent?: boolean) {
+        const isInProgress: boolean = this.isValid && (this.hasUnsavedChanges || this.isContentInProgress());
+        this.contentWizardToolbarPublishControls.setContentCanBeMarkedAsReady(isInProgress, !silent);
     }
 
     private updateStateIconElement() {
