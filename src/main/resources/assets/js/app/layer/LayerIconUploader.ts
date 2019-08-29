@@ -19,14 +19,18 @@ export class LayerIconUploader
         this.icon = new LayerIcon('');
     }
 
-    updateIcon(locale: Locale) {
+    updateIconByLocale(locale: Locale) {
         this.locale = locale;
         const code = locale != null ? locale.getTag() : '';
         this.icon.updateCountryCode(code);
     }
 
+    updateIconByTag(value: string) {
+        this.icon.updateCountryCode(value);
+    }
+
     reset() {
-        this.updateIcon(null);
+        this.updateIconByLocale(null);
     }
 
     doRender(): wemQ.Promise<boolean> {

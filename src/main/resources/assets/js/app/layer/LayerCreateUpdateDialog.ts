@@ -135,7 +135,11 @@ export class LayerCreateUpdateDialog
     protected setIcon(value: string) {
         const option: Option<Locale> = StringHelper.isEmpty(value) ? null : this.form.getDefaultLanguageOptionByValue(value);
         const locale: Locale = option != null ? option.displayValue : null;
-        this.icon.updateIcon(locale);
+        if (!!locale) {
+            this.icon.updateIconByLocale(locale);
+        } else {
+            this.icon.updateIconByTag(value);
+        }
     }
 
     protected createHeader(title: string): ModalDialogHeader {

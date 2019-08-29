@@ -27,6 +27,12 @@ export class LayerComboBox
         this.getLoader().search('');
         super.clearSelection(forceClear);
     }
+
+    protected loadOptionsAfterShowDropdown(): wemQ.Promise<void> {
+        return super.loadOptionsAfterShowDropdown().then(() => {
+            this.getComboBox().getComboBoxDropdownGrid().getGrid().invalidate();
+        });
+    }
 }
 
 class ContentLayerSelectedOptionsView
