@@ -15,7 +15,7 @@ export class LayersWidgetStateViewNoLayers
     }
 
     protected getSubHeaderText(): string {
-        return i18n('widget.layers.subheader.noLayers');
+        return null;
     }
 
     protected getAction(): api.ui.Action {

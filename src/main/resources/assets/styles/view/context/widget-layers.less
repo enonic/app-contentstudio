@@ -59,10 +59,25 @@
     }
 
     .layers-widget-state-view {
+
       &.no-layers {
         padding: 20px;
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
+
+        .action-button {
+          background-color: @admin-button-blue2;
+        }
+
+        .header {
+          line-height: 24px;
+          margin-bottom: 0;
+        }
       }
+
       &.inherited {
         .content-in-layer-viewer {
           opacity: 0.5;
@@ -154,10 +169,6 @@
         text-align: center;
         padding: 2px 25px;
       }
-    }
-
-    .no-layers .action-button {
-      background-color: @admin-button-blue2;
     }
   }
 

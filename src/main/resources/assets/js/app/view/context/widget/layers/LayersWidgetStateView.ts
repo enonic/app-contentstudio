@@ -21,8 +21,12 @@ export abstract class LayersWidgetStateView
     protected initElements() {
         this.header = new H6El('header');
         this.header.setHtml(this.getHeaderText());
-        this.subHeader = new SpanEl('sub-header');
-        this.subHeader.setHtml(this.getSubHeaderText());
+
+        const subheaderText = this.getSubHeaderText();
+        if (subheaderText) {
+            this.subHeader = new SpanEl('sub-header');
+            this.subHeader.setHtml(subheaderText);
+        }
         this.button = new ActionButton(this.getAction());
     }
 
@@ -36,7 +40,9 @@ export abstract class LayersWidgetStateView
 
     protected doAppendChildren() {
         this.appendChild(this.header);
-        this.appendChild(this.subHeader);
+        if (this.subHeader) {
+            this.appendChild(this.subHeader);
+        }
         this.appendChild(this.button);
     }
 
