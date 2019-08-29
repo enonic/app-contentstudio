@@ -16,7 +16,9 @@ export class ContentInLayerLocalItemView
     private content: ContentSummaryAndCompareStatus;
 
     constructor(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
-        super(item, 'local');
+        super(item);
+
+        this.addClass('local');
         this.content = content;
     }
 

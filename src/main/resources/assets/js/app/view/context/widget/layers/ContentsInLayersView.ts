@@ -93,7 +93,7 @@ export class ContentsInLayersView
         case LayersWidgetState.NO_LAYERS:
             break;
         case LayersWidgetState.CURRENT_LAYER:
-            return new ContentInLayerItemView(item);
+            return new ContentInLayerItemView(item, i18n('widget.layers.header.thisLayer'));
         case LayersWidgetState.LOCAL:
             return new ContentInLayerLocalItemView(item, this.content);
         case LayersWidgetState.INHERITED:

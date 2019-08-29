@@ -13,11 +13,14 @@ export class ContentInLayerItemView
 
     protected item: ContentInLayer;
 
-    constructor(item: ContentInLayer, className?: string) {
-        super('content-in-layer-item ' + (className ? className : ''));
+    constructor(item: ContentInLayer, title?: string) {
+        super('content-in-layer-item');
 
         this.initElements();
         this.doSetItem(item);
+        if (title) {
+            this.header.setTitle(title);
+        }
     }
 
     protected initElements() {
