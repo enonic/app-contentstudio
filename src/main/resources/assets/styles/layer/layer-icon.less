@@ -3,14 +3,17 @@
 
     border: none;
 
-    &:not([data-code])::before {
-      content: "\e92e";
-      padding-left: 0;
-      background-color: transparent;
-      font-family: 'icomoon', monospace;
-      font-size: 32px;
-      line-height: 32px;
-      color: @admin-dark-gray;
+    &:not([data-code]) {
+
+      .icon-layers;
+
+      &::before {
+        padding-left: 0;
+        background-color: transparent;
+        font-size: 32px;
+        line-height: 32px;
+        color: @admin-dark-gray;
+      }
     }
   }
 

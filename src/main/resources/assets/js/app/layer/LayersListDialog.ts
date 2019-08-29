@@ -43,6 +43,7 @@ export class LayersListDialog
         super.initElements();
 
         this.createButton = new ActionButton(new Action(''));
+        this.createButton.setTitle(i18n('dialog.layers.button.create'));
         this.layersList = new EditableLayersList();
     }
 

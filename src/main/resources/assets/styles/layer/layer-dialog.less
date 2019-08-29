@@ -6,7 +6,7 @@
 
   &.layers-list-dialog {
     .modal-dialog-header {
-      padding-bottom: 15px;
+      padding-bottom: 25px;
 
       .title {
         margin-bottom: 10px;
@@ -16,15 +16,14 @@
       }
 
       .action-button {
-        .icon-plus;
-        .button(@form-button-font, @admin-button-blue2);
+        .icon-new-layer;
+        .button(@admin-font-gray3, transparent, @admin-font-gray2);
 
         position: absolute;
-        top: 35px;
+        top: 40px;
         right: 35px;
         height: 40px;
-        padding: 0 6px;
-        float: right;
+        padding: 0;
 
         &:before {
           font-size: 38px;
@@ -34,6 +33,7 @@
 
     .modal-dialog-body {
       overflow: auto !important;
+      padding-left: 15px;
 
       .layers-list-items {
 
