@@ -56,14 +56,14 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
 
         });
 
-    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
+    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //'MARK AS READY' button should be present on the toolbar
-            //So need to open the publish-menu and select 'Unpublish' menu item
-            await contentWizard.openPublishMenuSelectItem("Unpublish");
+            //So need to open the publish-menu and select 'Unpublish...' menu item
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
 
             //open 'Unpublish Content' Dialog:
             let contentUnpublishDialog = new ContentUnpublishDialog();

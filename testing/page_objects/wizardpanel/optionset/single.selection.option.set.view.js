@@ -32,7 +32,7 @@ class SingleSelectionOptionSet extends Page {
 
     typeItemSetLabel(text, index) {
         return this.findElements(xpath.labelInput).then(elems => {
-            return this.getBrowser().elementSendKeys(elems[index].ELEMENT, [text]);
+            return this.getBrowser().elementSendKeys(elems[index].elementId, text);
         })
     }
 
@@ -43,7 +43,7 @@ class SingleSelectionOptionSet extends Page {
 
     async clickOnRemoveItemSetOccurrenceView(index) {
         let elems = await this.findElements(this.removeItemSetOccurrenceButton);
-        await this.getBrowser().elementClick(elems[index].ELEMENT);
+        await this.getBrowser().elementClick(elems[index].elementId);
         return await this.pause(500);
     }
 };
