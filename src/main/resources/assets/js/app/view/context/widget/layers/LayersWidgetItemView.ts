@@ -154,7 +154,7 @@ export class LayersWidgetItemView
         this.layerInfo.setObject(LayerContext.get().getCurrentLayer());
 
         this.settingsButton = new Button();
-        this.settingsButton.addClass('settings-button icon-cog');
+        this.settingsButton.addClass('settings-button icon-pencil');
         this.settingsButton.setTitle(i18n('widget.layers.button.settings'));
         this.settingsButton.onClicked(() => {
             LayerDialogsManager.get().openLayerDetailsDialog(LayerContext.get().getCurrentLayer());
