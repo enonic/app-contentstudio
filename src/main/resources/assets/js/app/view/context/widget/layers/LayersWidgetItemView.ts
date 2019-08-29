@@ -32,8 +32,15 @@ export class LayersWidgetItemView
         super('layers-widget-item-view');
 
         this.contentsInLayersView = new ContentsInLayersView();
+        this.initDivForNoSelection();
 
         this.listenLayerEvents();
+    }
+
+    private initDivForNoSelection() {
+        const divForNoSelection = new api.dom.DivEl('no-selection-message');
+        divForNoSelection.getEl().setInnerHtml(i18n('widget.layers.no-selection-message'));
+        this.appendChild(divForNoSelection);
     }
 
     private listenLayerEvents() {
@@ -59,6 +66,7 @@ export class LayersWidgetItemView
         } else {
             this.updateWidgetStateNoItemSelected(layers);
         }
+        this.toggleClass('no-selection', this.state !== LayersWidgetState.NO_LAYERS && !this.item);
     }
 
     private updateWidgetStateItemSelected(layers: ContentLayer[]) {
