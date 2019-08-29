@@ -16,7 +16,7 @@ export class ContentInLayerLocalItemView
     private content: ContentSummaryAndCompareStatus;
 
     constructor(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
-        super(item);
+        super(item, content);
 
         this.addClass('local');
         this.content = content;
@@ -35,12 +35,6 @@ export class ContentInLayerLocalItemView
         });
 
         this.button = new ActionButton(action);
-    }
-
-    protected doSetItem(item: ContentInLayer) {
-        super.doSetItem(item);
-
-        this.header.setTitle(i18n('widget.layers.header.thisLayer'));
     }
 
     protected doAppendChildren() {

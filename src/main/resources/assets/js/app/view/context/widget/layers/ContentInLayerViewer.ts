@@ -3,13 +3,22 @@ import {ContentInLayer} from '../../../../content/ContentInLayer';
 import {LayerIcon} from '../../../../layer/LayerIcon';
 import {CompareStatusChecker} from '../../../../content/CompareStatus';
 import i18n = api.util.i18n;
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
 export class ContentInLayerViewer
     extends api.ui.NamesAndIconViewer<ContentInLayer> {
 
+    private content: ContentSummaryAndCompareStatus;
+
     constructor() {
         super();
+
         this.addClass('content-in-layer-viewer content-workflow-viewer');
+    }
+
+    setObjectAndContent(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
+        super.setObject(item);
+        this.content = content;
     }
 
     doLayout(object: ContentInLayer) {
@@ -36,7 +45,11 @@ export class ContentInLayerViewer
     }
 
     resolveIconEl(object: ContentInLayer): api.dom.Element {
-        return new LayerIcon(object.getLayerLanguage());
+        return this.content ? null : <api.dom.Element>new LayerIcon(object.getLayerLanguage());
+    }
+
+    resolveIconUrl(object: ContentInLayer): string {
+        return this.content ? this.content.getIconUrl() : '';
     }
 
     private toggleState(object: ContentInLayer) {

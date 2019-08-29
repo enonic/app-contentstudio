@@ -3,6 +3,8 @@ import DivEl = api.dom.DivEl;
 import {CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentInLayerViewer} from './ContentInLayerViewer';
 import {ContentInLayer} from '../../../../content/ContentInLayer';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import i18n = api.util.i18n;
 
 export class ContentInLayerItemView
     extends DivEl {
@@ -13,14 +15,11 @@ export class ContentInLayerItemView
 
     protected item: ContentInLayer;
 
-    constructor(item: ContentInLayer, title?: string) {
+    constructor(item: ContentInLayer, content?: ContentSummaryAndCompareStatus) {
         super('content-in-layer-item');
 
         this.initElements();
-        this.doSetItem(item);
-        if (title) {
-            this.header.setTitle(title);
-        }
+        this.doSetItem(item, content);
     }
 
     protected initElements() {
@@ -28,11 +27,15 @@ export class ContentInLayerItemView
         this.viewer = new ContentInLayerViewer();
     }
 
-    protected doSetItem(item: ContentInLayer) {
+    protected doSetItem(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
         this.item = item;
 
         this.header.setItem(this.item);
-        this.viewer.setObject(this.item);
+        this.viewer.setObjectAndContent(this.item, content);
+
+        if (content) {
+            this.header.setTitle(i18n('widget.layers.header.thisLayer'));
+        }
     }
 
     doRender(): wemQ.Promise<boolean> {
