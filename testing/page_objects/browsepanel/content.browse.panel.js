@@ -35,7 +35,7 @@ const XPATH = {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
     publishMenuItemByName: function (name) {
-        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,

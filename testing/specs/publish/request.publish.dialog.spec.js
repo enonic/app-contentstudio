@@ -81,6 +81,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.equal(displayName, FOLDER1_NAME, "Expected display name should be present in that wizard");
         });
 
+    //verifies https://github.com/enonic/app-contentstudio/issues/867  Create request button should be disabled when required input is empty
     it(`GIVEN folder is selected AND 'Request Publishing' dialog is opened WHEN 'Next' button has been pressed THEN new wizard page should be loaded`,
         async () => {
             let requestPublishDialog = new RequestContentPublishDialog();

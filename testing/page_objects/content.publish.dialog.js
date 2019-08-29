@@ -184,7 +184,7 @@ class ContentPublishDialog extends Page {
 
     async getItemsToPublish() {
         let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
-        let result = await this.getTextInDisplayedElements(selector);
+        let result = await this.getTextInElements(selector);
         return [].concat(result);
     }
 

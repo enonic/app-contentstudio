@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -29,16 +28,14 @@ describe('Swap two Text Component - specification', function () {
         });
 
     it(`GIVEN existing site is opened WHEN Page Component View has been opened THEN expected component's description should be displayed`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.getComponentDescription("main region");
-            }).then(description => {
-                assert.isTrue(description === "test region", "Expected description should be displayed");
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //opens Page Component View dialog
+            await contentWizard.clickOnShowComponentViewToggler();
+            let description = await pageComponentView.getComponentDescription("main region");
+            assert.equal(description, "test region", "Expected description should be displayed");
         });
 
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
