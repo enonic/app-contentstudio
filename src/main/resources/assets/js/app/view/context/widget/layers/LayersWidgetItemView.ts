@@ -17,8 +17,6 @@ import i18n = api.util.i18n;
 export class LayersWidgetItemView
     extends WidgetItemView {
 
-    private state: LayersWidgetState;
-
     private item: ContentSummaryAndCompareStatus;
 
     private contentsInLayersView: ContentsInLayersView;
@@ -27,6 +25,8 @@ export class LayersWidgetItemView
     private noLayerInfo: LayersWidgetStateView | LayerViewer;
 
     private settingsButton: Button;
+
+    private noLayers: boolean;
 
     constructor() {
         super('layers-widget-item-view');
@@ -66,7 +66,7 @@ export class LayersWidgetItemView
         } else {
             this.updateWidgetStateNoItemSelected(layers);
         }
-        this.toggleClass('no-selection', this.state !== LayersWidgetState.NO_LAYERS && !this.item);
+        this.toggleClass('no-selection', !this.noLayers && !this.item);
     }
 
     private updateWidgetStateItemSelected(layers: ContentLayer[]) {
@@ -122,10 +122,9 @@ export class LayersWidgetItemView
     }
 
     private setState(value: LayersWidgetState) {
-        this.state = value;
         this.contentsInLayersView.setState(value);
 
-        if (LayersWidgetState.NO_LAYERS === this.state) {
+        if (this.noLayers) {
             this.showNoLayerInfo();
         } else {
             if (this.noLayerInfo) {
@@ -141,6 +140,9 @@ export class LayersWidgetItemView
     }
 
     private showNoLayerInfo() {
+
+        this.noLayers = true;
+
         if (this.noLayerInfo) {
             return;
         }
