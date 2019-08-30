@@ -8,6 +8,18 @@ export class ContentAppBarTabId
         return new ContentAppBarTabId('edit', id);
     }
 
+    static forNew(id: string): ContentAppBarTabId {
+        return new ContentAppBarTabId('new', id);
+    }
+
+    isViewMode(): boolean {
+        return this.getMode() === 'view';
+    }
+
+    isLocalizeMode(): boolean {
+        return this.getMode() === 'localize';
+    }
+
     toString(): string {
         const layer: string = LayerContext.get().getCurrentLayer().getName();
 

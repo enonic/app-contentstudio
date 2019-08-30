@@ -1,5 +1,6 @@
 import '../../api.ts';
 import {LayerContext} from '../layer/LayerContext';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import Application = api.app.Application;
 
 export class ContentWizardPanelParams {
@@ -8,7 +9,7 @@ export class ContentWizardPanelParams {
 
     createSite: boolean = false;
 
-    tabId: api.app.bar.AppBarTabId;
+    tabId: ContentAppBarTabId;
 
     contentTypeName: api.schema.content.ContentTypeName;
 
@@ -21,7 +22,7 @@ export class ContentWizardPanelParams {
         return this;
     }
 
-    setTabId(value: api.app.bar.AppBarTabId): ContentWizardPanelParams {
+    setTabId(value: ContentAppBarTabId): ContentWizardPanelParams {
         this.tabId = value;
         return this;
     }
@@ -52,7 +53,7 @@ export class ContentWizardPanelParams {
         return this.tabId && this.tabId.getMode() === 'browse'
             ? this.tabId.getMode() + '/' + this.tabId.getId()
             : this.contentId
-              ? `${layer}/edit/${this.contentId.toString()}`
+              ? `${layer}/${this.tabId.getMode()}/${this.contentId.toString()}`
               : `${layer}/new/${this.contentTypeName.toString()}` +
                      (this.parentContentId ? '/' + this.parentContentId.toString() : '');
     }

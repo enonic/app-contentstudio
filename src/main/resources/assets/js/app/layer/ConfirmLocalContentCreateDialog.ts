@@ -1,21 +1,14 @@
-import ModalDialog = api.ui.dialog.ModalDialog;
 import i18n = api.util.i18n;
 import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import Action = api.ui.Action;
 import Element = api.dom.Element;
 import LocaleViewer = api.ui.locale.LocaleViewer;
 import Locale = api.locale.Locale;
 import GetLocalesRequest = api.locale.GetLocalesRequest;
+import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
 import {LayerContext} from './LayerContext';
 
 export class ConfirmLocalContentCreateDialog
-    extends ModalDialog {
-
-    private createLocalCopyAction: Action;
-
-    private localCopyCreateHandler: Function;
-
-    private cancelHandler: Function;
+    extends ConfirmationDialog {
 
     constructor() {
         super(<ModalDialogConfig>{
@@ -27,47 +20,22 @@ export class ConfirmLocalContentCreateDialog
     initElements() {
         super.initElements();
 
-        this.createLocalCopyAction =
-            new Action(i18n('dialog.layers.confirm.local.create.button', LayerContext.get().getCurrentLayer().getDisplayName()));
+        this.yesAction.setLabel(i18n('dialog.layers.confirm.local.create.button', LayerContext.get().getCurrentLayer().getDisplayName()));
     }
 
     protected initListeners() {
         super.initListeners();
-
-        this.createLocalCopyAction.onExecuted(() => {
-            this.close(false);
-
-            if (this.localCopyCreateHandler) {
-                this.localCopyCreateHandler();
-            }
-        });
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.addClass('layer-dialog layer-confirm-local-content-create-dialog');
             this.appendChildToHeader(this.createSubHeader());
             this.appendChildToContentPanel(this.createBodyText());
             this.appendChildToContentPanel(this.createLocaleViewer());
-            this.addCancelButtonToBottom();
-            this.addAction(this.createLocalCopyAction, true);
 
             return rendered;
         });
-    }
-
-    close(invokeCancelHandler: boolean = true) {
-        super.close();
-        if (invokeCancelHandler) {
-            this.cancelHandler();
-        }
-    }
-
-    setLocalCopyCreateHandler(handler: Function) {
-        this.localCopyCreateHandler = handler;
-    }
-
-    setCancelHandler(handler: Function) {
-        this.cancelHandler = handler;
     }
 
     private createSubHeader(): Element {

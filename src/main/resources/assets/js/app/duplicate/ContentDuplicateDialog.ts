@@ -7,11 +7,11 @@ import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ListBox = api.ui.selector.list.ListBox;
 import i18n = api.util.i18n;
 import TaskState = api.task.TaskState;
-import AppBarTabId = api.app.bar.AppBarTabId;
 import ContentSummary = api.content.ContentSummary;
 
 export class ContentDuplicateDialog
@@ -228,7 +228,7 @@ export class ContentDuplicateDialog
     }
 
     private openTab(content: ContentSummary) {
-        const tabId = AppBarTabId.forEdit(content.getContentId().toString());
+        const tabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
 
         const wizardParams = new ContentWizardPanelParams()
             .setTabId(tabId)

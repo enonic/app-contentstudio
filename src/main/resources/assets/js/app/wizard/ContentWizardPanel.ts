@@ -475,7 +475,11 @@ export class ContentWizardPanel
             this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
             this.formPanel.onRendered(() => {
-                if (this.getPersistedItem().isInherited()) {
+                if (this.contentParams.tabId.isViewMode()) {
+                    this.makePanelReadonly();
+                } else if (this.contentParams.tabId.isLocalizeMode()) {
+                    this.createLocalCopy();
+                } else if (this.getPersistedItem().isInherited()) {
                     this.handleInheritedContent();
                 }
             });
@@ -749,7 +753,7 @@ export class ContentWizardPanel
 
         let shownAndLoadedHandler = () => {
             if (this.getPersistedItem()) {
-                Router.get().setHash('edit/' + this.getPersistedItem().getId());
+                Router.get().setHash(`${this.contentParams.tabId.getMode()}/${this.getPersistedItem().getId()}`);
             } else {
                 Router.get().setHash('new/' + this.contentType.getName());
             }
@@ -863,25 +867,34 @@ export class ContentWizardPanel
 
     private handleInheritedContent() {
         const confirmDialog: ConfirmLocalContentCreateDialog = new ConfirmLocalContentCreateDialog();
-        confirmDialog.setLocalCopyCreateHandler(this.createLocalCopy.bind(this));
-        confirmDialog.setCancelHandler(() => {
-            Body.get().addClass('readonly');
-            BodyMask.get().show();
-            api.notify.showFeedback(i18n('notify.panel.readonly'));
-
-            Body.get().onMouseWheel((event: WheelEvent) => {
-                this.formPanel.getHTMLElement().scrollBy(0, event.deltaY);
-            });
+        confirmDialog.setYesCallback(this.createLocalCopy.bind(this));
+        confirmDialog.setNoCallback(() => {
+            this.makePanelReadonly();
         });
+        confirmDialog.setInvokeNoCallbackOnClose(true);
         confirmDialog.open();
     }
 
     private createLocalCopy() {
         this.isUpdatingInheritedItem = true;
+        if (this.getPersistedItem().getWorkflow().isReady()) {
+            this.isMarkedAsReady = true;
+        }
         this.saveChanges().then(() => {
             api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
+            Router.get().setHash(`edit/${this.getPersistedItem().getId()}`);
         }).catch(api.DefaultErrorHandler.handle).finally(() => {
             this.isUpdatingInheritedItem = false;
+        });
+    }
+
+    private makePanelReadonly() {
+        Body.get().addClass('readonly');
+        BodyMask.get().show();
+        api.notify.showFeedback(i18n('notify.panel.readonly'));
+
+        Body.get().onMouseWheel((event: WheelEvent) => {
+            this.formPanel.getHTMLElement().scrollBy(0, event.deltaY);
         });
     }
 

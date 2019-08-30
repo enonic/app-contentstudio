@@ -10,8 +10,11 @@ import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {LayerContext} from './layer/LayerContext';
 import {ContentAppBarTabId} from './ContentAppBarTabId';
+import {ConfirmLocalContentCreateDialog} from './layer/ConfirmLocalContentCreateDialog';
 import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;
+import ContentSummary = api.content.ContentSummary;
+import ContentTypeName = api.schema.content.ContentTypeName;
 
 export class ContentEventsProcessor {
 
@@ -41,7 +44,7 @@ export class ContentEventsProcessor {
     static handleNew(newContentEvent: NewContentEvent) {
 
         let contentTypeSummary = newContentEvent.getContentType();
-        let tabId = AppBarTabId.forNew(contentTypeSummary.getName());
+        let tabId = ContentAppBarTabId.forNew(contentTypeSummary.getName());
 
         let wizardParams = new ContentWizardPanelParams()
             .setTabId(tabId)
@@ -53,24 +56,56 @@ export class ContentEventsProcessor {
     }
 
     static handleEdit(event: EditContentEvent) {
+        const inheritedContents: ContentSummaryAndCompareStatus[] = ContentEventsProcessor.getInheritedContents(event.getModels());
+        const localContents: ContentSummaryAndCompareStatus[] = ContentEventsProcessor.getLocalContents(event.getModels());
+        const hasInherited: boolean = inheritedContents.length > 0;
 
-        event.getModels().every((content: ContentSummaryAndCompareStatus) => {
+        if (hasInherited) {
+            const confirmDialog: ConfirmLocalContentCreateDialog = new ConfirmLocalContentCreateDialog();
+            confirmDialog.setYesCallback(() => {
+                this.handleEditContents(localContents, 'edit');
+                this.handleEditContents(inheritedContents, 'localize');
+            });
+            confirmDialog.setNoCallback(() => {
+                this.handleEditContents(localContents, 'edit');
+                this.handleEditContents(inheritedContents, 'view');
+            });
+            confirmDialog.open();
+        } else {
+            this.handleEditContents(event.getModels(), 'edit');
+        }
+    }
+
+    private static getInheritedContents(contents: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
+        return contents.filter((content: ContentSummaryAndCompareStatus) => {
+            return content.getContentSummary().isInherited();
+        });
+    }
+
+    private static getLocalContents(contents: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
+        return contents.filter((content: ContentSummaryAndCompareStatus) => {
+            return !content.getContentSummary().isInherited();
+        });
+    }
+
+    private static handleEditContents(contents: ContentSummaryAndCompareStatus[], mode: string) {
+        contents.every((content: ContentSummaryAndCompareStatus) => {
 
             if (!content || !content.getContentSummary()) {
                 return true;
             }
 
-            let contentSummary = content.getContentSummary();
-            let contentTypeName = contentSummary.getType();
+            const contentSummary: ContentSummary = content.getContentSummary();
+            const contentTypeName: ContentTypeName = contentSummary.getType();
 
-            let tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
+            const tabId: ContentAppBarTabId = new ContentAppBarTabId(mode, contentSummary.getId());
 
-            let wizardParams = new ContentWizardPanelParams()
+            const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
                 .setContentId(contentSummary.getContentId());
 
-            let win = ContentEventsProcessor.openWizardTab(wizardParams, tabId);
+            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams, tabId);
 
             if (ContentEventsProcessor.popupBlocked(win)) {
                 api.notify.showWarning(i18n('notify.popupBlocker.admin'), false);

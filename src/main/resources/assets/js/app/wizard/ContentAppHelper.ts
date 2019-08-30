@@ -1,7 +1,7 @@
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import Path = api.rest.Path;
 import ContentTypeName = api.schema.content.ContentTypeName;
-import AppBarTabId = api.app.bar.AppBarTabId;
 import ContentId = api.content.ContentId;
 
 export class ContentAppHelper {
@@ -10,7 +10,7 @@ export class ContentAppHelper {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        return action === 'new' || action === 'edit';
+        return action === 'new' || action === 'edit' || action === 'view' || action === 'localize';
     }
 
     static createWizardParamsFromApp(app: api.app.Application): ContentWizardPanelParams {
@@ -21,13 +21,13 @@ export class ContentAppHelper {
             return ContentAppHelper.createWizardParamsForNew(app);
         }
 
-        return ContentAppHelper.createWizardParamsForEdit(app);
+        return ContentAppHelper.createWizardParamsForEdit(app, action);
     }
 
     private static createWizardParamsForNew(app: api.app.Application): ContentWizardPanelParams {
         const path: Path = app.getPath();
         const contentTypeName: ContentTypeName = new ContentTypeName(path.getElement(2));
-        const tabId: AppBarTabId = AppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
+        const tabId: ContentAppBarTabId = ContentAppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
         let parentContentId;
         if (path.getElement(3)) {
             parentContentId = new ContentId(path.getElement(3));
@@ -41,10 +41,10 @@ export class ContentAppHelper {
             .setTabId(tabId);
     }
 
-    private static createWizardParamsForEdit(app: api.app.Application): ContentWizardPanelParams {
+    private static createWizardParamsForEdit(app: api.app.Application, action: string): ContentWizardPanelParams {
         const path: Path = app.getPath();
         const contentId = new ContentId(!!path.getElement(2) ? path.getElement(2) : path.getElement(1));
-        const tabId: AppBarTabId = AppBarTabId.forEdit(contentId.toString());
+        const tabId: ContentAppBarTabId = new ContentAppBarTabId(action, contentId.toString());
 
         return new ContentWizardPanelParams()
             .setApplication(app)
