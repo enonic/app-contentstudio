@@ -258,21 +258,25 @@ function preLoadApplication() {
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
-            // body is not rendered if the tab is in background
-            if (wizardParams.contentId) {
-                new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content: Content) => {
-                    refreshTab(content);
+            new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+                initCurrentContentLayer(application, layers);
 
-                    if (shouldUpdateFavicon(content.getType())) {
-                        refreshTabOnContentUpdate(content);
-                    }
+                // body is not rendered if the tab is in background
+                if (wizardParams.contentId) {
+                    new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content: Content) => {
+                        refreshTab(content);
 
-                });
-            } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
-                    updateTabTitle(api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
-                });
-            }
+                        if (shouldUpdateFavicon(content.getType())) {
+                            refreshTabOnContentUpdate(content);
+                        }
+
+                    });
+                } else {
+                    new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
+                        updateTabTitle(api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                    });
+                }
+            }).catch(api.DefaultErrorHandler.handle);
         }
     }
 }
