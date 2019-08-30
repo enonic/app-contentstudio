@@ -122,6 +122,7 @@ export class LayersWidgetItemView
     }
 
     private setState(value: LayersWidgetState) {
+        this.noLayers = (value === LayersWidgetState.NO_LAYERS);
         this.contentsInLayersView.setState(value);
 
         if (this.noLayers) {
@@ -140,9 +141,6 @@ export class LayersWidgetItemView
     }
 
     private showNoLayerInfo() {
-
-        this.noLayers = true;
-
         if (this.noLayerInfo) {
             return;
         }
