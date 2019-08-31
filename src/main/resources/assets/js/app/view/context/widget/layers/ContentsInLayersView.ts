@@ -59,7 +59,13 @@ export class ContentsInLayersView
             const sortedContents = this.helper.sort(contentInLayers);
             const currLayerContents = sortedContents.filter(item => currentLayerName === item.getLayer());
 
-            currLayerContents.length > 0 ? this.updateView(this.helper.filter(currLayerContents[0])) : this.updateView(sortedContents);
+            const contentsToShow = currLayerContents.length > 0 ? this.helper.filter(currLayerContents[0]) : sortedContents;
+
+            if (this.state === LayersWidgetState.LOCAL && contentsToShow.length === 1) {
+                this.state = LayersWidgetState.CURRENT_LAYER;
+            }
+
+            this.updateView(contentsToShow);
 
             this.notifyLoaded();
         });
