@@ -14,15 +14,15 @@ export class ContentAppHelper {
             return true;
         }
 
-        if (action === ContentAppBarTabMode.EDIT.toLowerCase()) {
+        if (action === ContentAppBarTabMode.EDIT) {
             return true;
         }
 
-        if (action === ContentAppBarTabMode.VIEW.toLowerCase()) {
+        if (action === ContentAppBarTabMode.VIEW) {
             return true;
         }
 
-        if (action === ContentAppBarTabMode.LOCALIZE.toLowerCase()) {
+        if (action === ContentAppBarTabMode.LOCALIZE) {
             return true;
         }
 
