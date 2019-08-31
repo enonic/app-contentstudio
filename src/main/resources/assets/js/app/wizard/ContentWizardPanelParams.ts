@@ -1,6 +1,6 @@
 import '../../api.ts';
 import {LayerContext} from '../layer/LayerContext';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {ContentAppBarTabId, ContentAppBarTabMode} from '../ContentAppBarTabId';
 import Application = api.app.Application;
 
 export class ContentWizardPanelParams {
@@ -50,11 +50,11 @@ export class ContentWizardPanelParams {
     toString(): string {
         const layer: string = LayerContext.get().getCurrentLayer().getName();
 
-        return this.tabId && this.tabId.getMode() === 'browse'
+        return this.tabId && this.tabId.isBrowseMode()
             ? this.tabId.getMode() + '/' + this.tabId.getId()
             : this.contentId
               ? `${layer}/${this.tabId.getMode()}/${this.contentId.toString()}`
-              : `${layer}/new/${this.contentTypeName.toString()}` +
-                     (this.parentContentId ? '/' + this.parentContentId.toString() : '');
+              : `${layer}/${ContentAppBarTabMode.NEW}/${this.contentTypeName.toString()}` +
+                (this.parentContentId ? '/' + this.parentContentId.toString() : '');
     }
 }

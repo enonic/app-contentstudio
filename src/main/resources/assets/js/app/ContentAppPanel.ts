@@ -14,6 +14,7 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
+import {ContentAppBarTabMode} from './ContentAppBarTabId';
 import ContentId = api.content.ContentId;
 import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
 import AppPanel = api.app.AppPanel;
@@ -38,11 +39,12 @@ export class ContentAppPanel
 
     private route(path?: api.rest.Path) {
         const action = path ? path.getElement(1) : null;
+        const actionAsTabMode: ContentAppBarTabMode = !!action ? ContentAppBarTabMode[action.toUpperCase()] : null;
         const id = path ? path.getElement(2) : null;
         const type = path ? path.getElement(3) : null;
 
-        switch (action) {
-        case 'edit':
+        switch (actionAsTabMode) {
+        case ContentAppBarTabMode.EDIT:
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
@@ -50,7 +52,7 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'view' :
+        case ContentAppBarTabMode.VIEW :
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
@@ -58,7 +60,7 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'issue' :
+        case ContentAppBarTabMode.ISSUE :
             new ShowBrowsePanelEvent().fire();
             if (id) {
                 new GetIssueRequest(id).sendAndParse().then(
@@ -67,10 +69,10 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'inbound' :
+        case ContentAppBarTabMode.INBOUND :
             this.handleDependencies(id, true, type);
             break;
-        case 'outbound' :
+        case ContentAppBarTabMode.OUTBOUND :
             this.handleDependencies(id, false, type);
             break;
         default:
@@ -144,7 +146,7 @@ export class ContentAppPanel
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
-                const mode: string = inbound ? 'inbound' : 'outbound';
+                const mode: string = inbound ? ContentAppBarTabMode.INBOUND : ContentAppBarTabMode.OUTBOUND;
                 const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
                 Router.get().setHash(hash);

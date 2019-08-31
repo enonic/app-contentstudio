@@ -9,7 +9,7 @@ import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {LayerContext} from './layer/LayerContext';
-import {ContentAppBarTabId} from './ContentAppBarTabId';
+import {ContentAppBarTabId, ContentAppBarTabMode} from './ContentAppBarTabId';
 import {ConfirmLocalContentCreateDialog} from './layer/ConfirmLocalContentCreateDialog';
 import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;
@@ -63,16 +63,16 @@ export class ContentEventsProcessor {
         if (hasInherited) {
             const confirmDialog: ConfirmLocalContentCreateDialog = new ConfirmLocalContentCreateDialog();
             confirmDialog.setYesCallback(() => {
-                this.handleEditContents(localContents, 'edit');
-                this.handleEditContents(inheritedContents, 'localize');
+                this.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
+                this.handleEditContents(inheritedContents, ContentAppBarTabMode.LOCALIZE);
             });
             confirmDialog.setNoCallback(() => {
-                this.handleEditContents(localContents, 'edit');
-                this.handleEditContents(inheritedContents, 'view');
+                this.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
+                this.handleEditContents(inheritedContents, ContentAppBarTabMode.VIEW);
             });
             confirmDialog.open();
         } else {
-            this.handleEditContents(event.getModels(), 'edit');
+            this.handleEditContents(event.getModels(), ContentAppBarTabMode.EDIT);
         }
     }
 
@@ -88,7 +88,7 @@ export class ContentEventsProcessor {
         });
     }
 
-    private static handleEditContents(contents: ContentSummaryAndCompareStatus[], mode: string) {
+    private static handleEditContents(contents: ContentSummaryAndCompareStatus[], mode: ContentAppBarTabMode) {
         contents.every((content: ContentSummaryAndCompareStatus) => {
 
             if (!content || !content.getContentSummary()) {
@@ -98,7 +98,7 @@ export class ContentEventsProcessor {
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
 
-            const tabId: ContentAppBarTabId = new ContentAppBarTabId(mode, contentSummary.getId());
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.fromMode(mode, contentSummary.getId());
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
@@ -132,7 +132,7 @@ export class ContentEventsProcessor {
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent) {
-        const mode: string = event.isInbound() ? 'inbound' : 'outbound';
+        const mode: string = event.isInbound() ? ContentAppBarTabMode.INBOUND : ContentAppBarTabMode.OUTBOUND;
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const layer: string = LayerContext.get().getCurrentLayer().getName();

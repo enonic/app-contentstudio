@@ -1,5 +1,5 @@
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {ContentAppBarTabId, ContentAppBarTabMode} from '../ContentAppBarTabId';
 import Path = api.rest.Path;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentId = api.content.ContentId;
@@ -10,14 +10,30 @@ export class ContentAppHelper {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        return action === 'new' || action === 'edit' || action === 'view' || action === 'localize';
+        if (action === ContentAppBarTabMode.NEW) {
+            return true;
+        }
+
+        if (action === ContentAppBarTabMode.EDIT.toLowerCase()) {
+            return true;
+        }
+
+        if (action === ContentAppBarTabMode.VIEW.toLowerCase()) {
+            return true;
+        }
+
+        if (action === ContentAppBarTabMode.LOCALIZE.toLowerCase()) {
+            return true;
+        }
+
+        return false;
     }
 
     static createWizardParamsFromApp(app: api.app.Application): ContentWizardPanelParams {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        if (action === 'new') {
+        if (action === ContentAppBarTabMode.NEW) {
             return ContentAppHelper.createWizardParamsForNew(app);
         }
 
@@ -44,7 +60,7 @@ export class ContentAppHelper {
     private static createWizardParamsForEdit(app: api.app.Application, action: string): ContentWizardPanelParams {
         const path: Path = app.getPath();
         const contentId = new ContentId(!!path.getElement(2) ? path.getElement(2) : path.getElement(1));
-        const tabId: ContentAppBarTabId = new ContentAppBarTabId(action, contentId.toString());
+        const tabId: ContentAppBarTabId = ContentAppBarTabId.fromString(action, contentId.toString());
 
         return new ContentWizardPanelParams()
             .setApplication(app)

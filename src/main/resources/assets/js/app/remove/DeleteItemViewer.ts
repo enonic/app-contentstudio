@@ -27,7 +27,7 @@ export class DeleteItemViewer
 
             const contentSummary = this.getObject().getContentSummary();
 
-            let tabId = new ContentAppBarTabId('browse', contentSummary.getId());
+            let tabId = ContentAppBarTabId.forBrowse(contentSummary.getId());
 
             let wizardParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
