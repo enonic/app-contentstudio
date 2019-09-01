@@ -2,11 +2,12 @@ import H6El = api.dom.H6El;
 import SpanEl = api.dom.SpanEl;
 import ActionButton = api.ui.button.ActionButton;
 import DivEl = api.dom.DivEl;
+import {ContentInLayerHeader} from './ContentInLayerItemView';
 
 export abstract class LayersWidgetStateView
     extends DivEl {
 
-    protected header: H6El;
+    protected header: ContentInLayerHeader;
 
     protected subHeader: SpanEl;
 
@@ -19,8 +20,9 @@ export abstract class LayersWidgetStateView
     }
 
     protected initElements() {
-        this.header = new H6El('header');
-        this.header.setHtml(this.getHeaderText());
+
+        this.header = new ContentInLayerHeader('header-container');
+        this.header.setTitle(this.getHeaderText());
 
         const subheaderText = this.getSubHeaderText();
         if (subheaderText) {

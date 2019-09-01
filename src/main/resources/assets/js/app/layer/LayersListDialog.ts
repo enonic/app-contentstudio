@@ -27,7 +27,7 @@ export class LayersListDialog
     private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
             title: i18n('dialog.layers.list.title'),
-            class: 'layer-dialog layers-list-dialog'
+            class: 'layer-dialog layers-list-dialog grey-header'
         });
     }
 

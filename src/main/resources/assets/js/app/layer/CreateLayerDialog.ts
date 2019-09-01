@@ -14,7 +14,7 @@ export class CreateLayerDialog
     private constructor() {
         super(<ModalDialogConfig>{
             title: i18n('dialog.layers.create.title'),
-            class: 'layer-create-dialog'
+            class: 'layer-create-dialog grey-header'
         });
 
         this.setElementToFocusOnShow(this.displayName);

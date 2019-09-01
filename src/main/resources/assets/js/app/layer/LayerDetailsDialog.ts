@@ -18,7 +18,7 @@ export class LayerDetailsDialog
     private constructor() {
         super(<api.ui.dialog.ModalDialogConfig>{
             title: i18n('dialog.layers.update.title'),
-            class: 'layer-update-dialog'
+            class: 'layer-update-dialog grey-header'
         });
     }
 

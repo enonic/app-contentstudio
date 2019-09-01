@@ -52,7 +52,7 @@ export class ContentInLayerItemView
     }
 }
 
-class ContentInLayerHeader
+export class ContentInLayerHeader
     extends DivEl {
 
     private layerDisplayName: SpanEl;
@@ -72,8 +72,10 @@ class ContentInLayerHeader
     }
 
     setItem(item: ContentInLayer) {
-
-        this.setTitle(item.getLayerDisplayName());
+        const title = this.layerDisplayName.getHtml();
+        if (!title) {
+            this.setTitle(item.getLayerDisplayName());
+        }
 
         if (item.getStatus()) {
             const statusText = CompareStatusFormatter.doFormatStatus(item.getStatus().getCompareStatus(), item.getPublishFirstTime());
