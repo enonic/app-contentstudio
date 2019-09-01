@@ -27,6 +27,7 @@ import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
 import {LayerChangedEvent} from '../layer/LayerChangedEvent';
+import {ContentAppBarTabMode} from '../ContentAppBarTabId';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -60,7 +61,7 @@ export class ContentBrowsePanel
         super();
 
         this.onShown(() => {
-            Router.get().setHash('browse');
+            Router.get().setHash(ContentAppBarTabMode.BROWSE);
         });
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {

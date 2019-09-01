@@ -64,7 +64,7 @@ export class LayerServerEventsHandler {
     private handleLayersUpdated() {
         new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
             this.updateCurrentLayer(layers);
-            this.notifyIssueUpdated(layers);
+            this.notifyLayerUpdated(layers);
         }).catch(api.DefaultErrorHandler.handle);
     }
 
@@ -125,7 +125,7 @@ export class LayerServerEventsHandler {
             });
     }
 
-    private notifyIssueUpdated(layers: ContentLayer[]) {
+    private notifyLayerUpdated(layers: ContentLayer[]) {
         this.layerUpdatedListeners.forEach((listener: (layers: ContentLayer[]) => void) => {
             listener(layers);
         });

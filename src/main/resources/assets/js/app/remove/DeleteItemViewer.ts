@@ -2,8 +2,8 @@ import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import AEl = api.dom.AEl;
-import AppBarTabId = api.app.bar.AppBarTabId;
 import i18n = api.util.i18n;
 
 export class DeleteItemViewer
@@ -27,7 +27,7 @@ export class DeleteItemViewer
 
             const contentSummary = this.getObject().getContentSummary();
 
-            let tabId = new AppBarTabId('browse', contentSummary.getId());
+            let tabId = ContentAppBarTabId.forBrowse(contentSummary.getId());
 
             let wizardParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
