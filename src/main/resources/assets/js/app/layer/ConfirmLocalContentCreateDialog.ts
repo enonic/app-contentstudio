@@ -20,7 +20,8 @@ export class ConfirmLocalContentCreateDialog
     initElements() {
         super.initElements();
 
-        this.yesAction.setLabel(i18n('dialog.layers.confirm.local.create.button', LayerContext.get().getCurrentLayer().getDisplayName()));
+        this.yesAction.setLabel(i18n('dialog.layers.confirm.local.create.button'));
+        this.noAction.setLabel(i18n('action.view'));
     }
 
     protected initListeners() {
@@ -47,7 +48,8 @@ export class ConfirmLocalContentCreateDialog
 
     private createBodyText(): Element {
         const bodyText: api.dom.Element = new api.dom.H6El('bodytext');
-        bodyText.setHtml(i18n('dialog.layers.confirm.local.create.body.text', LayerContext.get().getCurrentLayer().getDisplayName()));
+        const currentLayer = LayerContext.get().getCurrentLayer();
+        bodyText.setHtml(i18n('dialog.layers.confirm.local.create.body.text', currentLayer.getDisplayName(), currentLayer.getName()) + ':');
 
         return bodyText;
     }

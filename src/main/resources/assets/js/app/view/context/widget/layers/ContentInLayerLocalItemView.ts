@@ -28,7 +28,7 @@ export class ContentInLayerLocalItemView
 
         this.subHeader = new SpanEl('sub-header').setHtml(i18n('widget.layers.subheader.local'));
 
-        const action: api.ui.Action = new api.ui.Action(i18n('action.delete'));
+        const action: api.ui.Action = new api.ui.Action(i18n('action.delete.local.copy'));
 
         action.onExecuted(() => {
             new ContentDeletePromptEvent([this.content]).fire();
