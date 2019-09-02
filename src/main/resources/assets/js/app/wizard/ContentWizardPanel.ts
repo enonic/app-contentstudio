@@ -1985,12 +1985,12 @@ export class ContentWizardPanel
     }
 
     private getLanguageForUpdateRequest(viewedContent: Content): string {
-        if (viewedContent.getLanguage()) {
-            return viewedContent.getLanguage();
-        }
-
         if (viewedContent.isInherited()) {
             return LayerContext.get().getCurrentLayer().getLanguage();
+        }
+
+        if (viewedContent.getLanguage()) {
+            return viewedContent.getLanguage();
         }
 
         return null;
