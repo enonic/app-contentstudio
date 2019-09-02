@@ -30,7 +30,7 @@ export class ContentInLayerItemView
     protected doSetItem(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
         this.item = item;
 
-        this.header.setItem(this.item);
+        this.header.setItem(this.item, content);
         this.viewer.setObjectAndContent(this.item, content);
 
         if (content) {
@@ -71,16 +71,17 @@ export class ContentInLayerHeader
         this.layerDisplayName.setHtml(title);
     }
 
-    setItem(item: ContentInLayer) {
+    setItem(item: ContentInLayer, content: ContentSummaryAndCompareStatus) {
         const title = this.layerDisplayName.getHtml();
         if (!title) {
             this.setTitle(item.getLayerDisplayName());
         }
 
         if (item.getStatus()) {
-            const statusText = CompareStatusFormatter.doFormatStatus(item.getStatus().getCompareStatus(), item.getPublishFirstTime());
-            const statusClass = CompareStatusFormatter.doFormatStatus(item.getStatus().getCompareStatus(), item.getPublishFirstTime(),
-                true);
+            const compareStatus = item.getStatus().getCompareStatus();
+            const contentSummary = content ? content.getContentSummary() : null;
+            const statusText = CompareStatusFormatter.formatStatus(compareStatus, contentSummary);
+            const statusClass = CompareStatusFormatter.formatStatus(compareStatus, contentSummary,true);
 
             this.status.addClass(statusClass.toLowerCase());
             this.status.setHtml(statusText);

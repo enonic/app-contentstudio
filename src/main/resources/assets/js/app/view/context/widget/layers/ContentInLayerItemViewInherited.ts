@@ -16,7 +16,7 @@ export class ContentInLayerItemViewInherited
         super('inherited');
 
         this.content = content;
-        this.header.setItem(item);
+        this.header.setItem(item, content);
         this.viewer.setObjectAndContent(item, content);
     }
 
