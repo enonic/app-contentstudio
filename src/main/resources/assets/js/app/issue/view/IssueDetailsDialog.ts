@@ -909,7 +909,7 @@ export class IssueDetailsDialog
 
         return PublishRequest
             .create(this.issue.getPublishRequest())
-            .addExcludeIds(this.publishProcessor.getExcludedIds())
+            .setExcludeIds(this.publishProcessor.getExcludedIds())
             .setPublishRequestItems(publishRequestItems)
             .build();
     }

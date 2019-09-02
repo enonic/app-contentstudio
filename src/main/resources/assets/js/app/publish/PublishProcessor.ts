@@ -50,7 +50,7 @@ export class PublishProcessor {
     private initListeners() {
         this.itemList.onItemsRemoved(() => {
             if (!this.ignoreItemsChanged) {
-                this.reloadDependenciesDebounced();
+                this.reloadDependenciesDebounced(true);
             }
         });
 
