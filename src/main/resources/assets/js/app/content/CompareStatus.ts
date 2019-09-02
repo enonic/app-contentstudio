@@ -37,8 +37,7 @@ export class CompareStatusFormatter {
             if (!content.isInherited()) {
                 publishFirstTime = content.getPublishFirstTime();
             }
-        }
-        else {
+        } else {
             publishFirstTime = new Date();
         }
 
