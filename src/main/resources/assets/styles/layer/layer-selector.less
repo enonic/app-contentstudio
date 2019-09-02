@@ -31,14 +31,23 @@
             justify-content: center;
             height: @app-header-height;
 
-            .xp-admin-common-names-view {
+            .@{_COMMON_PREFIX}wrapper {
+              margin-right: 10px;
+
+              .layer-icon {
+                width: 24px;
+                height: 24px;
+
+                &:before {
+                  line-height: 24px;
+                }
+              }
+            }
+
+            .@{_COMMON_PREFIX}names-view {
               margin-left: 0px;
 
-              .xp-admin-common-main-name {
-                height: 18px;
-              }
-
-              .xp-admin-common-sub-name {
+              .@{_COMMON_PREFIX}sub-name {
                 display: none;
               }
             }
@@ -52,12 +61,12 @@
         .names-and-icon-view {
           cursor: pointer;
 
-          .xp-admin-common-main-name {
+          .@{_COMMON_PREFIX}main-name {
             color: @admin-white;
             cursor: pointer;
           }
 
-          .xp-admin-common-sub-name {
+          .@{_COMMON_PREFIX}sub-name {
             color: @admin-font-gray1;
             cursor: pointer;
           }
@@ -84,7 +93,7 @@
         }
       }
 
-      .xp-admin-common-dropdown-handle {
+      .@{_COMMON_PREFIX}dropdown-handle {
         position: absolute;
         width: 44px;
 
