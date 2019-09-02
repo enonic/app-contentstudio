@@ -258,7 +258,6 @@ class ContentBrowsePanel extends Page {
         await this.waitForPublishButtonVisible();
         await this.pause(400);
         return await this.clickOnElement(this.publishButton);
-
     }
 
     async clickOnSortButton() {

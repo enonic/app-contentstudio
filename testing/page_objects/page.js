@@ -208,18 +208,19 @@ class Page {
         return await element.getAttribute(attributeName);
     }
 
-    waitForNotificationMessage() {
-        let notificationXpath = `//div[@class='notification-content']/span`;
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementDisplayed(notificationXpath);
-        }).then(() => {
-            return this.getTextInDisplayedElements(notificationXpath);
-        }).then(result => {
-            return result[0];
-        }).catch(err => {
+    async waitForNotificationMessage() {
+        try {
+            let notificationXpath = `//div[@class='notification-content']/span`;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isElementDisplayed(notificationXpath);
+            });
+            await this.pause(400);
+            return await this.getText(notificationXpath);
+        } catch (err) {
             throw new Error('Error when wait for notification message: ' + err);
-        })
+        }
     }
+
 
     //returns array of messages
     waitForNotificationMessages() {
@@ -246,17 +247,35 @@ class Page {
         })
     }
 
-    waitForNotificationWarning() {
+    async waitForNotificationWarning() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
-            return this.getText(selector);
-        })
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        await this.pause(500);
+        return await this.getText(selector);
     }
 
     async doRightClick(selector) {
         let el = await this.findElement(selector);
         await el.moveTo();
-        return await this.browser.positionClick(2);
+        let x = await el.getLocation('x');
+        let y = await el.getLocation('y');
+        console.log("X:" + x + "Y " + y);
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {
+                    type: 'pointerDown',
+                    button: 2
+                }, {
+                    type: 'pointerUp',
+                    button: 2
+                }]
+        }]);
     }
 
     async isFocused(selctor) {
@@ -278,11 +297,13 @@ class Page {
                 throw new Error(err);
             }
         })
-    };
+    }
+    ;
 
     alertAccept() {
         return this.getBrowser().acceptAlert();
-    };
+    }
+    ;
 
     getAlertText() {
         return this.getBrowser().getAlertText().catch(err => {
@@ -375,4 +396,5 @@ class Page {
     }
 }
 
-module.exports = Page;
+module
+    .exports = Page;

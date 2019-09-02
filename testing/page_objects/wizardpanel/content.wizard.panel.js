@@ -13,6 +13,7 @@ const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -220,6 +221,44 @@ class ContentWizardPanel extends Page {
         let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
         return this.getTextInElements(selector).catch(err => {
             throw new Error("Error when getting title from x-data " + err);
+        })
+    }
+
+    async hotKeyCloseWizard() {
+        try {
+            await this.pause(1000);
+            return await this.getBrowser().keys(['Alt', 'w']);
+        } catch (err) {
+            return this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    async hotKeySaveAndCloseWizard() {
+        try {
+            let status = await this.getBrowser().status();
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                await this.getBrowser().keys(['Control', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                await this.getBrowser().keys(['Command', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+        } catch (err) {
+            console.log("Save and close the wizard " + err);
+            return await this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    doSwitchToContentBrowsePanel() {
+        console.log('testUtils:switching to Content Browse panel...');
+        let browsePanel = new BrowsePanel();
+        return this.getBrowser().switchWindow("Content Studio - Enonic XP Admin").then(() => {
+            console.log("switched to content browse panel...");
+        }).then(() => {
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+        }).catch(err => {
+            throw new Error("Error when switching to Content Studio App " + err);
         })
     }
 
