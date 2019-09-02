@@ -15,33 +15,12 @@
 
   .dialog-buttons {
 
-    .dropdown-dialog-menu, .@{_COMMON_PREFIX}button {
+    .@{_COMMON_PREFIX}button {
       margin-left: 11px;
       height: 36px;
     }
 
-    .@{_COMMON_PREFIX}button.show-schedule-action {
-
-      .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, false);
-
-      .icon-calendar;
-
-      &:before {
-        position: absolute;
-        right: 8px;
-        top: 5px;
-        font-size: 22px;
-        pointer-events: all;
-
-      }
-
-      position: relative;
-      height: 26px;
-      padding-top: 4px;
-      padding-bottom: 4px;
-    }
-
-    button.publish-action {
+    .publish-action, .schedule-action {
       .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
       min-width: 113px;
       text-align: center;
