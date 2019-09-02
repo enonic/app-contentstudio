@@ -35,7 +35,6 @@ import Tooltip = api.ui.Tooltip;
 import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
 import TabBar = api.ui.tab.TabBar;
 import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
-import NavigatorEvent = api.ui.NavigatorEvent;
 import Panel = api.ui.panel.Panel;
 import AppHelper = api.util.AppHelper;
 import TabBarItem = api.ui.tab.TabBarItem;
@@ -465,9 +464,9 @@ export class IssueDetailsDialog
 
         this.publishAction.setEnabled(canPublish && scheduleValid);
         this.scheduleAction.setEnabled(canPublish && scheduleValid);
-        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
-        this.scheduleFormToggle.setVisible(!this.publishProcessor.isAllPendingDelete() && canPublish);
-
+        if (this.isPublishRequest()) {
+            this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
+        }
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
 
         this.getButtonRow().focusDefaultAction();
@@ -774,12 +773,6 @@ export class IssueDetailsDialog
         const divEl = new api.dom.DivEl('no-action-message');
         divEl.setHtml(i18n('dialog.issue.noItems'));
         this.getButtonRow().appendChild(divEl);
-
-        this.tabBar.onNavigationItemSelected((event: NavigatorEvent) => {
-            if (this.hasClass('no-action')) {
-                divEl.setVisible(event.getItem() === this.itemsTab);
-            }
-        });
     }
 
     private publish() {

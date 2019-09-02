@@ -242,7 +242,7 @@ export class RequestContentPublishDialog
 
         const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid = this.isScheduleFormValid();
-        const detailsValid = this.detailsFormView.isValid();
+        const detailsValid = this.detailsFormView.validate().isValid();
 
         this.toggleAction(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);

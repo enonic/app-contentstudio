@@ -174,8 +174,7 @@ export abstract class BasePublishDialog
         this.updateTabbable();
 
         const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        this.scheduleFormToggle.getEl().setDisabled(!canPublish);
-        this.scheduleFormToggle.setVisible(!this.isAllPendingDelete() && canPublish);
+        this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
     }
 
     protected isScheduleFormValid(): boolean {
