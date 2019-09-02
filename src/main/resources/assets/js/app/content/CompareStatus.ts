@@ -31,7 +31,18 @@ export class CompareStatusFormatter {
     }
 
     public static formatStatus(compareStatus: CompareStatus, content?: ContentSummary, isClassName: boolean = false): string {
-        return this.doFormatStatus(compareStatus, content ? content.getPublishFirstTime() : new Date(), isClassName);
+        let publishFirstTime = null;
+
+        if (content) {
+            if (!content.isInherited()) {
+                publishFirstTime = content.getPublishFirstTime();
+            }
+        }
+        else {
+            publishFirstTime = new Date();
+        }
+
+        return this.doFormatStatus(compareStatus, publishFirstTime, isClassName);
     }
 
     public static doFormatStatus(compareStatus: CompareStatus, publishFirstTime: Date, isClassName: boolean = false) {
