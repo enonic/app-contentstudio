@@ -32,6 +32,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             await contentWizard.clickOnMarkAsReadyButton();
 
             let toolbarState = await contentWizard.getToolbarWorkflowState();
+            studioUtils.saveScreenshot("wizard_workflow_state_1");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
 
             let iconState = await contentWizard.getIconWorkflowState();
@@ -55,6 +56,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //Close Request Publishing dialog:
             await requestContentPublishDialog.clickOnCancelButtonTop();
             let toolbarState = await contentWizard.getToolbarWorkflowState();
+            studioUtils.saveScreenshot("wizard_workflow_state_2");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
 
             let iconState = await contentWizard.getIconWorkflowState();
@@ -83,6 +85,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             await contentWizard.waitForOpenRequestButtonVisible();
 
             let toolbarState = await contentWizard.getToolbarWorkflowState();
+            studioUtils.saveScreenshot("wizard_workflow_state_3");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
 
             let iconState = await contentWizard.getIconWorkflowState();
