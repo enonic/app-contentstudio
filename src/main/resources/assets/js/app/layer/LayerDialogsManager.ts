@@ -56,8 +56,10 @@ export class LayerDialogsManager {
 
     private initLayerDetailsDialogListeners() {
         this.layerDetailsDialog.onBackButtonClicked(() => {
+            if (!this.openListDialogOnDetailsDialogClosed) {
+                this.openLayersListDialog();
+            }
             this.openListDialogOnDetailsDialogClosed = false;
-            this.openLayersListDialog();
         });
     }
 

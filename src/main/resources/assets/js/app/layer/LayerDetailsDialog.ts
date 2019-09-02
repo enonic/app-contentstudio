@@ -57,8 +57,8 @@ export class LayerDetailsDialog
         super.initListeners();
 
         this.backButton.getAction().onExecuted(() => {
-            this.notifyBackButtonClicked();
             this.close();
+            this.notifyBackButtonClicked();
         });
     }
 
