@@ -511,7 +511,7 @@ export class ContentWizardPanel
         }
     }
 
-    saveChanges(): wemQ.Promise<Content> {
+    saveChanges(canShowInspectPanel: boolean = true): wemQ.Promise<Content> {
         let liveFormPanel = this.getLivePanel();
         if (liveFormPanel) {
             liveFormPanel.skipNextReloadConfirmation(true);
@@ -527,7 +527,7 @@ export class ContentWizardPanel
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
                 if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm(persistedItem).then(() => {
+                    this.updateLiveForm(persistedItem, canShowInspectPanel).then(() => {
                         if (persistedItem.isSite()) {
                             this.updateWizardStepForms(persistedItem, false);
                             this.updateSiteModel(<Site>persistedItem);
@@ -880,7 +880,7 @@ export class ContentWizardPanel
         if (this.getPersistedItem().getWorkflow().isReady()) {
             this.isMarkedAsReady = true;
         }
-        this.saveChanges().then(() => {
+        this.saveChanges(false).then(() => {
             api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
             Router.get().setHash(`edit/${this.getPersistedItem().getId()}`);
         }).catch(api.DefaultErrorHandler.handle).finally(() => {
@@ -1417,7 +1417,7 @@ export class ContentWizardPanel
         return result;
     }
 
-    private updateLiveForm(content: Content): wemQ.Promise<any> {
+    private updateLiveForm(content: Content, canShowInspectPanel: boolean = true): wemQ.Promise<any> {
         let formContext = this.getFormContext(content);
 
         let liveFormPanel = this.getLivePanel();
@@ -1432,7 +1432,7 @@ export class ContentWizardPanel
             return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
 
-                const showPanel = this.renderableChanged && this.renderable;
+                const showPanel = canShowInspectPanel && this.renderableChanged && this.renderable;
                 liveFormPanel.setModel(this.liveEditModel, showPanel, false);
 
                 this.debouncedEditorRefresh(false);
