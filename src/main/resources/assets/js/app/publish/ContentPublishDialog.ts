@@ -62,6 +62,7 @@ export class ContentPublishDialog
         this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
 
         this.scheduleAction = new api.ui.Action('action.schedule')
+            .setIconClass('schedule-action')
             .onExecuted((action: Action) => this.doPublish(true));
     }
 
