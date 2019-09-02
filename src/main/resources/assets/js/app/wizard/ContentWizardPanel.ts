@@ -58,6 +58,7 @@ import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {LayerContext} from '../layer/LayerContext';
 import {ConfirmLocalContentCreateDialog} from '../layer/ConfirmLocalContentCreateDialog';
+import {ContentAppBarTabMode} from '../ContentAppBarTabId';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -753,9 +754,9 @@ export class ContentWizardPanel
 
         let shownAndLoadedHandler = () => {
             if (this.getPersistedItem()) {
-                Router.get().setHash(`${this.contentParams.tabId.getMode()}/${this.getPersistedItem().getId()}`);
+                Router.get().setHash(`${ContentAppBarTabMode.EDIT}/${this.getPersistedItem().getId()}`);
             } else {
-                Router.get().setHash('new/' + this.contentType.getName());
+                Router.get().setHash(`${ContentAppBarTabMode.NEW}/${this.contentType.getName()}`);
             }
         };
 
@@ -882,7 +883,7 @@ export class ContentWizardPanel
         }
         this.saveChanges().then(() => {
             api.notify.showFeedback(i18n('notify.layer.local.created', LayerContext.get().getCurrentLayer().getLanguage()));
-            Router.get().setHash(`edit/${this.getPersistedItem().getId()}`);
+            Router.get().setHash(`${ContentAppBarTabMode.EDIT}/${this.getPersistedItem().getId()}`);
         }).catch(api.DefaultErrorHandler.handle).finally(() => {
             this.isUpdatingInheritedItem = false;
         });
