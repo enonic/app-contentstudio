@@ -196,6 +196,16 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    async waitForStateIconNotDisplayed(displayName) {
+        try {
+            let xpath = XPATH.contentSummaryByDisplayName(displayName);
+            return await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_browse_panel_workflow_state_should_be_hidden");
+            throw new Error("Workflow state should not be visible! " + err);
+        }
+    }
+
     //Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
         return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {

@@ -24,6 +24,8 @@ class LoaderComboBox extends Page {
             return this.clickOnElement(optionSelector).catch(err => {
                 this.saveScreenshot('err_select_option');
                 throw new Error('Error when clicking on the option!' + optionDisplayName + " " + err);
+            }).then(() => {
+                return this.pause(300);
             })
         })
     }
