@@ -59,9 +59,9 @@ export class ContentBrowsePublishMenuButton
     }
 
     updateActiveClass() {
-        const isSingleItemToPublish = this.isItemPendingDelete() && this.publishAction.isEnabled();
+        const isSingleItemToDelete = this.isItemPendingDelete() && this.publishAction.isEnabled();
 
-        if (isSingleItemToPublish) {
+        if (isSingleItemToDelete) {
             this.setActiveClass(this.publishAction.getActionClass());
         } else {
             const anyItemsActiveClass = this.getActiveClassForAnyItems();
