@@ -14,7 +14,7 @@ const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.ste
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
-describe('wizard.publish.menu.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -91,9 +91,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been deleted:
-            await contentWizard.clickOnDelete();
-            await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteButton();
+            await contentWizard.clickOnDeleteAndConfirm();
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 

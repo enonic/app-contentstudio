@@ -14,6 +14,7 @@ const ContentPublishDialog = require("../../page_objects/content.publish.dialog"
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -164,7 +165,7 @@ class ContentWizardPanel extends Page {
         let versionPanel = new VersionsWidget();
         await this.openDetailsPanel();
         await detailsPanel.openVersionHistory();
-        return versionPanel.waitForVersionsLoaded();
+        return await versionPanel.waitForVersionsLoaded();
     }
 
     waitForXdataTogglerVisible() {
@@ -229,7 +230,7 @@ class ContentWizardPanel extends Page {
             await this.pause(1000);
             return await this.getBrowser().keys(['Alt', 'w']);
         } catch (err) {
-            return this.doSwitchToContentBrowsePanel();
+            return await this.doSwitchToContentBrowsePanel();
         }
     }
 
@@ -362,6 +363,14 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot('err_delete_wizard');
             throw new Error('Error when Delete button has been clicked ' + err);
         });
+    }
+
+    async clickOnDeleteAndConfirm() {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        await this.clickOnDelete(this.deleteButton);
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnDeleteButton();
+        return contentDeleteDialog.waitForDialogClosed();
     }
 
     //clicks on 'Publish...' button
@@ -704,6 +713,16 @@ class ContentWizardPanel extends Page {
 
         } else {
             throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    async waitForStateIconNotDisplayed() {
+        try {
+            let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
+            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_4);
+        } catch (err) {
+            this.saveScreenshot("err_workflow_state_should_not_be_visible");
+            throw new Error("Workflow state should be not visible!" + err);
         }
     }
 
