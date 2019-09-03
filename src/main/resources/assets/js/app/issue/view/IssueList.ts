@@ -83,6 +83,7 @@ export class IssueList
                 this.clearItems();
             }
             this.issuesOfType = this.countIssuesOfType();
+            this.showNoIssuesMessage();
         });
     }
 
