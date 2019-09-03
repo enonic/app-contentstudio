@@ -87,7 +87,7 @@ export class InPlaceTextInput
                 if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    this.setEditMode(false);
+                    this.setEditMode(false, !this.isInputValid());
                 }
             };
         }
