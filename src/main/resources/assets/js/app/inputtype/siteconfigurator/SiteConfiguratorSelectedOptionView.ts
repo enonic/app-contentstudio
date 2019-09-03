@@ -64,8 +64,6 @@ export class SiteConfiguratorSelectedOptionView
         this.toggleClass('empty', this.getOption().empty === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
-        this.formView = this.createFormView(this.siteConfig);
-
         this.appendActionButtons(header);
 
         this.configureDialog = this.initConfigureDialog();
@@ -135,6 +133,9 @@ export class SiteConfiguratorSelectedOptionView
             return null;
         }
 
+        if (this.formView) {
+            this.formView.remove();
+        }
         const tempSiteConfig: ApplicationConfig = this.makeTemporarySiteConfig();
 
         this.formView = this.createFormView(tempSiteConfig);
@@ -178,6 +179,11 @@ export class SiteConfiguratorSelectedOptionView
 
     private revertFormViewToGivenState(formViewStateToRevertTo: FormView) {
         this.unbindValidationEvent(this.formView);
+
+        if (this.formView) {
+            this.formView.remove();
+        }
+
         this.formView = formViewStateToRevertTo;
         this.formView.validate(false, true);
         this.toggleClass('invalid', !this.formView.isValid());
@@ -197,7 +203,6 @@ export class SiteConfiguratorSelectedOptionView
 
     private makeTemporarySiteConfig(): ApplicationConfig {
         let propSet = (new PropertyTree(this.siteConfig.getConfig())).getRoot();
-        propSet.setContainerProperty(this.siteConfig.getConfig().getProperty());
         return ApplicationConfig.create().setConfig(propSet).setApplicationKey(this.siteConfig.getApplicationKey()).build();
     }
 
