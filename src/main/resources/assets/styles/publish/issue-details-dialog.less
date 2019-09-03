@@ -15,8 +15,16 @@
       & > .panel {
         overflow: visible;
 
-        .content-combo-box {
-          margin-top: 15px;
+        .content-combo-box,
+        .principal-combobox {
+          margin-top: 5px;
+        }
+
+        .principal-combobox {
+          .principal-selected-option-view:last-of-type {
+            height: 37px;
+            padding-bottom: 0;
+          }
         }
 
         input {
@@ -396,13 +404,6 @@
     }
   }
 
-
-  &.tab-assignees {
-    .dialog-content {
-      min-height: 220px;
-    }
-  }
-
   &.no-action {
     .dependants {
       display: none;
@@ -413,6 +414,7 @@
     position: relative;
     display: flex;
     justify-content: flex-end;
+    min-height: 36px;
   }
 
 }

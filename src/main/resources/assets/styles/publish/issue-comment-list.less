@@ -1,7 +1,11 @@
 .issue-comments-list {
   .issue-comments-list-item {
     .clearfix();
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
 
     .principal-viewer-compact {
       float: left;
@@ -48,6 +52,7 @@
         color: black;
         margin: 6px;
         white-space: normal;
+        overflow-wrap: break-word;
       }
       .inplace-area {
         font-size: 14px;
