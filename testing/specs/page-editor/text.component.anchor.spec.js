@@ -58,6 +58,22 @@ describe('Text Component with CKE - insert Anchor specification', function () {
                 assert.equal(result, EXPECTED_DATA_CKE, 'correct data should be in CKE');
             })
         });
+    it(`GIVEN 'Insert Anchor' dialog is opened WHEN ESC key has been pressed THEN dialog should be closed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
+            let insertAnchorDialog = new InsertAnchorDialog();
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            await textComponentCke.clickOnInsertAnchorButton();
+            await contentWizard.pressEscKey();
+            await insertAnchorDialog.waitForDialogClosed();
+        });
 
     it(`GIVEN 'Insert Anchor' dialog is opened WHEN incorrect text has been typed in the dialog THEN validation message should be displayed`,
         () => {
