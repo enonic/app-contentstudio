@@ -42,7 +42,7 @@ class Page {
 
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
-        await element.waitForDisplayed(1500);
+        //await element.waitForDisplayed(1500);
         return await element.click();
     }
 
@@ -91,7 +91,6 @@ class Page {
         await inputElement.waitForDisplayed(1000);
         await inputElement.clearValue();
         return await inputElement.pause(300);
-
     }
 
     saveScreenshot(name) {
@@ -221,7 +220,6 @@ class Page {
         }
     }
 
-
     //returns array of messages
     waitForNotificationMessages() {
         return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
@@ -230,7 +228,6 @@ class Page {
             return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
         })
     }
-
 
     waitForExpectedNotificationMessage(expectedMessage) {
         let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
@@ -281,7 +278,6 @@ class Page {
     async isFocused(selctor) {
         let el = await this.findElement(selctor);
         return await el.isFocused();
-
     }
 
     isAlertPresent() {
@@ -297,13 +293,11 @@ class Page {
                 throw new Error(err);
             }
         })
-    }
-    ;
+    };
 
     alertAccept() {
         return this.getBrowser().acceptAlert();
-    }
-    ;
+    };
 
     getAlertText() {
         return this.getBrowser().getAlertText().catch(err => {
@@ -396,5 +390,4 @@ class Page {
     }
 }
 
-module
-    .exports = Page;
+module.exports = Page;
