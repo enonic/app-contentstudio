@@ -917,7 +917,7 @@ class HtmlEditorConfigBuilder {
     private getExtraAllowedContent(): string {
         const scriptTag: string = this.editorParams.isScriptAllowed() ? 'script' : '';
 
-        return `code address dl dt dd blockquote ${scriptTag};img[data-src];td{*};`;
+        return `code address dl dt dd blockquote ${scriptTag};img[data-src];*(*);td{*}`;
     }
 
     private includeTools(tools: any[]) {
