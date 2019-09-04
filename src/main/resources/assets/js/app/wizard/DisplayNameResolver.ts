@@ -29,14 +29,16 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
 
     private sanitizeFieldValue(value: string) {
         let result = value;
-        result = result.replace(/(<([^>]+)>)/ig,"");    // Strip HTML tags
-        result = result.replace(/(\r\n|\n|\r)/gm,"");   // Strip linebreaks
+        result = result.replace(/(<([^>]+)>)/ig,'');    // Strip HTML tags
+        result = result.replace(/(\r\n|\n|\r)/gm,'');   // Strip linebreaks
 
         return result;
     }
 
     private getFormValues(formView: api.form.FormView): string {
-        return formView.getData().getStringValues().map(formValue => `var ${formValue.name} = '${this.sanitizeFieldValue(formValue.value)}'; `).join('');
+        return formView.getData().getStringValues().map(formValue =>
+                    `var ${formValue.name} = '${this.sanitizeFieldValue(formValue.value)}'; `
+                ).join('');
     }
 
     private safeEval(expression: string, formView: api.form.FormView): string {
