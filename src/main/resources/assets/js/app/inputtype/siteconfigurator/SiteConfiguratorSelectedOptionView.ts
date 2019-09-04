@@ -66,10 +66,6 @@ export class SiteConfiguratorSelectedOptionView
 
         this.appendActionButtons(header);
 
-        if (!this.isEditable()) {
-            this.formView = this.createFormView(this.siteConfig);
-        }
-
         this.configureDialog = this.initConfigureDialog();
 
         if (this.configureDialog) {
@@ -134,6 +130,9 @@ export class SiteConfiguratorSelectedOptionView
 
     initConfigureDialog(): SiteConfiguratorDialog {
         if (!this.isEditable()) {
+            if (!this.formView) {
+                this.formView = this.createFormView(this.siteConfig);
+            }
             return null;
         }
 
