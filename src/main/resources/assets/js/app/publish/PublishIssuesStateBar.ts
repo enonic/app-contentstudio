@@ -62,16 +62,16 @@ export class PublishIssuesStateBar
         });
     }
 
-    showContainsInvalid() {
-        this.containsInvalidElement.show();
+    setContainsInvalidVisible(flag: boolean) {
+        this.containsInvalidElement.setVisible(flag);
     }
 
-    showContainsInProgress() {
-        this.containsInProgressElement.show();
+    setContainsInProgressVisible(flag: boolean) {
+        this.containsInProgressElement.setVisible(flag);
     }
 
-    showContainsNotPublishable() {
-        this.containsNotPublishableElement.show();
+    setContainsNotPublishableVisible(flag: boolean) {
+        this.containsNotPublishableElement.setVisible(flag);
     }
 
     showLoadFailed() {
