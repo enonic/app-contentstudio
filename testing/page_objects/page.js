@@ -206,6 +206,11 @@ class Page {
         let element = await this.findElement(selector);
         return await element.getAttribute(attributeName);
     }
+    async removeNotificationMessage(){
+        let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+        await this.clickOnElement(selector);
+        return this.pause(300);
+    }
 
     async waitForNotificationMessage() {
         try {

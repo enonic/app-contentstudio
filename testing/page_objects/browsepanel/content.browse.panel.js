@@ -199,10 +199,10 @@ class ContentBrowsePanel extends Page {
     async waitForStateIconNotDisplayed(displayName) {
         try {
             let xpath = XPATH.contentSummaryByDisplayName(displayName);
-            return await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(xpath, appConst.TIMEOUT_2);
         } catch (err) {
             this.saveScreenshot("err_browse_panel_workflow_state_should_be_hidden");
-            throw new Error("Workflow state should not be visible! " + err);
+            throw new Error("Workflow state should not be displayed! " + err);
         }
     }
 
@@ -273,7 +273,8 @@ class ContentBrowsePanel extends Page {
     async clickOnSortButton() {
         await this.waitForElementEnabled(this.sortButton);
         await this.pause(200);
-        return await this.clickOnElement(this.sortButton);
+        await this.clickOnElement(this.sortButton);
+        return await this.pause(400);
     }
 
     clickOnDuplicateButton() {

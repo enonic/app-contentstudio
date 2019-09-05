@@ -25,10 +25,13 @@ describe('site.wizard.save.select.controller.spec: Saves site-data and selects a
             }).then(() => {
                 //Press 'Save' button
                 return contentWizard.waitAndClickOnSave();
+            }).then(()=>{
+                return contentWizard.removeNotificationMessage();
             }).then(() => {
                 //switch to 'LiveEdit' and select the controller
                 return contentWizard.selectPageDescriptor('Page');
             }).then(() => {
+                //Notification message should appear again , because the site automatically saved after the selecting a page-controller.
                 studioUtils.saveScreenshot("site_page_descriptor_selected1");
                 return contentWizard.waitForNotificationMessage();
             }).then(result => {

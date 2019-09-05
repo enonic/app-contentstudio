@@ -81,11 +81,14 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    clickOnShowDependentItems() {
-        return this.clickOnElement(this.showDependentItemsLink).catch(err => {
+    async clickOnShowDependentItems() {
+        try {
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2);
+            return await this.clickOnElement(this.showDependentItemsLink);
+        } catch (err) {
             this.saveScreenshot('err_publish_dialog_show_dependent_button');
             throw new Error('Error when clicking on Show dependent items  ' + err);
-        })
+        }
     }
 
     clickOnIncludeChildrenToogler() {
