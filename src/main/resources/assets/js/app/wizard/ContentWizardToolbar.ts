@@ -149,8 +149,9 @@ export class ContentWizardToolbar
             return;
         }
 
-        const isReady: boolean = this.isValid && !this.hasUnsavedChanges && this.isContentReady();
-        const isInProgress: boolean = this.isValid && (this.hasUnsavedChanges || this.isContentInProgress());
+        const isReady: boolean = this.isReadyState();
+        const isInProgress: boolean = this.isInProgressState();
+
         this.stateElement.getEl().removeAttribute('title');
         this.stateElement.toggleClass('invalid', !this.isValid);
         this.stateElement.toggleClass('ready', isReady);
@@ -161,6 +162,14 @@ export class ContentWizardToolbar
         } else if (isInProgress) {
             this.stateElement.getEl().setTitle(i18n('tooltip.state.in_progress'));
         }
+    }
+
+    private isReadyState(): boolean {
+        return this.isValid && !this.hasUnsavedChanges && !this.getItem().isPendingDelete() && this.isContentReady();
+    }
+
+    private isInProgressState(): boolean {
+        return this.isValid && !this.getItem().isPendingDelete() && (this.hasUnsavedChanges || this.isContentInProgress());
     }
 
     private isContentReady(): boolean {

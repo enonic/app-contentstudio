@@ -1442,8 +1442,9 @@ export class ContentWizardPanel
     private updateThumbnailStateIcon(hasUnsavedChanges: boolean) {
         const item: ContentSummaryAndCompareStatus = this.currentContent;
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-        const isReady: boolean = !item.isOnline() && !hasUnsavedChanges && item.getContentSummary().isReady();
-        const isInProgress: boolean = !item.isOnline() && (hasUnsavedChanges || item.getContentSummary().isInProgress());
+        const isReady: boolean = !item.isOnline() && !item.isPendingDelete() && !hasUnsavedChanges && item.getContentSummary().isReady();
+        const isInProgress: boolean =
+            !item.isOnline() && !item.isPendingDelete() && (hasUnsavedChanges || item.getContentSummary().isInProgress());
 
         thumbnailUploader.toggleClass('ready', isReady);
         thumbnailUploader.toggleClass('in-progress', isInProgress);
