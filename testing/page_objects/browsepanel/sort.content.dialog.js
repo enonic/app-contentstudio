@@ -51,8 +51,9 @@ class SortContentDialog extends Page {
     }
 
     //expand menu-options('Modified date', 'Display name'...)
-    clickOnMenuButton() {
-        return this.clickOnElement(this.menuButton);
+    async clickOnMenuButton() {
+        //await this.waitForElementDisplayed(this.menuButton,appConst.TIMEOUT_4);
+        return await this.clickOnElement(this.menuButton);
     }
 
     async selectSortMenuItem(by, order) {
@@ -76,7 +77,7 @@ class SortContentDialog extends Page {
 
     async getSelectedOrder() {
         let selector = XPATH.container + XPATH.menuButton + "//a";
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        //await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return await this.getAttribute(selector, "title");
     }
 };

@@ -20,7 +20,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
-    let NEW_DISPLAY_NAME = "new display name 2";
 
     // verifies https://github.com/enonic/app-contentstudio/issues/792
     //workflow state icons are not updated after the content has been marked as ready
@@ -114,7 +113,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.doSwitchToContentBrowsePanel();
 
             //Workflow state icon should not be displayed!
-            await contentBrowsePanel.waitForStateIconNotDisplayed();
+            await contentBrowsePanel.waitForStateIconNotDisplayed(TEST_FOLDER.displayName);
 
             //AND: 'Publish...' should be default on the browse-toolbar:
             await contentBrowsePanel.waitForPublishButtonVisible();
