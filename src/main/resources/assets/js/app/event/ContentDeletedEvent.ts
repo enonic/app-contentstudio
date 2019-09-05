@@ -2,6 +2,7 @@ import ContentId = api.content.ContentId;
 import ContentPath = api.content.ContentPath;
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
+import {Branch} from '../versioning/Branch';
 
 export class ContentDeletedEvent
     extends api.event.Event {
@@ -98,7 +99,7 @@ export class ContentPendingDeleteItem
     private compareStatus: CompareStatus;
 
     constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
-        super(contentSummary.getContentId(), contentSummary.getPath(), 'master');
+        super(contentSummary.getContentId(), contentSummary.getPath(), Branch.MASTER);
 
         this.compareStatus = contentSummary.getCompareStatus();
         this.pending = pending;

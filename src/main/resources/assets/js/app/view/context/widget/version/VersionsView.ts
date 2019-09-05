@@ -6,6 +6,7 @@ import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentV
 import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {Branch} from '../../../../versioning/Branch';
 import ContentId = api.content.ContentId;
 import WorkflowState = api.content.WorkflowState;
 import i18n = api.util.i18n;
@@ -16,8 +17,6 @@ export class VersionsView
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
     private activeVersion: ContentVersion;
-
-    private static branchMaster: string = 'master';
 
     constructor() {
         super('all-content-versions');
@@ -97,11 +96,11 @@ export class VersionsView
         let result = null;
 
         let hasMaster = contentVersion.workspaces.some((workspace) => {
-            return workspace === VersionsView.branchMaster;
+            return workspace === Branch.MASTER;
         });
 
         contentVersion.workspaces.some((workspace: string) => {
-            if (!hasMaster || workspace === VersionsView.branchMaster) {
+            if (!hasMaster || workspace === Branch.MASTER) {
                 result = {workspace: workspace, status: this.getState(workspace)};
                 return true;
             }
@@ -111,7 +110,7 @@ export class VersionsView
     }
 
     private getState(workspace: string): string {
-        if (workspace === VersionsView.branchMaster) {
+        if (workspace === Branch.MASTER) {
             return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL);
         } else {
             return CompareStatusFormatter.formatStatusTextFromContent(this.content);

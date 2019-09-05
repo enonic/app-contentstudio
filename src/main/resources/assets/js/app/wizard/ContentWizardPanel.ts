@@ -36,7 +36,7 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
-import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
+import {ContentDeletedEvent, ContentDeletedItem} from '../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {XDataWizardStep} from './XDataWizardStep';
 import {Content, ContentBuilder} from '../content/Content';
@@ -59,6 +59,11 @@ import {Access} from '../security/Access';
 import {LayerContext} from '../layer/LayerContext';
 import {ConfirmLocalContentCreateDialog} from '../layer/ConfirmLocalContentCreateDialog';
 import {ContentAppBarTabMode} from '../ContentAppBarTabId';
+import {ContentLayer} from '../content/ContentLayer';
+import {Branch} from '../versioning/Branch';
+import {ListContentLayerRequest} from '../resource/layer/ListContentLayerRequest';
+import {LayersHelper} from '../layer/LayersHelper';
+import {ContentLayerExtended} from '../layer/ContentLayerExtended';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -1022,23 +1027,9 @@ export class ContentWizardPanel
                 return;
             }
 
-            event.getDeletedItems().filter((deletedItem) => {
-                return !!deletedItem && this.getPersistedItem().getPath().equals(deletedItem.getContentPath());
-            }).some((deletedItem) => {
-                if (deletedItem.isPending()) {
-                    this.getContentWizardToolbarPublishControls().setContentCanBePublished(true, false);
-                    this.updateContent(deletedItem.getCompareStatus());
-                } else {
-                    this.contentDeleted = true;
-                    this.close();
-                }
+            this.handleDeletedItems(event.getDeletedItems());
 
-                return true;
-            });
-
-            event.getUndeletedItems().filter((undeletedItem) => {
-                return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
-            }).some((undeletedItem) => {
+            event.getUndeletedItems().filter(this.isCurrentItemDeleted.bind(this)).some((undeletedItem: ContentDeletedItem) => {
                 this.updateContent(undeletedItem.getCompareStatus());
 
                 return true;
@@ -2581,5 +2572,90 @@ export class ContentWizardPanel
     private canEveryoneRead(content: Content): boolean {
         const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
         return !!entry && entry.isAllowed(Permission.READ);
+    }
+
+    private handleDeletedItems(items: ContentDeletedItem[]) {
+        items
+            .filter(this.isSameContentFromOtherLayerOrSelf.bind(this))
+            .forEach(this.handleSameContentFromOtherLayerOrSelfDeleted.bind(this));
+    }
+
+    private handleSameContentFromOtherLayerOrSelfDeleted(deletedItem: ContentDeletedItem) {
+        if (this.isCurrentBranch(deletedItem.getBranch())) {
+            this.handleCurrentItemDeleted(deletedItem);
+            return;
+        }
+
+        if (deletedItem.isPending()) {
+            return;
+        }
+
+        if (deletedItem.getBranch() === Branch.DRAFT) {
+            this.contentDeleted = true;
+            this.close();
+            return;
+        }
+
+        new ListContentLayerRequest().sendAndParse().then((layers: ContentLayer[]) => {
+            if (this.isSameContentFromParentLayer(deletedItem, layers)) {
+                this.makePanelReadonly();
+                this.contextSplitPanel.setContent(
+                    ContentSummaryAndCompareStatus.fromContentSummary(this.getPersistedItem().newBuilder().setInherited(true).build()));
+            }
+        }).catch(api.DefaultErrorHandler.handle);
+    }
+
+    private isCurrentItemDeleted(item: ContentDeletedItem): boolean {
+        return this.isSameContentFromOtherLayerOrSelf(item) && this.isCurrentBranch(item.getBranch());
+    }
+
+    private isSameContentFromOtherLayerOrSelf(item: ContentDeletedItem): boolean {
+        return !!item && this.getPersistedItem().getPath().equals(item.getContentPath());
+    }
+
+    private isSameContentFromParentLayer(deletedItem: ContentDeletedItem, layers: ContentLayer[]): boolean {
+        if (deletedItem.getBranch() === Branch.DRAFT) {
+            return true;
+        }
+
+        const deletedItemLayerName: string = deletedItem.getBranch().replace(`${Branch.DRAFT}-`, '');
+        const currentLayer: ContentLayer = LayerContext.get().getCurrentLayer();
+        const layersExtended: ContentLayerExtended[] = LayersHelper.sortAndExtendLayers(layers);
+        const deletedItemLevel: number = this.getLayerLevel(deletedItemLayerName, layersExtended);
+        const currentItemLevel: number = this.getLayerLevel(currentLayer.getName(), layersExtended);
+
+        return deletedItemLevel < currentItemLevel;
+    }
+
+    private getLayerLevel(layerName: string, layers: ContentLayerExtended[]) {
+        const layer: ContentLayerExtended = layers.filter((l: ContentLayerExtended) => {
+            return l.getName() === layerName;
+        })[0];
+
+        return layer.getLevel();
+    }
+
+    private isCurrentBranch(branch: string): boolean {
+        const currentLayer: ContentLayer = LayerContext.get().getCurrentLayer();
+
+        if (currentLayer.isBaseLayer()) {
+            return branch === Branch.DRAFT;
+        }
+
+        return branch === `${Branch.DRAFT}-${currentLayer.getName()}`;
+    }
+
+    private handleCurrentItemDeleted(deletedItem: ContentDeletedItem) {
+        if (deletedItem.isPending()) {
+            this.getContentWizardToolbarPublishControls().setContentCanBePublished(true, false);
+            this.updateContent(deletedItem.getCompareStatus());
+        } else if (deletedItem.getBranch() !== Branch.DRAFT) {
+            this.makePanelReadonly();
+            this.contextSplitPanel.setContent(
+                ContentSummaryAndCompareStatus.fromContentSummary(this.getPersistedItem().newBuilder().setInherited(true).build()));
+        } else {
+            this.contentDeleted = true;
+            this.close();
+        }
     }
 }

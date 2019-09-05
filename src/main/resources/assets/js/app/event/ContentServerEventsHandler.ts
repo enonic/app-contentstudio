@@ -9,6 +9,7 @@ import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
+import {Branch} from '../versioning/Branch';
 
 /**
  * Class that listens to server events and fires UI events
@@ -73,7 +74,7 @@ export class ContentServerEventsHandler {
     private hasDraftBranchChanges(changes: ContentServerChange[]): boolean {
         return changes.some((change: ContentServerChange) => {
             return change.getChangeItems().some(changeItem => {
-                return changeItem.getBranch() === 'draft';
+                return !!changeItem.getBranch() && changeItem.getBranch().startsWith(Branch.DRAFT);
             });
         });
     }
@@ -401,7 +402,7 @@ export class ContentServerEventsHandler {
                 return total.concat(change.getChangeItems());
             }, []);
 
-            let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
+            let deletedItems = changeItems.filter(d => !!d.getBranch() && d.getBranch().startsWith(Branch.DRAFT));
             let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
                 d.contentId)));
 

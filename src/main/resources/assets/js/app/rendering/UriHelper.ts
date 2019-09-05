@@ -22,25 +22,22 @@ export class UriHelper {
     }
 
     private static getBranchName(branch: Branch): string {
-        const branchName: string = Branch[branch].toLowerCase();
         const currentLayer: ContentLayer = LayerContext.get().getCurrentLayer();
 
         if (currentLayer.isBaseLayer()) {
-            return branchName;
+            return branch;
         }
 
-        return `${branchName}-${currentLayer.getName()}`;
+        return `${branch}-${currentLayer.getName()}`;
     }
 
     public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
                                              workspace: Branch): string {
         const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
-
-        const branchName: string = Branch[workspace].toLowerCase();
         const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
 
         const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        const searchEntry = renderingModeName + elementDivider + repositoryName + elementDivider + branchName;
+        const searchEntry = renderingModeName + elementDivider + repositoryName + elementDivider + workspace;
 
         const index = portalUri.indexOf(searchEntry);
         if (index > -1) {
