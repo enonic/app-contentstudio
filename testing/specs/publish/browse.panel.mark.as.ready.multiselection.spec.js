@@ -30,7 +30,7 @@ describe('wizard.mark.as.ready.multiselection.spec - select 2 folders and do Mar
             await studioUtils.doAddFolder(TEST_FOLDER1);
             await studioUtils.doAddFolder(TEST_FOLDER2);
 
-            //Click on checkboxes and select bot folders:
+            //Click on checkboxes and select both folders:
             await studioUtils.findContentAndClickCheckBox(name1);
             await studioUtils.findContentAndClickCheckBox(name2);
             //Click on 'MARK AS READY' button
@@ -41,6 +41,27 @@ describe('wizard.mark.as.ready.multiselection.spec - select 2 folders and do Mar
 
             studioUtils.saveScreenshot("mark_as_ready_confirmation");
             assert.equal(message, "Are you sure you want to mark the items as ready?");
+        });
+
+    it(`WHEN single folder has been selected and 'MARK AS READY' button pressed THEN no confirmation needed for single content, the content gets 'Ready for publishing'`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let name = contentBuilder.generateRandomName('folder');
+            let folder = contentBuilder.buildFolder(name);
+
+            // the folder has been added:
+            await studioUtils.doAddFolder(folder);
+
+            //Click on checkboxes and select the folder:
+            await studioUtils.findContentAndClickCheckBox(name);
+
+            //Click on 'MARK AS READY' button, no confirmation needed for single content:
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+
+            let message = await contentBrowsePanel.waitForNotificationMessage();
+            let expectedMessage = appConst.itemMarkedAsReadyMessage(folder.displayName);
+            studioUtils.saveScreenshot("mark_as_ready_confirmation");
+            assert.equal(message, expectedMessage, "Item is marked as ready - message should appear");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

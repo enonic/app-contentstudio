@@ -5,6 +5,9 @@ module.exports = Object.freeze({
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
+    itemMarkedAsReadyMessage(name){
+       return  `Item \"${name}\" is marked as ready`
+    },
     itemSavedNotificationMessage: function (name) {
         return `Item \"${name}\" is saved.`
     },
