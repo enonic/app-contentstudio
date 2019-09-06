@@ -989,6 +989,7 @@ export class ContentWizardPanel
                 return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
             }).some((undeletedItem) => {
                 this.updateContent(undeletedItem.getCompareStatus());
+                this.updatePublishStatusOnDataChange();
 
                 return true;
             });
