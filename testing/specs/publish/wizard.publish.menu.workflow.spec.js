@@ -14,7 +14,7 @@ const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.ste
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
-describe('wizard.publish.menu.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -56,14 +56,14 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
 
         });
 
-    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
+    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //'MARK AS READY' button should be present on the toolbar
-            //So need to open the publish-menu and select 'Unpublish' menu item
-            await contentWizard.openPublishMenuSelectItem("Unpublish");
+            //So need to open the publish-menu and select 'Unpublish...' menu item
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
 
             //open 'Unpublish Content' Dialog:
             let contentUnpublishDialog = new ContentUnpublishDialog();
@@ -91,9 +91,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been deleted:
-            await contentWizard.clickOnDelete();
-            await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteButton();
+            await contentWizard.clickOnDeleteAndConfirm();
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 

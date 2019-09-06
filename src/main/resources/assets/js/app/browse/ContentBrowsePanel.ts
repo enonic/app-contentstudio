@@ -176,6 +176,7 @@ export class ContentBrowsePanel
             this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
+            this.markContentAsReadyOnPublishActions();
 
             return rendered;
         }).catch((error) => {
@@ -627,5 +628,22 @@ export class ContentBrowsePanel
         browseActions.onActionsUnstashed(() => {
             contentPublishMenuButton.setRefreshDisabled(false);
         });
+    }
+
+    private markContentAsReadyOnPublishActions() {
+        const handler: () => void = this.markSingleContentAsReady.bind(this);
+        this.getBrowseActions().getPublishAction().onBeforeExecute(handler);
+        this.getBrowseActions().getPublishTreeAction().onBeforeExecute(handler);
+        this.getBrowseActions().getRequestPublishAction().onBeforeExecute(handler);
+    }
+
+    private markSingleContentAsReady() {
+        const contents: ContentSummaryAndCompareStatus[] = this.treeGrid.getSelectedDataList();
+
+        if (contents.length > 1) { // only when single item selected
+            return;
+        }
+
+        this.getBrowseActions().getMarkAsReadyAction().execute();
     }
 }

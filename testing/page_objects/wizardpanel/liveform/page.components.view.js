@@ -82,22 +82,15 @@ class PageComponentView extends Page {
         let destinationElem = xpath.container + xpath.componentByName(destinationName);
         let source = await this.findElement(sourceElem);
         let destination = await this.findElement(destinationElem);
-        await source.moveTo();
-        //await source.click();
-        await this.pause(300);
-        await this.getBrowser().buttonDown(0);
-        await destination.moveTo();
-        await this.pause(300);
-         await this.getBrowser().buttonUp(0);
-        //await destination.click();
+        await source.dragAndDrop(destination);
         await this.pause(1000);
     }
 
-    getComponentDescription(name) {
+    async getComponentDescription(name) {
         let selector = xpath.container + xpath.componentDescriptionByName(name);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).then(() => {
-            return this.getText(selector);
-        })
+        //let elems = await this.findElements(selector);
+        //await this.waitForElementDisplayed(selector,appConst.TIMEOUT_4);
+        return await this.getText(selector);
     }
 };
 module.exports = PageComponentView;

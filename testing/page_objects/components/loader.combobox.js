@@ -21,9 +21,11 @@ class LoaderComboBox extends Page {
         return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3).catch(err => {
             throw new Error('option was not found! ' + optionDisplayName + ' ' + err);
         }).then(() => {
-            return this.clickOnElement(optionSelector).catch((err) => {
+            return this.clickOnElement(optionSelector).catch(err => {
                 this.saveScreenshot('err_select_option');
-                throw new Error('option not found!' + optionDisplayName);
+                throw new Error('Error when clicking on the option!' + optionDisplayName + " " + err);
+            }).then(() => {
+                return this.pause(300);
             })
         })
     }

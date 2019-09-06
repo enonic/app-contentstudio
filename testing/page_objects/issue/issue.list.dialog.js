@@ -13,7 +13,7 @@ const xpath = {
         return `//div[contains(@class,'slick-row') and descendant::div[contains(@id,'RowOptionDisplayValueViewer') and contains(.,''${name}')]]`
     },
     publishRequestsTab: "//li[contains(@id,'api.ui.tab.TabBarItem')and child::a[ contains(.,'Publish requests')]]",
-    allIssuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and child::a[contains(.,'All issues')]]",
+    allIssuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and child::a[contains(.,'All')]]",
     issuesTab: "//li[contains(@id,'api.ui.tab.TabBarItem') and child::a[ contains(.,'Issues')]]",
     assignedSelector: "//div[contains(@id,'RowSelector')]",
     assignedSelectedOption: "//div[contains(@class,'selected-options')]"
@@ -64,7 +64,7 @@ class IssuesListDialog extends Page {
     waitForDialogOpened() {
         return this.waitForElementDisplayed(this.allIssuesTab, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_load_issues_list_dlg");
-            throw new Error("Issues list dialog not loaded in " + appConst.TIMEOUT_3)
+            throw new Error("Issues list dialog is not loaded in " + appConst.TIMEOUT_3)
         })
     }
 

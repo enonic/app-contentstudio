@@ -35,7 +35,7 @@ const XPATH = {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
     publishMenuItemByName: function (name) {
-        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -196,6 +196,16 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    async waitForStateIconNotDisplayed(displayName) {
+        try {
+            let xpath = XPATH.contentSummaryByDisplayName(displayName);
+            return await this.waitForElementNotDisplayed(xpath, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_browse_panel_workflow_state_should_be_hidden");
+            throw new Error("Workflow state should not be displayed! " + err);
+        }
+    }
+
     //Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
         return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {
@@ -258,13 +268,13 @@ class ContentBrowsePanel extends Page {
         await this.waitForPublishButtonVisible();
         await this.pause(400);
         return await this.clickOnElement(this.publishButton);
-
     }
 
     async clickOnSortButton() {
         await this.waitForElementEnabled(this.sortButton);
         await this.pause(200);
-        return await this.clickOnElement(this.sortButton);
+        await this.clickOnElement(this.sortButton);
+        return await this.pause(400);
     }
 
     clickOnDuplicateButton() {

@@ -31,7 +31,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             return assert.equal(message, 'New issue created successfully.', 'expected notification message should appear');
         });
 
-    it(`GIVEN issues list dialog is opened WHEN existing issue has been clicked THEN Issue Details dialog should be displayed`,
+    it(`GIVEN issues list dialog is opened WHEN existing issue has been clicked THEN Issue Details dialog should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();

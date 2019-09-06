@@ -333,6 +333,22 @@ export class IssuesPanel
             onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), closedCount),
             offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
+
+        this.updateIssuesTogglerStatus(closedCount);
+    }
+
+    private updateIssuesTogglerStatus(closed: number) {
+        const noClosedIssues = closed === 0;
+        const showingClosedIssues = this.issuesToggler.isOff();
+
+        const switchToggler = showingClosedIssues && noClosedIssues;
+        if (switchToggler) {
+            this.issuesToggler.turnOn();
+        }
+
+        const showingOpenedIssues = !this.issuesToggler.isOff();
+        const disableToggler = showingOpenedIssues && noClosedIssues;
+        this.issuesToggler.setEnabled(!disableToggler);
     }
 
     private updateOptions(): wemQ.Promise<void> {

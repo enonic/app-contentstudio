@@ -13,6 +13,8 @@ const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -27,8 +29,8 @@ const XPATH = {
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
-    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish']]",
-    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
+    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
+    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
@@ -163,7 +165,7 @@ class ContentWizardPanel extends Page {
         let versionPanel = new VersionsWidget();
         await this.openDetailsPanel();
         await detailsPanel.openVersionHistory();
-        return versionPanel.waitForVersionsLoaded();
+        return await versionPanel.waitForVersionsLoaded();
     }
 
     waitForXdataTogglerVisible() {
@@ -220,6 +222,44 @@ class ContentWizardPanel extends Page {
         let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
         return this.getTextInElements(selector).catch(err => {
             throw new Error("Error when getting title from x-data " + err);
+        })
+    }
+
+    async hotKeyCloseWizard() {
+        try {
+            await this.pause(1000);
+            return await this.getBrowser().keys(['Alt', 'w']);
+        } catch (err) {
+            return await this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    async hotKeySaveAndCloseWizard() {
+        try {
+            let status = await this.getBrowser().status();
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                await this.getBrowser().keys(['Control', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                await this.getBrowser().keys(['Command', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+        } catch (err) {
+            console.log("Save and close the wizard " + err);
+            return await this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    doSwitchToContentBrowsePanel() {
+        console.log('testUtils:switching to Content Browse panel...');
+        let browsePanel = new BrowsePanel();
+        return this.getBrowser().switchWindow("Content Studio - Enonic XP Admin").then(() => {
+            console.log("switched to content browse panel...");
+        }).then(() => {
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+        }).catch(err => {
+            throw new Error("Error when switching to Content Studio App " + err);
         })
     }
 
@@ -323,6 +363,14 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot('err_delete_wizard');
             throw new Error('Error when Delete button has been clicked ' + err);
         });
+    }
+
+    async clickOnDeleteAndConfirm() {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        await this.clickOnDelete(this.deleteButton);
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnDeleteButton();
+        return contentDeleteDialog.waitForDialogClosed();
     }
 
     //clicks on 'Publish...' button
@@ -665,6 +713,16 @@ class ContentWizardPanel extends Page {
 
         } else {
             throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    async waitForStateIconNotDisplayed() {
+        try {
+            let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
+            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_4);
+        } catch (err) {
+            this.saveScreenshot("err_workflow_state_should_not_be_visible");
+            throw new Error("Workflow state should be not visible!" + err);
         }
     }
 

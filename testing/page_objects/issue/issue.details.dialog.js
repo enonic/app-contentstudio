@@ -147,7 +147,6 @@ class IssueDetailsDialog extends Page {
         }
     }
 
-
     waitForIssueTitleInputNotEditable() {
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'readonly')]`);
@@ -219,8 +218,6 @@ class IssueDetailsDialog extends Page {
     isCloseIssueButtonDisplayed() {
         return this.isElementDisplayed(this.closeIssueButton);
     }
-
-
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');

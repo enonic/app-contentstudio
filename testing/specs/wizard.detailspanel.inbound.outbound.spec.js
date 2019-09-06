@@ -134,8 +134,8 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                     studioUtils.saveScreenshot('outbound_dep_in_new_tab');
                     return contentBrowsePanel.getDisplayNamesInGrid();
                 }).then(result => {
-                    assert.isTrue(result[0] == IMAGE_DISPLAY_NAME, 'correct display name of dependency');
-                    assert.isTrue(result.length == 1, 'Only one dependency should be present in the grid');
+                    assert.isTrue(result[0] == IMAGE_DISPLAY_NAME, 'expected display name of dependency');
+                    assert.equal(result.length, 1, 'One content should be present in the grid');
                 })
             });
 
