@@ -10,6 +10,7 @@ export class StatusSelectionItem
     private isRemovableFn: () => boolean;
     private clickTooltip: Tooltip;
     private removeClickTooltip: string = i18n('tooltip.list.itemRequired');
+    private status: api.dom.DivEl;
 
     constructor(viewer: api.ui.Viewer<ContentSummaryAndCompareStatus>, item: BrowseItem<ContentSummaryAndCompareStatus>) {
         super(viewer, item);
@@ -61,11 +62,20 @@ export class StatusSelectionItem
                 e.stopPropagation();
             });
 
-            let statusDiv = this.initStatusDiv(this.item.getModel());
-            this.appendChild(statusDiv);
+            this.status = this.initStatusDiv(this.item.getModel());
+            this.appendChild(this.status);
 
             return rendered;
         });
+    }
+
+    public setObject(obj: ContentSummaryAndCompareStatus) {
+        const viewer = this.getViewer();
+        this.status.removeClass(viewer.getObject().getStatusClass());
+
+        viewer.setObject(obj);
+        this.status.setHtml(obj.getStatusText());
+        this.status.addClass(obj.getStatusClass());
     }
 
     private initStatusDiv(content: ContentSummaryAndCompareStatus) {
