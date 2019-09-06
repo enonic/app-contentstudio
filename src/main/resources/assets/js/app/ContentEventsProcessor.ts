@@ -63,16 +63,16 @@ export class ContentEventsProcessor {
         if (hasInherited) {
             const confirmDialog: ConfirmLocalContentCreateDialog = new ConfirmLocalContentCreateDialog();
             confirmDialog.setYesCallback(() => {
-                this.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
-                this.handleEditContents(inheritedContents, ContentAppBarTabMode.LOCALIZE);
+                ContentEventsProcessor.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
+                ContentEventsProcessor.handleEditContents(inheritedContents, ContentAppBarTabMode.LOCALIZE);
             });
             confirmDialog.setNoCallback(() => {
-                this.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
-                this.handleEditContents(inheritedContents, ContentAppBarTabMode.VIEW);
+                ContentEventsProcessor.handleEditContents(localContents, ContentAppBarTabMode.EDIT);
+                ContentEventsProcessor.handleEditContents(inheritedContents, ContentAppBarTabMode.VIEW);
             });
             confirmDialog.open();
         } else {
-            this.handleEditContents(event.getModels(), ContentAppBarTabMode.EDIT);
+            ContentEventsProcessor.handleEditContents(event.getModels(), ContentAppBarTabMode.EDIT);
         }
     }
 
