@@ -105,6 +105,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         });
 
 
+    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for 'Deleted' content
     it(`GIVEN folder was modified and 'unpublished' then it has been published again WHEN 'Delete' button has been pressed and deleting confirmed THEN 'Deleted' status gets visible in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -119,7 +120,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await scheduleForm.waitForDisplayed();
 
             //Workflow state should not be displayed for the Deleted content
-            //verifies https://github.com/enonic/app-contentstudio/issues/891
             await contentWizard.waitForStateIconNotDisplayed();
 
             //AND: Status should be 'Deleted'

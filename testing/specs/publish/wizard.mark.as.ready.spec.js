@@ -96,7 +96,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Work In Progress state should not be displayed for Deleted content
+    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for Deleted content
     //verifies https://github.com/enonic/app-contentstudio/issues/692   'Publish...' should be the default action for content in Deleted state
     it(`GIVEN existing folder (Ready for publishing)is opened ADN it has been published then modified WHEN this folder has been 'Deleted' THEN default action gets PUBLISH...`,
         async () => {
