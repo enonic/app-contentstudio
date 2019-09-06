@@ -119,11 +119,11 @@ export class PublishDialogDependantList
     }
 
     private isContentReady(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && item.getContentSummary().isReady();
+        return !item.isOnline() && !item.isPendingDelete() && item.getContentSummary().isReady();
     }
 
     private isContentInProgress(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && item.getContentSummary().isInProgress();
+        return !item.isOnline() && !item.isPendingDelete() && item.getContentSummary().isInProgress();
     }
 
    onListChanged(listener: () => void) {
