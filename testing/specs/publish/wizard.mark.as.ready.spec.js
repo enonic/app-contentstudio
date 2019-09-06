@@ -13,7 +13,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
-const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {

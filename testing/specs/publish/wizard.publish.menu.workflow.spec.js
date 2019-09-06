@@ -35,6 +35,18 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
+    it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Issue' is enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+
+            //Click on dropdown handle and open Publish Menu:
+            await contentWizard.openPublishMenu();
+            studioUtils.saveScreenshot("publish_menu_items2");
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        });
+
 
     it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
         async () => {
@@ -53,7 +65,18 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
 
             let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+        });
 
+    it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue' is enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+
+            //Click on dropdown handle and open Publish Menu:
+            await contentWizard.openPublishMenu();
+            studioUtils.saveScreenshot("publish_menu_items3");
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 
     it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
@@ -95,8 +118,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 
-            let workflow = await contentWizard.getToolbarWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            //Workflow state should not be displayed for the Deleted content
+            //verifies https://github.com/enonic/app-contentstudio/issues/891
+            await contentWizard.waitForStateIconNotDisplayed();
 
             //AND: Status should be 'Deleted'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.DELETED);
