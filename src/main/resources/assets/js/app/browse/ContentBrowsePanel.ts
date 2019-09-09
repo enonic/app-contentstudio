@@ -28,6 +28,10 @@ import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
 import {LayerChangedEvent} from '../layer/LayerChangedEvent';
 import {ContentAppBarTabMode} from '../ContentAppBarTabId';
+import {ContentLayer} from '../content/ContentLayer';
+import {LayerContext} from '../layer/LayerContext';
+import {ContentsExistRequest} from '../resource/ContentsExistRequest';
+import {ContentsExistResult} from '../resource/ContentsExistResult';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -340,7 +344,7 @@ export class ContentBrowsePanel
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getPath()));
+            this.handleContentDeleted(data);
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
@@ -353,7 +357,7 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(oldPaths);
+            this.doHandleContentDeleted(oldPaths);
             this.handleContentCreated(data);
         });
 
@@ -397,7 +401,28 @@ export class ContentBrowsePanel
         });
     }
 
-    private handleContentDeleted(paths: ContentPath[]) {
+    private handleContentDeleted(data: ContentServerChangeItem[]) {
+        const currentLayer: ContentLayer = LayerContext.get().getCurrentLayer();
+
+        if (currentLayer.isBaseLayer()) {
+            this.doHandleContentDeleted(data.filter(this.isChangeItemOnBaseLayer).map((d: ContentServerChangeItem) => d.getPath()));
+        } else {
+            const itemsPresentInGrid: ContentSummaryAndCompareStatus[] =
+                this.treeGrid.getNodes(data.map((d: ContentServerChangeItem) => d.getPath()))
+                    .map((t: TreeNode<ContentSummaryAndCompareStatus>) => t.getData());
+            this.updateOrDeleteMissingItems(itemsPresentInGrid);
+        }
+    }
+
+    private isChangeItemOnBaseLayer(item: ContentServerChangeItem): boolean {
+        return item.getBranch() === Branch.DRAFT;
+    }
+
+    private doHandleContentDeleted(paths: ContentPath[]) {
+        if (paths.length === 0) {
+            return;
+        }
+
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: deleted', paths);
         }
@@ -405,6 +430,44 @@ export class ContentBrowsePanel
         const deletedNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.deleteContentNodes(paths);
         this.updateContentPanelOnNodesDelete(deletedNodes);
         this.refreshFilterWithDelay();
+    }
+
+    private updateOrDeleteMissingItems(items: ContentSummaryAndCompareStatus[]) {
+        if (items.length === 0) {
+            return;
+        }
+
+        new ContentsExistRequest(items.map((i: ContentSummaryAndCompareStatus) => i.getId())).sendAndParse().then(
+            (contentsExistResult: ContentsExistResult) => {
+                this.doUpdateOrDeleteMissingItems(items, contentsExistResult);
+            }).catch(api.DefaultErrorHandler.handle);
+    }
+
+    private doUpdateOrDeleteMissingItems(items: ContentSummaryAndCompareStatus[], contentsExistResult: ContentsExistResult) {
+        const itemsToDelete: ContentPath[] = [];
+        const itemsToUpdate: ContentSummaryAndCompareStatus[] = [];
+
+        items.forEach((item) => {
+            if (contentsExistResult.getContentsExistMap()[item.getId()]) {
+                itemsToUpdate.push(item);
+            } else {
+                itemsToDelete.push(item.getPath());
+            }
+        });
+
+        this.doHandleContentDeleted(itemsToDelete);
+        this.updateItemsDeletedOnOtherLayer(itemsToUpdate);
+    }
+
+    private updateItemsDeletedOnOtherLayer(itemsToUpdate: ContentSummaryAndCompareStatus[]) {
+        if (itemsToUpdate.length === 0) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(itemsToUpdate.map(i => i.getContentId())).then(
+            (items: ContentSummaryAndCompareStatus[]) => {
+                this.doHandleContentUpdate(items).then((updatedNodes) => this.triggerDataChangedEvent(updatedNodes));
+            }).catch(api.DefaultErrorHandler.handle);
     }
 
     private updateContentPanelOnNodesDelete(deletedNodes: TreeNode<ContentSummaryAndCompareStatus>[]) {

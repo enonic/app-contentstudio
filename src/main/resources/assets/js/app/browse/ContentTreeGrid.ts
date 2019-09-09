@@ -704,7 +704,7 @@ export class ContentTreeGrid
         return nodes;
     }
 
-    private getNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+    getNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
         const nodes: TreeNode<ContentSummaryAndCompareStatus>[][] = this.findByPaths(paths).map(el => el.getNodes());
         const merged: TreeNode<ContentSummaryAndCompareStatus>[] = [];
 
