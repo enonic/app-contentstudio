@@ -697,6 +697,11 @@ class ContentBrowsePanel extends Page {
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
     }
 
+    async openPublishMenu() {
+        await this.clickOnElement(this.showPublishMenuButton);
+        await this.pause(300);
+    }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuDropDownVisible();
