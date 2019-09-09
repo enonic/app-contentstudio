@@ -2233,6 +2233,7 @@ export class ContentWizardPanel
             this.syncPersistedItemWithXData(xDataName, viewedData);
 
             if (!extraData) {
+                form.resetData();
                 return;
             }
 
