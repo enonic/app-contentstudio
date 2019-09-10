@@ -13,7 +13,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 
-describe('wizard.mark.as.ready.single.content.spec - select single content and click on  Request Publishing and Publish menu items`', function () {
+describe('browse.panel.mark.as.ready.single.content.spec - select single content and click on  Request Publishing and Publish menu items`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -29,10 +29,10 @@ describe('wizard.mark.as.ready.single.content.spec - select single content and c
 
             TEST_FOLDER = contentBuilder.buildFolder(name);
 
-            // the folders has been added:
+            // the folder has been added:
             await studioUtils.doAddFolder(TEST_FOLDER);
 
-            //Click on checkboxes and select select folder:
+            //Click on checkbox and select select the folder:
             await studioUtils.findContentAndClickCheckBox(name);
             //Click on 'Publish...' menu item
             await contentBrowsePanel.openPublishMenuSelectItem("Publish...");
@@ -55,10 +55,10 @@ describe('wizard.mark.as.ready.single.content.spec - select single content and c
 
             TEST_FOLDER = contentBuilder.buildFolder(name);
 
-            // the folders has been added:
+            // the folder has been added:
             await studioUtils.doAddFolder(TEST_FOLDER);
 
-            //Click on checkboxes and select the folders
+            //Click on checkbox and select the folder
             await studioUtils.findContentAndClickCheckBox(name);
             //Click on 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);

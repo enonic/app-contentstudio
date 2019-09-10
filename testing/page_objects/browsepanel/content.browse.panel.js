@@ -196,21 +196,22 @@ class ContentBrowsePanel extends Page {
         })
     }
 
-    async waitForStateIconNotDisplayed(displayName) {
-        try {
-            let xpath = XPATH.contentSummaryByDisplayName(displayName);
-            return await this.waitForElementNotDisplayed(xpath, appConst.TIMEOUT_2);
-        } catch (err) {
-            this.saveScreenshot("err_browse_panel_workflow_state_should_be_hidden");
-            throw new Error("Workflow state should not be displayed! " + err);
-        }
+    waitForStateIconNotDisplayed(displayName) {
+        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(xpath, 'class').then(result => {
+                return (!result.includes('in-progress') && !result.includes('ready'));
+            });
+        }, 3000).catch(err => {
+            throw new Error("Workflow icon still visible in content: "+ displayName + " "+ err);
+        });
     }
 
     //Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
         return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_publish_button_mark_as_ready");
-            throw new Error("Publish button is not visible! " + err);
+            throw new Error("Mark as Ready button is not visible! " + err);
         })
     }
 

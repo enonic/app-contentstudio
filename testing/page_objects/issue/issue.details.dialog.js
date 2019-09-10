@@ -147,6 +147,15 @@ class IssueDetailsDialog extends Page {
         }
     }
 
+    async updateTitle(newTitle) {
+        try {
+            await this.addTextInInput(this.titleInput, newTitle);
+            await this.pause(400);
+        } catch (err) {
+            this.saveScreenshot("err_type_issue_title");
+            throw new Error('error when type issue-title ' + err);
+        }
+    }
     waitForIssueTitleInputNotEditable() {
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'readonly')]`);
