@@ -1,0 +1,97 @@
+= Content Workflow
+:toc: right
+:imagesdir: workflow/images
+
+Content Workflow in Content Studio consists of the following stages:
+
+* In progress
+* Ready
+* Publishing Request
+* Published
+
+Workflow state of the content is displayed via corresponding icon.
+
+
+== In Progress
+
+Default workflow state of a new content is `In progress`.
+This means the content in being worked on and it will stay in this state until user marks it as ready.
+Such content is marked with yellow (!) icon everywhere the content type icon is displayed.
+
+image::content-in-progress.png[]
+
+Content `In progress` is not allowed to be published - this is to prevent unfinished content from publishing by accident.
+
+image::publish-wizard-in-progress.png[]
+
+You can either exclude such a content from publishing, or mark it as ready.
+
+TIP: Users with publishing permissions are allowed to use `Publish...` action
+for content "In progress" from the Content Wizard via action menu in the toolbar.
+In this case the item will automatically be marked as ready, assuming user is going
+to publish the content because it's ready for publishing.
+
+For content `In progress` default action in the action menu is *MARK AS READY*.
+
+When work on the content is finished and the content is ready for publishing,
+user can mark it as ready by using *MARK AS READY* action in the Content Wizard or
+Content Navigator. This will mark the content as *READY* and take it to the
+next stage of the Workflow process.
+
+
+=== Ready for Publishing
+
+After *MARK AS READY* action is applied, the content will be marked as *READY FOR PUBLISHING*
+and the yellow (!) icon will be replaced by the green (V) icon, enabling its publishing.
+This is also helpful if the content requires input from several people - then first user can
+mark the content as ready to notify second user he/she can start his/her part etc.
+
+image::content-ready.png[]
+
+Default action for content marked as *READY FOR PUBLISHING* will change to either *PUBLISH* (if user
+has sufficient publishing permissions) or *REQUEST PUBLISHING*.
+
+TIP: Even if user has sufficient publishing permissions, he/she can still request publishing
+from another user, if content requires some additional input or approval.
+
+The moment the content that is *READY FOR PUBLISHING* starts being edited, its workflow state will
+immediately be changed back to *IN PROGRESS*. User will then have to mark the content as ready again,
+when the modifications are finished.
+
+
+=== Publishing Request
+
+*REQUEST PUBLISHING" action is used to request publishing from a different user. User can request publishing
+of a single content item from the Content Wizard, or several from Content Navigator.
+
+TIP: As with `Publish...` action, when `Request Publishing...` action is triggered for a single content that is *IN PROGRESS*,
+it will be automatically marked as *READY*, assuming the user is done with the changes if he/she is requesting
+publishing.
+
+Publishing Request is created via simple 2-step wizard.
+
+On the first step user can see all of the items that will be sent for publishing, and their dependent items.
+
+image::request-publishing-wizard-1.png[]
+
+The second step is used to describe the changes that will be published (mandatory field) and select
+one or more users that the request will be assigned to.
+
+image::request-publishing-wizard-2.png[]
+
+"Create request" button will create a new Publishing Request and open the modal dialog with its details.
+
+image::publishing-request-1.png[]
+
+This dialog is somewhat similar to the Issue dialog. The main difference is that content items are displayed
+on the first tab and can be published directly from this dialog with "Publish Now" button. Publisher can
+also schedule publishing of the content using calendar icon at the bottom, which will toggle on/off the form
+for scheduling date(s) the content should be online from/to.
+
+image::publishing-request-2.png[]
+
+Publishing requests can also be opened from the Issue List dialog which now lists both issues and publish
+requests, split in different tabs.
+
+image::publishing-request-list.png[]
+
