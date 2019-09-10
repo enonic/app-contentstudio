@@ -1,19 +1,17 @@
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeJson} from './json/ContentTypeJson';
+import {LayerBasedResourceRequest} from './LayerBasedResourceRequest';
 import ContentTypeSummary = api.schema.content.ContentTypeSummary;
 
 export class ContentTypeResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourceUrl: api.rest.Path;
+    extends LayerBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourceUrl = api.rest.Path.fromParent(super.getRestPath(), 'schema/content');
     }
 
     getResourcePath(): api.rest.Path {
-        return this.resourceUrl;
+        return api.rest.Path.fromParent(super.getResourcePath(), 'schema/content');
     }
 
     fromJsonToContentType(json: ContentTypeJson): ContentType {
