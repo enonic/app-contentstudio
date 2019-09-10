@@ -7,7 +7,7 @@ import DescriptorKey = api.content.page.DescriptorKey;
 import ResourceRequest = api.rest.ResourceRequest;
 
 export interface CacheableRequest {
-    new(keys: ApplicationKey): ResourceRequest<any, Descriptor[]>;
+    new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<any, Descriptor[]>;
 }
 
 export class ApplicationBasedCache<T extends Descriptor> {
@@ -20,15 +20,15 @@ export class ApplicationBasedCache<T extends Descriptor> {
         const cacheName = `${api.ClassHelper.getFunctionName(descriptor)}Cache`;
 
         if (!topWindow[cacheName] || api.BrowserHelper.isIE()) { // IE: Cache fails to work after frame reload (issue with freed script)
-            const loadByApplication = (key: ApplicationKey) => new Request(key).sendAndParse().catch(api.DefaultErrorHandler.handle);
-            topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplication);
+            const loadByApplications = (keys: ApplicationKey[]) => new Request(keys).sendAndParse().catch(api.DefaultErrorHandler.handle);
+            topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplications);
         }
         return topWindow[cacheName];
     }
 
     private applicationCaches: ApplicationCaches<SimpleApplicationCache<T>>;
 
-    protected constructor(loadByApplication: (key: ApplicationKey) => void) {
+    protected constructor(loadByApplication: (keys: ApplicationKey[]) => void) {
 
         this.applicationCaches = new ApplicationCaches<SimpleApplicationCache<T>>();
 
@@ -38,7 +38,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
             if (ApplicationEventType.STARTED === event.getEventType()) {
                 console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key}`);
-                loadByApplication(event.getApplicationKey());
+                loadByApplication([event.getApplicationKey()]);
             } else if (ApplicationEventType.STOPPED === event.getEventType()) {
                 console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key}`);
                 this.deleteByApplicationKey(event.getApplicationKey());
@@ -46,13 +46,19 @@ export class ApplicationBasedCache<T extends Descriptor> {
         });
     }
 
-    getByApplication(applicationKey: ApplicationKey): T[] {
-        api.util.assertNotNull(applicationKey, 'applicationKey not given');
-        let cache = this.applicationCaches.getByKey(applicationKey);
-        if (!cache) {
-            return null;
-        }
-        return cache.getAll();
+    getByApplications(applicationKeys: ApplicationKey[]): T[] {
+        api.util.assertNotNull(applicationKeys, 'applicationKeys not given');
+
+        let caches = [];
+        const allCached = applicationKeys.every((key) => {
+            let keyCache = this.applicationCaches.getByKey(key);
+            if (keyCache) {
+                caches = caches.concat(keyCache.getAll());
+            }
+            return !!keyCache;
+        });
+
+        return allCached ? caches : null;
     }
 
     getByKey(key: DescriptorKey): T {
@@ -74,6 +80,16 @@ export class ApplicationBasedCache<T extends Descriptor> {
             this.applicationCaches.put(key, cache);
         }
         cache.put(descriptor);
+    }
+
+    putApplicationKeys(applicationKeys: ApplicationKey[]) {
+        applicationKeys.forEach((key) => {
+            let cache = this.applicationCaches.getByKey(key);
+            if (!cache) {
+                let newCache = this.createApplicationCache();
+                this.applicationCaches.put(key, newCache);
+            }
+        });
     }
 
     createApplicationCache(): SimpleApplicationCache<T> {

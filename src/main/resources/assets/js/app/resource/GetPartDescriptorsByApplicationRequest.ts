@@ -29,7 +29,7 @@ export class GetPartDescriptorsByApplicationRequest
     }
 
     sendAndParse(): wemQ.Promise<PartDescriptor[]> {
-        const cached = this.cache.getByApplication(this.applicationKey);
+        const cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
             return wemQ(cached);
         } else {

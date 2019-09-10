@@ -30,11 +30,13 @@ export class GetLayoutDescriptorsByApplicationRequest
 
     sendAndParse(): wemQ.Promise<LayoutDescriptor[]> {
 
-        let cached = this.cache.getByApplication(this.applicationKey);
+        let cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
             return wemQ(cached);
         } else {
             return this.send().then((response: api.rest.JsonResponse<LayoutDescriptorsJson>) => {
+                // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
+                this.cache.putApplicationKeys([this.applicationKey]);
                 return response.getResult().descriptors.map((descriptorJson: LayoutDescriptorJson) => {
                     const descriptor = LayoutDescriptor.fromJson(descriptorJson);
                     this.cache.put(descriptor);

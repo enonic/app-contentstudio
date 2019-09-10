@@ -1,29 +1,52 @@
-import ApplicationKey = api.application.ApplicationKey;
 import PageDescriptor = api.content.page.PageDescriptor;
 import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
-import {GetPageDescriptorsByApplicationRequest} from '../../../../../resource/GetPageDescriptorsByApplicationRequest';
+import ApplicationKey = api.application.ApplicationKey;
+import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
+import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 
 export class GetPageDescriptorsByApplicationsRequest
-    extends api.rest.ResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
+    extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
 
     private applicationKeys: ApplicationKey[];
 
-    setApplicationKeys(applicationKeys: ApplicationKey[]) {
+    private cache: ApplicationBasedCache<PageDescriptor>;
+
+    constructor(applicationKeys?: ApplicationKey[]) {
+        super();
+        super.setMethod('POST');
         this.applicationKeys = applicationKeys;
+        this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationsRequest);
+    }
+
+    getParams(): Object {
+        return {
+            applicationKeys: this.applicationKeys ? this.applicationKeys.map(key => key.toString()) : []
+        };
+    }
+
+    setApplicationKeys(keys: ApplicationKey[]): GetPageDescriptorsByApplicationsRequest {
+        this.applicationKeys = keys;
+        return this;
+    }
+
+    getRequestPath(): api.rest.Path {
+        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_applications');
     }
 
     sendAndParse(): wemQ.Promise<PageDescriptor[]> {
-
-        if (this.applicationKeys.length > 0) {
-            const request = (applicationKey: ApplicationKey) => new GetPageDescriptorsByApplicationRequest(applicationKey).sendAndParse();
-
-            const promises = this.applicationKeys.map(request);
-
-            return wemQ.all(promises).then((results: PageDescriptor[][]) => {
-                return results.reduce((prev: PageDescriptor[], curr: PageDescriptor[]) => prev.concat(curr), []);
-            });
+        const cached = this.cache.getByApplications(this.applicationKeys);
+        if (cached) {
+            return wemQ(cached);
         }
 
-        return wemQ.resolve([]);
+        return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {
+            // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
+            this.cache.putApplicationKeys(this.applicationKeys);
+            return response.getResult().descriptors.map((descJson) => {
+                const desc = PageDescriptor.fromJson(descJson);
+                this.cache.put(desc);
+                return desc;
+            });
+        });
     }
 }

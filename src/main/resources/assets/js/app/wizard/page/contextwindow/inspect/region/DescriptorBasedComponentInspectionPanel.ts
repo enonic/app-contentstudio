@@ -59,27 +59,26 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
         if (this.liveEditModel !== liveEditModel) {
 
-            const siteModelUpdatedHandler = () => this.reloadDescriptorsOnApplicationChange();
+            const debouncedReload = api.util.AppHelper.debounce(this.reloadDescriptorsOnApplicationChange.bind(this), 100);
             const applicationUnavailableHandler = () => this.applicationUnavailableHandler();
-            const applicationAddedHandler = () => this.reloadDescriptorsOnApplicationChange();
-            const applicationRemovedHandler = () => this.reloadDescriptorsOnApplicationChange();
+
 
             if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
                 const siteModel = this.liveEditModel.getSiteModel();
 
-                liveEditModel.getSiteModel().unSiteModelUpdated(siteModelUpdatedHandler);
+                liveEditModel.getSiteModel().unSiteModelUpdated(debouncedReload);
                 siteModel.unApplicationUnavailable(applicationUnavailableHandler);
-                siteModel.unApplicationAdded(applicationAddedHandler);
-                siteModel.unApplicationRemoved(applicationRemovedHandler);
+                siteModel.unApplicationAdded(debouncedReload);
+                siteModel.unApplicationRemoved(debouncedReload);
             }
 
             super.setModel(liveEditModel);
             this.layout();
 
-            liveEditModel.getSiteModel().onSiteModelUpdated(siteModelUpdatedHandler);
+            liveEditModel.getSiteModel().onSiteModelUpdated(debouncedReload);
             liveEditModel.getSiteModel().onApplicationUnavailable(applicationUnavailableHandler);
-            liveEditModel.getSiteModel().onApplicationAdded(applicationAddedHandler);
-            liveEditModel.getSiteModel().onApplicationRemoved(applicationRemovedHandler);
+            liveEditModel.getSiteModel().onApplicationAdded(debouncedReload);
+            liveEditModel.getSiteModel().onApplicationRemoved(debouncedReload);
         }
     }
 
