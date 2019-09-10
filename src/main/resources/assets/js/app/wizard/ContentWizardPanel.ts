@@ -2230,15 +2230,9 @@ export class ContentWizardPanel
             const viewedData = form.getData().copy();
             viewedData.getRoot().reset();
 
-            this.syncPersistedItemWithXData(xDataName, viewedData);
-
-            if (!extraData) {
-                return;
-            }
-
             form.getData().unChanged(this.dataChangedHandler);
 
-            const data: PropertyTree = extraData.getData();
+            const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
             data.onChanged(this.dataChangedHandler);
 
             form.resetState(data);
@@ -2248,6 +2242,11 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
+
+            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
+                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
+            }
+
         });
     }
 
