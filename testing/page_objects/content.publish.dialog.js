@@ -5,6 +5,7 @@ const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
     publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
+    scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
@@ -46,6 +47,10 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.addScheduleButton;
     }
 
+    get scheduleButton() {
+        return XPATH.container + XPATH.scheduleButton;
+    }
+
     get includeChildrenToogler() {
         return XPATH.container + XPATH.includeChildrenToogler;
     }
@@ -74,6 +79,17 @@ class ContentPublishDialog extends Page {
         return this.isElementDisplayed(this.includeChildrenToogler);
     }
 
+    async clickOnAddScheduleButton() {
+        try {
+            await this.waitForElementDisplayed(this.addScheduleButton,appConst.TIMEOUT_2);
+            await this.clickOnElement(this.addScheduleButton);
+            await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_publish_dialog_add_schedule_button');
+            throw new Error('Error when clicking Publish  ' + err);
+        }
+    }
+
     clickOnScheduleButton() {
         return this.clickOnElement(this.addScheduleButton).catch(err => {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
@@ -100,6 +116,12 @@ class ContentPublishDialog extends Page {
     waitForShowDependentButtonDisplayed() {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Show dependent items link should be visible!" + err)
+        })
+    }
+
+    waitForScheduleButtonDisplayed() {
+        return this.waitForElementDisplayed(this.scheduleButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Schedule button should be visible!" + err);
         })
     }
 
@@ -133,6 +155,12 @@ class ContentPublishDialog extends Page {
     isAddScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error("`Add Schedule` button is not present " + err);
+        })
+    }
+
+    waitForAddScheduleButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("`Add Schedule` button should not be displayed " + err);
         })
     }
 
