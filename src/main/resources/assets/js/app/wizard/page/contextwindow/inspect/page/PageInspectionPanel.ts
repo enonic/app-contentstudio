@@ -147,6 +147,7 @@ class BaseInspectionHandler {
 
         const root = config ? config.getRoot() : null;
         this.configForm = new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), root);
+        this.configForm.setLazyRender(false);
         this.pageInspectionPanel.appendChild(this.configForm);
         this.pageModel.setIgnorePropertyChanges(true);
         this.configForm.layout().catch((reason: any) => {
