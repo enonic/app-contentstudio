@@ -5,8 +5,8 @@
 Content Workflow in Content Studio consists of the following stages:
 
 * In progress
-* Ready
-* Publishing Request
+* Ready for Publishing
+* Publish Request
 * Published
 
 Workflow state of the content is displayed via corresponding icon.
@@ -39,12 +39,12 @@ Content Navigator. This will mark the content as *READY* and take it to the
 next stage of the Workflow process.
 
 
-=== Ready for Publishing
+== Ready for Publishing
 
-After *MARK AS READY* action is applied, the content will be marked as *READY FOR PUBLISHING*
-and the yellow (!) icon will be replaced by the green (V) icon, enabling its publishing.
-This is also helpful if the content requires input from several people - then first user can
-mark the content as ready to notify second user he/she can start his/her part etc.
+After *MARK AS READY* action is executed, the content will be marked as *READY FOR PUBLISHING*
+and the yellow (!) icon will be replaced by the green (V) icon, enabling publishing of the content.
+This is also helpful if the content requires input from several editors - then the first user can
+mark the content as ready to notify the second one that he/she can start his/her part etc.
 
 image::content-ready.png[]
 
@@ -59,16 +59,16 @@ immediately be changed back to *IN PROGRESS*. User will then have to mark the co
 when the modifications are finished.
 
 
-=== Publishing Request
+== Publish Request
 
-*REQUEST PUBLISHING" action is used to request publishing from a different user. User can request publishing
+*REQUEST PUBLISHING* action is used to request publishing from a different user. User can request publishing
 of a single content item from the Content Wizard, or several from Content Navigator.
 
-TIP: As with `Publish...` action, when `Request Publishing...` action is triggered for a single content that is *IN PROGRESS*,
+TIP: As with `Publish...` action, when `Request Publishing...` action is triggered for a *single* content that is *IN PROGRESS*,
 it will be automatically marked as *READY*, assuming the user is done with the changes if he/she is requesting
 publishing.
 
-Publishing Request is created via simple 2-step wizard.
+Publish Request is created via simple 2-step wizard.
 
 On the first step user can see all of the items that will be sent for publishing, and their dependent items.
 
@@ -79,7 +79,7 @@ one or more users that the request will be assigned to.
 
 image::request-publishing-wizard-2.png[]
 
-"Create request" button will create a new Publishing Request and open the modal dialog with its details.
+"Create request" button will create a new Publish Request and open the modal dialog with its details.
 
 image::publishing-request-1.png[]
 
@@ -90,8 +90,29 @@ for scheduling date(s) the content should be online from/to.
 
 image::publishing-request-2.png[]
 
-Publishing requests can also be opened from the Issue List dialog which now lists both issues and publish
+Publish requests can also be opened from the Issue List dialog which now lists both issues and publish
 requests, split in different tabs.
 
 image::publishing-request-list.png[]
 
+If content item is a part of an open Publish Request, the default action in the Content Editor is *OPEN REQUEST*.
+Clicking this button will display the latest open Publish Request with this item.
+
+image::publishing-request-toolbar.png[]
+
+Complete list of all open issues and publish requests containing this item is available inside the drop-down menu.
+
+image::publish-button-menu.png[]
+
+The same list of issues/publish requests is also shown in the Preview panel's toolbar of the Content Browser.
+
+image::issues-toolbar.png[]
+
+
+== Published
+
+After an item is published - either from a Publish Request or via Publishing Wizard - the workflow state icon is no longer shown.
+Once a published content is modified, the workflow state will be reset to `In progress`, followed by corresponding icon.
+
+
+image::modified-content.png[]
