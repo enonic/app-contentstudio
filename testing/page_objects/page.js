@@ -80,6 +80,19 @@ class Page {
         }
         return await inputElement.pause(300);
     }
+    async addTextInInput(selector, text) {
+        let inputElement = await this.findElement(selector);
+        //await inputElement.clearValue();
+        await inputElement.setValue(text);
+        //await this.getBrowser().keys(text);
+        let value = await inputElement.getValue();
+        //workaround for issue in WebdriverIO
+        if (value == "") {
+            await inputElement.addValue(text);
+        }
+        return await inputElement.pause(300);
+    }
+
 
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
