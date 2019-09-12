@@ -7,6 +7,12 @@ export class LayersHelper {
         return new LayersTransformer().extendAndSort(layers);
     }
 
+    static makeThumbnailSrc(layer: ContentLayer): string {
+        const layerName: string = layer.getName().toString();
+        const iconName: string = encodeURIComponent(layer.getIcon().getName().toString());
+        const url: string = `layer/icon?name=${layerName}&iconName=${iconName}`; // iconName is used as a cache breaker when icon changed
+        return api.util.UriHelper.getRestUri(url);
+    }
 }
 
 class LayersTransformer {

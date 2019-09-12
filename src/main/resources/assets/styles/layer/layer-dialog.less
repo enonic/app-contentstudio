@@ -82,27 +82,30 @@
     .modal-dialog-header {
       display: flex;
       padding-bottom: 20px;
+      align-items: center;
 
-      .layer-icon-uploader {
+      .layer-icon {
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
         padding: 0px;
 
-        .layer-icon {
-          width: 48px;
-          height: 48px;
+        &.flag-icon-none {
+          z-index: 1;
+        }
+
+        &:before {
+          font-size: 20px;
+          line-height: 42px;
+        }
+
+        &.flag-icon-unknown {
+          height: 34px;
+          z-index: 1;
 
           &:before {
-            font-size: 20px;
-            line-height: 42px;
-          }
-
-          &.flag-icon-unknown {
-            height: 34px;
-
-            &:before {
-              font-size: 38px;
-            }
+            font-size: 38px;
           }
         }
       }
@@ -150,6 +153,22 @@
 
   &.layer-update-dialog {
     .modal-dialog-header {
+
+      .layer-icon {
+        flex-direction: column;
+        cursor: pointer;
+
+        .flag-uploader {
+          position: absolute;
+          bottom: -15px;
+
+          label {
+            cursor: pointer;
+            padding: 3px;
+            color: @admin-blue;
+          }
+        }
+      }
 
       .title {
         padding-left: 45px;

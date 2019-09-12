@@ -17,7 +17,7 @@ export class LayerViewer
     }
 
     resolveIconEl(object: ContentLayer): api.dom.Element {
-        return new LayerIcon(object.getLanguage());
+        return new LayerIcon(object);
     }
 
     resolveIconClass(): string {

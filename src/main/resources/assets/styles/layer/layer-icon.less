@@ -20,4 +20,27 @@
   &.flag-icon[data-code] {
     border: 1px solid @admin-medium-gray-border;
   }
+
+  img {
+    display: none;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+  }
+
+  &.has-thumbnail {
+    img {
+      display: block;
+    }
+
+    background-image: none;
+
+    &.flag-icon[data-code] {
+      border: none;
+    }
+
+    &:before {
+      display: none;
+    }
+  }
 }

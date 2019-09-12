@@ -2,8 +2,8 @@ import '../../../../../api.ts';
 import {ContentInLayer} from '../../../../content/ContentInLayer';
 import {LayerIcon} from '../../../../layer/LayerIcon';
 import {CompareStatusChecker} from '../../../../content/CompareStatus';
-import i18n = api.util.i18n;
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import i18n = api.util.i18n;
 
 export class ContentInLayerViewer
     extends api.ui.NamesAndIconViewer<ContentInLayer> {
@@ -45,7 +45,14 @@ export class ContentInLayerViewer
     }
 
     resolveIconEl(object: ContentInLayer): api.dom.Element {
-        return this.content ? null : <api.dom.Element>new LayerIcon(object.getLayerLanguage());
+        if (this.content) {
+            return null;
+        }
+
+        const layerIcon: LayerIcon = new LayerIcon();
+        layerIcon.updateCountryCode(object.getLayerLanguage());
+
+        return layerIcon;
     }
 
     resolveIconUrl(object: ContentInLayer): string {

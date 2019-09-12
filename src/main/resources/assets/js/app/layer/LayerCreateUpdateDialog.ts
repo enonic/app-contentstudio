@@ -11,7 +11,7 @@ import ModalDialogHeader = api.ui.dialog.ModalDialogHeader;
 import DivEl = api.dom.DivEl;
 import {LayerDialogForm} from './LayerDialogForm';
 import {ContentLayer} from '../content/ContentLayer';
-import {LayerIconUploader} from './LayerIconUploader';
+import {LayerIcon} from './LayerIcon';
 
 export class LayerCreateUpdateDialog
     extends ModalDialog {
@@ -22,7 +22,7 @@ export class LayerCreateUpdateDialog
 
     protected displayName: LayerDisplayNameTextInput;
 
-    protected icon: LayerIconUploader;
+    protected layerIcon: LayerIcon;
 
     protected header: LayerDialogHeader;
 
@@ -36,7 +36,7 @@ export class LayerCreateUpdateDialog
         this.form = new LayerDialogForm();
         this.layerActionButton = this.addAction(new Action(this.getActionLabel()), true);
         this.displayName = this.header.getDisplayName();
-        this.icon = this.header.getIcon();
+        this.layerIcon = this.header.getIcon();
     }
 
     protected getActionLabel(): string {
@@ -62,11 +62,11 @@ export class LayerCreateUpdateDialog
         super.close();
         this.displayName.reset();
         this.displayName.resetBaseValues();
-        this.icon.reset();
+        this.layerIcon.reset();
         this.form.setInitialValues();
     }
 
-    private executeAction() {
+    protected executeAction() {
         const isFormValid: boolean = this.form.validate(true).isValid();
         const isDisplayNameValid: boolean = this.displayName.isValid();
 
@@ -135,11 +135,7 @@ export class LayerCreateUpdateDialog
     protected setIcon(value: string) {
         const option: Option<Locale> = StringHelper.isEmpty(value) ? null : this.form.getDefaultLanguageOptionByValue(value);
         const locale: Locale = option != null ? option.displayValue : null;
-        if (!!locale) {
-            this.icon.updateIconByLocale(locale);
-        } else {
-            this.icon.updateIconByTag(value);
-        }
+        this.layerIcon.updateCountryCode(!!locale ? locale.getTag() : value);
     }
 
     protected createHeader(title: string): ModalDialogHeader {
@@ -168,27 +164,34 @@ class LayerDisplayNameTextInput
 
 }
 
-class LayerDialogHeader
+export class LayerDialogHeader
     extends api.dom.DivEl
     implements ModalDialogHeader {
 
-    private titleEl: api.dom.H2El;
+    protected titleEl: api.dom.H2El;
 
-    private icon: LayerIconUploader;
+    protected layerIcon: LayerIcon;
 
-    private displayName: LayerDisplayNameTextInput;
+    protected displayName: LayerDisplayNameTextInput;
 
-    private nameAndTitleWrapper: DivEl;
+    protected nameAndTitleWrapper: DivEl;
 
     constructor(title: string) {
         super('modal-dialog-header');
 
-        this.icon = new LayerIconUploader();
+        this.initElements(title);
+    }
+
+    private initElements(title: string) {
+        this.layerIcon = this.createLayerIcon();
         this.displayName = new LayerDisplayNameTextInput();
         this.titleEl = new api.dom.H2El('title');
         this.titleEl.setHtml(title);
         this.nameAndTitleWrapper = new DivEl('name-and-title');
+    }
 
+    protected createLayerIcon(): LayerIcon {
+        return new LayerIcon();
     }
 
     setTitle(value: string, escapeHtml: boolean = true) {
@@ -202,14 +205,14 @@ class LayerDialogHeader
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.nameAndTitleWrapper.appendChildren(this.displayName, this.titleEl);
-            this.appendChildren(this.icon, this.nameAndTitleWrapper);
+            this.appendChildren(this.layerIcon, this.nameAndTitleWrapper);
 
             return rendered;
         });
     }
 
-    getIcon(): LayerIconUploader {
-        return this.icon;
+    getIcon(): LayerIcon {
+        return this.layerIcon;
     }
 
     getDisplayName(): LayerDisplayNameTextInput {

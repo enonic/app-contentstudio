@@ -55,6 +55,10 @@ export class ContentLayer
         return this.icon;
     }
 
+    hasIcon(): boolean {
+        return !!this.icon;
+    }
+
     isBaseLayer(): boolean {
         return this.name === ContentLayer.DEFAULT_LAYER_NAME;
     }

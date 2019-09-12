@@ -13,6 +13,8 @@ export class UpdateContentLayerRequest
 
     private description: string;
 
+    private thumbnail: File;
+
     constructor() {
         super();
 
@@ -40,17 +42,33 @@ export class UpdateContentLayerRequest
         return this;
     }
 
+    setThumbnail(value: File): UpdateContentLayerRequest {
+        this.thumbnail = value;
+        return this;
+    }
+
     getRequestPath(): api.rest.Path {
         return api.rest.Path.fromParent(super.getResourcePath(), 'update');
     }
 
     getParams(): Object {
-        return {
+        return this.createParams();
+    }
+
+    private createParams(): Object {
+        const result: any = {
             displayName: this.displayName,
             language: this.defaultLanguage,
             name: this.identifier,
             description: this.description
         };
+
+        if (this.thumbnail) {
+            result.icon = this.thumbnail;
+            result.iconName = this.thumbnail.name;
+        }
+
+        return result;
     }
 
     sendAndParse(): wemQ.Promise<ContentLayer> {
