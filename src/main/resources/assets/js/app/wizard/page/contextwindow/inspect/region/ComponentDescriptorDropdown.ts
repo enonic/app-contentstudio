@@ -8,9 +8,7 @@ export abstract class ComponentDescriptorDropdown<DESCRIPTOR extends Descriptor>
 
     protected loader: ComponentDescriptorLoader<any, DESCRIPTOR>;
 
-    loadDescriptors(applicationKeys: ApplicationKey[]) {
+    setApplicationKeys(applicationKeys: ApplicationKey[]) {
         this.loader.setApplicationKeys(applicationKeys);
-
-        super.load();
     }
 }

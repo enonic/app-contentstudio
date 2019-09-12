@@ -19,7 +19,7 @@ export class LayoutPlaceholder
         this.layoutComponentView = layoutView;
 
         this.comboBox = new LayoutDescriptorComboBox();
-        this.comboBox.loadDescriptors(layoutView.getLiveEditModel().getSiteModel().getApplicationKeys());
+        this.comboBox.setApplicationKeys(layoutView.getLiveEditModel().getSiteModel().getApplicationKeys());
 
         this.appendChild(this.comboBox);
 
@@ -47,7 +47,8 @@ export class LayoutPlaceholder
     }
 
     private reloadDescriptors(siteModel: SiteModel) {
-        this.comboBox.loadDescriptors(siteModel.getApplicationKeys());
+        this.comboBox.setApplicationKeys(siteModel.getApplicationKeys());
+        this.comboBox.getLoader().load();
     }
 
     select() {

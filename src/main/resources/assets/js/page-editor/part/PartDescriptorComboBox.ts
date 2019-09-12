@@ -23,9 +23,8 @@ export class PartDescriptorComboBox
             .setNoOptionsText('No parts available'));
     }
 
-    loadDescriptors(applicationKeys: ApplicationKey[]) {
+    setApplicationKeys(applicationKeys: ApplicationKey[]) {
         (<PartDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
-        this.getLoader().load();
     }
 
     getDescriptor(descriptorKey: DescriptorKey): PartDescriptor {

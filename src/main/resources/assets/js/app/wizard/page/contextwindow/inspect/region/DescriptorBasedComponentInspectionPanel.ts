@@ -39,7 +39,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector = this.createSelector();
         const form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
 
-        this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
+        this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
 
         this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
 
@@ -64,21 +64,22 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
 
             if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
-                const siteModel = this.liveEditModel.getSiteModel();
+                const oldSiteModel = this.liveEditModel.getSiteModel();
 
-                liveEditModel.getSiteModel().unSiteModelUpdated(debouncedReload);
-                siteModel.unApplicationUnavailable(applicationUnavailableHandler);
-                siteModel.unApplicationAdded(debouncedReload);
-                siteModel.unApplicationRemoved(debouncedReload);
+                oldSiteModel.unSiteModelUpdated(debouncedReload);
+                oldSiteModel.unApplicationUnavailable(applicationUnavailableHandler);
+                oldSiteModel.unApplicationAdded(debouncedReload);
+                oldSiteModel.unApplicationRemoved(debouncedReload);
             }
 
             super.setModel(liveEditModel);
             this.layout();
 
-            liveEditModel.getSiteModel().onSiteModelUpdated(debouncedReload);
-            liveEditModel.getSiteModel().onApplicationUnavailable(applicationUnavailableHandler);
-            liveEditModel.getSiteModel().onApplicationAdded(debouncedReload);
-            liveEditModel.getSiteModel().onApplicationRemoved(debouncedReload);
+            const newSiteModel = liveEditModel.getSiteModel();
+            newSiteModel.onSiteModelUpdated(debouncedReload);
+            newSiteModel.onApplicationUnavailable(applicationUnavailableHandler);
+            newSiteModel.onApplicationAdded(debouncedReload);
+            newSiteModel.onApplicationRemoved(debouncedReload);
         }
     }
 
@@ -88,7 +89,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private reloadDescriptorsOnApplicationChange() {
         if (this.selector) {
-            this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.load();
         }
     }
 
