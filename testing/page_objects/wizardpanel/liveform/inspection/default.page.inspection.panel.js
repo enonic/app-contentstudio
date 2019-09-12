@@ -1,5 +1,5 @@
 /**
- * Created on 25.01.2019.
+ * Created on 12.09.2019.
  */
 
 const PageInspectionPanel = require('./page.inspection.panel');
@@ -48,7 +48,6 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
         await this.clickOnElement(selector);
         return this.pause(2000);
     }
-
 };
 module.exports = DefaultPageInspectionPanel;
 

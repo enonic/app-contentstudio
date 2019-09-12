@@ -1,5 +1,5 @@
 /**
- * Created on 6.04.2018.
+ * Created on 12.09.2019.
  *
  * Verifies: https://github.com/enonic/xp/issues/7396 and  https://github.com/enonic/app-contentstudio/issues/947
  *
