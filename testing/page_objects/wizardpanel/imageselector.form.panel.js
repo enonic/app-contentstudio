@@ -82,6 +82,34 @@ class ImageSelectorForm extends Page {
         return result;
     }
 
+    clickOnElements(elements) {
+        let result = Promise.resolve();
+        elements.forEach(el => {
+            result = result.then(() => {
+                return el.click()
+            }).then(() => {
+                return this.pause(300);
+            });
+        });
+        return result;
+    }
+
+    async clickOnDropDownHandleAndSelectImages(numberImages) {
+        await this.clickOnDropdownHandle();
+        await this.pause(700);
+        let selector = XPATH.imageContentComboBox + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
+        let elems = await this.findElements(selector);
+        await this.clickOnElements(elems.slice(0, numberImages));
+        await this.clickOnApplyButton();
+        await this.pause(1000);
+    }
+
+    async clickOnApplyButton() {
+        let selector = XPATH.imageContentComboBox + "//span[text()='Apply']";
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector);
+    }
+
     filterOptionsAndSelectImage(displayName) {
         let loaderComboBox = new LoaderComboBox();
         return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {

@@ -12,7 +12,7 @@ const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/page.inspection.panel');
+const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ContextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
 
 describe('site.controller.spec: checks options in selector for Page Templates and Controllers', function () {

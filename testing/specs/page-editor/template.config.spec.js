@@ -45,7 +45,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
-            await defaultPageInspectionPanel.typeTitle("My title");
+            await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
             //Click on Apply button in the Inspect Panel and save the changes:
             await defaultPageInspectionPanel.clickOnApplyButton();
             let result = await defaultPageInspectionPanel.getTitle();
