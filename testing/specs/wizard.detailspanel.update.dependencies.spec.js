@@ -23,11 +23,11 @@ describe('Content with image-selector, select images and verify that Outbound de
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
         let contentDisplayName = contentBuilder.generateRandomName('content');
+        let CONTENT_NAME2 = contentBuilder.generateRandomName('content');
 
         let IMAGE_DISPLAY_NAME1 = "Pop_03";
         let IMAGE_DISPLAY_NAME2 = "Pop_02";
         let SITE;
-        let contentName = contentBuilder.generateRandomName('image-selector');
 
         it(`Precondition: new site should be added`,
             async () => {
@@ -82,6 +82,30 @@ describe('Content with image-selector, select images and verify that Outbound de
                 }).then(result => {
                     assert.isTrue(result == '2', '2 outbound items should be present on the widget');
                 });
+            });
+
+        //verifies https://github.com/enonic/app-contentstudio/issues/969
+        it(`GIVEN wizard for image selector(2:4) is opened WHEN 5 images have been selected AND saved WHEN the content has been reopened THEN 4 images remain in wizard AND Red icon should not be present in the Widget View`,
+            async () => {
+                let imageSelectorForm = new ImageSelectorForm();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let contentWizard = new ContentWizard();
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+                //type a name of the new content:
+                await contentWizard.typeDisplayName(CONTENT_NAME2);
+
+                //Click on dropdown handle and click on 5 checkboxes:
+                await imageSelectorForm.clickOnDropDownHandleAndSelectImages(5);
+                studioUtils.saveScreenshot("image_selector_exceed");
+                //Click on Save button and close the wizard:
+                await studioUtils.saveAndCloseWizard();
+                //reopen the content again:
+                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2);
+                studioUtils.saveScreenshot("image_selector_reopened");
+
+                //Details Panel should be automatically opened:
+                let result = await wizardDetailsPanel.icContentInvalid();
+                assert.isFalse(result, "Red icon should not be present in the Widget View(Details Panel)");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

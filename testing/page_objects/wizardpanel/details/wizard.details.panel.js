@@ -8,6 +8,7 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
+    widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 
 };
 
@@ -19,6 +20,12 @@ class WizardDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdownHandle() {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
+    }
+
+    async icContentInvalid() {
+        let selector = xpath.container + xpath.widgetItem + lib.CONTENT_SUMMARY_AND_STATUS_VIEWER;
+        let attr = await this.getAttribute(selector, 'class');
+        return await attr.includes("invalid");
     }
 
     waitForDetailsPanelLoaded() {
@@ -42,7 +49,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 console.log("width: " + width);
                 return getPanelWidth(width) > 0;
             });
-        },  appConst.TIMEOUT_1).catch(err => {
+        }, appConst.TIMEOUT_1).catch(err => {
             console.log("Wizard details panel was not loaded" + err);
             return false;
         });

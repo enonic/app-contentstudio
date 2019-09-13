@@ -152,7 +152,7 @@ class ContentWizardPanel extends Page {
                 }).then(() => {
                     return detailsPanel.waitForDetailsPanelLoaded();
                 }).then(() => {
-                    return this.pause(300);
+                    return this.pause(400);
                 })
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
