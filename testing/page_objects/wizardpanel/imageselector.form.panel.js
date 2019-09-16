@@ -35,17 +35,18 @@ class ImageSelectorForm extends Page {
         return lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-
     type(contentData) {
         return this.selectImages(contentData.images);
     }
 
-
-    clickOnDropdownHandle() {
-        return this.clickOnElement(this.imageComboBoxDrppdownHandle).catch(err => {
+    async clickOnDropdownHandle() {
+        try {
+            await this.clickOnElement(this.imageComboBoxDrppdownHandle);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_img_sel_dropdown_handle');
             throw  new Error('image combobox dropdown handle not found ' + err);
-        });
+        }
     }
 
     async clickOnModeTogglerButton() {
@@ -61,7 +62,7 @@ class ImageSelectorForm extends Page {
     getFlatModeOptionImageNames() {
         let titles = [];
         let imgSelector = XPATH.flatOptionView;
-        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_3).then(() => {
             return this.findElements(imgSelector);
         }).then(result => {
             result.forEach(el => {
@@ -72,7 +73,6 @@ class ImageSelectorForm extends Page {
             });
         });
     }
-
 
     selectImages(imgNames) {
         let result = Promise.resolve();

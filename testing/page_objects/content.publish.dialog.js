@@ -13,6 +13,7 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    changeLogInput:"//input[contains(@id,'api.ui.text.AutosizeTextInput')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -25,6 +26,10 @@ class ContentPublishDialog extends Page {
 
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    get changeLogInput() {
+        return XPATH.container + XPATH.changeLogInput;
     }
 
     get showDependentItemsLink() {
@@ -81,7 +86,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnAddScheduleButton() {
         try {
-            await this.waitForElementDisplayed(this.addScheduleButton,appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2);
             await this.clickOnElement(this.addScheduleButton);
             await this.pause(500);
         } catch (err) {
@@ -150,6 +155,15 @@ class ContentPublishDialog extends Page {
         } else {
             throw new Error("Error when getting content's state, class is:" + result);
         }
+    }
+
+    async typeTextInChangeLog(text) {
+        await this.keys(text);
+        return await this.pause(1000);
+    }
+
+    async getTextInChangeLog() {
+        return await this.getTextInInput(this.changeLogInput);
     }
 
     isAddScheduleButtonDisplayed() {
