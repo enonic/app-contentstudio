@@ -56,6 +56,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
+import {RoutineContext} from './Flow';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -181,6 +182,10 @@ export class ContentWizardPanel
     private renderableChanged: boolean = false;
 
     private reloadPageEditorOnSave: boolean = true;
+
+    private wizardFormUpdatedDuringSave: boolean;
+
+    private pageEditorUpdatedDuringSave: boolean;
 
     private writePermissions: boolean = false;
 
@@ -507,26 +512,25 @@ export class ContentWizardPanel
         return super.saveChanges().then((content: Content) => {
 
             const persistedItem = content.clone();
-
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
-                if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm(persistedItem).then(() => {
-                        if (persistedItem.isSite()) {
-                            this.updateWizardStepForms(persistedItem, false);
-                            this.updateSiteModel(<Site>persistedItem);
-                        }
-                    });
+                if (this.reloadPageEditorOnSave && this.pageEditorUpdatedDuringSave) {
+                    this.updateLiveForm(persistedItem);
                 }
             }
 
-            if (persistedItem.getType().isImage()) {
-                this.updateWizard(persistedItem);
-            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
-                this.securityWizardStepForm.update(persistedItem);
-            }
+            if (this.wizardFormUpdatedDuringSave) {
+                if (persistedItem.getType().isImage()) {
+                    this.updateWizard(persistedItem);
+                } else {
+                    this.updateWizardStepForms(persistedItem, false);
 
-            this.xDataWizardStepForms.resetDisabledForms();
+                    if (persistedItem.isSite()) {
+                        this.updateSiteModel(<Site>persistedItem);
+                    }
+                }
+                this.xDataWizardStepForms.resetDisabledForms();
+            }
 
             return persistedItem;
         }).finally(() => {
@@ -1742,8 +1746,10 @@ export class ContentWizardPanel
         }, 100, false);
 
         siteModel.onSiteModelUpdated(() => {
-            this.formMask.show();
-            handler();
+            if (this.wizardFormUpdatedDuringSave) {
+                this.formMask.show();
+                handler();
+            }
         });
 
         return siteModel;
@@ -1815,9 +1821,9 @@ export class ContentWizardPanel
 
     persistNewItem(): wemQ.Promise<Content> {
         return new PersistNewContentRoutine(this).setCreateContentRequestProducer(this.produceCreateContentRequest).execute().then(
-            (content: Content) => {
+            (context: RoutineContext) => {
                 api.notify.showFeedback(i18n('notify.content.created'));
-                return content;
+                return context.content;
             });
     }
 
@@ -1877,7 +1883,11 @@ export class ContentWizardPanel
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setUpdateContentRequestProducer(this.produceUpdateContentRequest);
 
-        return updateContentRoutine.execute().then((content: Content) => {
+        return updateContentRoutine.execute().then((context: RoutineContext) => {
+            const content = context.content;
+            this.wizardFormUpdatedDuringSave = context.dataUpdated;
+            this.pageEditorUpdatedDuringSave = context.pageUpdated;
+
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }

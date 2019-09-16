@@ -4,7 +4,7 @@ import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
 
 export class PersistNewContentRoutine
-    extends Flow<Content> {
+    extends Flow {
 
     private createContentRequestProducer: {() : wemQ.Promise<CreateContentRequest>; };
 
@@ -19,13 +19,13 @@ export class PersistNewContentRoutine
         return this;
     }
 
-    public execute(): wemQ.Promise<Content> {
+    public execute(): wemQ.Promise<RoutineContext> {
 
         let context = new RoutineContext();
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: RoutineContext): wemQ.Promise<Content> {
+    doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
 
         if (!this.doneHandledContent) {
 
@@ -36,7 +36,7 @@ export class PersistNewContentRoutine
 
             });
         } else {
-            return wemQ(context.content);
+            return wemQ(context);
         }
     }
 
