@@ -55,6 +55,10 @@ export class InPlaceTextInput
             }
         });
 
+        input.onBlur(() => {
+            this.setEditMode(false, !this.isInputValid());
+        });
+
         return input;
     }
 

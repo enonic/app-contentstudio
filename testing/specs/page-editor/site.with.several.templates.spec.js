@@ -12,7 +12,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
-const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/page.inspection.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {

@@ -56,6 +56,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
+import {WorkflowStateIconsManager} from './WorkflowStateIconsManager';
 import {RoutineContext} from './Flow';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
@@ -91,6 +92,7 @@ import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
 import Workflow = api.content.Workflow;
 import WorkflowState = api.content.WorkflowState;
+import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import i18n = api.util.i18n;
 
 export class ContentWizardPanel
@@ -195,6 +197,8 @@ export class ContentWizardPanel
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
+    private workflowStateIconsManager: WorkflowStateIconsManager;
+
     public static debug: boolean = false;
 
     constructor(params: ContentWizardPanelParams) {
@@ -221,6 +225,8 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
 
         this.xDataWizardStepForms = new XDataWizardStepForms();
+
+        this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
 
         this.initListeners();
         this.listenToContentEvents();
@@ -315,7 +321,11 @@ export class ContentWizardPanel
     }
 
     protected createMainToolbar(): Toolbar {
-        return new ContentWizardToolbar(this.contentParams.application, this.wizardActions);
+        return new ContentWizardToolbar({
+            application: this.contentParams.application,
+            actions: this.wizardActions,
+            workflowStateIconsManager: this.workflowStateIconsManager
+        });
     }
 
     public getMainToolbar(): ContentWizardToolbar {
@@ -331,7 +341,7 @@ export class ContentWizardPanel
         header.setPath(this.getWizardHeaderPath());
 
         const existing: Content = this.getPersistedItem();
-        if (!!existing) {
+        if (existing) {
             header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
         }
 
@@ -454,10 +464,7 @@ export class ContentWizardPanel
 
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
-                if (thumbnailUploader) {
-                    thumbnailUploader.toggleClass('invalid', !isThisValid);
-                }
-                this.getMainToolbar().toggleValid(isThisValid);
+                this.workflowStateIconsManager.updateIcons();
                 this.getContentWizardToolbarPublishControls()
                     .setContentCanBePublished(this.checkContentCanBePublished(), false)
                     .setIsValid(isThisValid);
@@ -596,19 +603,17 @@ export class ContentWizardPanel
 
             this.updateThumbnailWithContent(persistedContent);
 
-            let wizardHeader = this.getWizardHeader();
-
-            wizardHeader.setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
+            this.getWizardHeader().setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
 
             if (this.isRendered()) {
 
-                let viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
+                const viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
                 if (viewedContent.equals(persistedContent) || this.skipValidation) {
 
                     // force update wizard with server bounced values to erase incorrect ones
                     this.updateWizard(persistedContentCopy, false);
 
-                    let liveFormPanel = this.getLivePanel();
+                    const liveFormPanel = this.getLivePanel();
                     if (liveFormPanel) {
                         liveFormPanel.loadPage();
                     }
@@ -648,7 +653,7 @@ export class ContentWizardPanel
                         new ConfirmationDialog()
                             .setQuestion(i18n('dialog.confirm.contentDiffers'))
                             .setYesCallback(() => this.doLayoutPersistedItem(persistedContentCopy))
-                            .setNoCallback(() => { /* empty */
+                            .setNoCallback(() => {/* empty */
                             })
                             .show();
                     }
@@ -899,15 +904,9 @@ export class ContentWizardPanel
         this.currentContent = newContent;
         this.persistedContent = newContent;
         this.getMainToolbar().setItem(newContent);
-        this.updateWorkflowStateIcons();
+        this.workflowStateIconsManager.updateIcons();
 
         this.wizardActions.refreshPendingDeleteDecorations();
-    }
-
-    private updateWorkflowStateIcons() {
-        const hasUnsavedChanges: boolean = this.hasUnsavedChanges();
-        this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
-        this.updateThumbnailStateIcon(hasUnsavedChanges);
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -994,6 +993,7 @@ export class ContentWizardPanel
                 return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
             }).some((undeletedItem) => {
                 this.updateContent(undeletedItem.getCompareStatus());
+                this.updatePublishStatusOnDataChange();
 
                 return true;
             });
@@ -1017,7 +1017,7 @@ export class ContentWizardPanel
                     this.currentContent = content;
                     this.persistedContent = content;
                     this.getMainToolbar().setItem(content);
-                    this.updateWorkflowStateIcons();
+                    this.workflowStateIconsManager.updateIcons();
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
@@ -1157,11 +1157,10 @@ export class ContentWizardPanel
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         this.currentContent = updatedContent;
         this.persistedContent = updatedContent;
-        this.getMainToolbar().setSkipNextIconStateUpdate(true);
         this.getMainToolbar().setItem(updatedContent);
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
-            this.updateWorkflowStateIcons();
+            this.workflowStateIconsManager.updateIcons();
         }
         this.contextSplitPanel.setContent(updatedContent);
     }
@@ -1407,7 +1406,7 @@ export class ContentWizardPanel
             this.persistedContent = summaryAndStatus;
             this.getMainToolbar().setItem(summaryAndStatus);
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
-            this.updateWorkflowStateIcons();
+            this.workflowStateIconsManager.updateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                 this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
@@ -1432,25 +1431,13 @@ export class ContentWizardPanel
 
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        const id = content.getContentId().toString();
 
         thumbnailUploader
-            .setParams({
-                id: content.getContentId().toString()
-            })
+            .setParams({id})
             .setEnabled(!content.isImage())
-            .setValue(new api.content.util.ContentIconUrlResolver().setContent(content).resolve());
-
-        thumbnailUploader.toggleClass('invalid', !content.isValid());
-    }
-
-    private updateThumbnailStateIcon(hasUnsavedChanges: boolean) {
-        const item: ContentSummaryAndCompareStatus = this.currentContent;
-        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-        const isReady: boolean = !item.isOnline() && !hasUnsavedChanges && item.getContentSummary().isReady();
-        const isInProgress: boolean = !item.isOnline() && (hasUnsavedChanges || item.getContentSummary().isInProgress());
-
-        thumbnailUploader.toggleClass('ready', isReady);
-        thumbnailUploader.toggleClass('in-progress', isInProgress);
+            .setValue(new ContentIconUrlResolver().setContent(content).resolve());
+        this.workflowStateIconsManager.updateIcons();
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): wemQ.Promise<void> {
@@ -1668,7 +1655,9 @@ export class ContentWizardPanel
             this.contentWizardStepForm.layout(this.getFormContext(content), contentData, this.contentType.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
-        this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
+        this.displayNameResolver
+            .setFormView(this.contentWizardStepForm.getFormView())
+            .setForm(this.contentWizardStepForm.getForm());
         this.settingsWizardStepForm.layout(content);
         this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
         this.scheduleWizardStepForm.layout(content);
@@ -2391,8 +2380,7 @@ export class ContentWizardPanel
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             this.getMainToolbar().setItem(this.currentContent);
-            this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
-            this.updateThumbnailStateIcon(hasUnsavedChanges);
+            this.workflowStateIconsManager.updateIcons();
         }
     }
 

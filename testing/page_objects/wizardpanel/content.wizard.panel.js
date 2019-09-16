@@ -152,7 +152,7 @@ class ContentWizardPanel extends Page {
                 }).then(() => {
                     return detailsPanel.waitForDetailsPanelLoaded();
                 }).then(() => {
-                    return this.pause(300);
+                    return this.pause(400);
                 })
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
@@ -394,7 +394,20 @@ class ContentWizardPanel extends Page {
         return await contentPublishDialog.waitForDialogClosed();
     }
 
+    async openPublishMenu() {
+        await this.clickOnPublishMenuDropdownHandle();
+        await this.pause(300);
+    }
 
+    async waitForPublishMenuItemDisabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+    }
+
+    async waitForPublishMenuItemEnabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+    }
     isContentInvalid() {
         let selector = this.thumbnailUploader;
         return this.getAttribute(selector, 'class').then(result => {
@@ -532,7 +545,7 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnPublishDropdownHandle() {
+    clickOnPublishMenuDropdownHandle() {
         return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).then(() => {
             return this.clickOnElement(this.publishDropDownHandle);
         }).catch(err => {
@@ -546,7 +559,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnUnpublishmenuItem() {
-        return this.clickOnPublishDropdownHandle().then(() => {
+        return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);

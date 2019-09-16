@@ -32,7 +32,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             assert.isTrue(issuesTab, "`Issues` tab should be displayed");
 
             let result = await issueListDialog.getAssignedSelectedOption();
-            assert.isTrue(result.includes(`Assigned by Me`), '`Assigned by Me` option should be selected in Show combobox')
+            assert.isTrue(result.includes(`Created by Me`), '`Created by Me` option should be selected in Show combobox')
 
         });
 

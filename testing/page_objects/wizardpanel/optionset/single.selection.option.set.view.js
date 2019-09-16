@@ -30,10 +30,15 @@ class SingleSelectionOptionSet extends Page {
         return await this.pause(300);
     }
 
-    typeItemSetLabel(text, index) {
-        return this.findElements(xpath.labelInput).then(elems => {
-            return this.getBrowser().elementSendKeys(elems[index].elementId, text);
-        })
+    async typeInLabelInput(text, index) {
+        let selector = xpath.container + "//div[contains(@id,'TextLine')]//input[contains(@name,'label')]";
+        if (typeof index === 'undefined') {
+            await this.typeTextInInput(selector, text);
+        } else {
+            let result = await this.findElements(selector);
+            await result[index].setValue(text);
+        }
+        return await this.pause(300);
     }
 
     async clickOnAddItemSetButton() {
