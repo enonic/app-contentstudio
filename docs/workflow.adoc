@@ -2,14 +2,17 @@
 :toc: right
 :imagesdir: workflow/images
 
+CAUTION: Content Workflow requires XP 7.1.0 and Content Studio 2.1.0
+
 Content Workflow in Content Studio consists of the following stages:
 
 * In progress
 * Ready for Publishing
 * Publish Request
 * Published
+* Unpublished
 
-Workflow state of the content is displayed via corresponding icon.
+Workflow state of the content is displayed via corresponding icon, except for "Published" state when no icon is used.
 
 
 == In Progress
@@ -18,11 +21,11 @@ Default workflow state of a new content is `In progress`.
 This means the content in being worked on and it will stay in this state until user marks it as ready.
 Such content is marked with yellow (!) icon everywhere the content type icon is displayed.
 
-image::content-in-progress.png[]
+image::content-in-progress.png[Content in progress in the Wizard, 484]
 
 Content `In progress` is not allowed to be published - this is to prevent unfinished content from publishing by accident.
 
-image::publish-wizard-in-progress.png[]
+image::publish-wizard-in-progress.png[Content in progress in the Publishing Wizard, 655]
 
 You can either exclude such a content from publishing, or mark it as ready.
 
@@ -46,7 +49,7 @@ and the yellow (!) icon will be replaced by the green (V) icon, enabling publish
 This is also helpful if the content requires input from several editors - then the first user can
 mark the content as ready to notify the second one that he/she can start his/her part etc.
 
-image::content-ready.png[]
+image::content-ready.png[Content ready in the Content Wizard, 1230]
 
 Default action for content marked as *READY FOR PUBLISHING* will change to either *PUBLISH* (if user
 has sufficient publishing permissions) or *REQUEST PUBLISHING*.
@@ -72,41 +75,41 @@ Publish Request is created via simple 2-step wizard.
 
 On the first step user can see all of the items that will be sent for publishing, and their dependent items.
 
-image::request-publishing-wizard-1.png[]
+image::request-publishing-wizard-1.png[Request Publishing Wizard - Step 1, 660]
 
 The second step is used to describe the changes that will be published (mandatory field) and select
 one or more users that the request will be assigned to.
 
-image::request-publishing-wizard-2.png[]
+image::request-publishing-wizard-2.png[Request Publishing Wizard - Step 2, 671]
 
 "Create request" button will create a new Publish Request and open the modal dialog with its details.
 
-image::publishing-request-1.png[]
+image::publishing-request-1.png[Publish Request, 673]
 
 This dialog is somewhat similar to the Issue dialog. The main difference is that content items are displayed
 on the first tab and can be published directly from this dialog with "Publish Now" button. Publisher can
 also schedule publishing of the content using calendar icon at the bottom, which will toggle on/off the form
 for scheduling date(s) the content should be online from/to.
 
-image::publishing-request-2.png[]
+image::publishing-request-2.png[Publish Request - Scheduling, 673]
 
 Publish requests can also be opened from the Issue List dialog which now lists both issues and publish
 requests, split in different tabs.
 
-image::publishing-request-list.png[]
+image::publishing-request-list.png[Publish Request List, 701]
 
 If content item is a part of an open Publish Request, the default action in the Content Editor is *OPEN REQUEST*.
 Clicking this button will display the latest open Publish Request with this item.
 
-image::publishing-request-toolbar.png[]
+image::publishing-request-toolbar.png[Open Request, 494]
 
 Complete list of all open issues and publish requests containing this item is available inside the drop-down menu.
 
-image::publish-button-menu.png[]
+image::publish-button-menu.png[Publish Button Menu, 194]
 
 The same list of issues/publish requests is also shown in the Preview panel's toolbar of the Content Browser.
 
-image::issues-toolbar.png[]
+image::issues-toolbar.png[Issues Menu in the Preview toolbar, 135]
 
 
 == Published
@@ -115,4 +118,10 @@ After an item is published - either from a Publish Request or via Publishing Wiz
 Once a published content is modified, the workflow state will be reset to `In progress`, followed by corresponding icon.
 
 
-image::modified-content.png[]
+image::modified-content.png[Modified content, 500]
+
+
+== Unpublished
+
+When content should no longer be online, it should be unpublished. Unpublishing a content item will always
+automatically unpublish all of its child items as well.
