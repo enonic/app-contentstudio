@@ -18,7 +18,7 @@ Read more about Content Workflow <<workflow#,here>>.
 user(s) with sufficient Publishing permissions. Each request describes the changes to be published, which items will be published, and
 optional publishing schedule.
 
-Read more about Publish Requests <<workflow#publish_requests,here>>.
+Read more about Publish Requests <<workflow#publish_request,here>>.
 
 === Customizable placeholder for the Display Name field
 

@@ -105,11 +105,11 @@ image::publishing-request-toolbar.png[Open Request, 494]
 
 Complete list of all open issues and publish requests containing this item is available inside the drop-down menu.
 
-image::publish-button-menu.png[Publish Button Menu, 194]
+image::publish-button-menu.png[Publish Button Menu]
 
 The same list of issues/publish requests is also shown in the Preview panel's toolbar of the Content Browser.
 
-image::issues-toolbar.png[Issues Menu in the Preview toolbar, 135]
+image::issues-toolbar.png[Issues Menu in the Preview toolbar]
 
 
 == Published
