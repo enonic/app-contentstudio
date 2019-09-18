@@ -46,7 +46,7 @@ image::publish-message-2.png[]
 
 If specified, publish message will be shown in the Version History widget, which has also been completely revamped in Content Studio 2.1.
 
-image::version-history.png[Version History, 140]
+image::version-history.png[Version History, 280]
 
 == 2.0.0
 
