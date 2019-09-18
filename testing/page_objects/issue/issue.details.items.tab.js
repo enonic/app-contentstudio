@@ -157,8 +157,18 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    excludeItem(displayName) {
+    excludeDependantItem(displayName) {
         let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
+        return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(removeIcon)
+        }).then(() => {
+            return this.pause(1000);
+        }).catch(err => {
+            throw new Error('error when clicking on `remove icon`: ' + err)
+        })
+    }
+    excludeItem(displayName) {
+        let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
         return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
             return this.clickOnElement(removeIcon)
         }).then(() => {
