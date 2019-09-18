@@ -36,6 +36,18 @@ Customize display name field placeholder
 
 image::display-name-placeholder.png[]
 
+=== Publish Message
+
+From version 2.1 publishers can specify optional message in the Publishing Wizard to describe the changes they are about to publish.
+
+image::publish-message-1.png[]
+
+image::publish-message-2.png[]
+
+If specified, publish message will be shown in the Version History widget, which has also been completely revamped in Content Studio 2.1.
+
+image::version-history.png[]
+
 == 2.0.0
 
 Until the release of Enonic XP 7 the Content Studio app used to be a part of the XP distribution package.
