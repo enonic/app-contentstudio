@@ -1651,9 +1651,7 @@ export class ContentWizardPanel
             this.contentWizardStepForm.layout(this.getFormContext(content), contentData, this.contentType.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
-        this.displayNameResolver
-            .setFormView(this.contentWizardStepForm.getFormView())
-            .setForm(this.contentWizardStepForm.getForm());
+        this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
         this.settingsWizardStepForm.layout(content);
         this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
         this.scheduleWizardStepForm.layout(content);
