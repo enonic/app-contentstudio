@@ -30,6 +30,7 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
 
             //type a text in the Change Log input
             await contentPublishDialog.typeTextInChangeLog(TEST_TEXT);
+            studioUtils.saveScreenshot("text_in_change_log");
             //Check that text:
             let actualText = await contentPublishDialog.getTextInChangeLog();
             assert.equal(actualText, TEST_TEXT, "Change log input - actual and expected text should be equal");

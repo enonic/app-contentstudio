@@ -69,6 +69,7 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should b
                 await issueDetailsItemsTab.excludeItem(TEST_FOLDER.displayName);
                 //Close the modal dialog:
                 await issueDetailsDialog.clickOnCancelTopButton();
+                studioUtils.saveScreenshot("publish_menu_item_hidden");
 
                 //New menu item should not be present the Wizard Publish Menu:
                 let result = await contentWizard.isPublishMenuItemPresent("issue1");

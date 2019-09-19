@@ -115,7 +115,7 @@ class IssueDetailsDialog extends Page {
     async clickOnCancelTopButton() {
         await this.waitForElementDisplayed(this.cancelTopButton, appConst.TIMEOUT_3);
         await this.clickOnElement(this.cancelTopButton);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     clickOnIssueStatusSelector() {
