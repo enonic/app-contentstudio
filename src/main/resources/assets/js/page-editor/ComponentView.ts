@@ -388,8 +388,11 @@ export class ComponentView<COMPONENT extends Component>
         const contentId = this.getPageView().getLiveEditModel().getContent().getContentId();
         const config = this.getPageView().getLiveEditModel().getPageModel().getConfig();
 
-        let request = new CreateFragmentRequest(contentId).setConfig(config).setComponent(
-            this.getComponent());
+        const request: CreateFragmentRequest =
+            new CreateFragmentRequest(contentId)
+                .setConfig(config)
+                .setComponent(this.getComponent())
+                .setWorkflow(this.getPageView().getLiveEditModel().getContent().getWorkflow());
 
         return request.sendAndParse();
     }
