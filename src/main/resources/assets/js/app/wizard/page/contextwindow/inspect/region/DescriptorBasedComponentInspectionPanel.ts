@@ -183,7 +183,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
             return false;
         }
 
-        if (this.component && component && !this.component.getPath().equals(component.getPath())) {
+        if (this.component && component && !ObjectHelper.equals(this.component.getPath(), component.getPath())) {
             return false;
         }
 
