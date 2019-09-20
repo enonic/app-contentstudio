@@ -87,7 +87,10 @@ export class UpdatePersistedContentRoutine
     }
 
     private hasPageChanged(persisted: Content, viewed: Content): boolean {
-        return !persisted.getPage() && !!viewed.getPage() || persisted.getPage() && !persisted.getPage().equals(viewed.getPage());
+        const persistedPage = persisted.getPage();
+        const viewedPage = viewed.getPage();
+
+        return persistedPage ? !persistedPage.equals(viewedPage) : !!viewedPage;
     }
 
     private producePageCUDRequest(persistedContent: Content, viewedContent: Content): PageCUDRequest {
