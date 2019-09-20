@@ -112,7 +112,7 @@ export class WidgetView extends api.dom.DivEl {
         this.url = this.getWidgetUrl();
         this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
             const contentId = this.content ? this.content.getContentId().toString() : null;
-            promises.push(widgetItemView.setUrl(this.url, contentId));
+            promises.push(widgetItemView.fetchWidgetContents(this.url, contentId));
         });
 
         return promises;

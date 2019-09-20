@@ -104,30 +104,30 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
                 });
             });
 
-        it(`GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
-            () => {
+        it.skip(`GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
+            async () => {
                 let issueDetailsDialog = new IssueDetailsDialog();
                 let createIssueDialog = new CreateIssueDialog();
                 let contentItemPreviewPanel = new ContentItemPreviewPanel();
-                return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                    return contentItemPreviewPanel.clickOnIssueMenuButton();
-                }).then(() => {
-                    return issueDetailsDialog.waitForDialogOpened();
-                }).then(() => {
-                    return issueDetailsDialog.clickOnEditTitle();
-                }).then(() => {
-                    return issueDetailsDialog.typeTitle(newTitle);
-                }).then(() => {
-                    //just for closing edit mode in title-input:
-                    return issueDetailsDialog.clickOnCommentsTabBarItem();
-                }).then(() => {
-                    return createIssueDialog.waitForNotificationMessage();
-                }).then(result => {
-                    studioUtils.saveScreenshot("issue_title_updated");
-                    return assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
-                }).then(() => {
-                    return expect(issueDetailsDialog.getIssueTitle()).to.eventually.equal(newTitle);
-                });
+                await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+                await contentItemPreviewPanel.clickOnIssueMenuButton();
+
+                await issueDetailsDialog.waitForDialogOpened();
+
+                await issueDetailsDialog.clickOnEditTitle();
+                await issueDetailsDialog.pause(5000);
+                await issueDetailsDialog.updateTitle(newTitle);
+
+                //just for closing edit mode in title-input:
+                await issueDetailsDialog.clickOnCommentsTabBarItem();
+                let result = await createIssueDialog.waitForNotificationMessage();
+
+                studioUtils.saveScreenshot("issue_title_updated");
+                assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
+
+                let actualTitle = await issueDetailsDialog.getIssueTitle();
+                assert.equal(actualTitle, newTitle, 'Expected and actual title should be equal');
+
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

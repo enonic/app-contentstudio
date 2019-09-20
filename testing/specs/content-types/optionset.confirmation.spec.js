@@ -42,7 +42,7 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
                 studioUtils.saveScreenshot('new_item_set_added');
                 return singleSelectionOptionSet.typeOptionName("test option");
             }).then(() => {
-                return singleSelectionOptionSet.typeItemSetLabel("label1", 1);
+                return singleSelectionOptionSet.typeInLabelInput("label1", 1);
             }).then(() => {
                 return singleSelectionOptionSet.clickOnRemoveItemSetOccurrenceView(1);
             }).then(() => {
@@ -67,7 +67,7 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
                 return singleSelectionOptionSet.clickOnRemoveItemSetOccurrenceView(1);
             }).then(() => {
                 studioUtils.saveScreenshot('item_set_no_confirmation_dialog');
-                return assert.eventually.isFalse(confirmationDialog.waitForDialogOpened(),
+                return assert.eventually.isFalse(confirmationDialog.isDialogVisible(),
                     "Confirmation Dialog should not be loaded, because new item-set has no dirty fields");
             });
         });
