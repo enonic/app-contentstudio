@@ -8,6 +8,7 @@ const XPATH = {
     yesButton: `//button[contains(@id,'DialogButton') and child::span[text()='Yes']]`,
     noButton: `//div[@class='dialog-buttons']//button/span[text()='No']`
 };
+
 class ConfirmationDialog extends Page {
 
     get warningMessage() {
@@ -30,8 +31,12 @@ class ConfirmationDialog extends Page {
 
     waitForDialogOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
-            return false;
+            throw new Error("Confirmation dialog is not loaded! " + err);
         })
+    }
+
+    isDialogVisible() {
+        return this.isElementDisplayed(XPATH.container);
     }
 
     waitForDialogClosed() {

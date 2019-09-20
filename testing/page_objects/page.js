@@ -42,7 +42,7 @@ class Page {
 
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
-        await element.waitForDisplayed(1500);
+        //await element.waitForDisplayed(1500);
         return await element.click();
     }
 
@@ -81,6 +81,26 @@ class Page {
         return await inputElement.pause(300);
     }
 
+    async addTextInInput(selector, text) {
+        let inputElement = await this.findElement(selector);
+        //await inputElement.clearValue();
+        await inputElement.setValue(text);
+        //await this.getBrowser().keys(text);
+        let value = await inputElement.getValue();
+        //workaround for issue in WebdriverIO
+        if (value == "") {
+            await inputElement.addValue(text);
+        }
+        return await inputElement.pause(300);
+    }
+
+    //Wait for an element for the provided amount of milliseconds to be present within the DOM. Returns true if the selector matches at least one
+    // element that exists in the DOM, otherwise throws an error.
+    async waitForExist(selector, ms) {
+        let element = await this.findElement(selector);
+        return await element.waitForExist(ms);
+    }
+
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
         return await inputElement.getValue(selector);
@@ -91,7 +111,6 @@ class Page {
         await inputElement.waitForDisplayed(1000);
         await inputElement.clearValue();
         return await inputElement.pause(300);
-
     }
 
     saveScreenshot(name) {
@@ -208,17 +227,23 @@ class Page {
         return await element.getAttribute(attributeName);
     }
 
-    waitForNotificationMessage() {
-        let notificationXpath = `//div[@class='notification-content']/span`;
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementDisplayed(notificationXpath);
-        }).then(() => {
-            return this.getTextInDisplayedElements(notificationXpath);
-        }).then(result => {
-            return result[0];
-        }).catch(err => {
+    async removeNotificationMessage() {
+        let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+        await this.clickOnElement(selector);
+        return this.pause(300);
+    }
+
+    async waitForNotificationMessage() {
+        try {
+            let notificationXpath = `//div[@class='notification-content']/span`;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isElementDisplayed(notificationXpath);
+            });
+            await this.pause(400);
+            return await this.getText(notificationXpath);
+        } catch (err) {
             throw new Error('Error when wait for notification message: ' + err);
-        })
+        }
     }
 
     //returns array of messages
@@ -229,7 +254,6 @@ class Page {
             return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
         })
     }
-
 
     waitForExpectedNotificationMessage(expectedMessage) {
         let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
@@ -246,23 +270,40 @@ class Page {
         })
     }
 
-    waitForNotificationWarning() {
+    async waitForNotificationWarning() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
-            return this.getText(selector);
-        })
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        await this.pause(500);
+        return await this.getText(selector);
     }
 
     async doRightClick(selector) {
         let el = await this.findElement(selector);
         await el.moveTo();
-        return await this.browser.positionClick(2);
+        let x = await el.getLocation('x');
+        let y = await el.getLocation('y');
+        console.log("X:" + x + "Y " + y);
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {
+                    type: 'pointerDown',
+                    button: 2
+                }, {
+                    type: 'pointerUp',
+                    button: 2
+                }]
+        }]);
     }
 
     async isFocused(selctor) {
         let el = await this.findElement(selctor);
         return await el.isFocused();
-
     }
 
     isAlertPresent() {

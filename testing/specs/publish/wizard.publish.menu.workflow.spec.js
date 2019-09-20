@@ -14,7 +14,7 @@ const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.ste
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
-describe('wizard.publish.menu.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -35,6 +35,18 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
+    it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Issue' is enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+
+            //Click on dropdown handle and open Publish Menu:
+            await contentWizard.openPublishMenu();
+            studioUtils.saveScreenshot("publish_menu_items2");
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        });
+
 
     it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
         async () => {
@@ -53,17 +65,28 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
 
             let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
-
         });
 
-    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
+    it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue' is enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+
+            //Click on dropdown handle and open Publish Menu:
+            await contentWizard.openPublishMenu();
+            studioUtils.saveScreenshot("publish_menu_items3");
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+        });
+
+    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //'MARK AS READY' button should be present on the toolbar
-            //So need to open the publish-menu and select 'Unpublish' menu item
-            await contentWizard.openPublishMenuSelectItem("Unpublish");
+            //So need to open the publish-menu and select 'Unpublish...' menu item
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
 
             //open 'Unpublish Content' Dialog:
             let contentUnpublishDialog = new ContentUnpublishDialog();
@@ -82,6 +105,7 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
         });
 
 
+    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for 'Deleted' content
     it(`GIVEN folder was modified and 'unpublished' then it has been published again WHEN 'Delete' button has been pressed and deleting confirmed THEN 'Deleted' status gets visible in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -91,14 +115,12 @@ describe('wizard.publish.menu.spec - publishes and unpublishes single folder in 
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been deleted:
-            await contentWizard.clickOnDelete();
-            await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteButton();
+            await contentWizard.clickOnDeleteAndConfirm();
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 
-            let workflow = await contentWizard.getToolbarWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            //Workflow state should not be displayed for the Deleted content
+            await contentWizard.waitForStateIconNotDisplayed();
 
             //AND: Status should be 'Deleted'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.DELETED);

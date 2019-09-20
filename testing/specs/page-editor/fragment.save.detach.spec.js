@@ -30,41 +30,61 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
         () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("main");
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("Text");
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).then(()=>{
+            }).then(() => {
                 return pageComponentView.pause(2000);
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("Text");
-            }).then(()=> {
+            }).then(() => {
                 studioUtils.saveScreenshot('text_saved_as_fragment');
                 return assert.eventually.isTrue(pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT),
                     "Detach from Fragment menu item should appear");
             })
         });
+
+    it(`GIVEN existing site with a fragment WHEN fragment has been opened THEN Workflow state should be 'Work in progress'`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //1. Open Page Component View:
+            await contentWizard.clickOnShowComponentViewToggler();
+
+            //2. Select the fragment and open the context-menu:
+            await pageComponentView.openMenu("Text");
+
+            //3. Open this fragment in new browser-tab:
+            await pageComponentView.selectMenuItem(["Edit"]);
+            await studioUtils.doSwitchToNextTab();
+            //parent site is 'Work in progress', so this fragment must have the same state
+            let state = await contentWizard.getToolbarWorkflowState()
+            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
+        });
+
     it(`GIVEN Page Component View is opened WHEN text-fragment clicked AND Detach from Fragment has been clicked THEN 'Save as Fragment' menu item should appear again`,
         () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(()=> {
+            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
                 return contentWizard.clickOnShowComponentViewToggler();
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("Text");
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.selectMenuItem([appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT]);
-            }).then(()=>{
+            }).then(() => {
                 return pageComponentView.pause(2000);
-            }).then(()=> {
+            }).then(() => {
                 return pageComponentView.openMenu("Text");
-            }).then(()=> {
+            }).then(() => {
                 studioUtils.saveScreenshot('text_is_detached');
                 return assert.eventually.isTrue(pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT),
                     "'Save as Fragment' menu item should appear again");
@@ -73,7 +93,7 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification starting: ' + this.title);
     });
 });

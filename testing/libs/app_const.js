@@ -5,6 +5,9 @@ module.exports = Object.freeze({
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
+    itemMarkedAsReadyMessage(name){
+       return  `Item \"${name}\" is marked as ready`
+    },
     itemSavedNotificationMessage: function (name) {
         return `Item \"${name}\" is saved.`
     },
@@ -67,7 +70,11 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
         POP_03: 'Pop_03',
-        KOTEY: 'kotey'
+        KOTEY: 'kotey',
+        SHIP:'cat',
+        FOSS:'foss',
+        SENG:'seng',
+        PES:'morgopes'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

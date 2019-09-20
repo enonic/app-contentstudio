@@ -59,28 +59,37 @@ export class ContentBrowsePublishMenuButton
     }
 
     updateActiveClass() {
-        if (!this.item) {
-            if (this.markAsReadyAction.isEnabled()) {
-                this.setActiveClass(this.markAsReadyAction.getActionClass());
-            } else if (this.publishAction.isEnabled()) {
-                this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
-            } else {
-                this.setActiveClass('no-item');
-            }
-        } else if (this.publishAction.isEnabled() && this.isItemPendingDelete()) {
+        const isSingleItemToDelete = this.isItemPendingDelete() && this.publishAction.isEnabled();
+
+        if (isSingleItemToDelete) {
             this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.markAsReadyAction.isEnabled()) {
-            this.setActiveClass(this.markAsReadyAction.getActionClass());
-        } else if (this.publishAction.isEnabled()) {
-            this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.publishTreeAction.isEnabled()) {
-            this.setActiveClass(this.publishTreeAction.getActionClass());
-        } else if (this.unpublishAction.isEnabled()) {
-            this.setActiveClass(this.unpublishAction.getActionClass());
-        } else if (this.requestPublishAction.isEnabled()) {
-            this.setActiveClass(this.requestPublishAction.getActionClass());
         } else {
-            this.setActiveClass(this.createIssueAction.getActionClass());
+            const anyItemsActiveClass = this.getActiveClassForAnyItems();
+            if (anyItemsActiveClass != null) {
+                this.setActiveClass(anyItemsActiveClass);
+            } else {
+                const activeClass = this.item != null ? this.createIssueAction.getActionClass() : 'no-item';
+                this.setActiveClass(activeClass);
+            }
         }
+    }
+
+    protected getActiveClassForAnyItems(): string {
+        if (this.markAsReadyAction.isEnabled()) {
+            return this.markAsReadyAction.getActionClass();
+        }
+        if (this.publishAction.isEnabled()) {
+            return this.publishAction.getActionClass();
+        }
+        if (this.publishTreeAction.isEnabled()) {
+            return this.publishTreeAction.getActionClass();
+        }
+        if (this.unpublishAction.isEnabled()) {
+            return this.unpublishAction.getActionClass();
+        }
+        if (this.requestPublishAction.isEnabled()) {
+            return this.requestPublishAction.getActionClass();
+        }
+        return null;
     }
 }

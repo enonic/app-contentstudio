@@ -78,15 +78,20 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-    waitForIssueMenuButtonNotVisible() {
-        return this.waitForElementNotDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3).catch(err => {
-            console.log('issue menu button still visible in !  ' + appConst.TIMEOUT_3);
-            return false;
-        });
+    //When issue is closed, this button gets not visible:
+    async waitForIssueMenuButtonNotVisible() {
+        try {
+            let selector = xpath.toolbar + `//div[contains(@id,'MenuButton') and descendant::span[contains(@class,'icon-issue')]]//button`;
+            await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_preview_toolbar_issue_icon");
+            throw new Error("Issue icon still visible in the toolbar " + err);
+        }
     }
 
     async clickOnIssueMenuButton() {
         try {
+            let selector = xpath.toolbar + xpath.issueMenuButton + "//button";
             await this.waitForElementDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3);
             return await this.clickOnElement(xpath.toolbar + xpath.issueMenuButton);
         } catch (err) {

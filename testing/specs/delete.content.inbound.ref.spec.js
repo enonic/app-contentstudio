@@ -31,9 +31,9 @@ describe('Delete a content that has inbound references spec', function () {
             }).then(()=> {
                 return contentBrowsePanel.waitForNotificationWarning();
             }).then(result=> {
-                assert.isTrue(result == appConstant.DELETE_INBOUND_MESSAGE, 'correct warning should appear');
-            }).then(()=> {
                 studioUtils.saveScreenshot("delete_dialog_inbound_ref");
+                assert.equal(result, appConstant.DELETE_INBOUND_MESSAGE, 'expected warning should appear');
+            }).then(()=> {
                 return deleteContentDialog.getNumberOfInboundDependency(appConstant.TEST_IMAGES.WHALE);
             }).then(result=> {
                 assert.isTrue(result == 'Inbound dependency: 1', 'correct warning should appear');

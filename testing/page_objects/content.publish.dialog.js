@@ -5,6 +5,7 @@ const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
     publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
+    scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
@@ -12,6 +13,7 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    changeLogInput:"//input[contains(@id,'api.ui.text.AutosizeTextInput')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -24,6 +26,10 @@ class ContentPublishDialog extends Page {
 
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    get changeLogInput() {
+        return XPATH.container + XPATH.changeLogInput;
     }
 
     get showDependentItemsLink() {
@@ -44,6 +50,10 @@ class ContentPublishDialog extends Page {
 
     get addScheduleButton() {
         return XPATH.container + XPATH.addScheduleButton;
+    }
+
+    get scheduleButton() {
+        return XPATH.container + XPATH.scheduleButton;
     }
 
     get includeChildrenToogler() {
@@ -74,6 +84,17 @@ class ContentPublishDialog extends Page {
         return this.isElementDisplayed(this.includeChildrenToogler);
     }
 
+    async clickOnAddScheduleButton() {
+        try {
+            await this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(this.addScheduleButton);
+            await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_publish_dialog_add_schedule_button');
+            throw new Error('Error when clicking Publish  ' + err);
+        }
+    }
+
     clickOnScheduleButton() {
         return this.clickOnElement(this.addScheduleButton).catch(err => {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
@@ -81,11 +102,14 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    clickOnShowDependentItems() {
-        return this.clickOnElement(this.showDependentItemsLink).catch(err => {
+    async clickOnShowDependentItems() {
+        try {
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2);
+            return await this.clickOnElement(this.showDependentItemsLink);
+        } catch (err) {
             this.saveScreenshot('err_publish_dialog_show_dependent_button');
             throw new Error('Error when clicking on Show dependent items  ' + err);
-        })
+        }
     }
 
     clickOnIncludeChildrenToogler() {
@@ -97,6 +121,12 @@ class ContentPublishDialog extends Page {
     waitForShowDependentButtonDisplayed() {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Show dependent items link should be visible!" + err)
+        })
+    }
+
+    waitForScheduleButtonDisplayed() {
+        return this.waitForElementDisplayed(this.scheduleButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Schedule button should be visible!" + err);
         })
     }
 
@@ -127,9 +157,25 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    async typeTextInChangeLog(text) {
+        await this.keys(text);
+        return await this.pause(1000);
+    }
+
+    async getTextInChangeLog() {
+        await this.waitForExist(this.changeLogInput,appConst.TIMEOUT_2);
+        return await this.getTextInInput(this.changeLogInput);
+    }
+
     isAddScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error("`Add Schedule` button is not present " + err);
+        })
+    }
+
+    waitForAddScheduleButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("`Add Schedule` button should not be displayed " + err);
         })
     }
 
@@ -184,7 +230,7 @@ class ContentPublishDialog extends Page {
 
     async getItemsToPublish() {
         let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
-        let result = await this.getTextInDisplayedElements(selector);
+        let result = await this.getTextInElements(selector);
         return [].concat(result);
     }
 

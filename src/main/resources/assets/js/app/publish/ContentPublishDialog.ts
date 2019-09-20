@@ -191,7 +191,10 @@ export class ContentPublishDialog
             return;
         }
 
-        this.setSubTitleMessage(this.message);
+        if (this.message) {
+            this.setSubTitleMessage(this.message);
+            this.message = null;
+        }
 
         super.updateSubTitle(itemsToPublish);
     }
@@ -300,8 +303,8 @@ export class ContentPublishDialogSubTitle
     private initListeners() {
         const keyDownHandler = (event: KeyboardEvent) => {
             const isTextInputFocused = document.activeElement &&
-                                      (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
-                                       document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
+                                       (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
+                                        document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
 
             const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
 
@@ -337,7 +340,6 @@ export class ContentPublishDialogSubTitle
 
         this.onShown(() => {
             api.dom.Body.get().onKeyDown(keyDownHandler);
-            this.toggleInput(false);
         });
         this.onHidden(() => api.dom.Body.get().unKeyDown(keyDownHandler));
 

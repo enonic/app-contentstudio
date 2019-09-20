@@ -23,7 +23,7 @@ export class ContentItemPreviewToolbar
         super('content-item-preview-toolbar');
 
         this.mainAction = new Action();
-        this.mainAction.onExecuted(a => {
+        this.mainAction.onExecuted(() => {
             if (this.mainIssue) {
                 IssueDialogsManager.get().openDetailsDialog(this.mainIssue);
             }
@@ -31,9 +31,9 @@ export class ContentItemPreviewToolbar
         this.issueButton = new MenuButton(this.mainAction);
         this.issueButton.addClass('transparent');
 
-        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 500);
+        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 100);
 
-        const reloadList = (issues: Issue[]) => {
+        const reloadList = () => {
             const item = this.getItem();
             if (item) {
                 const itemId = item.getContentSummary().getContentId();
@@ -49,7 +49,7 @@ export class ContentItemPreviewToolbar
     doRender(): wemQ.Promise<boolean> {
         return super.doRender().then(rendered => {
             this.addElement(this.issueButton);
-            return true;
+            return rendered;
         });
     }
 
@@ -65,6 +65,7 @@ export class ContentItemPreviewToolbar
         super.clearItem();
 
         this.issueButton.getActionButton().setEnabled(false);
+        this.issueButton.hideDropdown();
     }
 
     protected foldOrExpand() {
@@ -79,8 +80,10 @@ export class ContentItemPreviewToolbar
             this.mainAction.setLabel('');
         }
         return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-            this.toggleClass('has-issues', issues.length > 0);
-            this.issueButton.getActionButton().setEnabled(issues.length > 0);
+            const hasIssues = issues.length > 0;
+            this.toggleClass('has-issues', hasIssues);
+            this.issueButton.getActionButton().setEnabled(hasIssues);
+            this.issueButton.hideDropdown(!hasIssues);
             // do remove here again since it might have been changed during request flight
             if (this.issueActionsList && this.issueActionsList.length > 0) {
                 this.issueButton.removeMenuActions(this.issueActionsList);

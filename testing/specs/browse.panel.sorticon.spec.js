@@ -13,7 +13,7 @@ const SortContentDialog = require('../page_objects/browsepanel/sort.content.dial
 const studioUtils = require('../libs/studio.utils.js');
 
 
-describe('Browse panel, sort icon spec - checks sort-icon in the grid`', function () {
+describe('browse.panel.sorticon.spec, do sort a folder and check a sort-icon in the grid`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -47,6 +47,8 @@ describe('Browse panel, sort icon spec - checks sort-icon in the grid`', functio
             let sortContentDialog = new SortContentDialog();
             return contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES).then(() => {
                 return contentBrowsePanel.clickOnSortButton();
+            }).then(()=>{
+                return sortContentDialog.waitForDialogVisible();
             }).then(() => {
                 return sortContentDialog.clickOnMenuButton();
             }).then(() => {

@@ -80,7 +80,7 @@ export class IssuesPanel
         const options = RowSelector.createOptions([
             IssuesPanel.makeLabelWithCounter(i18n('field.all')),
             IssuesPanel.makeLabelWithCounter(i18n('field.assignedToMe')),
-            IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe')),
+            IssuesPanel.makeLabelWithCounter(i18n('field.createdByMe')),
         ]);
 
         this.filterOptions = {
@@ -333,6 +333,22 @@ export class IssuesPanel
             onLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.showClosedIssues'), closedCount),
             offLabel: IssuesPanel.makeLabelWithCounter(i18n('field.issue.hideClosedIssues'), closedCount),
         });
+
+        this.updateIssuesTogglerStatus(closedCount);
+    }
+
+    private updateIssuesTogglerStatus(closed: number) {
+        const noClosedIssues = closed === 0;
+        const showingClosedIssues = this.issuesToggler.isOff();
+
+        const switchToggler = showingClosedIssues && noClosedIssues;
+        if (switchToggler) {
+            this.issuesToggler.turnOn();
+        }
+
+        const showingOpenedIssues = !this.issuesToggler.isOff();
+        const disableToggler = showingOpenedIssues && noClosedIssues;
+        this.issuesToggler.setEnabled(!disableToggler);
     }
 
     private updateOptions(): wemQ.Promise<void> {
@@ -403,7 +419,7 @@ export class IssuesPanel
 
     private updateAssignedByMeOption(total: number) {
         const selectable = total > 0;
-        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe'), total);
+        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.createdByMe'), total);
 
         this.filterOptions.assignedByMe = this.filter.updateOptionValue(this.filterOptions.assignedByMe, displayValue, selectable);
     }

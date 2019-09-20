@@ -35,7 +35,7 @@ const XPATH = {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
     publishMenuItemByName: function (name) {
-        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -196,11 +196,22 @@ class ContentBrowsePanel extends Page {
         })
     }
 
+    waitForStateIconNotDisplayed(displayName) {
+        let xpath = XPATH.contentSummaryByDisplayName(displayName);
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(xpath, 'class').then(result => {
+                return (!result.includes('in-progress') && !result.includes('ready'));
+            });
+        }, 3000).catch(err => {
+            throw new Error("Workflow icon still visible in content: "+ displayName + " "+ err);
+        });
+    }
+
     //Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
         return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_publish_button_mark_as_ready");
-            throw new Error("Publish button is not visible! " + err);
+            throw new Error("Mark as Ready button is not visible! " + err);
         })
     }
 
@@ -258,13 +269,13 @@ class ContentBrowsePanel extends Page {
         await this.waitForPublishButtonVisible();
         await this.pause(400);
         return await this.clickOnElement(this.publishButton);
-
     }
 
     async clickOnSortButton() {
         await this.waitForElementEnabled(this.sortButton);
         await this.pause(200);
-        return await this.clickOnElement(this.sortButton);
+        await this.clickOnElement(this.sortButton);
+        return await this.pause(400);
     }
 
     clickOnDuplicateButton() {
@@ -685,6 +696,11 @@ class ContentBrowsePanel extends Page {
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+    }
+
+    async openPublishMenu() {
+        await this.clickOnElement(this.showPublishMenuButton);
+        await this.pause(300);
     }
 
     async openPublishMenuSelectItem(menuItem) {

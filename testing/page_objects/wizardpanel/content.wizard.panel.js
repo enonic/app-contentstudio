@@ -13,6 +13,8 @@ const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -27,8 +29,8 @@ const XPATH = {
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
-    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish']]",
-    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish']",
+    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
+    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
@@ -51,7 +53,7 @@ const XPATH = {
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
-        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
 };
 
@@ -150,7 +152,7 @@ class ContentWizardPanel extends Page {
                 }).then(() => {
                     return detailsPanel.waitForDetailsPanelLoaded();
                 }).then(() => {
-                    return this.pause(300);
+                    return this.pause(400);
                 })
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
@@ -163,7 +165,7 @@ class ContentWizardPanel extends Page {
         let versionPanel = new VersionsWidget();
         await this.openDetailsPanel();
         await detailsPanel.openVersionHistory();
-        return versionPanel.waitForVersionsLoaded();
+        return await versionPanel.waitForVersionsLoaded();
     }
 
     waitForXdataTogglerVisible() {
@@ -220,6 +222,44 @@ class ContentWizardPanel extends Page {
         let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
         return this.getTextInElements(selector).catch(err => {
             throw new Error("Error when getting title from x-data " + err);
+        })
+    }
+
+    async hotKeyCloseWizard() {
+        try {
+            await this.pause(1000);
+            return await this.getBrowser().keys(['Alt', 'w']);
+        } catch (err) {
+            return await this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    async hotKeySaveAndCloseWizard() {
+        try {
+            let status = await this.getBrowser().status();
+            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
+                await this.getBrowser().keys(['Control', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+            if (status.os.name.toLowerCase().includes('mac')) {
+                await this.getBrowser().keys(['Command', 'Enter']);
+                return await this.doSwitchToContentBrowsePanel();
+            }
+        } catch (err) {
+            console.log("Save and close the wizard " + err);
+            return await this.doSwitchToContentBrowsePanel();
+        }
+    }
+
+    doSwitchToContentBrowsePanel() {
+        console.log('testUtils:switching to Content Browse panel...');
+        let browsePanel = new BrowsePanel();
+        return this.getBrowser().switchWindow("Content Studio - Enonic XP Admin").then(() => {
+            console.log("switched to content browse panel...");
+        }).then(() => {
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+        }).catch(err => {
+            throw new Error("Error when switching to Content Studio App " + err);
         })
     }
 
@@ -325,6 +365,14 @@ class ContentWizardPanel extends Page {
         });
     }
 
+    async clickOnDeleteAndConfirm() {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        await this.clickOnDelete(this.deleteButton);
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnDeleteButton();
+        return contentDeleteDialog.waitForDialogClosed();
+    }
+
     //clicks on 'Publish...' button
     clickOnPublishButton() {
         return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).then(() => {
@@ -346,6 +394,20 @@ class ContentWizardPanel extends Page {
         return await contentPublishDialog.waitForDialogClosed();
     }
 
+    async openPublishMenu() {
+        await this.clickOnPublishMenuDropdownHandle();
+        await this.pause(300);
+    }
+
+    async waitForPublishMenuItemDisabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+    }
+
+    async waitForPublishMenuItemEnabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+    }
 
     isContentInvalid() {
         let selector = this.thumbnailUploader;
@@ -484,7 +546,7 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnPublishDropdownHandle() {
+    clickOnPublishMenuDropdownHandle() {
         return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).then(() => {
             return this.clickOnElement(this.publishDropDownHandle);
         }).catch(err => {
@@ -498,7 +560,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnUnpublishmenuItem() {
-        return this.clickOnPublishDropdownHandle().then(() => {
+        return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
@@ -584,11 +646,25 @@ class ContentWizardPanel extends Page {
         return await result[0].getText();
     }
 
+    async isPublishMenuItemPresent(menuItem) {
+        try {
+            await this.waitForShowPublishMenuButtonVisible();
+            await this.clickOnElement(this.publishDropDownHandle);
+            await this.pause(700);
+            let selector = XPATH.publishMenuItemByName(menuItem);
+            //return await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2)
+            let result = await this.findElements(selector);
+            return result.length > 0;
+        } catch (err) {
+            throw new Error("Error when open the publish menu: " + err);
+        }
+    }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
             return this.pause(300);
@@ -665,6 +741,16 @@ class ContentWizardPanel extends Page {
 
         } else {
             throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
+
+    async waitForStateIconNotDisplayed() {
+        try {
+            let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
+            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_4);
+        } catch (err) {
+            this.saveScreenshot("err_workflow_state_should_not_be_visible");
+            throw new Error("Workflow state should be not visible!" + err);
         }
     }
 

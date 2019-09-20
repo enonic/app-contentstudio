@@ -65,7 +65,7 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
             });
         });
 
-    it(`GIVEN Items-tab has been clicked WHEN not valid content has been excluded THEN 'Publish & Close Issue' button is getting enabled`,
+    it(`GIVEN Items-tab has been clicked WHEN not valid content has been excluded THEN 'Publish...' button is getting enabled`,
         () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -77,7 +77,7 @@ describe('issue.not.valid.content.spec: create an issue with not valid content',
             }).then(() => {
                 return issueDetailsDialog.clickOnItemsTabBarItem();
             }).then(() => {
-                return issueDetailsDialogItemsTab.excludeItem('shortcut-imported');
+                return issueDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
             }).then(() => {
                 return assert.eventually.isTrue(issueDetailsDialogItemsTab.waitForPublishAndCloseIssueButtonEnabled(),
                     'Publish & Close button is getting enabled, because invalid child was excluded');

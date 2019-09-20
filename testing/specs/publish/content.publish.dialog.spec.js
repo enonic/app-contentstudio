@@ -42,9 +42,9 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.isFalse(isRemovable, "One publish item should be displayed and it should not be removable");
         });
 
-    it(`GIVEN existing folder is selected in grid WHEN 'Publish' button has been pressed THEN 'New' status should be displayed on the dialog`,
+    it(`GIVEN existing folder(no children) is selected in grid WHEN 'Publish' button has been pressed THEN 'New' status should be displayed on the dialog`,
         async () => {
-            let contentWizard = new ContentWizard();
+
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
 
@@ -177,6 +177,33 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.isTrue(result.length === 1, "Only one item should be present in the dialog");
             assert.equal(result[0], PARENT_FOLDER.displayName, "Parent folder should be in items to publish");
 
+        });
+
+    it(`GIVEN existing parent folder(ready to publish) is selected and 'PublishDialog' is opened WHEN child has been removed AND Publish Now has been pressed THEN only parent folder should be published`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentWizard = new ContentWizard();
+
+            await studioUtils.selectContentAndOpenWizard(PARENT_FOLDER.displayName);
+            await contentWizard.clickOnPublishButton();
+            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnShowDependentItems();
+            //Dependent item has been removed on the modal dialog
+            await contentPublishDialog.removeDependentItem(CHILD_FOLDER.displayName);
+
+            //click on 'Publish Now'
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForDialogClosed();
+            await studioUtils.doCloseWizardAndSwitchToGrid();
+
+
+            let parentStatus = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
+            assert.equal(parentStatus, appConst.CONTENT_STATUS.PUBLISHED, "Parent folder should be 'PUBLISHED'");
+
+            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
+            let childStatus = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
+            assert.equal(childStatus, appConst.CONTENT_STATUS.NEW, "child folder should be 'New'");
         });
 
 

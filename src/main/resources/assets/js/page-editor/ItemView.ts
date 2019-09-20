@@ -42,7 +42,6 @@ import {PageView} from './PageView';
 import PropertyTree = api.data.PropertyTree;
 import i18n = api.util.i18n;
 import ObjectHelper = api.ObjectHelper;
-import Action = api.ui.Action;
 
 export interface ElementDimensions {
     top: number;
@@ -1030,19 +1029,14 @@ export class ItemView
 
     protected createSelectParentAction(): api.ui.Action {
         const action = new api.ui.Action(i18n('live.view.selectparent'));
-        const parentActions = this.getSelectParentActions();
 
-        if (parentActions.length > 1) {
-            action.setChildActions(parentActions).setVisible(false);
-        } else {
-            action.setSortOrder(0);
-            action.onExecuted(() => {
-                let parentView: ItemView = this.getParentItemView();
-                if (parentView) {
-                    this.selectItemView(parentView);
-                }
-            });
-        }
+        action.setSortOrder(0);
+        action.onExecuted(() => {
+            let parentView: ItemView = this.getParentItemView();
+            if (parentView) {
+                this.selectItemView(parentView);
+            }
+        });
 
         return action;
     }
@@ -1051,30 +1045,6 @@ export class ItemView
         this.deselect();
         itemView.select(null, ItemViewContextMenuPosition.TOP, false, true);
         itemView.scrollComponentIntoView();
-    }
-
-    private getSelectParentActions(): api.ui.Action[] {
-        const parentActions: Action[] = [];
-
-        let parentView = this.getParentItemView();
-        do {
-            parentActions.push(this.createSelectParentSubAction(parentView));
-            parentView = parentView.getParentItemView();
-        } while (parentView);
-
-        return parentActions;
-    }
-
-    private createSelectParentSubAction(itemView: ItemView): api.ui.Action {
-        let name;
-        if (PageItemType.get().equals(itemView.getType())) {
-            name = this.liveEditModel.getContent().getDisplayName();
-        } else {
-            name = itemView.getName();
-        }
-        return new api.ui.Action(`${name} (${i18n('live.view.insert.' + itemView.getType().getShortName())})`)
-            .onExecuted(() => this.selectItemView(itemView))
-            .setVisible(false);
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): api.ui.Action {
