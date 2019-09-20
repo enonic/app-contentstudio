@@ -4,19 +4,12 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
 
     private formView: api.form.FormView;
 
-    private form: api.form.Form;
-
     private expression: string;
 
     readonly excludedInputTypes: string[] = ['htmlarea'];
 
     setFormView(value: api.form.FormView): DisplayNameResolver {
         this.formView = value;
-        return this;
-    }
-
-    setForm(value: api.form.Form): DisplayNameResolver {
-        this.form = value;
         return this;
     }
 
@@ -33,7 +26,7 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         api.util.assertNotNull(this.formView, 'formView not set');
         api.util.assertNotNull(this.expression, 'expression not set');
 
-        return this.safeEval(this.expression, this.formView);
+        return this.safeEval();
     }
 
     private sanitizeFieldValue(value: string) {
@@ -49,7 +42,7 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
     }
 
     private getNamesOfAllowedFields(): string[] {
-        return this.form.getFormItems()
+        return this.formView.getForm().getFormItems()
             .filter(formItem => !this.isExcludedInputType((<api.form.Input>formItem).getInputType()))
             .map(formItem => formItem.getName());
     }
@@ -64,10 +57,10 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
             ).join('');
     }
 
-    private safeEval(expression: string, formView: api.form.FormView): string {
+    private safeEval(): string {
         const script = '"use strict";' +
                        this.getFormValues() +
-                       '`' + expression + '`.replace(/\\s+/g, \' \')';
+                       '`' + this.expression + '`.replace(/\\s+/g, \' \')';
 
         let result = '';
 

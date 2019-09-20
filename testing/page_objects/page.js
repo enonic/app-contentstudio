@@ -80,6 +80,7 @@ class Page {
         }
         return await inputElement.pause(300);
     }
+
     async addTextInInput(selector, text) {
         let inputElement = await this.findElement(selector);
         //await inputElement.clearValue();
@@ -93,6 +94,12 @@ class Page {
         return await inputElement.pause(300);
     }
 
+    //Wait for an element for the provided amount of milliseconds to be present within the DOM. Returns true if the selector matches at least one
+    // element that exists in the DOM, otherwise throws an error.
+    async waitForExist(selector, ms) {
+        let element = await this.findElement(selector);
+        return await element.waitForExist(ms);
+    }
 
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
@@ -219,7 +226,8 @@ class Page {
         let element = await this.findElement(selector);
         return await element.getAttribute(attributeName);
     }
-    async removeNotificationMessage(){
+
+    async removeNotificationMessage() {
         let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
         await this.clickOnElement(selector);
         return this.pause(300);

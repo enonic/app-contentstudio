@@ -14,7 +14,7 @@ app {
     displayName = 'Content Studio'
     systemVersion = "${xpVersion}"
     vendorName = 'Enonic AS'
-    vendorUrl = 'http://enonic.com'
+    vendorUrl = 'https://enonic.com'
     devSourcePaths += file("$rootDir/../lib-admin-ui/src/main/resources")
 }
 

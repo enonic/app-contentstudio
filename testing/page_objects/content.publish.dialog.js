@@ -163,6 +163,7 @@ class ContentPublishDialog extends Page {
     }
 
     async getTextInChangeLog() {
+        await this.waitForExist(this.changeLogInput,appConst.TIMEOUT_2);
         return await this.getTextInInput(this.changeLogInput);
     }
 

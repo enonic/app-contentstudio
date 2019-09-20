@@ -18,7 +18,7 @@ Read more about Content Workflow <<workflow#,here>>.
 user(s) with sufficient Publishing permissions. Each request describes the changes to be published, which items will be published, and
 optional publishing schedule.
 
-Read more about Publish Requests <<workflow#publish_requests,here>>.
+Read more about Publish Requests <<workflow#publish_request,here>>.
 
 === Customizable placeholder for the Display Name field
 
@@ -35,6 +35,18 @@ Customize display name field placeholder
 ----
 
 image::display-name-placeholder.png[]
+
+=== Publish Message
+
+From version 2.1 publishers can specify optional message in the Publishing Wizard to describe the changes they are about to publish.
+
+image::publish-message-1.png[]
+
+image::publish-message-2.png[]
+
+If specified, publish message will be shown in the Version History widget, which has also been completely revamped in Content Studio 2.1.
+
+image::version-history.png[Version History, 280]
 
 == 2.0.0
 

@@ -13,6 +13,7 @@ import UriHelper = api.util.UriHelper;
 import i18n = api.util.i18n;
 import DivEl = api.dom.DivEl;
 import SpanEl = api.dom.SpanEl;
+import AppHelper = api.util.AppHelper;
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -33,9 +34,12 @@ export class ContentItemPreviewPanel
     private previewType: PREVIEW_TYPE;
     private previewMessage: DivEl;
     private noSelectionMessage: DivEl;
+    private debouncedSetItem: (item: ViewItem<ContentSummaryAndCompareStatus>) => void;
 
     constructor() {
         super('content-item-preview-panel');
+
+        this.debouncedSetItem = AppHelper.debounce(this.doSetItem.bind(this), 1000, true);
 
         this.initElements();
 
@@ -66,6 +70,10 @@ export class ContentItemPreviewPanel
     }
 
     public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
+        this.debouncedSetItem(item);
+    }
+
+    private doSetItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean) {
         if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
             if (typeof item.isRenderable() === 'undefined') {
                 return;

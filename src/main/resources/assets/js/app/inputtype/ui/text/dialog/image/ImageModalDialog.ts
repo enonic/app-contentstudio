@@ -272,8 +272,7 @@ export class ImageModalDialog
 
     private createPreviewFrame() {
         const appendStylesheet = (head, cssPath) => {
-            const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
-            linkEl.getEl().setAttribute('type', 'text/css');
+            const linkEl = new api.dom.LinkEl(cssPath);
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {

@@ -29,12 +29,13 @@ export class GetPageDescriptorsByApplicationRequest
     }
 
     sendAndParse(): wemQ.Promise<PageDescriptor[]> {
-        const cached = this.cache.getByApplication(this.applicationKey);
+        const cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
             return wemQ(cached);
         }
 
         return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {
+            this.cache.putApplicationKeys([this.applicationKey]);
             return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
                 const pageDescriptor = api.content.page.PageDescriptor.fromJson(descriptorJson);
                 this.cache.put(pageDescriptor);

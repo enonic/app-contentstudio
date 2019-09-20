@@ -254,14 +254,6 @@ export abstract class BasePublishDialog
         return this;
     }
 
-    protected reloadPublishDependencies() {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-
-        this.publishProcessor.reloadPublishDependencies(true);
-    }
-
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {
         if (this.isProgressBarEnabled()) {
             return;
@@ -289,8 +281,6 @@ export abstract class BasePublishDialog
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
 
         CreateIssueDialog.get().reset();
-
-        this.reloadPublishDependencies();
 
         super.open();
     }

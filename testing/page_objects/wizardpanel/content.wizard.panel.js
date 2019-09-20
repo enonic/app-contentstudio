@@ -53,7 +53,7 @@ const XPATH = {
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
-        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
 };
 
@@ -408,6 +408,7 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
     }
+
     isContentInvalid() {
         let selector = this.thumbnailUploader;
         return this.getAttribute(selector, 'class').then(result => {
@@ -645,11 +646,25 @@ class ContentWizardPanel extends Page {
         return await result[0].getText();
     }
 
+    async isPublishMenuItemPresent(menuItem) {
+        try {
+            await this.waitForShowPublishMenuButtonVisible();
+            await this.clickOnElement(this.publishDropDownHandle);
+            await this.pause(700);
+            let selector = XPATH.publishMenuItemByName(menuItem);
+            //return await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2)
+            let result = await this.findElements(selector);
+            return result.length > 0;
+        } catch (err) {
+            throw new Error("Error when open the publish menu: " + err);
+        }
+    }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
             return this.pause(300);
