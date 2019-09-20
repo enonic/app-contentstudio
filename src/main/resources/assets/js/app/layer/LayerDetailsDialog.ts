@@ -204,7 +204,7 @@ class LayerIconThumbnailSelector
 
     private initElements() {
         this.fileInput = new InputEl('flag-uploader-input', 'file');
-        this.fileInput.getEl().setAttribute('accept', '.jpg, .jpeg, .gif, .png, .svg');
+        this.fileInput.getEl().setAttribute('accept', '.png, .svg');
         this.label = new LabelEl(i18n('action.edit'), this.fileInput);
     }
 
