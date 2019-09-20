@@ -90,14 +90,6 @@ export class LinkModalDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            if (this.isOnlyTextSelected()) {
-                this.setElementToFocusOnShow(this.textFormItem.getInput());
-            } else {
-                this.setElementToFocusOnShow(this.toolTipFormItem.getInput());
-                this.textFormItem.hide();
-                this.textFormItem.removeValidator();
-            }
-
             this.addAction(this.submitAction);
             this.addCancelButtonToBottom();
 
@@ -108,10 +100,28 @@ export class LinkModalDialog
 
                     this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
 
+                    if (this.isNothingSelected()) {
+                        this.setElementToFocusOnShow(this.textFormItem.getInput());
+                    } else if (this.isOnlyTextSelected()) {
+                        this.setElementToFocusOnShow((<api.ui.text.TextInput>this.getFieldById('url')));
+                    } else {
+                        this.setElementToFocusOnShow((<api.ui.text.TextInput>this.getFieldById('url')));
+                        this.textFormItem.hide();
+                        this.textFormItem.removeValidator();
+                    }
+
                     return rendered;
                 }
             );
         });
+    }
+
+    private isNothingSelected(): boolean {
+        const selection = this.getEditor().getSelection();
+        const selectedElement: CKEDITOR.dom.element = selection.getSelectedElement();
+        const selectedText = selection.getSelectedText();
+
+        return (!selectedElement && selectedText === '');
     }
 
     private isOnlyTextSelected(): boolean {

@@ -80,7 +80,7 @@ export class IssuesPanel
         const options = RowSelector.createOptions([
             IssuesPanel.makeLabelWithCounter(i18n('field.all')),
             IssuesPanel.makeLabelWithCounter(i18n('field.assignedToMe')),
-            IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe')),
+            IssuesPanel.makeLabelWithCounter(i18n('field.createdByMe')),
         ]);
 
         this.filterOptions = {
@@ -419,7 +419,7 @@ export class IssuesPanel
 
     private updateAssignedByMeOption(total: number) {
         const selectable = total > 0;
-        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.assignedByMe'), total);
+        const displayValue = IssuesPanel.makeLabelWithCounter(i18n('field.createdByMe'), total);
 
         this.filterOptions.assignedByMe = this.filter.updateOptionValue(this.filterOptions.assignedByMe, displayValue, selectable);
     }

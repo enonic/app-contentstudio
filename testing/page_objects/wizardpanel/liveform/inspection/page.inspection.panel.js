@@ -2,9 +2,9 @@
  * Created on 15.02.2018.
  */
 
-const Page = require('../../page');
-const lib = require('../../../libs/elements');
-const appConst = require('../../../libs/app_const');
+const Page = require('../../../page');
+const lib = require('../../../../libs/elements');
+const appConst = require('../../../../libs/app_const');
 
 const xpath = {
     container: "//div[contains(@id,'InspectionsPanel')]",

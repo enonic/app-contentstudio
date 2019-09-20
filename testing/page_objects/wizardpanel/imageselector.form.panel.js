@@ -35,17 +35,18 @@ class ImageSelectorForm extends Page {
         return lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-
     type(contentData) {
         return this.selectImages(contentData.images);
     }
 
-
-    clickOnDropdownHandle() {
-        return this.clickOnElement(this.imageComboBoxDrppdownHandle).catch(err => {
+    async clickOnDropdownHandle() {
+        try {
+            await this.clickOnElement(this.imageComboBoxDrppdownHandle);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_img_sel_dropdown_handle');
             throw  new Error('image combobox dropdown handle not found ' + err);
-        });
+        }
     }
 
     async clickOnModeTogglerButton() {
@@ -61,7 +62,7 @@ class ImageSelectorForm extends Page {
     getFlatModeOptionImageNames() {
         let titles = [];
         let imgSelector = XPATH.flatOptionView;
-        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_3).then(() => {
             return this.findElements(imgSelector);
         }).then(result => {
             result.forEach(el => {
@@ -73,13 +74,40 @@ class ImageSelectorForm extends Page {
         });
     }
 
-
     selectImages(imgNames) {
         let result = Promise.resolve();
         imgNames.forEach(name => {
             result = result.then(() => this.filterOptionsAndSelectImage(name));
         });
         return result;
+    }
+
+    clickOnElements(elements) {
+        let result = Promise.resolve();
+        elements.forEach(el => {
+            result = result.then(() => {
+                return el.click()
+            }).then(() => {
+                return this.pause(300);
+            });
+        });
+        return result;
+    }
+
+    async clickOnDropDownHandleAndSelectImages(numberImages) {
+        await this.clickOnDropdownHandle();
+        await this.pause(700);
+        let selector = XPATH.imageContentComboBox + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
+        let elems = await this.findElements(selector);
+        await this.clickOnElements(elems.slice(0, numberImages));
+        await this.clickOnApplyButton();
+        await this.pause(1000);
+    }
+
+    async clickOnApplyButton() {
+        let selector = XPATH.imageContentComboBox + "//span[text()='Apply']";
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector);
     }
 
     filterOptionsAndSelectImage(displayName) {

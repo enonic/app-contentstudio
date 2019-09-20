@@ -13,7 +13,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const IssueDetailsPublishRequestTab = require('../../page_objects/issue/issue.details.dialog.publish.request.tab');
 
-describe('wizard.publish.menu.spec - request publish dialog - add items in the dialog and check `Publish Now` button', function () {
+describe('publish.request.dialog.add.items.spec - request publish dialog - add items in the dialog and check `Publish Now` button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER1;
