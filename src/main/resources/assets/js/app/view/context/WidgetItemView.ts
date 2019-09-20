@@ -1,4 +1,3 @@
-import LinkEl = api.dom.LinkEl;
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class WidgetItemView extends api.dom.DivEl {
@@ -33,23 +32,23 @@ export class WidgetItemView extends api.dom.DivEl {
         return `${url}?${contentIdParam}${repositoryParam}${branchParam}t=${new Date().getTime()}`;
     }
 
-    public setUrl(url: string, contentId: string): wemQ.Promise<void> {
-        let deferred = wemQ.defer<void>();
-        let linkEl = new LinkEl(WidgetItemView.getFullWidgetUrl(url, contentId)).setAsync();
-        let onLinkLoaded = ((event: UIEvent) => {
-            const mainContainer: HTMLElement = event.target['import'].querySelector('widget');
-                if (mainContainer) {
-                    // remove children in case setUrl was called multiple times
-                    this.removeChildren();
-                    this.getEl().appendChild(mainContainer);
-                }
-                linkEl.remove();
-                deferred.resolve(null);
-            });
+    public fetchWidgetContents(url: string, contentId: string): wemQ.Promise<void> {
+        const deferred = wemQ.defer<void>();
+        const fullUrl = WidgetItemView.getFullWidgetUrl(url, contentId);
+        fetch(fullUrl)
+            .then(response => response.text())
+            .then((html: string) => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
 
-        this.removeChildren();
-        linkEl.onLoaded(onLinkLoaded);
-        document.head.appendChild(linkEl.getHTMLElement());
+                this.removeChildren();
+                this.getEl().appendChild(div.firstChild);
+
+                deferred.resolve(null);
+            })
+            .catch(err => {
+                throw new Error('Failed to fetch page: ' + err);
+            });
 
         return deferred.promise;
     }

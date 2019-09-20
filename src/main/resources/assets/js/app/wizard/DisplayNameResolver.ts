@@ -6,6 +6,8 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
 
     private expression: string;
 
+    readonly excludedInputTypes: string[] = ['htmlarea'];
+
     setFormView(value: api.form.FormView): DisplayNameResolver {
         this.formView = value;
         return this;
@@ -24,7 +26,7 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         api.util.assertNotNull(this.formView, 'formView not set');
         api.util.assertNotNull(this.expression, 'expression not set');
 
-        return this.safeEval(this.expression, this.formView);
+        return this.safeEval();
     }
 
     private sanitizeFieldValue(value: string) {
@@ -35,16 +37,30 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         return result;
     }
 
-    private getFormValues(formView: api.form.FormView): string {
-        return formView.getData().getStringValues().map(formValue =>
-                    `var ${formValue.name} = '${this.sanitizeFieldValue(formValue.value)}'; `
-                ).join('');
+    private isExcludedInputType(inputType: api.form.InputTypeName) {
+        return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
-    private safeEval(expression: string, formView: api.form.FormView): string {
+    private getNamesOfAllowedFields(): string[] {
+        return this.formView.getForm().getFormItems()
+            .filter(formItem => !this.isExcludedInputType((<api.form.Input>formItem).getInputType()))
+            .map(formItem => formItem.getName());
+    }
+
+    private getFormValues(): string {
+        const allowedFields = this.getNamesOfAllowedFields();
+        return this.formView.getData().getStringValues()
+            .map(formValue => {
+                    const isAllowedField = allowedFields.indexOf(formValue.name) > -1;
+                    return `var ${formValue.name} = '${isAllowedField ? this.sanitizeFieldValue(formValue.value): ''}'; `;
+                }
+            ).join('');
+    }
+
+    private safeEval(): string {
         const script = '"use strict";' +
-                       this.getFormValues(formView) +
-                       '`' + expression + '`.replace(/\\s+/g, \' \')';
+                       this.getFormValues() +
+                       '`' + this.expression + '`.replace(/\\s+/g, \' \')';
 
         let result = '';
 

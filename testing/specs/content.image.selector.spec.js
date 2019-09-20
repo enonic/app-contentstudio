@@ -76,6 +76,7 @@ describe('content.image.selector: Image content specification', function () {
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4).then(() => {
                 return imageSelectorForm.clickOnDropdownHandle();
             }).then(() => {
+                studioUtils.saveScreenshot("selector_flat_mode")
                 return imageSelectorForm.getFlatModeOptionImageNames();
             }).then(imagesNames => {
                 studioUtils.saveScreenshot('img_sel_flat_mode');

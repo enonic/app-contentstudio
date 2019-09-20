@@ -68,16 +68,18 @@ class IssuesListDialog extends Page {
         })
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+    async waitForDialogClosed() {
+        await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        return await this.pause(500);
     }
 
     isDialogPresent() {
         return this.isElementDisplayed(xpath.container);
     }
 
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelTopButton);
+    async clickOnCancelTopButton() {
+        await this.clickOnElement(this.cancelTopButton);
+        return await this.pause(500);
     }
 
     clickOnPublishRequestsTab() {

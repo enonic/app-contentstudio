@@ -13,7 +13,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
-const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
@@ -97,7 +96,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Work In Progress state should not be displayed for Deleted content
+    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for Deleted content
     //verifies https://github.com/enonic/app-contentstudio/issues/692   'Publish...' should be the default action for content in Deleted state
     it(`GIVEN existing folder (Ready for publishing)is opened ADN it has been published then modified WHEN this folder has been 'Deleted' THEN default action gets PUBLISH...`,
         async () => {

@@ -56,23 +56,19 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
         });
 
     it(`GIVEN content is selected in grid AND 'Issue Details Dialog' is opened(click on issue-menu-button) WHEN 'Close Issue' button has been pressed THEN issue-menu button gets not visible`,
-        () => {
+        async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                return contentItemPreviewPanel.clickOnIssueMenuButton();
-            }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
-            }).then(() => {
-                //the issue has been closed
-                return issueDetailsDialog.clickOnCloseIssueButton();
-            }).then(() => {
-                //modal dialog has been closed
-                return issueDetailsDialog.clickOnCancelTopButton();
-            }).then(() => {
-                return assert.eventually.isTrue(contentItemPreviewPanel.waitForIssueMenuButtonNotVisible(),
-                    'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');
-            })
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentItemPreviewPanel.clickOnIssueMenuButton();
+            await issueDetailsDialog.waitForDialogOpened();
+            //the issue has been closed
+            await issueDetailsDialog.clickOnCloseIssueButton();
+            //modal dialog has been closed
+            await issueDetailsDialog.clickOnCancelTopButton();
+
+            // 'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');
+            await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

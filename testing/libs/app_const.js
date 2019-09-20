@@ -70,7 +70,11 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
         POP_03: 'Pop_03',
-        KOTEY: 'kotey'
+        KOTEY: 'kotey',
+        SHIP:'cat',
+        FOSS:'foss',
+        SENG:'seng',
+        PES:'morgopes'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

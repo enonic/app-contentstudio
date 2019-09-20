@@ -53,7 +53,7 @@ const XPATH = {
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
-        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='${name}']`
+        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
 };
 
@@ -152,7 +152,7 @@ class ContentWizardPanel extends Page {
                 }).then(() => {
                     return detailsPanel.waitForDetailsPanelLoaded();
                 }).then(() => {
-                    return this.pause(300);
+                    return this.pause(400);
                 })
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
@@ -394,6 +394,20 @@ class ContentWizardPanel extends Page {
         return await contentPublishDialog.waitForDialogClosed();
     }
 
+    async openPublishMenu() {
+        await this.clickOnPublishMenuDropdownHandle();
+        await this.pause(300);
+    }
+
+    async waitForPublishMenuItemDisabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+    }
+
+    async waitForPublishMenuItemEnabled(menuItem) {
+        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+        return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+    }
 
     isContentInvalid() {
         let selector = this.thumbnailUploader;
@@ -532,7 +546,7 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnPublishDropdownHandle() {
+    clickOnPublishMenuDropdownHandle() {
         return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).then(() => {
             return this.clickOnElement(this.publishDropDownHandle);
         }).catch(err => {
@@ -546,7 +560,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnUnpublishmenuItem() {
-        return this.clickOnPublishDropdownHandle().then(() => {
+        return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
@@ -632,11 +646,25 @@ class ContentWizardPanel extends Page {
         return await result[0].getText();
     }
 
+    async isPublishMenuItemPresent(menuItem) {
+        try {
+            await this.waitForShowPublishMenuButtonVisible();
+            await this.clickOnElement(this.publishDropDownHandle);
+            await this.pause(700);
+            let selector = XPATH.publishMenuItemByName(menuItem);
+            //return await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2)
+            let result = await this.findElements(selector);
+            return result.length > 0;
+        } catch (err) {
+            throw new Error("Error when open the publish menu: " + err);
+        }
+    }
+
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
             return this.pause(300);

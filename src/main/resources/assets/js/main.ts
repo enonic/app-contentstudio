@@ -4,6 +4,13 @@ import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import ImgEl = api.dom.ImgEl;
 import LostConnectionDetector = api.system.ConnectionDetector;
 
+// This is added for backwards compatibility of those widgets that use
+// window['HTMLImports'].whenReady(...) to embed their contents.
+// In 3.0 we should remove this import, remove the dependency from package.json,
+// fix the widgets that are using window['HTMLImports'] object
+// and update the docs on widgets to suggest a different way for embedding.
+import '@webcomponents/html-imports';
+
 declare const CONFIG;
 
 const body = api.dom.Body.get();
