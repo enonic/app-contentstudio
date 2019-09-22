@@ -463,7 +463,7 @@ export class ContentWizardPanel
                 this.getContentWizardToolbarPublishControls()
                     .setContentCanBePublished(this.checkContentCanBePublished(), false)
                     .setIsValid(isThisValid);
-                if (!this.formState.isNew()) {
+                if (!this.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
             });
@@ -477,6 +477,10 @@ export class ContentWizardPanel
 
             return rendered;
         });
+    }
+
+    isNew(): boolean {
+        return this.formState.isNew();
     }
 
     private availableSizeChangedHandler(item: ResponsiveItem) {
@@ -893,7 +897,7 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.reset();
     }
 
-    private updateContent(compareStatus: CompareStatus) {
+    private updateContent(compareStatus: CompareStatus): wemQ.Promise<void> {
         const newContent = this.currentContent.clone();
         newContent.setCompareStatus(compareStatus);
 
@@ -902,7 +906,7 @@ export class ContentWizardPanel
         this.getMainToolbar().setItem(newContent);
         this.workflowStateIconsManager.updateIcons();
 
-        this.wizardActions.refreshPendingDeleteDecorations();
+        return this.wizardActions.refreshPendingDeleteDecorations();
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -1589,7 +1593,7 @@ export class ContentWizardPanel
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
-                        if (this.formState.isNew()) {
+                        if (this.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
                         } else {
                             this.contentWizardStepForm.validate();
@@ -1603,7 +1607,7 @@ export class ContentWizardPanel
                             this.initSiteModelListeners();
                         }
 
-                        this.wizardActions.setUnsavedChangesCallback(this.hasUnsavedChanges.bind(this));
+                        this.wizardActions.initUnsavedChangesListeners();
 
                         this.onLiveModelChanged(() => {
                             setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
@@ -2235,15 +2239,9 @@ export class ContentWizardPanel
             const viewedData = form.getData().copy();
             viewedData.getRoot().reset();
 
-            this.syncPersistedItemWithXData(xDataName, viewedData);
-
-            if (!extraData) {
-                return;
-            }
-
             form.getData().unChanged(this.dataChangedHandler);
 
-            const data: PropertyTree = extraData.getData();
+            const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
             data.onChanged(this.dataChangedHandler);
 
             form.resetState(data);
@@ -2253,6 +2251,11 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
+
+            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
+                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
+            }
+
         });
     }
 
@@ -2346,10 +2349,12 @@ export class ContentWizardPanel
     private updateButtonsState(): wemQ.Promise<void> {
         return this.checkIfRenderable().then(() => {
             this.wizardActions.getPreviewAction().setEnabled(this.renderable);
-            this.wizardActions.refreshPendingDeleteDecorations();
-            this.getComponentsViewToggler().setEnabled(this.renderable);
-            this.getComponentsViewToggler().setVisible(this.renderable);
-            this.contextSplitPanel.updateRenderableStatus(this.renderable);
+
+            return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
+                this.getComponentsViewToggler().setEnabled(this.renderable);
+                this.getComponentsViewToggler().setVisible(this.renderable);
+                this.contextSplitPanel.updateRenderableStatus(this.renderable);
+            });
         });
     }
 

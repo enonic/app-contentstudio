@@ -33,13 +33,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
-    private siteModelUpdatedListener: () => void;
-
     private applicationUnavailableListener: (applicationEvent: ApplicationEvent) => void;
 
-    private applicationAddedListener: (event: ApplicationAddedEvent) => void;
-
-    private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
+    private debouncedDescriptorsReload: () => void;
 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
@@ -56,10 +52,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private initListeners() {
         this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
-        this.siteModelUpdatedListener = this.reloadDescriptorsOnApplicationChange.bind(this);
         this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
-        this.applicationAddedListener = this.reloadDescriptorsOnApplicationChange.bind(this);
-        this.applicationRemovedListener = this.reloadDescriptorsOnApplicationChange.bind(this);
+        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptorsOnApplicationChange.bind(this), 100);
 
         this.initSelectorListeners();
 
@@ -98,20 +92,20 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
             const siteModel: SiteModel = this.liveEditModel.getSiteModel();
 
-            siteModel.unSiteModelUpdated(this.siteModelUpdatedListener);
+            siteModel.unSiteModelUpdated(this.debouncedDescriptorsReload);
             siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
-            siteModel.unApplicationAdded(this.applicationAddedListener);
-            siteModel.unApplicationRemoved(this.applicationRemovedListener);
+            siteModel.unApplicationAdded(this.debouncedDescriptorsReload);
+            siteModel.unApplicationRemoved(this.debouncedDescriptorsReload);
         }
     }
 
     private bindSiteModelListeners() {
         const siteModel: SiteModel = this.liveEditModel.getSiteModel();
 
-        siteModel.onSiteModelUpdated(this.siteModelUpdatedListener);
+        siteModel.onSiteModelUpdated(this.debouncedDescriptorsReload);
         siteModel.onApplicationUnavailable(this.applicationUnavailableListener);
-        siteModel.onApplicationAdded(this.applicationAddedListener);
-        siteModel.onApplicationRemoved(this.applicationRemovedListener);
+        siteModel.onApplicationAdded(this.debouncedDescriptorsReload);
+        siteModel.onApplicationRemoved(this.debouncedDescriptorsReload);
     }
 
     private applicationUnavailableHandler() {

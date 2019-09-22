@@ -22,6 +22,7 @@ import {AccessControlList} from '../../access/AccessControlList';
 import {Permission} from '../../access/Permission';
 import {MarkAsReadyAction} from './MarkAsReadyAction';
 import {RequestPublishAction} from './RequestPublishAction';
+import {OpenRequestAction} from './OpenRequestAction';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -29,7 +30,6 @@ import ManagedActionManager = api.managedaction.ManagedActionManager;
 import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
 import ManagedActionState = api.managedaction.ManagedActionState;
 import ActionsStateManager = api.ui.ActionsStateManager;
-import {OpenRequestAction} from './OpenRequestAction';
 
 type ActionNames =
     'SAVE' |
@@ -108,8 +108,6 @@ export class ContentWizardActions
 
     private stateManager: ActionsStateManager;
 
-    private hasUnsavedChanges: () => boolean;
-
     private checkSaveActionStateHandler: () => void;
 
     private beforeActionsStashedListeners: { (): void; }[] = [];
@@ -186,18 +184,27 @@ export class ContentWizardActions
         });
     }
 
-    setUnsavedChangesCallback(callback: () => boolean) {
-        this.hasUnsavedChanges = callback;
+    initUnsavedChangesListeners() {
+        if (this.checkSaveActionStateHandler) {
+            this.wizardPanel.unPermissionItemsAdded(this.checkSaveActionStateHandler);
+            this.wizardPanel.unPermissionItemsRemoved(this.checkSaveActionStateHandler);
+            this.wizardPanel.unPermissionItemChanged(this.checkSaveActionStateHandler);
+            this.wizardPanel.unDataChanged(this.checkSaveActionStateHandler);
+            this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
+        }
 
         this.checkSaveActionStateHandler = api.util.AppHelper.debounce(() => {
-            let isEnabled: boolean = this.hasUnsavedChanges();
+            let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
 
             if (this.persistedContent) {
 
                 const overwritePermissions = this.wizardPanel.getSecurityWizardStepForm() &&
                                              this.wizardPanel.getSecurityWizardStepForm().isOverwritePermissions();
 
-                isEnabled = (isEnabled || overwritePermissions) && this.persistedContent.isEditable() && this.hasModifyPermission;
+                isEnabled = (isEnabled || overwritePermissions) &&
+                            this.persistedContent.isEditable() &&
+                            !this.isPendingDelete() &&
+                            this.hasModifyPermission;
             }
             this.enableActions({ SAVE: isEnabled });
 
@@ -226,9 +233,8 @@ export class ContentWizardActions
         return this.stateManager.isActionEnabled(name);
     }
 
-    refreshPendingDeleteDecorations() {
-        let compareStatus = this.wizardPanel.getCompareStatus();
-        let isPendingDelete = CompareStatusChecker.isPendingDelete(compareStatus);
+    refreshPendingDeleteDecorations(): wemQ.Promise<any> {
+        const isPendingDelete = this.isPendingDelete();
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
         this.actionsMap.SAVE.setVisible(!isPendingDelete);
@@ -236,6 +242,27 @@ export class ContentWizardActions
         this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
         this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
         this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
+
+        if (isPendingDelete) {
+            this.enableActions({
+                SAVE: false,
+                DELETE: false,
+                DUPLICATE: false
+            });
+        } else {
+            if (this.wizardPanel.isNew()) {
+                this.enableActionsForNew();
+            } else {
+                return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
+            }
+        }
+
+        return wemQ(null);
+    }
+
+    private isPendingDelete() {
+        const compareStatus = this.wizardPanel.getCompareStatus();
+        return CompareStatusChecker.isPendingDelete(compareStatus);
     }
 
     enableActionsForNew() {
@@ -245,16 +272,16 @@ export class ContentWizardActions
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
-    enableActionsForExisting(existing: Content) {
+    enableActionsForExisting(existing: Content): wemQ.Promise<any> {
         this.persistedContent = existing;
 
         this.enableActions({
             DELETE: existing.isDeletable()
         });
 
-        this.enableActionsForExistingByPermissions(existing).then(() => {
+        return this.enableActionsForExistingByPermissions(existing).then(() => {
             this.enableActions({
-                SAVE: existing.isEditable() && this.hasUnsavedChanges()
+                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete()
             });
         });
     }
