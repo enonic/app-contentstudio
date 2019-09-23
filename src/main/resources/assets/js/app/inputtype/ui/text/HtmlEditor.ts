@@ -806,8 +806,8 @@ class HtmlEditorConfigBuilder {
 
     private editorParams: HtmlEditorParams;
 
-    private toolsToExlcude: string = '';
-    private toolsToInclude: string[] = [];
+    private disabledTools: string = '';
+    private enabledTools: string[] = [];
 
     private tools: any[] = [
         ['Format', 'Bold', 'Italic', 'Underline'],
@@ -831,15 +831,18 @@ class HtmlEditorConfigBuilder {
             return;
         }
 
-        if (tools['exclude'] && tools['exclude'] instanceof Array) {
-            this.toolsToExlcude = tools['exclude'].map(tool => tool.value).join().replace(/\s+/g, ',');
-            if (this.toolsToExlcude === '*') {
+        const enabledTools = tools['include'];
+        const disabledTools = tools['exclude'];
+
+        if (disabledTools && disabledTools instanceof Array) {
+            this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
+            if (this.disabledTools === '*') {
                 this.tools = [];
             }
         }
 
-        if (tools['include'] && tools['include'] instanceof Array) {
-            this.includeTools(tools['include'].map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
+        if (enabledTools && enabledTools instanceof Array) {
+            this.includeTools(enabledTools.map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
         }
     }
 
@@ -856,7 +859,7 @@ class HtmlEditorConfigBuilder {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
         }
 
-        this.tools.push(this.toolsToInclude);
+        this.tools.push(this.enabledTools);
     }
 
     public static createEditorConfig(htmlEditorParams: HtmlEditorParams): wemQ.Promise<CKEDITOR.config> {
@@ -878,7 +881,7 @@ class HtmlEditorConfigBuilder {
                 [CKEDITOR.CTRL + 76, null], // disabling default Link keystroke to remove it's wrong tooltip
             ],
             removePlugins: this.getPluginsToRemove(),
-            removeButtons: this.toolsToExlcude,
+            removeButtons: this.disabledTools,
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc',
             extraAllowedContent: this.getExtraAllowedContent(),
             format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
@@ -893,7 +896,7 @@ class HtmlEditorConfigBuilder {
             disableNativeSpellChecker: false
         };
 
-        if (!this.isToolExcluded('Code')) {
+        if (!this.isToolDisabled('Code')) {
             config.format_tags = config.format_tags + ';code';
             config['format_code'] = {element: 'code'};
         }
@@ -938,14 +941,11 @@ class HtmlEditorConfigBuilder {
     }
 
     private includeTool(tool: string) {
-        this.toolsToInclude.push(tool);
+        this.enabledTools.push(tool);
     }
 
-    private isToolExcluded(tool: string): boolean {
-        if (!this.editorParams.getTools() || !this.editorParams.getTools()['exclude']) {
-            return false;
-        }
-        return this.editorParams.getTools()['exclude'].indexOf(tool) > -1;
+    private isToolDisabled(tool: string): boolean {
+        return this.disabledTools.indexOf(tool) > -1;
     }
 }
 
