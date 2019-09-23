@@ -24,6 +24,7 @@ export class HtmlEditorParams {
     private customStylesToBeUsed: boolean = false;
     private tools: any;
     private allowScripts: boolean = false;
+    private allowedHeadings: any;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
@@ -170,6 +171,10 @@ export class HtmlEditorParams {
         return this.allowScripts;
     }
 
+    getAllowedHeadings(): any {
+        return this.allowedHeadings;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -216,6 +221,8 @@ export class HtmlEditorParamsBuilder {
     tools: any;
 
     allowScripts: boolean = false;
+
+    allowedHeadings: any;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -317,6 +324,11 @@ export class HtmlEditorParamsBuilder {
 
     setAllowScripts(value: boolean): HtmlEditorParamsBuilder {
         this.allowScripts = value;
+        return this;
+    }
+
+    setAllowedHeadings(allowedHeadings: any): HtmlEditorParamsBuilder {
+        this.allowedHeadings = allowedHeadings;
         return this;
     }
 
