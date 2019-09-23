@@ -295,13 +295,14 @@ class ContentWizardPanel extends Page {
         });
     }
 
-//return false if Save button is disabled
-    waitForSaveButtonEnabled() {
-        return this.waitForSaveButtonVisible().then(() => {
-            return this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_3)
-        }).catch(err => {
-            return false;
-        })
+   //exception will be thrown if Save button is disabled after 3 seconds
+    async waitForSaveButtonEnabled() {
+        try {
+            await this.waitForSaveButtonVisible();
+            return await this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_3);
+        } catch (err) {
+            throw new Error("Save button should be enabled in the wizard: " + err);
+        }
     }
 
     waitForSaveButtonDisabled() {
