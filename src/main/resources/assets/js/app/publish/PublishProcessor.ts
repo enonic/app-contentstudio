@@ -204,7 +204,11 @@ export class PublishProcessor {
     }
 
     public containsInvalidItems() {
-        return this.containsInvalid;
+        return this.containsInvalid || this.itemList.getItems().some(this.isItemInvalid);
+    }
+
+    private isItemInvalid(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.getContentSummary().isValid();
     }
 
     public setCheckPublishable(flag: boolean) {

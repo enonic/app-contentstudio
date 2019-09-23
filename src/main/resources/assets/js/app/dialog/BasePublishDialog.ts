@@ -152,20 +152,11 @@ export abstract class BasePublishDialog
         if ((!needPublish || allPublishable) && allValid && !containsItemsInProgress) {
             this.publishIssuesStateBar.removeClass('has-issues');
             this.publishIssuesStateBar.reset();
-            return;
-        }
-
-        this.publishIssuesStateBar.addClass('has-issues');
-        if (containsItemsInProgress) {
-            this.publishIssuesStateBar.showContainsInProgress();
-        }
-
-        if (!allValid) {
-            this.publishIssuesStateBar.showContainsInvalid();
-        }
-
-        if (!allPublishable) {
-            this.publishIssuesStateBar.showContainsNotPublishable();
+        } else {
+            this.publishIssuesStateBar.addClass('has-issues');
+            this.publishIssuesStateBar.setContainsInProgressVisible(containsItemsInProgress);
+            this.publishIssuesStateBar.setContainsInvalidVisible(!allValid);
+            this.publishIssuesStateBar.setContainsNotPublishableVisible(!allPublishable);
         }
     }
 
@@ -263,14 +254,6 @@ export abstract class BasePublishDialog
         return this;
     }
 
-    protected reloadPublishDependencies() {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-
-        this.publishProcessor.reloadPublishDependencies(true);
-    }
-
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {
         if (this.isProgressBarEnabled()) {
             return;
@@ -310,5 +293,13 @@ export abstract class BasePublishDialog
         this.publishProcessor.resetExcludedIds();
 
         CreateIssueDialog.get().reset();
+    }
+
+    protected reloadPublishDependencies() {
+        if (this.isProgressBarEnabled()) {
+            return;
+        }
+
+        this.publishProcessor.reloadPublishDependencies(true);
     }
 }

@@ -21,6 +21,7 @@ const xpath = {
 };
 
 class PageComponentView extends Page {
+
     clickOnComponent(displayName) {
         let selector = xpath.container + lib.itemByDisplayName(displayName);
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
@@ -42,6 +43,26 @@ class PageComponentView extends Page {
             this.saveScreenshot('err_component_view');
             throw new Error('Error when clicking on `Menu button`: ' + err);
         }
+    }
+
+    async clickOnComponent(componentName) {
+        try {
+            let component = xpath.componentByName(componentName);
+            await this.waitForElementDisplayed(component, appConst.TIMEOUT_2);
+            await this.clickOnElement(component);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_component_view');
+            throw new Error('Error when clicking on the `Component`: ' + err);
+        }
+    }
+
+    async isComponentSelected(displayName) {
+        let rowXpath = lib.slickRowByDisplayName(xpath.container,displayName)+ "//div[contains(@class,'slick-cell')]";
+        await this.waitForElementDisplayed(rowXpath,appConst.TIMEOUT_2);
+        let cell = await this.findElement(rowXpath);
+        let attr=  await cell.getAttribute("class");
+        return attr.includes("selected");
     }
 
     isMenuItemPresent(name) {

@@ -29,39 +29,45 @@ export class PageInspectionPanel
 
     constructor(private saveAsTemplateAction: SaveAsTemplateAction) {
         super();
+
+        this.initElements();
+        this.initListeners();
     }
 
-    setModel(liveEditModel: LiveEditModel) {
-
-        this.liveEditModel = liveEditModel;
-        this.pageModel = liveEditModel.getPageModel();
-
-        this.layout();
-    }
-
-    private layout() {
-        this.removeChildren();
-
-        this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector(this.liveEditModel);
+    private initElements() {
+        this.inspectionHandler = new BaseInspectionHandler();
+        this.pageTemplateAndControllerSelector = new PageTemplateAndControllerSelector();
         this.pageTemplateAndControllerForm = new PageTemplateAndControllerForm(this.pageTemplateAndControllerSelector);
+    }
+
+    private initListeners() {
         this.pageTemplateAndControllerForm.onShown(() => this.saveAsTemplateAction.updateVisibility());
         this.pageTemplateAndControllerSelector.onOptionSelected(() => {
             this.saveAsTemplateAction.updateVisibility();
         });
-        this.appendChild(this.pageTemplateAndControllerForm);
+    }
 
-        const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
-        saveAsTemplateButton.addClass('blue large save-as-template');
-        this.pageTemplateAndControllerForm.appendChild(saveAsTemplateButton);
+    setModel(liveEditModel: LiveEditModel) {
+        this.liveEditModel = liveEditModel;
+        this.pageModel = liveEditModel.getPageModel();
+
+        this.pageTemplateAndControllerSelector.setModel(this.liveEditModel);
         this.saveAsTemplateAction.updateVisibility();
-
-        this.inspectionHandler = new BaseInspectionHandler();
-
         this.inspectionHandler
             .setPageModel(this.pageModel)
             .setPageInspectionPanel(this)
             .setPageTemplateAndControllerForm(this.pageTemplateAndControllerForm)
             .setModel(this.liveEditModel);
+    }
+
+    layout() {
+        this.removeChildren();
+
+        this.appendChild(this.pageTemplateAndControllerForm);
+
+        const saveAsTemplateButton = new ActionButton(this.saveAsTemplateAction);
+        saveAsTemplateButton.addClass('blue large save-as-template');
+        this.pageTemplateAndControllerForm.appendChild(saveAsTemplateButton);
     }
 
     refreshInspectionHandler(liveEditModel: LiveEditModel) {
@@ -147,6 +153,7 @@ class BaseInspectionHandler {
 
         const root = config ? config.getRoot() : null;
         this.configForm = new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), root);
+        this.configForm.setLazyRender(false);
         this.pageInspectionPanel.appendChild(this.configForm);
         this.pageModel.setIgnorePropertyChanges(true);
         this.configForm.layout().catch((reason: any) => {

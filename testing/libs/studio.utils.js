@@ -548,7 +548,7 @@ module.exports = {
         return await this.doSwitchToContentBrowsePanel();
     },
 
-    saveAndCloseWizard: function (displayName) {
+    saveAndCloseWizard: function () {
         let contentWizardPanel = new ContentWizardPanel();
         return contentWizardPanel.waitAndClickOnSave().then(() => {
             return contentWizardPanel.pause(300);

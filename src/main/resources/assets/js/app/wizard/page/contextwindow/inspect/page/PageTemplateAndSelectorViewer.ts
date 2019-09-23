@@ -11,9 +11,11 @@ export class PageTemplateAndSelectorViewer
 
     private defaultPageTemplate: PageTemplate;
 
-    constructor(defaultPageTemplate: PageTemplate) {
+    constructor() {
         super();
+    }
 
+    setDefaultPageTemplate(defaultPageTemplate: PageTemplate) {
         this.defaultPageTemplate = defaultPageTemplate;
     }
 

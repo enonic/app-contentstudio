@@ -44,6 +44,7 @@ import DataChangedType = api.ui.treegrid.DataChangedType;
 import Action = api.ui.Action;
 import AppHelper = api.util.AppHelper;
 import ViewItem = api.app.view.ViewItem;
+import BrowserHelper = api.BrowserHelper;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -174,6 +175,7 @@ export class ContentBrowsePanel
             this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
+            this.markContentAsReadyOnPublishActions();
 
             return rendered;
         }).catch((error) => {
@@ -545,9 +547,12 @@ export class ContentBrowsePanel
 
     private forcePreviewRerender() {
         const previewItem: ViewItem<ContentSummaryAndCompareStatus> = this.getBrowseItemPanel().getStatisticsItem();
-        (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
 
-        this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
+        if (BrowserHelper.isMobile()) {
+            this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
+        } else {
+            (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
+        }
     }
 
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
@@ -621,5 +626,22 @@ export class ContentBrowsePanel
         browseActions.onActionsUnstashed(() => {
             contentPublishMenuButton.setRefreshDisabled(false);
         });
+    }
+
+    private markContentAsReadyOnPublishActions() {
+        const handler: () => void = this.markSingleContentAsReady.bind(this);
+        this.getBrowseActions().getPublishAction().onBeforeExecute(handler);
+        this.getBrowseActions().getPublishTreeAction().onBeforeExecute(handler);
+        this.getBrowseActions().getRequestPublishAction().onBeforeExecute(handler);
+    }
+
+    private markSingleContentAsReady() {
+        const contents: ContentSummaryAndCompareStatus[] = this.treeGrid.getSelectedDataList();
+
+        if (contents.length > 1) { // only when single item selected
+            return;
+        }
+
+        this.getBrowseActions().getMarkAsReadyAction().execute();
     }
 }

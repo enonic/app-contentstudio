@@ -56,6 +56,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
+import {WorkflowStateIconsManager} from './WorkflowStateIconsManager';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -90,6 +91,7 @@ import RoleKeys = api.security.RoleKeys;
 import PrincipalKey = api.security.PrincipalKey;
 import Workflow = api.content.Workflow;
 import WorkflowState = api.content.WorkflowState;
+import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import i18n = api.util.i18n;
 
 export class ContentWizardPanel
@@ -190,6 +192,8 @@ export class ContentWizardPanel
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
+    private workflowStateIconsManager: WorkflowStateIconsManager;
+
     public static debug: boolean = false;
 
     constructor(params: ContentWizardPanelParams) {
@@ -216,6 +220,8 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
 
         this.xDataWizardStepForms = new XDataWizardStepForms();
+
+        this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
 
         this.initListeners();
         this.listenToContentEvents();
@@ -310,7 +316,11 @@ export class ContentWizardPanel
     }
 
     protected createMainToolbar(): Toolbar {
-        return new ContentWizardToolbar(this.contentParams.application, this.wizardActions);
+        return new ContentWizardToolbar({
+            application: this.contentParams.application,
+            actions: this.wizardActions,
+            workflowStateIconsManager: this.workflowStateIconsManager
+        });
     }
 
     public getMainToolbar(): ContentWizardToolbar {
@@ -326,7 +336,7 @@ export class ContentWizardPanel
         header.setPath(this.getWizardHeaderPath());
 
         const existing: Content = this.getPersistedItem();
-        if (!!existing) {
+        if (existing) {
             header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
         }
 
@@ -449,14 +459,11 @@ export class ContentWizardPanel
 
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
-                if (thumbnailUploader) {
-                    thumbnailUploader.toggleClass('invalid', !isThisValid);
-                }
-                this.getMainToolbar().toggleValid(isThisValid);
+                this.workflowStateIconsManager.updateIcons();
                 this.getContentWizardToolbarPublishControls()
                     .setContentCanBePublished(this.checkContentCanBePublished(), false)
                     .setIsValid(isThisValid);
-                if (!this.formState.isNew()) {
+                if (!this.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
             });
@@ -470,6 +477,10 @@ export class ContentWizardPanel
 
             return rendered;
         });
+    }
+
+    isNew(): boolean {
+        return this.formState.isNew();
     }
 
     private availableSizeChangedHandler(item: ResponsiveItem) {
@@ -592,19 +603,17 @@ export class ContentWizardPanel
 
             this.updateThumbnailWithContent(persistedContent);
 
-            let wizardHeader = this.getWizardHeader();
-
-            wizardHeader.setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
+            this.getWizardHeader().setSimplifiedNameGeneration(persistedContent.getType().isDescendantOfMedia());
 
             if (this.isRendered()) {
 
-                let viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
+                const viewedContent = this.assembleViewedContent(persistedContent.newBuilder()).build();
                 if (viewedContent.equals(persistedContent) || this.skipValidation) {
 
                     // force update wizard with server bounced values to erase incorrect ones
                     this.updateWizard(persistedContentCopy, false);
 
-                    let liveFormPanel = this.getLivePanel();
+                    const liveFormPanel = this.getLivePanel();
                     if (liveFormPanel) {
                         liveFormPanel.loadPage();
                     }
@@ -644,7 +653,7 @@ export class ContentWizardPanel
                         new ConfirmationDialog()
                             .setQuestion(i18n('dialog.confirm.contentDiffers'))
                             .setYesCallback(() => this.doLayoutPersistedItem(persistedContentCopy))
-                            .setNoCallback(() => { /* empty */
+                            .setNoCallback(() => {/* empty */
                             })
                             .show();
                     }
@@ -888,22 +897,16 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.reset();
     }
 
-    private updateContent(compareStatus: CompareStatus) {
+    private updateContent(compareStatus: CompareStatus): wemQ.Promise<void> {
         const newContent = this.currentContent.clone();
         newContent.setCompareStatus(compareStatus);
 
         this.currentContent = newContent;
         this.persistedContent = newContent;
         this.getMainToolbar().setItem(newContent);
-        this.updateWorkflowStateIcons();
+        this.workflowStateIconsManager.updateIcons();
 
-        this.wizardActions.refreshPendingDeleteDecorations();
-    }
-
-    private updateWorkflowStateIcons() {
-        const hasUnsavedChanges: boolean = this.hasUnsavedChanges();
-        this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
-        this.updateThumbnailStateIcon(hasUnsavedChanges);
+        return this.wizardActions.refreshPendingDeleteDecorations();
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
@@ -990,6 +993,7 @@ export class ContentWizardPanel
                 return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
             }).some((undeletedItem) => {
                 this.updateContent(undeletedItem.getCompareStatus());
+                this.updatePublishStatusOnDataChange();
 
                 return true;
             });
@@ -1013,7 +1017,7 @@ export class ContentWizardPanel
                     this.currentContent = content;
                     this.persistedContent = content;
                     this.getMainToolbar().setItem(content);
-                    this.updateWorkflowStateIcons();
+                    this.workflowStateIconsManager.updateIcons();
                     this.refreshScheduleWizardStep();
 
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
@@ -1153,11 +1157,10 @@ export class ContentWizardPanel
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         this.currentContent = updatedContent;
         this.persistedContent = updatedContent;
-        this.getMainToolbar().setSkipNextIconStateUpdate(true);
         this.getMainToolbar().setItem(updatedContent);
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
-            this.updateWorkflowStateIcons();
+            this.workflowStateIconsManager.updateIcons();
         }
         this.contextSplitPanel.setContent(updatedContent);
     }
@@ -1267,7 +1270,10 @@ export class ContentWizardPanel
                            // pageModel is updated so we need reload unless we're saving already
                            const needsReload = !this.isSaving();
                            if (livePanel) {
-                               livePanel.setModel(this.liveEditModel, true, true, reloadPage);
+                               livePanel.setModel(this.liveEditModel);
+                               if (reloadPage) {
+                                   livePanel.clearSelectionAndInspect(true, true);
+                               }
                                if (needsReload && reloadPage) {
                                    this.debouncedEditorRefresh(true);
                                }
@@ -1384,7 +1390,8 @@ export class ContentWizardPanel
                 this.liveEditModel = liveEditModel;
 
                 const showPanel = this.renderableChanged && this.renderable;
-                liveFormPanel.setModel(this.liveEditModel, showPanel, false);
+                liveFormPanel.setModel(this.liveEditModel);
+                liveFormPanel.clearSelectionAndInspect(showPanel, false);
 
                 this.debouncedEditorRefresh(false);
 
@@ -1403,7 +1410,7 @@ export class ContentWizardPanel
             this.persistedContent = summaryAndStatus;
             this.getMainToolbar().setItem(summaryAndStatus);
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
-            this.updateWorkflowStateIcons();
+            this.workflowStateIconsManager.updateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                 this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
@@ -1428,25 +1435,13 @@ export class ContentWizardPanel
 
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        const id = content.getContentId().toString();
 
         thumbnailUploader
-            .setParams({
-                id: content.getContentId().toString()
-            })
+            .setParams({id})
             .setEnabled(!content.isImage())
-            .setValue(new api.content.util.ContentIconUrlResolver().setContent(content).resolve());
-
-        thumbnailUploader.toggleClass('invalid', !content.isValid());
-    }
-
-    private updateThumbnailStateIcon(hasUnsavedChanges: boolean) {
-        const item: ContentSummaryAndCompareStatus = this.currentContent;
-        const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-        const isReady: boolean = !item.isOnline() && !hasUnsavedChanges && item.getContentSummary().isReady();
-        const isInProgress: boolean = !item.isOnline() && (hasUnsavedChanges || item.getContentSummary().isInProgress());
-
-        thumbnailUploader.toggleClass('ready', isReady);
-        thumbnailUploader.toggleClass('in-progress', isInProgress);
+            .setValue(new ContentIconUrlResolver().setContent(content).resolve());
+        this.workflowStateIconsManager.updateIcons();
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): wemQ.Promise<void> {
@@ -1467,7 +1462,8 @@ export class ContentWizardPanel
                 this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
-                    liveFormPanel.setModel(this.liveEditModel, false);
+                    liveFormPanel.setModel(this.liveEditModel);
+                    liveFormPanel.layoutInspectionPanels();
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 
@@ -1597,7 +1593,7 @@ export class ContentWizardPanel
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
-                        if (this.formState.isNew()) {
+                        if (this.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
                         } else {
                             this.contentWizardStepForm.validate();
@@ -1611,7 +1607,7 @@ export class ContentWizardPanel
                             this.initSiteModelListeners();
                         }
 
-                        this.wizardActions.setUnsavedChangesCallback(this.hasUnsavedChanges.bind(this));
+                        this.wizardActions.initUnsavedChangesListeners();
 
                         this.onLiveModelChanged(() => {
                             setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
@@ -2243,15 +2239,9 @@ export class ContentWizardPanel
             const viewedData = form.getData().copy();
             viewedData.getRoot().reset();
 
-            this.syncPersistedItemWithXData(xDataName, viewedData);
-
-            if (!extraData) {
-                return;
-            }
-
             form.getData().unChanged(this.dataChangedHandler);
 
-            const data: PropertyTree = extraData.getData();
+            const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
             data.onChanged(this.dataChangedHandler);
 
             form.resetState(data);
@@ -2261,6 +2251,11 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
+
+            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
+                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
+            }
+
         });
     }
 
@@ -2354,10 +2349,12 @@ export class ContentWizardPanel
     private updateButtonsState(): wemQ.Promise<void> {
         return this.checkIfRenderable().then(() => {
             this.wizardActions.getPreviewAction().setEnabled(this.renderable);
-            this.wizardActions.refreshPendingDeleteDecorations();
-            this.getComponentsViewToggler().setEnabled(this.renderable);
-            this.getComponentsViewToggler().setVisible(this.renderable);
-            this.contextSplitPanel.updateRenderableStatus(this.renderable);
+
+            return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
+                this.getComponentsViewToggler().setEnabled(this.renderable);
+                this.getComponentsViewToggler().setVisible(this.renderable);
+                this.contextSplitPanel.updateRenderableStatus(this.renderable);
+            });
         });
     }
 
@@ -2381,8 +2378,7 @@ export class ContentWizardPanel
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             this.getMainToolbar().setItem(this.currentContent);
-            this.getMainToolbar().setHasUnsavedChanges(hasUnsavedChanges);
-            this.updateThumbnailStateIcon(hasUnsavedChanges);
+            this.workflowStateIconsManager.updateIcons();
         }
     }
 

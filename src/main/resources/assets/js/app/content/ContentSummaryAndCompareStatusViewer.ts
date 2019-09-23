@@ -73,8 +73,8 @@ export class ContentSummaryAndCompareStatusViewer
         if (!invalid && !object.isOnline()) {
             const status: string = contentSummary.getWorkflow().getStateAsString();
             this.getNamesAndIconView().setIconToolTip(i18n(`status.workflow.${status}`));
-            this.toggleClass('ready', contentSummary.isReady());
-            this.toggleClass('in-progress', contentSummary.isInProgress());
+            this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());
+            this.toggleClass('in-progress', !isPendingDelete && contentSummary.isInProgress());
         } else {
             this.removeClass('ready');
             this.removeClass('in-progress');

@@ -154,10 +154,20 @@ export class HtmlEditor {
 
         });
 
+        this.handlePasteFromGoogleDoc();
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
+    }
+
+    private handlePasteFromGoogleDoc() {
+        // https://github.com/enonic/app-contentstudio/issues/485
+        this.editor.on('paste', (e: eventInfo) => {
+            if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataValue)) {
+                e.data.dataValue = new GoogleDocPasteHandler(e.data.dataValue).process();
+            }
+        });
     }
 
     private toggleToolbarButtonState(name: string, isActive: boolean) {
@@ -936,5 +946,69 @@ class HtmlEditorConfigBuilder {
             return false;
         }
         return this.editorParams.getTools()['exclude'].indexOf(tool) > -1;
+    }
+}
+
+class GoogleDocPasteHandler {
+
+    private result: string;
+
+    constructor(value: string) {
+        this.result = value;
+    }
+
+    static isPastedFromGoogleDoc(value: string): boolean {
+        return !!value && value.indexOf('id="docs-internal-guid') > 0;
+    }
+
+    process(): string {
+        return this.doProcess();
+    }
+
+    private doProcess(): string {
+        this.processDataChrome();
+        this.processDataFF();
+        this.processLists();
+
+        return this.result;
+    }
+
+    private processDataChrome() {
+        const regex: RegExp = /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<u.*?>)(.*?)(<\/u>)(.*?<\/a>)/g;
+
+        this.result = this.result.replace(regex, '$1$3$5$7');
+    }
+
+    private processDataFF() {
+        const regex: RegExp =
+            /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<span.*?text-decoration:underline.*?>)(.*?)(<\/span>)(.*?<\/a>)/g;
+
+        this.result = this.result.replace(regex, this.ffReplaceFunction);
+    }
+
+    private ffReplaceFunction(match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string) {
+        const isItalic: boolean = p4.indexOf('font-style:italic') > 0;
+        const fontWeight: RegExpMatchArray = p4.match(/font-weight:(\d+);/);
+        const isBold: boolean = !!fontWeight && +fontWeight[1] > 400;
+
+        if (isItalic && isBold) {
+            return `${p1}${p3}<strong><em>${p5}</em></strong>${p7}`;
+        }
+
+        if (isItalic) {
+            return `${p1}${p3}<em>${p5}</em>${p7}`;
+        }
+
+        if (isBold) {
+            return `${p1}${p3}<strong>${p5}</strong>${p7}`;
+        }
+
+        return `${p1}${p3}${p5}${p7}`;
+    }
+
+    private processLists() {
+        // removing <p> from <li> entries
+        const regex: RegExp = /(<li.*?)(<p.*?>)(.*?)(<\/p>)(.*?<\/li>)/g;
+        this.result = this.result.replace(regex, '$1$3$5');
     }
 }

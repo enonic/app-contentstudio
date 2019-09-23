@@ -440,7 +440,7 @@ export class LiveFormPanel
         return this.pageView;
     }
 
-    setModel(liveEditModel: LiveEditModel, showPanel: boolean, showWidget: boolean = true, updateInspection: boolean = true) {
+    setModel(liveEditModel: LiveEditModel) {
 
         this.liveEditModel = liveEditModel;
 
@@ -475,11 +475,14 @@ export class LiveFormPanel
         this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
-        if (updateInspection) {
-            this.clearSelectionAndInspect(showPanel, showWidget);
-        }
-
         this.handleContentUpdatedEvent();
+    }
+
+    layoutInspectionPanels() {
+        this.pageInspectionPanel.layout();
+        this.partInspectionPanel.layout();
+        this.layoutInspectionPanel.layout();
+        this.fragmentInspectionPanel.layout();
     }
 
     private handleContentUpdatedEvent() {
@@ -804,7 +807,7 @@ export class LiveFormPanel
         return false;
     }
 
-    private clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
+    clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
         const cleared = this.clearSelection(false);
         if (cleared) {
             this.inspectPage(showPanel, showWidget, true);

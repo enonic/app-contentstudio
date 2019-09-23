@@ -28,33 +28,39 @@ export class PageTemplateAndControllerSelector
 
     private liveEditModel: LiveEditModel;
 
+    private optionViewer: PageTemplateAndSelectorViewer;
+
     private autoOption: Option<PageTemplateOption>;
 
-    constructor(liveEditModel: LiveEditModel) {
-        const optionViewer = new PageTemplateAndSelectorViewer(liveEditModel.getPageModel().getDefaultPageTemplate());
+    constructor() {
+        const optionViewer = new PageTemplateAndSelectorViewer();
         super(
             'pageTemplateAndController',
             <DropdownConfig<PageTemplateOption>>{optionDisplayValueViewer: optionViewer}
         );
 
-        this.liveEditModel = liveEditModel;
+        this.optionViewer = optionViewer;
 
-        const pageModel = liveEditModel.getPageModel();
+        this.initServerEventsListeners();
+    }
+
+    setModel(model: LiveEditModel) {
+        this.liveEditModel = model;
+        this.optionViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
+        const pageModel = this.liveEditModel.getPageModel();
         if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
             this.autoOption = {value: '__auto__', displayValue: new PageTemplateOption()};
         }
 
+        this.initPageModelListeners();
         this.reload(true);
-
-        this.initServerEventsListeners(liveEditModel);
-
-        this.initPageModelListeners(liveEditModel.getPageModel());
     }
 
-    private initServerEventsListeners(liveEditModel: LiveEditModel) {
+    private initServerEventsListeners() {
         const eventsHandler = ContentServerEventsHandler.getInstance();
         const updatedHandlerDebounced = api.util.AppHelper.debounce((summaries) => {
-            const reloadNeeded = summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, liveEditModel));
+            const reloadNeeded =
+                summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel));
             if (reloadNeeded) {
                 this.reload();
             }
@@ -265,8 +271,8 @@ export class PageTemplateAndControllerSelector
         }
     }
 
-    private initPageModelListeners(pageModel: PageModel) {
-        pageModel.onPropertyChanged((event: PropertyChangedEvent) => {
+    private initPageModelListeners() {
+        this.liveEditModel.getPageModel().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE && this !== event.getSource()) {
                 let pageTemplateKey = <PageTemplateKey>event.getNewValue();
                 if (pageTemplateKey) {
@@ -282,7 +288,7 @@ export class PageTemplateAndControllerSelector
             }
         });
 
-        pageModel.onReset(() => {
+        this.liveEditModel.getPageModel().onReset(() => {
             if (this.autoOption) {
                 this.selectOption(this.autoOption, true);
             } else {
