@@ -42,26 +42,17 @@ export class FragmentInspectionPanel
         super(<ComponentInspectionPanelConfig>{
             iconClass: ItemViewIconClassResolver.resolveByType('fragment')
         });
+
+        this.initElements();
+        this.initListeners();
     }
 
-    setModel(liveEditModel: LiveEditModel) {
-        super.setModel(liveEditModel);
-        if (this.fragmentSelector) {
-            this.fragmentSelector.setModel(liveEditModel);
-        }
-        this.layout();
-
-    }
-
-    private layout() {
-
-        this.removeChildren();
-
-        this.fragmentSelector = new FragmentDropdown(this.liveEditModel);
+    private initElements() {
+        this.fragmentSelector = new FragmentDropdown();
         this.fragmentForm = new FragmentSelectorForm(this.fragmentSelector, i18n('field.fragment'));
+    }
 
-        this.fragmentSelector.load();
-
+    private initListeners() {
         this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
             // Ensure displayed selector option is removed when fragment is removed
             if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
@@ -74,8 +65,17 @@ export class FragmentInspectionPanel
 
         this.handleContentUpdatedEvent();
         this.initSelectorListeners();
-        this.appendChild(this.fragmentForm);
+    }
 
+    setModel(liveEditModel: LiveEditModel) {
+        super.setModel(liveEditModel);
+        this.fragmentSelector.setModel(liveEditModel);
+        this.fragmentSelector.load();
+    }
+
+    layout() {
+        this.removeChildren();
+        this.appendChild(this.fragmentForm);
         this.appendEditTemplateButton();
     }
 
@@ -97,19 +97,17 @@ export class FragmentInspectionPanel
     }
 
     private handleContentUpdatedEvent() {
-        if (!this.contentUpdatedListener) {
-            this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
-                // update currently selected option if this is the one updated
-                if (this.component && event.getContentId().equals(this.component.getFragment())) {
-                    this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
-                }
-            };
-            ContentUpdatedEvent.on(this.contentUpdatedListener);
+        this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
+            // update currently selected option if this is the one updated
+            if (this.component && event.getContentId().equals(this.component.getFragment())) {
+                this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
+            }
+        };
+        ContentUpdatedEvent.on(this.contentUpdatedListener);
 
-            this.onRemoved((event) => {
-                ContentUpdatedEvent.un(this.contentUpdatedListener);
-            });
-        }
+        this.onRemoved((event) => {
+            ContentUpdatedEvent.un(this.contentUpdatedListener);
+        });
     }
 
     setFragmentComponentView(fragmentView: FragmentComponentView) {
