@@ -817,11 +817,22 @@ class HtmlEditorConfigBuilder {
         ['Table']
     ];
 
+    private readonly formatTags: string = 'p;div;pre';
+    private readonly defaultHeadings: string = 'h1;h2;h3;h4;h5;h6';
+
     private constructor(htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
         this.processCustomToolConfig();
         this.adjustToolsList();
+    }
+
+    private getFormatTags(): string {
+        let allowedHeadings: string = this.editorParams.getAllowedHeadings();
+        if (allowedHeadings) {
+            allowedHeadings = allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';');
+        }
+        return `${this.formatTags};${(allowedHeadings || this.defaultHeadings)}`;
     }
 
     private processCustomToolConfig() {
@@ -884,7 +895,7 @@ class HtmlEditorConfigBuilder {
             removeButtons: this.disabledTools,
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc',
             extraAllowedContent: this.getExtraAllowedContent(),
-            format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
+            format_tags: this.getFormatTags(),
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
