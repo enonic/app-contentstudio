@@ -52,8 +52,8 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
                 let result = await imagePhotoInfoFormPanel.getDateTimeValue();
                 assert.equal(result, "", "Date Time input should be empty after rollback the version");
 
-                //Timeout waiting for 'Save' button is disabled. (exception will bw thrown when timeout expired)
-                await contentWizard.waitForSaveButtonDisabled()
+                //'Saved' button should be displayed. (exception will bw thrown when timeout expired)
+                await contentWizard.waitForSavedButtonVisible();
             });
 
 

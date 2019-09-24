@@ -15,7 +15,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it(`GIVEN one folder with children is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and all elements should be present`,
+    it(`GIVEN folder(has 12 child) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected numbers should be present`,
         () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
@@ -35,7 +35,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
                 // get number in 'Hide dependent items' link
                 return expect(contentDuplicateDialog.getNumberInDependentItemsLink()).to.eventually.equal('12');
             }).then(() => {
-                //Get Nunmber in 'Duplicate' button
+                //Get Number in 'Duplicate' button
                 return expect(contentDuplicateDialog.getTotalNumberItemsToDuplicate()).to.eventually.equal('13');
             }).then(() => {
                 return contentDuplicateDialog.getDisplayNamesToDuplicate();

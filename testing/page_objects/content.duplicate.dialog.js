@@ -104,20 +104,19 @@ class ContentDuplicateDialog extends Page {
     }
 
     //gets number in `Duplicate` button, It is total number of items to duplicate
-    getTotalNumberItemsToDuplicate() {
-        return this.getText(this.duplicateButton).then(result => {
+    async getTotalNumberItemsToDuplicate() {
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getText(this.duplicateButton);
+                return text.includes('(');
+            }, appConst.TIMEOUT_3);
+            let result = await this.getText(this.duplicateButton);
             let startIndex = result.indexOf('(');
-            if (startIndex == -1) {
-                throw new Error("Content Duplicate Dialog - error when get a number in Duplicate button");
-            }
             let endIndex = result.indexOf(')');
-            if (endIndex == -1) {
-                throw new Error("Content Duplicate Dialog - error when get a number in Duplicate button");
-            }
             return result.substring(startIndex + 1, endIndex);
-        }).catch(err => {
-            throw new Error(err);
-        })
+        } catch (err) {
+            throw new Error("Error when getting number in Duplicate button " + err);
+        }
     }
 
     getDisplayNamesToDuplicate() {
