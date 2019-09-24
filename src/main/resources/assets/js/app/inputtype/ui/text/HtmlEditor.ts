@@ -37,7 +37,7 @@ export class HtmlEditor {
         this.handleNativeNotifications();
         this.handleTooltipForClickableElements();
         this.setupDialogsToOpen();
-        this.setupKeyboardShortcuts(config);
+        this.setupKeyboardShortcuts();
         this.addCustomLangEntries();
         this.removeUnwantedMenuItems();
     }
@@ -584,7 +584,7 @@ export class HtmlEditor {
         });
     }
 
-    private setupKeyboardShortcuts(config: CKEDITOR.config) {
+    private setupKeyboardShortcuts() {
         const editor: CKEDITOR.editor = this.editor;
 
         const commandDef: CKEDITOR.commandDefinition = {
@@ -594,7 +594,7 @@ export class HtmlEditor {
             }
         };
 
-        const allowedTags = config.format_tags.split(';');
+        const allowedTags = editor.config.format_tags.split(';');
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
             .filter(tag => allowedTags.indexOf(tag) > -1)
             .forEach(tag => this.editor.addCommand(tag, commandDef));
