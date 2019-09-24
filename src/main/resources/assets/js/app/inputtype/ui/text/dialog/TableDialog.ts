@@ -34,6 +34,8 @@ export class TableDialog
 
     private alignmentField: FormItem;
 
+    private captionField: FormItem;
+
     private dialogType: DialogType;
 
     protected config: TableModalDialogConfig;
@@ -121,6 +123,9 @@ export class TableDialog
                 new ModalDialogFormItemBuilder('alignment', i18n('dialog.table.formitem.alignment')).setInputEl(
                     this.createAlignmentDropdown()));
 
+        this.captionField =
+            this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.table.formitem.caption')));
+
         return [
             this.rowsField,
             this.colsField,
@@ -128,7 +133,8 @@ export class TableDialog
             this.cellSpacingField,
             this.cellPaddingField,
             this.borderField,
-            this.alignmentField
+            this.alignmentField,
+            this.captionField
         ];
     }
 
@@ -164,6 +170,7 @@ export class TableDialog
         this.cellPaddingField.getInput().getEl().setValue(this.getOriginalCellPaddingElem().getValue());
         this.borderField.getInput().getEl().setValue(this.getOriginalBorderElem().getValue());
         (<Dropdown<string>>this.alignmentField.getInput()).setValue(this.getOriginalAlignmentElem().getValue());
+        this.captionField.getInput().getEl().setValue(this.getOriginalCaptionElem().getValue());
     }
 
     private updateOriginalDialogInputValues() {
@@ -174,6 +181,7 @@ export class TableDialog
         this.getOriginalCellPaddingElem().setValue(this.cellPaddingField.getInput().getEl().getValue(), false);
         this.getOriginalBorderElem().setValue(this.borderField.getInput().getEl().getValue(), false);
         this.getOriginalAlignmentElem().setValue((<Dropdown<string>>this.alignmentField.getInput()).getValue(), false);
+        this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
 
     private static isPositiveWholeNumber(input: api.dom.FormInputEl) {
@@ -222,6 +230,10 @@ export class TableDialog
 
     private getOriginalAlignmentElem(): CKEDITOR.ui.dialog.uiElement {
         return this.getElemFromOriginalDialog('info', 'cmbAlign');
+    }
+
+    private getOriginalCaptionElem(): CKEDITOR.ui.dialog.uiElement {
+        return this.getElemFromOriginalDialog('info', 'txtCaption');
     }
 
 }
