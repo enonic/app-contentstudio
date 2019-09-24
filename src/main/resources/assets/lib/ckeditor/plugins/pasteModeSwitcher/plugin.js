@@ -8,6 +8,14 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
             exec: function (editor) {
                 pasteTextOnly = !pasteTextOnly;
                 editor.getCommand('switchPasteMode').setState(pasteTextOnly ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
+                var tooltipText = pasteTextOnly ? 'Paste mode: plain text' : 'Paste mode: formatted text';
+                var toolbarButton = document.getElementById(editor.getCommand('switchPasteMode').uiItems[0]._.id);
+                toolbarButton.title = tooltipText;
+                var mouseLeaveFunc = function () {
+                    toolbarButton.title = tooltipText;
+                    toolbarButton.removeEventListener('mouseleave', mouseLeaveFunc);
+                };
+                toolbarButton.addEventListener('mouseleave', mouseLeaveFunc);
                 return true;
             },
 
@@ -16,7 +24,7 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
 
 
         editor.ui.addButton('PasteModeSwitcher', {
-            label: 'Switch paste mode',
+            label: 'Paste mode: formatted text',
             toolbar: 'tools,10',
             command: 'switchPasteMode',
             icon: 'pastetext'
