@@ -41,7 +41,7 @@ class PageComponentView extends Page {
             return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_component_view');
-            throw new Error('Error when clicking on `Menu button`: ' + err);
+            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
         }
     }
 
