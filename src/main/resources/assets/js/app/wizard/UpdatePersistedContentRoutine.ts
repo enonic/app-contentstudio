@@ -38,9 +38,10 @@ export class UpdatePersistedContentRoutine
     doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
 
         const promises = [];
+        const isContentChanged = this.hasContentChanged(this.persistedContent, this.viewedContent);
 
-        if (this.hasContentChanged(this.persistedContent, this.viewedContent)) {
-            promises.push(this.doHandleUpdateContent(context));
+        if (isContentChanged || this.hasNamesChanged(this.persistedContent, this.viewedContent)) {
+            promises.push(this.doHandleUpdateContent(context, isContentChanged));
         }
 
         if (this.hasPageChanged(this.persistedContent, this.viewedContent)) {
@@ -52,13 +53,16 @@ export class UpdatePersistedContentRoutine
         });
     }
 
-    private doHandleUpdateContent(context: RoutineContext): wemQ.Promise<void> {
+    private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): wemQ.Promise<void> {
 
         return this.updateContentRequestProducer.call(this.getThisOfProducer(), context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
                 context.content = content;
-                context.dataUpdated = true;
+
+                if (markUpdated) {
+                    context.dataUpdated = true;
+                }
 
             });
     }
@@ -80,6 +84,10 @@ export class UpdatePersistedContentRoutine
             deferred.resolve(null);
             return deferred.promise;
         }
+    }
+
+    private hasNamesChanged(persisted: Content, viewed: Content): boolean {
+        return persisted.getDisplayName() !== viewed.getDisplayName() || !persisted.getName().equals(viewed.getName());
     }
 
     private hasContentChanged(persisted: Content, viewed: Content): boolean {
