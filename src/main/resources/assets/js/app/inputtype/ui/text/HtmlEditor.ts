@@ -37,7 +37,7 @@ export class HtmlEditor {
         this.handleNativeNotifications();
         this.handleTooltipForClickableElements();
         this.setupDialogsToOpen();
-        this.setupKeyboardShortcuts();
+        this.setupKeyboardShortcuts(config);
         this.addCustomLangEntries();
         this.removeUnwantedMenuItems();
     }
@@ -584,7 +584,7 @@ export class HtmlEditor {
         });
     }
 
-    private setupKeyboardShortcuts() {
+    private setupKeyboardShortcuts(config: CKEDITOR.config) {
         const editor: CKEDITOR.editor = this.editor;
 
         const commandDef: CKEDITOR.commandDefinition = {
@@ -594,14 +594,11 @@ export class HtmlEditor {
             }
         };
 
-        this.editor.addCommand('h1', commandDef);
-        this.editor.addCommand('h2', commandDef);
-        this.editor.addCommand('h3', commandDef);
-        this.editor.addCommand('h4', commandDef);
-        this.editor.addCommand('h5', commandDef);
-        this.editor.addCommand('h6', commandDef);
-        this.editor.addCommand('p', commandDef);
-        this.editor.addCommand('div', commandDef);
+        const allowedTags = config.format_tags.split(';');
+        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
+            .filter(tag => allowedTags.indexOf(tag) > -1)
+            .forEach(tag => this.editor.addCommand(tag, commandDef));
+
         this.editor.addCommand('address', commandDef);
 
         this.editor.on('instanceReady', () => {
