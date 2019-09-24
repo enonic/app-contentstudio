@@ -1,26 +1,17 @@
 .delete-dialog {
 
-  .instant-delete-check {
-    position: absolute;
-    bottom: 27px;
-    left: 34px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-
-    input[type="checkbox"] + label {
-      color: @admin-blue !important;
-    }
-
-    input:disabled, input:disabled + label {
-      opacity: 0.5;
-      cursor: default;
-    }
-  }
-
   .dialog-buttons {
-    button.delete-action {
-      .dialog-button(@form-button-font, @input-red-text);
+    .delete-dialog-menu {
+      button {
+        .dialog-button(@form-button-font, @input-red-text);
+      }
+
+      .@{_COMMON_PREFIX}dropdown-handle {
+        margin: 0;
+        width: 36px;
+        padding: 0;
+        height: 100%;
+      }
     }
   }
 
@@ -30,7 +21,7 @@
       display: none;
     }
 
-    .instant-delete-check, .load-mask {
+    .load-mask {
       display: none !important;
     }
   }
@@ -44,10 +35,6 @@ body {
         padding-top: 50px;
       }
 
-      .instant-delete-check {
-        bottom: 60px;
-        left: 14px;
-      }
     }
   }
 }
