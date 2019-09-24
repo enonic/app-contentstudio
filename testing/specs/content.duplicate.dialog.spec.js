@@ -15,7 +15,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it(`GIVEN folder(has 12 child) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected numbers should be present`,
+    it(`GIVEN folder(has 12 children) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected numbers should be present`,
         () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
