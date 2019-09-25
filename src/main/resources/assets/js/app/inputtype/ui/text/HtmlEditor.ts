@@ -479,6 +479,13 @@ export class HtmlEditor {
         const progressNotifications: Object = {};
 
         this.editor.on('notificationShow', function (evt: eventInfo) {
+            // Do not show the default notification
+            evt.cancel();
+
+            if ((<any>evt.editor).disableNotification) {
+                return;
+            }
+
             const notification: any = evt.data.notification;
 
             switch (notification.type) {
@@ -493,8 +500,6 @@ export class HtmlEditor {
                 NotifyManager.get().showError(notification.message);
                 break;
             }
-            // Do not show the default notification.
-            evt.cancel();
         });
 
         this.editor.on('notificationUpdate', function (evt: eventInfo) {
@@ -533,8 +538,6 @@ export class HtmlEditor {
                 return true;
             }
         });
-
-        CKEDITOR.plugins.addExternal('macro', this.editorParams.getAssetsUri() + '/lib/ckeditor/plugins/macro/', 'macro.js');
 
         this.editor.addCommand('openFullscreenDialog', {
             exec: (editor) => {
@@ -811,7 +814,7 @@ class HtmlEditorConfigBuilder {
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
-        ['Table']
+        ['Table'], ['PasteModeSwitcher']
     ];
 
     private readonly formatTags: string = 'p;div;pre';
@@ -883,6 +886,7 @@ class HtmlEditorConfigBuilder {
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
             toolbar: this.tools,
+            forcePasteAsPlainText: false,
             entities: false,
             title: '',
             keystrokes: [
@@ -890,7 +894,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools,
-            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc',
+            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
             format_tags: this.getFormatTags(),
             image2_disableResizer: true,
