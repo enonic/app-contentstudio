@@ -817,7 +817,6 @@ class HtmlEditorConfigBuilder {
         ['Table'], ['PasteModeSwitcher']
     ];
 
-    private readonly formatTags: string = 'p;div;pre';
     private readonly defaultHeadings: string = 'h1;h2;h3;h4;h5;h6';
 
     private constructor(htmlEditorParams: HtmlEditorParams) {
@@ -832,7 +831,7 @@ class HtmlEditorConfigBuilder {
         if (allowedHeadings) {
             allowedHeadings = allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';');
         }
-        return `${this.formatTags};${(allowedHeadings || this.defaultHeadings)}`;
+        return `p;${(allowedHeadings || this.defaultHeadings)};div;pre`;
     }
 
     private processCustomToolConfig() {
