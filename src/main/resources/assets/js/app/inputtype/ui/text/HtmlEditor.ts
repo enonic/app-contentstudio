@@ -813,11 +813,11 @@ class HtmlEditorConfigBuilder {
     private toolsToInclude: string[] = [];
 
     private tools: any[] = [
-        ['Format', 'Bold', 'Italic', 'Underline', 'PasteModeSwitcher'],
+        ['Format', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
-        ['Table']
+        ['Table'], ['PasteModeSwitcher']
     ];
 
     private constructor(htmlEditorParams: HtmlEditorParams) {
