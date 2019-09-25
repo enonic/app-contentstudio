@@ -72,7 +72,6 @@ module.exports = {
         }).then(() => {
             return webDriverHelper.browser.pause(500);
         });
-
     },
     insertDownloadLinkInCke: function (text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -116,14 +115,12 @@ module.exports = {
             }
         })
     },
-    openIssuesListDialog: function () {
+    async openIssuesListDialog() {
         let browsePanel = new BrowsePanel();
         let issueListDialog = new IssueListDialog();
-        return browsePanel.clickOnShowIssuesListButton().then(() => {
-            return issueListDialog.waitForDialogOpened();
-        }).then(() => {
-            return issueListDialog.pause(300);
-        });
+        await browsePanel.clickOnShowIssuesListButton();
+        await issueListDialog.waitForDialogOpened();
+        return await issueListDialog.pause(300);
     },
     async openCreateIssueDialog() {
         try {
@@ -283,7 +280,7 @@ module.exports = {
         return this.doOpenPageTemplateWizard(siteName).then(() => {
             return contentWizardPanel.typeData(template);
         }).then(() => {
-            //autosaving should be here:
+            //auto saving should be here:
             return contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
         }).then(() => {
             this.saveScreenshot(template.displayName + '_created');
@@ -294,30 +291,23 @@ module.exports = {
             return contentWizardPanel.pause(2000);
         });
     },
-    //Clicks on Publish button on the toolbar then clicks on Publish button ib the dialog
-    doPublish: function () {
+    //Clicks on Publish button on the toolbar then clicks on Publish button in the dialog
+    async doPublish() {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
-        return browsePanel.waitForPublishButtonVisible().then(() => {
-            return browsePanel.clickOnPublishButton();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogOpened();
-        }).then(() => {
-            return contentPublishDialog.clickOnPublishNowButton();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogClosed();
-        })
+        await browsePanel.waitForPublishButtonVisible();
+        await browsePanel.clickOnPublishButton();
+        await contentPublishDialog.waitForDialogOpened();
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
     },
-    doPublishTree: function () {
+    async doPublishTree() {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
-        return browsePanel.clickOnPublishTreeButton().then(() => {
-            return contentPublishDialog.waitForDialogOpened();
-        }).then(() => {
-            return contentPublishDialog.clickOnPublishNowButton();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogClosed();
-        })
+        await browsePanel.clickOnPublishTreeButton();
+        await contentPublishDialog.waitForDialogOpened();
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
     },
     doPublishInWizard: function () {
         let contentPublishDialog = new ContentPublishDialog();
@@ -413,25 +403,18 @@ module.exports = {
             return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
         });
     },
-    selectSiteAndOpenNewWizard: function (siteName, contentType) {
+    async selectSiteAndOpenNewWizard(siteName, contentType) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return this.findAndSelectItem(siteName).then(() => {
-            return browsePanel.waitForNewButtonEnabled();
-        }).then(() => {
-            return browsePanel.clickOnNewButton();
-        }).then(() => {
-            return newContentDialog.waitForOpened();
-        }).then(() => {
-            return newContentDialog.typeSearchText(contentType);
-        }).then(() => {
-            return newContentDialog.clickOnContentType(contentType);
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        });
+        await this.findAndSelectItem(siteName);
+        await browsePanel.waitForNewButtonEnabled();
+        await browsePanel.clickOnNewButton();
+        await newContentDialog.waitForOpened();
+        await newContentDialog.typeSearchText(contentType);
+        await newContentDialog.clickOnContentType(contentType);
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
     clickOnDeleteAndConfirm: function (numberOfContents) {
         let browsePanel = new BrowsePanel();
@@ -548,13 +531,11 @@ module.exports = {
         return await this.doSwitchToContentBrowsePanel();
     },
 
-    saveAndCloseWizard: function () {
+    async saveAndCloseWizard() {
         let contentWizardPanel = new ContentWizardPanel();
-        return contentWizardPanel.waitAndClickOnSave().then(() => {
-            return contentWizardPanel.pause(300);
-        }).then(() => {
-            return this.doCloseWindowTabAndSwitchToBrowsePanel()
-        })
+        await contentWizardPanel.waitAndClickOnSave();
+        await contentWizardPanel.pause(300);
+        return await this.doCloseWindowTabAndSwitchToBrowsePanel();
     },
 
     async switchToContentTabWindow(contentDisplayName) {

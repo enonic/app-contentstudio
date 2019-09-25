@@ -124,14 +124,12 @@ class HtmlAreaForm extends Page {
         });
     }
 
-    showToolbarAndClickOnInsertImageButton() {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-            return this.clickOnElement(XPATH.ckeTextArea);
-        }).then(() => {
-            return this.waitForElementDisplayed(XPATH.insertImageButton, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.insertImageButton);
-        })
+    async showToolbarAndClickOnInsertImageButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.insertImageButton, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.insertImageButton);
+        return this.pause(300);
     }
 
 //double clicks on the html-area
@@ -166,17 +164,14 @@ class HtmlAreaForm extends Page {
         await this.pause(700);
         //switches to the parent frame again
         return await this.getBrowser().switchToParentFrame();
-
     }
 
-    showToolbarAndClickOnInsertAnchorButton() {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-            return this.clickOnElement(XPATH.ckeTextArea)
-        }).then(() => {
-            return this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.insertAnchorButton);
-        })
+    async showToolbarAndClickOnInsertAnchorButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.ckeTextArea)
+        await this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.insertAnchorButton);
+        return this.pause(300);
     }
 
     showToolbarAndClickOnTableButton() {

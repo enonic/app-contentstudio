@@ -23,7 +23,6 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
     let SITE;
     let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
 
-
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
@@ -32,47 +31,38 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
         });
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert image' icon has been clicked THEN 'Insert Image Dialog' should appear`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            }).then(() => {
-                return insertImageDialog.waitForDialogVisible();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_insert_image_dialog');
-                assert.isTrue(result, 'Insert Image Dialog should appear');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            studioUtils.saveScreenshot('cke_insert_image_dialog1');
+            //'Insert Image Dialog should appear'
+            await insertImageDialog.waitForDialogVisible();
         });
+
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert anchor' icon has been clicked THEN 'Insert Anchor Dialog' should appear`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertAnchorDialog = new InsertAnchorDialog();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
-            }).then(() => {
-                return insertAnchorDialog.waitForDialogLoaded();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_insert_anchor_dialog');
-                assert.isTrue(result, 'Insert Anchor Dialog should appear');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
+            studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
+            //'Insert Anchor Dialog should appear'
+            await insertAnchorDialog.waitForDialogLoaded();
         });
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert special characters' icon has been clicked THEN 'Insert Special Characters Dialog' should appear`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertSpecialDialog = new InsertSpecialDialog();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
-            }).then(() => {
-                return insertSpecialDialog.waitForDialogLoaded();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_insert_special_char_dialog');
-                assert.isTrue(result, 'Insert Special Characters Dialog should appear');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
+            await insertSpecialDialog.waitForDialogLoaded();
+            studioUtils.saveScreenshot('cke_insert_special_char_dialog');
         });
 
-    it(`GIVEN 'htmlArea' content is opened WHEN 'insert macro' icon has been clicked THEN 'Insert Macro Dialog' should appear`,
+    it(`GIVEN 'insert macro' dialog is opened WHEN Cancel button has been pressed  THEN 'Insert Macro Dialog' gets closed`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertMacroDialog = new InsertMacroDialog();
@@ -164,7 +154,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(()=>{
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.pause(1000);
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
@@ -183,7 +173,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(()=>{
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.pause(1000);
             }).then(() => {
                 return htmlAreaForm.typeTextInHtmlArea("test");
@@ -202,7 +192,7 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appear`,
         () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(()=>{
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.pause(1000);
             }).then(() => {
                 return htmlAreaForm.showToolbarAndClickOnTableButton();

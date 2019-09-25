@@ -101,7 +101,7 @@ class ImageSelectorForm extends Page {
         let elems = await this.findElements(selector);
         await this.clickOnElements(elems.slice(0, numberImages));
         await this.clickOnApplyButton();
-        await this.pause(1000);
+        return await this.pause(1000);
     }
 
     async clickOnApplyButton() {
@@ -119,17 +119,15 @@ class ImageSelectorForm extends Page {
 
     async doFilterOptions(displayName) {
         await this.typeTextInInput(this.imagesOptionsFilterInput, displayName);
-        return this.pause(600);
+        return await this.pause(600);
     }
 
     waitForEmptyOptionsMessage(displayName) {
         return this.waitForElementDisplayed(`//div[contains(@class,'empty-options') and text()='No matching items']`,
-            appConst.TIMEOUT_3).catch(
-            err => {
-                console.log("Error: " + err);
-                this.saveScreenshot("err_empty_options");
-                return false;
-            });
+            appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_empty_options");
+            return false;
+        });
     }
 
     async clickOnExpanderIconInOptions(name) {
