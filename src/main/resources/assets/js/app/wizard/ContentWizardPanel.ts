@@ -1270,7 +1270,10 @@ export class ContentWizardPanel
                            // pageModel is updated so we need reload unless we're saving already
                            const needsReload = !this.isSaving();
                            if (livePanel) {
-                               livePanel.setModel(this.liveEditModel, true, true, reloadPage);
+                               livePanel.setModel(this.liveEditModel);
+                               if (reloadPage) {
+                                   livePanel.clearSelectionAndInspect(true, true);
+                               }
                                if (needsReload && reloadPage) {
                                    this.debouncedEditorRefresh(true);
                                }
@@ -1387,7 +1390,8 @@ export class ContentWizardPanel
                 this.liveEditModel = liveEditModel;
 
                 const showPanel = this.renderableChanged && this.renderable;
-                liveFormPanel.setModel(this.liveEditModel, showPanel, false);
+                liveFormPanel.setModel(this.liveEditModel);
+                liveFormPanel.clearSelectionAndInspect(showPanel, false);
 
                 this.debouncedEditorRefresh(false);
 
@@ -1458,7 +1462,8 @@ export class ContentWizardPanel
                 this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
-                    liveFormPanel.setModel(this.liveEditModel, false);
+                    liveFormPanel.setModel(this.liveEditModel);
+                    liveFormPanel.layoutInspectionPanels();
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 

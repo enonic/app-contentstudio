@@ -16,14 +16,11 @@ export class FragmentDropdown
 
     private model: LiveEditModel;
 
-    constructor(model: LiveEditModel) {
-
+    constructor() {
         super({
             optionDisplayValueViewer: new ContentSummaryViewer(),
             dataIdProperty: 'value'
         });
-
-        this.model = model;
     }
 
     load() {

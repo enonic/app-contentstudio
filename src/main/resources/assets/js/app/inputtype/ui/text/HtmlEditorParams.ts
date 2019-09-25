@@ -24,6 +24,7 @@ export class HtmlEditorParams {
     private customStylesToBeUsed: boolean = false;
     private tools: any;
     private allowScripts: boolean = false;
+    private allowedHeadings: string;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
@@ -50,6 +51,7 @@ export class HtmlEditorParams {
         this.customStylesToBeUsed = builder.customStylesToBeUsed;
         this.tools = builder.tools;
         this.allowScripts = builder.allowScripts;
+        this.allowedHeadings = builder.allowedHeadings;
     }
 
     private checkRequiredFieldsAreSet(htmlEditorParams: HtmlEditorParams) {
@@ -170,6 +172,10 @@ export class HtmlEditorParams {
         return this.allowScripts;
     }
 
+    getAllowedHeadings(): string {
+        return this.allowedHeadings;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -216,6 +222,8 @@ export class HtmlEditorParamsBuilder {
     tools: any;
 
     allowScripts: boolean = false;
+
+    allowedHeadings: string;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -317,6 +325,11 @@ export class HtmlEditorParamsBuilder {
 
     setAllowScripts(value: boolean): HtmlEditorParamsBuilder {
         this.allowScripts = value;
+        return this;
+    }
+
+    setAllowedHeadings(allowedHeadings: string): HtmlEditorParamsBuilder {
+        this.allowedHeadings = allowedHeadings;
         return this;
     }
 
