@@ -131,6 +131,7 @@ export class HtmlArea
         const focusHandler = (e) => {
             this.resetInputHeight();
             this.notifyFocused(e);
+            this.scrollToSelected(textAreaWrapper, e);
 
             AppHelper.dispatchCustomEvent('focusin', this);
             new api.ui.selector.SelectorOnBlurEvent(this).fire();
@@ -340,10 +341,11 @@ export class HtmlArea
         wemjq(this.getHTMLElement()).height('auto');
     }
 
-    private setStaticInputHeight() {
-        const height = wemjq(this.getHTMLElement()).height();
-        if (height !== 0) {
-            wemjq(this.getHTMLElement()).height(wemjq(this.getHTMLElement()).height());
+    private scrollToSelected(inputOccurence: Element, e: CKEDITOR.eventInfo) {
+        if (this.editorTopEdgeIsVisible(inputOccurence)) {
+            const toolbarHeight = wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
+            const panel = wemjq(this.getHTMLElement()).closest('.form-panel');
+            panel.scrollTop(panel.scrollTop() + toolbarHeight + e.editor.document.$.children[0].scrollTop);
         }
     }
 
