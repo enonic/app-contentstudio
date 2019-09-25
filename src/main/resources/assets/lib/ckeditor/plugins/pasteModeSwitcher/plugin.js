@@ -8,23 +8,33 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
             exec: function (editor) {
                 pasteTextOnly = !pasteTextOnly;
                 editor.getCommand('switchPasteMode').setState(pasteTextOnly ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
-                var tooltipText = pasteTextOnly ? 'Paste mode: plain text' : 'Paste mode: formatted text';
-                var toolbarButton = document.getElementById(editor.getCommand('switchPasteMode').uiItems[0]._.id);
-                toolbarButton.title = tooltipText;
-                var mouseLeaveFunc = function () {
-                    toolbarButton.title = tooltipText;
-                    toolbarButton.removeEventListener('mouseleave', mouseLeaveFunc);
-                };
-                toolbarButton.addEventListener('mouseleave', mouseLeaveFunc);
+                var tooltipText = pasteTextOnly ? api.util.i18n('tooltip.editor.pastemode.plain') :
+                                                    api.util.i18n('tooltip.editor.pastemode.formatted');
+                replaceTooltip(tooltipText);
+
                 return true;
             },
 
             contextSensitive: false
         });
 
+        function replaceTooltip(tooltipText) {
+            var toolbarButton = document.getElementById(editor.getCommand('switchPasteMode').uiItems[0]._.id);
+
+            if (toolbarButton.title) {
+                toolbarButton.title = tooltipText;
+            }
+
+            var tooltipId = '#' + api.StyleHelper.getCls('tooltip', api.StyleHelper.COMMON_PREFIX);
+            if (!wemjq(tooltipId).length) {
+                return;
+            }
+            wemjq(toolbarButton).data('_tooltip', tooltipText);
+            wemjq(tooltipId).html(tooltipText)
+        }
 
         editor.ui.addButton('PasteModeSwitcher', {
-            label: 'Paste mode: formatted text',
+            label: api.util.i18n('tooltip.editor.pastemode.formatted'),
             toolbar: 'tools,10',
             command: 'switchPasteMode',
             icon: 'pastetext'
