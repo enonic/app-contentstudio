@@ -9,17 +9,13 @@ import {Content} from '../content/Content';
 type Producer = { (content: Content, viewedContent: Content): UpdateContentRequest; };
 
 export class UpdatePersistedContentRoutine
-    extends Flow<Content> {
+    extends Flow {
 
     private persistedContent: Content;
 
     private viewedContent: Content;
 
     private updateContentRequestProducer: Producer;
-
-    private doneHandledContent: boolean = false;
-
-    private doneHandledPage: boolean = false;
 
     constructor(thisOfProducer: any, persistedContent: Content, viewedContent: Content) {
         super(thisOfProducer);
@@ -32,43 +28,41 @@ export class UpdatePersistedContentRoutine
         return this;
     }
 
-    public execute(): wemQ.Promise<Content> {
+    public execute(): wemQ.Promise<RoutineContext> {
 
         let context = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: RoutineContext): wemQ.Promise<Content> {
+    doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
 
-        if (!this.doneHandledContent) {
+        const promises = [];
+        const isContentChanged = this.hasContentChanged(this.persistedContent, this.viewedContent);
 
-            return this.doHandleUpdateContent(context).then(() => {
-
-                this.doneHandledContent = true;
-                return this.doExecuteNext(context);
-
-            });
-        } else if (!this.doneHandledPage) {
-
-            return this.doHandlePage(context).then(() => {
-
-                this.doneHandledPage = true;
-                return this.doExecuteNext(context);
-
-            });
-        } else {
-
-            return wemQ(context.content);
+        if (isContentChanged || this.hasNamesChanged(this.persistedContent, this.viewedContent)) {
+            promises.push(this.doHandleUpdateContent(context, isContentChanged));
         }
+
+        if (this.hasPageChanged(this.persistedContent, this.viewedContent)) {
+            promises.push(this.doHandlePage(context));
+        }
+
+        return wemQ.all(promises).then(() => {
+            return context;
+        });
     }
 
-    private doHandleUpdateContent(context: RoutineContext): wemQ.Promise<void> {
+    private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): wemQ.Promise<void> {
 
         return this.updateContentRequestProducer.call(this.getThisOfProducer(), context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
                 context.content = content;
+
+                if (markUpdated) {
+                    context.dataUpdated = true;
+                }
 
             });
     }
@@ -82,6 +76,7 @@ export class UpdatePersistedContentRoutine
                 .sendAndParse().then((content: Content): void => {
 
                     context.content = content;
+                    context.pageUpdated = true;
 
                 });
         } else {
@@ -89,6 +84,21 @@ export class UpdatePersistedContentRoutine
             deferred.resolve(null);
             return deferred.promise;
         }
+    }
+
+    private hasNamesChanged(persisted: Content, viewed: Content): boolean {
+        return persisted.getDisplayName() !== viewed.getDisplayName() || !persisted.getName().equals(viewed.getName());
+    }
+
+    private hasContentChanged(persisted: Content, viewed: Content): boolean {
+        return !persisted.getContentData().equals(viewed.getContentData());
+    }
+
+    private hasPageChanged(persisted: Content, viewed: Content): boolean {
+        const persistedPage = persisted.getPage();
+        const viewedPage = viewed.getPage();
+
+        return persistedPage ? !persistedPage.equals(viewedPage) : !!viewedPage;
     }
 
     private producePageCUDRequest(persistedContent: Content, viewedContent: Content): PageCUDRequest {
