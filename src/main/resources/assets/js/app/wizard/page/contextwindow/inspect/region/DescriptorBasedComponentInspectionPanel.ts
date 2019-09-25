@@ -4,8 +4,6 @@ import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBas
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
-import {ApplicationAddedEvent} from '../../../../../site/ApplicationAddedEvent';
-import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
 import {SiteModel} from '../../../../../site/SiteModel';
 import FormView = api.form.FormView;
 import Descriptor = api.content.page.Descriptor;
@@ -82,7 +80,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
             super.setModel(liveEditModel);
 
-            this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
 
             this.bindSiteModelListeners();
         }
@@ -114,7 +112,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private reloadDescriptorsOnApplicationChange() {
         if (this.selector) {
-            this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.load();
         }
     }
 

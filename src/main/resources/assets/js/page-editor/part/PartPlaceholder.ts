@@ -23,7 +23,7 @@ export class PartPlaceholder
         this.partComponentView = partView;
 
         this.comboBox = new PartDescriptorComboBox();
-        this.comboBox.loadDescriptors(partView.getLiveEditModel().getSiteModel().getApplicationKeys());
+        this.comboBox.setApplicationKeys(partView.getLiveEditModel().getSiteModel().getApplicationKeys());
 
         this.appendChild(this.comboBox);
 
@@ -37,17 +37,17 @@ export class PartPlaceholder
 
         let siteModel = partView.getLiveEditModel().getSiteModel();
 
-            let listener = () => this.reloadDescriptors(siteModel);
+        let listener = () => this.reloadDescriptors(siteModel);
 
-            siteModel.onApplicationAdded(listener);
-            siteModel.onApplicationRemoved(listener);
-            siteModel.onSiteModelUpdated(listener);
+        siteModel.onApplicationAdded(listener);
+        siteModel.onApplicationRemoved(listener);
+        siteModel.onSiteModelUpdated(listener);
 
-            this.onRemoved(() => {
-                siteModel.unApplicationAdded(listener);
-                siteModel.unApplicationRemoved(listener);
-                siteModel.unSiteModelUpdated(listener);
-            });
+        this.onRemoved(() => {
+            siteModel.unApplicationAdded(listener);
+            siteModel.unApplicationRemoved(listener);
+            siteModel.unSiteModelUpdated(listener);
+        });
 
         this.displayName = new api.dom.H3El('display-name');
         this.appendChild(this.displayName);
@@ -56,9 +56,10 @@ export class PartPlaceholder
         }
     }
 
-        private reloadDescriptors(siteModel: SiteModel) {
-            this.comboBox.loadDescriptors(siteModel.getApplicationKeys());
-        }
+    private reloadDescriptors(siteModel: SiteModel) {
+        this.comboBox.setApplicationKeys(siteModel.getApplicationKeys());
+        this.comboBox.getLoader().load();
+    }
 
     setDisplayName(name: string) {
         this.displayName.setHtml(name);
