@@ -24,22 +24,18 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
 
     let SITE;
     it(`GIVEN site with application-metadata is saved WHEN required input for metadata is empty THEN red icon should be displayed in the grid near the content`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.typeNameInFilterPanel(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                studioUtils.saveScreenshot('site_metadata1');
-                assert.isTrue(isDisplayed, '`new site should be listed');
-            }).then(() => {
-                return assert.eventually.isTrue(contentBrowsePanel.isRedIconDisplayed(SITE.displayName),
-                    "`Red icon` should be displayed near the content, because the required input for metadata is empty");
-            });
+            await studioUtils.doAddSite(SITE);
+            //type the name in the filter-panel:
+            await studioUtils.typeNameInFilterPanel(displayName);
+            await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+            studioUtils.saveScreenshot('site_metadata1');
+            // red icon should be displayed because the required input is empty:
+            let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
+            assert.isTrue(result, "`Red icon` should be displayed near the content, because the required input for metadata is empty");
         });
 
     it(`WHEN site with application-metadata is opened THEN red icon should be displayed in the wizard`, () => {
@@ -62,41 +58,35 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
         });
     });
 
-    it(`GIVEN site with application-metadata is opened WHEN the required description has been typed THEN the site is getting valid`,
-        () => {
+    it(`GIVEN site with application-metadata is opened WHEN the required description has been typed THEN the site gets valid`,
+        async () => {
             let contentWizard = new ContentWizard();
             let metadataStepForm = new MetadataStepForm();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return metadataStepForm.typeDescription('test description');
-            }).then(() => {
-                return contentWizard.waitUntilInvalidIconDisappears();
-            }).then(redIconNotVisible => {
-                studioUtils.saveScreenshot('site_meta_description_typed');
-                assert.isTrue(redIconNotVisible, 'red icon should not be visible in the wizard!');
-            });
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //fill the required input:
+            await metadataStepForm.typeDescription('test description');
+            //the site gets valid
+            await contentWizard.waitUntilInvalidIconDisappears();
         });
 
     //Verifies the https://github.com/enonic/xp-apps/issues/533
     it(`GIVEN creating of a new site with application-metadata AND data is saved WHEN description in metadata has been typed THEN 'Saved' label-button should be changed to 'Save'`,
-        () => {
+        async () => {
             let metadataStepForm = new MetadataStepForm();
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
             let testSite = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
-            return studioUtils.openContentWizard(appConst.contentTypes.SITE).then(() => {
-            }).then(() => {
-                return contentWizard.typeDisplayName(testSite.displayName);
-            }).then(() => {
-                return siteFormPanel.addApplications([appConstant.APP_WITH_METADATA_MIXIN]);
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return metadataStepForm.typeDescription('test description');
-            }).then(() => {
-                return assert.eventually.isTrue(contentWizard.waitForSaveButtonEnabled(),
-                    "`Save` button should be enabled, because the required input for metadata has been updated");
-            });
+            //New site-wizard is opened:
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            await contentWizard.typeDisplayName(testSite.displayName);
+            await siteFormPanel.addApplications([appConstant.APP_WITH_METADATA_MIXIN]);
+            //the site is saved:
+            await contentWizard.waitAndClickOnSave();
+            //Description has been typed:
+            await metadataStepForm.typeDescription('test description');
+            //`Save` button should be enabled, because the required input for metadata has been updated
+            await contentWizard.waitForSaveButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

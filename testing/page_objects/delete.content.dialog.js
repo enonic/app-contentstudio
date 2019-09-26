@@ -54,5 +54,19 @@ class DeleteContentDialog extends Page {
         let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
         return this.getText(selector);
     }
+    async getTotalNumberItemsToDelete() {
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getText(this.deleteButton);
+                return text.includes('(');
+            }, appConst.TIMEOUT_3);
+            let result = await this.getText(this.duplicateButton);
+            let startIndex = result.indexOf('(');
+            let endIndex = result.indexOf(')');
+            return result.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Error when getting number in Delete button " + err);
+        }
+    }
 };
 module.exports = DeleteContentDialog;
