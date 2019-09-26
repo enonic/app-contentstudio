@@ -44,7 +44,7 @@ export class UpdatePersistedContentRoutine
         }
 
         if (this.hasPageChanged(this.persistedContent, this.viewedContent)) {
-            promise.then(this.doHandlePage.bind(this, context));
+            promise = promise.then(this.doHandlePage.bind(this, context));
         }
 
         return promise.then(() => {
