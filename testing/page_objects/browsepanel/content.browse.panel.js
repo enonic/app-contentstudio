@@ -756,12 +756,6 @@ class ContentBrowsePanel extends Page {
         }
     }
 
-    isRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
-        return this.getAttribute(xpath, 'class').then(result => {
-            return result.includes('invalid');
-        });
-    }
 
     async waitForDefaultAction(actionName) {
         try {
