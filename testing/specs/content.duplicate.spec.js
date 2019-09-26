@@ -12,7 +12,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
 const contentBuilder = require("../libs/content.builder");
 
-describe('content.duplicate.spec: Select and duplicate 2 folders specification', function () {
+describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let folder1;
@@ -28,7 +28,21 @@ describe('content.duplicate.spec: Select and duplicate 2 folders specification',
             await studioUtils.doAddFolder(folder2);
         });
 
-    it(`GIVEN two folders are checked AND 'Duplicate Dialog' is opened WHEN 'Duplicate' button on the modal dialog has been pressed  THEN correct notification message should appear`,
+    //verifies - https://github.com/enonic/app-contentstudio/issues/1015  Duplicate button does not contain a number of content to duplicate
+    it(`GIVEN two folders are checked WHEN 'Duplicate Dialog' has been opened THEN expected number(2) should be present in the Duplicate button`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentDuplicateDialog = new ContentDuplicateDialog();
+            await studioUtils.findContentAndClickCheckBox(folder1.displayName);
+            await studioUtils.findContentAndClickCheckBox(folder2.displayName);
+            //Click on Duplicate... button in the toolbar:
+            await contentBrowsePanel.clickOnDuplicateButtonAndWait();
+            studioUtils.saveScreenshot("2_folders_to_duplicate");
+            let result = await contentDuplicateDialog.getTotalNumberItemsToDuplicate();
+            assert.equal(result,'2', "Expected number of content (2) should be present in the Duplicate button");
+        });
+
+    it(`GIVEN two folders are checked AND 'Duplicate Dialog' is opened WHEN 'Duplicate' button on the modal dialog has been pressed THEN '2 items are duplicated' message should appear`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();

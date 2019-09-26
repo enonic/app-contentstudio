@@ -12,7 +12,6 @@ const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('publish.tree.check.child.spec - Publish Tree action - check for unpublished child items`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -44,7 +43,6 @@ describe('publish.tree.check.child.spec - Publish Tree action - check for unpubl
 
     it(`GIVEN existing folder(PUBLISHED) with child(NEW) WHEN child folder has been published THEN Default action  gets 'UNPUBLISH...'`,
         async () => {
-            let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
 
