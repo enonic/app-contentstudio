@@ -88,13 +88,16 @@ export class UpdatePersistedContentRoutine
     }
 
     private hasContentChanged(persisted: Content, viewed: Content): boolean {
-        return this.workflowState === WorkflowState.READY ||
-               !persisted.dataEquals(viewed.getContentData()) ||
+        return !persisted.dataEquals(viewed.getContentData()) ||
+               !persisted.extraDataEquals(viewed.getAllExtraData()) ||
                !persisted.getOwner().equals(viewed.getOwner()) ||
-               !persisted.getPermissions().equals(viewed.getPermissions()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
                persisted.getPublishFromTime() !== viewed.getPublishFromTime() ||
-               persisted.getPublishToTime() !== viewed.getPublishToTime();
+               persisted.getPublishToTime() !== viewed.getPublishToTime() ||
+               !persisted.getPermissions().equals(viewed.getPermissions()) ||
+               persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
+               persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled() ||
+               this.workflowState === WorkflowState.READY;
     }
 
     private hasPageChanged(persisted: Content, viewed: Content): boolean {
