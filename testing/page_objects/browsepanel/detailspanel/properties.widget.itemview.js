@@ -17,23 +17,19 @@ class PropertiesItemView extends Page {
 
     waitForLanguageVisible() {
         return this.waitForElementDisplayed(this.languageProperty, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Properties widget- language was not loaded in ' + appConst.TIMEOUT_2);
+            throw new Error('Properties widget- language is not displayed ' + appConst.TIMEOUT_2);
         });
     }
 
     waitForLanguageNotVisible() {
         return this.waitForElementNotDisplayed(this.languageProperty, appConst.TIMEOUT_2).catch(err => {
-            return false;
+            throw new Error("Language should not be present in the preoperties widget! " + err);
         });
     }
 
-    getLanguage() {
-        return this.waitForLanguageVisible().then(() => {
-            return this.getText(this.languageProperty);
-        }).catch(err => {
-            this.saveScreenshot('properties_widget_no_language_property');
-            return "";
-        })
+    async getLanguage() {
+        await this.waitForLanguageVisible();
+        return await this.getText(this.languageProperty);
     }
 };
 module.exports = PropertiesItemView;

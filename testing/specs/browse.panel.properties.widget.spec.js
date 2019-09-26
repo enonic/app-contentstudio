@@ -19,38 +19,37 @@ describe('Browse panel, properties widget, language spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
-    it(`GIVEN existing folder with language WHEN the folder has been selected and 'Details Panel' opened THEN expected language should be displayed on the widget`,
-        () => {
+    it(`GIVEN existing folder(English (en)) WHEN the folder has been selected and 'Details Panel' opened THEN expected language should be displayed in the widget`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName, null, 'English (en)');
-            return studioUtils.doAddFolder(TEST_FOLDER).then(() => {
-                return studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            }).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                studioUtils.saveScreenshot("details_panel_language_en");
-                let propertiesWidget = new PropertiesWidget();
-                return expect(propertiesWidget.getLanguage()).to.eventually.equal('en');
-            });
+            await studioUtils.doAddFolder(TEST_FOLDER);
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            studioUtils.saveScreenshot("details_panel_language_en");
+            let propertiesWidget = new PropertiesWidget();
+
+            let actualLanguage = await propertiesWidget.getLanguage();
+            assert.equal(actualLanguage, 'en', "expected language should be present in the widget");
         });
 
-    it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed on the widget`,
-        () => {
+    it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed in the widget`,
+        async () => {
             let contentWizard = new ContentWizard();
             let propertiesWidget = new PropertiesWidget();
-            return studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName).then(() => {
-                let settingsForm = new SettingsForm();
-                return settingsForm.clickOnRemoveLanguage();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                studioUtils.saveScreenshot("details_panel_language_removed");
-                return expect(propertiesWidget.waitForLanguageNotVisible()).to.eventually.true;
-            });
+            //1. Open the folder:
+            await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
+            let settingsForm = new SettingsForm();
+            //2.remove the language:
+            await settingsForm.clickOnRemoveLanguage();
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.doSwitchToContentBrowsePanel();
+            //3. Open details panel:
+            await studioUtils.openBrowseDetailsPanel();
+
+            //4. Language should not be present in the widget now :
+            studioUtils.saveScreenshot("details_panel_language_removed");
+            await propertiesWidget.waitForLanguageNotVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
