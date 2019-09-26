@@ -543,7 +543,8 @@ export class HtmlEditor {
             exec: (editor) => {
                 const config: any = {
                     editor: editor,
-                    editorParams: this.editorParams
+                    editorParams: this.editorParams,
+                    selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1)
                 };
 
                 this.notifyFullscreenDialog(config);
@@ -799,6 +800,18 @@ export class HtmlEditor {
 
     public onReady(handler: () => void) {
         this.editor.on('instanceReady', handler);
+    }
+
+    public setSelectionByIndexPath(selectionIndexes: number[]) {
+        let elementToSelect: CKEDITOR.dom.element = this.editor.document.getBody();
+        selectionIndexes.forEach((index: number) => {
+            elementToSelect = <CKEDITOR.dom.element>elementToSelect.getChild(index);
+        });
+
+        elementToSelect.scrollIntoView();
+        const range: CKEDITOR.dom.range = this.editor.createRange();
+        range.setStart(elementToSelect, 0);
+        range.select();
     }
 }
 

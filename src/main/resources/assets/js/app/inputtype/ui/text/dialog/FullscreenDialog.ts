@@ -9,6 +9,7 @@ declare var CONFIG;
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {
     editorParams: HtmlEditorParams;
+    selectionIndexes: number[];
 }
 
 export class FullscreenDialog
@@ -26,6 +27,7 @@ export class FullscreenDialog
         super(<FullscreenDialogConfig>{
             editor: config.editor,
             editorParams: config.editorParams,
+            selectionIndexes: config.selectionIndexes,
             title: i18n('dialog.fullscreen.title'),
             class: 'fullscreen-modal-dialog'
         });
@@ -83,6 +85,11 @@ export class FullscreenDialog
 
         HtmlEditor.create(editorParams).then((htmlEditor: HtmlEditor) => {
             this.fseditor = htmlEditor;
+            htmlEditor.onReady(() => {
+                setTimeout(() => {
+                    htmlEditor.setSelectionByIndexPath(this.config.selectionIndexes);
+                }, 100);
+            });
         });
     }
 
