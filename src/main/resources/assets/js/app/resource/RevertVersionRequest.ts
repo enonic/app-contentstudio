@@ -1,29 +1,29 @@
 import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class SetActiveContentVersionRequest
+export class RevertVersionRequest
     extends ContentResourceRequest<any, any> {
 
     private versionId: string;
 
-    private contentId: ContentId;
+    private contentKey: string;
 
-    constructor(versionId: string, contentId: ContentId) {
+    constructor(versionId: string, contentKey: string) {
         super();
         super.setMethod('POST');
         this.versionId = versionId;
-        this.contentId = contentId;
+        this.contentKey = contentKey;
     }
 
     getParams(): Object {
         return {
             versionId: this.versionId,
-            contentId: this.contentId.toString()
+            contentKey: this.contentKey
         };
     }
 
     getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'setActiveVersion');
+        return api.rest.Path.fromParent(super.getResourcePath(), 'revert');
     }
 
     sendAndParse(): wemQ.Promise<ContentId> {

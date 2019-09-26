@@ -3,12 +3,12 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
-import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import ContentId = api.content.ContentId;
 import WorkflowState = api.content.WorkflowState;
 import i18n = api.util.i18n;
+import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 
 export class VersionsView
     extends api.ui.selector.list.ListBox<ContentVersion> {
@@ -194,11 +194,11 @@ export class VersionsView
         }
 
         let isActive = item.id === this.activeVersion.id;
-        let restoreButton = new api.ui.button.ActionButton(
-            new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.restore'))
+        let revertButton = new api.ui.button.ActionButton(
+            new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
                 .onExecuted((action: api.ui.Action) => {
                     if (!isActive) {
-                        new SetActiveContentVersionRequest(item.id, this.getContentId()).sendAndParse().then(
+                        new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
                             (contentId: ContentId) => {
                                 api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
                                 new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
@@ -207,19 +207,19 @@ export class VersionsView
                 }), false);
 
         if (isActive) {
-            restoreButton.addClass('active');
+            revertButton.addClass('active');
         }
 
         if (this.content.isReadOnly()) {
-            restoreButton.setEnabled(false);
+            revertButton.setEnabled(false);
         }
 
-        restoreButton.onClicked((event: MouseEvent) => {
+        revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
         });
 
-        versionInfoDiv.appendChildren(restoreButton);
+        versionInfoDiv.appendChildren(revertButton);
 
         return versionInfoDiv;
     }
