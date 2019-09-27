@@ -7,6 +7,7 @@ import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
 import Workflow = api.content.Workflow;
 import WorkflowState = api.content.WorkflowState;
+import ObjectHelper = api.ObjectHelper;
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -90,7 +91,7 @@ export class UpdatePersistedContentRoutine
     private hasContentChanged(persisted: Content, viewed: Content): boolean {
         return !persisted.dataEquals(viewed.getContentData()) ||
                !persisted.extraDataEquals(viewed.getAllExtraData()) ||
-               !persisted.getOwner().equals(viewed.getOwner()) ||
+               !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
                persisted.getPublishFromTime() !== viewed.getPublishFromTime() ||
                persisted.getPublishToTime() !== viewed.getPublishToTime() ||
