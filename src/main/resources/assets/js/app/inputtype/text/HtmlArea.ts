@@ -228,12 +228,22 @@ export class HtmlArea
                 include: this.inputConfig['include'],
                 exclude: this.inputConfig['exclude']
             })
+            .setAllowedHeadings(this.getAllowedHeadingsConfig())
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
             .setAllowScripts(allowScripts)
             .build();
 
         return HtmlEditor.create(htmlEditorParams);
+    }
+
+    private getAllowedHeadingsConfig(): string {
+        const allowHeadingsConfig = this.inputConfig['allowHeadings'];
+        if (!allowHeadingsConfig || !(allowHeadingsConfig  instanceof Array)) {
+            return null;
+        }
+
+        return allowHeadingsConfig[0].value;
     }
 
     private moveButtonToBottomBar(inputOccurence: Element, buttonClass: string): void {

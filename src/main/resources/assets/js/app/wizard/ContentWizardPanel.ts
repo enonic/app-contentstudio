@@ -22,7 +22,6 @@ import {SiteModel} from '../site/SiteModel';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ContentNamedEvent} from '../event/ContentNamedEvent';
-import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
@@ -57,6 +56,7 @@ import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {WorkflowStateIconsManager} from './WorkflowStateIconsManager';
+import {RoutineContext} from './Flow';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -183,6 +183,10 @@ export class ContentWizardPanel
     private renderableChanged: boolean = false;
 
     private reloadPageEditorOnSave: boolean = true;
+
+    private wizardFormUpdatedDuringSave: boolean;
+
+    private pageEditorUpdatedDuringSave: boolean;
 
     private writePermissions: boolean = false;
 
@@ -518,26 +522,29 @@ export class ContentWizardPanel
         return super.saveChanges().then((content: Content) => {
 
             const persistedItem = content.clone();
-
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
-                if (this.reloadPageEditorOnSave) {
-                    this.updateLiveForm(persistedItem).then(() => {
-                        if (persistedItem.isSite()) {
-                            this.updateWizardStepForms(persistedItem, false);
-                            this.updateSiteModel(<Site>persistedItem);
-                        }
-                    });
+                if (this.reloadPageEditorOnSave && this.pageEditorUpdatedDuringSave) {
+                    this.updateLiveForm(persistedItem);
                 }
             }
 
-            if (persistedItem.getType().isImage()) {
-                this.updateWizard(persistedItem);
-            } else if (this.securityWizardStepForm) { // update security wizard to have new path/displayName etc.
+            if (this.wizardFormUpdatedDuringSave) {
+                if (persistedItem.getType().isImage()) {
+                    this.updateWizard(persistedItem);
+                } else {
+                    this.updateWizardStepForms(persistedItem, false);
+
+                    if (persistedItem.isSite()) {
+                        this.updateSiteModel(<Site>persistedItem);
+                    }
+                }
+                this.xDataWizardStepForms.resetDisabledForms();
+            } else if (this.securityWizardStepForm) {
+                // https://github.com/enonic/app-contentstudio/issues/1042
+                // update security form to update content path despite form hasn't changed
                 this.securityWizardStepForm.update(persistedItem);
             }
-
-            this.xDataWizardStepForms.resetDisabledForms();
 
             return persistedItem;
         }).finally(() => {
@@ -1738,8 +1745,10 @@ export class ContentWizardPanel
         }, 100, false);
 
         siteModel.onSiteModelUpdated(() => {
-            this.formMask.show();
-            handler();
+            if (this.wizardFormUpdatedDuringSave) {
+                this.formMask.show();
+                handler();
+            }
         });
 
         return siteModel;
@@ -1811,9 +1820,9 @@ export class ContentWizardPanel
 
     persistNewItem(): wemQ.Promise<Content> {
         return new PersistNewContentRoutine(this).setCreateContentRequestProducer(this.produceCreateContentRequest).execute().then(
-            (content: Content) => {
+            (context: RoutineContext) => {
                 api.notify.showFeedback(i18n('notify.content.created'));
-                return content;
+                return context.content;
             });
     }
 
@@ -1871,9 +1880,14 @@ export class ContentWizardPanel
         const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
-            .setUpdateContentRequestProducer(this.produceUpdateContentRequest);
+            .setRequireValid(this.requireValid)
+            .setWorkflowState(this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
-        return updateContentRoutine.execute().then((content: Content) => {
+        return updateContentRoutine.execute().then((context: RoutineContext) => {
+            const content = context.content;
+            this.wizardFormUpdatedDuringSave = context.dataUpdated;
+            this.pageEditorUpdatedDuringSave = context.pageUpdated;
+
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
             }
@@ -1906,27 +1920,6 @@ export class ContentWizardPanel
             message = i18n('notify.item.saved', name);
         }
         api.notify.showFeedback(message);
-    }
-
-    private produceUpdateContentRequest(content: Content, viewedContent: Content): UpdateContentRequest {
-        const persistedContent = this.getPersistedItem();
-        const state: WorkflowState = this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS;
-        const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(state).build();
-
-        return new UpdateContentRequest(persistedContent.getId())
-            .setRequireValid(this.requireValid)
-            .setContentName(viewedContent.getName())
-            .setDisplayName(viewedContent.getDisplayName())
-            .setData(viewedContent.getContentData())
-            .setExtraData(viewedContent.getAllExtraData())
-            .setOwner(viewedContent.getOwner())
-            .setLanguage(viewedContent.getLanguage())
-            .setPublishFrom(viewedContent.getPublishFromTime())
-            .setPublishTo(viewedContent.getPublishToTime())
-            .setPermissions(viewedContent.getPermissions())
-            .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
-            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled())
-            .setWorkflow(workflow);
     }
 
     private isDisplayNameUpdated(): boolean {

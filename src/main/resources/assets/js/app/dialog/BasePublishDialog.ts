@@ -282,8 +282,6 @@ export abstract class BasePublishDialog
 
         CreateIssueDialog.get().reset();
 
-        this.reloadPublishDependencies();
-
         super.open();
     }
 
@@ -293,13 +291,5 @@ export abstract class BasePublishDialog
         this.publishProcessor.resetExcludedIds();
 
         CreateIssueDialog.get().reset();
-    }
-
-    protected reloadPublishDependencies() {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-
-        this.publishProcessor.reloadPublishDependencies(true);
     }
 }

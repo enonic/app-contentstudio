@@ -51,6 +51,7 @@ const XPATH = {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
+    defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
 }
 
 class ContentBrowsePanel extends Page {
@@ -203,7 +204,7 @@ class ContentBrowsePanel extends Page {
                 return (!result.includes('in-progress') && !result.includes('ready'));
             });
         }, 3000).catch(err => {
-            throw new Error("Workflow icon still visible in content: "+ displayName + " "+ err);
+            throw new Error("Workflow icon still visible in content: " + displayName + " " + err);
         });
     }
 
@@ -755,11 +756,14 @@ class ContentBrowsePanel extends Page {
         }
     }
 
-    isRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
-        return this.getAttribute(xpath, 'class').then(result => {
-            return result.includes('invalid');
-        });
+
+    async waitForDefaultAction(actionName) {
+        try {
+            let selector = XPATH.contentPublishMenuButton + XPATH.defaultActionByName(actionName);
+            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
+            throw Error("Publish Menu - Default action is not displayed: " + err);
+        }
     }
 };
 module.exports = ContentBrowsePanel;

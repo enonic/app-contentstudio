@@ -69,3 +69,21 @@ body.cke_editable {
     width: 15px;
   }
 }
+
+.cke_editable {
+  table, th, td {
+    border: 1px solid black;
+  }
+
+  table {
+    width: 100%;
+
+    &.cke_show_border {
+      border: 1px solid black !important;
+
+      th, td {
+        border: 1px solid black !important;
+      }
+    }
+  }
+}

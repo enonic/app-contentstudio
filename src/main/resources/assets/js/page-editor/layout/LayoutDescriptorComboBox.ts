@@ -24,9 +24,8 @@ export class LayoutDescriptorComboBox
             .setNoOptionsText('No layouts available'));
     }
 
-    loadDescriptors(applicationKeys: ApplicationKey[]) {
+    setApplicationKeys(applicationKeys: ApplicationKey[]) {
         (<LayoutDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
-        this.getLoader().load();
     }
 
     getDescriptor(descriptorKey: DescriptorKey): LayoutDescriptor {

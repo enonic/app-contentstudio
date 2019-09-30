@@ -52,31 +52,27 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
         });
 
     it(`GIVEN site is opened AND Inspection Panel is opened WHEN the second template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-            }).then(() => {
-                return contentWizard.doUnlockLiveEditor();
-            }).then(() => {
-                return contentWizard.switchToParentFrame();
-            }).then(() => {
-                return pageInspectionPanel.selectPageTemplateOrController("template1");
-            }).then(() => {
-                return confirmationDialog.waitForDialogOpened();
-            }).then(() => {
-                return confirmationDialog.clickOnYesButton();
-            }).then(() => {
-                return contentWizard.waitForNotificationMessage();
-            }).then(message => {
-                let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
-                assert.isTrue(message === expectedMessage, "'Item is saved' - this message should appear")
-            }).then(() => {
-                studioUtils.saveScreenshot('inspect_panel_template_changed');
-                return assert.eventually.isTrue(contentWizard.waitForSaveButtonDisabled(),
-                    "`Save` button gets disabled on the toolbar");
-            });
+            //Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.doUnlockLiveEditor();
+
+            await contentWizard.switchToParentFrame();
+            //Select the controller:
+            await pageInspectionPanel.selectPageTemplateOrController("template1");
+            //Confirmation dialog appears:
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+
+            let notificationMessage = await contentWizard.waitForNotificationMessage();
+            let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
+            assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
+
+            //"'Save' button gets disabled on the toolbar"
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

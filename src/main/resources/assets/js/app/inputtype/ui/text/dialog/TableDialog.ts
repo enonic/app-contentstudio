@@ -26,12 +26,6 @@ export class TableDialog
 
     private headersField: FormItem;
 
-    private cellSpacingField: FormItem;
-
-    private cellPaddingField: FormItem;
-
-    private borderField: FormItem;
-
     private alignmentField: FormItem;
 
     private captionField: FormItem;
@@ -106,18 +100,6 @@ export class TableDialog
             this.createFormItem(
                 new ModalDialogFormItemBuilder('headers', i18n('dialog.table.formitem.headers')).setInputEl(this.createHeadersDropdown()));
 
-        this.cellSpacingField =
-            this.createFormItem(new ModalDialogFormItemBuilder('cellspacing', i18n('dialog.table.formitem.cellSpacing')).setValidator(
-                TableDialog.isPositiveNumber));
-
-        this.cellPaddingField =
-            this.createFormItem(new ModalDialogFormItemBuilder('cellpadding', i18n('dialog.table.formitem.cellPadding')).setValidator(
-                TableDialog.isPositiveNumber));
-
-        this.borderField =
-            this.createFormItem(new ModalDialogFormItemBuilder('border', i18n('dialog.table.formitem.border')).setValidator(
-                TableDialog.isPositiveNumber));
-
         this.alignmentField =
             this.createFormItem(
                 new ModalDialogFormItemBuilder('alignment', i18n('dialog.table.formitem.alignment')).setInputEl(
@@ -130,9 +112,6 @@ export class TableDialog
             this.rowsField,
             this.colsField,
             this.headersField,
-            this.cellSpacingField,
-            this.cellPaddingField,
-            this.borderField,
             this.alignmentField,
             this.captionField
         ];
@@ -166,9 +145,6 @@ export class TableDialog
         this.colsField.getInput().getEl().setValue(this.getOriginalColsElem().getValue());
         this.colsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
         (<Dropdown<string>>this.headersField.getInput()).setValue(this.getOriginalHeadersElem().getValue());
-        this.cellSpacingField.getInput().getEl().setValue(this.getOriginalCellSpacingElem().getValue());
-        this.cellPaddingField.getInput().getEl().setValue(this.getOriginalCellPaddingElem().getValue());
-        this.borderField.getInput().getEl().setValue(this.getOriginalBorderElem().getValue());
         (<Dropdown<string>>this.alignmentField.getInput()).setValue(this.getOriginalAlignmentElem().getValue());
         this.captionField.getInput().getEl().setValue(this.getOriginalCaptionElem().getValue());
     }
@@ -177,9 +153,6 @@ export class TableDialog
         this.getOriginalRowsElem().setValue(this.rowsField.getInput().getEl().getValue(), false);
         this.getOriginalColsElem().setValue(this.colsField.getInput().getEl().getValue(), false);
         this.getOriginalHeadersElem().setValue((<Dropdown<string>>this.headersField.getInput()).getValue(), false);
-        this.getOriginalCellSpacingElem().setValue(this.cellSpacingField.getInput().getEl().getValue(), false);
-        this.getOriginalCellPaddingElem().setValue(this.cellPaddingField.getInput().getEl().getValue(), false);
-        this.getOriginalBorderElem().setValue(this.borderField.getInput().getEl().getValue(), false);
         this.getOriginalAlignmentElem().setValue((<Dropdown<string>>this.alignmentField.getInput()).getValue(), false);
         this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
