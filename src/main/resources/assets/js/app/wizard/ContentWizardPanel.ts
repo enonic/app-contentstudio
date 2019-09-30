@@ -1466,7 +1466,6 @@ export class ContentWizardPanel
                     this.liveEditModel = liveEditModel;
 
                     liveFormPanel.setModel(this.liveEditModel);
-                    liveFormPanel.layoutInspectionPanels();
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 
