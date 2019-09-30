@@ -5,6 +5,7 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
+import {Site} from '../content/Site';
 import Workflow = api.content.Workflow;
 import WorkflowState = api.content.WorkflowState;
 import ObjectHelper = api.ObjectHelper;
@@ -58,11 +59,20 @@ export class UpdatePersistedContentRoutine
         return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
-                context.content = content;
+                // https://github.com/enonic/app-contentstudio/issues/1043
+                // reload page editor as well when site config has been changed
+                if (context.content instanceof Site && this.viewedContent instanceof Site) {
+                    const siteConfigs = (<Site>context.content).getSiteConfigs();
+                    const viewedConfigs = (<Site>this.viewedContent).getSiteConfigs();
+                    if (!ObjectHelper.arrayEquals(siteConfigs, viewedConfigs)) {
+                        context.pageUpdated = true;
+                    }
+                }
 
                 if (markUpdated) {
                     context.dataUpdated = true;
                 }
+                context.content = content;
 
             });
     }
