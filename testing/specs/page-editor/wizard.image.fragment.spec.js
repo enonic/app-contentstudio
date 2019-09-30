@@ -37,52 +37,47 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
             });
 
         it(`Precondition: image-fragment should be inserted in the site`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let liveFormPanel = new LiveFormPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    // opens 'Show Component View'
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu("main");
-                }).then(() => {
-                    return pageComponentView.selectMenuItem(["Insert", "Image"]);
-                }).then(() => {
-                    // insert the image
-                    return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    // save the image as fragment
-                    return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                });
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                // opens 'Show Component View'
+                await contentWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItem(["Insert", "Image"]);
+
+                // insert the image
+                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
+                await contentWizard.pause(500);
+                studioUtils.saveScreenshot("image_fragment_step1");
+                await contentWizard.switchToMainFrame();
+
+                await pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
+                studioUtils.saveScreenshot("image_fragment_step1");
+                // save the image as fragment
+                await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
             });
 
         //verifies the "https://github.com/enonic/app-contentstudio/issues/256"
         //"Save" button doesn't get disabled after saving any changes #256
-        it(`GIVEN existing fragment is opened WHEN image has been changed and the fragment saved THEN Save button gets Saved`,
-            () => {
+        it(`GIVEN existing fragment is opened WHEN image has been changed and the fragment saved THEN 'Save' button gets disabled`,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let imageInspectionPanel = new ImageInspectionPanel();
                 let pageComponentView = new PageComponentView();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    //the image has been removed in 'inspection panel'
-                    return imageInspectionPanel.clickOnRemoveIcon();
-                }).then(() => {
-                    // new image has been selected( fragment should be saved automatically)
-                    return imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
-                }).then(() => {
-                    //so Save should be disabled now!
-                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonDisabled(),
-                        "`Save` button should be disabled on the toolbar");
-                })
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1);
+                await contentWizard.clickOnShowComponentViewToggler();
+                //Select the component:
+                await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME1);
+
+                //click on `remove` in 'inspection panel' and remove the image:
+                await imageInspectionPanel.clickOnRemoveIcon();
+
+                // new image has been selected( fragment should be saved automatically)
+                await imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
+                //`Save` button gets disabled now!(issues/256)
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         //checks alert after clicking on Close icon(nothing was changed)

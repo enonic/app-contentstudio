@@ -39,7 +39,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             studioUtils.saveScreenshot("2_folders_to_duplicate");
             let result = await contentDuplicateDialog.getTotalNumberItemsToDuplicate();
-            assert.equal(result,'2', "Expected number of content (2) should be present in the Duplicate button");
+            assert.equal(result, '2', "Expected number of content (2) should be present in the Duplicate button");
         });
 
     it(`GIVEN two folders are checked AND 'Duplicate Dialog' is opened WHEN 'Duplicate' button on the modal dialog has been pressed THEN '2 items are duplicated' message should appear`,
@@ -65,6 +65,27 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await contentBrowsePanel.waitForContentDisplayed(folder1.displayName + '-copy');
             await studioUtils.typeNameInFilterPanel(folder2.displayName + '-copy')
             await contentBrowsePanel.waitForContentDisplayed(folder2.displayName + '-copy');
+            let state = await contentBrowsePanel.getWorkflowState(folder2.displayName + '-copy');
+            //duplicated content should have the same state as the target content:
+            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
+        });
+
+    it(`WHEN 'Published' folder has been duplicated THEN copy should be 'Ready for publishing'`,
+        async () => {
+            let contentDuplicateDialog = new ContentDuplicateDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(folder1.displayName);
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            //Publish the folder:
+            await studioUtils.doPublish();
+            await contentBrowsePanel.clickOnDuplicateButtonAndWait();
+            await contentDuplicateDialog.clickOnDuplicateButton();
+            await contentDuplicateDialog.waitForDialogClosed();
+            //Do filter the second copy of the folder:
+            await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy-2')
+            let state = await contentBrowsePanel.getWorkflowState(folder1.displayName + '-copy-2');
+            //duplicated folder should be 'Ready for publishing':
+            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
