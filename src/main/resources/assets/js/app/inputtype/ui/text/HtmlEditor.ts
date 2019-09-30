@@ -328,8 +328,8 @@ export class HtmlEditor {
         const isAnchorSelected: boolean = selectedElement.hasClass('cke_anchor');
         const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
         const isLinkSelected: boolean = (selectedElement.is('a') && selectedElement.hasAttribute('href'));
-        const isImageWithLinkSelected = isImageSelected &&
-                                        (<CKEDITOR.dom.element>selectedElement.findOne('figure').getFirst()).is('a');
+        const figureEl = isImageSelected ? selectedElement.findOne('figure') : null;
+        const isImageWithLinkSelected = isImageSelected && !!figureEl && (<CKEDITOR.dom.element>figureEl.getFirst()).is('a');
 
         this.toggleToolbarButtonState('link', isLinkSelected || isImageWithLinkSelected);
         this.toggleToolbarButtonState('anchor', isAnchorSelected);
@@ -384,7 +384,7 @@ export class HtmlEditor {
 
     private doUpdateAlignmentButtonStates(figure: CKEDITOR.dom.element) {
         // class 'undefined' means newly inserted justified image
-        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS) || figure.hasClass('undefined')) {
+        if (!figure || figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS) || figure.hasClass('undefined')) {
             this.setJustifyButtonActive();
         } else {
             this.toggleToolbarButtonState('justifyblock', false);
@@ -541,10 +541,17 @@ export class HtmlEditor {
 
         this.editor.addCommand('openFullscreenDialog', {
             exec: (editor) => {
+
+                const selection = editor.getSelection();
+                const range = selection.getRanges()[0];
+                const isCursorSetOnText = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
+
                 const config: any = {
                     editor: editor,
                     editorParams: this.editorParams,
-                    selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1)
+                    selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
+                    indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
+                    cursorPosition: isCursorSetOnText ? range.startOffset : null
                 };
 
                 this.notifyFullscreenDialog(config);
@@ -802,15 +809,18 @@ export class HtmlEditor {
         this.editor.on('instanceReady', handler);
     }
 
-    public setSelectionByIndexPath(selectionIndexes: number[]) {
-        let elementToSelect: CKEDITOR.dom.element = this.editor.document.getBody();
+    public setSelectionByCursorPosition(selectionIndexes: number[], indexOfSelectedElement: number, cursorPosition: number) {
+        let elementContainer: CKEDITOR.dom.element = this.editor.document.getBody();
         selectionIndexes.forEach((index: number) => {
-            elementToSelect = <CKEDITOR.dom.element>elementToSelect.getChild(index);
+            elementContainer = <CKEDITOR.dom.element>elementContainer.getChild(index);
         });
 
-        elementToSelect.scrollIntoView();
+        elementContainer.scrollIntoView();
+
+        const selectedElement = indexOfSelectedElement > -1 ? elementContainer.getChild(indexOfSelectedElement) : elementContainer;
+
         const range: CKEDITOR.dom.range = this.editor.createRange();
-        range.setStart(elementToSelect, 0);
+        range.setStart(selectedElement, cursorPosition || 0);
         range.select();
     }
 }
