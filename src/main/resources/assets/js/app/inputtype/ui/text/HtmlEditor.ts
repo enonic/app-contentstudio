@@ -542,9 +542,9 @@ export class HtmlEditor {
         this.editor.addCommand('openFullscreenDialog', {
             exec: (editor) => {
 
-                const selection = editor.getSelection();
-                const range = selection.getRanges()[0];
-                const isCursorSetOnText = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
+                const selection: CKEDITOR.dom.selection = editor.getSelection();
+                const range: CKEDITOR.dom.range = selection.getRanges()[0];
+                const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
 
                 const config: any = {
                     editor: editor,
@@ -817,7 +817,8 @@ export class HtmlEditor {
 
         elementContainer.scrollIntoView();
 
-        const selectedElement = indexOfSelectedElement > -1 ? elementContainer.getChild(indexOfSelectedElement) : elementContainer;
+        const selectedElement: CKEDITOR.dom.node =
+            indexOfSelectedElement > -1 ? elementContainer.getChild(indexOfSelectedElement) : elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
         range.setStart(selectedElement, cursorPosition || 0);
