@@ -62,32 +62,10 @@ export class HtmlEditor {
         // updating table elements directly in transformation functions doesn't work as expected, thus updating by refreshFunc
         const refreshFunc = api.util.AppHelper.debounce(() => {
             this.editor.document.getElementsByTag('table').toArray().forEach((table: CKEDITOR.dom.element) => {
-                table.setStyle('border-spacing', `${table.getAttribute('cellspacing')}px`);
-                table.setStyle('border', `${table.getAttribute('border')}px solid black`);
-
-                const cellPadding: string = `${table.getAttribute('cellpadding')}px`;
-                table.find('td').toArray().forEach((td: CKEDITOR.dom.element) => {
-                    td.setStyle('padding', cellPadding);
-                });
-
-                const align: string = table.getAttribute('align');
-                if (align === 'center') {
-                    table.removeStyle('margin-left');
-                    table.removeStyle('margin-right');
-                    table.setStyle('margin', '0 auto');
-                } else if (align === 'left') {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-left');
-                    table.setStyle('margin-right', 'auto');
-                } else if (align === 'right') {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-right');
-                    table.setStyle('margin-left', 'auto');
-                } else {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-left');
-                    table.removeStyle('margin-right');
-                }
+                table.removeAttribute('cellpadding');
+                table.removeAttribute('cellspacing');
+                table.removeAttribute('border');
+                table.removeAttribute('style');
             });
         }, 200);
 
@@ -109,9 +87,9 @@ export class HtmlEditor {
             const transformCellSpacing: CKEDITOR.filter.transformation = createTransformationObject('cellspacing');
             const transformCellPadding: CKEDITOR.filter.transformation = createTransformationObject('cellpadding');
             const transformBorder: CKEDITOR.filter.transformation = createTransformationObject('border');
-            const transformAlign: CKEDITOR.filter.transformation = createTransformationObject('align');
+            const transformStyle: CKEDITOR.filter.transformation = createTransformationObject('style');
 
-            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformAlign]]);
+            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformStyle]]);
         });
     }
 
