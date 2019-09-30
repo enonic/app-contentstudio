@@ -37,14 +37,13 @@ describe('page.template.controller: select a controller in a template-wizard', f
     //verifies https://github.com/enonic/app-contentstudio/issues/364
     //Upload button should not be visible in the New Content dialog for Templates folder
     it(`GIVEN existing site is expanded AND _templates folder selected WHEN New button has been pressed THEN upload button should not be present on the modal dialog`,
-        () => {
-        let newContentDialog = new NewContentDialog();
-            return selectTemplatesFolderAndClickNew().then(() => {
-                return newContentDialog.waitForUploaderButtonDisplayed();
-            }).then(result => {
-                assert.isFalse(result, "Uploader button should not be displayed");
-            });
+        async () => {
+            let newContentDialog = new NewContentDialog();
+            await selectTemplatesFolderAndClickNew();
+            let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
+            assert.isFalse(isDisplayed, "Uploader button should not be displayed");
         });
+
     it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present on the modal dialog`,
         () => {
             let newContentDialog = new NewContentDialog();
@@ -60,22 +59,19 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
-            let liveContextWindow = new  LiveContextWindow();
+            let liveContextWindow = new LiveContextWindow();
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-            return studioUtils.doOpenPageTemplateWizard(SITE.displayName).then(() => {
-                return contentWizard.typeDisplayName(TEMPLATE.displayName);
-            }).then(() => {
-                return contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            }).then(() => {
-                return liveContextWindow.waitForOpened();
-            }).then(isDisplayed => {
-                studioUtils.saveScreenshot('template_context_window_should_be_loaded');
-                assert.isTrue(isDisplayed, 'Context Window should be loaded automatically');
-            });
+            await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
+            await contentWizard.typeDisplayName(TEMPLATE.displayName);
+            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+
+            //xp-apps#686 - 'Context Window should be loaded automatically':
+            await liveContextWindow.waitForOpened();
         });
+
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         () => {
@@ -137,7 +133,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
                 return studioUtils.doSwitchToContentBrowsePanel();
             }).then(() => {
                 return studioUtils.doDeleteContent(TEMPLATE.displayName);
-            }).then(()=>{
+            }).then(() => {
                 return contentWizard.pause(2000);
             }).then(() => {
                 return studioUtils.switchToContentTabWindow(SITE.displayName);

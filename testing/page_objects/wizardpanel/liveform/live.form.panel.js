@@ -25,7 +25,7 @@ class LiveFormPanel extends Page {
         let loaderComboBox = new LoaderComboBox();
         await contentWizard.switchToLiveEditFrame();
         await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
-        return await this.pause(500);
+        return await this.pause(1000);
     }
 };
 module.exports = LiveFormPanel;

@@ -31,17 +31,14 @@ describe('site.wit.template: when a template has been deleted, then site-wizard 
         });
 
     it(`WHEN new template has been added THEN the template should be listed in the grid`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-            return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(() => {
-                return studioUtils.findAndSelectItem(TEMPLATE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(TEMPLATE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'template should be listed in the grid');
-            });
+            await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
+            await studioUtils.findAndSelectItem(TEMPLATE.displayName);
+            //the template should be present in the grid:
+            await contentBrowsePanel.waitForContentDisplayed(TEMPLATE.displayName);
         });
 
     it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
