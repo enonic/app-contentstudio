@@ -59,9 +59,8 @@ export class UpdatePersistedContentRoutine
         return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
-                // https://github.com/enonic/app-contentstudio/issues/1043
                 // reload page editor as well when site config has been changed
-                if (context.content instanceof Site && this.viewedContent instanceof Site) {
+                if (context.content.isSite() && this.viewedContent.isSite()) {
                     const siteConfigs = (<Site>context.content).getSiteConfigs();
                     const viewedConfigs = (<Site>this.viewedContent).getSiteConfigs();
                     if (!ObjectHelper.arrayEquals(siteConfigs, viewedConfigs)) {
