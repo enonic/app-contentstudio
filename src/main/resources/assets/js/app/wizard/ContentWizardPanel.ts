@@ -540,6 +540,10 @@ export class ContentWizardPanel
                     }
                 }
                 this.xDataWizardStepForms.resetDisabledForms();
+            } else if (this.securityWizardStepForm) {
+                // https://github.com/enonic/app-contentstudio/issues/1042
+                // update security form to update content path despite form hasn't changed
+                this.securityWizardStepForm.update(persistedItem);
             }
 
             return persistedItem;
