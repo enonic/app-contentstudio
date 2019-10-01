@@ -369,12 +369,14 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-    waitForContentDisplayed(contentName) {
-        return this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
+    async waitForContentDisplayed(contentName) {
+        try {
+            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3);
+        } catch (err) {
             console.log("item is not displayed:" + contentName);
             this.saveScreenshot('err_find_' + contentName)
             throw new Error('content is not displayed ! ' + contentName + "  " + err);
-        });
+        }
     }
 
     waitForContentNotDisplayed(contentName) {
@@ -552,11 +554,10 @@ class ContentBrowsePanel extends Page {
 
     waitForRowByNameVisible(name) {
         let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, 3000)
-            .catch(err => {
-                this.saveScreenshot('err_find_' + name);
-                throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
-            })
+        return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
+            this.saveScreenshot('err_find_' + name);
+            throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
+        })
     }
 
     waitForContentByDisplayNameVisible(displayName) {
@@ -740,6 +741,7 @@ class ContentBrowsePanel extends Page {
         return await confirmationDialog.clickOnYesButton();
     }
 
+    //find workflow state by the display name
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
         await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
@@ -756,6 +758,22 @@ class ContentBrowsePanel extends Page {
         }
     }
 
+    //find workflow state by the name
+    async getWorkflowStateByName(name) {
+        let xpath = XPATH.contentSummaryByName(name);
+        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        let result = await this.getAttribute(xpath, 'class');
+        if (result.includes('in-progress')) {
+            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+        } else if (result.includes('ready')) {
+            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
+            return appConst.WORKFLOW_STATE.PUBLISHED;
+
+        } else {
+            throw new Error("Error when getting content's state, class is:" + result);
+        }
+    }
 
     async waitForDefaultAction(actionName) {
         try {

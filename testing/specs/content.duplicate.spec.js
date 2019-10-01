@@ -63,9 +63,10 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy');
             await contentBrowsePanel.waitForContentDisplayed(folder1.displayName + '-copy');
-            await studioUtils.typeNameInFilterPanel(folder2.displayName + '-copy')
-            await contentBrowsePanel.waitForContentDisplayed(folder2.displayName + '-copy');
-            let state = await contentBrowsePanel.getWorkflowState(folder2.displayName + '-copy');
+            await studioUtils.typeNameInFilterPanel(folder2.displayName + '-copy');
+            let name = folder2.displayName + '-copy';
+            await contentBrowsePanel.waitForContentDisplayed(name);
+            let state = await contentBrowsePanel.getWorkflowStateByName(name);
             //duplicated content should have the same state as the target content:
             assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
@@ -83,7 +84,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await contentDuplicateDialog.waitForDialogClosed();
             //Do filter the second copy of the folder:
             await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy-2')
-            let state = await contentBrowsePanel.getWorkflowState(folder1.displayName + '-copy-2');
+            let state = await contentBrowsePanel.getWorkflowStateByName(folder1.displayName + '-copy-2');
             //duplicated folder should be 'Ready for publishing':
             assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
