@@ -69,11 +69,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         });
     }
 
-    layout() {
-        this.removeChildren();
-        this.appendChild(this.form);
-    }
-
     setModel(liveEditModel: LiveEditModel) {
         if (this.liveEditModel !== liveEditModel) {
             this.unbindSiteModelListeners();
@@ -244,5 +239,13 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     cleanUp() {
         this.unregisterComponentListeners();
         this.component = null;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.form);
+
+            return rendered;
+        });
     }
 }

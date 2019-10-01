@@ -257,7 +257,7 @@ export class LiveFormPanel
                     // only reload when switching from customized with controller set back to template or automatic template
                     if (!(this.pageModel.getDefaultPageTemplate().equals(this.pageModel.getTemplate()) && !oldValue &&
                           !this.pageModel.hasController())) {
-                        this.pageInspectionPanel.refreshInspectionHandler(this.liveEditModel);
+                        this.pageInspectionPanel.refreshInspectionHandler();
                         this.lockPageAfterProxyLoad = true;
                         this.contentWizardPanel.saveChanges().catch((error: any) => {
                             api.DefaultErrorHandler.handle(error);
@@ -476,13 +476,6 @@ export class LiveFormPanel
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
 
         this.handleContentUpdatedEvent();
-    }
-
-    layoutInspectionPanels() {
-        this.pageInspectionPanel.layout();
-        this.partInspectionPanel.layout();
-        this.layoutInspectionPanel.layout();
-        this.fragmentInspectionPanel.layout();
     }
 
     private handleContentUpdatedEvent() {

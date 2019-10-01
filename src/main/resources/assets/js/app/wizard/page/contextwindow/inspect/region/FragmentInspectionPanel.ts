@@ -50,6 +50,8 @@ export class FragmentInspectionPanel
     private initElements() {
         this.fragmentSelector = new FragmentDropdown();
         this.fragmentForm = new FragmentSelectorForm(this.fragmentSelector, i18n('field.fragment'));
+        this.editFragmentButton = new Button(i18n('action.editFragment'));
+        this.editFragmentButton.addClass('blue large');
     }
 
     private initListeners() {
@@ -63,26 +65,6 @@ export class FragmentInspectionPanel
             }
         };
 
-        this.handleContentUpdatedEvent();
-        this.initSelectorListeners();
-    }
-
-    setModel(liveEditModel: LiveEditModel) {
-        super.setModel(liveEditModel);
-        this.fragmentSelector.setModel(liveEditModel);
-        this.fragmentSelector.load();
-    }
-
-    layout() {
-        this.removeChildren();
-        this.appendChild(this.fragmentForm);
-        this.appendEditTemplateButton();
-    }
-
-    private appendEditTemplateButton() {
-        this.editFragmentButton = new Button(i18n('action.editFragment'));
-        this.editFragmentButton.addClass('blue large');
-
         this.editFragmentButton.onClicked(() => {
             const fragmentId: ContentId = this.component.getFragment();
             if (fragmentId) {
@@ -93,7 +75,23 @@ export class FragmentInspectionPanel
             }
         });
 
-        this.fragmentForm.appendChild(this.editFragmentButton);
+        this.handleContentUpdatedEvent();
+        this.initSelectorListeners();
+    }
+
+    setModel(liveEditModel: LiveEditModel) {
+        super.setModel(liveEditModel);
+        this.fragmentSelector.setModel(liveEditModel);
+        this.fragmentSelector.load();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.fragmentForm);
+            this.fragmentForm.appendChild(this.editFragmentButton);
+
+            return rendered;
+        });
     }
 
     private handleContentUpdatedEvent() {
@@ -171,7 +169,6 @@ export class FragmentInspectionPanel
     }
 
     private initSelectorListeners() {
-
         this.fragmentSelector.onOptionSelected((selectedOption: OptionSelectedEvent<ContentSummary>) => {
             if (this.handleSelectorEvents) {
                 let option: Option<ContentSummary> = selectedOption.getOption();
