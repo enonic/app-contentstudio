@@ -52,7 +52,7 @@ export class PageViewBuilder {
 
     element: api.dom.Body;
 
-    writePermissions: boolean = false;
+    modifyPermissions: boolean = false;
 
     setLiveEditModel(value: LiveEditModel): PageViewBuilder {
         this.liveEditModel = value;
@@ -74,8 +74,8 @@ export class PageViewBuilder {
         return this;
     }
 
-    setWritePermissions(writePermissions: boolean): PageViewBuilder {
-        this.writePermissions = writePermissions;
+    setModifyPermissions(modifyPermissions: boolean): PageViewBuilder {
+        this.modifyPermissions = modifyPermissions;
         return this;
     }
 
@@ -127,7 +127,7 @@ export class PageView
 
     private isRenderable: boolean;
 
-    private writePermissions: boolean;
+    private modifyPermissions: boolean;
 
     constructor(builder: PageViewBuilder) {
 
@@ -140,7 +140,7 @@ export class PageView
             .setElement(builder.element)
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditModel.getContent())));
 
-        this.writePermissions = builder.writePermissions;
+        this.modifyPermissions = builder.modifyPermissions;
 
         this.setPlaceholder(new PagePlaceholder(this));
 
@@ -173,7 +173,7 @@ export class PageView
         const isCustomized = this.liveEditModel.getPageModel().isCustomized();
         const isFragment = !!this.fragmentView;
         const lockable = !this.pageModel.isPageTemplate() && !isCustomized && !isFragment;
-        if (lockable || !this.writePermissions) {
+        if (lockable || !this.modifyPermissions) {
             this.setLocked(true);
         }
     }
@@ -449,7 +449,7 @@ export class PageView
     }
 
     handleShaderClick(event: MouseEvent) {
-        if (this.isLocked() && this.writePermissions) {
+        if (this.isLocked() && this.modifyPermissions) {
             if (!this.lockedContextMenu) {
                 this.lockedContextMenu = this.createLockedContextMenu();
             }

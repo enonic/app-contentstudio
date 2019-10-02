@@ -66,7 +66,7 @@ export class PageComponentsView
 
     private afterActionHandler: (action: Action) => void;
 
-    private writePermissions: boolean = false;
+    private modifyPermissions: boolean = false;
 
     constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
         super('page-components-view');
@@ -195,9 +195,9 @@ export class PageComponentsView
         }
     }
 
-    setWritePermissions(writePermissions: boolean): boolean {
-        this.writePermissions = writePermissions;
-        return this.writePermissions;
+    setModifyPermissions(modifyPermissions: boolean): boolean {
+        this.modifyPermissions = modifyPermissions;
+        return this.modifyPermissions;
     }
 
     private initLiveEditEvents() {
@@ -669,7 +669,7 @@ export class PageComponentsView
         event.stopPropagation();
         event.preventDefault();
 
-        const isUnlocked = !(this.pageView.isLocked() && this.writePermissions);
+        const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
             return;

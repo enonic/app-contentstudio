@@ -184,7 +184,7 @@ export class ContentWizardPanel
 
     private reloadPageEditorOnSave: boolean = true;
 
-    private writePermissions: boolean = false;
+    private modifyPermissions: boolean = false;
 
     private applicationLoadCount: number;
 
@@ -433,7 +433,7 @@ export class ContentWizardPanel
             this.appendChild(this.getContentWizardToolbarPublishControls().getPublishButtonForMobile());
 
             if (this.getLivePanel()) {
-                this.getLivePanel().updateWritePermissions(this.writePermissions);
+                this.getLivePanel().setModifyPermissions(this.modifyPermissions);
             }
 
             if (this.contentType.hasDisplayNameExpression()) {
@@ -575,6 +575,10 @@ export class ContentWizardPanel
     }
 
     giveInitialFocus() {
+
+        if (!this.modifyPermissions) {
+            return;
+        }
 
         if (this.contentType.hasDisplayNameExpression()) {
             if (!this.contentWizardStepForm.giveFocus()) {
@@ -1576,7 +1580,7 @@ export class ContentWizardPanel
 
                     return this.layoutWizardStepForms(content).then(() => {
                         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                            this.initWritePermissions(loginResult);
+                            this.setModifyPermissions(loginResult);
                             this.toggleStepFormsVisibility(loginResult);
                         });
 
@@ -2204,17 +2208,17 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private initWritePermissions(loginResult: LoginResult) {
-        this.writePermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS);
-        this.getEl().toggleClass('no-write-permissions', !this.writePermissions);
+    private setModifyPermissions(loginResult: LoginResult) {
+        this.modifyPermissions =
+            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+        this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
         if (this.getLivePanel()) {
-            this.getLivePanel().updateWritePermissions(this.writePermissions);
+            this.getLivePanel().setModifyPermissions(this.modifyPermissions);
         }
     }
 
-    hasWritePermissions(): boolean {
-        return this.writePermissions;
+    hasModifyPermissions(): boolean {
+        return this.modifyPermissions;
     }
 
     /**
