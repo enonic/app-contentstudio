@@ -6,20 +6,20 @@ export class InitializeLiveEditEvent
 
     private liveEditModel: LiveEditModel;
 
-    private writePermissions: boolean;
+    private modifyPermissions: boolean;
 
-    constructor(liveEditModel: LiveEditModel, writePermissions: boolean = false) {
+    constructor(liveEditModel: LiveEditModel, modifyPermissions: boolean = false) {
         super();
         this.liveEditModel = liveEditModel;
-        this.writePermissions = writePermissions;
+        this.modifyPermissions = modifyPermissions;
     }
 
     getLiveEditModel(): LiveEditModel {
         return this.liveEditModel;
     }
 
-    hasWritePermissions(): boolean {
-        return this.writePermissions;
+    hasModifyPermissions(): boolean {
+        return this.modifyPermissions;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

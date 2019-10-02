@@ -871,14 +871,14 @@ export class LiveFormPanel
         });
     }
 
-    updateWritePermissions(writePermissions: boolean): boolean {
+    setModifyPermissions(modifyPermissions: boolean): boolean {
         let result = null;
         if (this.insertablesPanel) {
-            const insertablesResult = this.insertablesPanel.setWritePermissions(writePermissions);
+            const insertablesResult = this.insertablesPanel.setModifyPermissions(modifyPermissions);
             result = result && insertablesResult;
         }
         if (this.liveEditPageProxy) {
-            const liveEditResult = this.liveEditPageProxy.setWritePermissions(writePermissions);
+            const liveEditResult = this.liveEditPageProxy.setModifyPermissions(modifyPermissions);
             result = result && liveEditResult;
         }
         return result;

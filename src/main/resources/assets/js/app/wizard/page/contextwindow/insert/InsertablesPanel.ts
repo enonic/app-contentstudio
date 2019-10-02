@@ -42,7 +42,7 @@ export class InsertablesPanel
 
     private contextWindowDraggable: JQuery;
 
-    private writePermissions: boolean = false;
+    private modifyPermissions: boolean = false;
 
     public static debug: boolean = false;
 
@@ -87,10 +87,10 @@ export class InsertablesPanel
         this.onRemoved(this.destroyDraggables.bind(this));
     }
 
-    setWritePermissions(writePermissions: boolean): boolean {
-        this.writePermissions = writePermissions;
+    setModifyPermissions(modifyPermissions: boolean): boolean {
+        this.modifyPermissions = modifyPermissions;
         if (this.componentsView) {
-            return this.componentsView.setWritePermissions(writePermissions);
+            return this.componentsView.setModifyPermissions(modifyPermissions);
         }
         return null;
     }
@@ -139,7 +139,7 @@ export class InsertablesPanel
             console.log('InsertablesPanel.handleDragStart', event, ui);
         }
 
-        if (!this.writePermissions) {
+        if (!this.modifyPermissions) {
             return;
         }
 
@@ -153,7 +153,7 @@ export class InsertablesPanel
 
     private handleDrag(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
 
-        if (!this.pageView || !this.writePermissions) {
+        if (!this.pageView || !this.modifyPermissions) {
             // page view is either not ready or there was an error
             // so there is no point in handling drag inside it
             return;

@@ -128,7 +128,7 @@ export class LiveEditPageProxy {
 
     private controllerCopyForIE: any;
 
-    private writePermissions: boolean = false;
+    private modifyPermissions: boolean = false;
 
     constructor() {
 
@@ -233,9 +233,9 @@ export class LiveEditPageProxy {
         this.liveEditModel = liveEditModel;
     }
 
-    public setWritePermissions(writePermissions: boolean): boolean {
-        this.writePermissions = writePermissions;
-        return this.writePermissions;
+    public setModifyPermissions(modifyPermissions: boolean): boolean {
+        this.modifyPermissions = modifyPermissions;
+        return this.modifyPermissions;
     }
 
     public setWidth(value: string) {
@@ -407,7 +407,7 @@ export class LiveEditPageProxy {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
-                new InitializeLiveEditEvent(this.liveEditModel, this.writePermissions).fire(this.liveEditWindow);
+                new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());

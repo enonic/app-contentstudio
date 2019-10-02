@@ -315,13 +315,11 @@
     }
   }
 
-  &.no-write-permissions {
+  &.no-modify-permissions {
     .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
       * {
         pointer-events: none;
       }
-      .@{_COMMON_PREFIX}text-input,
-      .text-area,
       .help-text-toggler {
         pointer-events: all;
       }
@@ -331,6 +329,11 @@
       .remove, .edit {
         display: none;
       }
+    }
+
+    .form-panel {
+      padding-bottom: 30px;
+      opacity: 0.8;
     }
   }
 
