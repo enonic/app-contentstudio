@@ -77,6 +77,7 @@ export class PartDescriptorSelectedOptionView
 
         let namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
         namesAndIconView.setIconClass(api.StyleHelper.getCommonIconCls('part') + ' icon-medium')
+            .setIconUrl(this.descriptor.getIcon())
             .setMainName(this.descriptor.getDisplayName())
             .setSubName(this.descriptor.getKey().toString());
 
