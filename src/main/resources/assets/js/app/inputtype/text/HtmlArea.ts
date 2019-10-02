@@ -342,10 +342,20 @@ export class HtmlArea
     }
 
     private scrollToSelected(inputOccurence: Element, e: CKEDITOR.eventInfo) {
-        if (this.editorTopEdgeIsVisible(inputOccurence)) {
-            const toolbarHeight = wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
+        const editorScrollTop: number = e.editor.document.$.children[0].scrollTop;
+
+        if (this.editorTopEdgeIsVisible(inputOccurence) || editorScrollTop > 0) {
+            const toolbarHeight: number = wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
             const panel = wemjq(this.getHTMLElement()).closest('.form-panel');
-            panel.scrollTop(panel.scrollTop() + toolbarHeight + e.editor.document.$.children[0].scrollTop);
+            const newScrollTop: number = panel.scrollTop() + editorScrollTop;
+
+            if (editorScrollTop > 0) {
+                e.editor.once('resize', () => {
+                    panel.scrollTop(newScrollTop);
+                });
+            } else {
+                panel.scrollTop(newScrollTop + toolbarHeight);
+            }
         }
     }
 
