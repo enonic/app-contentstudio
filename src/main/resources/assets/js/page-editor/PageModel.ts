@@ -405,10 +405,7 @@ export class PageModel {
             const defaultRegions = this.defaultTemplate.getRegions();
             const regionsUnchanged = defaultRegions != null && defaultRegions.equals(this.regions);
             const regions = regionsUnchanged ? null : this.regions;
-
-            const defaultConfig = this.defaultTemplate.getConfig();
-            const configUnchanged = defaultConfig != null && defaultConfig.equals(this.config);
-            const config = configUnchanged ? null : this.config;
+            const config = null;
 
             return new PageBuilder().setTemplate(this.getTemplateKey()).setRegions(regions).setConfig(config).setCustomized(
                 this.isCustomized()).setFragment(this.fragment).build();
