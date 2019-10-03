@@ -115,14 +115,14 @@ export class ContentDeleteDialog
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
-            this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
                 this.manageInstantDeleteStatus(this.getItemList().getItems());
-                this.countItemsToDeleteAndUpdateButtonCounter();
             }).finally(() => {
                 this.notifyResize();
                 this.hideLoadMask();
                 this.unlockControls();
+                this.countItemsToDeleteAndUpdateButtonCounter();
                 this.updateTabbable();
                 this.actionButton.giveFocus();
             });
