@@ -10,14 +10,15 @@ export class ContentTreeSelectorItemViewer
     }
 
     resolveDisplayName(object: ContentTreeSelectorItem): string {
-        let contentName = object.getName();
-        let invalid = !object.isValid() || !object.getDisplayName() || contentName.isUnnamed();
-        let pendingDelete = object.getContentState().isPendingDelete();
+        const contentName = object.getName();
+        const displayName = object.getDisplayName();
+        const invalid = !object.isValid() || !displayName || contentName.isUnnamed();
+        const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', pendingDelete);
-        this.getEl().setTitle(object.getDisplayName())
+        this.getEl().setTitle(displayName);
 
-        return object.getDisplayName();
+        return displayName;
     }
 
     resolveUnnamedDisplayName(object: ContentTreeSelectorItem): string {
