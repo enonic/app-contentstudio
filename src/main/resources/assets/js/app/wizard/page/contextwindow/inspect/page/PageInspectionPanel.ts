@@ -136,7 +136,7 @@ class BaseInspectionHandler {
         const pageModel: PageModel = this.liveEditModel.getPageModel();
         const pageDescriptor: PageDescriptor = pageModel.getDescriptor();
 
-        if (!pageDescriptor || pageModel.getMode() === PageMode.FORCED_TEMPLATE || pageModel.getMode() === PageMode.FORCED_CONTROLLER) {
+        if (!pageDescriptor || pageModel.getMode() === PageMode.FORCED_TEMPLATE || pageModel.getMode() === PageMode.AUTOMATIC) {
             return;
         }
 
