@@ -51,7 +51,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initListeners() {
         this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
         this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
-        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptorsOnApplicationChange.bind(this), 100);
+        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
 
         this.initSelectorListeners();
 
@@ -75,7 +75,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
             super.setModel(liveEditModel);
 
-            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.reloadDescriptors();
 
             this.bindSiteModelListeners();
         }
@@ -105,7 +105,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.hideDropdown();
     }
 
-    private reloadDescriptorsOnApplicationChange() {
+    private reloadDescriptors() {
         if (this.selector) {
             this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
             this.selector.load();
