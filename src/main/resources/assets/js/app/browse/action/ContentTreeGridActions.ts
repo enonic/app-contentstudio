@@ -425,7 +425,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private getCreateDeletePublishAllowed(contentIds: ContentId[]): wemQ.Promise<Permission[]> {
         return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
-            Permission.CREATE, Permission.DELETE, Permission.PUBLISH).sendAndParse();
+            Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY).sendAndParse();
     }
 
     private canCreate(allowedPermissions: Permission[]): boolean {
@@ -438,6 +438,10 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private canPublish(allowedPermissions: Permission[]): boolean {
         return allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
+    }
+
+    private canModify(allowedPermissions: Permission[]): boolean {
+        return allowedPermissions.indexOf(Permission.MODIFY) > -1 && !ManagedActionManager.instance().isExecuting();
     }
 
     private updateDefaultActionsNoItemsSelected(selectedItem: ContentSummaryAndCompareStatus, allowedPermissions: Permission[]) {
@@ -466,12 +470,14 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         return this.getCreateDeletePublishAllowed(contentIds).then((allowedPermissions: Permission[]) => {
             this.resetDefaultActionsMultipleItemsSelected(contentBrowseItems);
-            this.updateDefaultActionsMultipleItemsSelected(contentIds, allowedPermissions, contentTypesAllowChildren);
+            return this.updateDefaultActionsMultipleItemsSelected(contentIds, allowedPermissions, contentTypesAllowChildren).then(() => {
+                this.updateMarkAsReady(contentBrowseItems, allowedPermissions);
+            });
         });
     }
 
     private updateDefaultActionsMultipleItemsSelected(contentIds: ContentId[], allowedPermissions: Permission[],
-                                                      contentTypesAllowChildren: boolean = true) {
+                                                      contentTypesAllowChildren: boolean = true): wemQ.Promise<void> {
         if (!contentTypesAllowChildren || !this.canCreate(allowedPermissions)) {
             this.enableActions({
                 SHOW_NEW_DIALOG: false,
@@ -493,22 +499,39 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                 UNPUBLISH: false
             });
         } else {
-            this.updatePublishTreeAction(contentIds);
+            return this.updatePublishTreeAction(contentIds);
         }
+
+        return wemQ(null);
     }
 
-    private updatePublishTreeAction(contentIds: ContentId[]) {
+    private updatePublishTreeAction(contentIds: ContentId[]): wemQ.Promise<void> {
         const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
             new HasUnpublishedChildrenRequest(contentIds).sendAndParse();
 
-        hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
-                const hasUnpublishedChildren: boolean =
-                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
+        return hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+            const hasUnpublishedChildren: boolean =
+                hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
 
+            this.enableActions({
+                PUBLISH_TREE: hasUnpublishedChildren
+            });
+        }).catch(reason => api.DefaultErrorHandler.handle(reason));
+    }
+
+    private updateMarkAsReady(contentBrowseItems: ContentBrowseItem[], allowedPermissions: Permission[]) {
+        if (!this.canModify(allowedPermissions)) {
+            this.enableActions({
+                MARK_AS_READY: false
+            });
+
+            if (contentBrowseItems.some((item: ContentBrowseItem) => !item.getModel().isOnline())) {
                 this.enableActions({
-                    PUBLISH_TREE: hasUnpublishedChildren
+                    PUBLISH: false,
+                    PUBLISH_TREE: false
                 });
-            }).catch(reason => api.DefaultErrorHandler.handle(reason));
+            }
+        }
     }
 
     private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): wemQ.Promise<Boolean> {

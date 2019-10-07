@@ -15,7 +15,6 @@ export interface ContentWizardToolbarConfig {
     application: Application;
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateIconsManager;
-    item?: ContentSummaryAndCompareStatus;
 }
 
 export class ContentWizardToolbar
@@ -50,14 +49,6 @@ export class ContentWizardToolbar
         this.addTogglerButtons(config.actions);
 
         this.addStateIcon();
-
-        if (config.item) {
-            if (this.workflowStateIconsManager) {
-                const isInProgress = this.workflowStateIconsManager.getStatus().inProgress;
-                this.contentWizardToolbarPublishControls.setContentCanBeMarkedAsReady(isInProgress);
-            }
-            this.setItem(config.item);
-        }
     }
 
     protected initListeners() {
@@ -70,7 +61,6 @@ export class ContentWizardToolbar
                 this.stateIcon.getEl().removeAttribute('title');
             }
 
-            this.contentWizardToolbarPublishControls.setContentCanBeMarkedAsReady(status.inProgress, true);
             this.toggleValid(!status.invalid);
         });
     }

@@ -23,6 +23,7 @@ import {Permission} from '../../access/Permission';
 import {MarkAsReadyAction} from './MarkAsReadyAction';
 import {RequestPublishAction} from './RequestPublishAction';
 import {OpenRequestAction} from './OpenRequestAction';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import Action = api.ui.Action;
 import CloseAction = api.app.wizard.CloseAction;
 import i18n = api.util.i18n;
@@ -100,7 +101,19 @@ export class ContentWizardActions
 
     private persistedContent: Content;
 
-    private hasModifyPermission: boolean;
+    private contentCanBePublished: boolean = false;
+
+    private userCanPublish: boolean = true;
+
+    private userCanModify: boolean = true;
+
+    private isContentValid: boolean = false;
+
+    private hasPublishRequest: boolean = false;
+
+    private contentCanBeMarkedAsReady: boolean = false;
+
+    private content: ContentSummaryAndCompareStatus;
 
     private wizardPanel: ContentWizardPanel;
 
@@ -204,7 +217,7 @@ export class ContentWizardActions
                 isEnabled = (isEnabled || overwritePermissions) &&
                             this.persistedContent.isEditable() &&
                             !this.isPendingDelete() &&
-                            this.hasModifyPermission;
+                            this.userCanModify;
             }
             this.enableActions({ SAVE: isEnabled });
 
@@ -260,7 +273,7 @@ export class ContentWizardActions
         return wemQ(null);
     }
 
-    private isPendingDelete() {
+    isPendingDelete(): boolean {
         const compareStatus = this.wizardPanel.getCompareStatus();
         return CompareStatusChecker.isPendingDelete(compareStatus);
     }
@@ -322,14 +335,14 @@ export class ContentWizardActions
     private enableActionsForExistingByPermissions(existing: Content): wemQ.Promise<any> {
         return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
 
-            this.hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
+            const hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
             const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
             const hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
 
-            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.hasModifyPermission);
+            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(hasModifyPermission);
 
-            if (!this.hasModifyPermission) {
-                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false});
+            if (!hasModifyPermission) {
+                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false});
             }
             if (!hasDeletePermission) {
                 this.enableActions({DELETE: false});
@@ -375,6 +388,93 @@ export class ContentWizardActions
             }
 
         });
+    }
+
+    setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
+        this.content = content;
+        return this;
+    }
+
+    setContentCanBePublished(value: boolean): ContentWizardActions {
+        this.contentCanBePublished = value;
+        return this;
+    }
+
+    setUserCanPublish(value: boolean): ContentWizardActions {
+        this.userCanPublish = value;
+        return this;
+    }
+
+    setUserCanModify(value: boolean): ContentWizardActions {
+        this.userCanModify = value;
+        return this;
+    }
+
+    setIsValid(value: boolean): ContentWizardActions {
+        this.isContentValid = value;
+        return this;
+    }
+
+    setContentCanBeMarkedAsReady(value: boolean): ContentWizardActions {
+        this.contentCanBeMarkedAsReady = value;
+        return this;
+    }
+
+    setHasPublishRequest(value: boolean): ContentWizardActions {
+        this.hasPublishRequest = value;
+        return this;
+    }
+
+    refreshState() {
+        if (!this.content) {
+            return;
+        }
+
+        this.doRefreshState();
+    }
+
+    private doRefreshState() {
+        const canBePublished: boolean = this.canBePublished();
+        const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
+        const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
+
+        this.enableActions({
+            PUBLISH: canBePublished,
+            CREATE_ISSUE: true,
+            UNPUBLISH: canBeUnpublished,
+            PUBLISH_MOBILE: canBePublished,
+            MARK_AS_READY: canBeMarkedAsReady,
+            REQUEST_PUBLISH: canBeRequestedPublish,
+            OPEN_REQUEST: this.hasPublishRequest
+        });
+
+        this.actionsMap.PUBLISH_MOBILE.setVisible(canBePublished);
+        this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
+    }
+
+    private canBePublished(): boolean {
+        if (!this.contentCanBePublished) {
+            return false;
+        }
+
+        if (!this.userCanPublish) {
+            return false;
+        }
+
+        if (this.isOnline()) {
+            return false;
+        }
+
+        if (!this.userCanModify) {
+            return false;
+        }
+
+        return true;
+    }
+
+    isOnline(): boolean {
+        return !!this.content && this.content.isOnline();
     }
 
     onBeforeActionsStashed(listener: () => void) {
