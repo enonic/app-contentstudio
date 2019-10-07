@@ -11,11 +11,12 @@ import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import i18n = api.util.i18n;
 import NotifyManager = api.notify.NotifyManager;
+import MenuButton = api.ui.button.MenuButton;
+import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
+import Action = api.ui.Action;
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
-
-    private instantDeleteCheckbox: api.ui.Checkbox;
 
     private yesCallback: (exclude?: CompareStatus[]) => void;
 
@@ -23,18 +24,19 @@ export class ContentDeleteDialog
 
     private totalItemsToDelete: number;
 
-    protected autoUpdateTitle: boolean = true;
-
     private messageId: string;
 
+    private markDeletedAction: Action;
+
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.delete'),
             class: 'delete-dialog',
                 dialogSubName: i18n('dialog.delete.subname'),
                 dependantsDescription: i18n('dialog.delete.dependants'),
             showDependantList: true,
                 processingLabel: `${i18n('field.progress.deleting')}...`,
+            buttonRow: new ContentDeleteDialogButtonRow(),
                 processHandler: () => {
                     new ContentDeletePromptEvent([]).fire();
                 },
@@ -45,22 +47,29 @@ export class ContentDeleteDialog
     protected initElements() {
         super.initElements();
 
-        this.actionButton = this.addAction(new ContentDeleteDialogAction(), true, true);
-        this.instantDeleteCheckbox = api.ui.Checkbox.create().setLabelText(i18n('dialog.delete.instantly')).build();
+        this.markDeletedAction = new Action(i18n('dialog.delete.markDeleted'));
+        this.markDeletedAction.onExecuted(this.doDelete.bind(this, false, false));
+
+        const deleteNowAction = new ContentDeleteDialogAction();
+        deleteNowAction.onExecuted(this.doDelete.bind(this, false, true));
+
+        const menuButton = this.getButtonRow().makeActionMenu(deleteNowAction, [this.markDeletedAction]);
+        this.actionButton = menuButton.getActionButton();
+    }
+
+    getButtonRow(): ContentDeleteDialogButtonRow {
+        return <ContentDeleteDialogButtonRow>super.getButtonRow();
     }
 
     protected initListeners() {
         super.initListeners();
 
         this.getItemList().onItemsRemoved(this.onListItemsRemoved.bind(this));
-        this.actionButton.getAction().onExecuted(this.doDelete.bind(this, false));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
-            this.instantDeleteCheckbox.addClass('instant-delete-check');
-            this.appendChild(this.instantDeleteCheckbox);
 
             return rendered;
         });
@@ -141,19 +150,14 @@ export class ContentDeleteDialog
     }
 
     private manageInstantDeleteStatus(items: ContentSummaryAndCompareStatus[]) {
-        const isHidden = this.isEveryOffline(items);
-        const isChecked = isHidden ? false : this.isEveryPendingDelete(items);
+        const allOffline = this.isEveryOffline(items);
+        const allPendingDelete = this.isEveryPendingDelete(items);
 
-        // All Offline - hidden
-        // All Pending Delete - hidden, checked
-        // Any Online - unchecked
-        this.instantDeleteCheckbox.setVisible(!isHidden && !isChecked);
-        this.instantDeleteCheckbox.setChecked(isChecked, true);
+        this.markDeletedAction.setEnabled(!allOffline && !allPendingDelete);
     }
 
     close() {
         super.close();
-        this.instantDeleteCheckbox.setChecked(false);
         if (this.messageId) {
 
             this.removeClickIgnoredElement(api.notify.NotifyManager.get().getNotification(this.messageId));
@@ -182,34 +186,37 @@ export class ContentDeleteDialog
         return this;
     }
 
-    private doDelete(ignoreConfirmation: boolean = false) {
+    private doDelete(ignoreConfirmation: boolean = false, isInstantDelete: boolean) {
         if (!ignoreConfirmation && (this.totalItemsToDelete > 1 || this.isAnySiteToBeDeleted())) {
             const totalItemsToDelete = this.totalItemsToDelete;
-            const deleteRequest = this.createDeleteRequest();
+            const deleteRequest = this.createDeleteRequest(isInstantDelete);
             const content = this.getItemList().getItems().slice(0);
             const descendants = this.getDependantList().getItems().slice(0);
-            const instantDeleteStatus = this.instantDeleteCheckbox.isChecked();
             const yesCallback = () => {
                 // Manually manage content and dependants without any requests
                 this.manageContentToDelete(content);
                 this.setDependantItems(descendants);
-                this.instantDeleteCheckbox.setChecked(instantDeleteStatus);
                 this.countItemsToDeleteAndUpdateButtonCounter();
                 this.open();
-                this.doDelete(true);
+                this.doDelete(true, isInstantDelete);
             };
 
             this.close();
 
-            new ConfirmContentDeleteDialog({totalItemsToDelete, deleteRequest, yesCallback, title: i18n('dialog.confirmDelete')}).open();
+            new ConfirmContentDeleteDialog({
+                totalItemsToDelete,
+                deleteRequest,
+                yesCallback,
+                title: i18n('dialog.confirmDelete')
+            }).open();
         } else {
             if (this.yesCallback) {
-                this.instantDeleteCheckbox.isChecked() ? this.yesCallback([]) : this.yesCallback();
+                isInstantDelete ? this.yesCallback([]) : this.yesCallback();
             }
 
             this.lockControls();
 
-            this.createDeleteRequest()
+            this.createDeleteRequest(isInstantDelete)
                 .sendAndParse()
                 .then((taskId: api.task.TaskId) => {
                     this.pollTask(taskId);
@@ -230,14 +237,14 @@ export class ContentDeleteDialog
         this.updateButtonCount(i18n('action.delete'), this.totalItemsToDelete);
     }
 
-    private createDeleteRequest(): DeleteContentRequest {
+    private createDeleteRequest(isInstantDelete: boolean): DeleteContentRequest {
         let deleteRequest = new DeleteContentRequest();
 
         this.getItemList().getItems().forEach((item) => {
             deleteRequest.addContentPath(item.getContentSummary().getPath());
         });
 
-        deleteRequest.setDeleteOnline(this.instantDeleteCheckbox.isChecked());
+        deleteRequest.setDeleteOnline(isInstantDelete);
 
         return deleteRequest;
     }
@@ -250,22 +257,14 @@ export class ContentDeleteDialog
 
     private isEveryOffline(items: ContentSummaryAndCompareStatus[]): boolean {
         return items.every((item: ContentSummaryAndCompareStatus) => {
-            return this.isStatusOffline(item.getCompareStatus());
+            return item.getCompareStatus() === CompareStatus.NEW;
         });
     }
 
     private isEveryPendingDelete(items: ContentSummaryAndCompareStatus[]): boolean {
         return items.every((item: ContentSummaryAndCompareStatus) => {
-            return this.isStatusPendingDelete(item.getCompareStatus());
+            return item.getCompareStatus() === CompareStatus.PENDING_DELETE;
         });
-    }
-
-    private isStatusOffline(status: CompareStatus): boolean {
-        return status === CompareStatus.NEW;
-    }
-
-    private isStatusPendingDelete(status: CompareStatus): boolean {
-        return status === CompareStatus.PENDING_DELETE;
     }
 
     private updateSubTitle() {
@@ -295,6 +294,17 @@ export class ContentDeleteDialog
         } else {
             return false;
         }
+    }
+
+}
+
+export class ContentDeleteDialogButtonRow
+    extends DropdownButtonRow {
+
+    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
+        super.makeActionMenu(mainAction, menuActions, useDefault);
+
+        return <MenuButton>this.actionMenu.addClass('delete-dialog-menu');
     }
 
 }
