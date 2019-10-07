@@ -181,21 +181,27 @@ task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
 //run the tusk in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
-                           dependsOn: [npmInstall, startServer, copyApps, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
+                           dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
-    startSeleniumDaemon.mustRunAfter copyApps
 }
 
-task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
+task testContentStudioAppLocallySelenium( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
+    inputs.files fileTree( dir: '.' )
+    outputs.files fileTree( dir: '/test-results' )
+    args = ['test-sel-server-local']
+    startSeleniumDaemon.mustRunAfter npmInstall
+}
+
+task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
-    startSeleniumDaemon.mustRunAfter npmInstall
 }
+
 
 task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
