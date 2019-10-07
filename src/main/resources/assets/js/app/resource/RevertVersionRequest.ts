@@ -1,8 +1,8 @@
-import ContentId = api.content.ContentId;
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentVersionJson} from './json/ContentVersionJson';
 
 export class RevertVersionRequest
-    extends ContentResourceRequest<any, any> {
+    extends ContentResourceRequest<ContentVersionJson, string> {
 
     private versionId: string;
 
@@ -26,10 +26,9 @@ export class RevertVersionRequest
         return api.rest.Path.fromParent(super.getResourcePath(), 'revert');
     }
 
-    sendAndParse(): wemQ.Promise<ContentId> {
-
-        return this.send().then((response: api.rest.JsonResponse<any>) => {
-            return new ContentId(response.getResult()['id']);
+    sendAndParse(): wemQ.Promise<string> {
+        return this.send().then((response: api.rest.JsonResponse<ContentVersionJson>) => {
+            return response.getResult().id;
         });
     }
 }
