@@ -135,12 +135,13 @@ class BaseInspectionHandler {
 
         const pageModel: PageModel = this.liveEditModel.getPageModel();
         const pageDescriptor: PageDescriptor = pageModel.getDescriptor();
-        const config: PropertyTree = pageModel.getConfig();
-        const context: ContentFormContext = this.liveEditModel.getFormContext();
 
-        if (!pageDescriptor) {
+        if (!pageDescriptor || pageModel.getMode() === PageMode.FORCED_TEMPLATE || pageModel.getMode() === PageMode.AUTOMATIC) {
             return;
         }
+
+        const config: PropertyTree = pageModel.getConfig();
+        const context: ContentFormContext = this.liveEditModel.getFormContext();
 
         const root: PropertySet = config ? config.getRoot() : null;
         this.configForm = new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), root);
