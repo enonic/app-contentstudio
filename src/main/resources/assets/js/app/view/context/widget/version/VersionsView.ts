@@ -201,7 +201,7 @@ export class VersionsView
                         new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
                             (contentVersionId: string) => {
                                 if (contentVersionId === this.activeVersion.id) {
-                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.no.changes'))
+                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.no.changes'));
                                 } else {
                                     api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
                                     new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
