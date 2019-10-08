@@ -10,15 +10,21 @@
     top: 0;
     padding: 6px 8px 0;
 
-    .cke_toolgroup {
-      margin-bottom: 4px;
+    .cke_toolbox {
 
-      a.cke_button {
-        padding: 4px 5px;
+      display: flex;
+      flex-wrap: wrap;
 
-        &:not(.cke_button_on):not(.cke_button_disabled) {
-          &:hover {
-            padding: 3px 4px;
+      .cke_toolgroup {
+        margin-bottom: 4px;
+
+        a.cke_button {
+          padding: 4px 5px;
+
+          &:not(.cke_button_on):not(.cke_button_disabled) {
+            &:hover {
+              padding: 3px 4px;
+            }
           }
         }
       }
