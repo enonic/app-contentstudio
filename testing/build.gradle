@@ -179,7 +179,7 @@ task deleteFolders( type: Delete ) {
 
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
-//run the tusk in the task.js. Name of the task is 'test'
+//run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
                            dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
