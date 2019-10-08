@@ -91,6 +91,8 @@ export class PageComponentsItemViewer
     resolveIconUrl(object: ItemView): string {
         if (PageItemType.get().equals(object.getType())) {
             return object.getIconUrl(this.content);
+        } else if (PartItemType.get().equals(object.getType())) {
+            return (<PartComponentView>object).getComponent().getIcon();
         }
         return null;
     }
