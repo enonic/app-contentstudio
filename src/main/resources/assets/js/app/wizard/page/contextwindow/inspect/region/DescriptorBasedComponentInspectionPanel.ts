@@ -51,7 +51,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initListeners() {
         this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
         this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
-        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptorsOnApplicationChange.bind(this), 100);
+        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
 
         this.initSelectorListeners();
 
@@ -75,7 +75,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
             super.setModel(liveEditModel);
 
-            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.reloadDescriptors();
 
             this.bindSiteModelListeners();
         }
@@ -105,7 +105,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.hideDropdown();
     }
 
-    private reloadDescriptorsOnApplicationChange() {
+    private reloadDescriptors() {
         if (this.selector) {
             this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
             this.selector.load();
@@ -133,11 +133,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                 this.cleanFormView();
             }
         }
-    }
-
-    setComponent(component: COMPONENT, descriptor?: Descriptor) {
-        super.setComponent(component);
-        this.selector.setDescriptor(descriptor);
     }
 
     protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<any, DESCRIPTOR>;
@@ -204,6 +199,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const descriptor: Descriptor = event.getOption().displayValue;
             this.component.setDescriptor(descriptor);
+            this.setupComponentForm(this.component, descriptor);
         });
     }
 

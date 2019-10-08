@@ -22,6 +22,7 @@ import i18n = api.util.i18n;
 import PageDescriptor = api.content.page.PageDescriptor;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import DescriptorKey = api.content.page.DescriptorKey;
+import PropertyTree = api.data.PropertyTree;
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -53,7 +54,7 @@ export class PageTemplateAndControllerSelector
         }
 
         this.initPageModelListeners();
-        this.reload(true);
+        this.reload();
     }
 
     private initServerEventsListeners() {
@@ -158,7 +159,7 @@ export class PageTemplateAndControllerSelector
 
     private doSelectController(selectedOption: PageControllerOption) {
         const pageDescriptor: PageDescriptor = selectedOption.getData();
-        const setController = new SetController(this).setDescriptor(pageDescriptor);
+        const setController = new SetController(this).setDescriptor(pageDescriptor).setConfig(new PropertyTree());
 
         this.liveEditModel.getPageModel().setController(setController);
     }
@@ -167,19 +168,18 @@ export class PageTemplateAndControllerSelector
         return summary.getType().isPageTemplate() && summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
     }
 
-    private reload(initial?: boolean) {
+    private reload() {
         wemQ.all([
             this.loadPageTemplates(),
             this.loadPageControllers()
         ]).spread((templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) => {
-            if (initial) {
-                this.initOptionsList(templateOptions, controllerOptions);
-                this.selectInitialOption();
-            } else {
-                const selectedValue = this.getValue();
-                this.removeAllOptions();
-                this.initOptionsList(templateOptions, controllerOptions);
+            const selectedValue: string = this.getValue();
+            this.removeAllOptions();
+            this.initOptionsList(templateOptions, controllerOptions);
+            if (selectedValue) {
                 this.setValue(selectedValue, true);
+            } else {
+                this.selectInitialOption();
             }
         }).catch(api.DefaultErrorHandler.handle);
     }
