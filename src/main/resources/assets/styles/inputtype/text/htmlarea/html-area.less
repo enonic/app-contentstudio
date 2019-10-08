@@ -7,7 +7,7 @@
 
   .cke_top {
     position: sticky;
-    top: 40px;
+    top: 0;
     padding: 6px 8px 0;
 
     .cke_toolgroup {
@@ -107,5 +107,11 @@
       padding-right: 30px;
       vertical-align: middle;
     }
+  }
+}
+
+.wizard-step-form .html-area {
+  .cke_top {
+    top: @toolbar-height;
   }
 }
