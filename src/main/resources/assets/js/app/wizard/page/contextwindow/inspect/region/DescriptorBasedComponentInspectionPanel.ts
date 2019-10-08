@@ -135,11 +135,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    setComponent(component: COMPONENT, descriptor?: Descriptor) {
-        super.setComponent(component);
-        this.selector.setDescriptor(descriptor);
-    }
-
     protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<any, DESCRIPTOR>;
 
     protected abstract createSelector(): ComponentDescriptorDropdown<DESCRIPTOR>;
@@ -204,6 +199,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const descriptor: Descriptor = event.getOption().displayValue;
             this.component.setDescriptor(descriptor);
+            this.setupComponentForm(this.component, descriptor);
         });
     }
 

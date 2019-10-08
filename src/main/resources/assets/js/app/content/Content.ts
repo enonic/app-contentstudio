@@ -109,6 +109,16 @@ export class Content
     }
 
     extraDataEquals(other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
+        if (ignoreEmptyValues) {
+            const isOtherArrayEmpty: boolean = !other || other.length === 0 || other.every(ed => !ed.getData() || ed.getData().isEmpty());
+            const isThisArrayEmpty: boolean =
+                !this.extraData || this.extraData.length === 0 || this.extraData.every(ed => !ed.getData() || ed.getData().isEmpty());
+
+            if (isThisArrayEmpty && isOtherArrayEmpty) {
+                return true;
+            }
+        }
+
         const comparator = new ExtraDataByMixinNameComparator();
 
         const arrayA = this.extraData.sort(comparator.compare);
