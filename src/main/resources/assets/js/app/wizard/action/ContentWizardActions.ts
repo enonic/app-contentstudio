@@ -466,7 +466,7 @@ export class ContentWizardActions
             return false;
         }
 
-        if (!this.userCanModify) {
+        if (!this.userCanModify && this.content.getContentSummary().isInProgress()) {
             return false;
         }
 

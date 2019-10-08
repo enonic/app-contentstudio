@@ -525,7 +525,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                 MARK_AS_READY: false
             });
 
-            if (contentBrowseItems.some((item: ContentBrowseItem) => !item.getModel().isOnline())) {
+            if (contentBrowseItems.some((item: ContentBrowseItem) => item.getModel().getContentSummary().isInProgress())) {
                 this.enableActions({
                     PUBLISH: false,
                     PUBLISH_TREE: false
