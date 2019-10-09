@@ -51,7 +51,7 @@ class ImageSelectorForm extends Page {
 
     async clickOnModeTogglerButton() {
         await this.clickOnElement(this.modeTogglerButton);
-        return await this.pause(1000);
+        return await this.pause(1500);
     }
 
     getTreeModeOptionDisplayNames() {

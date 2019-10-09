@@ -186,62 +186,53 @@ module.exports = {
         })
     },
 
-    doAddShortcut: function (shortcut) {
+    async doAddShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
-            return contentWizardPanel.typeData(shortcut);
-        }).then(() => {
-            return contentWizardPanel.waitAndClickOnSave();
-        }).then(() => {
-            return this.doCloseWizardAndSwitchToGrid();
-        });
+        //Open new shortcut-wizard:
+        await this.openContentWizard(appConst.contentTypes.SHORTCUT);
+        await contentWizardPanel.typeData(shortcut);
+        await contentWizardPanel.waitAndClickOnSave();
+        return await this.doCloseWizardAndSwitchToGrid();
     },
-    doAddReadyFolder: function (folder) {
+    async doAddReadyFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
-            return contentWizardPanel.typeData(folder);
-        }).then(() => {
-            return contentWizardPanel.clickOnMarkAsReadyButton();
-        }).then(() => {
-            return this.doCloseWizardAndSwitchToGrid()
-        }).then(() => {
-            return webDriverHelper.browser.pause(1000);
-        });
+        await this.openContentWizard(appConst.contentTypes.FOLDER);
+        await contentWizardPanel.typeData(folder);
+        await contentWizardPanel.clickOnMarkAsReadyButton();
+        await this.doCloseWizardAndSwitchToGrid()
+        return await webDriverHelper.browser.pause(1000);
     },
-    doAddFolder: function (folder) {
+    async doAddFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
-            return contentWizardPanel.typeData(folder);
-        }).then(() => {
-            return contentWizardPanel.waitAndClickOnSave();
-        }).then(() => {
-            return this.doCloseWizardAndSwitchToGrid()
-        }).then(() => {
-            return webDriverHelper.browser.pause(1000);
-        });
+        //1. Open the folder-wizard:
+        await this.openContentWizard(appConst.contentTypes.FOLDER);
+        await contentWizardPanel.typeData(folder);
+        //2. Save the folder:
+        await contentWizardPanel.waitAndClickOnSave();
+        //3.Close the wizard:
+        await this.doCloseWizardAndSwitchToGrid()
+        return await webDriverHelper.browser.pause(1000);
     },
     doCloseWizardAndSwitchToGrid: function () {
         return this.doCloseCurrentBrowserTab().then(() => {
             return this.doSwitchToContentBrowsePanel();
         });
     },
-    doAddSite: function (site) {
+    async doAddSite(site) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.openContentWizard(appConst.contentTypes.SITE).then(() => {
-            return contentWizardPanel.typeData(site);
-        }).then(() => {
-            if (site.data.controller) {
-                return contentWizardPanel.selectPageDescriptor(site.data.controller);
-            } else {
-                return contentWizardPanel.waitAndClickOnSave();
-            }
-        }).then(() => {
-            return this.doCloseCurrentBrowserTab();
-        }).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        }).then(() => {
-            return webDriverHelper.browser.pause(1000);
-        })
+        //1. Open new site-wizard:
+        await this.openContentWizard(appConst.contentTypes.SITE);
+        await contentWizardPanel.typeData(site);
+        //2. Type the data and save:
+        if (site.data.controller) {
+            await contentWizardPanel.selectPageDescriptor(site.data.controller);
+        } else {
+            await contentWizardPanel.waitAndClickOnSave();
+        }
+        await this.doCloseCurrentBrowserTab();
+        await this.doSwitchToContentBrowsePanel();
+        return await webDriverHelper.browser.pause(1000);
+
     },
     async doAddReadySite(site) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -309,45 +300,42 @@ module.exports = {
         await contentPublishDialog.clickOnPublishNowButton();
         return await contentPublishDialog.waitForDialogClosed();
     },
-    doPublishInWizard: function () {
+    async doPublishInWizard() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return contentWizardPanel.clickOnPublishButton().then(() => {
-            return contentPublishDialog.waitForDialogOpened();
-        }).then(() => {
-            return contentPublishDialog.clickOnPublishNowButton();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogClosed();
-        })
+        //1. Open Publish Content Dialog:
+        await contentWizardPanel.clickOnPublishButton();
+        await contentPublishDialog.waitForDialogOpened();
+        //2. Click on Publish Now button:
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
     },
 
-    doUnPublishInWizard: function () {
+    async doUnPublishInWizard() {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return contentWizardPanel.clickOnUnpublishmenuItem().then(() => {
-            return contentUnpublishDialog.waitForDialogOpened();
-        }).then(() => {
-            return contentUnpublishDialog.clickOnUnpublishButton();
-        }).then(() => {
-            return contentUnpublishDialog.waitForDialogClosed();
-        })
+        //1. Click on Unpublish menu item:
+        await contentWizardPanel.clickOnUnpublishmenuItem();
+        await contentUnpublishDialog.waitForDialogOpened();
+        //2. Click on Unpublish button:
+        await contentUnpublishDialog.clickOnUnpublishButton();
+        await contentUnpublishDialog.waitForDialogClosed();
     },
-    doAddArticleContent: function (siteName, article) {
+
+    async doAddArticleContent(siteName, article) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.findAndSelectItem(siteName).then(() => {
-            return this.openContentWizard(article.contentType);
-        }).then(() => {
-            return contentWizardPanel.typeData(article);
-        }).then(() => {
-            return contentWizardPanel.waitAndClickOnSave();
-        }).then(() => {
-            return this.doCloseCurrentBrowserTab();
-        }).then(() => {
-            this.doSwitchToContentBrowsePanel();
-        }).then(() => {
-            return webDriverHelper.browser.pause(1000);
-        })
+        //1. Select the site
+        await this.findAndSelectItem(siteName);
+        //2. Open article-wizard:
+        await this.openContentWizard(article.contentType);
+        //3.Type the data and save all
+        await contentWizardPanel.typeData(article);
+        await contentWizardPanel.waitAndClickOnSave();
+        await this.doCloseCurrentBrowserTab();
+        await this.doSwitchToContentBrowsePanel();
+        return await webDriverHelper.browser.pause(1000);
     },
+
     async findAndSelectItem(name) {
         let browsePanel = new BrowsePanel();
         await this.typeNameInFilterPanel(name);
@@ -364,6 +352,7 @@ module.exports = {
             return browsePanel.clickOnRowByDisplayName(displayName);
         });
     },
+    //find the content, select it and 'Delete Now'
     doDeleteContent: function (name) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
@@ -372,7 +361,7 @@ module.exports = {
         }).then(() => {
             return deleteContentDialog.waitForDialogOpened();
         }).then(() => {
-            return deleteContentDialog.clickOnDeleteButton();
+            return deleteContentDialog.clickOnDeleteNowButton();
         }).then(() => {
             return deleteContentDialog.waitForDialogClosed();
         });
@@ -416,23 +405,23 @@ module.exports = {
         await this.doSwitchToNewWizard();
         return await contentWizardPanel.waitForOpened();
     },
-    clickOnDeleteAndConfirm: function (numberOfContents) {
+    //Open delete dialog, click on 'Delete Now' button then type a number to delete
+    async doDeleteNowAndConfirm(numberOfContents) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
         let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
-        return browsePanel.clickOnDeleteButton().then(() => {
-            return deleteContentDialog.waitForDialogOpened();
-        }).then(() => {
-            return deleteContentDialog.clickOnDeleteButton();
-        }).then(() => {
-            return confirmContentDeleteDialog.waitForDialogOpened();
-        }).then(() => {
-            return confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
-        }).then(() => {
-            return confirmContentDeleteDialog.clickOnConfirmButton();
-        }).then(() => {
-            return deleteContentDialog.waitForDialogClosed();
-        })
+        //1. Open Delete Content dialog:
+        await browsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        //2. Click on Delete Now button
+        await deleteContentDialog.clickOnDeleteNowButton();
+        //3. wait for Confirm dialog is loaded:
+        await confirmContentDeleteDialog.waitForDialogOpened();
+        //4. Type required number:
+        await confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
+        //Click on Confirm button:
+        await confirmContentDeleteDialog.clickOnConfirmButton();
+        return await deleteContentDialog.waitForDialogClosed();
     },
     typeNameInFilterPanel: function (name) {
         let browsePanel = new BrowsePanel();
@@ -450,33 +439,6 @@ module.exports = {
         }).then(() => {
             return browsePanel.pause(300);
         })
-    },
-    selectAndDeleteItem: function (name) {
-        let browsePanel = new BrowsePanel();
-        let confirmationDialog = new ConfirmationDialog();
-        return this.findAndSelectItem(name).then(() => {
-            return browsePanel.waitForDeleteButtonEnabled();
-        }).then(result => {
-            return browsePanel.clickOnDeleteButton();
-        }).then(() => {
-            return confirmationDialog.waitForDialogOpened();
-        }).then(result => {
-            if (!result) {
-                throw new Error('Confirmation dialog is not loaded!')
-            }
-            return confirmationDialog.clickOnYesButton();
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible();
-        })
-    },
-    confirmDelete: () => {
-        let browsePanel = new BrowsePanel();
-        let confirmationDialog = new ConfirmationDialog();
-        return confirmationDialog.waitForDialogOpened().then(() => {
-            return confirmationDialog.clickOnYesButton();
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible();
-        });
     },
 
     navigateToContentStudioApp: function (userName, password) {

@@ -3,7 +3,6 @@
  *
  * Verifies:
  *  xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
- *  xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -36,25 +35,22 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     //verifies https://github.com/enonic/app-contentstudio/issues/364
     //Upload button should not be visible in the New Content dialog for Templates folder
-    it(`GIVEN existing site is expanded AND _templates folder selected WHEN New button has been pressed THEN upload button should not be present on the modal dialog`,
+    it(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             await selectTemplatesFolderAndClickNew();
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isFalse(isDisplayed, "Uploader button should not be displayed");
+            assert.isFalse(isDisplayed, "Uploader button should not be displayed (_templates is selected)");
         });
 
-    it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present on the modal dialog`,
-        () => {
+    it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present in New Content dialog`,
+        async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            return contentBrowsePanel.clickOnNewButton().then(() => {
-                return newContentDialog.waitForOpened();
-            }).then(() => {
-                return newContentDialog.waitForUploaderButtonDisplayed();
-            }).then(result => {
-                assert.isTrue(result, "Uploader button should be displayed");
-            });
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
+            assert.isTrue(isDisplayed, "Uploader button should be present on the modal dialog");
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
@@ -74,75 +70,61 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(() => {
-                return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            }).then(() => {
-                return pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(() => {
-                return contentWizard.waitForControllerOptionFilterInputNotVisible();
-            }).then(result => {
-                studioUtils.saveScreenshot("template_applied");
-                assert.isTrue(result, 'Options filter input must not be visible, because the template has been applied to site');
-            });
+            //1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.doSwitchToContentBrowsePanel();
+            //2. Open the template:
+            await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
+            //3. 'site' has been selected in 'support' and the template has been saved
+            await pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
+            await contentWizard.waitAndClickOnSave();
+
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
+            //4. Template should be applied in the site-wizard:
+            let isNotVisible = await contentWizard.waitForControllerOptionFilterInputNotVisible();
+            studioUtils.saveScreenshot("template_applied");
+            assert.isTrue(isNotVisible, 'Options filter input must not be visible, because the template has been applied to site');
         });
-    //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
+
+    //xp-apps#737 Live Editor is not updated after a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN 'support' has been removed (in template) THEN controller-selector must appear on the site-wizard`,
-        () => {
+        async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(() => {
-                return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            }).then(() => {
-                return pageTemplateForm.clickOnRemoveSupportIcon();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(() => {
-                return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then(result => {
-                studioUtils.saveScreenshot("template_support_removed");
-                assert.isTrue(result, 'Options filter input must be visible, because the `support` option has been removed');
-            });
+            //1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.doSwitchToContentBrowsePanel();
+            //2. Open the template:
+            await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
+            //3. Remove 'support' in the template
+            await pageTemplateForm.clickOnRemoveSupportIcon();
+            //4. Save the template
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
+            //Site wizard should be updated:
+            let isDisplayed = await contentWizard.waitForControllerOptionFilterInputVisible();
+            studioUtils.saveScreenshot("template_support_removed");
+            assert.isTrue(isDisplayed, 'Options filter input must be visible, because the `support` option has been removed');
         });
-    //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
-    it(`GIVEN site is opened  WHEN template has been deleted THEN Options filter input must be visible in the site-wizard`,
-        () => {
-            let pageTemplateForm = new PageTemplateForm();
+
+    //xp-apps#737 Live Editor is not updated after a page template was added or removed
+    it(`GIVEN site is opened WHEN page-template has been deleted THEN site-wizard should be reset and controller-combobox should appear`,
+        async () => {
             let contentWizard = new ContentWizard();
-            return studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName).then(() => {
-                return pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(() => {
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            }).then(() => {
-                return studioUtils.doSwitchToContentBrowsePanel();
-            }).then(() => {
-                return studioUtils.doDeleteContent(TEMPLATE.displayName);
-            }).then(() => {
-                return contentWizard.pause(2000);
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName);
-            }).then(() => {
-                return contentWizard.waitForControllerOptionFilterInputVisible();
-            }).then(result => {
-                studioUtils.saveScreenshot("template_removed");
-                assert.isTrue(result, 'Options filter input must be visible, because the template has been deleted');
-            });
+            //1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await studioUtils.doSwitchToContentBrowsePanel();
+            //2. switch to browse panel and delete the template:
+            await studioUtils.doDeleteContent(TEMPLATE.displayName);
+            //3. Switch to site wizard again:
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
+            //4. Controller selector should appear in the wizard:
+            let isVisible = await contentWizard.waitForControllerOptionFilterInputVisible();
+            studioUtils.saveScreenshot(SITE.displayName + '_reset');
+            assert.isTrue(isVisible, 'Options filter input should appear in the site, because the template was deleted');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
