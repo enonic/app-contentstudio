@@ -14,8 +14,6 @@ export abstract class DescriptorBasedComponent
 
     private description: string;
 
-    private icon: string;
-
     constructor(builder: DescriptorBasedComponentBuilder<DescriptorBasedComponent>) {
         super(builder);
 
@@ -33,8 +31,6 @@ export abstract class DescriptorBasedComponent
     setDescriptor(descriptor: Descriptor) {
         const oldDescriptorKeyValue = this.descriptorKey;
         this.descriptorKey = descriptor ? descriptor.getKey() : null;
-
-        this.icon = descriptor ? descriptor.getIcon() : null;
 
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
         this.description = descriptor ? descriptor.getDescription() : null;
@@ -65,10 +61,6 @@ export abstract class DescriptorBasedComponent
 
     setDescription(value: string) {
         this.description = value;
-    }
-
-    getIcon(): string {
-        return this.icon;
     }
 
     doReset() {
