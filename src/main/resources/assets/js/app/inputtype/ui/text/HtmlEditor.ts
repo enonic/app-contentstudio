@@ -271,6 +271,13 @@ export class HtmlEditor {
                 api.ui.responsive.ResponsiveManager.fireResizeEvent();
             }
         });
+
+        if (this.editorParams.isFullScreenMode()) {
+            this.editor.on('instanceReady', () => {
+                this.editor.document.getBody().addClass('fullscreen');
+                this.editor.getCommand('openFullscreenDialog').setState(CKEDITOR.TRISTATE_ON);
+            });
+        }
     }
 
     private handleMouseEvents() {
@@ -519,6 +526,10 @@ export class HtmlEditor {
 
         this.editor.addCommand('openFullscreenDialog', {
             exec: (editor) => {
+                if (this.editorParams.isFullScreenMode()) {
+                    editor.fire('closeFullscreenDialog');
+                    return;
+                }
 
                 const selection: CKEDITOR.dom.selection = editor.getSelection();
                 const range: CKEDITOR.dom.range = selection.getRanges()[0];
@@ -787,6 +798,10 @@ export class HtmlEditor {
         this.editor.on('instanceReady', handler);
     }
 
+    public on(eventName: string, handler: () => void) {
+        this.editor.on(eventName, handler);
+    }
+
     public setSelectionByCursorPosition(selectionIndexes: number[], indexOfSelectedElement: number, cursorPosition: number) {
         let elementContainer: CKEDITOR.dom.element = this.editor.document.getBody();
         selectionIndexes.forEach((index: number) => {
@@ -863,12 +878,16 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Sourcedialog');
         }
 
-        if (!this.editorParams.isInline() && !this.editorParams.isFullScreenMode()) {
+        if (!this.editorParams.isInline()) {
             this.includeTool('Fullscreen');
         }
 
         if (this.editorParams.isInline()) {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
+        }
+
+        if (!this.editorParams.isFullScreenMode() && !this.editorParams.isInline()) {
+            this.disabledTools += ',Bold,Italic,Underline';
         }
 
         this.tools.push(this.enabledTools);
