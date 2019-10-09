@@ -17,8 +17,4 @@ export class DescriptorViewer<T extends Descriptor>
 
         return (iconCls ? api.StyleHelper.getCommonIconCls(iconCls) + ' ' : '') + 'icon-large';
     }
-
-    resolveIconUrl(_object: T): string {
-        return _object.getIcon();
-    }
 }
