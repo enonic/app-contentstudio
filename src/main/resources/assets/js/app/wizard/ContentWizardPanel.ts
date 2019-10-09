@@ -55,7 +55,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
-import {WorkflowStateIconsManager} from './WorkflowStateIconsManager';
+import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
 import {RoutineContext} from './Flow';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
@@ -454,7 +454,7 @@ export class ContentWizardPanel
                 ResponsiveManager.unAvailableSizeChanged(this);
             });
 
-            const thumbnailUploader = this.getFormIcon();
+            const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: api.ValidityChangedEvent) => {
                 if (!this.persistedContent) {
@@ -464,9 +464,10 @@ export class ContentWizardPanel
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
                 this.workflowStateIconsManager.updateIcons();
-                this.getContentWizardToolbarPublishControls()
-                    .setContentCanBePublished(this.checkContentCanBePublished(), false)
-                    .setIsValid(isThisValid);
+                this.wizardActions
+                    .setContentCanBePublished(this.checkContentCanBePublished())
+                    .setIsValid(isThisValid)
+                    .refreshState();
                 if (!this.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
@@ -478,6 +479,15 @@ export class ContentWizardPanel
             }
 
             this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
+
+            this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
+                this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
+            });
+
+            this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+                this.wizardActions.setHasPublishRequest(added);
+                this.wizardActions.refreshState();
+            });
 
             return rendered;
         });
@@ -719,7 +729,7 @@ export class ContentWizardPanel
     }
 
     public checkContentCanBePublished(): boolean {
-        if (this.getContentWizardToolbarPublishControls().isPendingDelete()) {
+        if (this.wizardActions.isPendingDelete()) {
             // allow deleting published content without validity check
             return true;
         }
@@ -915,6 +925,7 @@ export class ContentWizardPanel
         this.currentContent = newContent;
         this.persistedContent = newContent;
         this.getMainToolbar().setItem(newContent);
+        this.wizardActions.setContent(newContent).refreshState();
         this.workflowStateIconsManager.updateIcons();
 
         return this.wizardActions.refreshPendingDeleteDecorations();
@@ -990,7 +1001,7 @@ export class ContentWizardPanel
                 return !!deletedItem && this.getPersistedItem().getPath().equals(deletedItem.getContentPath());
             }).some((deletedItem) => {
                 if (deletedItem.isPending()) {
-                    this.getContentWizardToolbarPublishControls().setContentCanBePublished(true, false);
+                    this.wizardActions.setContentCanBePublished(true);
                     this.updateContent(deletedItem.getCompareStatus());
                 } else {
                     this.contentDeleted = true;
@@ -1028,6 +1039,7 @@ export class ContentWizardPanel
                     this.currentContent = content;
                     this.persistedContent = content;
                     this.getMainToolbar().setItem(content);
+                    this.wizardActions.setContent(content).refreshState();
                     this.workflowStateIconsManager.updateIcons();
                     this.refreshScheduleWizardStep();
 
@@ -1035,7 +1047,7 @@ export class ContentWizardPanel
                 }
             });
 
-            this.getContentWizardToolbarPublishControls().refreshState();
+            this.wizardActions.refreshState();
         };
 
         const updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
@@ -1071,7 +1083,11 @@ export class ContentWizardPanel
                     this.updateSecurityWizardStepIcon(content);
                     new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                         const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-                        this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
+                        const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
+                        this.wizardActions
+                            .setUserCanPublish(userCanPublish)
+                            .setUserCanModify(userCanModify)
+                            .refreshState();
                         this.toggleStepFormsVisibility(loginResult);
                     });
                 });
@@ -1088,7 +1104,7 @@ export class ContentWizardPanel
                 return this.isCurrentContentId(sorted.getContentId());
             });
             if (wasSorted && indexOfCurrentContent != null) {
-                this.getContentWizardToolbarPublishControls().setContent(data[indexOfCurrentContent]);
+                this.wizardActions.setContent(data[indexOfCurrentContent]).refreshState();
             }
 
             const content = this.getPersistedItem();
@@ -1169,6 +1185,7 @@ export class ContentWizardPanel
         this.currentContent = updatedContent;
         this.persistedContent = updatedContent;
         this.getMainToolbar().setItem(updatedContent);
+        this.wizardActions.setContent(updatedContent).refreshState();
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
             this.workflowStateIconsManager.updateIcons();
@@ -1258,7 +1275,7 @@ export class ContentWizardPanel
         const containsIdPromise: wemQ.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
         const templateUpdatedPromise: wemQ.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
 
-        this.getContentWizardToolbarPublishControls().refreshState();
+        this.wizardActions.refreshState();
 
         wemQ.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
             if (containsId || templateUpdated) {
@@ -1420,17 +1437,26 @@ export class ContentWizardPanel
             this.currentContent = summaryAndStatus;
             this.persistedContent = summaryAndStatus;
             this.getMainToolbar().setItem(summaryAndStatus);
+            this.wizardActions.setContent(summaryAndStatus).refreshState();
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.workflowStateIconsManager.updateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-                this.getContentWizardToolbarPublishControls().setUserCanPublish(userCanPublish);
+                const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
+                this.wizardActions
+                    .setUserCanPublish(userCanPublish)
+                    .setUserCanModify(userCanModify)
+                    .refreshState();
             });
         });
     }
 
     private isContentPublishableByUser(loginResult: LoginResult): boolean {
         return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
+    }
+
+    private isContentModifiableByUser(loginResult: LoginResult): boolean {
+        return PermissionHelper.hasPermission(Permission.MODIFY, loginResult, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): wemQ.Promise<Content> {
@@ -2355,8 +2381,6 @@ export class ContentWizardPanel
     }
 
     private updatePublishStatusOnDataChange() {
-        const publishControls = this.getContentWizardToolbarPublishControls();
-
         if (this.isContentFormValid) {
             const hasUnsavedChanges: boolean = this.hasUnsavedChanges();
             if (!hasUnsavedChanges) {
@@ -2368,12 +2392,13 @@ export class ContentWizardPanel
                 if (this.currentContent === this.persistedContent) {
                     this.currentContent = this.persistedContent.clone();
                 }
-                if (publishControls.isOnline()) {
+                if (this.wizardActions.isOnline()) {
                     this.currentContent.setCompareStatus(CompareStatus.NEWER);
                 }
                 this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             this.getMainToolbar().setItem(this.currentContent);
+            this.wizardActions.setContent(this.currentContent).refreshState();
             this.workflowStateIconsManager.updateIcons();
         }
     }
