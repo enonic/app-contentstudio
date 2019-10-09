@@ -114,8 +114,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
-            //WHEN: the folder has been deleted:
-            await contentWizard.clickOnDeleteAndConfirm();
+            //WHEN: the folder has been Marked as deleted:
+            await contentWizard.doMarkAsDeleted();
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
 

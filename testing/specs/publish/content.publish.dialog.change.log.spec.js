@@ -27,6 +27,7 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
             await contentWizard.typeDisplayName(FOLDER1_NAME);
             //Publish... menu item has been clicked:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentWizard.pause(1000);
 
             //type a text in the Change Log input
             await contentPublishDialog.typeTextInChangeLog(TEST_TEXT);

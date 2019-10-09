@@ -35,7 +35,7 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.clickOnDelete();
-            await deleteContentDialog.clickOnDeleteButton();
+            await deleteContentDialog.clickOnDeleteNowButton();
             await confirmContentDeleteDialog.waitForDialogOpened();
             studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
 
@@ -52,12 +52,13 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
-
+            //1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            //opens 'Confirm Content Delete' dialog:
+            //2. Open 'Confirm Content Delete' dialog:
             await contentWizard.clickOnDelete();
-            await deleteContentDialog.clickOnDeleteButton();
+            await deleteContentDialog.clickOnDeleteNowButton();
             await confirmContentDeleteDialog.waitForDialogOpened();
+            //3. Type the required number to delete:
             await confirmContentDeleteDialog.typeNumberOfContent(2);
             await confirmContentDeleteDialog.clickOnConfirmButton();
             await studioUtils.doSwitchToContentBrowsePanel();

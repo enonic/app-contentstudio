@@ -107,8 +107,9 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //folder has been published
             await contentWizard.openPublishMenuAndPublish();
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
-            //WHEN: the folder has been deleted:
-            await contentWizard.clickOnDeleteAndConfirm();
+            await contentWizard.waitAndClickOnSave();
+            //WHEN: the folder has been marked as deleted:
+            await contentWizard.doMarkAsDeleted();
             await contentWizard.doSwitchToContentBrowsePanel();
 
             //Workflow state icon should not be displayed!

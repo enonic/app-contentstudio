@@ -15,6 +15,7 @@ const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.ve
 const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
+const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -295,7 +296,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
-   //exception will be thrown if Save button is disabled after 3 seconds
+    //exception will be thrown if Save button is disabled after 3 seconds
     async waitForSaveButtonEnabled() {
         try {
             await this.waitForSaveButtonVisible();
@@ -366,12 +367,32 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    async clickOnDeleteAndConfirm() {
+    async clickOnDeleteAndDeleteNow() {
         let contentDeleteDialog = new ContentDeleteDialog();
         await this.clickOnDelete(this.deleteButton);
         await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnDeleteButton();
+        await contentDeleteDialog.clickOnDeleteNowButton();
         return contentDeleteDialog.waitForDialogClosed();
+    }
+
+    async doMarkAsDeleted() {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        await this.clickOnDelete(this.deleteButton);
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
+        return contentDeleteDialog.waitForDialogClosed();
+    }
+
+    async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        await this.clickOnDelete(this.deleteButton);
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
+        await confirmContentDeleteDialog.waitForDialogOpened();
+        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
+        await confirmContentDeleteDialog.clickOnConfirmButton();
+        return await confirmContentDeleteDialog.waitForDialogClosed();
     }
 
     //clicks on 'Publish...' button
