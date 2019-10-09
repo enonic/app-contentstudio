@@ -33,7 +33,8 @@ export class FullscreenDialog
             selectionIndexes: config.selectionIndexes,
             cursorPosition: config.cursorPosition,
             title: i18n('dialog.fullscreen.title'),
-            class: 'fullscreen-modal-dialog'
+            class: 'fullscreen-modal-dialog',
+            keepOpenOnClickOutside: true
         });
 
         this.getEditor().focusManager.lock();
@@ -94,6 +95,10 @@ export class FullscreenDialog
                     htmlEditor.setSelectionByCursorPosition(this.config.selectionIndexes,
                         this.config.indexOfSelectedElement, this.config.cursorPosition);
                 }, 100);
+
+                this.fseditor.on('closeFullscreenDialog', () => {
+                    this.close();
+                });
             });
         });
     }
