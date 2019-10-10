@@ -131,7 +131,7 @@ export class VersionsView
         const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
         const tooltipText = i18n('tooltip.state.published', dateAsString, userName);
 
-        new api.ui.Tooltip(itemEl, tooltipText, 1000);
+        return new api.ui.Tooltip(itemEl, tooltipText, 1000);
     }
 
     private createDataBlocks(item: ContentVersion, itemEl: api.dom.Element) {
