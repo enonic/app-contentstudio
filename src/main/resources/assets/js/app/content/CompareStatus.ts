@@ -22,12 +22,16 @@ export class CompareStatusFormatter {
         if (content) {
             return CompareStatusFormatter.formatStatus(content.getCompareStatus(), content.getContentSummary());
         }
+
+        return '';
     }
 
     public static formatStatusClassFromContent(content: ContentSummaryAndCompareStatus): string {
         if (content) {
             return CompareStatusFormatter.formatStatus(content.getCompareStatus(), content.getContentSummary(), true);
         }
+
+        return '';
     }
 
     public static formatStatus(compareStatus: CompareStatus, content?: ContentSummary, isClassName: boolean = false): string {
