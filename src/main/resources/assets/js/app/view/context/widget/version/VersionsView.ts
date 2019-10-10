@@ -199,9 +199,13 @@ export class VersionsView
                 .onExecuted((action: api.ui.Action) => {
                     if (!isActive) {
                         new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
-                            (contentId: ContentId) => {
-                                api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
-                                new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
+                            (contentVersionId: string) => {
+                                if (contentVersionId === this.activeVersion.id) {
+                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                                } else {
+                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
+                                    new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
+                                }
                             });
                     }
                 }), false);
