@@ -208,7 +208,6 @@ export class HtmlArea
                 }
             }
 
-            this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__fullscreen');
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
         };
 
