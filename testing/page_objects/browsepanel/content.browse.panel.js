@@ -8,6 +8,8 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
+const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -782,6 +784,19 @@ class ContentBrowsePanel extends Page {
         } catch (err) {
             throw Error("Publish Menu - Default action is not displayed: " + err);
         }
+    }
+
+    async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        await this.clickOnDeleteButton();
+        await contentDeleteDialog.waitForDialogOpened();
+
+        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
+        await confirmContentDeleteDialog.waitForDialogOpened();
+        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
+        await confirmContentDeleteDialog.clickOnConfirmButton();
+        return await confirmContentDeleteDialog.waitForDialogClosed();
     }
 };
 module.exports = ContentBrowsePanel;
