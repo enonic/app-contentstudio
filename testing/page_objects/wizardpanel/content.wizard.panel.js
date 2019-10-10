@@ -240,15 +240,17 @@ class ContentWizardPanel extends Page {
             let status = await this.getBrowser().status();
             if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
                 await this.getBrowser().keys(['Control', 'Enter']);
-                return await this.doSwitchToContentBrowsePanel();
+                await this.doSwitchToContentBrowsePanel();
+                return await this.pause(500);
             }
             if (status.os.name.toLowerCase().includes('mac')) {
                 await this.getBrowser().keys(['Command', 'Enter']);
-                return await this.doSwitchToContentBrowsePanel();
+                await this.doSwitchToContentBrowsePanel();
+                return await this.pause(500);
             }
         } catch (err) {
             console.log("Save and close the wizard " + err);
-            return await this.doSwitchToContentBrowsePanel();
+            await this.doSwitchToContentBrowsePanel();
         }
     }
 
