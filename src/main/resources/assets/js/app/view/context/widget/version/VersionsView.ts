@@ -17,7 +17,8 @@ export class VersionsView
     private loadedListeners: { (): void }[] = [];
     private activeVersion: ContentVersion;
 
-    private static branchMaster: string = 'master';
+    private static readonly branchMaster: string = 'master';
+    private static readonly branchDraft: string = 'draft';
 
     constructor() {
         super('all-content-versions');
@@ -90,70 +91,47 @@ export class VersionsView
         this.getItemView(this.activeVersion).addClass('active');
     }
 
-    private getStatus(contentVersion: ContentVersion): ContentVersionStatus {
-        if (this.getCompareStatus() == null) {
-            return null;
+    private hasWorkspaces(contentVersion: ContentVersion): boolean {
+        if (this.getCompareStatus() == null || !contentVersion.workspaces.length) {
+            return false;
         }
-        let result = null;
+        return true;
+    }
 
-        let hasMaster = contentVersion.workspaces.some((workspace) => {
+    private isInMaster(contentVersion: ContentVersion): boolean {
+        return contentVersion.workspaces.some((workspace) => {
             return workspace === VersionsView.branchMaster;
         });
-
-        contentVersion.workspaces.some((workspace: string) => {
-            if (!hasMaster || workspace === VersionsView.branchMaster) {
-                result = {workspace: workspace, status: this.getState(workspace)};
-                return true;
-            }
-        });
-
-        return result;
     }
 
-    private getState(workspace: string): string {
-        if (workspace === VersionsView.branchMaster) {
-            return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL);
-        } else {
-            return CompareStatusFormatter.formatStatusTextFromContent(this.content);
-        }
-    }
+    private createStatusBlock(contentVersion: ContentVersion, itemEl: api.dom.Element) {
+        if (this.hasWorkspaces(contentVersion)) {
+            const isInMaster = this.isInMaster(contentVersion);
+            const statusText = isInMaster ?
+                               CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
+                               CompareStatusFormatter.formatStatusTextFromContent(this.content);
+            const statusClass = isInMaster ?
+                               CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
+                               CompareStatusFormatter.formatStatusClassFromContent(this.content);
 
-    private createStatusBlock(item: ContentVersion, itemEl: api.dom.Element) {
-        let contentVersionStatus = this.getStatus(item);
-        if (!!contentVersionStatus) {
-            let statusDiv = new api.dom.DivEl('status ' + contentVersionStatus.workspace);
-            statusDiv.setHtml(contentVersionStatus.status);
+            let statusDiv = new api.dom.DivEl('status ' + (isInMaster ? VersionsView.branchMaster : VersionsView.branchDraft));
+            statusDiv.setHtml(statusText);
             itemEl.appendChild(statusDiv);
 
-            if (contentVersionStatus.status.toLowerCase() === 'modified') {
-                statusDiv.addClass('modified');
-                itemEl.addClass('modified');
-                this.createModifiedTooltip(item, itemEl);
-            }
-
-            if (contentVersionStatus.status.toLowerCase() === 'published') {
-                statusDiv.addClass('published');
-                itemEl.addClass('published');
-                this.createPublishedTooltip(item, itemEl);
-            }
-        } else {
-            item.publishInfo ? this.createPublishedTooltip(item, itemEl) : this.createModifiedTooltip(item, itemEl);
+            statusDiv.addClass(statusClass.toLowerCase());
+            itemEl.addClass(statusClass.toLowerCase());
         }
+
+        this.createTooltip(contentVersion, itemEl);
     }
 
-    private createModifiedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
-        const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(item.modified);
-        const tooltip = new api.ui.Tooltip(itemEl, i18n('tooltip.state.modified', dateAsString, item.modifierDisplayName),
-            1000);
-    }
+    private createTooltip(item: ContentVersion, itemEl: api.dom.Element) {
+        const dateTimeStamp = item.publishInfo ? item.publishInfo.timestamp : item.modified;
+        const userName = item.publishInfo ? item.publishInfo.publisherDisplayName : item.modifierDisplayName;
+        const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
+        const tooltipText = i18n('tooltip.state.published', dateAsString, userName);
 
-    private createPublishedTooltip(item: ContentVersion, itemEl: api.dom.Element) {
-        if (item.publishInfo) {
-            const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(item.publishInfo.timestamp);
-            const tooltip = new api.ui.Tooltip(itemEl,
-                i18n('tooltip.state.published', dateAsString, item.publishInfo.publisherDisplayName),
-                1000);
-        }
+        new api.ui.Tooltip(itemEl, tooltipText, 1000);
     }
 
     private createDataBlocks(item: ContentVersion, itemEl: api.dom.Element) {
@@ -228,7 +206,7 @@ export class VersionsView
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
 
-            if (!itemContainer.hasClass('active') || itemContainer.hasClass('published')) {
+            if (!itemContainer.hasClass('active') || itemContainer.hasClass('online')) {
                 itemContainer.toggleClass('expanded');
             }
         });
@@ -237,10 +215,4 @@ export class VersionsView
     private collapseAllContentVersionItemViewsExcept(itemContainer: api.dom.Element) {
         wemjq(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
     }
-}
-
-export class ContentVersionStatus {
-    workspace: string;
-
-    status: string;
 }

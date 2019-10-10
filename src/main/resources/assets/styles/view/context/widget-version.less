@@ -36,13 +36,13 @@
             background-color: @admin-dark-gray;
           }
 
-          &:not(.published):hover *{
+          &:not(.online):hover *{
             cursor: default;
           }
 
         }
 
-        &.published {
+        &.online {
           color: @admin-white;
           background-color: @admin-green;
           border-color: @admin-green;
@@ -85,7 +85,7 @@
         }
 
         .version-info {
-          padding: 0 7px 7px 7px;
+          padding: 7px;
           font-size: 12px;
 
           .names-and-icon-view {
@@ -99,7 +99,7 @@
           }
 
           .version-info-message {
-            padding-top: 10px;
+            padding-top: 3px;
 
             .message {
               border-left: 2px solid @admin-bg-light-gray;
@@ -143,7 +143,7 @@
           }
         }
 
-        &.published, &.active {
+        &.online, &.active {
           .icon-user, .version-modifier, .viewer .names-and-icon-view .font-icon-default:before {
             color: @admin-white;
           }
@@ -159,15 +159,7 @@
           &:not(.modified) {
             border-color: @admin-black;
           }
-/*
-          &.published {
-            .description {
-              padding-bottom: 15px;
-            }
-            .version-info {
-              padding-top: 15px;
-            }
-          }*/
+
         }
 
       }
