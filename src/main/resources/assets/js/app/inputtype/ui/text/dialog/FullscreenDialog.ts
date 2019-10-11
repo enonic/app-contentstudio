@@ -33,8 +33,7 @@ export class FullscreenDialog
             selectionIndexes: config.selectionIndexes,
             cursorPosition: config.cursorPosition,
             title: i18n('dialog.fullscreen.title'),
-            class: 'fullscreen-modal-dialog',
-            keepOpenOnClickOutside: true
+            class: 'fullscreen-modal-dialog'
         });
 
         this.getEditor().focusManager.lock();
