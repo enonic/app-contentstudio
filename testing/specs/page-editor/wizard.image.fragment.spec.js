@@ -57,6 +57,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 studioUtils.saveScreenshot("image_fragment_step1");
                 // save the image as fragment
                 await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+                await pageComponentView.pause(2000);
             });
 
         //verifies the "https://github.com/enonic/app-contentstudio/issues/256"

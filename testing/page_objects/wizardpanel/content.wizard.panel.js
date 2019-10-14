@@ -81,7 +81,7 @@ class ContentWizardPanel extends Page {
     }
 
     get publishButton() {
-        return XPATH.container + XPATH.publishButton;
+        return XPATH.container + XPATH.toolbar + XPATH.publishButton;
     }
 
     get publishDropDownHandle() {
@@ -97,7 +97,7 @@ class ContentWizardPanel extends Page {
     }
 
     get deleteButton() {
-        return XPATH.container + XPATH.deleteButton;
+        return XPATH.container + XPATH.toolbar + XPATH.deleteButton;
     }
 
     get controllerOptionFilterInput() {
