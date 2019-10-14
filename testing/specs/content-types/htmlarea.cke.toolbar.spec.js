@@ -100,12 +100,6 @@ describe('htmlarea.cke.toolbar.spec:  toolbar in html area with CKE`', function 
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
                 return htmlAreaForm.showToolbar();
             }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isBoldButtonDisplayed(), 'Bold button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isItalicButtonDisplayed(), 'Italic button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isUnderlineButtonDisplayed(), 'Underline button should be present');
-            }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isBulletedListButtonDisplayed(), 'Bulleted List button should be present');
             }).then(() => {
                 return assert.eventually.isTrue(htmlAreaForm.isAlignLeftButtonDisplayed(), 'Align Left button should be present');
