@@ -76,7 +76,7 @@ class ContentPublishDialog extends Page {
             return this.clickOnElement(this.publishNowButton);
         }).catch(err => {
             this.saveScreenshot('err_click_on_publish_button_publish_dialog');
-            throw new Error('Error when clicking Publish Now button ' + err);
+            throw new Error(`Error when clicking 'Publish Now' button ` + err);
         })
     }
 
@@ -91,7 +91,7 @@ class ContentPublishDialog extends Page {
             await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
-            throw new Error('Error when clicking Publish  ' + err);
+            throw new Error(`Error when clicking 'Add Schedule' icon-button  ` + err);
         }
     }
 
@@ -153,7 +153,7 @@ class ContentPublishDialog extends Page {
             return appConst.WORKFLOW_STATE.PUBLISHED;
 
         } else {
-            throw new Error("Error when getting content's state, class is:" + result);
+            throw new Error("Error when getting content's state, actual result is:" + result);
         }
     }
 
@@ -169,7 +169,7 @@ class ContentPublishDialog extends Page {
 
     isAddScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error("`Add Schedule` button is not present " + err);
+            throw new Error("`Add Schedule` button is not displayed " + err);
         })
     }
 
@@ -188,7 +188,7 @@ class ContentPublishDialog extends Page {
             return await this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2);
         } catch (err) {
             this.saveScreenshot("publish_now_disabled");
-            throw new Error("Publish Wizard - Publish Now button should be enabled " + err);
+            throw new Error("Publish Wizard - 'Publish Now' button should be enabled " + err);
         }
     }
 

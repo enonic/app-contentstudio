@@ -19,6 +19,7 @@ const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.d
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
+    pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
@@ -62,6 +63,10 @@ class ContentWizardPanel extends Page {
 
     get displayNameInput() {
         return XPATH.container + XPATH.displayNameInput;
+    }
+
+    get pageEditorTogglerButton() {
+        return XPATH.toolbar + XPATH.pageEditorTogglerButton;
     }
 
     get detailsPanelToggleButton() {
@@ -788,6 +793,16 @@ class ContentWizardPanel extends Page {
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
         } else {
             return undefined;
+        }
+    }
+
+    async clickOnPageEditorToggler() {
+        try {
+            await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(this.pageEditorTogglerButton);
+            return await this.pause(1000);
+        } catch (err) {
+            throw new Error("Page Editor toggler: " + err);
         }
     }
 };
