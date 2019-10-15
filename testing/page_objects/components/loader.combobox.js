@@ -41,7 +41,6 @@ class LoaderComboBox extends Page {
         await this.waitForElementDisplayed(optionSelector);
         await this.pause(300);
         await this.clickOnElement(optionSelector);
-        this.saveScreenshot('combo_clicking_on_option');
         return await this.pause(500);
     }
 

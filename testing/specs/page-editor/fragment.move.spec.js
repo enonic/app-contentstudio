@@ -13,7 +13,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');

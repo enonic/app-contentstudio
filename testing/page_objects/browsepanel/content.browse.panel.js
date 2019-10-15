@@ -756,7 +756,7 @@ class ContentBrowsePanel extends Page {
             return appConst.WORKFLOW_STATE.PUBLISHED;
 
         } else {
-            throw new Error("Error when getting content's state, class is:" + result);
+            throw new Error("Error when getting content's state, actual result is:" + result);
         }
     }
 
@@ -773,7 +773,7 @@ class ContentBrowsePanel extends Page {
             return appConst.WORKFLOW_STATE.PUBLISHED;
 
         } else {
-            throw new Error("Error when getting content's state, class is:" + result);
+            throw new Error("Error when getting content's state, actual result is:" + result);
         }
     }
 
@@ -782,7 +782,7 @@ class ContentBrowsePanel extends Page {
             let selector = XPATH.contentPublishMenuButton + XPATH.defaultActionByName(actionName);
             return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
         } catch (err) {
-            throw Error("Publish Menu - Default action is not displayed: " + err);
+            throw Error(`Publish Menu -  '${actionName}'  this default action should be visible!: ` + err);
         }
     }
 

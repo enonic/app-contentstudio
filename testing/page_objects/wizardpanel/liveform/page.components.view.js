@@ -19,7 +19,7 @@ const xpath = {
                lib.P_SUB_NAME;
     },
 };
-
+//Modal Dialog:
 class PageComponentView extends Page {
 
     clickOnComponent(displayName) {

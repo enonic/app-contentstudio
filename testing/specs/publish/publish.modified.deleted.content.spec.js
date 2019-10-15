@@ -29,8 +29,10 @@ describe('publish.modified.deleted.content.spec - modify 2 published folders, se
             FOLDER2 = contentBuilder.buildFolder(childFolder);
             await studioUtils.doAddReadyFolder(FOLDER1);
             await studioUtils.doAddReadyFolder(FOLDER2);
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER2.displayName);
+            //click on checkboxes and select both folders:
+            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
+            //do publish 2 folders:
             await studioUtils.doPublish();
         });
 
