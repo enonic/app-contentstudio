@@ -42,17 +42,17 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.selectSiteAndOpenNewWizard("site430203", 'htmlarea0_1');//SITE.displayName
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.typeTextInHtmlArea("test1");
-            //1 Click on the toggler and open Page Editor
+            //1 Click on the toggler and open 'Page Editor'
             await contentWizard.clickOnPageEditorToggler();
             //2 Select the page descriptor
             await contentWizard.selectPageDescriptor("main region");
-            //3 Open Page Components modal dialog:
+            //3 Open 'Page Components' modal dialog:
             await contentWizard.clickOnShowComponentViewToggler();
             //4 Open the context menu
             await pageComponentView.openMenu("main");
-            //5 click on the part menu item:
+            //5 click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem(["Insert", "Part"]);
-            //6 Type the name and select the filtered option:
+            //6 Type the name and select the filtered option(select the part):
             await liveFormPanel.selectPartByDisplayName("Html Area Example");
             await contentWizard.switchToMainFrame();
             //7. Type a text in the html-area
@@ -63,7 +63,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             //9. wait for the text is updated in Page Editor:
             studioUtils.saveScreenshot("text_in_part_updated");
             let actualText = await liveFormPanel.getTextInPart();
-            assert.equal(actualText, TEST_TEXT, "Text should should be updated in 'Page Editor'");
+            assert.equal(actualText, TEST_TEXT, "Text should be updated in 'Page Editor'");
         });
 
 
