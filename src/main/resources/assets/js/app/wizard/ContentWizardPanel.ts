@@ -1155,6 +1155,24 @@ export class ContentWizardPanel
             }
         };
 
+        const contentRenamedHandler = (contents: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+            contents.forEach((renamedContent: ContentSummaryAndCompareStatus, index: number) => {
+                if (this.isCurrentContentId(renamedContent.getContentId())) {
+                    const isWizardAlreadyUpdated = renamedContent.getContentSummary().getPath().equals(this.getPersistedItem().getPath());
+
+                    if (isWizardAlreadyUpdated) {
+                        return;
+                    }
+
+                    this.handlePersistedContentUpdate(renamedContent);
+                } else if (this.getPersistedItem().getPath().isDescendantOf(oldPaths[index])) {
+                    ContentSummaryAndCompareStatusFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
+                        this.handlePersistedContentUpdate(summaryAndStatus);
+                    });
+                }
+            });
+        };
+
         const versionChangeHandler = this.updateButtonsState.bind(this);
 
         ActiveContentVersionSetEvent.on(versionChangeHandler);
@@ -1166,6 +1184,7 @@ export class ContentWizardPanel
         serverEvents.onContentPermissionsUpdated(contentPermissionsUpdatedHandler);
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
+        serverEvents.onContentRenamed(contentRenamedHandler);
 
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
@@ -1177,6 +1196,7 @@ export class ContentWizardPanel
             serverEvents.unContentPermissionsUpdated(contentPermissionsUpdatedHandler);
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
+            serverEvents.unContentRenamed(contentRenamedHandler);
         });
     }
 
@@ -2303,7 +2323,6 @@ export class ContentWizardPanel
     }
 
     private updateWizardHeader(content: Content) {
-
         this.updateThumbnailWithContent(content);
 
         this.getWizardHeader().initNames(content.getDisplayName(), content.getName().toString(), true, false);
