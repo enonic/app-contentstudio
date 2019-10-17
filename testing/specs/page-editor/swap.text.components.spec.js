@@ -52,7 +52,6 @@ describe('Swap two Text Component - specification', function () {
             }).then(() => {
                 return textComponentCke.typeTextInCkeEditor("component1");
             }).then(() => {
-                studioUtils.saveScreenshot('text_component1_inserted');
                 return contentWizard.switchToMainFrame();
             }).then(() => {
                 return pageComponentView.openMenu("main");
@@ -65,11 +64,12 @@ describe('Swap two Text Component - specification', function () {
             }).then(() => {
                 return contentWizard.hotKeySave();
             }).then(() => {
-                return contentWizard.pause(1000);
+                return contentWizard.pause(1200);
             }).then(() => {
+                studioUtils.saveScreenshot('text_components_swapped1');
                 return pageComponentView.swapComponents("component1", "component2");
             }).then(() => {
-                studioUtils.saveScreenshot('text_components_swapped');
+                studioUtils.saveScreenshot('text_components_swapped2');
             })
         });
 

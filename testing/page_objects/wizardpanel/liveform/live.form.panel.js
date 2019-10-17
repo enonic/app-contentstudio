@@ -48,10 +48,10 @@ class LiveFormPanel extends Page {
     async getTextInPart() {
         try {
             let selector = "//div[contains(@id,'PartComponentView')]/p";
-            await this.waitForElementDisplayed(selector);
+            await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2);
             return await this.getText(selector);
         } catch (err) {
-            throw new Error("Erroe when getting text in the part component! " + err);
+            throw new Error("Error when getting text in the part component! " + err);
         }
     }
 };
