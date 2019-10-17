@@ -61,6 +61,10 @@ export class HtmlEditor {
     private transformTableAttrs() {
         // updating table elements directly in transformation functions doesn't work as expected, thus updating by refreshFunc
         const refreshFunc = api.util.AppHelper.debounce(() => {
+            if (!this.editor.document) {
+                return; // editor destroyed, but debounced listener is triggered
+            }
+
             this.editor.document.getElementsByTag('table').toArray().forEach((table: CKEDITOR.dom.element) => {
                 table.removeAttribute('cellpadding');
                 table.removeAttribute('cellspacing');
