@@ -35,6 +35,8 @@ const XPATH = {
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
+    componentViewToggler: "//button[contains(@id, 'TogglerButton')  and contains(@class,'icon-clipboard')]",
+    hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
@@ -116,6 +118,12 @@ class ContentWizardPanel extends Page {
 
     get showComponentViewToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.showComponentViewToggler;
+    }
+    get hideComponentViewToggler() {
+        return XPATH.container + XPATH.toolbar + XPATH.hideComponentViewToggler;
+    }
+    get componentViewToggler() {
+        return XPATH.container + XPATH.toolbar + XPATH.componentViewToggler;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -284,6 +292,26 @@ class ContentWizardPanel extends Page {
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');
             throw new Error("Error when clicking on 'Show Component View!'" + err);
+        }).then(() => {
+            return this.pause(500);
+        });
+    }
+    clickOnHideComponentViewToggler() {
+        return this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.hideComponentViewToggler);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_hide_component_view');
+            throw new Error("Error when clicking on 'Hide Component View!'" + err);
+        }).then(() => {
+            return this.pause(500);
+        });
+    }
+    clickOnComponentViewToggler() {
+        return this.waitForElementDisplayed(this.componentViewToggler, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.componentViewToggler);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_component_view_toggler');
+            throw new Error("Error when clicking on 'Page Component View toggler!'" + err);
         }).then(() => {
             return this.pause(500);
         });
@@ -554,25 +582,17 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    typeData(content) {
+    async typeData(content) {
         let contentStepForm = new ContentStepForm();
-        return this.waitForElementDisplayed(this.displayNameInput, appConst.TIMEOUT_2).catch(err => {
-            return this.clickOnMinimizeEditIcon();
-        }).then(() => {
-            return this.typeDisplayName(content.displayName);
-        }).then(() => {
-            if (content.data != null) {
-                return contentStepForm.type(content.data, content.contentType);
-            }
-        }).then(() => {
-            if (content.settings == null) {
-                return Promise.resolve();
-            } else {
-                return this.typeSettings(content.settings);
-            }
-        }).then(() => {
-            this.pause(300);
-        })
+        await this.waitForElementDisplayed(this.displayNameInput, appConst.TIMEOUT_2)
+        await this.typeDisplayName(content.displayName);
+        if (content.data != null) {
+            await contentStepForm.type(content.data, content.contentType);
+        }
+        if (content.settings != null) {
+            await this.typeSettings(content.settings);
+        }
+        await this.pause(500);
     }
 
     clickOnPublishMenuDropdownHandle() {
@@ -759,7 +779,7 @@ class ContentWizardPanel extends Page {
 
     async getToolbarWorkflowState() {
         let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
         let result = await this.getAttribute(selector, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -798,7 +818,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnPageEditorToggler() {
         try {
-            await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.TIMEOUT_3);
             await this.clickOnElement(this.pageEditorTogglerButton);
             return await this.pause(1000);
         } catch (err) {

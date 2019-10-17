@@ -33,47 +33,43 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
             });
 
         it(`GIVEN existing image is opened WHEN caption has been typed in the wizard AND the image has been saved THEN the caption should be saved`,
-            () => {
+            async () => {
                 let imageFormPanel = new ImageFormPanel();
                 let contentWizard = new ContentWizard();
-                return studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME).then(() => {
-                    // type a caption and save the image
-                    return imageFormPanel.typeCaption(EXPECTED_CAPTION);
-                }).then(() => {
-                    return contentWizard.waitAndClickOnSave();
-                }).then(() => {
-                    return imageFormPanel.getCaption();
-                }).then(result => {
-                    assert.isTrue(result === EXPECTED_CAPTION, "caption should be saved");
-                })
+                //1. Open the image:
+                await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
+                //2. Type a caption then save the image:
+                await imageFormPanel.typeCaption(EXPECTED_CAPTION);
+                await contentWizard.waitAndClickOnSave();
+                //3. Get the saved caption in the image-wizard:
+                let result = await imageFormPanel.getCaption();
+                assert.equal(result, EXPECTED_CAPTION, "caption should be saved");
             });
 
         it(`GIVEN existing site is opened WHEN test image has been inserted THEN expected default caption should be present in the Image Inspection Panel`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let imageInspectPanel = new ImageInspectPanel();
                 let liveFormPanel = new LiveFormPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    //opens Show Component View
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu("main");
-                }).then(() => {
-                    //Inserts image-component
-                    return pageComponentView.selectMenuItem(["Insert", "Image"]);
-                }).then(() => {
-                    //select the image
-                    return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    //Default caption should be loaded in the Caption-Input
-                    return imageInspectPanel.getCaptionText();
-                }).then(text => {
-                    studioUtils.saveScreenshot('inspect_image_panel_default_caption');
-                    assert.isTrue(text === EXPECTED_CAPTION, "actual and expected captions should be equal");
-                })
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                //1. Open  'Page Component View' dialog:
+                await contentWizard.clickOnShowComponentViewToggler();
+                //2. Open the context menu:
+                await pageComponentView.openMenu("main");
+                //3. Click on the 'Insert image' menu item:
+                await pageComponentView.selectMenuItem(["Insert", "Image"]);
+                //4. Close the 'Page Component View' dialog:
+                await contentWizard.clickOnComponentViewToggler();
+                //5. Select the image in the Page Editor:
+                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
+                await contentWizard.switchToMainFrame();
+
+                //Default caption should be loaded in the Caption-Input
+                let result = await imageInspectPanel.getCaptionText();
+
+                studioUtils.saveScreenshot('inspect_image_panel_default_caption');
+                assert.equal(result, EXPECTED_CAPTION, "actual and expected captions should be equal");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -474,7 +474,7 @@ module.exports = {
         return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
             console.log("switched to content browse panel...");
         }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_10);
         }).catch(err => {
             throw new Error("Error when switching to Content Studio App " + err);
         })

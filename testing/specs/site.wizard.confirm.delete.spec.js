@@ -30,11 +30,15 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_CONTENT_TYPES]);
+            //wizard for new site has been opened and data has been typed:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE.displayName);
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
+            //the site is saved:
             await contentWizard.waitAndClickOnSave();
+            //Click on Delete... button and open Delete Content Dialog:
             await contentWizard.clickOnDelete();
+            //Click on 'Delete Now' button:
             await deleteContentDialog.clickOnDeleteNowButton();
             await confirmContentDeleteDialog.waitForDialogOpened();
             studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");

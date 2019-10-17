@@ -65,6 +65,22 @@ describe('publish.modified.deleted.content.spec - modify 2 published folders, se
             await contentBrowsePanel.waitForDefaultAction(appConstant.PUBLISH_MENU.PUBLISH);
         });
 
+    //verifies https://github.com/enonic/app-contentstudio/issues/1083  - Mark As Ready should not be enabled for deleted content
+    it(`GIVEN 2 'Deleted' folders are selected WHEN Publish menu has been expanded THEN 'Mark as Ready' menu item should be disabled`,
+        async () => {
+            //1. Select 2 'Deleted' folders:
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
+
+            //2. Click on the dropdown handle and expand the Publish menu.
+            await contentBrowsePanel.openPublishMenu();
+
+            studioUtils.saveScreenshot("deleted_folders_publish_menu");
+            //3. Mark as Ready menu item should be disabled:
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
+        });
+
     //verifies https://github.com/enonic/app-contentstudio/issues/1084 - do not check workflow state for deleted content
     it(`GIVEN 2 'Deleted' folders are selected WHEN Publish Wizard has been opened THEN 'Publish Now' button should be enabled`,
         async () => {
