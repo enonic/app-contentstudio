@@ -564,7 +564,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             return false;
         }
 
-        return items.some(item => (!item.isOnline() && !item.getContentSummary().isReady()));
+        return items.some(item => (!item.isOnline() && !item.isPendingDelete() && !item.getContentSummary().isReady()));
     }
 
     private isRequestPublishHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {

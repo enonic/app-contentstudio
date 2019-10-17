@@ -48,6 +48,6 @@ export class MarkAsReadyContentAction
     }
 
     private static canBeMarkedAsReady(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && item.getContentSummary().isValid() && !item.getContentSummary().isReady();
+        return !item.isOnline() && !item.isPendingDelete() && item.getContentSummary().isValid() && !item.getContentSummary().isReady();
     }
 }
