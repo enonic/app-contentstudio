@@ -22,7 +22,9 @@ export class MarkAsReadyContentAction
     }
 
     private handleExecuted() {
-        const contentToMarkAsReady = this.grid.getSelectedDataList().filter((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
+        const contentToMarkAsReady = this.grid.getSelectedDataList().filter(
+            (item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady()
+        );
         const isSingleItem = contentToMarkAsReady.length === 1;
 
         if (isSingleItem) {
