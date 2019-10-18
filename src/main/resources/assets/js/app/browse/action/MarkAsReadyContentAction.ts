@@ -22,7 +22,7 @@ export class MarkAsReadyContentAction
     }
 
     private handleExecuted() {
-        const contentToMarkAsReady = this.grid.getSelectedDataList().filter(MarkAsReadyContentAction.canBeMarkedAsReady);
+        const contentToMarkAsReady = this.grid.getSelectedDataList().filter((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
         const isSingleItem = contentToMarkAsReady.length === 1;
 
         if (isSingleItem) {
@@ -45,9 +45,5 @@ export class MarkAsReadyContentAction
                 api.notify.showFeedback(i18n('notify.item.markedAsReady.multiple', content.length));
             }
         }).catch(api.DefaultErrorHandler.handle);
-    }
-
-    private static canBeMarkedAsReady(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && !item.isPendingDelete() && item.getContentSummary().isValid() && !item.getContentSummary().isReady();
     }
 }
