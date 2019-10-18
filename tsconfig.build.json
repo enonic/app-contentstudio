@@ -2,7 +2,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "sourceMap": true,
-    "lib": [ "dom", "es2015" ]
+    "types": [
+      "core-js",
+      "hasher",
+      "q"
+    ]
   },
   "exclude": [
     "build/**/*",

@@ -1,20 +1,17 @@
 {
+  "extends": "tsconfig.build",
   "compilerOptions": {
-    "module": "commonjs",
-    "sourceMap": true,
-    "lib": [ "dom", "es2015" ]
+    "lib": [
+      "es2015",
+      "dom"
+    ]
   },
   "files": [
-    "./src/main/resources/assets/js/main.ts",
-    "./src/main/resources/assets/js/page-editor.ts"
+    "./src/main/resources/assets/js/main.ts"
   ],
   "include": [
     "src/**/*",
-    "../lib-admin-ui/src/main/resources/assets/admin/common/js/_module.ts"
-  ],
-  "exclude": [
-    "build/**/*",
-    "out/**/*",
-    "node_modules/*"
+    "../lib-admin-ui/src/main/resources/assets/admin/common/js/_**/*.ts",
+    ".xp/dev/lib-admin-ui/**/*.ts"
   ]
 }
