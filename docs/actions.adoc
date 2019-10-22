@@ -87,7 +87,7 @@ image::dialog-delete-confirm.png[]
 
 If you try to delete content that is currently online (status "Published" or "Modified"), "Delete Now" button will turn into a menu button with "Mark as Deleted" action in the dropdown.
 
-image::dialog-delete-published.png[]
+image::dialog-delete-published.png[Delete published content, 700]
 
 when "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Deleted".
 To remove such items completely, they must be <<publish,published>>.
