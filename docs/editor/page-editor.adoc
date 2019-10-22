@@ -42,4 +42,4 @@ image::page-editor-components-view.png[]
 
 == Page Editor widgets
 
-When *Page Editor* is available, you'll have access to all default widgets, including <<../widgets.adoc#emulator,Emulator>> and <<../widgets.adoc#components,Components>> widgets.
+When *Page Editor* is available, you'll have access to all default widgets, including <<../widgets#emulator,Emulator>> and <<../widgets#components,Components>> widgets.
