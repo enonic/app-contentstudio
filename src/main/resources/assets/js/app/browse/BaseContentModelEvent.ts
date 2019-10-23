@@ -1,6 +1,8 @@
+import {Event} from 'lib-admin-ui/event/Event';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
-export class BaseContentModelEvent extends api.event.Event {
+export class BaseContentModelEvent
+    extends Event {
 
     private model: ContentSummaryAndCompareStatus[];
 

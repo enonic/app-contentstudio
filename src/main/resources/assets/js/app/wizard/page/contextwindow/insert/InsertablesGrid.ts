@@ -1,5 +1,12 @@
-import {Insertable} from './Insertable';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {GridOptions, GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
+import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {H5El} from 'lib-admin-ui/dom/H5El';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {DataView} from 'lib-admin-ui/ui/grid/DataView';
 import {FontIcon} from '../../../../icon/FontIcon';
+import {Insertable} from './Insertable';
 
 export interface InsertablesGridOptions {
     draggableRows?: boolean;
@@ -7,11 +14,12 @@ export interface InsertablesGridOptions {
     onClick?: (event: MouseEvent) => void;
 }
 
-export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
+export class InsertablesGrid
+    extends Grid<Insertable> {
 
     private componentGridOptions: InsertablesGridOptions;
 
-    constructor(dataView: api.ui.grid.DataView<Insertable>, options: InsertablesGridOptions = {}) {
+    constructor(dataView: DataView<Insertable>, options: InsertablesGridOptions = {}) {
 
         super(dataView);
 
@@ -24,16 +32,16 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
         });
     }
 
-    protected createOptions(): api.ui.grid.GridOptions<any> {
-        return new api.ui.grid.GridOptionsBuilder()
+    protected createOptions(): GridOptions<any> {
+        return new GridOptionsBuilder()
             .setHideColumnHeaders(true)
             .setRowHeight(50)
             .build();
     }
 
-    protected createColumns(): api.ui.grid.GridColumn<Insertable>[] {
+    protected createColumns(): GridColumn<Insertable>[] {
         return [
-            new api.ui.grid.GridColumnBuilder()
+            new GridColumnBuilder()
                 .setName('component')
                 .setField('component')
                 .setId('component')
@@ -45,8 +53,8 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
         ];
     }
 
-    private buildRow(row: number, cell: number, value: any, columnDef: any, insertable: Insertable): api.dom.DivEl {
-        let rowEl = new api.dom.DivEl();
+    private buildRow(row: number, cell: number, value: any, columnDef: any, insertable: Insertable): DivEl {
+        let rowEl = new DivEl();
         rowEl.getEl().setData('portal-component-type', insertable.getName());
         if (this.componentGridOptions.draggableRows) {
             rowEl.getEl().setData('context-window-draggable', 'true');
@@ -57,10 +65,10 @@ export class InsertablesGrid extends api.ui.grid.Grid<Insertable> {
 
         let icon = new FontIcon(insertable.getIconCls());
 
-        let title = new api.dom.H5El();
+        let title = new H5El();
         title.getEl().setInnerHtml(insertable.getDisplayName());
 
-        let subtitle = new api.dom.H6El();
+        let subtitle = new H6El();
         subtitle.getEl().setInnerHtml(insertable.getDescription());
 
         rowEl.appendChild(icon);

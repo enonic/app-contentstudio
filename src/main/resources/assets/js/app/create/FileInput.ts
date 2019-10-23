@@ -1,7 +1,8 @@
-import InputEl = api.dom.InputEl;
+import {InputEl} from 'lib-admin-ui/dom/InputEl';
+import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
 
 export class FileInput
-    extends api.dom.CompositeFormInputEl {
+    extends CompositeFormInputEl {
 
     private textInput: InputEl;
 

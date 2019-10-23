@@ -1,3 +1,6 @@
+import * as $ from 'jquery';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentWizardPanel} from '../../../ContentWizardPanel';
 import {LiveEditPageProxy} from '../../LiveEditPageProxy';
 import {Insertable} from './Insertable';
@@ -9,8 +12,10 @@ import {PageView} from '../../../../../page-editor/PageView';
 import {LiveEditPageViewReadyEvent} from '../../../../../page-editor/LiveEditPageViewReadyEvent';
 import {Content} from '../../../../content/Content';
 import {PageMode} from '../../../../page/PageMode';
-import DragHelper = api.ui.DragHelper;
-import i18n = api.util.i18n;
+import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {DataView} from 'lib-admin-ui/ui/grid/DataView';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 
 export interface ComponentTypesPanelConfig {
 
@@ -22,13 +27,13 @@ export interface ComponentTypesPanelConfig {
 }
 
 export class InsertablesPanel
-    extends api.ui.panel.Panel {
+    extends Panel {
 
     private liveEditPageProxy: LiveEditPageProxy;
 
     private insertablesGrid: InsertablesGrid;
 
-    private insertablesDataView: api.ui.grid.DataView<Insertable>;
+    private insertablesDataView: DataView<Insertable>;
 
     private hideContextWindowRequestListeners: { (): void; }[] = [];
 
@@ -38,9 +43,9 @@ export class InsertablesPanel
 
     private overIFrame: boolean = false;
 
-    private iFrameDraggable: JQuery;
+    private iFrameDraggable: JQuery<HTMLElement>;
 
-    private contextWindowDraggable: JQuery;
+    private contextWindowDraggable: JQuery<HTMLElement>;
 
     private modifyPermissions: boolean = false;
 
@@ -50,10 +55,10 @@ export class InsertablesPanel
         super('insertables-panel');
         this.liveEditPageProxy = config.liveEditPage;
 
-        let topDescription = new api.dom.PEl();
+        let topDescription = new PEl();
         topDescription.getEl().setInnerHtml(i18n('field.insertables'));
 
-        this.insertablesDataView = new api.ui.grid.DataView<Insertable>();
+        this.insertablesDataView = new DataView<Insertable>();
         this.insertablesGrid = new InsertablesGrid(this.insertablesDataView, {draggableRows: true, rowClass: 'comp'});
 
         this.insertablesDataView.setItems(Insertables.ALL, 'name');
@@ -79,7 +84,7 @@ export class InsertablesPanel
                 }
                 // draggable was appended to sortable, set it to null to prevent dragStop callback
                 this.iFrameDraggable = null;
-                this.contextWindowDraggable.simulate('mouseup');
+                new ElementHelper(this.contextWindowDraggable.get()[0]).simulate('mouseup');
             }
         });
 
@@ -108,7 +113,7 @@ export class InsertablesPanel
     }
 
     private initializeDraggables() {
-        let components = wemjq('[data-context-window-draggable="true"]:not(.ui-draggable)');
+        let components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
 
         if (InsertablesPanel.debug) {
             console.log('InsertablesPanel.initializeDraggables', components);
@@ -129,7 +134,7 @@ export class InsertablesPanel
     }
 
     private destroyDraggables() {
-        let components = wemjq('[data-context-window-draggable="true"]:not(.ui-draggable)');
+        let components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
 
         components.draggable('destroy');
     }
@@ -148,7 +153,7 @@ export class InsertablesPanel
         this.liveEditPageProxy.getDragMask().show();
 
         // force the lock mask to be shown
-        this.contextWindowDraggable = wemjq(event.target);
+        this.contextWindowDraggable = <JQuery<HTMLElement>>$(event.target);
     }
 
     private handleDrag(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
@@ -180,7 +185,7 @@ export class InsertablesPanel
 
         if (this.iFrameDraggable) {
             this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mouseup');
+            new ElementHelper(this.iFrameDraggable.get()[0]).simulate('mouseup');
             this.iFrameDraggable.remove();
             this.iFrameDraggable = null;
         }
@@ -224,10 +229,10 @@ export class InsertablesPanel
         }
 
         if (!this.iFrameDraggable) {
-            this.iFrameDraggable = livejq(event.target).clone();
+            this.iFrameDraggable = <JQuery<HTMLElement>>livejq(event.target).clone();
             livejq('body').append(this.iFrameDraggable);
             this.liveEditPageProxy.createDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mousedown').hide();
+            new ElementHelper(this.iFrameDraggable.get()[0]).simulate('mousedown');
         }
 
         // show the helper of the iframe draggable

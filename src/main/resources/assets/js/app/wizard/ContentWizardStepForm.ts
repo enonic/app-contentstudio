@@ -1,13 +1,15 @@
-import '../../api.ts';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
-import Form = api.form.Form;
-import FormContext = api.form.FormContext;
-import FormView = api.form.FormView;
-import PropertyTree = api.data.PropertyTree;
-import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
+import {Form} from 'lib-admin-ui/form/Form';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {WizardStepValidityChangedEvent} from 'lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
+import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
+import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
+import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 
 export class ContentWizardStepForm
-    extends api.app.wizard.WizardStepForm {
+    extends WizardStepForm {
 
     protected formContext: FormContext;
 
@@ -27,7 +29,7 @@ export class ContentWizardStepForm
         });
     }
 
-    update(data: PropertyTree, unchangedOnly: boolean = true): wemQ.Promise<void> {
+    update(data: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         this.data = data;
         return this.formView.update(data.getRoot(), unchangedOnly);
     }
@@ -36,7 +38,7 @@ export class ContentWizardStepForm
         return this.formView.reset();
     }
 
-    layout(formContext: FormContext, data: PropertyTree, form: Form): wemQ.Promise<void> {
+    layout(formContext: FormContext, data: PropertyTree, form: Form): Q.Promise<void> {
 
         this.formContext = formContext;
         this.form = form;
@@ -44,7 +46,7 @@ export class ContentWizardStepForm
         return this.doLayout(form, data);
     }
 
-    protected doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
+    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
 
         if (this.formView) {
             this.formView.remove();
@@ -62,7 +64,7 @@ export class ContentWizardStepForm
 
             this.appendChild(this.formView);
 
-            this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
+            this.formView.onValidityChanged((event: FormValidityChangedEvent) => {
                 this.previousValidation = event.getRecording();
                 this.notifyValidityChanged(new WizardStepValidityChangedEvent(event.isValid()));
             });
@@ -73,12 +75,12 @@ export class ContentWizardStepForm
         });
     }
 
-    public validate(silent: boolean = false, forceNotify: boolean = false): api.form.ValidationRecording {
+    public validate(silent: boolean = false, forceNotify: boolean = false): ValidationRecording {
         return this.formView.validate(silent, forceNotify);
     }
 
     public resetValidation() {
-        this.previousValidation = new api.form.ValidationRecording();
+        this.previousValidation = new ValidationRecording();
         this.notifyValidityChanged(new WizardStepValidityChangedEvent(true));
     }
 

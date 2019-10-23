@@ -1,3 +1,5 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
@@ -122,7 +124,7 @@ export class LayoutComponentView
         return this.doParseRegions();
     }
 
-    private doParseRegions(parentElement?: api.dom.Element) {
+    private doParseRegions(parentElement?: Element) {
 
         let layoutComponent: LayoutComponent = <LayoutComponent>this.getComponent();
         let layoutRegions = layoutComponent.getRegions();
@@ -131,9 +133,9 @@ export class LayoutComponentView
         }
         let children = parentElement ? parentElement.getChildren() : this.getChildren();
 
-        children.forEach((childElement: api.dom.Element) => {
+        children.forEach((childElement: Element) => {
             let itemType = ItemType.fromElement(childElement);
-            let isRegionView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
+            let isRegionView = ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
             let region;
             let regionName;
             let regionView;

@@ -1,9 +1,11 @@
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
-import Descriptor = api.content.page.Descriptor;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ComponentName} from './ComponentName';
 import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
@@ -39,7 +41,7 @@ export abstract class DescriptorBasedComponent
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
         this.description = descriptor ? descriptor.getDescription() : null;
 
-        if (!api.ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
+        if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
         }
 
@@ -54,7 +56,7 @@ export abstract class DescriptorBasedComponent
         this.config = config;
         this.config.onChanged(this.configChangedHandler);
 
-        if (!api.ObjectHelper.equals(oldValue, config)) {
+        if (!ObjectHelper.equals(oldValue, config)) {
             this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
         }
     }
@@ -84,15 +86,15 @@ export abstract class DescriptorBasedComponent
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, DescriptorBasedComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, DescriptorBasedComponent)) {
             return false;
         }
 
         const other: DescriptorBasedComponent = <DescriptorBasedComponent>o;
 
-        if (!api.ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
+        if (!ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
             return false;
         }
 
@@ -120,7 +122,7 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
         super.fromJson(json);
 
         if (json.descriptor) {
-            this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
+            this.setDescriptor(DescriptorKey.fromString(json.descriptor));
         }
 
         return this;

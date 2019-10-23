@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {PageModel, SetController, SetTemplate} from './PageModel';
 import {SiteModel} from '../app/site/SiteModel';
 import {GetPageDescriptorByKeyRequest} from '../app/resource/GetPageDescriptorByKeyRequest';
@@ -9,10 +12,10 @@ import {PageMode} from '../app/page/PageMode';
 import {Page} from '../app/page/Page';
 import {Regions} from '../app/page/region/Regions';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
-import PageDescriptor = api.content.page.PageDescriptor;
-import i18n = api.util.i18n;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 
 export class LiveEditModel {
 
@@ -33,7 +36,7 @@ export class LiveEditModel {
         this.formContext = builder.formContext;
     }
 
-    init(defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor): wemQ.Promise<PageModel> {
+    init(defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor): Q.Promise<PageModel> {
 
         return LiveEditModelInitializer.initPageModel(this, this.content, defaultTemplate, defaultTemplateDescriptor)
             .then((pageModel: PageModel) => {
@@ -133,7 +136,7 @@ export class LiveEditModelBuilder {
 
 export class LiveEditModelInitializer {
 
-    static loadForcedPageTemplate(content: Content): wemQ.Promise<PageTemplate> {
+    static loadForcedPageTemplate(content: Content): Q.Promise<PageTemplate> {
         if (content && content.isPage()) {
             if (content.getPage().hasTemplate()) {
                 return this.loadPageTemplate(content.getPage().getTemplate())
@@ -147,13 +150,13 @@ export class LiveEditModelInitializer {
                     });
             }
         }
-        return wemQ(<PageTemplate>null);
+        return Q(<PageTemplate>null);
     }
 
     static initPageModel(liveEditModel: LiveEditModel, content: Content, defaultPageTemplate: PageTemplate,
-                         defaultTemplateDescriptor: PageDescriptor): wemQ.Promise<PageModel> {
+                         defaultTemplateDescriptor: PageDescriptor): Q.Promise<PageModel> {
 
-        const promises: wemQ.Promise<any>[] = [];
+        const promises: Q.Promise<any>[] = [];
 
         return this.loadForcedPageTemplate(content).then(forcedPageTemplate => {
             const pageMode = LiveEditModelInitializer.getPageMode(content, !!defaultPageTemplate, forcedPageTemplate);
@@ -175,7 +178,7 @@ export class LiveEditModelInitializer {
         });
     }
 
-    private static initPageTemplate(content: Content, pageMode: PageMode, pageModel: PageModel, promises: wemQ.Promise<any>[]): void {
+    private static initPageTemplate(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<any>[]): void {
         let pageTemplate: PageTemplate = <PageTemplate>content;
         if (pageMode === PageMode.FORCED_CONTROLLER) {
             this.initForcedControllerPageTemplate(pageTemplate, pageModel, promises);
@@ -186,7 +189,7 @@ export class LiveEditModelInitializer {
         }
     }
 
-    private static initPage(content: Content, pageMode: PageMode, pageModel: PageModel, promises: wemQ.Promise<any>[],
+    private static initPage(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<any>[],
                             forcedPageTemplate: PageTemplate): void {
         const page: Page = content.getPage();
         if (pageMode === PageMode.FORCED_TEMPLATE) {
@@ -204,9 +207,9 @@ export class LiveEditModelInitializer {
 
     private static initForcedControllerPageTemplate(pageTemplate: PageTemplate,
                                                     pageModel: PageModel,
-                                                    promises: wemQ.Promise<any>[]): void {
+                                                    promises: Q.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-        const pageDescriptorPromise: wemQ.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
+        const pageDescriptorPromise: Q.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
         pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
 
             const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
@@ -233,24 +236,24 @@ export class LiveEditModelInitializer {
     private static initForcedTemplatePage(content: Content,
                                           page: Page,
                                           pageModel: PageModel,
-                                          promises: wemQ.Promise<any>[], forcedPageTemplate?: PageTemplate): void {
+                                          promises: Q.Promise<any>[], forcedPageTemplate?: PageTemplate): void {
         const pageTemplateKey: PageTemplateKey = page.getTemplate();
-        const pageTemplatePromise: wemQ.Promise<PageTemplate> = !forcedPageTemplate ? this.loadPageTemplate(pageTemplateKey) : wemQ(
+        const pageTemplatePromise: Q.Promise<PageTemplate> = !forcedPageTemplate ? this.loadPageTemplate(pageTemplateKey) : Q(
             forcedPageTemplate);
 
         pageTemplatePromise.then((pageTemplate: PageTemplate) => {
 
             const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-            const pageDescriptorPromise: wemQ.Promise<PageDescriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
+            const pageDescriptorPromise: Q.Promise<PageDescriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
 
                 const config: PropertyTree = content.getPage().hasNonEmptyConfig()
-                    ? content.getPage().getConfig().copy()
-                    : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
+                                             ? content.getPage().getConfig().copy()
+                                             : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
 
                 const regions: Regions = content.getPage().hasNonEmptyRegions()
-                    ? content.getPage().getRegions().clone()
-                    : (pageTemplate.getRegions() ? pageTemplate.getRegions().clone() : pageTemplate.getRegions());
+                                         ? content.getPage().getRegions().clone()
+                                         : (pageTemplate.getRegions() ? pageTemplate.getRegions().clone() : pageTemplate.getRegions());
 
                 let setTemplate: SetTemplate = new SetTemplate(this)
                     .setTemplate(pageTemplate, pageDescriptor).setRegions(regions).setConfig(config);
@@ -261,11 +264,11 @@ export class LiveEditModelInitializer {
         promises.push(pageTemplatePromise);
     }
 
-    private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: wemQ.Promise<any>[]): void {
+    private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: Q.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
-            const pageDescriptorPromise: wemQ.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
+            const pageDescriptorPromise: Q.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
                 this.initPageController(page, pageModel, pageDescriptor);
             });
@@ -309,7 +312,7 @@ export class LiveEditModelInitializer {
         if (content.isPage()) {
             if (content.getPage().hasTemplate()) {
                 //in case content's template was deleted or updated to not support content's type
-                api.notify.showWarning(i18n('live.view.page.error.pagetemplatenotfound'));
+                showWarning(i18n('live.view.page.error.pagetemplatenotfound'));
 
                 if (defaultTemplatePresents) {
                     return PageMode.AUTOMATIC;
@@ -327,31 +330,31 @@ export class LiveEditModelInitializer {
         }
     }
 
-    private static loadPageTemplate(key: PageTemplateKey): wemQ.Promise<PageTemplate> {
-        let deferred: wemQ.Deferred<PageTemplate> = wemQ.defer<PageTemplate>();
+    private static loadPageTemplate(key: PageTemplateKey): Q.Promise<PageTemplate> {
+        let deferred: Q.Deferred<PageTemplate> = Q.defer<PageTemplate>();
         new GetPageTemplateByKeyRequest(key).sendAndParse().then((pageTemplate: PageTemplate) => {
             deferred.resolve(pageTemplate);
         }).catch(() => {
-            deferred.reject(new api.Exception(i18n('live.view.page.error.templatenotfound', key), api.ExceptionType.WARNING));
+            deferred.reject(new Exception(i18n('live.view.page.error.templatenotfound', key), ExceptionType.WARNING));
         }).done();
         return deferred.promise;
     }
 
-    private static loadPageDescriptor(key: DescriptorKey): wemQ.Promise<PageDescriptor> {
-        let deferred: wemQ.Deferred<PageDescriptor> = wemQ.defer<PageDescriptor>();
+    private static loadPageDescriptor(key: DescriptorKey): Q.Promise<PageDescriptor> {
+        let deferred: Q.Deferred<PageDescriptor> = Q.defer<PageDescriptor>();
         new GetPageDescriptorByKeyRequest(key).sendAndParse().then((pageDescriptor: PageDescriptor) => {
             deferred.resolve(pageDescriptor);
         }).catch(() => {
-            deferred.reject(new api.Exception(i18n('live.view.page.error.descriptornotfound', key), api.ExceptionType.WARNING));
+            deferred.reject(new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING));
         }).done();
         return deferred.promise;
     }
 
-    private static resolvePromises(pageModel: PageModel, promises: wemQ.Promise<any>[]): Q.Promise<PageModel> {
-        let deferred: wemQ.Deferred<PageModel> = wemQ.defer<PageModel>();
+    private static resolvePromises(pageModel: PageModel, promises: Q.Promise<any>[]): Q.Promise<PageModel> {
+        let deferred: Q.Deferred<PageModel> = Q.defer<PageModel>();
 
         if (promises.length > 0) {
-            wemQ.all(promises).then(() => {
+            Q.all(promises).then(() => {
                 deferred.resolve(pageModel);
             }).catch((reason: any) => {
                 deferred.reject(reason);

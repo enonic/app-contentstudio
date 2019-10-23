@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class SetActiveContentVersionRequest
@@ -22,13 +25,13 @@ export class SetActiveContentVersionRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'setActiveVersion');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'setActiveVersion');
     }
 
-    sendAndParse(): wemQ.Promise<ContentId> {
+    sendAndParse(): Q.Promise<ContentId> {
 
-        return this.send().then((response: api.rest.JsonResponse<any>) => {
+        return this.send().then((response: JsonResponse<any>) => {
             return new ContentId(response.getResult()['id']);
         });
     }

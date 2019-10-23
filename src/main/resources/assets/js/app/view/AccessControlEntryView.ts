@@ -1,12 +1,14 @@
-import Principal = api.security.Principal;
+import {Principal} from 'lib-admin-ui/security/Principal';
 import {AccessSelector} from '../security/AccessSelector';
 import {PermissionSelector} from '../security/PermissionSelector';
 import {Access} from '../security/Access';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
+import {PrincipalViewer} from 'lib-admin-ui/ui/security/PrincipalViewer';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
 export class AccessControlEntryView
-    extends api.ui.security.PrincipalViewer {
+    extends PrincipalViewer {
 
     private ace: AccessControlEntry;
 
@@ -47,7 +49,7 @@ export class AccessControlEntryView
         if (!this.permissionSelector) {
             this.permissionSelector = new PermissionSelector();
             this.permissionSelector.setEnabled(this.isEditable());
-            this.permissionSelector.onValueChanged((event: api.ValueChangedEvent) => {
+            this.permissionSelector.onValueChanged((event: ValueChangedEvent) => {
                 this.toggleClass('dirty', event.getNewValue() !== JSON.stringify({
                     allow: this.ace.getAllowedPermissions().sort(),
                     deny: this.ace.getDeniedPermissions().sort()
@@ -57,7 +59,7 @@ export class AccessControlEntryView
 
             // this.toggleClass('dirty', !ace.isInherited());
 
-            this.accessSelector.onValueChanged((event: api.ValueChangedEvent) => {
+            this.accessSelector.onValueChanged((event: ValueChangedEvent) => {
                 if (Access[event.getNewValue()] === Access.CUSTOM) {
                     this.permissionSelector.show();
                 } else {

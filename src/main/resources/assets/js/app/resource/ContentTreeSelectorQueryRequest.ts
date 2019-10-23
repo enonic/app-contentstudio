@@ -1,25 +1,30 @@
-import QueryExpr = api.query.expr.QueryExpr;
-import Expression = api.query.expr.Expression;
-import QueryField = api.query.QueryField;
-import ChildOrder = api.content.order.ChildOrder;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentSelectorQueryRequest} from './ContentSelectorQueryRequest';
 import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentMetadata} from '../content/ContentMetadata';
+import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
+import {Expand} from 'lib-admin-ui/rest/Expand';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentResourceRequest<any, DATA[]> {
 
-    private queryExpr: api.query.expr.QueryExpr;
+    private queryExpr: QueryExpr;
 
     private from: number = 0;
 
     private size: number = 10;//ContentTreeSelectorQueryRequest.DEFAULT_SIZE;
 
-    private expand: api.rest.Expand = api.rest.Expand.SUMMARY;
+    private expand: Expand = Expand.SUMMARY;
 
     private content: ContentSummary;
 
@@ -105,7 +110,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
     }
 
     protected createSearchExpression(searchString: string): Expression {
-        return new api.query.PathMatchExpressionBuilder()
+        return new PathMatchExpressionBuilder()
             .setSearchString(searchString)
             .setPath(this.content ? this.content.getPath().toString() : '')
             .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
@@ -126,12 +131,12 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         return this.relationshipType;
     }
 
-    getQueryExpr(): api.query.expr.QueryExpr {
+    getQueryExpr(): QueryExpr {
         return this.queryExpr;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'treeSelectorQuery');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'treeSelectorQuery');
     }
 
     isPartiallyLoaded(): boolean {
@@ -169,8 +174,8 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         return this.metadata;
     }
 
-    sendAndParse(): wemQ.Promise<DATA[]> {
-        return this.send().then((response: api.rest.JsonResponse<ContentTreeSelectorListJson>) => {
+    sendAndParse(): Q.Promise<DATA[]> {
+        return this.send().then((response: JsonResponse<ContentTreeSelectorListJson>) => {
             if (response.getResult() && response.getResult().items.length > 0) {
                 this.metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
                 return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
@@ -183,11 +188,11 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
 
     private expandAsString(): string {
         switch (this.expand) {
-        case api.rest.Expand.FULL:
+        case Expand.FULL:
             return 'full';
-        case api.rest.Expand.SUMMARY:
+        case Expand.SUMMARY:
             return 'summary';
-        case api.rest.Expand.NONE:
+        case Expand.NONE:
             return 'none';
         default:
             return 'summary';

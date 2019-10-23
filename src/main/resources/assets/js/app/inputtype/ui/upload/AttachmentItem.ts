@@ -1,9 +1,14 @@
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+
 export class AttachmentItem
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private link: api.dom.AEl;
+    private link: AEl;
 
-    private removeEl: api.dom.DivEl;
+    private removeEl: DivEl;
 
     private value: string;
 
@@ -12,14 +17,14 @@ export class AttachmentItem
 
         this.value = value;
 
-        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + contentId + '/' + encodeURIComponent(value)));
+        this.link = new AEl().setUrl(UriHelper.getRestUri('content/media/' + contentId + '/' + encodeURIComponent(value)));
         this.link.setHtml(value);
 
         this.initRemoveButton(removeCallback);
     }
 
     private initRemoveButton(callback?: (value: any) => void) {
-        this.removeEl = new api.dom.DivEl('icon remove');
+        this.removeEl = new DivEl('icon remove');
 
         this.removeEl.onClicked(() => {
             if (callback) {
@@ -33,7 +38,7 @@ export class AttachmentItem
         return this.value;
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
             this.removeChildren();

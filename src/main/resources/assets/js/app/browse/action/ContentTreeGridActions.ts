@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ToggleSearchPanelAction} from './ToggleSearchPanelAction';
 import {ShowNewContentDialogAction} from './ShowNewContentDialogAction';
@@ -25,16 +30,14 @@ import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildr
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
 import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
 import {RequestPublishContentAction} from './RequestPublishContentAction';
-import ContentId = api.content.ContentId;
-import Action = api.ui.Action;
-import ActionsStateManager = api.ui.ActionsStateManager;
-import TreeGridActions = api.ui.treegrid.actions.TreeGridActions;
-import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
-import ContentSummary = api.content.ContentSummary;
-import i18n = api.util.i18n;
-import ManagedActionManager = api.managedaction.ManagedActionManager;
-import ManagedActionState = api.managedaction.ManagedActionState;
-import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ActionsStateManager} from 'lib-admin-ui/ui/ActionsStateManager';
+import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
+import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
+import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
+import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 type ActionsMap = {
     SHOW_NEW_DIALOG?: Action,
@@ -179,7 +182,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return (<PreviewContentAction>this.actionsMap.PREVIEW).getPreviewHandler();
     }
 
-    getAllCommonActions(): api.ui.Action[] {
+    getAllCommonActions(): Action[] {
         return [
             this.actionsMap.SHOW_NEW_DIALOG,
             this.actionsMap.EDIT,
@@ -191,34 +194,34 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         ];
     }
 
-    getPublishActions(): api.ui.Action[] {
+    getPublishActions(): Action[] {
         return [
             this.actionsMap.PUBLISH,
             this.actionsMap.UNPUBLISH
         ];
     }
 
-    getPendingDeleteActions(): api.ui.Action[] {
+    getPendingDeleteActions(): Action[] {
         return [
             this.actionsMap.UNDO_PENDING_DELETE
         ];
     }
 
-    getAllActionsNoPublish(): api.ui.Action[] {
+    getAllActionsNoPublish(): Action[] {
         return [
             ...this.getAllCommonActions(),
             ...this.getPendingDeleteActions()
         ];
     }
 
-    getAllActionsNoPendingDelete(): api.ui.Action[] {
+    getAllActionsNoPendingDelete(): Action[] {
         return [
             ...this.getAllCommonActions(),
             this.actionsMap.UNPUBLISH
         ];
     }
 
-    getAllActions(): api.ui.Action[] {
+    getAllActions(): Action[] {
         return [
             ...this.getAllActionsNoPublish(),
             ...this.getPublishActions()
@@ -226,20 +229,21 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     // tslint:disable-next-line:max-line-length
-    updateActionsEnabledState(browseItems: ContentBrowseItem[], changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): wemQ.Promise<void> {
+    updateActionsEnabledState(browseItems: ContentBrowseItem[],
+                              changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<void> {
 
         if (changes && changes.getAdded().length === 0 && changes.getRemoved().length === 0) {
-            return wemQ<void>(null);
+            return Q<void>(null);
         }
 
         this.actionsMap.TOGGLE_SEARCH_PANEL.setVisible(false);
 
-        let parallelPromises: wemQ.Promise<any>[] = [
+        let parallelPromises: Q.Promise<any>[] = [
             this.getPreviewHandler().updateState(browseItems, changes),
             this.doUpdateActionsEnabledState(browseItems)
         ];
 
-        return wemQ.all(parallelPromises).catch(api.DefaultErrorHandler.handle);
+        return Q.all(parallelPromises).catch(DefaultErrorHandler.handle);
     }
 
     private resetDefaultActionsNoItemsSelected() {
@@ -383,7 +387,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return contentSummaries.length > 1 && contentSummaries.some((obj: ContentSummary) => obj.hasChildren());
     }
 
-    private doUpdateActionsEnabledState(contentBrowseItems: ContentBrowseItem[]): wemQ.Promise<any> {
+    private doUpdateActionsEnabledState(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
         switch (contentBrowseItems.length) {
         case 0:
             return this.updateActionsByPermissionsNoItemsSelected();
@@ -394,7 +398,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         }
     }
 
-    private updateActionsByPermissionsNoItemsSelected(): wemQ.Promise<any> {
+    private updateActionsByPermissionsNoItemsSelected(): Q.Promise<any> {
         return new GetPermittedActionsRequest().addPermissionsToBeChecked(Permission.CREATE).sendAndParse().then(
             (allowedPermissions: Permission[]) => {
                 this.resetDefaultActionsNoItemsSelected();
@@ -402,7 +406,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             });
     }
 
-    private updateActionsByPermissionsSingleItemSelected(contentBrowseItems: ContentBrowseItem[]): wemQ.Promise<any> {
+    private updateActionsByPermissionsSingleItemSelected(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
         const selectedItem: ContentSummaryAndCompareStatus = contentBrowseItems[0].getModel();
 
         return this.checkIsChildrenAllowedByContentType(selectedItem).then((contentTypeAllowsChildren: boolean) => {
@@ -412,8 +416,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
-    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        api.notify.NotifyManager.get().showWarning(
+    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<any> {
+        NotifyManager.get().showWarning(
             i18n('notify.contentType.notFound', selectedItem.getContentSummary().getType().getLocalName()));
 
         return this.getCreateDeletePublishAllowed([selectedItem.getContentId()]).then((allowedPermissions: Permission[]) => {
@@ -423,7 +427,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
-    private getCreateDeletePublishAllowed(contentIds: ContentId[]): wemQ.Promise<Permission[]> {
+    private getCreateDeletePublishAllowed(contentIds: ContentId[]): Q.Promise<Permission[]> {
         return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
             Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY).sendAndParse();
     }
@@ -465,7 +469,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[],
-                                                            contentTypesAllowChildren: boolean = true): wemQ.Promise<any> {
+                                                            contentTypesAllowChildren: boolean = true): Q.Promise<any> {
         const contentIds: ContentId[] = contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId());
 
         return this.getCreateDeletePublishAllowed(contentIds).then((allowedPermissions: Permission[]) => {
@@ -477,7 +481,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private updateDefaultActionsMultipleItemsSelected(contentIds: ContentId[], allowedPermissions: Permission[],
-                                                      contentTypesAllowChildren: boolean = true): wemQ.Promise<void> {
+                                                      contentTypesAllowChildren: boolean = true): Q.Promise<void> {
         if (!contentTypesAllowChildren || !this.canCreate(allowedPermissions)) {
             this.enableActions({
                 SHOW_NEW_DIALOG: false,
@@ -502,11 +506,11 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             return this.updatePublishTreeAction(contentIds);
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 
-    private updatePublishTreeAction(contentIds: ContentId[]): wemQ.Promise<void> {
-        const hasUnpublishedChildrenPromise: wemQ.Promise<HasUnpublishedChildrenResult> =
+    private updatePublishTreeAction(contentIds: ContentId[]): Q.Promise<void> {
+        const hasUnpublishedChildrenPromise: Q.Promise<HasUnpublishedChildrenResult> =
             new HasUnpublishedChildrenRequest(contentIds).sendAndParse();
 
         return hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
@@ -516,7 +520,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             this.enableActions({
                 PUBLISH_TREE: hasUnpublishedChildren
             });
-        }).catch(reason => api.DefaultErrorHandler.handle(reason));
+        }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
     private updateMarkAsReady(contentBrowseItems: ContentBrowseItem[], allowedPermissions: Permission[]) {
@@ -534,8 +538,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         }
     }
 
-    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): wemQ.Promise<Boolean> {
-        const deferred = wemQ.defer<boolean>();
+    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<Boolean> {
+        const deferred = Q.defer<boolean>();
 
         new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType()).sendAndParse()
             .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
@@ -544,13 +548,13 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return deferred.promise;
     }
 
-    private anyEditable(contentSummaries: api.content.ContentSummary[]): boolean {
+    private anyEditable(contentSummaries: ContentSummary[]): boolean {
         return contentSummaries.some((content) => {
             return !!content && content.isEditable();
         });
     }
 
-    private anyDeletable(contentSummaries: api.content.ContentSummary[]): boolean {
+    private anyDeletable(contentSummaries: ContentSummary[]): boolean {
         return contentSummaries.some((content) => {
             return !!content && content.isDeletable();
         });
@@ -579,7 +583,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return items.some(item => (!item.isOnline() && !item.isPendingDelete()));
     }
 
-    private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): wemQ.Promise<void> {
+    private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): Q.Promise<void> {
         // Need to check if parent allows content creation
         return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
             new GetPermittedActionsRequest()

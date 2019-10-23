@@ -5,15 +5,16 @@ import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialog
 import {Content, ContentBuilder} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import DivEl = api.dom.DivEl;
-import LabelEl = api.dom.LabelEl;
-import Button = api.ui.button.Button;
-import ContentPath = api.content.ContentPath;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
 
 export class SecurityWizardStepForm
-    extends api.app.wizard.WizardStepForm {
+    extends WizardStepForm {
 
     private label: LabelEl;
     private inheritance: DivEl;

@@ -1,12 +1,11 @@
-import BaseLoader = api.util.loader.BaseLoader;
-import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import RichSelectedOptionView = api.ui.selector.combobox.RichSelectedOptionView;
-import RichSelectedOptionViewBuilder = api.ui.selector.combobox.RichSelectedOptionViewBuilder;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ContentTypeSummaryViewer} from '../ui/schema/ContentTypeSummaryViewer';
 
 export class ContentTypeComboBox
@@ -25,7 +24,7 @@ export class ContentTypeComboBox
 export class ContentTypeSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTypeSummary> {
 
-    createSelectedOption(option: api.ui.selector.Option<ContentTypeSummary>): SelectedOption<ContentTypeSummary> {
+    createSelectedOption(option: Option<ContentTypeSummary>): SelectedOption<ContentTypeSummary> {
 
         let optionView = new ContentTypeSelectedOptionView(option);
         return new SelectedOption<ContentTypeSummary>(optionView, this.count());
@@ -35,7 +34,7 @@ export class ContentTypeSelectedOptionsView
 export class ContentTypeSelectedOptionView
     extends RichSelectedOptionView<ContentTypeSummary> {
 
-    constructor(option: api.ui.selector.Option<ContentTypeSummary>) {
+    constructor(option: Option<ContentTypeSummary>) {
         super(new RichSelectedOptionViewBuilder<ContentTypeSummary>(option));
     }
 

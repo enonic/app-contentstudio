@@ -1,7 +1,8 @@
-import Element = api.dom.Element;
-import UploaderEl = api.ui.uploader.UploaderEl;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {UploaderEl} from 'lib-admin-ui/ui/uploader/UploaderEl';
 
-export class FileUploaderEl<MODEL extends api.Equitable>
+export class FileUploaderEl<MODEL extends Equitable>
     extends UploaderEl<MODEL> {
 
     protected contentId: string;

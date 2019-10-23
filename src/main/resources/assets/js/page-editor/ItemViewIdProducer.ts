@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemViewId} from './ItemViewId';
 
 export class ItemViewIdProducer {

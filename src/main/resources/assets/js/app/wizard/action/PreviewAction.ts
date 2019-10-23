@@ -1,7 +1,7 @@
-import '../../../api.ts';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {BasePreviewAction} from '../../action/BasePreviewAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import i18n = api.util.i18n;
 
 export class PreviewAction extends BasePreviewAction {
 
@@ -13,7 +13,7 @@ export class PreviewAction extends BasePreviewAction {
             if (this.writePermissions && wizard.hasUnsavedChanges()) {
                     wizard.setRequireValid(true);
                     wizard.saveChanges().then(content => this.openWindow(content)).catch(
-                        (reason: any) => api.DefaultErrorHandler.handle(reason)).done();
+                        (reason: any) => DefaultErrorHandler.handle(reason)).done();
                 } else {
                     this.openWindow(wizard.getPersistedItem());
                 }

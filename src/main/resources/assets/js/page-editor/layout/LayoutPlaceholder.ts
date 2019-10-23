@@ -3,8 +3,8 @@ import {LayoutComponentView} from './LayoutComponentView';
 import {SiteModel} from '../../app/site/SiteModel';
 import {LayoutDescriptorComboBox} from './LayoutDescriptorComboBox';
 import {LayoutComponent} from '../../app/page/region/LayoutComponent';
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class LayoutPlaceholder
     extends ItemViewPlaceholder {

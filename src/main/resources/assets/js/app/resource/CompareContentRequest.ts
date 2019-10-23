@@ -1,7 +1,10 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {CompareContentResultsJson} from './json/CompareContentResultsJson';
-import ContentSummary = api.content.ContentSummary;
 
 export class CompareContentRequest
     extends ContentResourceRequest<CompareContentResultsJson, CompareContentResults> {
@@ -32,12 +35,12 @@ export class CompareContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'compare');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'compare');
     }
 
-    sendAndParse(): wemQ.Promise<CompareContentResults> {
-        return this.send().then((response: api.rest.JsonResponse<CompareContentResultsJson>) => {
+    sendAndParse(): Q.Promise<CompareContentResults> {
+        return this.send().then((response: JsonResponse<CompareContentResultsJson>) => {
             return this.fromJsonToCompareResults(response.getResult());
         });
     }

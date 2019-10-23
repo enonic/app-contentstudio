@@ -1,9 +1,11 @@
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentDeletePromptEvent} from '../../browse/ContentDeletePromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class DeleteContentAction extends api.ui.Action {
+export class DeleteContentAction
+    extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.deleteMore'), 'mod+del', true);

@@ -1,11 +1,12 @@
-import PrincipalListJson = api.security.PrincipalListJson;
-import PrincipalType = api.security.PrincipalType;
-import IdProviderKey = api.security.IdProviderKey;
+import {PrincipalListJson} from 'lib-admin-ui/security/PrincipalListJson';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {IdProviderKey} from 'lib-admin-ui/security/IdProviderKey';
 import {FindAccessControlEntriesRequest} from '../resource/FindAccessControlEntriesRequest';
 import {AccessControlEntry} from '../access/AccessControlEntry';
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class AccessControlEntryLoader
-    extends api.util.loader.BaseLoader<PrincipalListJson, AccessControlEntry> {
+    extends BaseLoader<PrincipalListJson, AccessControlEntry> {
 
     protected request: FindAccessControlEntriesRequest;
 
@@ -34,7 +35,7 @@ export class AccessControlEntryLoader
         return this;
     }
 
-    search(searchString: string): wemQ.Promise<AccessControlEntry[]> {
+    search(searchString: string): Q.Promise<AccessControlEntry[]> {
         this.getRequest().setSearchQuery(searchString);
         return this.load();
     }

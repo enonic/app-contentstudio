@@ -1,6 +1,7 @@
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {Region} from '../app/page/region/Region';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {PEl} from 'lib-admin-ui/dom/PEl';
 
 export class RegionPlaceholder
     extends ItemViewPlaceholder {
@@ -13,7 +14,7 @@ export class RegionPlaceholder
 
         this.region = region;
 
-        let dragComponentsHereEl = new api.dom.PEl();
+        let dragComponentsHereEl = new PEl();
         dragComponentsHereEl.setHtml(i18n('live.view.drag.drophere'));
 
         this.appendChild(dragComponentsHereEl);

@@ -1,18 +1,22 @@
-import PropertyArray = api.data.PropertyArray;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import UploaderEl = api.ui.uploader.UploaderEl;
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {UploaderEl} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class FileUploader
-    extends api.form.inputtype.support.BaseInputTypeManagingAdd {
+    extends BaseInputTypeManagingAdd {
 
     protected config: ContentInputTypeViewContext;
     protected uploaderEl: FileUploaderEl<any>;
-    protected uploaderWrapper: api.dom.DivEl;
-    protected uploadButton: api.dom.DivEl;
+    protected uploaderWrapper: DivEl;
+    protected uploadButton: DivEl;
 
     constructor(config: ContentInputTypeViewContext) {
         super('file-uploader');
@@ -31,7 +35,7 @@ export class FileUploader
         return null;
     }
 
-    update(propertyArray: PropertyArray, unchangedOnly?: boolean): wemQ.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
 
         let superPromise = super.update(propertyArray, unchangedOnly);
         this.uploaderEl.setContentId(this.getContext().content.getContentId().toString());
@@ -70,15 +74,15 @@ export class FileUploader
         });
     }
 
-    protected createUploaderWrapper(): api.dom.DivEl {
-        const wrapper = new api.dom.DivEl('uploader-wrapper');
+    protected createUploaderWrapper(): DivEl {
+        const wrapper = new DivEl('uploader-wrapper');
 
         wrapper.appendChild(this.uploaderEl);
 
         if (this.uploaderEl.hasUploadButton()) {
             this.uploadButton = this.uploaderEl.getUploadButton();
         } else {
-            this.uploadButton = new api.ui.button.Button();
+            this.uploadButton = new Button();
             this.uploadButton.addClass('upload-button');
             wrapper.appendChild(this.uploadButton);
 

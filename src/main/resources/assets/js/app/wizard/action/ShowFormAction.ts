@@ -1,9 +1,10 @@
-import '../../../api.ts';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class ShowFormAction extends api.ui.Action {
+export class ShowFormAction
+    extends Action {
 
     constructor(wizard: ContentWizardPanel) {
         super('Form');

@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
@@ -7,12 +13,12 @@ import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
-import ListBox = api.ui.selector.list.ListBox;
-import i18n = api.util.i18n;
-import TaskState = api.task.TaskState;
-import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentSummary = api.content.ContentSummary;
+import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -33,7 +39,7 @@ export class ContentDuplicateDialog
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
                 title: i18n('dialog.duplicate'),
-            class: 'content-duplicate-dialog',
+                class: 'content-duplicate-dialog',
                 dependantsDescription: i18n('dialog.duplicate.dependants'),
                 processingLabel: `${i18n('field.progress.duplicating')}...`,
                 processHandler: () => new ContentDuplicatePromptEvent([]).fire()
@@ -64,7 +70,7 @@ export class ContentDuplicateDialog
     }
 
     private initItemListListeners() {
-        const reloadDependenciesDebounced = api.util.AppHelper.debounce(() => {
+        const reloadDependenciesDebounced = AppHelper.debounce(() => {
             if (this.getItemList().hasActiveTogglers()) {
                 this.manageDescendants();
             } else {
@@ -96,7 +102,7 @@ export class ContentDuplicateDialog
                 this.actionButton.giveFocus();
             });
         }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 
@@ -116,8 +122,8 @@ export class ContentDuplicateDialog
         super.close();
         if (this.messageId) {
 
-            this.removeClickIgnoredElement(api.notify.NotifyManager.get().getNotification(this.messageId));
-            api.notify.NotifyManager.get().hide(this.messageId);
+            this.removeClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
+            NotifyManager.get().hide(this.messageId);
 
             this.messageId = '';
         }
@@ -156,14 +162,14 @@ export class ContentDuplicateDialog
 
         const taskIsFinishedPromise = this.createDuplicateRequest()
             .sendAndParse()
-            .then((taskId: api.task.TaskId) => {
+            .then((taskId: TaskId) => {
                 this.pollTask(taskId);
                 return this.checkFinished();
             })
             .catch((reason) => {
                 this.close();
                 if (reason && reason.message) {
-                    api.notify.showError(reason.message);
+                    showError(reason.message);
                 }
             });
 
@@ -171,7 +177,7 @@ export class ContentDuplicateDialog
 
             const duplicatedPromise = this.checkDuplicated(itemToDuplicate.getContentSummary());
 
-            wemQ.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
+            Q.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
                 if (isFinished) {
                     this.openTab(duplicatedContent);
                 }
@@ -179,9 +185,9 @@ export class ContentDuplicateDialog
         }
     }
 
-    private checkFinished(): wemQ.Promise<Boolean> {
+    private checkFinished(): Q.Promise<Boolean> {
 
-        const deferred = wemQ.defer<Boolean>();
+        const deferred = Q.defer<Boolean>();
 
         const handler = (taskState: TaskState) => {
             if (taskState === TaskState.FINISHED) {
@@ -197,7 +203,7 @@ export class ContentDuplicateDialog
 
     private checkDuplicated(itemToDuplicate: ContentSummary) {
 
-        const deferred = wemQ.defer<ContentSummary>();
+        const deferred = Q.defer<ContentSummary>();
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 

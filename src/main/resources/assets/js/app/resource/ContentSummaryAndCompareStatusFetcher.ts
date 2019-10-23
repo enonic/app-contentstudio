@@ -1,7 +1,8 @@
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
-import ChildOrder = api.content.order.ChildOrder;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';
@@ -15,10 +16,11 @@ import {CompareContentResult} from './CompareContentResult';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
+import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
-    static fetchRoot(from: number = 0, size: number = -1): wemQ.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
+    static fetchRoot(from: number = 0, size: number = -1): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
         return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, this.createRootChildOrder());
     }
 
@@ -26,7 +28,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         const childOrder: ChildOrder = new ChildOrder();
 
         childOrder.addOrderExpressions(ContentSummaryRequest.ROOT_ORDER.map(fieldOrderExpr => {
-            return new api.content.order.FieldOrderExpr(new api.content.order.FieldOrderExprBuilder(
+            return new FieldOrderExpr(new FieldOrderExprBuilder(
                 {fieldName: fieldOrderExpr.getField().getName(), direction: fieldOrderExpr.directionAsString()}));
         }));
 
@@ -34,7 +36,7 @@ export class ContentSummaryAndCompareStatusFetcher {
     }
 
     static fetchChildren(parentContentId: ContentId, from: number = 0, size: number = -1,
-                         childOrder?: api.content.order.ChildOrder): wemQ.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
+                         childOrder?: ChildOrder): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
 
         return new ListContentByIdRequest(parentContentId).setFrom(from).setSize(size).setOrder(childOrder).sendAndParse().then(
             (response: ContentResponse<ContentSummary>) => {
@@ -56,7 +58,7 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetch(contentId: ContentId): wemQ.Promise<ContentSummaryAndCompareStatus> {
+    static fetch(contentId: ContentId): Q.Promise<ContentSummaryAndCompareStatus> {
 
         return new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
 
@@ -69,14 +71,14 @@ export class ContentSummaryAndCompareStatusFetcher {
 
     }
 
-    static fetchByContent(content: Content): wemQ.Promise<ContentSummaryAndCompareStatus> {
+    static fetchByContent(content: Content): Q.Promise<ContentSummaryAndCompareStatus> {
 
         return CompareContentRequest.fromContentSummaries([content]).sendAndParse().then((compareResults: CompareContentResults) => {
             return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
         });
     }
 
-    static fetchByPaths(paths: ContentPath[]): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    static fetchByPaths(paths: ContentPath[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
         if (paths.length > 0) {
             return new BatchContentRequest().setContentPaths(paths).sendAndParse().then((response: ContentResponse<ContentSummary>) => {
@@ -89,10 +91,10 @@ export class ContentSummaryAndCompareStatusFetcher {
                     });
             });
         }
-        return wemQ([]);
+        return Q([]);
     }
 
-    static fetchByIds(ids: ContentId[]): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    static fetchByIds(ids: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
         if (ids.length > 0) {
             return new GetContentSummaryByIds(ids).sendAndParse().then((contentSummaries: ContentSummary[]) => {
@@ -109,10 +111,10 @@ export class ContentSummaryAndCompareStatusFetcher {
                     });
             });
         }
-        return wemQ([]);
+        return Q([]);
     }
 
-    static fetchStatus(contentSummaries: ContentSummary[]): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    static fetchStatus(contentSummaries: ContentSummary[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
         return CompareContentRequest.fromContentSummaries(contentSummaries).sendAndParse()
             .then((compareResults: CompareContentResults) => {
@@ -121,7 +123,7 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetchChildrenIds(parentContentId: ContentId): wemQ.Promise<ContentId[]> {
+    static fetchChildrenIds(parentContentId: ContentId): Q.Promise<ContentId[]> {
 
         return new GetContentIdsByParentRequest().setParentId(parentContentId).sendAndParse().then(
             (response: ContentId[]) => {
@@ -147,7 +149,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         return list;
     }
 
-    static updateReadOnly(contents: ContentSummaryAndCompareStatus[]): wemQ.Promise<any> {
+    static updateReadOnly(contents: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
         return new IsContentReadOnlyRequest(contents.map(content => content.getContentId())).sendAndParse().then(
             (readOnlyContentIds: string[]) => {
 

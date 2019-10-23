@@ -1,7 +1,7 @@
-import Option = api.ui.selector.Option;
-import DescriptorKey = api.content.page.DescriptorKey;
-import RichDropdown = api.ui.selector.dropdown.RichDropdown;
-import Descriptor = api.content.page.Descriptor;
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 
 export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
     extends RichDropdown<DESCRIPTOR> {

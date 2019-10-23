@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {ClickPosition} from './ClickPosition';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
@@ -25,9 +31,8 @@ import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropert
 import {ComponentResetEvent} from '../app/page/region/ComponentResetEvent';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
-import i18n = api.util.i18n;
-import KeyBinding = api.ui.KeyBinding;
-import Element = api.dom.Element;
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -39,19 +44,19 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     parentRegionView: RegionView;
 
-    parentElement: api.dom.Element;
+    parentElement: Element;
 
     component: COMPONENT;
 
-    element: api.dom.Element;
+    element: Element;
 
     positionIndex: number;
 
-    contextMenuActions: api.ui.Action[];
+    contextMenuActions: Action[];
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: api.ui.Viewer<any>;
+    viewer: Viewer<any>;
 
     inspectActionRequired: boolean;
 
@@ -81,7 +86,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setParentElement(value: api.dom.Element): ComponentViewBuilder<COMPONENT> {
+    setParentElement(value: Element): ComponentViewBuilder<COMPONENT> {
         this.parentElement = value;
         return this;
     }
@@ -91,7 +96,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setElement(value: api.dom.Element): ComponentViewBuilder<COMPONENT> {
+    setElement(value: Element): ComponentViewBuilder<COMPONENT> {
         this.element = value;
         return this;
     }
@@ -101,7 +106,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setContextMenuActions(actions: api.ui.Action[]): ComponentViewBuilder<COMPONENT> {
+    setContextMenuActions(actions: Action[]): ComponentViewBuilder<COMPONENT> {
         this.contextMenuActions = actions;
         return this;
     }
@@ -116,7 +121,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setViewer(value: api.ui.Viewer<any>): ComponentViewBuilder<COMPONENT> {
+    setViewer(value: Viewer<any>): ComponentViewBuilder<COMPONENT> {
         this.viewer = value;
         return this;
     }
@@ -124,7 +129,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
 export class ComponentView<COMPONENT extends Component>
     extends ItemView
-    implements api.Cloneable {
+    implements Cloneable {
 
     protected component: COMPONENT;
 
@@ -200,7 +205,7 @@ export class ComponentView<COMPONENT extends Component>
         let parentIsPage = this.getParentItemView().getType().equals(PageItemType.get());
         let isTopFragmentComponent = parentIsPage && isFragmentContent;
 
-        let actions: api.ui.Action[] = [];
+        let actions: Action[] = [];
 
         if (!isTopFragmentComponent) {
             actions.push(this.createSelectParentAction());
@@ -208,23 +213,23 @@ export class ComponentView<COMPONENT extends Component>
         }
 
         if (inspectActionRequired) {
-            actions.push(new api.ui.Action(i18n('live.view.inspect')).onExecuted(() => {
+            actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
                 new ComponentInspectedEvent(this).fire();
             }));
         }
 
-        actions.push(new api.ui.Action(i18n('live.view.reset')).onExecuted(() => {
+        actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
             if (this.component) {
                 this.component.reset();
             }
         }));
 
         if (!isTopFragmentComponent) {
-            actions.push(new api.ui.Action(i18n('live.view.remove')).onExecuted(() => {
+            actions.push(new Action(i18n('live.view.remove')).onExecuted(() => {
                 this.deselect();
                 this.remove();
             }));
-            actions.push(new api.ui.Action(i18n('live.view.duplicate')).onExecuted(() => {
+            actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 
                 let duplicatedComponent = <COMPONENT> this.getComponent().duplicate();
@@ -239,7 +244,7 @@ export class ComponentView<COMPONENT extends Component>
         let isFragmentComponent = this.getType().equals(FragmentItemType.get());
 
         if (!isFragmentComponent && this.liveEditModel.isFragmentAllowed()) {
-            actions.push(new api.ui.Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
+            actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
                 this.deselect();
                 this.createFragment().then((content: Content): void => {
                     // replace created fragment in place of source component
@@ -287,12 +292,12 @@ export class ComponentView<COMPONENT extends Component>
         Element.fromHtmlElement(<HTMLElement>window.frameElement).giveFocus();
 
         super.select(clickPosition, menuPosition, newlyCreated, rightClicked);
-        api.ui.KeyBindings.get().bindKeys(this.keyBinding);
+        KeyBindings.get().bindKeys(this.keyBinding);
 
     }
 
     deselect(silent?: boolean) {
-        api.ui.KeyBindings.get().unbindKeys(this.keyBinding);
+        KeyBindings.get().unbindKeys(this.keyBinding);
 
         super.deselect(silent);
     }
@@ -384,7 +389,7 @@ export class ComponentView<COMPONENT extends Component>
         return duplicateView;
     }
 
-    private createFragment(): wemQ.Promise<Content> {
+    private createFragment(): Q.Promise<Content> {
         const contentId = this.getPageView().getLiveEditModel().getContent().getContentId();
         const config = this.getPageView().getLiveEditModel().getPageModel().getConfig();
 

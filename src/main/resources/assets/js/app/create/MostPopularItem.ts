@@ -1,6 +1,5 @@
-import '../../api.ts';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class MostPopularItem extends NewContentDialogListItem {
 

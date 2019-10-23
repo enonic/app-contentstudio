@@ -1,11 +1,14 @@
-import ContentPath = api.content.ContentPath;
-import ContentName = api.content.ContentName;
-import ContentSummary = api.content.ContentSummary;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export class ContentSummaryAndCompareStatusViewer
-    extends api.ui.NamesAndIconViewer<ContentSummaryAndCompareStatus> {
+    extends NamesAndIconViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super('content-summary-and-compare-status-viewer');
@@ -52,11 +55,11 @@ export class ContentSummaryAndCompareStatusViewer
 
         if (relativePath) {
             return !contentName.isUnnamed() ? contentName.toString() :
-                   api.content.ContentUnnamed.prettifyUnnamed();
+                   ContentUnnamed.prettifyUnnamed();
         } else {
             return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
                    ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                       api.content.ContentUnnamed.prettifyUnnamed()).toString();
+                       ContentUnnamed.prettifyUnnamed()).toString();
         }
     }
 
@@ -95,6 +98,6 @@ export class ContentSummaryAndCompareStatusViewer
 
     resolveIconUrl(object: ContentSummaryAndCompareStatus): string {
         const contentSummary = object.getContentSummary();
-        return contentSummary ? new api.content.util.ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
+        return contentSummary ? new ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
     }
 }

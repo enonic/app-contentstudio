@@ -1,8 +1,11 @@
-import i18n = api.util.i18n;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {FileUploaderEl} from './FileUploaderEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class AttachmentUploaderEl
     extends FileUploaderEl<Attachment> {
@@ -15,7 +18,7 @@ export class AttachmentUploaderEl
     constructor(config: any) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/createAttachment');
+            config.url = UriHelper.getRestUri('content/createAttachment');
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -33,7 +36,7 @@ export class AttachmentUploaderEl
             this.addCallback = config.attachmentAddCallback;
         }
 
-        const noAttachmentsDescription = new api.dom.DivEl('no-attachments-description');
+        const noAttachmentsDescription = new DivEl('no-attachments-description');
         noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
         noAttachmentsDescription.insertAfterEl(this.getResultContainer());
 
@@ -58,7 +61,7 @@ export class AttachmentUploaderEl
         );
     }
 
-    getExistingItem(value: string): api.dom.Element {
+    getExistingItem(value: string): Element {
         let element = null;
         this.getResultContainer().getChildren().forEach((item) => {
             if ((<AttachmentItem>item).getValue() === value) {
@@ -68,7 +71,7 @@ export class AttachmentUploaderEl
         return element;
     }
 
-    createResultItem(value: string): api.dom.Element {
+    createResultItem(value: string): Element {
 
         let attachmentItem = new AttachmentItem(this.contentId, value, this.removeCallback);
         this.attachmentItems.push(attachmentItem);

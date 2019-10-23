@@ -1,6 +1,9 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ListContentResult} from './ListContentResult';
 
@@ -21,17 +24,17 @@ export class GetContentSummaryByIds
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'resolveByIds');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'resolveByIds');
     }
 
-    sendAndParse(): wemQ.Promise<ContentSummary[]> {
+    sendAndParse(): Q.Promise<ContentSummary[]> {
         if (this.ids && this.ids.length > 0) {
-            return this.send().then((response: api.rest.JsonResponse<ListContentResult<ContentSummaryJson>>) => {
+            return this.send().then((response: JsonResponse<ListContentResult<ContentSummaryJson>>) => {
                 return ContentSummary.fromJsonArray(response.getResult().contents);
             });
         } else {
-            let deferred = wemQ.defer<ContentSummary[]>();
+            let deferred = Q.defer<ContentSummary[]>();
             deferred.resolve([]);
             return deferred.promise;
         }

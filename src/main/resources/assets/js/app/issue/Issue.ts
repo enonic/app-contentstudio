@@ -1,7 +1,7 @@
 import {IssueSummary, IssueSummaryBuilder} from './IssueSummary';
 import {PublishRequest} from './PublishRequest';
 import {IssueJson} from './json/IssueJson';
-import PrincipalKey = api.security.PrincipalKey;
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class Issue
     extends IssueSummary {

@@ -1,13 +1,13 @@
-import '../../api.ts';
-import ChildOrder = api.content.order.ChildOrder;
-import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
-import Button = api.ui.button.Button;
-import i18n = api.util.i18n;
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 type AscDescOrder = { ascending: ChildOrder, descending: ChildOrder };
 export type SortChildOrder = ChildOrder | AscDescOrder;
 
-export class SortContentTabMenuItem extends api.ui.tab.TabMenuItem {
+export class SortContentTabMenuItem
+    extends TabMenuItem {
 
     private childOrder: SortChildOrder;
 

@@ -1,8 +1,9 @@
-import './../api.ts';
-import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 
 export class LiveEditPageDialogCreatedEvent
-    extends api.event.Event {
+    extends Event {
 
     private dialog: ModalDialog;
 
@@ -23,10 +24,10 @@ export class LiveEditPageDialogCreatedEvent
     }
 
     static on(handler: (event: LiveEditPageDialogCreatedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: LiveEditPageDialogCreatedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

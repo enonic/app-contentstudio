@@ -1,5 +1,7 @@
+import {Event} from 'lib-admin-ui/event/Event';
+
 export abstract class SelectedByClickEvent
-    extends api.event.Event {
+    extends Event {
 
     private rightClicked: boolean;
 

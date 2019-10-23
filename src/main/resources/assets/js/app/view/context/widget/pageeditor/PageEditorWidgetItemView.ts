@@ -1,9 +1,10 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {IsRenderableRequest} from '../../../../resource/IsRenderableRequest';
 import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
 import {WidgetItemView} from '../../WidgetItemView';
-import PEl = api.dom.PEl;
-import i18n = api.util.i18n;
 
 export class PageEditorWidgetItemView
     extends WidgetItemView {
@@ -25,13 +26,13 @@ export class PageEditorWidgetItemView
         this.appendChild(noPreviewContainer);
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         return PageEditorWidgetItemView.isPreviewAvailable(item).then((available: boolean) => {
             this.toggleClass('no-controller', !available);
         });
     }
 
-    private static isPreviewAvailable(item: ContentSummaryAndCompareStatus): wemQ.Promise<boolean> {
+    private static isPreviewAvailable(item: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
         return new IsRenderableRequest(item.getContentId()).sendAndParse();
     }
 }

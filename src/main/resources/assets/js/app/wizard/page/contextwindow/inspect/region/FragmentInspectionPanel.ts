@@ -1,3 +1,11 @@
+import * as Q from 'q';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
 import {FragmentComponentView} from '../../../../../../page-editor/fragment/FragmentComponentView';
@@ -14,12 +22,8 @@ import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSumm
 import {FragmentComponent} from '../../../../../page/region/FragmentComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import Option = api.ui.selector.Option;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import Button = api.ui.button.Button;
-import i18n = api.util.i18n;
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
@@ -134,7 +138,7 @@ export class FragmentInspectionPanel
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                     }
                 }).done();
             }
@@ -179,8 +183,8 @@ export class FragmentInspectionPanel
                         let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
                         if (fragmentComponent &&
-                            api.ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
-                            api.notify.showWarning(i18n('notify.nestedLayouts'));
+                            ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
+                            showWarning(i18n('notify.nestedLayouts'));
 
                         } else {
                             this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
@@ -202,7 +206,7 @@ export class FragmentInspectionPanel
         if (!parent) {
             return false;
         }
-        return api.ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
+        return ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
     }
 
     cleanUp() {

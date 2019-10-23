@@ -1,8 +1,10 @@
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
-import ContentId = api.content.ContentId;
-import ObjectHelper = api.ObjectHelper;
-import PropertyTreeHelper = api.util.PropertyTreeHelper;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
 import {Component} from './region/Component';
@@ -20,7 +22,7 @@ import {ComponentPath} from './region/ComponentPath';
 import {ComponentType} from './region/ComponentType';
 
 export class Page
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     private controller: DescriptorKey;
 
@@ -95,24 +97,24 @@ export class Page
         return this.fragment != null;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Page)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Page)) {
             return false;
         }
 
         let other = <Page>o;
 
-        if (!api.ObjectHelper.equals(this.controller, other.controller)) {
+        if (!ObjectHelper.equals(this.controller, other.controller)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.template, other.template)) {
+        if (!ObjectHelper.equals(this.template, other.template)) {
             return false;
         }
         if (!this.regionsEquals(other.regions)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
+        if (!ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;
         }
 
@@ -128,7 +130,7 @@ export class Page
             return true;
         }
 
-        return api.ObjectHelper.equals(this.regions, otherRegions);
+        return ObjectHelper.equals(this.regions, otherRegions);
     }
 
     clone(): Page {

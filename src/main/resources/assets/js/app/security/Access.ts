@@ -1,4 +1,4 @@
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export enum Access {
     FULL,

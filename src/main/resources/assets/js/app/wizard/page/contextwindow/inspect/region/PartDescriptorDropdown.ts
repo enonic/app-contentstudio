@@ -1,4 +1,4 @@
-import PartDescriptor = api.content.page.region.PartDescriptor;
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {PartDescriptorLoader} from './PartDescriptorLoader';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';

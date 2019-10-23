@@ -1,13 +1,15 @@
-import TreeGrid = api.ui.treegrid.TreeGrid;
-import TreeNode = api.ui.treegrid.TreeNode;
-import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import ContentPath = api.content.ContentPath;
-import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import ContentSummary = api.content.ContentSummary;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ContentId = api.content.ContentId;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
+import * as Q from 'q';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
@@ -16,6 +18,7 @@ import {ContentResponse} from '../resource/ContentResponse';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {Content} from '../content/Content';
 import {ContentQuery} from '../content/ContentQuery';
+import {Expand} from 'lib-admin-ui/rest/Expand';
 
 export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 
@@ -75,7 +78,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         // update columns when grid becomes active for the first time
         this.onActiveChanged(onBecameActive);
 
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             if (this.isInRenderingView()) {
                 updateColumnsHandler(item.isRangeSizeChanged());
             }
@@ -94,16 +97,16 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         return data.getId();
     }
 
-    fetch(node: TreeNode<ContentSummary>, dataId?: string): wemQ.Promise<ContentSummary> {
+    fetch(node: TreeNode<ContentSummary>, dataId?: string): Q.Promise<ContentSummary> {
         return this.fetchById(node.getData().getContentId());
     }
 
-    private fetchById(id: api.content.ContentId): wemQ.Promise<ContentSummary> {
+    private fetchById(id: ContentId): Q.Promise<ContentSummary> {
         return new GetContentByIdRequest(id).sendAndParse();
     }
 
-    fetchChildren(parentNode?: TreeNode<ContentSummary>): wemQ.Promise<ContentSummary[]> {
-        let parentContentId: api.content.ContentId = null;
+    fetchChildren(parentNode?: TreeNode<ContentSummary>): Q.Promise<ContentSummary[]> {
+        let parentContentId: ContentId = null;
         if (parentNode) {
             parentContentId = parentNode.getData() ? parentNode.getData().getContentId() : parentContentId;
         } else {
@@ -134,15 +137,15 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
             this.filterQuery.setFrom(from);
             this.filterQuery.setSize(ContentDropdownTreeGrid.MAX_FETCH_SIZE);
             return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(this.filterQuery).setExpand(
-                api.rest.Expand.SUMMARY).sendAndParse().then(
+                Expand.SUMMARY).sendAndParse().then(
                 (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
                     return contentQueryResult.getContents();
                 });
         }
     }
 
-    fetchChildrenIds(parentNode?: TreeNode<ContentSummary>): wemQ.Promise<ContentId[]> {
-        let parentContentId: api.content.ContentId = null;
+    fetchChildrenIds(parentNode?: TreeNode<ContentSummary>): Q.Promise<ContentId[]> {
+        let parentContentId: ContentId = null;
         if (parentNode) {
             parentContentId = parentNode.getData() ? parentNode.getData().getContentId() : parentContentId;
         } else {
@@ -163,14 +166,14 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
             this.filterQuery.setFrom(0);
             this.filterQuery.setSize(size + 1);
             return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(this.filterQuery).setExpand(
-                api.rest.Expand.SUMMARY).sendAndParse().then(
+                Expand.SUMMARY).sendAndParse().then(
                 (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
                     return contentQueryResult.getContents().map((content => content.getContentId()));
                 });
         }
     }
 
-    refreshNodeData(parentNode: TreeNode<ContentSummary>): wemQ.Promise<TreeNode<ContentSummary>> {
+    refreshNodeData(parentNode: TreeNode<ContentSummary>): Q.Promise<TreeNode<ContentSummary>> {
         return new GetContentByIdRequest(parentNode.getData().getContentId()).sendAndParse().then((content: Content)=> {
             parentNode.setData(content);
             this.refreshNode(parentNode);
@@ -192,7 +195,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
                         let rootList = this.getRoot().getCurrentRoot().treeToList();
                         this.initData(rootList);
                     }).catch((reason: any) => {
-                    api.DefaultErrorHandler.handle(reason);
+                    DefaultErrorHandler.handle(reason);
                 }).done();
             }
         }
@@ -206,7 +209,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         }, 5);
     }
 
-    /*findByPaths(paths: api.content.ContentPath[], useParent: boolean = false): TreeNodesOfContentPath[] {
+    /*findByPaths(paths: ContentPath[], useParent: boolean = false): TreeNodesOfContentPath[] {
      let root = this.getRoot().getDefaultRoot().treeToList(false, false);
      let filter = this.getRoot().getFilteredRoot().treeToList(false, false);
      let all: TreeNode<ContentSummary>[] = root.concat(filter);
@@ -287,11 +290,11 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
     }
 
     private findChildNodeByPath(node: TreeNode<ContentSummary>,
-                                childNodePath: ContentPath): wemQ.Promise<TreeNode<ContentSummary>> {
+                                childNodePath: ContentPath): Q.Promise<TreeNode<ContentSummary>> {
         let childNode = this.doFindChildNodeByPath(node, childNodePath);
 
         if (childNode) {
-            return wemQ.resolve(childNode);
+            return Q.resolve(childNode);
         }
 
         return this.waitChildrenLoadedAndFindChildNodeByPath(node, childNodePath);
@@ -316,8 +319,8 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
     }
 
     private waitChildrenLoadedAndFindChildNodeByPath(node: TreeNode<ContentSummary>,
-                                                     childNodePath: ContentPath): wemQ.Promise<TreeNode<ContentSummary>> {
-        let deferred = wemQ.defer<TreeNode<ContentSummary>>();
+                                                     childNodePath: ContentPath): Q.Promise<TreeNode<ContentSummary>> {
+        let deferred = Q.defer<TreeNode<ContentSummary>>();
 
         let dateChangedHandler = () => {
             const childNode = this.doFindChildNodeByPath(node, childNodePath);
@@ -334,7 +337,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         return deferred.promise;
     }
 
-    updateContentNode(contentId: api.content.ContentId) {
+    updateContentNode(contentId: ContentId) {
         let root = this.getRoot().getCurrentRoot();
         let treeNode = root.findNode(contentId.toString());
         if (treeNode) {
@@ -369,10 +372,10 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
 
     }
 
-    /*appendContentNodes(relationships: TreeNodeParentOfContent[]): wemQ.Promise<TreeNode<ContentSummary>[]> {
+    /*appendContentNodes(relationships: TreeNodeParentOfContent[]): Q.Promise<TreeNode<ContentSummary>[]> {
 
-     let deferred = wemQ.defer<TreeNode<ContentSummary>[]>();
-     let parallelPromises: wemQ.Promise<TreeNode<ContentSummary>[]>[] = [];
+     let deferred = Q.defer<TreeNode<ContentSummary>[]>();
+     let parallelPromises: Q.Promise<TreeNode<ContentSummary>[]>[] = [];
      let result: TreeNode<ContentSummary>[] = [];
 
      relationships.forEach((relationship) => {
@@ -384,14 +387,14 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
      }));
      });
 
-     wemQ.all(parallelPromises).then(() => {
+     Q.all(parallelPromises).then(() => {
      deferred.resolve(result);
      });
      return deferred.promise;
      }*/
 
     placeContentNode(parent: TreeNode<ContentSummary>,
-                     child: TreeNode<ContentSummary>): wemQ.Promise<TreeNode<ContentSummary>> {
+                     child: TreeNode<ContentSummary>): Q.Promise<TreeNode<ContentSummary>> {
         return this.fetchChildrenIds(parent).then((result: ContentId[]) => {
             let map = result.map((el) => {
                 return el.toString();
@@ -413,14 +416,14 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         });
     }
 
-    placeContentNodes(nodes: TreeNode<ContentSummary>[]): wemQ.Promise<any> {
-        let parallelPromises: wemQ.Promise<any>[] = [];
+    placeContentNodes(nodes: TreeNode<ContentSummary>[]): Q.Promise<any> {
+        let parallelPromises: Q.Promise<any>[] = [];
 
         nodes.forEach((node: TreeNode<ContentSummary>) => {
             parallelPromises.push(this.placeContentNode(node.getParent(), node));
         });
 
-        return wemQ.allSettled(parallelPromises).then((results) => {
+        return Q.allSettled(parallelPromises).then((results) => {
             let rootList = this.getRoot().getCurrentRoot().treeToList();
             this.initData(rootList);
             this.invalidate();
@@ -490,9 +493,9 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
         });
     }
 
-    sortNodesChildren(nodes: TreeNode<ContentSummary>[]): wemQ.Promise<void> {
+    sortNodesChildren(nodes: TreeNode<ContentSummary>[]): Q.Promise<void> {
 
-        let parallelPromises: wemQ.Promise<any>[] = [];
+        let parallelPromises: Q.Promise<any>[] = [];
 
         nodes.sort((a, b) => {
             return a.getDataId().localeCompare(b.getDataId());
@@ -526,7 +529,7 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
                                 }
                             });
                         }).catch((reason: any) => {
-                            api.DefaultErrorHandler.handle(reason);
+                            DefaultErrorHandler.handle(reason);
                         });
                     }).then(() => {
                         let rootList = this.getRoot().getCurrentRoot().treeToList();
@@ -536,9 +539,9 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
             }
         });
 
-        return wemQ.all(parallelPromises).spread<void>(() => {
-            return wemQ(null);
-        }).catch((reason: any) => api.DefaultErrorHandler.handle(reason));
+        return Q.all(parallelPromises).spread<void>(() => {
+            return Q(null);
+        }).catch((reason: any) => DefaultErrorHandler.handle(reason));
     }
 
     protected handleItemMetadata(row: number) {

@@ -1,6 +1,7 @@
 import {SlidablePanel, SlidablePanelBuilder, SLIDE_FROM} from './SlidablePanel';
 import {ContextView} from './ContextView';
 import {CONTEXT_PANEL_TYPE} from './ContextPanel';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 
 export class MobileContextPanel
     extends SlidablePanel {
@@ -11,11 +12,11 @@ export class MobileContextPanel
     }
 
     protected slideOutTop() {
-        this.getEl().setTopPx(api.BrowserHelper.isIOS() ? -window.innerHeight : -window.outerHeight);
+        this.getEl().setTopPx(BrowserHelper.isIOS() ? -window.innerHeight : -window.outerHeight);
     }
 
     protected slideOutBottom() {
-        this.getEl().setTopPx(api.BrowserHelper.isIOS() ? window.innerHeight : window.outerHeight);
+        this.getEl().setTopPx(BrowserHelper.isIOS() ? window.innerHeight : window.outerHeight);
     }
 
     public getType(): CONTEXT_PANEL_TYPE {

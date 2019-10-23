@@ -1,4 +1,4 @@
-import Button = api.ui.button.Button;
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export interface OnOffButtonLabels {
     onLabel: string;

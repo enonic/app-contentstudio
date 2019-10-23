@@ -1,5 +1,8 @@
+import {Body} from 'lib-admin-ui/dom/Body';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
-import Action = api.ui.Action;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {TreeContextMenu} from 'lib-admin-ui/ui/menu/TreeContextMenu';
 
 export enum ItemViewContextMenuOrientation {
     UP,
@@ -12,11 +15,11 @@ interface Coordinates {
 }
 
 export class ItemViewContextMenu
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private title: ItemViewContextMenuTitle;
 
-    private menu: api.ui.menu.TreeContextMenu;
+    private menu: TreeContextMenu;
 
     private arrow: ItemViewContextMenuArrow;
 
@@ -37,7 +40,7 @@ export class ItemViewContextMenu
 
         this.initListeners();
 
-        api.dom.Body.get().appendChild(this);
+        Body.get().appendChild(this);
     }
 
     createArrow() {
@@ -89,7 +92,7 @@ export class ItemViewContextMenu
     }
 
     createMenu(actions: Action[]) {
-        this.menu = new api.ui.menu.TreeContextMenu(actions, false);
+        this.menu = new TreeContextMenu(actions, false);
 
         this.menu.onItemClicked(() => {
             this.hide();
@@ -128,11 +131,11 @@ export class ItemViewContextMenu
         this.menu.moveBy.call(this, dx, dy);
     }
 
-    setActions(actions: api.ui.Action[]) {
+    setActions(actions: Action[]) {
         this.menu.setActions(actions);
     }
 
-    getMenu(): api.ui.menu.TreeContextMenu {
+    getMenu(): TreeContextMenu {
         return this.menu;
     }
 
@@ -163,13 +166,13 @@ export class ItemViewContextMenu
     }
 
     private startDrag(dragListener: (e: MouseEvent) => void, upListener: (e: MouseEvent) => void) {
-        api.dom.Body.get().onMouseMove(dragListener);
-        api.dom.Body.get().onMouseUp(upListener);
+        Body.get().onMouseMove(dragListener);
+        Body.get().onMouseUp(upListener);
     }
 
     private stopDrag(dragListener: (e: MouseEvent) => void, upListener: (e: MouseEvent) => void) {
-        api.dom.Body.get().unMouseMove(dragListener);
-        api.dom.Body.get().unMouseUp(upListener);
+        Body.get().unMouseMove(dragListener);
+        Body.get().unMouseUp(upListener);
     }
 
     private restrainX(x: number): number {
@@ -236,7 +239,7 @@ export class ItemViewContextMenu
 }
 
 export class ItemViewContextMenuArrow
-    extends api.dom.DivEl {
+    extends DivEl {
     private static clsBottom: string = 'bottom';
     private static clsTop: string = 'top';
     private static clsLeft: string = 'left';

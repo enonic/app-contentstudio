@@ -1,27 +1,32 @@
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
 import {ContentJson} from '../app/content/ContentJson';
 import {Component} from '../app/page/region/Component';
-import Workflow = api.content.Workflow;
+import {Workflow} from 'lib-admin-ui/content/Workflow';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<ContentJson, Content> {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    private config: api.data.PropertyTree;
+    private config: PropertyTree;
 
     private component: Component;
 
     private workflow: Workflow;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super();
         super.setMethod('POST');
         this.contentId = contentId;
     }
 
-    setConfig(config: api.data.PropertyTree): CreateFragmentRequest {
+    setConfig(config: PropertyTree): CreateFragmentRequest {
         this.config = config;
         return this;
     }
@@ -45,13 +50,13 @@ export class CreateFragmentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'create');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'create');
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
+    sendAndParse(): Q.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
         });
     }

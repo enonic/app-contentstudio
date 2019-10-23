@@ -1,24 +1,29 @@
-import PrincipalComboBox = api.ui.security.PrincipalComboBox;
-import TextArea = api.ui.text.TextArea;
-import PEl = api.dom.PEl;
-import TextInput = api.ui.text.TextInput;
-import ContentSummary = api.content.ContentSummary;
-import PrincipalLoader = api.security.PrincipalLoader;
-import PrincipalType = api.security.PrincipalType;
-import FormItemBuilder = api.ui.form.FormItemBuilder;
-import Validators = api.ui.form.Validators;
-import FormItem = api.ui.form.FormItem;
-import ValidityChangedEvent = api.ValidityChangedEvent;
-import PrincipalKey = api.security.PrincipalKey;
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
+import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {Issue} from '../Issue';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
+import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
 
 export class IssueDialogForm
-    extends api.ui.form.Form {
+    extends Form {
 
     private approversSelector: PrincipalComboBox;
 
@@ -35,8 +40,8 @@ export class IssueDialogForm
     private contentItemsAddedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
 
     private contentItemsRemovedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
-    private addItemsButtonItem: api.ui.button.Button;
-    private contentItemsFormItem: api.ui.form.FormItem;
+    private addItemsButtonItem: Button;
+    private contentItemsFormItem: FormItem;
     private contentItemsSelectorLocked: boolean;
 
     constructor(compactAssigneesView?: boolean) {
@@ -51,7 +56,7 @@ export class IssueDialogForm
 
     }
 
-    public doRender(): wemQ.Promise<boolean> {
+    public doRender(): Q.Promise<boolean> {
         return super.doRender().then(() => {
             return this.approversSelector.getLoader().load().then(() => {
                 this.title.giveFocus();
@@ -77,7 +82,7 @@ export class IssueDialogForm
         const principalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
             [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
-        this.approversSelector = api.ui.security.PrincipalComboBox.create().setLoader(principalLoader).setMaxOccurences(0).setCompactView(
+        this.approversSelector = PrincipalComboBox.create().setLoader(principalLoader).setMaxOccurences(0).setCompactView(
             this.compactAssigneesView).build();
 
         this.contentItemsSelector = ContentComboBox.create().setShowStatus(true).build();
@@ -95,7 +100,7 @@ export class IssueDialogForm
 
     private initFormView() {
 
-        const fieldSet: api.ui.form.Fieldset = new api.ui.form.Fieldset();
+        const fieldSet: Fieldset = new Fieldset();
 
         const titleFormItem = this.addValidationViewer(
             new FormItemBuilder(this.title).setLabel(i18n('field.title')).setValidator(Validators.required).build());
@@ -115,7 +120,7 @@ export class IssueDialogForm
         this.contentItemsFormItem = new FormItemBuilder(this.contentItemsSelector).setLabel(i18n('field.items')).build();
         fieldSet.add(this.contentItemsFormItem);
 
-        this.addItemsButtonItem = new api.ui.button.Button(i18n('dialog.issue.addItems'));
+        this.addItemsButtonItem = new Button(i18n('dialog.issue.addItems'));
         this.addItemsButtonItem.onClicked((e: MouseEvent) => {
             this.contentItemsFormItem.show();
             this.addItemsButtonItem.hide();
@@ -193,9 +198,9 @@ export class IssueDialogForm
 
     public displayValidationErrors(value: boolean) {
         if (value) {
-            this.addClass(api.form.FormView.VALIDATION_CLASS);
+            this.addClass(FormView.VALIDATION_CLASS);
         } else {
-            this.removeClass(api.form.FormView.VALIDATION_CLASS);
+            this.removeClass(FormView.VALIDATION_CLASS);
         }
     }
 
@@ -259,7 +264,7 @@ export class IssueDialogForm
     }
 
     private addValidationViewer(formItem: FormItem): FormItem {
-        let validationRecordingViewer = new api.form.ValidationRecordingViewer();
+        let validationRecordingViewer = new ValidationRecordingViewer();
 
         formItem.appendChild(validationRecordingViewer);
 

@@ -1,6 +1,8 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {BaseContentModelEvent} from '../browse/BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import TreeNode = api.ui.treegrid.TreeNode;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 
 export class MoveContentEvent extends BaseContentModelEvent {
     private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
@@ -15,10 +17,10 @@ export class MoveContentEvent extends BaseContentModelEvent {
     }
 
     static on(handler: (event: MoveContentEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: MoveContentEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

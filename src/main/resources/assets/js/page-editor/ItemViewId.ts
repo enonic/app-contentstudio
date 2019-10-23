@@ -1,8 +1,10 @@
-import './../api.ts';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {assert} from 'lib-admin-ui/util/Assert';
 
 export class ItemViewId
-    implements api.Equitable {
+    implements Equitable {
 
     static DATA_ATTRIBUTE: string = 'live-edit-id';
 
@@ -11,20 +13,20 @@ export class ItemViewId
     private refString: string;
 
     constructor(value: number) {
-        api.util.assert(value >= 1, i18n('live.view.itemviewid.istooshort'));
+        assert(value >= 1, i18n('live.view.itemviewid.istooshort'));
         this.value = value;
         this.refString = '' + value;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ItemViewId)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ItemViewId)) {
             return false;
         }
 
         let other = <ItemViewId>o;
 
-        if (!api.ObjectHelper.numberEquals(this.value, other.value)) {
+        if (!ObjectHelper.numberEquals(this.value, other.value)) {
             return false;
         }
 

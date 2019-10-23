@@ -1,16 +1,20 @@
-import ApplicationKey = api.application.ApplicationKey;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationBasedName} from 'lib-admin-ui/application/ApplicationBasedName';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export class XDataName
-    extends api.application.ApplicationBasedName {
+    extends ApplicationBasedName {
 
     constructor(name: string) {
-        api.util.assertNotNull(name, `XData name can't be null`);
-        let parts = name.split(api.application.ApplicationBasedName.SEPARATOR);
+        assertNotNull(name, `XData name can't be null`);
+        let parts = name.split(ApplicationBasedName.SEPARATOR);
         super(ApplicationKey.fromString(parts[0]), parts[1]);
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, XDataName)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, XDataName)) {
             return false;
         }
 

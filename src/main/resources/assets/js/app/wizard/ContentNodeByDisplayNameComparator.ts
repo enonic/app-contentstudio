@@ -1,8 +1,9 @@
-import TreeNode = api.ui.treegrid.TreeNode;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {Comparator} from 'lib-admin-ui/Comparator';
 
 export class ContentNodeByDisplayNameComparator
-    implements api.Comparator<TreeNode<ContentSummaryAndCompareStatus>> {
+    implements Comparator<TreeNode<ContentSummaryAndCompareStatus>> {
 
     compare(a: TreeNode<ContentSummaryAndCompareStatus>, b: TreeNode<ContentSummaryAndCompareStatus>): number {
         let firstName: string;

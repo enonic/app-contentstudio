@@ -1,7 +1,8 @@
 import {ExtraData} from './ExtraData';
+import {Comparator} from 'lib-admin-ui/Comparator';
 
 export class ExtraDataByMixinNameComparator
-    implements api.Comparator<ExtraData> {
+    implements Comparator<ExtraData> {
 
     compare(a: ExtraData, b: ExtraData): number {
         let firstName: string;

@@ -1,8 +1,18 @@
 {
-  "extends": "tsconfig.build",
   "compilerOptions": {
+    "module": "commonjs",
+    "sourceMap": true,
+    "types": [
+      "ckeditor",
+      "core-js",
+      "hasher",
+      "jquery",
+      "jqueryui",
+      "q"
+    ],
     "lib": [
       "es2015",
+      "es2015.promise",
       "dom"
     ]
   },

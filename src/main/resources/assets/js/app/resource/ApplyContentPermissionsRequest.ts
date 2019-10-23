@@ -1,6 +1,9 @@
-import ContentId = api.content.ContentId;
-import TaskId = api.task.TaskId;
-import TaskIdJson = api.task.TaskIdJson;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {AccessControlList} from '../access/AccessControlList';
 
@@ -51,14 +54,14 @@ export class ApplyContentPermissionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'applyPermissions');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'applyPermissions');
     }
 
-    sendAndParse(): wemQ.Promise<TaskId> {
+    sendAndParse(): Q.Promise<TaskId> {
 
-        return this.send().then((response: api.rest.JsonResponse<TaskIdJson>) => {
-            return api.task.TaskId.fromJson(response.getResult());
+        return this.send().then((response: JsonResponse<TaskIdJson>) => {
+            return TaskId.fromJson(response.getResult());
         });
     }
 

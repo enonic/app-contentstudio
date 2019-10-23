@@ -1,7 +1,10 @@
-import Principal = api.security.Principal;
-import PrincipalKey = api.security.PrincipalKey;
-import PrincipalJson = api.security.PrincipalJson;
-import SecurityResourceRequest = api.security.SecurityResourceRequest;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {PrincipalJson} from 'lib-admin-ui/security/PrincipalJson';
+import {SecurityResourceRequest} from 'lib-admin-ui/security/SecurityResourceRequest';
 
 export class GetPrincipalByKeyRequest extends SecurityResourceRequest<PrincipalJson, Principal> {
 
@@ -27,13 +30,13 @@ export class GetPrincipalByKeyRequest extends SecurityResourceRequest<PrincipalJ
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'principals', this.principalKey.toString());
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'principals', this.principalKey.toString());
     }
 
-    sendAndParse(): wemQ.Promise<Principal> {
+    sendAndParse(): Q.Promise<Principal> {
 
-        return this.send().then((response: api.rest.JsonResponse<PrincipalJson>) => {
+        return this.send().then((response: JsonResponse<PrincipalJson>) => {
             return Principal.fromJson(response.getResult());
         });
     }

@@ -1,8 +1,7 @@
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import Option = api.ui.selector.Option;
-import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ImageStyleOption, ImageStyleOptions} from './ImageStyleOptions';
 import {ImageStyleOptionViewer} from './ImageStyleOptionViewer';
 

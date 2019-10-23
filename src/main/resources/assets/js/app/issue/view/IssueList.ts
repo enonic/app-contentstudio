@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Issue} from '../Issue';
 import {IssueResponse} from '../resource/IssueResponse';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
@@ -6,18 +12,15 @@ import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
-import ListBox = api.ui.selector.list.ListBox;
-import Principal = api.security.Principal;
-import SpanEl = api.dom.SpanEl;
-import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
-import DivEl = api.dom.DivEl;
-import Tooltip = api.ui.Tooltip;
-import Element = api.dom.Element;
-import LoadMask = api.ui.mask.LoadMask;
-import NamesAndIconView = api.app.NamesAndIconView;
-import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
-import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
-import LiEl = api.dom.LiEl;
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
 
 export interface IssueListConfig {
     storage: IssuesStorage;
@@ -113,7 +116,7 @@ export class IssueList
         this.loadAssignedToMe = value;
     }
 
-    updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
+    updateCurrentTotal(currentTotal: number): Q.Promise<void> {
         if (this.currentTotal !== currentTotal) {
             this.currentTotal = currentTotal;
             return this.filterAndFetchItems(true).then(() => {
@@ -121,7 +124,7 @@ export class IssueList
             });
         }
 
-        return wemQ.fcall(() => {
+        return Q.fcall(() => {
             this.showNoIssuesMessage();
         });
     }
@@ -137,13 +140,13 @@ export class IssueList
         return this.totalItems;
     }
 
-    updateTotalItems(totalItems: number): wemQ.Promise<void> {
+    updateTotalItems(totalItems: number): Q.Promise<void> {
         if (this.totalItems !== totalItems) {
             this.totalItems = totalItems;
             return this.filterAndFetchItems();
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 
     filter() {
@@ -182,26 +185,26 @@ export class IssueList
         return allIssues;
     }
 
-    reload(): wemQ.Promise<void> {
+    reload(): Q.Promise<void> {
         this.showLoadMask();
 
         return this.doFetch()
-            .catch(api.DefaultErrorHandler.handle)
+            .catch(DefaultErrorHandler.handle)
             .finally(() => {
                 this.notifyIssuesLoaded();
                 this.hideLoadMask();
             });
     }
 
-    private filterAndFetchItems(append?: boolean): wemQ.Promise<void> {
+    private filterAndFetchItems(append?: boolean): Q.Promise<void> {
         this.filterIfChanged();
         return this.fetchItems(append);
     }
 
-    private fetchItems(append?: boolean): wemQ.Promise<void> {
+    private fetchItems(append?: boolean): Q.Promise<void> {
         const skipLoad = !this.needToLoad();
         if (skipLoad) {
-            return wemQ(null);
+            return Q(null);
         }
 
         this.showLoadMask();
@@ -209,14 +212,14 @@ export class IssueList
         this.filterIfChanged();
 
         return this.doFetch(append)
-            .catch(api.DefaultErrorHandler.handle)
+            .catch(DefaultErrorHandler.handle)
             .finally(() => {
                 this.notifyIssuesLoaded();
                 this.hideLoadMask();
             });
     }
 
-    private doFetch(append?: boolean): wemQ.Promise<void> {
+    private doFetch(append?: boolean): Q.Promise<void> {
         return new ListIssuesRequest()
             .setResolveAssignees(true)
             .setFrom(append ? this.allIssuesStorage.getIssuesCount() : 0)
@@ -277,13 +280,13 @@ export class IssueList
     }
 
     private loadCurrentUser() {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
         });
     }
 
     private setupLazyLoading() {
-        const scrollHandler: Function = api.util.AppHelper.debounce(this.handleScroll.bind(this), 100, false);
+        const scrollHandler: Function = AppHelper.debounce(this.handleScroll.bind(this), 100, false);
 
         this.onScrolled(() => {
             scrollHandler();
@@ -300,7 +303,7 @@ export class IssueList
         }
     }
 
-    protected createItemView(issueWithAssignees: IssueWithAssignees): api.dom.Element {
+    protected createItemView(issueWithAssignees: IssueWithAssignees): Element {
 
         const itemEl = new IssueListItem(issueWithAssignees, this.currentUser);
 
@@ -340,7 +343,7 @@ export class IssueList
 }
 
 export class IssueListItem
-    extends api.dom.LiEl {
+    extends LiEl {
 
     private issue: Issue;
 

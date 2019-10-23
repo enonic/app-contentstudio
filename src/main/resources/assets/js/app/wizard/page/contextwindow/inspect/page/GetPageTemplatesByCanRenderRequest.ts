@@ -1,16 +1,21 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
 import {ListContentResult} from '../../../../../resource/ListContentResult';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentJson} from '../../../../../content/ContentJson';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetPageTemplatesByCanRenderRequest
     extends PageTemplateResourceRequest<ListContentResult<ContentJson>, PageTemplate[]> {
 
-    private site: api.content.ContentId;
+    private site: ContentId;
 
-    private contentTypeName: api.schema.content.ContentTypeName;
+    private contentTypeName: ContentTypeName;
 
-    constructor(site: api.content.ContentId, contentTypeName: api.schema.content.ContentTypeName) {
+    constructor(site: ContentId, contentTypeName: ContentTypeName) {
         super();
         this.setMethod('GET');
         this.site = site;
@@ -24,13 +29,13 @@ export class GetPageTemplatesByCanRenderRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'listByCanRender');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'listByCanRender');
     }
 
-    sendAndParse(): wemQ.Promise<PageTemplate[]> {
+    sendAndParse(): Q.Promise<PageTemplate[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<ListContentResult<ContentJson>>) => {
+        return this.send().then((response: JsonResponse<ListContentResult<ContentJson>>) => {
             return response.getResult().contents.map((contentJson: ContentJson) => {
                 return this.fromJsonToContent(contentJson);
             });

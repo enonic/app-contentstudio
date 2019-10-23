@@ -1,6 +1,6 @@
 import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
-import Workflow = api.content.Workflow;
+import {Workflow} from 'lib-admin-ui/content/Workflow';
 
 export class ContentVersion {
 

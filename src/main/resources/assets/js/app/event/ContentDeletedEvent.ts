@@ -1,10 +1,12 @@
-import ContentId = api.content.ContentId;
-import ContentPath = api.content.ContentPath;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 
 export class ContentDeletedEvent
-    extends api.event.Event {
+    extends Event {
 
     private contentDeletedItems: ContentDeletedItem[] = [];
     private undeletedItems: ContentDeletedItem[] = [];
@@ -13,7 +15,7 @@ export class ContentDeletedEvent
         super();
     }
 
-    addItem(contentId: ContentId, contentPath: api.content.ContentPath, branch: string): ContentDeletedEvent {
+    addItem(contentId: ContentId, contentPath: ContentPath, branch: string): ContentDeletedEvent {
         this.contentDeletedItems.push(new ContentDeletedItem(contentId, contentPath, branch));
         return this;
     }
@@ -47,23 +49,23 @@ export class ContentDeletedEvent
     }
 
     static on(handler: (event: ContentDeletedEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentDeletedEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }
 
 export class ContentDeletedItem {
 
-    private contentPath: api.content.ContentPath;
+    private contentPath: ContentPath;
 
     private contentId: ContentId;
 
     private branch: string;
 
-    constructor(contentId: ContentId, contentPath: api.content.ContentPath, branch: string) {
+    constructor(contentId: ContentId, contentPath: ContentPath, branch: string) {
         this.contentPath = contentPath;
         this.contentId = contentId;
         this.branch = branch;

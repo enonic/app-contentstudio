@@ -1,4 +1,4 @@
-import ApplicationConfiguratorDialog = api.form.inputtype.appconfig.ApplicationConfiguratorDialog;
+import {ApplicationConfiguratorDialog} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
 import {HTMLAreaDialogHandler} from '../text/dialog/HTMLAreaDialogHandler';
 
 export class SiteConfiguratorDialog

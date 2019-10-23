@@ -1,13 +1,5 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "sourceMap": true,
-    "types": [
-      "core-js",
-      "hasher",
-      "q"
-    ]
-  },
+  "extends": "./tsconfig",
   "exclude": [
     "build/**/*",
     "out/**/*",

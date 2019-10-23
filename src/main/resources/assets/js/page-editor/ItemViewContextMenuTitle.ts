@@ -1,12 +1,13 @@
-import './../api.ts';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 
 export class ItemViewContextMenuTitle
-    extends api.app.NamesAndIconView {
+    extends NamesAndIconView {
 
     constructor(name: string, icon: string) {
-        super(new api.app.NamesAndIconViewBuilder().setAddTitleAttribute(false));
+        super(new NamesAndIconViewBuilder().setAddTitleAttribute(false));
         this.setMainName(name);
-        this.setIconClass(api.StyleHelper.COMMON_PREFIX + icon);
+        this.setIconClass(StyleHelper.COMMON_PREFIX + icon);
     }
 
 }

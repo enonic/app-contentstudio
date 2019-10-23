@@ -1,6 +1,6 @@
 import {PublishRequestItem} from './PublishRequestItem';
 import {PublishRequestJson} from './json/PublishRequestJson';
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class PublishRequest {
 

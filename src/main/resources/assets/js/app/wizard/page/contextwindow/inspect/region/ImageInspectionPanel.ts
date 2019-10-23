@@ -1,3 +1,8 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {ImageSelectorForm} from './ImageSelectorForm';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
@@ -11,17 +16,13 @@ import {ImageComponent} from '../../../../../page/region/ImageComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {Content} from '../../../../../content/Content';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import Option = api.ui.selector.Option;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import i18n = api.util.i18n;
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {FormView} from 'lib-admin-ui/form/FormView';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
 
-    private formView: api.form.FormView;
+    private formView: FormView;
 
     private imageSelector: ImageContentComboBox;
 
@@ -89,7 +90,7 @@ export class ImageInspectionPanel
                         this.setSelectorValue(null);
                         this.setupComponentForm(this.component);
                     } else {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                     }
                 }).done();
             }
@@ -124,13 +125,13 @@ export class ImageInspectionPanel
         }
         let configData = imageComponent.getConfig();
         let configForm = imageComponent.getForm();
-        this.formView = new api.form.FormView(this.formContext, configForm, configData.getRoot());
+        this.formView = new FormView(this.formContext, configForm, configData.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
         this.formView.setVisible(this.component.hasImage());
         imageComponent.setDisableEventForwarding(true);
         this.formView.layout().catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).finally(() => {
             imageComponent.setDisableEventForwarding(false);
         }).done();
@@ -145,7 +146,7 @@ export class ImageInspectionPanel
 
                 new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                     this.component.setImage(imageContent);
-                }).catch(api.DefaultErrorHandler.handle);
+                }).catch(DefaultErrorHandler.handle);
 
             }
         });

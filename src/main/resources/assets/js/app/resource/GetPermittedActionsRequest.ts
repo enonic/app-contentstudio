@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Permission} from '../access/Permission';
 
@@ -43,13 +46,13 @@ export class GetPermittedActionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'allowedActions');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'allowedActions');
     }
 
-    sendAndParse(): wemQ.Promise<Permission[]> {
+    sendAndParse(): Q.Promise<Permission[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<string[]>) => {
+        return this.send().then((response: JsonResponse<string[]>) => {
             let result = [];
 
             response.getResult().forEach((entry: string) => {

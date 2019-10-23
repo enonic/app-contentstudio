@@ -1,3 +1,5 @@
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/SortContentEvent';
@@ -8,8 +10,7 @@ import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import AppBarTabId = api.app.bar.AppBarTabId;
-import i18n = api.util.i18n;
+import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 
 export class ContentEventsProcessor {
 
@@ -71,7 +72,7 @@ export class ContentEventsProcessor {
             let win = ContentEventsProcessor.openWizardTab(wizardParams, tabId);
 
             if (ContentEventsProcessor.popupBlocked(win)) {
-                api.notify.showWarning(i18n('notify.popupBlocker.admin'), false);
+                showWarning(i18n('notify.popupBlocker.admin'), false);
 
                 return false;
             }

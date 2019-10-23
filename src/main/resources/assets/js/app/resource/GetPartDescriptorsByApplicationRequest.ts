@@ -1,17 +1,21 @@
-import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartDescriptorsJson = api.content.page.region.PartDescriptorsJson;
-import PartDescriptorJson = api.content.page.region.PartDescriptorJson;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
+import {PartDescriptorsJson} from 'lib-admin-ui/content/page/region/PartDescriptorsJson';
+import {PartDescriptorJson} from 'lib-admin-ui/content/page/region/PartDescriptorJson';
 import {PartDescriptorResourceRequest} from './PartDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetPartDescriptorsByApplicationRequest
     extends PartDescriptorResourceRequest<PartDescriptorsJson, PartDescriptor[]> {
 
-    private applicationKey: api.application.ApplicationKey;
+    private applicationKey: ApplicationKey;
 
     private cache: ApplicationBasedCache<PartDescriptor>;
 
-    constructor(applicationKey: api.application.ApplicationKey) {
+    constructor(applicationKey: ApplicationKey) {
         super();
         super.setMethod('GET');
         this.applicationKey = applicationKey;
@@ -24,16 +28,16 @@ export class GetPartDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_application');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'list', 'by_application');
     }
 
-    sendAndParse(): wemQ.Promise<PartDescriptor[]> {
+    sendAndParse(): Q.Promise<PartDescriptor[]> {
         const cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
-            return wemQ(cached);
+            return Q(cached);
         } else {
-            return this.send().then((response: api.rest.JsonResponse<PartDescriptorsJson>) => {
+            return this.send().then((response: JsonResponse<PartDescriptorsJson>) => {
                 return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
                     return this.fromJsonToPartDescriptor(descriptorJson);
                 });

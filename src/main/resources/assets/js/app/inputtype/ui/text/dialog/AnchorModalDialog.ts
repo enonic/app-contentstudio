@@ -1,11 +1,12 @@
-import FormItem = api.ui.form.FormItem;
-import Validators = api.ui.form.Validators;
-import i18n = api.util.i18n;
-import TextInput = api.ui.text.TextInput;
-import eventInfo = CKEDITOR.eventInfo;
-import Action = api.ui.Action;
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import eventInfo = CKEDITOR.eventInfo;
 
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 export class AnchorModalDialog
@@ -63,11 +64,11 @@ export class AnchorModalDialog
         return [this.nameField];
     }
 
-    private static validationRequiredAnchor(input: api.dom.FormInputEl): string {
+    private static validationRequiredAnchor(input: FormInputEl): string {
         return Validators.required(input) || AnchorModalDialog.validAnchor(input);
     }
 
-    private static validAnchor(input: api.dom.FormInputEl): string {
+    private static validAnchor(input: FormInputEl): string {
         const regexUrl = /^\w[\w.]*$/;
         const value = input.getValue();
         return !regexUrl.test(value) ? i18n('field.value.invalid') : undefined;

@@ -1,6 +1,8 @@
-import Descriptor = api.content.page.Descriptor;
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {Comparator} from 'lib-admin-ui/Comparator';
 
-export class DescriptorByDisplayNameComparator implements api.Comparator<Descriptor> {
+export class DescriptorByDisplayNameComparator
+    implements Comparator<Descriptor> {
 
     compare(a: Descriptor, b: Descriptor): number {
         let firstName: string;

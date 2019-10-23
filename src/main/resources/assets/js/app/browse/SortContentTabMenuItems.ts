@@ -1,9 +1,8 @@
-import '../../api.ts';
 import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortContentTabMenuItem';
-import ChildOrder = api.content.order.ChildOrder;
-import QueryField = api.query.QueryField;
-import FieldOrderExprBuilder = api.content.order.FieldOrderExprBuilder;
-import i18n = api.util.i18n;
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 interface OrderMeta {
     field: string;

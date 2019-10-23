@@ -2,7 +2,7 @@ import {BasePublishAction} from './BasePublishAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {CreateIssuePromptEvent} from '../../browse/CreateIssuePromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class CreateIssueAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {

@@ -1,16 +1,21 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {WidgetItemView} from '../../WidgetItemView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import ContentSummary = api.content.ContentSummary;
-import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
-import Application = api.application.Application;
-import i18n = api.util.i18n;
+import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import {Application} from 'lib-admin-ui/application/Application';
+import {DlEl} from 'lib-admin-ui/dom/DlEl';
+import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
+import {DdDtEl} from 'lib-admin-ui/dom/DdDtEl';
 
 export class PropertiesWidgetItemView extends WidgetItemView {
 
     private content: ContentSummary;
 
-    private list: api.dom.DlEl;
+    private list: DlEl;
 
     public static debug: boolean = false;
 
@@ -18,7 +23,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
         super('properties-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         let content = item.getContentSummary();
         if (!content.equals(this.content)) {
             if (!this.content) {
@@ -28,7 +33,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
             return this.layout();
         }
 
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
     private initListeners() {
@@ -53,7 +58,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
         //serverEvents.onContentUnpublished(layoutOnPublishStateChange);
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (PropertiesWidgetItemView.debug) {
             console.debug('PropertiesWidgetItemView.layout');
         }
@@ -62,7 +67,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
             if (this.content != null) {
                 let applicationKey = this.content.getType().getApplicationKey();
                 if (!applicationKey.isSystemReserved()) {
-                    return new api.application.GetApplicationRequest(applicationKey).sendAndParse().then((application: Application) => {
+                    return new GetApplicationRequest(applicationKey).sendAndParse().then((application: Application) => {
                         this.layoutApplication(application);
                     }).catch(() => {
                         this.layoutApplication();
@@ -79,13 +84,13 @@ export class PropertiesWidgetItemView extends WidgetItemView {
         if (this.hasChild(this.list)) {
             this.removeChild(this.list);
         }
-        this.list = new api.dom.DlEl();
+        this.list = new DlEl();
 
         let strings: FieldString[];
 
         strings = [
             new FieldString().setName(i18n('field.type')).setValue(this.content.getType().getLocalName()
-                ? this.content.getType().getLocalName() : this.content.getType().toString()),
+                                                                   ? this.content.getType().getLocalName() : this.content.getType().toString()),
 
             new FieldString().setName(i18n('field.app')).setValue(
                 application ? application.getDisplayName() : this.content.getType().getApplicationKey().getName()),
@@ -137,9 +142,9 @@ class FieldString {
         return this;
     }
 
-    public layout(parentEl: api.dom.Element) {
-        let valueEl = new api.dom.DdDtEl('dt').setHtml(this.value);
-        let spanEl = new api.dom.DdDtEl('dd').setHtml(this.fieldName + ': ');
+    public layout(parentEl: Element) {
+        let valueEl = new DdDtEl('dt').setHtml(this.value);
+        let spanEl = new DdDtEl('dd').setHtml(this.fieldName + ': ');
         parentEl.appendChildren(spanEl, valueEl);
     }
 

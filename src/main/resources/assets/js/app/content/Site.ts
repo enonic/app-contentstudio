@@ -1,12 +1,15 @@
-import Property = api.data.Property;
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationConfig = api.application.ApplicationConfig;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {Property} from 'lib-admin-ui/data/Property';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
 
 export class Site
     extends Content
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     constructor(builder: SiteBuilder) {
         super(builder);
@@ -38,9 +41,9 @@ export class Site
         return this.getSiteConfigs().map((config: ApplicationConfig) => config.getApplicationKey());
     }
 
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
+    equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Site)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Site)) {
             return false;
         }
 

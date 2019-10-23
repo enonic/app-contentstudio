@@ -7,11 +7,20 @@
     "lint": "tslint -p tsconfig.build.json -c tslint.json",
     "fix": "tslint -p tsconfig.build.json -c tslint.json --fix"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@webcomponents/html-imports": "^1.2.2",
+    "hasher": "^1.2.0",
+    "jquery-ui": "^1.12.1",
+    "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
+    "q": "^1.5.1"
+  },
   "devDependencies": {
     "@types/ckeditor": "^4.9.1",
+    "@types/core-js": "^2.5.2",
+    "@types/hasher": "0.0.31",
+    "@types/jquery": "^3.3.31",
+    "@types/jqueryui": "^1.12.7",
     "@types/q": "^1.5.2",
-    "@webcomponents/html-imports": "^1.2.2",
     "autoprefixer": "^9.6.5",
     "browserslist": "^4.7.1",
     "browserslist-config-enonic": "^1.0.3",

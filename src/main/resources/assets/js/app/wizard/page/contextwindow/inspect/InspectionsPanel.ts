@@ -1,3 +1,7 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentInspectionPanel} from './ContentInspectionPanel';
 import {FragmentInspectionPanel} from './region/FragmentInspectionPanel';
 import {TextInspectionPanel} from './region/TextInspectionPanel';
@@ -7,6 +11,9 @@ import {ImageInspectionPanel} from './region/ImageInspectionPanel';
 import {RegionInspectionPanel} from './region/RegionInspectionPanel';
 import {PageInspectionPanel} from './page/PageInspectionPanel';
 import {NoSelectionInspectionPanel} from './NoSelectionInspectionPanel';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {DeckPanel} from 'lib-admin-ui/ui/panel/DeckPanel';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 
 export interface InspectionsPanelConfig {
     contentInspectionPanel: ContentInspectionPanel;
@@ -17,13 +24,14 @@ export interface InspectionsPanelConfig {
     layoutInspectionPanel: LayoutInspectionPanel;
     fragmentInspectionPanel: FragmentInspectionPanel;
     textInspectionPanel: TextInspectionPanel;
-    saveAction: api.ui.Action;
+    saveAction: Action;
 }
 
-export class InspectionsPanel extends api.ui.panel.Panel {
+export class InspectionsPanel
+    extends Panel {
 
-    private deck: api.ui.panel.DeckPanel;
-    private buttons: api.dom.DivEl;
+    private deck: DeckPanel;
+    private buttons: DivEl;
 
     private noSelectionPanel: NoSelectionInspectionPanel;
     private imageInspectionPanel: ImageInspectionPanel;
@@ -38,7 +46,7 @@ export class InspectionsPanel extends api.ui.panel.Panel {
     constructor(config: InspectionsPanelConfig) {
         super('inspections-panel');
 
-        this.deck = new api.ui.panel.DeckPanel();
+        this.deck = new DeckPanel();
 
         this.noSelectionPanel = new NoSelectionInspectionPanel();
         this.imageInspectionPanel = config.imageInspectionPanel;
@@ -62,17 +70,17 @@ export class InspectionsPanel extends api.ui.panel.Panel {
 
         this.deck.showPanel(this.pageInspectionPanel);
 
-        this.buttons = new api.dom.DivEl('button-bar');
-        let saveButton = new api.ui.button.ActionButton(config.saveAction);
+        this.buttons = new DivEl('button-bar');
+        let saveButton = new ActionButton(config.saveAction);
         this.buttons.appendChild(saveButton);
 
-        this.appendChildren(<api.dom.Element>this.deck, this.buttons);
+        this.appendChildren(<Element>this.deck, this.buttons);
     }
 
-    public showInspectionPanel(panel: api.ui.panel.Panel) {
+    public showInspectionPanel(panel: Panel) {
         this.deck.showPanel(panel);
-        let showButtons = !(api.ObjectHelper.iFrameSafeInstanceOf(panel, RegionInspectionPanel) ||
-                            api.ObjectHelper.iFrameSafeInstanceOf(panel, NoSelectionInspectionPanel));
+        let showButtons = !(ObjectHelper.iFrameSafeInstanceOf(panel, RegionInspectionPanel) ||
+                            ObjectHelper.iFrameSafeInstanceOf(panel, NoSelectionInspectionPanel));
         this.buttons.setVisible(showButtons);
     }
 
@@ -84,7 +92,7 @@ export class InspectionsPanel extends api.ui.panel.Panel {
         return this.deck.getPanelShown() !== this.noSelectionPanel;
     }
 
-    public getPanelShown(): api.ui.panel.Panel {
+    public getPanelShown(): Panel {
         return this.deck.getPanelShown();
     }
 

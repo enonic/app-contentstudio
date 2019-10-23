@@ -1,13 +1,15 @@
+import * as $ from 'jquery';
+import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {LiveEditPage} from './page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
-import KeyBinding = api.ui.KeyBinding;
-
-declare const wemjq: JQueryStatic;
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 
 /*
  Prefix must match @_CLS_PREFIX in assets\page-editor\styles\main.less
  */
-api.StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
+StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
 const liveEditPage = new LiveEditPage();
 
@@ -15,23 +17,24 @@ const init = () => {
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
-    wemjq(document).on('keypress keydown keyup', (event) => {
+    $(document).on('keypress keydown keyup', (event) => {
 
         if (shouldBubbleEvent(event)) {
 
             stopBrowserShortcuts(event);
 
-            wemjq(parent.document).simulate(event.type, {
-                bubbles: event.bubbles,
-                cancelable: event.cancelable,
-                view: parent,
-                ctrlKey: event.ctrlKey,
-                altKey: event.altKey,
-                shiftKey: event.shiftKey,
-                metaKey: event.metaKey,
-                keyCode: event.keyCode,
-                charCode: event.charCode
-            });
+            new ElementHelper(parent.document.body).simulate(event.type);
+            // $(parent.document).simulate(event.type, {
+            //     bubbles: event.bubbles,
+            //     cancelable: event.cancelable,
+            //     view: parent,
+            //     ctrlKey: event.ctrlKey,
+            //     altKey: event.altKey,
+            //     shiftKey: event.shiftKey,
+            //     metaKey: event.metaKey,
+            //     keyCode: event.keyCode,
+            //     charCode: event.charCode
+            // });
         }
     });
 
@@ -98,6 +101,6 @@ const init = () => {
     }
 };
 
-const i18nPromise = (!!window.parent && window.parent['CONFIG']) ? api.util.i18nInit(window.parent['CONFIG'].i18nUrl) : null;
+const i18nPromise = (window.parent && window.parent['CONFIG']) ? i18nInit(window.parent['CONFIG'].i18nUrl) : null;
 
 i18nPromise ? i18nPromise.then(() => init()) : init();

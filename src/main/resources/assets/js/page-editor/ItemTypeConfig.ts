@@ -1,5 +1,3 @@
-import './../api.ts';
-
 export interface HighlighterStyle {
     stroke: string;
     strokeDasharray: string;

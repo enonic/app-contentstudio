@@ -6,9 +6,9 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {GetPartDescriptorByKeyRequest} from './GetPartDescriptorByKeyRequest';
 import {PartDescriptorDropdown} from './PartDescriptorDropdown';
 import {PartComponent} from '../../../../../page/region/PartComponent';
-import PartDescriptor = api.content.page.region.PartDescriptor;
-import DescriptorKey = api.content.page.DescriptorKey;
-import i18n = api.util.i18n;
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class PartInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<PartComponent, PartDescriptor> {

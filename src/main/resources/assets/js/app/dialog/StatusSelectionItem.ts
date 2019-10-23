@@ -1,18 +1,23 @@
-import BrowseItem = api.app.browse.BrowseItem;
-import Tooltip = api.ui.Tooltip;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {SelectionItem} from 'lib-admin-ui/app/browse/SelectionItem';
 
 export class StatusSelectionItem
-    extends api.app.browse.SelectionItem<ContentSummaryAndCompareStatus> {
+    extends SelectionItem<ContentSummaryAndCompareStatus> {
 
     private removeHandlerFn: () => void;
     private isRemovableFn: () => boolean;
     private clickTooltip: Tooltip;
     private removeClickTooltip: string = i18n('tooltip.list.itemRequired');
-    private status: api.dom.DivEl;
+    private status: DivEl;
 
-    constructor(viewer: api.ui.Viewer<ContentSummaryAndCompareStatus>, item: BrowseItem<ContentSummaryAndCompareStatus>) {
+    constructor(viewer: Viewer<ContentSummaryAndCompareStatus>, item: BrowseItem<ContentSummaryAndCompareStatus>) {
         super(viewer, item);
     }
 
@@ -40,14 +45,14 @@ export class StatusSelectionItem
         }
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
             const removeButton = this.getRemoveButton();
             this.clickTooltip = new Tooltip(removeButton, this.removeClickTooltip);
             this.clickTooltip.setTrigger(Tooltip.TRIGGER_NONE);
 
-            let onRemoveClicked = api.util.AppHelper.debounce(() => {
+            let onRemoveClicked = AppHelper.debounce(() => {
                 Tooltip.hideOtherInstances();
                 if (this.isRemovable()) {
                     this.removeHandlerFn();
@@ -80,7 +85,7 @@ export class StatusSelectionItem
 
     private initStatusDiv(content: ContentSummaryAndCompareStatus) {
 
-        let statusDiv = new api.dom.DivEl('status');
+        let statusDiv = new DivEl('status');
 
         statusDiv.setHtml(content.getStatusText());
         statusDiv.addClass(content.getStatusClass());

@@ -1,14 +1,17 @@
-import ActionButton = api.ui.button.ActionButton;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
-import i18n = api.util.i18n;
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class ShowIssuesDialogButton extends ActionButton {
 
-    private countSpan: api.dom.SpanEl;
+    private countSpan: SpanEl;
 
     constructor() {
         super(new ShowIssuesDialogAction());
@@ -37,7 +40,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     private setIssueCount(count: number) {
 
         if (!this.countSpan) {
-            this.countSpan = new api.dom.SpanEl('issue-count');
+            this.countSpan = new SpanEl('issue-count');
             this.appendChild(this.countSpan);
         }
 
@@ -86,15 +89,15 @@ export class ShowIssuesDialogButton extends ActionButton {
             );
     }
 
-    private fetchIssueList(listIssueRequest: ListIssuesRequest): wemQ.Promise<number> {
-        const deferred = wemQ.defer<number>();
+    private fetchIssueList(listIssueRequest: ListIssuesRequest): Q.Promise<number> {
+        const deferred = Q.defer<number>();
         listIssueRequest.sendAndParse().then(
             (response: IssueResponse) => {
                 const hitsCount = response.getMetadata().getTotalHits();
 
                 (hitsCount > 0) ? deferred.resolve(hitsCount) : deferred.reject(0);
             }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
 
         return deferred.promise;

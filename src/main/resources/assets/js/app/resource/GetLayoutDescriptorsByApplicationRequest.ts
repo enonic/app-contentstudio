@@ -1,17 +1,21 @@
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import LayoutDescriptorsJson = api.content.page.region.LayoutDescriptorsJson;
-import LayoutDescriptorJson = api.content.page.region.LayoutDescriptorJson;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
+import {LayoutDescriptorsJson} from 'lib-admin-ui/content/page/region/LayoutDescriptorsJson';
+import {LayoutDescriptorJson} from 'lib-admin-ui/content/page/region/LayoutDescriptorJson';
 import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
 import {LayoutDescriptorResourceRequest} from './LayoutDescriptorResourceRequest';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetLayoutDescriptorsByApplicationRequest
     extends LayoutDescriptorResourceRequest<LayoutDescriptorsJson, LayoutDescriptor[]> {
 
-    private applicationKey: api.application.ApplicationKey;
+    private applicationKey: ApplicationKey;
 
     private cache: ApplicationBasedCache<LayoutDescriptor>;
 
-    constructor(applicationKey: api.application.ApplicationKey) {
+    constructor(applicationKey: ApplicationKey) {
         super();
         super.setMethod('GET');
         this.applicationKey = applicationKey;
@@ -24,17 +28,17 @@ export class GetLayoutDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_application');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'list', 'by_application');
     }
 
-    sendAndParse(): wemQ.Promise<LayoutDescriptor[]> {
+    sendAndParse(): Q.Promise<LayoutDescriptor[]> {
 
         let cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
-            return wemQ(cached);
+            return Q(cached);
         } else {
-            return this.send().then((response: api.rest.JsonResponse<LayoutDescriptorsJson>) => {
+            return this.send().then((response: JsonResponse<LayoutDescriptorsJson>) => {
                 // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
                 this.cache.putApplicationKeys([this.applicationKey]);
                 return response.getResult().descriptors.map((descriptorJson: LayoutDescriptorJson) => {

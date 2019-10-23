@@ -1,8 +1,12 @@
-import Widget = api.content.Widget;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Widget} from 'lib-admin-ui/content/Widget';
 import {WidgetDescriptorResourceRequest} from './WidgetDescriptorResourceRequest';
+import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
 
 export class GetWidgetsByInterfaceRequest
-    extends WidgetDescriptorResourceRequest<api.content.json.WidgetDescriptorJson[], any> {
+    extends WidgetDescriptorResourceRequest<WidgetDescriptorJson[], any> {
 
     private widgetInterfaces: string[];
 
@@ -16,13 +20,13 @@ export class GetWidgetsByInterfaceRequest
         return this.widgetInterfaces;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list/byinterfaces');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'list/byinterfaces');
     }
 
-    sendAndParse(): wemQ.Promise<Widget[]> {
+    sendAndParse(): Q.Promise<Widget[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.WidgetDescriptorJson[]>) => {
+        return this.send().then((response: JsonResponse<WidgetDescriptorJson[]>) => {
             return WidgetDescriptorResourceRequest.fromJson(response.getResult());
         });
     }

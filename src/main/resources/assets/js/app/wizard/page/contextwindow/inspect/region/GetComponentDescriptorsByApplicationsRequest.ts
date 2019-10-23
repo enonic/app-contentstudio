@@ -1,10 +1,13 @@
-import Descriptor = api.content.page.Descriptor;
-import ApplicationKey = api.application.ApplicationKey;
-import JsonResponse = api.rest.JsonResponse;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 
 export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIPTOR extends Descriptor>
-    extends api.rest.ResourceRequest<JSON, DESCRIPTOR[]> {
+    extends ResourceRequest<JSON, DESCRIPTOR[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -17,8 +20,8 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
         this.cache = this.registerCache();
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getRestPath(), 'content', 'page', this.getComponentPathName(), 'descriptor', 'list',
+    getRequestPath(): Path {
+        return Path.fromParent(super.getRestPath(), 'content', 'page', this.getComponentPathName(), 'descriptor', 'list',
             'by_applications');
     }
 
@@ -32,11 +35,11 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
         };
     }
 
-    sendAndParse(): wemQ.Promise<DESCRIPTOR[]> {
+    sendAndParse(): Q.Promise<DESCRIPTOR[]> {
 
         let cached = this.cache.getByApplications(this.applicationKeys);
         if (cached) {
-            return wemQ(cached);
+            return Q(cached);
         } else {
             return this.send().then((response: JsonResponse<JSON>) => {
                 // mark applicationKeys as cached to prevent request when there are no descriptors defined in app

@@ -1,15 +1,20 @@
-import OrderExpr = api.query.expr.OrderExpr;
-import FieldOrderExpr = api.query.expr.FieldOrderExpr;
-import OrderDirection = api.query.expr.OrderDirection;
-import FieldExpr = api.query.expr.FieldExpr;
-import Expression = api.query.expr.Expression;
-import QueryField = api.query.QueryField;
-import QueryExpr = api.query.expr.QueryExpr;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
+import {FieldOrderExpr} from 'lib-admin-ui/query/expr/FieldOrderExpr';
+import {OrderDirection} from 'lib-admin-ui/query/expr/OrderDirection';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentJson} from '../content/ContentJson';
+import {Expand} from 'lib-admin-ui/rest/Expand';
+import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, CONTENT[]> {
@@ -22,7 +27,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     public static DEFAULT_ORDER: OrderExpr[] = [ContentSelectorQueryRequest.SCORE_DESC, ContentSelectorQueryRequest.MODIFIED_TIME_DESC];
 
-    private queryExpr: api.query.expr.QueryExpr;
+    private queryExpr: QueryExpr;
 
     private from: number = 0;
 
@@ -30,7 +35,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     private size: number = ContentSelectorQueryRequest.DEFAULT_SIZE;
 
-    private expand: api.rest.Expand = api.rest.Expand.SUMMARY;
+    private expand: Expand = Expand.SUMMARY;
 
     private content: ContentSummary;
 
@@ -97,11 +102,11 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         this.relationshipType = relationshipType;
     }
 
-    setExpand(expand: api.rest.Expand) {
+    setExpand(expand: Expand) {
         this.expand = expand;
     }
 
-    getExpand(): api.rest.Expand {
+    getExpand(): Expand {
         return this.expand;
     }
 
@@ -111,12 +116,12 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         this.queryExpr = new QueryExpr(fulltextExpression, ContentSelectorQueryRequest.DEFAULT_ORDER);
     }
 
-    setQueryExpr(queryExpr: api.query.expr.QueryExpr) {
+    setQueryExpr(queryExpr: QueryExpr) {
         this.queryExpr = queryExpr;
     }
 
     private createSearchExpression(searchString: string): Expression {
-        return new api.query.PathMatchExpressionBuilder()
+        return new PathMatchExpressionBuilder()
             .setSearchString(searchString)
             .setPath(this.content ? this.content.getPath().toString() : '')
             .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
@@ -125,12 +130,12 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
             .build();
     }
 
-    getQueryExpr(): api.query.expr.QueryExpr {
+    getQueryExpr(): QueryExpr {
         return this.queryExpr;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'selectorQuery');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'selectorQuery');
     }
 
     isPartiallyLoaded(): boolean {
@@ -166,14 +171,14 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         return this.from === this.loadingFrom;
     }
 
-    sendAndParse(): wemQ.Promise<CONTENT[]> {
+    sendAndParse(): Q.Promise<CONTENT[]> {
 
         if (this.isConcurrentLoad()) {
-            return wemQ(this.results);
+            return Q(this.results);
         }
 
         this.loadingFrom = this.from;
-        return this.send().then((response: api.rest.JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
+        return this.send().then((response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
 
             let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
 
@@ -181,7 +186,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
             let contents: CONTENT[];
 
-            if (this.expand === api.rest.Expand.SUMMARY) {
+            if (this.expand === Expand.SUMMARY) {
                 contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
             } else {
                 contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
@@ -204,11 +209,11 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     private expandAsString(): string {
         switch (this.expand) {
-        case api.rest.Expand.FULL:
+        case Expand.FULL:
             return 'full';
-        case api.rest.Expand.SUMMARY:
+        case Expand.SUMMARY:
             return 'summary';
-        case api.rest.Expand.NONE:
+        case Expand.NONE:
             return 'none';
         default:
             return 'summary';

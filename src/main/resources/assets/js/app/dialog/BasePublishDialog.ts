@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {PublishProcessor} from '../publish/PublishProcessor';
@@ -9,15 +12,17 @@ import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {PublishIssuesStateBar} from '../publish/PublishIssuesStateBar';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
-import ContentId = api.content.ContentId;
-import ListBox = api.ui.selector.list.ListBox;
-import i18n = api.util.i18n;
-import PropertyEvent = api.data.PropertyEvent;
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {PropertyEvent} from 'lib-admin-ui/data/PropertyEvent';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
 
-    private currentUser: api.security.Principal;
+    private currentUser: Principal;
 
     protected publishProcessor: PublishProcessor;
 
@@ -25,9 +30,9 @@ export abstract class BasePublishDialog
 
     protected publishScheduleForm: PublishScheduleForm;
 
-    protected scheduleFormPropertySet: api.data.PropertySet;
+    protected scheduleFormPropertySet: PropertySet;
 
-    protected scheduleFormToggle: api.dom.ButtonEl;
+    protected scheduleFormToggle: ButtonEl;
 
     constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
@@ -60,7 +65,7 @@ export abstract class BasePublishDialog
 
         this.publishIssuesStateBar = new PublishIssuesStateBar();
 
-        this.scheduleFormPropertySet = new api.data.PropertySet();
+        this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
 
         this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
@@ -194,7 +199,7 @@ export abstract class BasePublishDialog
     }
 
     private loadCurrentUser() {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
         });
     }

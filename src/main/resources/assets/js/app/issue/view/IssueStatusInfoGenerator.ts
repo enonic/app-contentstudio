@@ -1,8 +1,8 @@
 import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
-import DateHelper = api.util.DateHelper;
-import Principal = api.security.Principal;
-import i18n = api.util.i18n;
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class IssueStatusInfoGenerator {
 

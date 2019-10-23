@@ -1,12 +1,16 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+
 export class ComponentName
-    implements api.Equitable {
+    implements Equitable {
 
     private static COUNT_DELIMITER: string = '-';
 
     private value: string;
 
     constructor(value: string) {
-        api.util.assertNotNull(value, 'ComponentName value cannot be null');
+        assertNotNull(value, 'ComponentName value cannot be null');
         this.value = value;
     }
 
@@ -49,15 +53,15 @@ export class ComponentName
         return this.value;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ComponentName)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ComponentName)) {
             return false;
         }
 
         let other = <ComponentName>o;
 
-        if (!api.ObjectHelper.stringEquals(this.value, other.value)) {
+        if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;
         }
 

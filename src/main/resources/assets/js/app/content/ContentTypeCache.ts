@@ -1,10 +1,12 @@
-import ApplicationEvent = api.application.ApplicationEvent;
-import ApplicationEventType = api.application.ApplicationEventType;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Cache} from 'lib-admin-ui/cache/Cache';
 import {ContentType, ContentTypeBuilder} from '../inputtype/schema/ContentType';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
 export class ContentTypeCache
-    extends api.cache.Cache<ContentType, ContentTypeName> {
+    extends Cache<ContentType, ContentTypeName> {
 
     private static instance: ContentTypeCache;
 
@@ -14,7 +16,7 @@ export class ContentTypeCache
             if (ApplicationEventType.STARTED === event.getEventType()
                 || ApplicationEventType.STOPPED === event.getEventType()
                 || ApplicationEventType.UPDATED === event.getEventType()) {
-                console.log(api.ClassHelper.getClassName(this) + ' received ApplicationEvent - removing cached content types... ' +
+                console.log(ClassHelper.getClassName(this) + ' received ApplicationEvent - removing cached content types... ' +
                             event.getApplicationKey().toString());
                 this.getCachedByApplicationKey(event.getApplicationKey()).forEach((contentType: ContentType) => {
                     this.deleteByKey(this.getKeyFromObject(contentType));
@@ -36,7 +38,7 @@ export class ContentTypeCache
         return key.toString();
     }
 
-    private getCachedByApplicationKey(applicationKey: api.application.ApplicationKey): ContentType[] {
+    private getCachedByApplicationKey(applicationKey: ApplicationKey): ContentType[] {
         let result: ContentType[] = [];
         this.getAll().forEach((contentType: ContentType) => {
             if (applicationKey.equals(this.getKeyFromObject(contentType).getApplicationKey())) {

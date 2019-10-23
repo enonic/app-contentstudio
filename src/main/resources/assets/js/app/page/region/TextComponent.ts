@@ -1,3 +1,6 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {Component, ComponentBuilder} from './Component';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {TextComponentJson} from './TextComponentJson';
@@ -23,7 +26,7 @@ export class TextComponent
     }
 
     setText(value?: string, silent?: boolean) {
-        this.text = api.util.StringHelper.isBlank(value) ? undefined : value;
+        this.text = StringHelper.isBlank(value) ? undefined : value;
 
         if (!silent) {
             this.notifyPropertyChanged(TextComponent.PROPERTY_TEXT);
@@ -35,7 +38,7 @@ export class TextComponent
     }
 
     isEmpty(): boolean {
-        return api.util.StringHelper.isBlank(this.text);
+        return StringHelper.isBlank(this.text);
     }
 
     toJson(): ComponentTypeWrapperJson {
@@ -48,9 +51,9 @@ export class TextComponent
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, TextComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, TextComponent)) {
             return false;
         }
 
@@ -60,7 +63,7 @@ export class TextComponent
             return false;
         }
 
-        if (!api.ObjectHelper.stringEquals(this.text, other.text)) {
+        if (!ObjectHelper.stringEquals(this.text, other.text)) {
             return false;
         }
 

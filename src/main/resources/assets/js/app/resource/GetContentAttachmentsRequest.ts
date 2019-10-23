@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {AttachmentJson} from '../attachment/AttachmentJson';
 import {Attachments} from '../attachment/Attachments';
@@ -20,12 +23,12 @@ export class GetContentAttachmentsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getAttachments');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'getAttachments');
     }
 
-    sendAndParse(): wemQ.Promise<any> {
-        return this.send().then((response: api.rest.JsonResponse<AttachmentJson[]>) => {
+    sendAndParse(): Q.Promise<any> {
+        return this.send().then((response: JsonResponse<AttachmentJson[]>) => {
             return response.getResult().length > 0 ? Attachments.create().fromJson(response.getResult()).build() : null;
         });
     }

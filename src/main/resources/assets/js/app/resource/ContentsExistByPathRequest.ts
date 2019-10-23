@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
 import {ContentsExistByPathResult} from './ContentsExistByPathResult';
@@ -19,13 +22,13 @@ export class ContentsExistByPathRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'contentsExistByPath');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'contentsExistByPath');
     }
 
-    sendAndParse(): wemQ.Promise<ContentsExistByPathResult> {
+    sendAndParse(): Q.Promise<ContentsExistByPathResult> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentsExistByPathJson>) => {
+        return this.send().then((response: JsonResponse<ContentsExistByPathJson>) => {
             return new ContentsExistByPathResult(response.getResult());
         });
     }

@@ -22,10 +22,12 @@ import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {ComponentType} from '../../app/page/region/ComponentType';
 import {ComponentPropertyValueChangedEvent} from '../../app/page/region/ComponentPropertyValueChangedEvent';
 import {Component} from '../../app/page/region/Component';
-import ContentTypeName = api.schema.content.ContentTypeName;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
-import Element = api.dom.Element;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -130,7 +132,7 @@ export class FragmentComponentView
         this.getEl().setAttribute('data-portal-placeholder', 'true');
         this.getEl().setAttribute('data-portal-placeholder-error', 'true');
         this.removeChild(this.getFirstChild());
-        let errorSpan = new api.dom.SpanEl('data-portal-placeholder-error');
+        let errorSpan = new SpanEl('data-portal-placeholder-error');
         errorSpan.setHtml(i18n('live.view.fragment.notfound'));
         this.prependChild(errorSpan);
     }
@@ -149,9 +151,9 @@ export class FragmentComponentView
     }
 
     private addDetachAction() {
-        const actions: api.ui.Action[] = [];
+        const actions: Action[] = [];
 
-        actions.push(new api.ui.Action(i18n('live.view.detach')).onExecuted(() => {
+        actions.push(new Action(i18n('live.view.detach')).onExecuted(() => {
 
             this.deselect();
 
@@ -279,7 +281,7 @@ export class FragmentComponentView
         return !!itemType && TextItemType.get().equals(itemType);
     }
 
-    getContentId(): api.content.ContentId {
+    getContentId(): ContentId {
         return this.component ? this.component.getFragment() : null;
     }
 

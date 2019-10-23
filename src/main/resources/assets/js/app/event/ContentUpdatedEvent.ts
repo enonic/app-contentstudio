@@ -1,27 +1,32 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+
 export class ContentUpdatedEvent
-    extends api.event.Event {
+    extends Event {
 
-    private contentSummary: api.content.ContentSummary;
+    private contentSummary: ContentSummary;
 
-    constructor(contentSummary: api.content.ContentSummary) {
+    constructor(contentSummary: ContentSummary) {
         super();
         this.contentSummary = contentSummary;
     }
 
-    public getContentId(): api.content.ContentId {
+    public getContentId(): ContentId {
         return this.contentSummary.getContentId();
     }
 
-    public getContentSummary(): api.content.ContentSummary {
+    public getContentSummary(): ContentSummary {
         return this.contentSummary;
     }
 
     static on(handler: (event: ContentUpdatedEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentUpdatedEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 
 }

@@ -1,26 +1,30 @@
-import '../../../../../../api.ts';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 
-import Dropdown = api.ui.selector.dropdown.Dropdown;
+export class DescriptorBasedDropdownForm
+    extends Form {
 
-export class DescriptorBasedDropdownForm extends api.ui.form.Form {
+    private templateSelector: Dropdown<Descriptor>;
 
-    private templateSelector: Dropdown<api.content.page.Descriptor>;
-
-    constructor(templateSelector: Dropdown<api.content.page.Descriptor>, title?: string) {
+    constructor(templateSelector: Dropdown<Descriptor>, title?: string) {
         super('descriptor-based-dropdown-form');
         this.templateSelector = templateSelector;
 
-        let fieldSet = new api.ui.form.Fieldset();
-        if (!api.util.StringHelper.isBlank(title)) {
-            fieldSet.add(new api.ui.form.FormItemBuilder(templateSelector).setLabel(title).build());
+        let fieldSet = new Fieldset();
+        if (!StringHelper.isBlank(title)) {
+            fieldSet.add(new FormItemBuilder(templateSelector).setLabel(title).build());
         } else {
-            fieldSet.add(new api.ui.form.FormItemBuilder(templateSelector).build());
+            fieldSet.add(new FormItemBuilder(templateSelector).build());
         }
 
         this.add(fieldSet);
     }
 
-    getSelector(): Dropdown<api.content.page.Descriptor> {
+    getSelector(): Dropdown<Descriptor> {
         return this.templateSelector;
     }
 

@@ -1,13 +1,15 @@
-import ContentPath = api.content.ContentPath;
-import ContentSummary = api.content.ContentSummary;
-import ApplicationKey = api.application.ApplicationKey;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export enum HtmlAreaDialogType {
     ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE
 }
 
 export class CreateHtmlAreaDialogEvent
-    extends api.event.Event {
+    extends Event {
 
     private config: any;
 
@@ -54,11 +56,11 @@ export class CreateHtmlAreaDialogEvent
     }
 
     static on(handler: (event: CreateHtmlAreaDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: CreateHtmlAreaDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
 

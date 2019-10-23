@@ -1,11 +1,13 @@
-import '../../api.ts';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
 
 export interface ContentItemViewToolbarParams {
-    editAction: api.ui.Action;
-    deleteAction: api.ui.Action;
+    editAction: Action;
+    deleteAction: Action;
 }
 
-export class ContentItemViewToolbar extends api.ui.toolbar.Toolbar {
+export class ContentItemViewToolbar
+    extends Toolbar {
 
     constructor(params: ContentItemViewToolbarParams) {
         super();

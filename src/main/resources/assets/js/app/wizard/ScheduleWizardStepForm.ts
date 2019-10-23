@@ -1,19 +1,27 @@
-import FormView = api.form.FormView;
-import PropertySet = api.data.PropertySet;
-import WizardStepValidityChangedEvent = api.app.wizard.WizardStepValidityChangedEvent;
-import i18n = api.util.i18n;
-import DateTimeRange = api.form.inputtype.time.DateTimeRange;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {WizardStepValidityChangedEvent} from 'lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
+import {DateTimeRange} from 'lib-admin-ui/form/inputtype/time/DateTimeRange';
 import {Content, ContentBuilder} from '../content/Content';
 import {PublishStatus} from '../publish/PublishStatus';
+import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {InputBuilder} from 'lib-admin-ui/form/Input';
+import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
+import {FormBuilder} from 'lib-admin-ui/form/Form';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
+import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 
 export class ScheduleWizardStepForm
-    extends api.app.wizard.WizardStepForm {
+    extends WizardStepForm {
 
     private content: Content;
     private updateUnchangedOnly: boolean = false;
 
     private formView: FormView;
-    private propertySet: PropertySet = new api.data.PropertyTree().getRoot();
+    private propertySet: PropertySet = new PropertyTree().getRoot();
 
     constructor() {
         super('schedule-wizard-step-form');
@@ -43,12 +51,12 @@ export class ScheduleWizardStepForm
     }
 
     private initFormView(content: Content) {
-        let formBuilder = new api.form.FormBuilder()
+        let formBuilder = new FormBuilder()
             .addFormItem(
-                new api.form.InputBuilder()
+                new InputBuilder()
                     .setName('publish')
                     .setInputType(DateTimeRange.getName())
-                    .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
+                    .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(1).build())
                     .setInputTypeConfig({
                         labelStart: i18n('field.onlineFrom'),
                         labelEnd: i18n('field.onlineTo')
@@ -59,7 +67,7 @@ export class ScheduleWizardStepForm
             );
 
         this.initPropertySet(content);
-        this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);
+        this.formView = new FormView(FormContext.create().build(), formBuilder.build(), this.propertySet);
         this.formView.displayValidationErrors(true);
         this.formView.layout().then(() => {
             this.formView.onFocus((event) => {
@@ -71,7 +79,7 @@ export class ScheduleWizardStepForm
 
             this.appendChild(this.formView);
 
-            this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
+            this.formView.onValidityChanged((event: FormValidityChangedEvent) => {
                 this.previousValidation = event.getRecording();
                 this.notifyValidityChanged(new WizardStepValidityChangedEvent(event.isValid()));
             });
@@ -86,10 +94,10 @@ export class ScheduleWizardStepForm
         const pSet = new PropertySet(this.propertySet.getTree());
 
         const publishFromDate = content.getPublishFromTime();
-        pSet.setLocalDateTime('from', 0, publishFromDate ? api.util.LocalDateTime.fromDate(publishFromDate) : null);
+        pSet.setLocalDateTime('from', 0, publishFromDate ? LocalDateTime.fromDate(publishFromDate) : null);
 
         const publishToDate = content.getPublishToTime();
-        pSet.setLocalDateTime('to', 0, publishToDate ? api.util.LocalDateTime.fromDate(publishToDate) : null);
+        pSet.setLocalDateTime('to', 0, publishToDate ? LocalDateTime.fromDate(publishToDate) : null);
 
         this.propertySet.setPropertySet('publish', 0, pSet);
     }

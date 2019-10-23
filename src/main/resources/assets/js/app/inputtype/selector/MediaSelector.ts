@@ -1,17 +1,22 @@
-import PropertyArray = api.data.PropertyArray;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
-import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
+import * as Q from 'q';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ContentSelector} from './ContentSelector';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {Content} from '../../content/Content';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
+import {Content} from '../../content/Content';
 
 export class MediaSelector
     extends ContentSelector {
@@ -23,7 +28,7 @@ export class MediaSelector
         this.addClass('media-selector');
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
 
         return super.layout(input, propertyArray).then(() => {
             if (this.config.content) {
@@ -70,7 +75,7 @@ export class MediaSelector
 
     }
 
-    protected createUploader(): wemQ.Promise<MediaUploaderEl> {
+    protected createUploader(): Q.Promise<MediaUploaderEl> {
         let multiSelection = (this.getInput().getOccurrences().getMaximum() !== 1);
 
         const config: MediaUploaderElConfig = {
@@ -94,7 +99,7 @@ export class MediaSelector
                     return this.doInitUploader(new MediaUploaderEl(config));
                 });
         } else {
-            return wemQ(this.doInitUploader(new MediaUploaderEl(config)));
+            return Q(this.doInitUploader(new MediaUploaderEl(config)));
         }
     }
 
@@ -107,7 +112,7 @@ export class MediaSelector
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const createdContent = event.getUploadItem().getModel();
 
-            const option = <api.ui.selector.Option<MediaTreeSelectorItem>>{
+            const option = <Option<MediaTreeSelectorItem>>{
                 value: createdContent.getContentId().toString(),
                 displayValue: new MediaTreeSelectorItem(createdContent)
             };
@@ -194,4 +199,4 @@ export class MediaSelector
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('MediaSelector', MediaSelector));
+InputTypeManager.register(new Class('MediaSelector', MediaSelector));

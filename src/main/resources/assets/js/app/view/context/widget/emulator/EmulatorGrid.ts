@@ -1,18 +1,25 @@
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {EmulatorDevice} from './EmulatorDevice';
 import {FontIcon} from '../../../../icon/FontIcon';
+import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {GridOptions, GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
+import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {H5El} from 'lib-admin-ui/dom/H5El';
+import {H6El} from 'lib-admin-ui/dom/H6El';
 
-export class EmulatorGrid extends api.ui.grid.Grid<any> {
+export class EmulatorGrid
+    extends Grid<any> {
 
-    protected createOptions(): api.ui.grid.GridOptions<any> {
-        return new api.ui.grid.GridOptionsBuilder()
+    protected createOptions(): GridOptions<any> {
+        return new GridOptionsBuilder()
             .setHideColumnHeaders(true)
             .setRowHeight(50)
             .build();
     }
 
-    protected createColumns(): api.ui.grid.GridColumn<any>[] {
+    protected createColumns(): GridColumn<any>[] {
         return [
-            new api.ui.grid.GridColumnBuilder()
+            new GridColumnBuilder()
                 .setName('device')
                 .setField('device')
                 .setId('device')
@@ -23,18 +30,18 @@ export class EmulatorGrid extends api.ui.grid.Grid<any> {
         ];
     }
 
-    private static buildRow(data: EmulatorDevice): api.dom.DivEl {
-        const rowEl = new api.dom.DivEl();
+    private static buildRow(data: EmulatorDevice): DivEl {
+        const rowEl = new DivEl();
         rowEl.getEl().setData('width', data.getWidth().toString());
         rowEl.getEl().setData('height', data.getHeight().toString());
         rowEl.getEl().setData('units', data.getUnits());
 
         const icon = new FontIcon('icon-' + data.getDeviceTypeAsString());
 
-        const title = new api.dom.H5El();
+        const title = new H5El();
         title.getEl().setInnerHtml(data.getName());
 
-        const subtitle = new api.dom.H6El();
+        const subtitle = new H6El();
         const units = data.getDisplayUnits() ? data.getUnits() : '';
         subtitle.getEl().setInnerHtml(data.getWidth().toString() + units + ' &times; ' + data.getHeight().toString() + units, false);
         rowEl.appendChild(icon);
@@ -42,7 +49,7 @@ export class EmulatorGrid extends api.ui.grid.Grid<any> {
         rowEl.appendChild(subtitle);
 
         if (data.getRotatable() === true) {
-            const rotator = new api.dom.DivEl();
+            const rotator = new DivEl();
             rotator.addClass('rotate');
             rotator.addClassEx('icon-loop');
             rowEl.appendChild(rotator);

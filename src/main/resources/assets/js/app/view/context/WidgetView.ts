@@ -1,9 +1,12 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContextView} from './ContextView';
 import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import Widget = api.content.Widget;
-import i18n = api.util.i18n;
+import {Widget} from 'lib-admin-ui/content/Widget';
 
 export enum InternalWidgetType {
     INFO,
@@ -13,7 +16,8 @@ export enum InternalWidgetType {
     COMPONENTS
 }
 
-export class WidgetView extends api.dom.DivEl {
+export class WidgetView
+    extends DivEl {
 
     private widgetName: string;
 
@@ -55,7 +59,7 @@ export class WidgetView extends api.dom.DivEl {
             this.createDefaultWidgetItemView();
         }
 
-        if (!api.util.StringHelper.isBlank(builder.widgetClass)) {
+        if (!StringHelper.isBlank(builder.widgetClass)) {
             this.addClass(builder.widgetClass);
         }
 
@@ -105,7 +109,7 @@ export class WidgetView extends api.dom.DivEl {
         return UriHelper.getAdminUri(this.widget.getUrl(), '/');
     }
 
-    private updateCustomWidgetItemViews(): wemQ.Promise<any>[] {
+    private updateCustomWidgetItemViews(): Q.Promise<any>[] {
         let promises = [];
 
         this.url = this.getWidgetUrl();
@@ -117,7 +121,7 @@ export class WidgetView extends api.dom.DivEl {
         return promises;
     }
 
-    public updateWidgetItemViews(): wemQ.Promise<any> {
+    public updateWidgetItemViews(): Q.Promise<any> {
         const content = this.contextView.getItem();
         let promises = [];
 
@@ -137,7 +141,7 @@ export class WidgetView extends api.dom.DivEl {
         }
 
         this.containerWidth = this.contextView.getEl().getWidth();
-        return wemQ.all(promises).finally(() => this.contextView.hideLoadMask());
+        return Q.all(promises).finally(() => this.contextView.hideLoadMask());
     }
 
     private createDefaultWidgetItemView() {
@@ -147,18 +151,18 @@ export class WidgetView extends api.dom.DivEl {
         }
     }
 
-    private layout(): wemQ.Promise<any> {
+    private layout(): Q.Promise<any> {
 
         this.slideOut();
 
-        let layoutTasks: wemQ.Promise<any>[] = [];
+        let layoutTasks: Q.Promise<any>[] = [];
 
         this.widgetItemViews.forEach((itemView: WidgetItemView) => {
             this.appendChild(itemView);
             layoutTasks.push(itemView.layout());
         });
 
-        return wemQ.all(layoutTasks);
+        return Q.all(layoutTasks);
     }
 
     getWidgetName(): string {

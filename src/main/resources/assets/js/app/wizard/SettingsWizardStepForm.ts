@@ -1,17 +1,24 @@
 import {ContentSettingsModel} from './ContentSettingsModel';
 import {Content, ContentBuilder} from '../content/Content';
-import PrincipalType = api.security.PrincipalType;
-import PrincipalLoader = api.security.PrincipalLoader;
-import FormItemBuilder = api.ui.form.FormItemBuilder;
-import PrincipalComboBox = api.ui.security.PrincipalComboBox;
-import LocaleComboBox = api.ui.locale.LocaleComboBox;
-import i18n = api.util.i18n;
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
+import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
+import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
-export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
+export class SettingsWizardStepForm
+    extends WizardStepForm {
 
     private content: Content;
     private model: ContentSettingsModel;
-    private modelChangeListener: (event: api.PropertyChangedEvent) => void;
+    private modelChangeListener: (event: PropertyChangedEvent) => void;
     private updateUnchangedOnly: boolean = false;
     private ignorePropertyChange: boolean = false;
 
@@ -21,7 +28,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
     constructor() {
         super('settings-wizard-step-form');
 
-        this.modelChangeListener = (event: api.PropertyChangedEvent) => {
+        this.modelChangeListener = (event: PropertyChangedEvent) => {
             if (!this.ignorePropertyChange) {
                 let value = event.getNewValue();
                 switch (event.getPropertyName()) {
@@ -53,11 +60,11 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
 
         let ownerFormItem = new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
 
-        let fieldSet = new api.ui.form.Fieldset();
+        let fieldSet = new Fieldset();
         fieldSet.add(localeFormItem);
         fieldSet.add(ownerFormItem);
 
-        let form = new api.ui.form.Form().add(fieldSet);
+        let form = new Form().add(fieldSet);
         this.appendChild(form);
 
         form.onFocus((event) => {
@@ -79,16 +86,16 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
         this.localeCombo.resetBaseValues();
     }
 
-    onPropertyChanged(listener: {(event: api.PropertyChangedEvent): void;}) {
+    onPropertyChanged(listener: { (event: PropertyChangedEvent): void; }) {
         this.model.onPropertyChanged(listener);
     }
 
-    unPropertyChanged(listener: {(event: api.PropertyChangedEvent): void;}) {
+    unPropertyChanged(listener: { (event: PropertyChangedEvent): void; }) {
         this.model.unPropertyChanged(listener);
     }
 
     private setModel(model: ContentSettingsModel) {
-        api.util.assertNotNull(model, `Model can't be null`);
+        assertNotNull(model, `Model can't be null`);
 
         if (this.model) {
             model.unPropertyChanged(this.modelChangeListener);
@@ -96,7 +103,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
 
         // 2-way data binding
         let ownerListener = () => {
-            let principals: api.security.Principal[] = this.ownerCombo.getSelectedDisplayValues();
+            let principals: Principal[] = this.ownerCombo.getSelectedDisplayValues();
             this.ignorePropertyChange = true;
             model.setOwner(principals.length > 0 ? principals[0].getKey() : null);
             this.ignorePropertyChange = false;

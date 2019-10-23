@@ -1,4 +1,5 @@
-import ModalDialogHeader = api.ui.dialog.ModalDialogHeader;
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {InPlaceTextInput} from './InPlaceTextInput';
 
 class IssueDetailsInPlaceTextInput
@@ -21,7 +22,7 @@ class IssueDetailsInPlaceTextInput
 }
 
 export class IssueDetailsDialogHeader
-    extends api.dom.DivEl
+    extends DivEl
     implements ModalDialogHeader {
 
     private input: IssueDetailsInPlaceTextInput;

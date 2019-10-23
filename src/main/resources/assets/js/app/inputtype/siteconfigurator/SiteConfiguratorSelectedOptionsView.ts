@@ -1,17 +1,17 @@
-import Application = api.application.Application;
-import ApplicationKey = api.application.ApplicationKey;
-import FormView = api.form.FormView;
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import SiteConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
+import {Application, ApplicationBuilder} from 'lib-admin-ui/application/Application';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
+import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
 
-    private siteConfigProvider: SiteConfigProvider;
+    private siteConfigProvider: ApplicationConfigProvider;
 
     private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey, formView: FormView): void }[] = [];
 
@@ -19,7 +19,7 @@ export class SiteConfiguratorSelectedOptionsView
 
     private items: SiteConfiguratorSelectedOptionView[] = [];
 
-    constructor(siteConfigProvider: SiteConfigProvider, formContext: ContentFormContext) {
+    constructor(siteConfigProvider: ApplicationConfigProvider, formContext: ContentFormContext) {
         super();
         this.siteConfigProvider = siteConfigProvider;
         this.formContext = formContext;
@@ -41,7 +41,7 @@ export class SiteConfiguratorSelectedOptionsView
     makeEmptyOption(id: string): Option<Application> {
 
         let key = ApplicationKey.fromString(id);
-        let emptyApp = new api.application.ApplicationBuilder();
+        let emptyApp = new ApplicationBuilder();
         emptyApp.applicationKey = key;
         emptyApp.displayName = id;
 
@@ -65,7 +65,7 @@ export class SiteConfiguratorSelectedOptionsView
         return new SelectedOption<Application>(optionView, this.count());
     }
 
-    removeOption(optionToRemove: api.ui.selector.Option<Application>, silent: boolean = false) {
+    removeOption(optionToRemove: Option<Application>, silent: boolean = false) {
         this.items =
             this.items.filter(item => !item.getSiteConfig().getApplicationKey().equals(optionToRemove.displayValue.getApplicationKey()));
         super.removeOption(optionToRemove, silent);

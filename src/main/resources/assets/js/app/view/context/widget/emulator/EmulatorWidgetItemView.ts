@@ -1,8 +1,10 @@
+import * as $ from 'jquery';
 import {WidgetItemView} from '../../WidgetItemView';
 import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
+import {DataView} from 'lib-admin-ui/ui/grid/DataView';
 
 export interface EmulatorWidgetItemViewConfig {
     liveEditPage?: LiveEditPageProxy;
@@ -29,9 +31,9 @@ export class EmulatorWidgetItemView
         this.initEmulationGrid();
 
         // Using jQuery since grid.setOnClick fires event twice, bug in slickgrid
-        wemjq(this.getHTMLElement()).on('click', '.grid-row > div', (event: JQueryEventObject) => {
+        $(this.getHTMLElement()).on('click', '.grid-row > div', (event: JQueryEventObject) => {
 
-            const el = wemjq(event.currentTarget);
+            const el = $(event.currentTarget);
             const width = el.data('width');
             const height = el.data('height');
             const units = el.data('units');
@@ -57,7 +59,7 @@ export class EmulatorWidgetItemView
     }
 
     private initEmulationGrid() {
-        const dataView = new api.ui.grid.DataView<any>();
+        const dataView = new DataView<any>();
         const grid = new EmulatorGrid(dataView);
 
         dataView.setItems(this.devicesRows);

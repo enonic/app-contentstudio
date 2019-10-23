@@ -1,8 +1,14 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {TagRemovedEvent} from './TagRemovedEvent';
 import {TagAddedEvent} from './TagAddedEvent';
 import {Tag, TagBuilder} from './Tag';
 import {TagSuggestions} from './TagSuggestions';
 import {TagSuggester} from './TagSuggester';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
 export class TagsBuilder {
 
@@ -33,11 +39,11 @@ export class TagsBuilder {
 }
 
 export class Tags
-    extends api.dom.FormInputEl {
+    extends FormInputEl {
 
     private tagSuggester: TagSuggester;
 
-    private textInput: api.ui.text.TextInput;
+    private textInput: TextInput;
 
     private tagSuggestions: TagSuggestions;
 
@@ -57,7 +63,7 @@ export class Tags
 
         this.maxTags = builder.maxTags;
 
-        this.textInput = new api.ui.text.TextInput();
+        this.textInput = new TextInput();
         this.textInput.disableAutocomplete();
         this.appendChild(this.textInput);
 
@@ -107,14 +113,14 @@ export class Tags
             this.textInput.getEl().setWidth('');
         });
 
-        let searchSuggestionHandler = api.util.AppHelper.debounce((searchString: string) => {
+        let searchSuggestionHandler = AppHelper.debounce((searchString: string) => {
             this.searchSuggestions(searchString);
         }, 300, false);
 
-        this.textInput.onValueChanged((event: api.ValueChangedEvent) => {
+        this.textInput.onValueChanged((event: ValueChangedEvent) => {
             let searchString = event.getNewValue();
 
-            if (api.util.StringHelper.isBlank(searchString)) {
+            if (StringHelper.isBlank(searchString)) {
                 this.tagSuggestions.hide();
             } else {
                 searchSuggestionHandler(searchString);
@@ -158,7 +164,7 @@ export class Tags
                 this.preservedValue = searchString;
             }
         }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
             return [];
         }).done();
     }
@@ -223,7 +229,7 @@ export class Tags
     }
 
     private indexOf(value: string): number {
-        if (!api.util.StringHelper.isEmpty(value)) {
+        if (!StringHelper.isEmpty(value)) {
             for (let i = 0; i < this.tags.length; i++) {
                 if (value === this.tags[i].getValue()) {
                     return i;

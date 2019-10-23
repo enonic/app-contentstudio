@@ -1,5 +1,5 @@
-import TreeNode = api.ui.treegrid.TreeNode;
-import ContentPath = api.content.ContentPath;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class TreeNodesOfContentPath {

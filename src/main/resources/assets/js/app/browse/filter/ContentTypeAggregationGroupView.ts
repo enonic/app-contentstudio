@@ -1,5 +1,8 @@
-import AggregationGroupView = api.aggregation.AggregationGroupView;
+import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {AggregationView} from 'lib-admin-ui/aggregation/AggregationView';
 
 export class ContentTypeAggregationGroupView
     extends AggregationGroupView {
@@ -8,20 +11,20 @@ export class ContentTypeAggregationGroupView
 
         let displayNameMap: { [name: string]: string } = {};
 
-        let mask: api.ui.mask.LoadMask = new api.ui.mask.LoadMask(this);
+        let mask: LoadMask = new LoadMask(this);
         this.appendChild(mask);
         this.onRendered(() => mask.show());
 
         this.setTooltipActive(true);
 
         let request = new GetAllContentTypesRequest();
-        request.sendAndParse().done((contentTypes: api.schema.content.ContentTypeSummary[]) => {
+        request.sendAndParse().done((contentTypes: ContentTypeSummary[]) => {
 
-            contentTypes.forEach((contentType: api.schema.content.ContentTypeSummary) => {
+            contentTypes.forEach((contentType: ContentTypeSummary) => {
                 displayNameMap[contentType.getName().toLowerCase()] = contentType.getDisplayName();
             });
 
-            this.getAggregationViews().forEach((aggregationView: api.aggregation.AggregationView) => {
+            this.getAggregationViews().forEach((aggregationView: AggregationView) => {
                 aggregationView.setDisplayNamesMap(displayNameMap);
             });
             mask.remove();
