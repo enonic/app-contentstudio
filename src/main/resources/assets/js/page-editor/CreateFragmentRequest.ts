@@ -2,7 +2,6 @@ import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
 import {ContentJson} from '../app/content/ContentJson';
 import {Component} from '../app/page/region/Component';
-import Workflow = api.content.Workflow;
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<ContentJson, Content> {
@@ -12,8 +11,6 @@ export class CreateFragmentRequest
     private config: api.data.PropertyTree;
 
     private component: Component;
-
-    private workflow: Workflow;
 
     constructor(contentId: api.content.ContentId) {
         super();
@@ -31,17 +28,11 @@ export class CreateFragmentRequest
         return this;
     }
 
-    setWorkflow(workflow: Workflow): CreateFragmentRequest {
-        this.workflow = workflow;
-        return this;
-    }
-
     getParams(): Object {
         return {
             contentId: this.contentId.toString(),
             config: this.config ? this.config.toJson() : null,
-            component: this.component != null ? this.component.toJson() : null,
-            workflow: this.workflow.toJson()
+            component: this.component != null ? this.component.toJson() : null
         };
     }
 

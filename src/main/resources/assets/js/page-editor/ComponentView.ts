@@ -391,8 +391,7 @@ export class ComponentView<COMPONENT extends Component>
         const request: CreateFragmentRequest =
             new CreateFragmentRequest(contentId)
                 .setConfig(config)
-                .setComponent(this.getComponent())
-                .setWorkflow(this.getPageView().getLiveEditModel().getContent().getWorkflow());
+                .setComponent(this.getComponent());
 
         return request.sendAndParse();
     }
