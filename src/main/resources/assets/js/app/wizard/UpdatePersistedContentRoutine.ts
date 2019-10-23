@@ -60,14 +60,8 @@ export class UpdatePersistedContentRoutine
         return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
-                // reload page editor as well when site config has been changed
-                if (context.content.isSite() && this.viewedContent.isSite()) {
-                    const siteConfigs = (<Site>context.content).getSiteConfigs();
-                    const viewedConfigs = (<Site>this.viewedContent).getSiteConfigs();
-                    if (!ObjectHelper.arrayEquals(siteConfigs, viewedConfigs)) {
-                        context.pageUpdated = true;
-                    }
-                }
+                // NB: reloading the page because it may use any changed data
+                context.pageUpdated = true;
 
                 if (markUpdated) {
                     context.dataUpdated = true;

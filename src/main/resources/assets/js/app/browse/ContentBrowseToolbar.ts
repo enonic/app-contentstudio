@@ -7,6 +7,7 @@ export class ContentBrowseToolbar
     constructor(actions: ContentTreeGridActions) {
         super();
         this.addClass('content-browse-toolbar');
+        actions.getUndoPendingDeleteAction().setVisible(false);
         this.addActions(actions.getAllActionsNoPublish());
     }
 }

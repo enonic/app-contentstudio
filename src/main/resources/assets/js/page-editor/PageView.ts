@@ -545,6 +545,7 @@ export class PageView
             }
 
             new PageUnlockedEvent(this).fire();
+            new PageInspectedEvent().fire();
         }
 
         this.notifyPageLockChanged(locked);

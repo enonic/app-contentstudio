@@ -192,6 +192,12 @@ export class ContentSummaryAndCompareStatus
         return CompareStatusChecker.isNew(this.getCompareStatus());
     }
 
+    canBeMarkedAsReady(): boolean {
+        const contentSummary = this.getContentSummary();
+
+        return !this.isOnline() && !this.isPendingDelete() && contentSummary.isValid() && !contentSummary.isReady();
+    }
+
     clone(): ContentSummaryAndCompareStatus {
         const contentSummary = new ContentSummaryBuilder(this.getContentSummary()).build();
         const clone = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(

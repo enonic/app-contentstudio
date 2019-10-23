@@ -237,10 +237,10 @@ export class ContentDeleteDialog
     }
 
     private countItemsToDeleteAndUpdateButtonCounter() {
-        this.actionButton.setLabel(i18n('dialog.delete.now'));
+        this.actionButton.setLabel(i18n('dialog.deleteNow'));
 
         this.totalItemsToDelete = this.countTotal();
-        this.updateButtonCount(i18n('dialog.delete.now'), this.totalItemsToDelete);
+        this.updateButtonCount(i18n('dialog.deleteNow'), this.totalItemsToDelete);
     }
 
     private createDeleteRequest(isInstantDelete: boolean): DeleteContentRequest {
