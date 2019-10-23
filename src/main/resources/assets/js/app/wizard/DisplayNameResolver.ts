@@ -41,9 +41,15 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
-    private getNamesOfAllowedFields(): string[] {
+    private getFormInputs(): api.form.Input[] {
         return this.formView.getForm().getFormItems()
-            .filter(formItem => !this.isExcludedInputType((<api.form.Input>formItem).getInputType()))
+            .filter(formItem => api.ObjectHelper.iFrameSafeInstanceOf(formItem, api.form.Input))
+            .map(formItem => <api.form.Input>formItem);
+    }
+
+    private getNamesOfAllowedFields(): string[] {
+        return this.getFormInputs()
+            .filter(input => !this.isExcludedInputType(input.getInputType()))
             .map(formItem => formItem.getName());
     }
 
