@@ -890,10 +890,6 @@ class HtmlEditorConfigBuilder {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
         }
 
-        if (!this.editorParams.isFullScreenMode() && !this.editorParams.isInline()) {
-            this.disabledTools += ',Bold,Italic,Underline';
-        }
-
         this.tools.push(this.enabledTools);
     }
 
