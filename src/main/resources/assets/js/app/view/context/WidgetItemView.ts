@@ -4,6 +4,8 @@ export class WidgetItemView extends api.dom.DivEl {
 
     public static debug: boolean = false;
 
+    private scriptNodes: HTMLElement[] = [];
+
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
     }
@@ -28,17 +30,47 @@ export class WidgetItemView extends api.dom.DivEl {
         return `${url}?${contentIdParam}${repositoryParam}${branchParam}t=${new Date().getTime()}`;
     }
 
+    private injectScriptNode(node: HTMLElement) {
+        const scriptNode = document.createElement('script');
+        scriptNode.text = node.innerHTML;
+        for(let i = node.attributes.length-1; i >= 0; i--) {
+            scriptNode.setAttribute(node.attributes[i].name, node.attributes[i].value);
+        }
+        document.getElementsByTagName('head')[0].appendChild(scriptNode);
+        this.scriptNodes.push(scriptNode);
+    }
+
+    private injectWidgetHtml(widgetContainer: HTMLElement) {
+        const widgetEl = widgetContainer.querySelector('widget');
+        if (!widgetEl) {
+            return;
+        }
+
+        this.getEl().appendChild(widgetEl);
+    }
+
+    private injectWidgetScripts(widgetContainer: HTMLElement) {
+        const scriptTags = widgetContainer.querySelectorAll('script');
+
+        let i = 0;
+        while (i < scriptTags.length) {
+            this.injectScriptNode(scriptTags[i++]);
+        }
+    }
+
     public fetchWidgetContents(url: string, contentId: string): wemQ.Promise<void> {
         const deferred = wemQ.defer<void>();
         const fullUrl = WidgetItemView.getFullWidgetUrl(url, contentId);
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
-                const div = document.createElement('div');
-                div.innerHTML = html;
+                const widgetContainer = document.createElement('html');
+                widgetContainer.innerHTML = html;
 
                 this.removeChildren();
-                this.getEl().appendChild(div.firstChild);
+
+                this.injectWidgetScripts(widgetContainer);
+                this.injectWidgetHtml(widgetContainer);
 
                 deferred.resolve(null);
             })
@@ -47,5 +79,11 @@ export class WidgetItemView extends api.dom.DivEl {
             });
 
         return deferred.promise;
+    }
+
+    public reset() {
+        const documentHead = document.getElementsByTagName('head')[0];
+        this.scriptNodes.forEach((scriptNode: HTMLElement) => documentHead.removeChild(scriptNode));
+        this.scriptNodes = [];
     }
 }
