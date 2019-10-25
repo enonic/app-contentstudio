@@ -1,6 +1,6 @@
 {
   "name": "app-contentstudio",
-  "version": "2.2.0",
+  "version": "2.2.2",
   "description": "Enonix XP - Content Studio App",
   "scripts": {
     "build": "webpack --hide-modules",
