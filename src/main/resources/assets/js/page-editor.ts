@@ -8,6 +8,7 @@ import {LiveEditPage} from './page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {Store} from 'lib-admin-ui/store/Store';
+import {KEY_BINDINGS_KEY, KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 
 Store.instance().set('$', $);
 /*
@@ -56,7 +57,9 @@ const init = () => {
 
     function stopBrowserShortcuts(event: any) {
         // get the parent's frame bindings
-        let activeBindings = parent['api']['ui']['KeyBindings'].get().getActiveBindings();
+        const hasKeyBindings = Store.parentInstance().has(KEY_BINDINGS_KEY);
+        const keyBindings = <KeyBindings>Store.parentInstance().get(KEY_BINDINGS_KEY);
+        const activeBindings = hasKeyBindings ? keyBindings.getActiveBindings() : [];
 
         let hasMatch = hasMatchingBinding(activeBindings, event);
 
