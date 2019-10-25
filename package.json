@@ -12,7 +12,8 @@
     "fix:js": "eslint . --fix"
   },
   "dependencies": {
-    "@webcomponents/html-imports": "^1.2.0"
+    "@webcomponents/html-imports": "^1.2.0",
+    "jsondiffpatch": "^0.3.11"
   },
   "devDependencies": {
     "@types/ckeditor": "^4.9.1",

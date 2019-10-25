@@ -6,6 +6,7 @@ import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentV
 import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import ContentId = api.content.ContentId;
 import WorkflowState = api.content.WorkflowState;
 import i18n = api.util.i18n;
@@ -111,8 +112,8 @@ export class VersionsView
                                CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
                                CompareStatusFormatter.formatStatusTextFromContent(this.content);
             const statusClass = isInMaster ?
-                               CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
-                               CompareStatusFormatter.formatStatusClassFromContent(this.content);
+                                CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
+                                CompareStatusFormatter.formatStatusClassFromContent(this.content);
 
             let statusDiv = new api.dom.DivEl('status ' + (isInMaster ? VersionsView.branchMaster : VersionsView.branchDraft));
             statusDiv.setHtml(statusText);
@@ -149,7 +150,7 @@ export class VersionsView
     }
 
     private createVersionInfoBlock(item: ContentVersion): api.dom.Element {
-        let versionInfoDiv = new api.dom.DivEl('version-info hidden');
+        const versionInfoDiv = new api.dom.DivEl('version-info hidden');
 
 
         if (item.publishInfo) {
@@ -171,8 +172,8 @@ export class VersionsView
 
         }
 
-        let isActive = item.id === this.activeVersion.id;
-        let restoreButton = new api.ui.button.ActionButton(
+        const isActive = item.id === this.activeVersion.id;
+        const restoreButton = new api.ui.button.ActionButton(
             new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.restore'))
                 .onExecuted((action: api.ui.Action) => {
                     if (!isActive) {
@@ -192,12 +193,27 @@ export class VersionsView
             restoreButton.setEnabled(false);
         }
 
-        restoreButton.onClicked((event: MouseEvent) => {
+        const swallowEvent = (event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-        });
+        };
 
-        versionInfoDiv.appendChildren(restoreButton);
+        const compareButton = new api.ui.button.ActionButton(
+            new api.ui.Action(i18n('field.version.compare'))
+                .onExecuted((action: api.ui.Action) => {
+                    CompareContentVersionsDialog.get()
+                        .setContentId(this.content.getContentId())
+                        .setContentDisplayName(this.content.getDisplayName())
+                        .setLeftVersion(this.activeVersion.id)
+                        .setRightVersion(item.id)
+                        .setActiveVersion(this.activeVersion.id)
+                        .open();
+                }), false);
+
+        versionInfoDiv.appendChildren(restoreButton, compareButton);
+
+        restoreButton.onClicked(swallowEvent);
+        compareButton.onClicked(swallowEvent);
 
         return versionInfoDiv;
     }
