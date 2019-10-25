@@ -1,11 +1,15 @@
 import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-simulate/jquery.simulate.js';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {LiveEditPage} from './page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {Store} from 'lib-admin-ui/store/Store';
 
+Store.instance().set('$', $);
 /*
  Prefix must match @_CLS_PREFIX in assets\page-editor\styles\main.less
  */
@@ -23,18 +27,17 @@ const init = () => {
 
             stopBrowserShortcuts(event);
 
-            new ElementHelper(parent.document.body).simulate(event.type);
-            // $(parent.document).simulate(event.type, {
-            //     bubbles: event.bubbles,
-            //     cancelable: event.cancelable,
-            //     view: parent,
-            //     ctrlKey: event.ctrlKey,
-            //     altKey: event.altKey,
-            //     shiftKey: event.shiftKey,
-            //     metaKey: event.metaKey,
-            //     keyCode: event.keyCode,
-            //     charCode: event.charCode
-            // });
+            $(parent.document).simulate(event.type, {
+                bubbles: event.bubbles,
+                cancelable: event.cancelable,
+                view: parent,
+                ctrlKey: event.ctrlKey,
+                altKey: event.altKey,
+                shiftKey: event.shiftKey,
+                metaKey: event.metaKey,
+                keyCode: event.keyCode,
+                charCode: event.charCode
+            });
         }
     });
 

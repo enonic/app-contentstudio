@@ -1,5 +1,7 @@
-import 'jquery-ui/ui/widgets/sortable';
 import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/sortable';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';

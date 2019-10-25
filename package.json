@@ -10,6 +10,7 @@
   "dependencies": {
     "@webcomponents/html-imports": "^1.2.2",
     "hasher": "^1.2.0",
+    "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.12.1",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "q": "^1.5.1"

@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
@@ -356,7 +357,7 @@ export class TextComponentView
         } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
             let nextFocusable = FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
             if (nextFocusable) {
-                nextFocusable.getEl().simulate('click');
+                $(nextFocusable.getHTMLElement()).simulate('click');
                 nextFocusable.giveFocus();
             } else {
                 this.htmlAreaEditor.fire('blur');

@@ -51,8 +51,9 @@ import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPa
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
 import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
-import {BrowserHelper} from 'lib-admin-ui';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
 
 declare var CONFIG;
 
@@ -384,7 +385,7 @@ export class LiveEditPageProxy {
     }
 
     private handleIFrameLoadedEvent() {
-        let liveEditWindow = this.liveEditIFrame.getHTMLElement()['contentWindow'];
+        let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
 
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
@@ -397,14 +398,17 @@ export class LiveEditPageProxy {
             }
 
             this.liveEditWindow = liveEditWindow;
-            if (liveEditWindow.$) {
+            const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
+            const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
+            const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
+            if (livejq) {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.setting config for', liveEditWindow.document, CONFIG);
                 }
                 // Give loaded page same CONFIG as in admin
-                liveEditWindow.CONFIG = JSON.parse(JSON.stringify(CONFIG));
+                liveEditWindow['CONFIG'] = JSON.parse(JSON.stringify(CONFIG));
 
-                this.livejq = <JQueryStatic>liveEditWindow.$;
+                this.livejq = <JQueryStatic>livejq;
 
                 this.listenToPage(this.liveEditWindow);
 

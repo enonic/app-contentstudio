@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
 import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
@@ -32,7 +33,6 @@ import {SelectorOnBlurEvent} from 'lib-admin-ui/ui/selector/SelectorOnBlurEvent'
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
-import Promise = Q.Promise;
 
 declare var CONFIG;
 
@@ -48,7 +48,7 @@ export class HtmlArea
 
     private blurListeners: { (event: FocusEvent): void }[] = [];
 
-    private authRequest: Promise<void>;
+    private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;
     private inputConfig: any;
 
@@ -176,7 +176,17 @@ export class HtmlArea
                 e.preventDefault();
 
                 // as editor resides in a frame - propagate event via wrapping element
-                this.getEl().simulate(e.type);
+                $(this.getEl().getHTMLElement()).simulate(e.type, {
+                    bubbles: e.bubbles,
+                    cancelable: e.cancelable,
+                    view: parent,
+                    ctrlKey: e.ctrlKey,
+                    altKey: e.altKey,
+                    shiftKey: e.shiftKey,
+                    metaKey: e.metaKey,
+                    keyCode: e.keyCode,
+                    charCode: e.charCode
+                });
             } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
                 e.preventDefault();
                 // the one that event is triggered from

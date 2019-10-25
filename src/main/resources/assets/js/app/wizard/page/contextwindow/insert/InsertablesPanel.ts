@@ -1,4 +1,6 @@
 import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
+import 'jquery-ui/ui/widgets/draggable';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentWizardPanel} from '../../../ContentWizardPanel';
@@ -15,7 +17,6 @@ import {PageMode} from '../../../../page/PageMode';
 import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DataView} from 'lib-admin-ui/ui/grid/DataView';
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 
 export interface ComponentTypesPanelConfig {
 
@@ -84,7 +85,7 @@ export class InsertablesPanel
                 }
                 // draggable was appended to sortable, set it to null to prevent dragStop callback
                 this.iFrameDraggable = null;
-                new ElementHelper(this.contextWindowDraggable.get()[0]).simulate('mouseup');
+                this.contextWindowDraggable.simulate('mouseup');
             }
         });
 
@@ -185,7 +186,7 @@ export class InsertablesPanel
 
         if (this.iFrameDraggable) {
             this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable);
-            new ElementHelper(this.iFrameDraggable.get()[0]).simulate('mouseup');
+            this.iFrameDraggable.simulate('mouseup');
             this.iFrameDraggable.remove();
             this.iFrameDraggable = null;
         }
@@ -232,7 +233,7 @@ export class InsertablesPanel
             this.iFrameDraggable = <JQuery<HTMLElement>>livejq(event.target).clone();
             livejq('body').append(this.iFrameDraggable);
             this.liveEditPageProxy.createDraggable(this.iFrameDraggable);
-            new ElementHelper(this.iFrameDraggable.get()[0]).simulate('mousedown');
+            this.iFrameDraggable.simulate('mousedown').hide();
         }
 
         // show the helper of the iframe draggable
