@@ -222,6 +222,10 @@ export class WidgetView extends api.dom.DivEl {
         if (WidgetView.debug) {
             console.debug('WidgetView.setInactive: ', this.getWidgetName());
         }
+
+        this.widgetItemViews.forEach((itemView: WidgetItemView) => {
+            itemView.reset();
+        });
         this.contextView.resetActiveWidget();
         this.slideOut();
     }
