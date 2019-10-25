@@ -102,6 +102,10 @@ export class ImageSelectorSelectedOptionsView
     }
 
     addOption(option: Option<MediaTreeSelectorItem>, silent: boolean = false, keyCode: number = -1): boolean {
+        if (this.maximumOccurrencesReached()) {
+            return false;
+        }
+
         const selectedOption = this.getByOption(option);
         if (!selectedOption) {
             this.addNewOption(option, silent, keyCode);
