@@ -4,6 +4,7 @@ import {DisplayNameGenerator} from 'lib-admin-ui/app/wizard/DisplayNameGenerator
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class DisplayNameResolver
     implements DisplayNameGenerator {
@@ -47,9 +48,14 @@ export class DisplayNameResolver
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
+    private getFormInputs(): Input[] {
+        return <Input[]>this.formView.getForm().getFormItems()
+            .filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
+    }
+
     private getNamesOfAllowedFields(): string[] {
-        return this.formView.getForm().getFormItems()
-            .filter(formItem => !this.isExcludedInputType((<Input>formItem).getInputType()))
+        return this.getFormInputs()
+            .filter(input => !this.isExcludedInputType(input.getInputType()))
             .map(formItem => formItem.getName());
     }
 

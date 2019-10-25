@@ -226,6 +226,10 @@ export class WidgetView
         if (WidgetView.debug) {
             console.debug('WidgetView.setInactive: ', this.getWidgetName());
         }
+
+        this.widgetItemViews.forEach((itemView: WidgetItemView) => {
+            itemView.reset();
+        });
         this.contextView.resetActiveWidget();
         this.slideOut();
     }
