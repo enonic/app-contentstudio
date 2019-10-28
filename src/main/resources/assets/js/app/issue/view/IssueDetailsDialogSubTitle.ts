@@ -6,7 +6,7 @@ import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
 import {IssueStatus} from '../IssueStatus';
 import {IssueTypeFormatter} from '../IssueType';
 
-export class DetailsDialogSubTitle
+export class IssueDetailsDialogSubTitle
     extends DivEl {
 
     private issue: Issue;
@@ -47,6 +47,10 @@ export class DetailsDialogSubTitle
 
     setStatus(status: IssueStatus, silent?: boolean) {
         this.issueStatusSelector.setValue(status, silent);
+    }
+
+    getStatus(): IssueStatus {
+        return this.issueStatusSelector.getValue();
     }
 
     doRender(): wemQ.Promise<boolean> {
