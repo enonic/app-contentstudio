@@ -149,6 +149,14 @@ export class IssuesPanel
         return this.issuesList;
     }
 
+    isEmpty() {
+        return this.issuesList.getTotalItems() === 0;
+    }
+
+    focusFirstItem() {
+        this.issuesList.getItemViews()[0].giveFocus();
+    }
+
     private toggleClosedIssues(): wemQ.Promise<void> {
         const allVisible = this.isAllVisible();
 
