@@ -62,7 +62,7 @@ There are four ways to open content for edit in the Content Studio:
 
 == Delete
 
-The `Delete` action will launch the *Delete item(s)* dialog for the selected content.
+The `Delete` action will open the *Delete item(s)* dialog for the selected content.
 
 There are three ways to open the *Delete item(s)* dialog in the Content Studio:
 
@@ -71,28 +71,32 @@ There are three ways to open the *Delete item(s)* dialog in the Content Studio:
 * By clicking `Delete` in the context menu, which is accessible by right-clicking an item.
 
 
-=== Deleting new items
+=== Deleting offline items
 
-If the content has status "New" or "Unpublished", it will be deleted instantly, right after you confirm your action.
+If selected content is offline (status "New" or "Unpublished"), it will be deleted instantly right after you confirm your action.
 
 image::dialog-delete-new.png[]
 
-If there is more than one item you want to delete, there will be a counter on the "Delete" button, that shows the total number of items, that will be deleted. After you press the "delete" button the confirmation dialog will appear.
+If you are about to delete a site or more than one item, the "Delete Now" button will show the total number of items to be deleted, including children.
+After pressing the button you will be asked to confirm your action.
 
 image::dialog-delete-confirm.png[]
 
 
-=== Deleting published items
+=== Deleting online items
 
-If you try to delete content, that was published and has a status like "Published" or "Modified", the additional checkbox will appear in the bottom left corner. If it's checked, all content will be deleted, just like, when deleting "New" content.
+If you try to delete content that is currently online (status "Published" or "Modified"), "Delete Now" button will turn into a menu button with "Mark as Deleted" action in the dropdown.
 
-image::dialog-delete-published.png[]
+image::dialog-delete-published.png[Delete published content, 700]
 
-If the option is unchecked, all content with status "New" and "Unpublished" will be deleted, but the "Publish" and "Modified" content will change the status to "Deleted". To remove such items completely, they must be <<publish,published>>.
+when "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Deleted".
+To remove such items completely, they must be <<publish,published>>.
 
-To restore files with "Deleted" status, select them and click the `Undo delete` button in the toolbar.
+To restore items marked as deleted to their previous status, select them and click the `Undo delete` button in the toolbar.
 
 image::dialog-delete-undo.png[]
+
+Standard content management actions (like editing, moving, duplicating etc.) are not available for items marked as deleted, you have to undelete them first.
 
 === Deleting from the wizard
 

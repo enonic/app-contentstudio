@@ -2,7 +2,8 @@
 :toc: right
 :imagesdir: images
 
-Rich Text Editor is used by HTML input type and for editing text component inside the <<page-editor#,Page Editor>>.
+Rich Text Editor is used by https://developer.enonic.com/docs/xp/stable/cms/input-types#htmlarea[HTMLArea input type]
+and for editing <<component-types#text_component,text component>> inside the Page Editor.
 It's capable of formatting the text in many different ways, using macros to insert code snippets and iFrames, inserting tables, images and content links etc.
 
 image::rich-text-editor.png[]
@@ -63,6 +64,10 @@ Pressing this button will remove a link from an element.
 
 This button expands a dropdown menu enabling you to insert a new table, manage table properties or add/delete columns/rows in existing table.
 
+=== Paste text mode
+
+This button allows toggling between "formatted text" (default setting) and "plain text" modes when pasting text into the editor.
+
 === Source
 
 This button will open a modal dialog allowing you to manually edit HTML source content of the text editor. For HTML Area input type this button will be
@@ -70,7 +75,7 @@ placed in the footer of the editor, while for a Text component inside the Page E
 
 === Full screen
 
-This button will open the editor in the full screen mode. Available only for HTML Area input type.
+This button will open the editor in the full screen mode for more convenient user experience. Not available inside the text component editor.
 
 
 == Custom Image Styles

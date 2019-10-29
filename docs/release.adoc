@@ -2,6 +2,62 @@
 :toc: right
 :imagesdir: release/images
 
+== 2.2.0
+
+=== Configurable headings in HTML Area input type
+
+By default all types of heading tags (`<h1>`... `<h6>`) are allowed in HTML area inputs. From version 2.2.0 allowed headings can be
+configured via HTMLArea input type config.
+
+Customized headings
+[source,XML]
+----
+<content-type>
+  <display-name>Html Area</display-name>
+  <form>
+    <input name="htmlarea_text" type="HtmlArea">
+      <label>HTML Area with limited allowed headings</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config>
+        <allowHeadings>h2 h4 h6</allowHeadings>
+      </config>
+    </input>
+  </form>
+</content-type>
+----
+
+image::html-area-custom-headings.png[]
+
+=== Improvements in HTML Editor
+
+* *Paste mode*
+
+New toggle button image:html-area-paste-mode-button.png[,24,24] in the HTML Editor toolbar allows toggling between "formatted text" (default setting) and "plain text"
+modes when pasting text into the editor.
+
+* *Fullscreen mode*
+
+Improved look and feel of the Fullscreen mode makes editing a pleasant experience, especially on small screen devices.
+
+image::html-area-fullscreen.png[Fullscreen mode, 1145]
+
+* *Changes in the "Table Properties" modal dialog*
+
+** New "_Caption_" property in the "*Table Properties*" modal dialog allows adding caption for a table.
+** _Border_, _Cell spacing_ and _Cell padding_ properties have been removed. These properties should be set via stylesheets.
+** Cursor position is kept when switching to the "_Fullscreen_" mode
+** Cursor position is kept after user clicks inside HTML Area input to start editing
+** Toolbar buttons for *B* (Bold), *I* (Italic) and *U* (underline) are removed inside HTML Area input type to give room for the
+new paste mode button. <<keyboard-shortcuts#rich_text_editor,Keyboard shortcuts>> should be used to apply this styling. They are still present in Fullscreen mode and inside Text component editor.
+
+=== Improved content deletion
+
+*"Delete content"* dialog has been improved to give better user experience when deleting published content. **Delete** button is turned into menu button
+with *"Delete Now"* as default action which will instantly delete published content. To mark selected content as deleted instead of instant deletion,
+expand the dropdown and select *"Mark as deleted"* from the menu. Offline content will always be deleted instantly, as before.
+
+image::content-delete-dialog.png[Delete content dialog, 716]
+
 == 2.1.0
 
 === Content Workflow
