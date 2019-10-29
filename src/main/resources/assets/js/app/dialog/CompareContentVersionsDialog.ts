@@ -6,13 +6,13 @@ import ContentId = api.content.ContentId;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
-import {SetActiveContentVersionRequest} from '../resource/SetActiveContentVersionRequest';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {Content} from '../content/Content';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Delta, DiffContext, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsForViewRequest';
 import {ContentVersions} from '../ContentVersions';
+import {RevertVersionRequest} from '../resource/RevertVersionRequest';
 
 
 export class CompareContentVersionsDialog
@@ -70,11 +70,15 @@ export class CompareContentVersionsDialog
             });
             this.revertLeftButton = new api.ui.button.Button(i18n('dialog.compare.revertThis'));
             this.leftDropdown.onValueChanged(event => {
-                this.leftVersion = event.getNewValue();
                 this.updateButtonsState();
-                this.displayDiff(this.leftVersion, this.rightVersion);
+                this.displayDiff(event.getNewValue(), this.rightDropdown.getValue());
             });
-            this.revertLeftButton.onClicked(event => this.restoreVersion(this.leftVersion));
+            this.revertLeftButton.onClicked(event => {
+                this.restoreVersion(this.leftDropdown.getValue()).then(() => {
+                    this.leftDropdown.setValue(this.activeVersion);
+                    this.updateButtonsState();
+                });
+            });
             const leftContainer = new DivEl('left');
             leftContainer.appendChildren<api.dom.Element>(this.revertLeftButton, this.leftDropdown);
 
@@ -87,11 +91,15 @@ export class CompareContentVersionsDialog
             });
             this.revertRightButton = new api.ui.button.Button(i18n('dialog.compare.revertThis'));
             this.rightDropdown.onValueChanged(event => {
-                this.rightVersion = event.getNewValue();
                 this.updateButtonsState();
-                this.displayDiff(this.leftVersion, this.rightVersion);
+                this.displayDiff(this.leftDropdown.getValue(), event.getNewValue());
             });
-            this.revertRightButton.onClicked(event => this.restoreVersion(this.rightVersion));
+            this.revertRightButton.onClicked(event => {
+                this.restoreVersion(this.rightDropdown.getValue()).then(() => {
+                    this.rightDropdown.setValue(this.activeVersion);
+                    this.updateButtonsState();
+                });
+            });
             const rightContainer = new DivEl('right');
             rightContainer.appendChildren<api.dom.Element>(this.rightDropdown, this.revertRightButton);
 
@@ -151,36 +159,40 @@ export class CompareContentVersionsDialog
         super.open();
         this.contentCache = {};
         if (this.contentId) {
-            new GetContentVersionsForViewRequest(this.contentId).setSize(-1).sendAndParse()
-                .then((contentVersions: ContentVersions) => {
-
-                    if (this.leftDropdown) {
-                        this.leftDropdown.removeAllOptions();
-                    }
-                    if (this.rightDropdown) {
-                        this.rightDropdown.removeAllOptions();
-                    }
-
-                    let options: api.ui.selector.Option<ContentVersion>[] = [];
-                    const versions = contentVersions.getContentVersions();
-                    for (let i = 0; i < versions.length; i++) {
-                        const version = versions[i];
-                        options.push({
-                            value: version.id,
-                            displayValue: version
-                        });
-                    }
-
-                    options = options.sort((a, b) => {
-                        return b.displayValue.modified.getTime() - a.displayValue.modified.getTime();
-                    });
-
-                    this.leftDropdown.setOptions(options);
-                    this.rightDropdown.setOptions(options);
-
-                    this.displayDiff(this.leftVersion, this.rightVersion);
-                });
+            this.reloadVersions().then(() => {
+                this.displayDiff(this.leftVersion, this.rightVersion);
+            });
         }
+    }
+
+    private reloadVersions() {
+        return new GetContentVersionsForViewRequest(this.contentId).setSize(-1).sendAndParse()
+            .then((contentVersions: ContentVersions) => {
+
+                if (this.leftDropdown) {
+                    this.leftDropdown.removeAllOptions();
+                }
+                if (this.rightDropdown) {
+                    this.rightDropdown.removeAllOptions();
+                }
+
+                let options: api.ui.selector.Option<ContentVersion>[] = [];
+                const versions = contentVersions.getContentVersions();
+                for (let i = 0; i < versions.length; i++) {
+                    const version = versions[i];
+                    options.push({
+                        value: version.id,
+                        displayValue: version
+                    });
+                }
+
+                options = options.sort((a, b) => {
+                    return b.displayValue.modified.getTime() - a.displayValue.modified.getTime();
+                });
+
+                this.leftDropdown.setOptions(options);
+                this.rightDropdown.setOptions(options);
+            });
     }
 
     close() {
@@ -230,21 +242,25 @@ export class CompareContentVersionsDialog
     }
 
     private restoreVersion(version: string): wemQ.Promise<void> {
-        return new SetActiveContentVersionRequest(version, this.contentId).sendAndParse()
-            .then((contentId: ContentId) => {
-                api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', version));
-                new ActiveContentVersionSetEvent(this.contentId, version).fire();
-                this.activeVersion = version;
-                this.updateButtonsState();
+        return new RevertVersionRequest(version, this.contentId.toString()).sendAndParse()
+            .then((contentKey: string) => {
+                if (contentKey === this.activeVersion) {
+                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                } else {
+                    api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', contentKey));
+                    new ActiveContentVersionSetEvent(this.contentId, contentKey).fire();
+                    this.activeVersion = contentKey;
+                    return this.reloadVersions();
+                }
             });
     }
 
     private updateButtonsState() {
         if (this.revertLeftButton) {
-            this.revertLeftButton.setEnabled(this.leftVersion !== this.activeVersion);
+            this.revertLeftButton.setEnabled(this.leftDropdown.getValue() !== this.activeVersion);
         }
         if (this.revertRightButton) {
-            this.revertRightButton.setEnabled(this.rightVersion !== this.activeVersion);
+            this.revertRightButton.setEnabled(this.rightDropdown.getValue() !== this.activeVersion);
         }
     }
 }
