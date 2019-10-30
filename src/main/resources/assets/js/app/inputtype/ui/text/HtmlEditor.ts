@@ -68,7 +68,11 @@ export class HtmlEditor {
         const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
 
-            if (result && result.name === 'img') {
+            if (result && result.name === 'img') { // standalone image
+                return null;
+            }
+
+            if (result && result.name === 'a' && (<any>result).parent.name !== 'figure') { // standalone image wrapped with link
                 return null;
             }
 
