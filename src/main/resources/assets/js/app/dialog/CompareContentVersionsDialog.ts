@@ -4,6 +4,7 @@ import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import DivEl = api.dom.DivEl;
 import ContentId = api.content.ContentId;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
+import CheckboxBuilder = api.ui.CheckboxBuilder;
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
@@ -13,6 +14,7 @@ import {Delta, DiffContext, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsForViewRequest';
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
+import {AttachmentJson} from '../attachment/AttachmentJson';
 
 
 export class CompareContentVersionsDialog
@@ -40,7 +42,7 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: api.ui.button.Button;
 
-    private contentCache: { [key: string]: Content };
+    private contentCache: { [key: string]: Object };
 
     private diffPatcher: DiffPatcher;
 
@@ -79,7 +81,7 @@ export class CompareContentVersionsDialog
                     this.updateButtonsState();
                 });
             });
-            const leftContainer = new DivEl('left');
+            const leftContainer = new DivEl('container');
             leftContainer.appendChildren<api.dom.Element>(this.revertLeftButton, this.leftDropdown);
 
 
@@ -100,10 +102,19 @@ export class CompareContentVersionsDialog
                     this.updateButtonsState();
                 });
             });
-            const rightContainer = new DivEl('right');
+            const rightContainer = new DivEl('container');
             rightContainer.appendChildren<api.dom.Element>(this.rightDropdown, this.revertRightButton);
 
-            this.toolbar.appendChildren(leftContainer, rightContainer);
+            const bottomContainer = new DivEl('container bottom');
+            const htmlFormatter = (<any>formatters.html);
+            htmlFormatter.showUnchanged(false, null, 0);
+            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('dialog.compare.showUnchanged')).build();
+            changesCheckbox.onValueChanged(event => {
+                htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
+            });
+            bottomContainer.appendChild(changesCheckbox);
+
+            this.toolbar.appendChildren(leftContainer, rightContainer, bottomContainer);
 
             this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
@@ -208,8 +219,9 @@ export class CompareContentVersionsDialog
             promises.push(new GetContentByIdRequest(this.contentId)
                 .setVersion(leftVersion)
                 .sendAndParse().then(content => {
-                    this.contentCache[leftVersion] = content;
-                    return content;
+                    const processedContent = this.processContent(content);
+                    this.contentCache[leftVersion] = processedContent;
+                    return processedContent;
                 }));
         } else {
             promises.push(wemQ(leftCache));
@@ -218,20 +230,21 @@ export class CompareContentVersionsDialog
             promises.push(new GetContentByIdRequest(this.contentId)
                 .setVersion(rightVersion)
                 .sendAndParse().then(content => {
-                    this.contentCache[rightVersion] = content;
-                    return content;
+                    const processedContent = this.processContent(content);
+                    this.contentCache[rightVersion] = processedContent;
+                    return processedContent;
                 }));
         } else {
             promises.push(wemQ(rightCache));
         }
         this.comparisonContainer.addClass('loading');
 
-        return wemQ.all(promises).spread((leftContent: Content, rightContent: Content) => {
-            const delta: Delta = this.diffPatcher.diff(leftContent, rightContent);
+        return wemQ.all(promises).spread((leftJson: Object, rightJson: Object) => {
+            const delta: Delta = this.diffPatcher.diff(leftJson, rightJson);
             let text;
             let isEmpty = false;
             if (delta) {
-                text = formatters.html.format(delta, leftContent);
+                text = formatters.html.format(delta, leftJson);
             } else {
                 isEmpty = true;
                 text = `<h3>${i18n('dialog.compare.versionsIdentical')}</h3>`;
@@ -262,5 +275,34 @@ export class CompareContentVersionsDialog
         if (this.revertRightButton) {
             this.revertRightButton.setEnabled(this.rightDropdown.getValue() !== this.activeVersion);
         }
+    }
+
+    private processContent(content: Content): Object {
+        const attachments: AttachmentJson[] = [];
+        content.getAttachments().forEach(attachment => attachments.push(attachment.toJson()));
+        const allExtraData = content.getAllExtraData().map(extraData => extraData.toJson());
+        return {
+            displayName: content.getDisplayName(),
+            name: content.getName().toString(),
+            path: content.getPath().toString(),
+            type: content.getType().toString(),
+            iconUrl: content.getIconUrl(),
+            valid: content.isValid(),
+            publishFrom: content.getPublishFromTime(),
+            publishTo: content.getPublishToTime(),
+            publishFirstTime: content.getPublishFirstTime(),
+            inheritPermissions: content.isInheritPermissionsEnabled(),
+            overwritePermissions: content.isOverwritePermissionsEnabled(),
+            permissions: content.getPermissions().toJson(),
+            owner: content.getOwner() ? content.getOwner().toString() : undefined,
+            createdTime: content.getCreatedTime(),
+            modifier: content.getModifier(),
+            modifiedTime: content.getModifiedTime(),
+            language: content.getLanguage(),
+            data: content.getContentData().toJson(),
+            page: content.getPage() ? content.getPage().toJson() : undefined,
+            extraData: allExtraData,
+            attachments: attachments,
+        };
     }
 }
