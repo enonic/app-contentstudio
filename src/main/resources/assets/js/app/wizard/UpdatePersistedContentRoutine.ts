@@ -5,9 +5,7 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
-import {Site} from '../content/Site';
 import Workflow = api.content.Workflow;
-import WorkflowState = api.content.WorkflowState;
 import ObjectHelper = api.ObjectHelper;
 
 export class UpdatePersistedContentRoutine
@@ -37,15 +35,15 @@ export class UpdatePersistedContentRoutine
     doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
 
         let promise;
-        const isContentChanged = this.hasContentChanged(this.persistedContent, this.viewedContent);
+        const isContentChanged = this.hasContentChanged();
 
-        if (isContentChanged || this.hasNamesChanged(this.persistedContent, this.viewedContent)) {
+        if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
             promise = wemQ(null);
         }
 
-        if (this.hasPageChanged(this.persistedContent, this.viewedContent)) {
+        if (this.hasPageChanged()) {
             promise = promise.then(this.doHandlePage.bind(this, context));
         }
 
@@ -72,7 +70,7 @@ export class UpdatePersistedContentRoutine
 
     private doHandlePage(context: RoutineContext): wemQ.Promise<void> {
 
-        let pageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
+        const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
         if (pageCUDRequest != null) {
             return pageCUDRequest.sendAndParse()
@@ -87,12 +85,19 @@ export class UpdatePersistedContentRoutine
         }
     }
 
-    private hasNamesChanged(persisted: Content, viewed: Content): boolean {
+    private hasNamesChanged(): boolean {
+        const persisted: Content = this.persistedContent;
+        const viewed: Content = this.viewedContent;
+
         return persisted.getDisplayName() !== viewed.getDisplayName() || !persisted.getName().equals(viewed.getName());
     }
 
-    private hasContentChanged(persisted: Content, viewed: Content): boolean {
-        return !persisted.dataEquals(viewed.getContentData()) ||
+    private hasContentChanged(): boolean {
+        const persisted: Content = this.persistedContent;
+        const viewed: Content = this.viewedContent;
+
+        return this.isWorkflowChanged() ||
+               !persisted.dataEquals(viewed.getContentData()) ||
                !persisted.extraDataEquals(viewed.getAllExtraData()) ||
                !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
@@ -100,13 +105,16 @@ export class UpdatePersistedContentRoutine
                persisted.getPublishToTime() !== viewed.getPublishToTime() ||
                !persisted.getPermissions().equals(viewed.getPermissions()) ||
                persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
-               persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled() ||
-               this.workflowState === WorkflowState.READY;
+               persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled();
     }
 
-    private hasPageChanged(persisted: Content, viewed: Content): boolean {
-        const persistedPage = persisted.getPage();
-        const viewedPage = viewed.getPage();
+    private isWorkflowChanged(): boolean {
+        return this.workflowState !== this.persistedContent.getWorkflow().getState();
+    }
+
+    private hasPageChanged(): boolean {
+        const persistedPage = this.persistedContent.getPage();
+        const viewedPage = this.viewedContent.getPage();
 
         return persistedPage ? !persistedPage.equals(viewedPage) : !!viewedPage;
     }
