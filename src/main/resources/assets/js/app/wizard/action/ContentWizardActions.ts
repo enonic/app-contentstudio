@@ -281,7 +281,7 @@ export class ContentWizardActions
     enableActionsForNew() {
         this.persistedContent = null;
         this.stateManager.enableActions({});
-        this.enableActions({SAVE: false, DELETE: true});
+        this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), DELETE: true});
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
