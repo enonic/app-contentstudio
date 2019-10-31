@@ -124,23 +124,25 @@ export class Page
 
     toJson(): PageJson {
         let componentJson: ComponentJson;
-        const json = this.fragment.toJson();
-        switch (this.fragment.getType()) {
-        case ImageComponentType.get():
-            componentJson = json.ImageComponent;
-            break;
-        case TextComponentType.get():
-            componentJson = json.TextComponent;
-            break;
-        case PartComponentType.get():
-            componentJson = json.PartComponent;
-            break;
-        case LayoutComponentType.get():
-            componentJson = json.LayoutComponent;
-            break;
-        case FragmentComponentType.get():
-            componentJson = json.FragmentComponent;
-            break;
+        if (this.fragment) {
+            const json = this.fragment.toJson();
+            switch (this.fragment.getType()) {
+            case ImageComponentType.get():
+                componentJson = json.ImageComponent;
+                break;
+            case TextComponentType.get():
+                componentJson = json.TextComponent;
+                break;
+            case PartComponentType.get():
+                componentJson = json.PartComponent;
+                break;
+            case LayoutComponentType.get():
+                componentJson = json.LayoutComponent;
+                break;
+            case FragmentComponentType.get():
+                componentJson = json.FragmentComponent;
+                break;
+            }
         }
 
         return {

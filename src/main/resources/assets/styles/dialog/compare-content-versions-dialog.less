@@ -1,6 +1,7 @@
 .compare-content-versions-dialog {
   width: 50%;
   height: 100%;
+  min-width: 880px;
   max-width: initial;
 
   .cancel-button-top {
@@ -17,21 +18,23 @@
         display: inline-block;
 
         &:first-child {
-          margin-right: 10px;
+          margin-right: 20px;
         }
       }
 
       .@{_COMMON_PREFIX}dropdown {
-        width: auto;
+        width: 270px;
       }
 
       .@{_COMMON_PREFIX}button {
         vertical-align: top;
+        width: 120px;
+        text-align: center;
       }
     }
 
     border-bottom: 1px solid @admin-dark-gray-border;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 
     button {
       line-height: 45px;
