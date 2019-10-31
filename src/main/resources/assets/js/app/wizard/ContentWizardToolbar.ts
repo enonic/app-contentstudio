@@ -63,6 +63,22 @@ export class ContentWizardToolbar
 
             this.toggleValid(!status.invalid);
         });
+
+        this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
+            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'));
+        });
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
+            this.status.show();
+            this.author.show();
+            this.contentWizardToolbarPublishControls.getPublishButton().show();
+            // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
+            setTimeout(() => this.foldOrExpand());
+        });
+
+        this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+            this.toggleClass('publish-request', added);
+        });
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -108,18 +124,6 @@ export class ContentWizardToolbar
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(actions);
         this.contentWizardToolbarPublishControls.getPublishButton().hide();
         super.addElement(this.contentWizardToolbarPublishControls);
-
-        this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
-            this.status.show();
-            this.author.show();
-            this.contentWizardToolbarPublishControls.getPublishButton().show();
-            // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
-            setTimeout(() => this.foldOrExpand());
-        });
-
-        this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
-            this.toggleClass('publish-request', added);
-        });
     }
 
     private addTogglerButtons(actions: ContentWizardActions) {
