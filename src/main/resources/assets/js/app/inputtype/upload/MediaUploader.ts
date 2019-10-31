@@ -9,6 +9,7 @@ import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploa
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {ImageUrlResolver} from '../../util/ImageUrlResolver';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -80,6 +81,10 @@ export class MediaUploader
 
             this.toggleClass('with-svg-image', isVectorMedia);
             this.uploaderWrapper.removeClass('uploading');
+        });
+
+        this.mediaUploaderEl.onUploadCompleted(() => {
+            new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
         });
 
         this.mediaUploaderEl.onUploadFailed(() => {
