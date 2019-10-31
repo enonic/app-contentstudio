@@ -58,6 +58,8 @@ export class FragmentDropdown
     }
 
     setSelection(fragment: ContentSummary) {
+        this.resetActiveSelection();
+        this.resetSelected();
 
         if (fragment) {
             let option = this.getOptionByValue(fragment.getId().toString());
