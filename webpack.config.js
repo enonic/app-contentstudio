@@ -11,11 +11,11 @@ const isProd = process.env.NODE_ENV === 'production';
 module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
-        'js/bundle': './js/main.ts',
-        'lib/vendor': './lib/index.js',
+        'js/main': './js/main.ts',
+        'lib/vendors': './lib/index.js',
         'styles/main': './styles/main.less',
         'page-editor/js/editor': './js/page-editor.ts',
-        'page-editor/lib/vendor': './page-editor/lib/index.js',
+        'page-editor/lib/vendors': './page-editor/lib/index.js',
         'page-editor/styles/main': './page-editor/styles/main.less',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
@@ -64,7 +64,19 @@ module.exports = {
                     keep_fnames: true
                 }
             })
-        ]
+        ],
+        splitChunks: {
+            chunks: 'all',
+            name(module, chunks, cacheGroupKey) {
+                const allChunksNames = chunks.map((item) => item.name.split('/').reduceRight(name => name)).join('~');
+                return `js/${cacheGroupKey}.${allChunksNames}`;
+            },
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/
+                }
+            }
+        }
     },
     plugins: [
         new ProvidePlugin({
