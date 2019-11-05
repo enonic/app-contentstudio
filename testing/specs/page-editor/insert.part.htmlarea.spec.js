@@ -39,7 +39,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
 
             let CONTENT_NAME = contentBuilder.generateRandomName('content');
             // Open new html-area wizard, type the name and type the initial text in the html-area :
-            await studioUtils.selectSiteAndOpenNewWizard("site430203", 'htmlarea0_1');//SITE.displayName
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');//SITE.displayName
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.typeTextInHtmlArea("test1");
             //1 Click on the toggler and open 'Page Editor'
