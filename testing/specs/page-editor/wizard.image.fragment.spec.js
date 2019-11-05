@@ -45,7 +45,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 // opens 'Show Component View'
                 await contentWizard.clickOnShowComponentViewToggler();
                 await pageComponentView.openMenu("main");
-                await pageComponentView.selectMenuItem(["Insert", "Image"]);
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
 
                 // insert the image
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
@@ -74,7 +74,6 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
 
                 //click on `remove` in 'inspection panel' and remove the image:
                 await imageInspectionPanel.clickOnRemoveIcon();
-
                 // new image has been selected( fragment should be saved automatically)
                 await imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
                 //`Save` button gets disabled now!(issues/256)

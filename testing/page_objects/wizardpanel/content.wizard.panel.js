@@ -119,9 +119,11 @@ class ContentWizardPanel extends Page {
     get showComponentViewToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.showComponentViewToggler;
     }
+
     get hideComponentViewToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.hideComponentViewToggler;
     }
+
     get componentViewToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.componentViewToggler;
     }
@@ -296,25 +298,25 @@ class ContentWizardPanel extends Page {
             return this.pause(500);
         });
     }
-    clickOnHideComponentViewToggler() {
-        return this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.TIMEOUT_2).then(() => {
-            return this.clickOnElement(this.hideComponentViewToggler);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_hide_component_view');
-            throw new Error("Error when clicking on 'Hide Component View!'" + err);
-        }).then(() => {
-            return this.pause(500);
-        });
+
+    async waitForHideComponentViewTogglerDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.TIMEOUT_4);
+        } catch (err) {
+            this.saveScreenshot('err_hide_component_view_not_displayed');
+            throw new Error("'Hide Component View!' button should appear: " + err);
+        }
     }
-    clickOnComponentViewToggler() {
-        return this.waitForElementDisplayed(this.componentViewToggler, appConst.TIMEOUT_2).then(() => {
-            return this.clickOnElement(this.componentViewToggler);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_component_view_toggler');
-            throw new Error("Error when clicking on 'Page Component View toggler!'" + err);
-        }).then(() => {
-            return this.pause(500);
-        });
+
+    async clickOnHideComponentViewToggler() {
+        try {
+            await this.waitForHideComponentViewTogglerDisplayed();
+            await this.clickOnElement(this.hideComponentViewToggler);
+        } catch (err) {
+            this.saveScreenshot('err_click_on_hide_component_view');
+            throw new Error("Error when clicking on 'Hide Component View' " + err);
+        }
+        return await this.pause(300);
     }
 
     async clickOnAccessTabBarItem() {
