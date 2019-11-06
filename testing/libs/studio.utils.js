@@ -131,17 +131,16 @@ module.exports = {
             await issueListDialog.waitForDialogOpened();
             await issueListDialog.clickOnIssuesTab();
             await issueListDialog.clickOnNewIssueButton();
-            await createIssueDialog.waitForDialogLoaded();
+            return await createIssueDialog.waitForDialogLoaded();
         } catch (err) {
             throw new Error("Error when opening Create Issue Dialog " + err);
         }
     },
-    openPublishMenuAndClickOnCreateIssue: function () {
+    async openPublishMenuAndClickOnCreateIssue() {
         let browsePanel = new BrowsePanel();
         let createIssueDialog = new CreateIssueDialog();
-        return browsePanel.openPublishMenuAndClickOnCreateIssue().then(() => {
-            return createIssueDialog.waitForDialogLoaded();
-        })
+        await browsePanel.openPublishMenuAndClickOnCreateIssue();
+        return await createIssueDialog.waitForDialogLoaded();
     },
     openBrowseDetailsPanel: function () {
         let browsePanel = new BrowsePanel();
@@ -266,21 +265,16 @@ module.exports = {
         return await contentWizardPanel.waitForOpened();
     },
 
-    doAddPageTemplate: function (siteName, template) {
+    async doAddPageTemplate(siteName, template) {
         let contentWizardPanel = new ContentWizardPanel();
-        return this.doOpenPageTemplateWizard(siteName).then(() => {
-            return contentWizardPanel.typeData(template);
-        }).then(() => {
-            //auto saving should be here:
-            return contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
-        }).then(() => {
-            this.saveScreenshot(template.displayName + '_created');
-            return this.doCloseCurrentBrowserTab();
-        }).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        }).then(() => {
-            return contentWizardPanel.pause(2000);
-        });
+        await this.doOpenPageTemplateWizard(siteName);
+        await contentWizardPanel.typeData(template);
+        //auto saving should be here:
+        await contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
+        this.saveScreenshot(template.displayName + '_created');
+        await this.doCloseCurrentBrowserTab();
+        await this.doSwitchToContentBrowsePanel();
+        return await contentWizardPanel.pause(2000);
     },
     //Clicks on Publish button on the toolbar then clicks on Publish button in the dialog
     async doPublish() {
@@ -319,7 +313,7 @@ module.exports = {
         await contentUnpublishDialog.waitForDialogOpened();
         //2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
-        await contentUnpublishDialog.waitForDialogClosed();
+        return await contentUnpublishDialog.waitForDialogClosed();
     },
 
     async doAddArticleContent(siteName, article) {
@@ -344,53 +338,44 @@ module.exports = {
         await browsePanel.clickOnRowByName(name);
         return await browsePanel.pause(400);
     },
-    findAndSelectContentByDisplayName: function (displayName) {
+    async findAndSelectContentByDisplayName(displayName) {
         let browsePanel = new BrowsePanel();
-        return this.typeNameInFilterPanel(displayName).then(() => {
-            return browsePanel.waitForContentByDisplayNameVisible(displayName);
-        }).then(() => {
-            return browsePanel.clickOnRowByDisplayName(displayName);
-        });
+        await this.typeNameInFilterPanel(displayName);
+        await browsePanel.waitForContentByDisplayNameVisible(displayName);
+        return await browsePanel.clickOnRowByDisplayName(displayName);
     },
     //find the content, select it and 'Delete Now'
-    doDeleteContent: function (name) {
+    async doDeleteContent(name) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
-        return this.findAndSelectItem(name).then(() => {
-            return browsePanel.clickOnDeleteButton();
-        }).then(() => {
-            return deleteContentDialog.waitForDialogOpened();
-        }).then(() => {
-            return deleteContentDialog.clickOnDeleteNowButton();
-        }).then(() => {
-            return deleteContentDialog.waitForDialogClosed();
-        });
+        await this.findAndSelectItem(name);
+        //Open modal dialog:
+        await browsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        //Click on 'Delete Now' button in the modal dialog:
+        await deleteContentDialog.clickOnDeleteNowButton();
+        return await deleteContentDialog.waitForDialogClosed();
     },
-    selectContentAndOpenWizard: function (name) {
+    async selectContentAndOpenWizard(name) {
         let browsePanel = new BrowsePanel();
         let contentWizardPanel = new ContentWizardPanel();
-        return this.findAndSelectItem(name).then(() => {
-            return this.doClickOnEditAndOpenContent(name);
-        })
+        await this.findAndSelectItem(name);
+        return await this.doClickOnEditAndOpenContent(name);
     },
-    doClickOnEditAndOpenContent: function (name) {
+    async doClickOnEditAndOpenContent(name) {
         let browsePanel = new BrowsePanel();
-        let contentWizardPanel = new ContentWizardPanel()
-        return browsePanel.waitForEditButtonEnabled().then(() => {
-            return browsePanel.clickOnEditButton();
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        })
+        let contentWizardPanel = new ContentWizardPanel();
+        await browsePanel.waitForEditButtonEnabled();
+        await browsePanel.clickOnEditButton();
+        //switch to the opened wizard:
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
-    findContentAndClickCheckBox: function (displayName) {
+    async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
-        return this.typeNameInFilterPanel(displayName).then(() => {
-            return browsePanel.waitForContentByDisplayNameVisible(displayName);
-        }).then(() => {
-            return browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
-        });
+        await this.typeNameInFilterPanel(displayName);
+        await browsePanel.waitForContentByDisplayNameVisible(displayName);
+        return await browsePanel.clickCheckboxAndSelectRowByDisplayName(displayName);
     },
     async selectSiteAndOpenNewWizard(siteName, contentType) {
         let browsePanel = new BrowsePanel();
