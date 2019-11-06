@@ -52,10 +52,13 @@ module.exports = {
             }
         ]
     },
+    performance: {
+        hints: false
+    },
     optimization: {
         minimizer: [
             new TerserPlugin({
-                sourceMap: true,
+                sourceMap: !isProd,
                 terserOptions: {
                     compress: {
                         drop_console: false
@@ -72,8 +75,17 @@ module.exports = {
                 return `js/${cacheGroupKey}.${allChunksNames}`;
             },
             cacheGroups: {
+                default: false,
+                common: {
+                    test: /[\\/]resources[\\/]assets[\\/]/,
+                    reuseExistingChunk: true,
+                    minChunks: 2
+                },
                 vendors: {
-                    test: /[\\/]node_modules[\\/]/
+                    test: /[\\/]node_modules[\\/]/,
+                    reuseExistingChunk: true,
+                    minChunks: 2,
+                    priority: -10,
                 }
             }
         }
