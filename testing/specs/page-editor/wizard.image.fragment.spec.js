@@ -8,7 +8,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -17,7 +16,6 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const ImageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-
 
 describe('wizard.image.fragment: changing of an image in image-fragment',
     function () {
@@ -42,17 +40,17 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 let pageComponentView = new PageComponentView();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-                // opens 'Show Component View'
+                // opens 'Show Component View':
                 await contentWizard.clickOnShowComponentViewToggler();
                 await pageComponentView.openMenu("main");
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
-
-                // insert the image
+                // insert the image:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
                 await contentWizard.pause(500);
                 studioUtils.saveScreenshot("image_fragment_step1");
                 await contentWizard.switchToMainFrame();
-
+                //Open Page Component View:
+                await contentWizard.clickOnShowComponentViewToggler();
                 await pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
                 studioUtils.saveScreenshot("image_fragment_step1");
                 // save the image as fragment
@@ -71,7 +69,6 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 await contentWizard.clickOnShowComponentViewToggler();
                 //Select the component:
                 await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME1);
-
                 //click on `remove` in 'inspection panel' and remove the image:
                 await imageInspectionPanel.clickOnRemoveIcon();
                 // new image has been selected( fragment should be saved automatically)
@@ -82,22 +79,17 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
 
         //checks alert after clicking on Close icon(nothing was changed)
         it(`GIVEN existing fragment is opened AND Components View is opened WHEN image has been clicked in Components View  AND close browser tab has been clicked THEN Alert with warning about unsaved changes should not appear`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    // just click on the image (nothing is changing)
-                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME2);
-                }).then(() => {
-                    //`Close tab` has been clicked
-                    return contentWizard.clickOnCloseIconInBrowser();
-                }).then(() => {
-                    return contentWizard.isAlertPresent();
-                }).then(result => {
-                    assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
-                })
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1);
+                await contentWizard.clickOnShowComponentViewToggler();
+                // just click on the image (nothing is changing)
+                await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME2);
+                //`Close tab` has been clicked:
+                await contentWizard.clickOnCloseIconInBrowser();
+                let result = await contentWizard.isAlertPresent();
+                assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
             });
 
         //verifies https://github.com/enonic/app-contentstudio/issues/335
@@ -117,8 +109,8 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                     //expand the version item
                     return wizardVersionsWidget.clickAndExpandVersion(1);
                 }).then(() => {
-                    // click on Restore button
-                    return wizardVersionsWidget.clickOnRestoreButton();
+                    // click on 'Revert' button
+                    return wizardVersionsWidget.clickOnRevertButton();
                 }).then(() => {
                     //wait for the notification message
                     return contentWizard.waitForNotificationMessage();

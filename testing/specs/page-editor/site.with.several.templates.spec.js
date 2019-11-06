@@ -70,8 +70,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let notificationMessage = await contentWizard.waitForNotificationMessage();
             let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
-
-            //"'Save' button gets disabled on the toolbar"
+            //'Save' button gets disabled on the toolbar
             await contentWizard.waitForSaveButtonDisabled();
         });
 

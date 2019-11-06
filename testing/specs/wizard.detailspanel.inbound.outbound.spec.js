@@ -71,6 +71,8 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
 
                 await siteWizard.switchToMainFrame();
+                //Open Page Component View:
+                await siteWizard.clickOnShowComponentViewToggler();
                 //open the context menu:
                 await pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 //Click on 'Save as Fragment' menu item:
