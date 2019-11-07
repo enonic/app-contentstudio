@@ -13,7 +13,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
-describe('Menu Items: `Save as fragment` and `Detach from Fragment` specification', function () {
+describe('Menu Items: Save as fragment and Detach from Fragment specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -33,7 +33,10 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //Click on 'Show Component View'
             await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.waitForOpened();
+            await pageComponentView.openMenu("main");
             //'Hide Component View' should appear:
             await contentWizard.waitForHideComponentViewTogglerDisplayed();
         });
@@ -62,7 +65,7 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             assert.isTrue(result, "'Detach from Fragment' menu item should appear in the menu");
         });
 
-   //verifies: New fragment should be created in the same workflow state as the content it was created from xp/issues/7244
+    //verifies: New fragment should be created in the same workflow state as the content it was created from xp/issues/7244
     it(`GIVEN existing site with a fragment WHEN fragment has been opened THEN Workflow state should be 'Work in progress'`,
         async () => {
             let contentWizard = new ContentWizard();
