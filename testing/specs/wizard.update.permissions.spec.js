@@ -69,7 +69,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 await contentWizard.waitForSaveButtonEnabled();
             });
 
-        it(`GIVEN existing content is opened WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Saved' button should still be present after applying permissions`,
+        it(`GIVEN existing content is opened WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
             async () => {
                 let editPermissionsDialog = new EditPermissionsDialog();
                 let userAccessWidget = new UserAccessWidget();
@@ -85,8 +85,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 await editPermissionsDialog.clickOnApplyButton();
                 //3. Go to the wizard:
                 await studioUtils.switchToContentTabWindow(displayName)
-                // 'Saved' button should still be present after applying permissions in browse-panel:
+                // 'Save(Disabled)' button should still be present after applying permissions in browse-panel:
                 await contentWizard.waitForSaveButtonVisible();
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
