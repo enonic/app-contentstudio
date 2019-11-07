@@ -1,5 +1,5 @@
 import {IssueCommentJson} from './json/IssueCommentJson';
-import PrincipalKey = api.security.PrincipalKey;
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class IssueComment {
 

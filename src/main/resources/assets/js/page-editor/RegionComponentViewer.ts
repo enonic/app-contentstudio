@@ -1,8 +1,9 @@
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
 import {Region} from '../app/page/region/Region';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class RegionComponentViewer
-    extends api.ui.NamesAndIconViewer<Region> {
+    extends NamesAndIconViewer<Region> {
 
     constructor() {
         super();

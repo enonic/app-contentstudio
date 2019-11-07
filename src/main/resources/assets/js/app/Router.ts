@@ -1,4 +1,4 @@
-import '../api.ts';
+import * as hasher from 'hasher';
 
 export class Router {
 

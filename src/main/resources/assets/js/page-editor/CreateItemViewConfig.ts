@@ -1,3 +1,4 @@
+import {Element} from 'lib-admin-ui/dom/Element';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView} from './ItemView';
 import {ItemViewFactory} from './ItemViewFactory';
@@ -14,11 +15,11 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
 
     parentView: PARENT;
 
-    parentElement: api.dom.Element;
+    parentElement: Element;
 
     data: DATA;
 
-    element: api.dom.Element;
+    element: Element;
 
     positionIndex: number = -1;
 
@@ -43,7 +44,7 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
         return this;
     }
 
-    setParentElement(value: api.dom.Element): CreateItemViewConfig<PARENT, DATA> {
+    setParentElement(value: Element): CreateItemViewConfig<PARENT, DATA> {
         this.parentElement = value;
         return this;
     }
@@ -53,7 +54,7 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
         return this;
     }
 
-    setElement(value: api.dom.Element): CreateItemViewConfig<PARENT, DATA> {
+    setElement(value: Element): CreateItemViewConfig<PARENT, DATA> {
         this.element = value;
         return this;
     }

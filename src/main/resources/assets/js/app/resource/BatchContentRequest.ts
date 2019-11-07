@@ -1,6 +1,9 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
@@ -38,13 +41,13 @@ export class BatchContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'batch');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'batch');
     }
 
-    sendAndParse(): wemQ.Promise<ContentResponse<ContentSummary>> {
+    sendAndParse(): Q.Promise<ContentResponse<ContentSummary>> {
 
-        return this.send().then((response: api.rest.JsonResponse<ListContentResult<api.content.json.ContentSummaryJson>>) => {
+        return this.send().then((response: JsonResponse<ListContentResult<ContentSummaryJson>>) => {
             return new ContentResponse(
                 ContentSummary.fromJsonArray(response.getResult().contents),
                 new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])

@@ -1,11 +1,15 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ApplicationAddedEvent} from './ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from './ApplicationRemovedEvent';
 import {Site} from '../content/Site';
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationEvent = api.application.ApplicationEvent;
-import ApplicationEventType = api.application.ApplicationEventType;
-import ApplicationConfig = api.application.ApplicationConfig;
-import ObjectHelper = api.ObjectHelper;
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {PropertyAddedEvent} from 'lib-admin-ui/data/PropertyAddedEvent';
+import {PropertyRemovedEvent} from 'lib-admin-ui/data/PropertyRemovedEvent';
+import {Property} from 'lib-admin-ui/data/Property';
 
 export class SiteModel {
 
@@ -17,11 +21,11 @@ export class SiteModel {
 
     private applicationRemovedListeners: { (event: ApplicationRemovedEvent): void }[] = [];
 
-    private propertyChangedListeners: { (event: api.PropertyChangedEvent): void }[] = [];
+    private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
 
-    private applicationPropertyAddedListener: (event: api.data.PropertyAddedEvent) => void;
+    private applicationPropertyAddedListener: (event: PropertyAddedEvent) => void;
 
-    private applicationPropertyRemovedListener: (event: api.data.PropertyRemovedEvent) => void;
+    private applicationPropertyRemovedListener: (event: PropertyRemovedEvent) => void;
 
     private applicationGlobalEventsListener: (event: ApplicationEvent) => void;
 
@@ -37,11 +41,11 @@ export class SiteModel {
     }
 
     private initApplicationPropertyListeners() {
-        this.applicationPropertyAddedListener = (event: api.data.PropertyAddedEvent) => {
-            let property: api.data.Property = event.getProperty();
+        this.applicationPropertyAddedListener = (event: PropertyAddedEvent) => {
+            let property: Property = event.getProperty();
 
             if (property.getPath().toString().indexOf('.siteConfig') === 0 && property.getName() === 'config') {
-                let siteConfig: ApplicationConfig = api.application.ApplicationConfig.create().fromData(property.getParent()).build();
+                let siteConfig: ApplicationConfig = ApplicationConfig.create().fromData(property.getParent()).build();
                 if (!this.siteConfigs) {
                     this.siteConfigs = [];
                 }
@@ -50,8 +54,8 @@ export class SiteModel {
             }
         };
 
-        this.applicationPropertyRemovedListener = (event: api.data.PropertyRemovedEvent) => {
-            let property: api.data.Property = event.getProperty();
+        this.applicationPropertyRemovedListener = (event: PropertyRemovedEvent) => {
+            let property: Property = event.getProperty();
             if (property.getName() === 'siteConfig') {
                 let applicationKey = ApplicationKey.fromString(property.getPropertySet().getString('applicationKey'));
                 this.siteConfigs = this.siteConfigs.filter((siteConfig: ApplicationConfig) =>
@@ -102,7 +106,7 @@ export class SiteModel {
         return this.site;
     }
 
-    getSiteId(): api.content.ContentId {
+    getSiteId(): ContentId {
         return this.site.getContentId();
     }
 
@@ -110,13 +114,13 @@ export class SiteModel {
         return this.siteConfigs.map((sc: ApplicationConfig) => sc.getApplicationKey());
     }
 
-    onPropertyChanged(listener: (event: api.PropertyChangedEvent) => void) {
+    onPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
         this.propertyChangedListeners.push(listener);
     }
 
-    unPropertyChanged(listener: (event: api.PropertyChangedEvent) => void) {
+    unPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
         this.propertyChangedListeners =
-            this.propertyChangedListeners.filter((curr: (event: api.PropertyChangedEvent) => void) => {
+            this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => {
                 return listener !== curr;
             });
     }

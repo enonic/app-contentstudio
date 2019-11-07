@@ -1,6 +1,6 @@
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {PageTemplate} from '../../../../../content/PageTemplate';
-import PageDescriptor = api.content.page.PageDescriptor;
-import Equitable = api.Equitable;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 
 export type TemplateOrController = PageTemplate | PageDescriptor;
 

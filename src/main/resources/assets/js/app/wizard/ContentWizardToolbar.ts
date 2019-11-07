@@ -1,15 +1,16 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
-import TogglerButton = api.ui.button.TogglerButton;
-import CycleButton = api.ui.button.CycleButton;
-import AppIcon = api.app.bar.AppIcon;
-import Application = api.app.Application;
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import DivEl = api.dom.DivEl;
+import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
+import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
+import {Application} from 'lib-admin-ui/app/Application';
+import {AppIcon} from 'lib-admin-ui/app/bar/AppBar';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -79,7 +80,7 @@ export class ContentWizardToolbar
                 tabId = application.getId();
             }
             window.open('#/browse', tabId);     // add browse to prevent tab reload because of url mismatch
-            return wemQ(null);
+            return Q(null);
         });
 
         super.addElement(new AppIcon(application, homeAction));
@@ -151,7 +152,7 @@ export class ContentWizardToolbar
     }
 
     private addMobileItemStatisticsButton() {
-        this.mobileItemStatisticsButton = new api.ui.button.TogglerButton();
+        this.mobileItemStatisticsButton = new TogglerButton();
         this.mobileItemStatisticsButton.setEnabled(true).addClass('icon-cog details-toggle');
         super.addElement(this.mobileItemStatisticsButton);
     }

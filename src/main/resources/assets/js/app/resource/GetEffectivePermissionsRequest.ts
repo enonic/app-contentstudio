@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {EffectivePermissionJson} from './json/EffectivePermissionJson';
 import {EffectivePermission} from '../security/EffectivePermission';
@@ -20,13 +23,13 @@ export class GetEffectivePermissionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'effectivePermissions');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'effectivePermissions');
     }
 
-    sendAndParse(): wemQ.Promise<EffectivePermission[]> {
+    sendAndParse(): Q.Promise<EffectivePermission[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<EffectivePermissionJson[]>) => {
+        return this.send().then((response: JsonResponse<EffectivePermissionJson[]>) => {
             if (response.getJson()) {
                 return response.getJson().map((json) => {
                     return EffectivePermission.fromJson(json);

@@ -1,8 +1,9 @@
-import '../../api.ts';
-import ContentSummary = api.content.ContentSummary;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 
 export class OpenDuplicateDialogEvent
-    extends api.event.Event {
+    extends Event {
     private content: ContentSummary[];
 
     constructor(content: ContentSummary[]) {
@@ -15,10 +16,10 @@ export class OpenDuplicateDialogEvent
     }
 
     static on(handler: (event: OpenDuplicateDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: OpenDuplicateDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {ConfirmContentDeleteDialog} from './ConfirmContentDeleteDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
@@ -9,11 +15,9 @@ import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import i18n = api.util.i18n;
-import NotifyManager = api.notify.NotifyManager;
-import MenuButton = api.ui.button.MenuButton;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
-import Action = api.ui.Action;
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -31,15 +35,16 @@ export class ContentDeleteDialog
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.delete'),
-            class: 'delete-dialog',
+                class: 'delete-dialog',
                 dialogSubName: i18n('dialog.delete.subname'),
                 dependantsDescription: i18n('dialog.delete.dependants'),
-            showDependantList: true,
+                showDependantList: true,
                 processingLabel: `${i18n('field.progress.deleting')}...`,
-            buttonRow: new ContentDeleteDialogButtonRow(),
+                buttonRow: new ContentDeleteDialogButtonRow(),
                 processHandler: () => {
                     new ContentDeletePromptEvent([]).fire();
                 },
+                confirmation: {}
             }
         );
     }
@@ -103,7 +108,7 @@ export class ContentDeleteDialog
                     return;
                 }
 
-                this.messageId = api.notify.showWarning(
+                this.messageId = showWarning(
                     i18n('dialog.delete.dependency.warning'), false);
 
                 this.addClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
@@ -136,7 +141,7 @@ export class ContentDeleteDialog
                 this.actionButton.giveFocus();
             });
         }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 
@@ -160,8 +165,8 @@ export class ContentDeleteDialog
         super.close();
         if (this.messageId) {
 
-            this.removeClickIgnoredElement(api.notify.NotifyManager.get().getNotification(this.messageId));
-            api.notify.NotifyManager.get().hide(this.messageId);
+            this.removeClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
+            NotifyManager.get().hide(this.messageId);
 
             this.messageId = '';
         }
@@ -207,7 +212,8 @@ export class ContentDeleteDialog
                 totalItemsToDelete,
                 deleteRequest,
                 yesCallback,
-                title: i18n('dialog.confirmDelete')
+                title: i18n('dialog.confirmDelete'),
+                confirmation: {}
             }).open();
         } else {
             if (this.yesCallback) {
@@ -218,13 +224,13 @@ export class ContentDeleteDialog
 
             this.createDeleteRequest(isInstantDelete)
                 .sendAndParse()
-                .then((taskId: api.task.TaskId) => {
+                .then((taskId: TaskId) => {
                     this.pollTask(taskId);
                 })
                 .catch((reason) => {
                     this.close();
                     if (reason && reason.message) {
-                        api.notify.showError(reason.message);
+                        showError(reason.message);
                     }
                 });
         }

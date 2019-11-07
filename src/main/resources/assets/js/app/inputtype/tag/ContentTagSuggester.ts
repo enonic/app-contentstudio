@@ -1,13 +1,19 @@
-import QueryExpr = api.query.expr.QueryExpr;
-import PropertyPath = api.data.PropertyPath;
-import Property = api.data.Property;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
+import {Property} from 'lib-admin-ui/data/Property';
 import {TagSuggester} from '../ui/tag/TagSuggester';
 import {Content} from '../../content/Content';
 import {ContentJson} from '../../content/ContentJson';
 import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
 import {Site} from '../../content/Site';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {Expand} from 'lib-admin-ui/rest/Expand';
 
 export class ContentTagSuggesterBuilder {
 
@@ -54,13 +60,13 @@ export class ContentTagSuggester
         this.allowedPaths = builder.allowedPaths;
     }
 
-    suggest(searchString: string): wemQ.Promise<string[]> {
+    suggest(searchString: string): Q.Promise<string[]> {
 
         const fieldName = 'data' + this.propertyPath.getParentPath().toString() + this.propertyPath.getLastElement().getName();
 
-        const fulltextExpression: api.query.expr.Expression = new api.query.FulltextSearchExpressionBuilder()
+        const fulltextExpression: Expression = new FulltextSearchExpressionBuilder()
             .setSearchString(searchString)
-            .addField(new api.query.QueryField(fieldName))
+            .addField(new QueryField(fieldName))
             .build();
 
         const queryExpr: QueryExpr = new QueryExpr(fulltextExpression);
@@ -68,24 +74,24 @@ export class ContentTagSuggester
         return this.checkAndFindTags(searchString, queryExpr);
     }
 
-    private checkAndFindTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {
-        const restrictedToSite = api.ObjectHelper.anyArrayEquals([ContentTagSuggester.SITE_PATH], this.allowedPaths);
+    private checkAndFindTags(searchString: string, queryExpr: QueryExpr): Q.Promise<string[]> {
+        const restrictedToSite = ObjectHelper.anyArrayEquals([ContentTagSuggester.SITE_PATH], this.allowedPaths);
 
-        return (restrictedToSite ? this.hasNearestSite() : wemQ(true)).then((canFind: boolean) => {
-            return canFind ? this.findTags(searchString, queryExpr) : wemQ([]);
+        return (restrictedToSite ? this.hasNearestSite() : Q(true)).then((canFind: boolean) => {
+            return canFind ? this.findTags(searchString, queryExpr) : Q([]);
         });
     }
 
-    private hasNearestSite(): wemQ.Promise<boolean> {
+    private hasNearestSite(): Q.Promise<boolean> {
         return new GetNearestSiteRequest(this.content.getContentId()).sendAndParse().then((site: Site) => !!site);
     }
 
-    private findTags(searchString: string, queryExpr: QueryExpr): wemQ.Promise<string[]> {
+    private findTags(searchString: string, queryExpr: QueryExpr): Q.Promise<string[]> {
         const request = new ContentSelectorQueryRequest<ContentJson, Content>();
 
         request.setSize(10);
         request.setContent(this.content);
-        request.setExpand(api.rest.Expand.FULL);
+        request.setExpand(Expand.FULL);
         request.setAllowedContentPaths(this.allowedPaths || []);
 
         request.setQueryExpr(queryExpr);

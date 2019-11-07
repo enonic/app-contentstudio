@@ -1,20 +1,30 @@
-import Property = api.data.Property;
-import PropertyArray = api.data.PropertyArray;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import StringHelper = api.util.StringHelper;
-import DivEl = api.dom.DivEl;
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {Property} from 'lib-admin-ui/data/Property';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ContentComboBox, ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {Reference} from 'lib-admin-ui/util/Reference';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -31,11 +41,11 @@ export class ContentSelector
 
     protected static contentIdBatch: ContentId[] = [];
 
-    protected static loadSummariesResult: wemQ.Deferred<ContentSummary[]>;
+    protected static loadSummariesResult: Q.Deferred<ContentSummary[]>;
 
     public static debug: boolean = false;
 
-    protected static loadSummaries: () => void = api.util.AppHelper.debounce(ContentSelector.doFetchSummaries, 10, false);
+    protected static loadSummaries: () => void = AppHelper.debounce(ContentSelector.doFetchSummaries, 10, false);
 
     constructor(config?: ContentInputTypeViewContext) {
         super('content-selector', config);
@@ -68,7 +78,7 @@ export class ContentSelector
         return <ContentSelectedOptionsView> this.contentComboBox.getSelectedOptionView();
     }
 
-    protected getContentPath(raw: ContentTreeSelectorItem): api.content.ContentPath {
+    protected getContentPath(raw: ContentTreeSelectorItem): ContentPath {
         return raw.getPath();
     }
 
@@ -93,14 +103,14 @@ export class ContentSelector
 
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.REFERENCE.equals(propertyArray.getType())) {
-            propertyArray.convertValues(ValueTypes.REFERENCE);
+            propertyArray.convertValues(ValueTypes.REFERENCE, ValueTypeConverter.convertTo);
         }
         return super.layout(input, propertyArray).then(() => {
             this.contentComboBox = this.createContentComboBox(input, propertyArray);
 
-            this.comboBoxWrapper = new api.dom.DivEl('combobox-wrapper');
+            this.comboBoxWrapper = new DivEl('combobox-wrapper');
             this.comboBoxWrapper.appendChild(this.contentComboBox);
 
             this.appendChild(this.comboBoxWrapper);
@@ -110,24 +120,24 @@ export class ContentSelector
         });
     }
 
-    protected doLayout(propertyArray: PropertyArray): wemQ.Promise<void> {
+    protected doLayout(propertyArray: PropertyArray): Q.Promise<void> {
 
         const contentIds: ContentId[] = [];
         propertyArray.forEach((property: Property) => {
             if (property.hasNonNullValue()) {
                 let referenceValue = property.getReference();
-                if (api.ObjectHelper.iFrameSafeInstanceOf(referenceValue, api.util.Reference)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(referenceValue, Reference)) {
                     contentIds.push(ContentId.fromReference(referenceValue));
                 }
             }
         });
 
-        return this.doLoadContent(contentIds).then((contents: api.content.ContentSummary[]) => {
+        return this.doLoadContent(contentIds).then((contents: ContentSummary[]) => {
 
             this.setupSortable();
 
             //TODO: original value doesn't work because of additional request, so have to select manually
-            contents.forEach((content: api.content.ContentSummary) => {
+            contents.forEach((content: ContentSummary) => {
                 this.contentComboBox.select(new ContentTreeSelectorItem(content));
             });
 
@@ -139,7 +149,7 @@ export class ContentSelector
         });
     }
 
-    protected createContentComboBox(input: api.form.Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
+    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
         const optionDataLoader = this.createOptionDataLoader();
         const comboboxValue = this.getValueFromPropertyArray(propertyArray);
 
@@ -192,14 +202,14 @@ export class ContentSelector
         for (let i = 0; i < length; i++) {
             if (this.getPropertyArray().get(i).getValue().getString() === id) {
                 this.getPropertyArray().remove(i);
-                api.notify.NotifyManager.get().showWarning('Failed to load content item with id ' + id +
-                                                           '. The reference will be removed upon save.');
+                NotifyManager.get().showWarning('Failed to load content item with id ' + id +
+                                                '. The reference will be removed upon save.');
                 break;
             }
         }
     }
 
-    update(propertyArray: api.data.PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
             if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
                 let value = this.getValueFromPropertyArray(propertyArray);
@@ -228,7 +238,7 @@ export class ContentSelector
 
     private static doFetchSummaries() {
         new GetContentSummaryByIds(ContentSelector.contentIdBatch).sendAndParse().then(
-            (result: api.content.ContentSummary[]) => {
+            (result: ContentSummary[]) => {
 
                 ContentSelector.contentIdBatch = []; // empty batch of ids after loading
 
@@ -238,24 +248,24 @@ export class ContentSelector
             });
     }
 
-    protected doLoadContent(contentIds: ContentId[]): wemQ.Promise<api.content.ContentSummary[]> {
+    protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummary[]> {
 
         ContentSelector.contentIdBatch = ContentSelector.contentIdBatch.concat(contentIds);
 
         if (!ContentSelector.loadSummariesResult) {
-            ContentSelector.loadSummariesResult = wemQ.defer<ContentSummary[]>();
+            ContentSelector.loadSummariesResult = Q.defer<ContentSummary[]>();
         }
 
         ContentSelector.loadSummaries();
 
-        return ContentSelector.loadSummariesResult.promise.then((result: api.content.ContentSummary[]) => {
+        return ContentSelector.loadSummariesResult.promise.then((result: ContentSummary[]) => {
             let contentIdsStr = contentIds.map(id => id.toString());
             return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
         });
     }
 
-    protected setContentIdProperty(contentId: api.content.ContentId) {
-        let reference = api.util.Reference.from(contentId);
+    protected setContentIdProperty(contentId: ContentId) {
+        let reference = Reference.from(contentId);
 
         let value = new Value(reference, ValueTypes.REFERENCE);
 
@@ -331,4 +341,4 @@ export class ContentSelector
 
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('ContentSelector', ContentSelector));
+InputTypeManager.register(new Class('ContentSelector', ContentSelector));

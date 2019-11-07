@@ -1,3 +1,5 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {PageView} from './PageView';
 import {SelectedByClickEvent} from './SelectedByClickEvent';
 
@@ -16,10 +18,10 @@ export class PageSelectedEvent
     }
 
     static on(handler: (event: PageSelectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: PageSelectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,8 +1,9 @@
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeIconUrlResolver} from './ContentTypeIconUrlResolver';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ContentTypeSummaryViewer
-    extends api.ui.NamesAndIconViewer<ContentTypeSummary> {
+    extends NamesAndIconViewer<ContentTypeSummary> {
 
     private contentTypeIconUrlResolver: ContentTypeIconUrlResolver;
 

@@ -10,6 +10,8 @@ import {FindAndReplaceDialog} from './FindAndReplaceDialog';
 import {SpecialCharDialog} from './SpecialCharDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {TableDialog} from './TableDialog';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class HTMLAreaDialogHandler {
 
@@ -62,11 +64,11 @@ export class HTMLAreaDialogHandler {
         return this.modalDialog;
     }
 
-    private static openLinkDialog(config: eventInfo, content: api.content.ContentSummary): ModalDialog {
+    private static openLinkDialog(config: eventInfo, content: ContentSummary): ModalDialog {
         return this.openDialog(new LinkModalDialog(config, content));
     }
 
-    private static openImageDialog(config: eventInfo, content: api.content.ContentSummary): ModalDialog {
+    private static openImageDialog(config: eventInfo, content: ContentSummary): ModalDialog {
         return this.openDialog(new ImageModalDialog(config, content));
     }
 
@@ -74,8 +76,8 @@ export class HTMLAreaDialogHandler {
         return this.openDialog(new AnchorModalDialog(config));
     }
 
-    private static openMacroDialog(config: any, content: api.content.ContentSummary,
-                                   applicationKeys: api.application.ApplicationKey[]): ModalDialog {
+    private static openMacroDialog(config: any, content: ContentSummary,
+                                   applicationKeys: ApplicationKey[]): ModalDialog {
         return this.openDialog(new MacroModalDialog(config, content, applicationKeys));
     }
 

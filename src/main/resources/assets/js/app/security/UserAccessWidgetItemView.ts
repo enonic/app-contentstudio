@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {UserAccessListItemView} from './UserAccessListItemView';
 import {WidgetItemView} from '../view/context/WidgetItemView';
 import {UserAccessListView} from './UserAccessListView';
@@ -11,9 +16,10 @@ import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
 import {Permission} from '../access/Permission';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import ContentId = api.content.ContentId;
-import LoginResult = api.security.auth.LoginResult;
-import i18n = api.util.i18n;
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -22,9 +28,9 @@ export class UserAccessWidgetItemView
 
     private accessListView: UserAccessListView;
 
-    private headerEl: api.dom.SpanEl;
+    private headerEl: SpanEl;
 
-    private bottomEl: api.dom.AEl;
+    private bottomEl: AEl;
 
     private loginResult: LoginResult;
 
@@ -43,7 +49,7 @@ export class UserAccessWidgetItemView
         this.accessListView = new UserAccessListView();
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         const contentId = item.getContentId();
         if (UserAccessWidgetItemView.debug) {
             console.debug('UserAccessWidgetItemView.setContentId: ', contentId);
@@ -57,13 +63,13 @@ export class UserAccessWidgetItemView
             this.removeChild(this.headerEl);
         }
 
-        const everyoneHasAccess: boolean = !!content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
+        const everyoneHasAccess: boolean = !!content.getPermissions().getEntry(RoleKeys.EVERYONE);
 
         const headerStr = this.getEveryoneAccessDescription(content);
 
-        const headerStrEl = new api.dom.SpanEl('header-string').setHtml(headerStr);
+        const headerStrEl = new SpanEl('header-string').setHtml(headerStr);
 
-        this.headerEl = new api.dom.DivEl('user-access-widget-header');
+        this.headerEl = new DivEl('user-access-widget-header');
         this.headerEl.addClass(everyoneHasAccess ? 'icon-unlock' : 'icon-lock');
         this.headerEl.appendChild(headerStrEl);
 
@@ -80,7 +86,7 @@ export class UserAccessWidgetItemView
             return;
         }
 
-        this.bottomEl = new api.dom.AEl('edit-permissions-link');
+        this.bottomEl = new AEl('edit-permissions-link');
         this.bottomEl.setHtml(i18n('action.editPermissions'));
 
         this.appendChild(this.bottomEl);
@@ -96,7 +102,7 @@ export class UserAccessWidgetItemView
 
     }
 
-    private layoutList(content: Content): wemQ.Promise<boolean> {
+    private layoutList(content: Content): Q.Promise<boolean> {
         const request = new GetEffectivePermissionsRequest(content.getContentId());
 
         return request.sendAndParse().then((results: EffectivePermission[]) => {
@@ -112,11 +118,11 @@ export class UserAccessWidgetItemView
             this.accessListView.setItemViews(userAccessList);
             this.appendChild(this.accessListView);
 
-            return wemQ.resolve(true);
+            return Q.resolve(true);
         });
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (UserAccessWidgetItemView.debug) {
             console.debug('UserAccessWidgetItemView.layout');
         }
@@ -124,8 +130,8 @@ export class UserAccessWidgetItemView
         return super.layout().then(this.layoutUserAccess.bind(this));
     }
 
-    private layoutUserAccess(): wemQ.Promise<any> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+    private layoutUserAccess(): Q.Promise<any> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
 
             this.loginResult = loginResult;
             if (this.contentId) {
@@ -153,7 +159,7 @@ export class UserAccessWidgetItemView
     }
 
     private getEveryoneAccessValue(content: Content): Access {
-        const entry: AccessControlEntry = content.getPermissions().getEntry(api.security.RoleKeys.EVERYONE);
+        const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
 
         if (entry) {
             return AccessControlEntryView.getAccessValueFromEntry(entry);

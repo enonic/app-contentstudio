@@ -49,7 +49,7 @@ repositories {
 
 node {
     download = true
-    version = '8.10.0'
+    version = '10.16.3'
 }
 
 
@@ -67,6 +67,8 @@ task cleanNode( type: Delete ) {
     delete 'node_modules'
 }
 
+npmInstall.mustRunAfter unpackDevResources
+
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
     inputs.files fileTree( dir: 'modules', include: '**/src/main/**.*' )
@@ -74,9 +76,10 @@ task lint( type: NpmTask, dependsOn: npmInstall ) {
     outputs.upToDateWhen { false }
 }
 
-task webpack( type: NodeTask, dependsOn: lint ) {
+task webpack( type: NodeTask, dependsOn: [npmInstall, lint] ) {
     environment = [ 'NODE_ENV': nodeEnvironment() ]
     description = 'Build UI resources (ts, css, etc).'
+    inputs.dir '.xp/dev'
     inputs.dir 'src/main'
     outputs.dir "${buildDir}/resources/main"
     script = file( './node_modules/webpack/bin/webpack' )
@@ -109,24 +112,33 @@ if ( hasProperty( 'env' ) )
 }
 
 def applyExcludedTasks() {
-    def libAdminUi = gradle.includedBuild( 'lib-admin-ui' )
-    Closure permittedTasks = { it == 'lint' || it == 'test' }
-    def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( permittedTasks )
-    libAdminUi.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
+    if ( isLibAdminUiIncluded() )
+    {
+        def libAdminUi = gradle.includedBuild( 'lib-admin-ui' )
+        def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
+        libAdminUi.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
+    }
 }
 
 def addBuildDependency() {
-    def buildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
+    if ( isLibAdminUiIncluded() )
+    {
+        def buildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
 
-    build.dependsOn += buildTask
-    clean.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-    flush.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
+        build.dependsOn += buildTask
+        clean.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
+        flush.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
 
-    def webpackTask = tasks.findByPath( ':webpack' )
-    def unpackDevResources = tasks.findByPath( ':unpackDevResources' )
+        def webpackTask = tasks.findByPath( ':webpack' )
+        def unpackDevResources = tasks.findByPath( ':unpackDevResources' )
 
-    if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResources
-    unpackDevResources.dependsOn += buildTask
+        if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResources
+        unpackDevResources.dependsOn += buildTask
+    }
+}
+
+def isLibAdminUiIncluded() {
+    return new File( '../lib-admin-ui' ).exists()
 }
 
 def nodeEnvironment() {

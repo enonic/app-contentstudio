@@ -1,16 +1,17 @@
-import TreeGrid = api.ui.treegrid.TreeGrid;
-import TreeNode = api.ui.treegrid.TreeNode;
-import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import DateTimeFormatter = api.ui.treegrid.DateTimeFormatter;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import ChildOrder = api.content.order.ChildOrder;
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
     private curChildOrder: ChildOrder;
 
@@ -72,8 +73,8 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
         this.initData(this.getRoot().getCurrentRoot().treeToList());
     }
 
-    fetchChildren(): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
-        let parentContentId: api.content.ContentId;
+    fetchChildren(): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        let parentContentId: ContentId;
         let parentNode = this.getRoot().getCurrentRoot();
         if (parentNode.getData()) {
             parentContentId = parentNode.getData().getContentSummary().getContentId();

@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ItemTypeConfig} from '../ItemTypeConfig';
 import {ComponentItemType} from '../ComponentItemType';
 

@@ -1,8 +1,9 @@
-import ContentId = api.content.ContentId;
-import StringHelper = api.util.StringHelper;
-import AppHelper = api.util.AppHelper;
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class HTMLAreaHelper {
 
@@ -34,9 +35,9 @@ export class HTMLAreaHelper {
 
         // Support scale parameter from the old content
         const src = imgSrc.replace(/&amp;/g, '&');
-        const params = api.util.UriHelper.decodeUrlParams(src);
+        const params = UriHelper.decodeUrlParams(src);
         if (params.scale) {
-            imgUrl = api.util.UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
+            imgUrl = UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
         }
 
         return ` src="${imgUrl}" data-src="${imgSrc}"`;

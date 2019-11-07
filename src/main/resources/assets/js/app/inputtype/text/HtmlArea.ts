@@ -1,12 +1,22 @@
-import Property = api.data.Property;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import Element = api.dom.Element;
-import ApplicationKey = api.application.ApplicationKey;
-import Promise = Q.Promise;
-import AppHelper = api.util.AppHelper;
-import ObjectHelper = api.ObjectHelper;
+import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {Class} from 'lib-admin-ui/Class';
+import {Property} from 'lib-admin-ui/data/Property';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
@@ -14,22 +24,31 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
+import {BaseInputTypeNotManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {SelectorOnBlurEvent} from 'lib-admin-ui/ui/selector/SelectorOnBlurEvent';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {FormEl} from 'lib-admin-ui/dom/FormEl';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 
 declare var CONFIG;
 
 export class HtmlArea
-    extends api.form.inputtype.support.BaseInputTypeNotManagingAdd {
+    extends BaseInputTypeNotManagingAdd {
 
     private editors: HtmlAreaOccurrenceInfo[];
-    private content: api.content.ContentSummary;
-    private contentPath: api.content.ContentPath;
+    private content: ContentSummary;
+    private contentPath: ContentPath;
     private applicationKeys: ApplicationKey[];
 
     private focusListeners: { (event: FocusEvent): void }[] = [];
 
     private blurListeners: { (event: FocusEvent): void }[] = [];
 
-    private authRequest: Promise<void>;
+    private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;
     private inputConfig: any;
 
@@ -45,7 +64,7 @@ export class HtmlArea
         this.inputConfig = config.inputConfig;
 
         this.authRequest =
-            new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 this.editableSourceCode = loginResult.isContentExpert();
             });
 
@@ -54,7 +73,7 @@ export class HtmlArea
 
     private setupEventListeners() {
         this.onRemoved(() => {
-            api.ui.responsive.ResponsiveManager.unAvailableSizeChanged(this);
+            ResponsiveManager.unAvailableSizeChanged(this);
         });
 
         this.onRendered(() => {
@@ -72,12 +91,12 @@ export class HtmlArea
         return super.newInitialValue() || ValueTypes.STRING.newValue('');
     }
 
-    createInputOccurrenceElement(index: number, property: Property): api.dom.Element {
+    createInputOccurrenceElement(index: number, property: Property): Element {
         if (!ValueTypes.STRING.equals(property.getType())) {
-            property.convertValueType(ValueTypes.STRING);
+            property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
-        const textAreaEl = new api.ui.text.TextArea(this.getInput().getName() + '-' + index);
+        const textAreaEl = new TextArea(this.getInput().getName() + '-' + index);
         StylesRequest.fetchStyles(this.content.getId()).then(() => {
             const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId());
             textAreaEl.setValue(value, true, false);
@@ -88,7 +107,7 @@ export class HtmlArea
         const clazz = editorId.replace(/\./g, '_');
         textAreaEl.addClass(clazz);
 
-        const textAreaWrapper = new api.dom.DivEl();
+        const textAreaWrapper = new DivEl();
 
         this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
 
@@ -109,22 +128,22 @@ export class HtmlArea
         return textAreaWrapper;
     }
 
-    protected updateFormInputElValue(occurrence: api.dom.FormInputEl, property: Property) {
-        const textArea = <api.ui.text.TextArea> occurrence;
+    protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
+        const textArea = <TextArea> occurrence;
         const id = textArea.getId();
 
         this.setEditorContent(id, property);
     }
 
-    resetInputOccurrenceElement(occurrence: api.dom.Element) {
+    resetInputOccurrenceElement(occurrence: Element) {
         occurrence.getChildren().forEach((child) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(child, api.ui.text.TextArea)) {
-                (<api.ui.text.TextArea>child).resetBaseValues();
+            if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {
+                (<TextArea>child).resetBaseValues();
             }
         });
     }
 
-    private initEditor(id: string, property: Property, textAreaWrapper: Element): wemQ.Promise<HtmlEditor> {
+    private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
         const assetsUri = CONFIG.assetsUri;
         const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
 
@@ -134,7 +153,7 @@ export class HtmlArea
             this.scrollToSelected(textAreaWrapper, e);
 
             AppHelper.dispatchCustomEvent('focusin', this);
-            new api.ui.selector.SelectorOnBlurEvent(this).fire();
+            new SelectorOnBlurEvent(this).fire();
         };
 
         const notifyValueChanged = () => {
@@ -157,7 +176,7 @@ export class HtmlArea
                 e.preventDefault();
 
                 // as editor resides in a frame - propagate event via wrapping element
-                wemjq(this.getEl().getHTMLElement()).simulate(e.type, {
+                $(this.getEl().getHTMLElement()).simulate(e.type, {
                     bubbles: e.bubbles,
                     cancelable: e.cancelable,
                     view: parent,
@@ -171,16 +190,16 @@ export class HtmlArea
             } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
                 e.preventDefault();
                 // the one that event is triggered from
-                const htmlAreaIframe = wemjq(textAreaWrapper.getHTMLElement()).find('iframe').get(0);
+                const htmlAreaIframe = $(textAreaWrapper.getHTMLElement()).find('iframe').get(0);
                 // check if focused element is html area that triggered event
                 const activeElement = this.isNotActiveElement(htmlAreaIframe) ? htmlAreaIframe : <HTMLElement>document.activeElement;
-                const focusedEl = api.dom.Element.fromHtmlElement(activeElement);
+                const focusedEl = Element.fromHtmlElement(activeElement);
                 const isShift = e.shiftKey;
                 let nextFocusable;
                 if (!isShift) {
-                    nextFocusable = api.dom.FormEl.getNextFocusable(focusedEl, 'iframe, input, select');
+                    nextFocusable = FormEl.getNextFocusable(focusedEl, 'iframe, input, select');
                 } else {
-                    nextFocusable = api.dom.FormEl.getPrevFocusable(focusedEl, 'iframe, input, select');
+                    nextFocusable = FormEl.getPrevFocusable(focusedEl, 'iframe, input, select');
                 }
 
                 if (nextFocusable) {
@@ -203,7 +222,7 @@ export class HtmlArea
             this.setEditorContent(id, property);
 
             if (this.notInLiveEdit()) {
-                if (api.BrowserHelper.isIE()) {
+                if (BrowserHelper.isIE()) {
                     this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
                 }
             }
@@ -247,8 +266,8 @@ export class HtmlArea
     }
 
     private moveButtonToBottomBar(inputOccurence: Element, buttonClass: string): void {
-        wemjq(inputOccurence.getHTMLElement()).find(buttonClass).appendTo(
-            wemjq(inputOccurence.getHTMLElement()).find('.cke_bottom'));
+        $(inputOccurence.getHTMLElement()).find(buttonClass).appendTo(
+            $(inputOccurence.getHTMLElement()).find('.cke_bottom'));
     }
 
     private setFocusOnEditorAfterCreate(inputOccurence: Element, id: string): void {
@@ -266,9 +285,9 @@ export class HtmlArea
         const scrollHandler = AppHelper.debounce(() =>
             this.updateStickyEditorToolbar(inputOccurence, this.getEditorInfo(editorId)), 20, false);
 
-        wemjq(this.getHTMLElement()).closest('.form-panel').on('scroll', () => scrollHandler());
+        $(this.getHTMLElement()).closest('.form-panel').on('scroll', () => scrollHandler());
 
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, () => {
+        ResponsiveManager.onAvailableSizeChanged(this, () => {
             this.updateEditorToolbarPos(inputOccurence);
             this.updateEditorToolbarWidth(inputOccurence, this.getEditorInfo(editorId));
         });
@@ -290,16 +309,16 @@ export class HtmlArea
     }
 
     private updateEditorToolbarPos(inputOccurence: Element) {
-        wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).css({top: this.getToolbarOffsetTop(1)});
+        $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).css({top: this.getToolbarOffsetTop(1)});
     }
 
     private updateEditorToolbarWidth(inputOccurence: Element, editorInfo: HtmlAreaOccurrenceInfo) {
         if (editorInfo.hasStickyToolbar) {
             // Toolbar in sticky mode has position: fixed which makes it not
             // inherit width of its parent, so we have to explicitly set width
-            wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width(inputOccurence.getEl().getWidth() - 3);
+            $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width(inputOccurence.getEl().getWidth() - 3);
         } else {
-            wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width('auto');
+            $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).width('auto');
         }
     }
 
@@ -317,8 +336,8 @@ export class HtmlArea
 
     private editorLowerEdgeIsVisible(inputOccurence: Element): boolean {
         const distToTopOfScrlblArea = this.calcDistToTopOfScrlbleArea(inputOccurence);
-        const editorToolbarHeight = wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
-        const statusToolbarHeight = wemjq(inputOccurence.getHTMLElement()).find(this.getBottomBarClass()).outerHeight(true);
+        const editorToolbarHeight = $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
+        const statusToolbarHeight = $(inputOccurence.getHTMLElement()).find(this.getBottomBarClass()).outerHeight(true);
         return (inputOccurence.getEl().getHeightWithoutPadding() - editorToolbarHeight - statusToolbarHeight +
                 distToTopOfScrlblArea) > 0;
     }
@@ -328,7 +347,7 @@ export class HtmlArea
     }
 
     private getToolbarOffsetTop(delta: number = 0): number {
-        const toolbar = wemjq(this.getHTMLElement()).closest('.form-panel').find('.wizard-step-navigator-and-toolbar');
+        const toolbar = $(this.getHTMLElement()).closest('.form-panel').find('.wizard-step-navigator-and-toolbar');
         const stickyToolbarHeight = toolbar.outerHeight(true);
         const offset = toolbar.offset();
         const stickyToolbarOffset = offset ? offset.top : 0;
@@ -337,15 +356,15 @@ export class HtmlArea
     }
 
     private resetInputHeight() {
-        wemjq(this.getHTMLElement()).height('auto');
+        $(this.getHTMLElement()).height('auto');
     }
 
     private scrollToSelected(inputOccurence: Element, e: CKEDITOR.eventInfo) {
         const editorScrollTop: number = e.editor.document.$.children[0].scrollTop;
 
         if (this.editorTopEdgeIsVisible(inputOccurence) || editorScrollTop > 0) {
-            const toolbarHeight: number = wemjq(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
-            const panel = wemjq(this.getHTMLElement()).closest('.form-panel');
+            const toolbarHeight: number = $(inputOccurence.getHTMLElement()).find(this.getToolbarClass()).outerHeight(true);
+            const panel = $(this.getHTMLElement()).closest('.form-panel');
             const newScrollTop: number = panel.scrollTop() + editorScrollTop;
 
             if (editorScrollTop > 0) {
@@ -380,17 +399,17 @@ export class HtmlArea
     }
 
     private notInLiveEdit(): boolean {
-        return !(wemjq(this.getHTMLElement()).parents('.inspection-panel').length > 0);
+        return !($(this.getHTMLElement()).parents('.inspection-panel').length > 0);
     }
 
-    private notifyValueChanged(id: string, occurrence: api.dom.Element) {
+    private notifyValueChanged(id: string, occurrence: Element) {
         const value: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(HtmlEditor.getData(id));
-        const valueObj: api.data.Value = ValueTypes.STRING.newValue(value);
+        const valueObj: Value = ValueTypes.STRING.newValue(value);
         this.notifyOccurrenceValueChanged(occurrence, valueObj);
     }
 
     private isNotActiveElement(htmlAreaIframe: HTMLElement): boolean {
-        const activeElement = wemjq(document.activeElement).get(0);
+        const activeElement = $(document.activeElement).get(0);
 
         return htmlAreaIframe !== activeElement;
     }
@@ -400,10 +419,10 @@ export class HtmlArea
     }
 
     valueBreaksRequiredContract(value: Value): boolean {
-        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || api.util.StringHelper.isBlank(value.getString());
+        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || StringHelper.isBlank(value.getString());
     }
 
-    hasInputElementValidUserInput(_inputElement: api.dom.Element) {
+    hasInputElementValidUserInput(_inputElement: Element) {
 
         // TODO
         return true;
@@ -412,7 +431,7 @@ export class HtmlArea
     handleDnDStart(ui: JQueryUI.SortableUIParams): void {
         super.handleDnDStart(ui);
 
-        const editorId = wemjq('textarea', ui.item)[0].id;
+        const editorId = $('textarea', ui.item)[0].id;
         this.destroyEditor(editorId);
     }
 
@@ -426,7 +445,7 @@ export class HtmlArea
     }
 
     handleDnDStop(ui: JQueryUI.SortableUIParams): void {
-        const editorId = wemjq('textarea', ui.item)[0].id;
+        const editorId = $('textarea', ui.item)[0].id;
 
         this.reInitEditor(editorId).then((htmlEditor: HtmlEditor) => {
             htmlEditor.onReady(() => {
@@ -473,14 +492,14 @@ export class HtmlArea
         }
     }
 
-    private reInitEditor(id: string): wemQ.Promise<HtmlEditor> {
+    private reInitEditor(id: string): Q.Promise<HtmlEditor> {
         const savedEditor: HtmlAreaOccurrenceInfo = this.getEditorInfo(id);
 
         return this.initEditor(id, savedEditor.property, savedEditor.textAreaWrapper);
     }
 
     private getEditorInfo(id: string): HtmlAreaOccurrenceInfo {
-        return api.util.ArrayHelper.findElementByFieldValue(this.editors, 'id', id);
+        return ArrayHelper.findElementByFieldValue(this.editors, 'id', id);
     }
 
 }
@@ -488,9 +507,9 @@ export class HtmlArea
 export interface HtmlAreaOccurrenceInfo {
     id: string;
     textAreaWrapper: Element;
-    textAreaEl: api.ui.text.TextArea;
+    textAreaEl: TextArea;
     property: Property;
     hasStickyToolbar: boolean;
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('HtmlArea', HtmlArea));
+InputTypeManager.register(new Class('HtmlArea', HtmlArea));

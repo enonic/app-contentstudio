@@ -1,5 +1,9 @@
-import ContentSummary = api.content.ContentSummary;
-import ObjectHelper = api.ObjectHelper;
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {MediaSelectorDisplayValue} from './MediaSelectorDisplayValue';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
@@ -43,15 +47,15 @@ export class MediaTreeSelectorItem
         return this.mediaSelectorDisplayValue.getId();
     }
 
-    getContentId(): api.content.ContentId {
+    getContentId(): ContentId {
         return this.mediaSelectorDisplayValue.getContentId();
     }
 
-    getContentPath(): api.content.ContentPath {
+    getContentPath(): ContentPath {
         return this.mediaSelectorDisplayValue.getContentPath();
     }
 
-    getPath(): api.content.ContentPath {
+    getPath(): ContentPath {
         return this.mediaSelectorDisplayValue.getPath();
     }
 
@@ -59,9 +63,9 @@ export class MediaTreeSelectorItem
         return this.mediaSelectorDisplayValue.getDisplayName();
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, api.ClassHelper.getClass(this))) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ClassHelper.getClass(this))) {
             return false;
         }
 

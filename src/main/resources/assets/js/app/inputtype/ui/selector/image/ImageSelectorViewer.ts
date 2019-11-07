@@ -1,7 +1,9 @@
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ImageSelectorViewer
-    extends api.ui.NamesAndIconViewer<MediaTreeSelectorItem> {
+    extends NamesAndIconViewer<MediaTreeSelectorItem> {
 
     constructor() {
         super('image-selector-viewer');
@@ -27,7 +29,7 @@ export class ImageSelectorViewer
         return object.getPath().toString();
     }
 
-    protected getHintTargetEl(): api.dom.ElementHelper {
+    protected getHintTargetEl(): ElementHelper {
         return this.getNamesAndIconView().getIconImageEl().getEl();
     }
 }

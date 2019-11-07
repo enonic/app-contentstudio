@@ -1,7 +1,8 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
 import {Component} from '../app/page/region/Component';
-import Event = api.event.Event;
 
 export class ComponentViewDragDroppedEvent
     extends Event {
@@ -25,10 +26,10 @@ export class ComponentViewDragDroppedEvent
     }
 
     static on(handler: (event: ComponentViewDragDroppedEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: ComponentViewDragDroppedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

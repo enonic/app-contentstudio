@@ -1,8 +1,9 @@
-import './../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ItemView} from './ItemView';
 
 export class ItemViewDeselectedEvent
-    extends api.event.Event {
+    extends Event {
 
     private itemView: ItemView;
 
@@ -16,10 +17,10 @@ export class ItemViewDeselectedEvent
     }
 
     static on(handler: (event: ItemViewDeselectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ItemViewDeselectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

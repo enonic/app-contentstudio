@@ -1,5 +1,6 @@
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class MarkAsReadyAction
@@ -17,6 +18,6 @@ export class MarkAsReadyAction
 
     private handleExecuted() {
         this.wizard.setIsMarkedAsReady(true);
-        this.wizard.saveChanges().catch(api.DefaultErrorHandler.handle);
+        this.wizard.saveChanges().catch(DefaultErrorHandler.handle);
     }
 }

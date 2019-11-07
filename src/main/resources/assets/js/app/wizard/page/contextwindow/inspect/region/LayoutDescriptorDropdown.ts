@@ -1,4 +1,4 @@
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {LayoutDescriptorLoader} from './LayoutDescriptorLoader';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';

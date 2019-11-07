@@ -1,3 +1,4 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {RepositoryId} from './RepositoryId';
 
 export class RepositoryHelper {
@@ -19,7 +20,7 @@ export class RepositoryHelper {
     }
 
     public static fromContentRepoName(value: string): RepositoryId {
-        if (api.util.StringHelper.isBlank(value)) {
+        if (StringHelper.isBlank(value)) {
             return null;
         }
 

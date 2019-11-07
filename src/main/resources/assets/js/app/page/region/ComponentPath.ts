@@ -1,5 +1,9 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+
 export class ComponentPath
-    implements api.Equitable {
+    implements Equitable {
 
     private static DIVIDER: string = '/';
 
@@ -56,15 +60,15 @@ export class ComponentPath
         return this.refString;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ComponentPath)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ComponentPath)) {
             return false;
         }
 
         let other = <ComponentPath>o;
 
-        if (!api.ObjectHelper.stringEquals(this.refString, other.refString)) {
+        if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;
         }
 
@@ -77,7 +81,7 @@ export class ComponentPath
             return null;
         }
 
-        let elements: string[] = api.util.StringHelper.removeEmptyStrings(str.split(ComponentPath.DIVIDER));
+        let elements: string[] = StringHelper.removeEmptyStrings(str.split(ComponentPath.DIVIDER));
 
         let regionAndComponentList: ComponentPathRegionAndComponent[] = [];
         for (let i = 0; i < elements.length - 1; i += 2) {

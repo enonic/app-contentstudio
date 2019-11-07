@@ -1,16 +1,18 @@
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 
 export class XDataResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-    private resourceUrl: api.rest.Path;
+    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+    private resourceUrl: Path;
 
     constructor() {
         super();
-        this.resourceUrl = api.rest.Path.fromParent(super.getRestPath(), 'schema/xdata');
+        this.resourceUrl = Path.fromParent(super.getRestPath(), 'schema/xdata');
     }
 
-    getResourcePath(): api.rest.Path {
+    getResourcePath(): Path {
         return this.resourceUrl;
     }
 

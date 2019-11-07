@@ -1,5 +1,6 @@
 import {PublishRequestItemJson} from './json/PublishRequestItemJson';
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export class PublishRequestItem {
 
@@ -40,7 +41,7 @@ export class PublishRequestItemBuilder {
     includeChildren: boolean;
 
     fromJson(json: PublishRequestItemJson): PublishRequestItemBuilder {
-        api.util.assertNotNull(json.id, 'content id cannot be null');
+        assertNotNull(json.id, 'content id cannot be null');
 
         this.id = new ContentId(json.id);
         this.includeChildren = !!json.includeChildren;

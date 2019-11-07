@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Site} from '../content/Site';
 import {ContentJson} from '../content/ContentJson';
@@ -5,9 +9,9 @@ import {ContentJson} from '../content/ContentJson';
 export class GetNearestSiteRequest
     extends ContentResourceRequest<ContentJson, Site> {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super();
         super.setMethod('POST');
         this.contentId = contentId;
@@ -19,13 +23,13 @@ export class GetNearestSiteRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'nearestSite');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'nearestSite');
     }
 
-    sendAndParse(): wemQ.Promise<Site> {
+    sendAndParse(): Q.Promise<Site> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
         });
     }

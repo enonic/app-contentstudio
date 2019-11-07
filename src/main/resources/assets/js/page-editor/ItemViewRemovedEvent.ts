@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemView} from './ItemView';
 
 export class ItemViewRemovedEvent {

@@ -1,8 +1,21 @@
-import Form = api.ui.form.Form;
-import Fieldset = api.ui.form.Fieldset;
-import FormItem = api.ui.form.FormItem;
-import FormItemBuilder = api.ui.form.FormItemBuilder;
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
+import * as Q from 'q';
+import {Element as UIElement} from 'lib-admin-ui/dom/Element';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {ModalDialog as OriginalModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {FormItemEl} from 'lib-admin-ui/dom/FormItemEl';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
+import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {InputEl} from 'lib-admin-ui/dom/InputEl';
+import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 
 export class ModalDialogFormItemBuilder {
 
@@ -10,13 +23,13 @@ export class ModalDialogFormItemBuilder {
 
     label: string;
 
-    validator: (input: api.dom.FormInputEl) => string;
+    validator: (input: FormInputEl) => string;
 
     value: string;
 
     placeholder: string;
 
-    inputEl: api.dom.FormItemEl;
+    inputEl: FormItemEl;
 
     constructor(id: string, label?: string) {
         this.id = id;
@@ -35,13 +48,13 @@ export class ModalDialogFormItemBuilder {
         return this;
     }
 
-    setValidator(validator: (input: api.dom.FormInputEl) => string): ModalDialogFormItemBuilder {
+    setValidator(validator: (input: FormInputEl) => string): ModalDialogFormItemBuilder {
         this.validator = validator;
         return this;
     }
 
-    setInputEl(inputEl: api.dom.Element): ModalDialogFormItemBuilder {
-        this.inputEl = <api.dom.FormItemEl>inputEl;
+    setInputEl(inputEl: UIElement): ModalDialogFormItemBuilder {
+        this.inputEl = <FormItemEl>inputEl;
         return this;
     }
 }
@@ -54,12 +67,12 @@ export interface HtmlAreaModalDialogConfig
 }
 
 export abstract class ModalDialog
-    extends api.ui.dialog.ModalDialog {
-    private fields: { [id: string]: api.dom.FormItemEl };
+    extends OriginalModalDialog {
+    private fields: { [id: string]: FormItemEl };
     private validated: boolean = false;
     private editor: CKEDITOR.editor;
     private mainForm: Form;
-    protected submitAction: api.ui.Action;
+    protected submitAction: Action;
     protected config: HtmlAreaModalDialogConfig;
 
     public static CLASS_NAME: string = 'html-area-modal-dialog';
@@ -98,11 +111,11 @@ export abstract class ModalDialog
         });
     }
 
-    setSubmitAction(action: api.ui.Action) {
+    setSubmitAction(action: Action) {
         this.submitAction = action;
     }
 
-    getSubmitAction(): api.ui.Action {
+    getSubmitAction(): Action {
         return this.submitAction;
     }
 
@@ -131,7 +144,7 @@ export abstract class ModalDialog
 
     protected createForm(formItems: FormItem[]): Form {
         const form = new Form();
-        let validationCls = api.form.FormView.VALIDATION_CLASS;
+        let validationCls = FormView.VALIDATION_CLASS;
 
         formItems.forEach((formItem: FormItem) => {
             form.add(this.createFieldSet(formItem));
@@ -146,14 +159,14 @@ export abstract class ModalDialog
 
     protected displayValidationErrors(value: boolean) {
         if (value) {
-            this.mainForm.addClass(api.form.FormView.VALIDATION_CLASS);
+            this.mainForm.addClass(FormView.VALIDATION_CLASS);
         } else {
-            this.mainForm.removeClass(api.form.FormView.VALIDATION_CLASS);
+            this.mainForm.removeClass(FormView.VALIDATION_CLASS);
         }
     }
 
-    protected createFormPanel(formItems: FormItem[]): api.ui.panel.Panel {
-        let panel = new api.ui.panel.Panel();
+    protected createFormPanel(formItems: FormItem[]): Panel {
+        let panel = new Panel();
         let form = this.createForm(formItems);
 
         panel.appendChild(form);
@@ -168,7 +181,7 @@ export abstract class ModalDialog
         fieldSet.add(formItem);
 
         if (formItem.getValidator()) {
-            let validationRecordingViewer = new api.form.ValidationRecordingViewer();
+            let validationRecordingViewer = new ValidationRecordingViewer();
 
             fieldSet.appendChild(validationRecordingViewer);
             fieldSet.onValidityChanged(() => validationRecordingViewer.setError(formItem.getError()));
@@ -179,12 +192,12 @@ export abstract class ModalDialog
 
     onValidatedFieldValueChanged(formItem: FormItem) {
         if (this.validated) {
-            formItem.validate(new api.ui.form.ValidationResult(), true);
+            formItem.validate(new ValidationResult(), true);
         }
     }
 
-    private createTextInput(placeholder?: string): api.ui.text.TextInput {
-        const textInput = new api.ui.text.TextInput();
+    private createTextInput(placeholder?: string): TextInput {
+        const textInput = new TextInput();
 
         if (placeholder) {
             textInput.setPlaceholder(placeholder);
@@ -200,7 +213,7 @@ export abstract class ModalDialog
         let validator = modalDialogFormItemBuilder.validator;
         let formItemEl = modalDialogFormItemBuilder.inputEl || this.createTextInput(modalDialogFormItemBuilder.placeholder);
         let formItemBuilder = new FormItemBuilder(formItemEl).setLabel(label);
-        let inputWrapper = new api.dom.DivEl('input-wrapper');
+        let inputWrapper = new DivEl('input-wrapper');
         let formItem;
 
         if (this.fields[id]) {
@@ -208,7 +221,7 @@ export abstract class ModalDialog
         }
 
         if (value) {
-            (<api.dom.InputEl>formItemEl).setValue(value);
+            (<InputEl>formItemEl).setValue(value);
         }
 
         this.fields[id] = formItemEl;
@@ -222,13 +235,13 @@ export abstract class ModalDialog
         formItem.getInput().wrapWithElement(inputWrapper);
 
         if (validator) {
-            if (api.ObjectHelper.iFrameSafeInstanceOf(formItemEl, api.ui.text.TextInput)) {
-                (<api.ui.text.TextInput>formItemEl).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
+            if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, TextInput)) {
+                (<TextInput>formItemEl).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
             }
-            if (api.ObjectHelper.iFrameSafeInstanceOf(formItemEl, api.ui.selector.combobox.RichComboBox)) {
-                (<api.ui.selector.combobox.RichComboBox<any>>formItemEl).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
+            if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, RichComboBox)) {
+                (<RichComboBox<any>>formItemEl).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
-                (<api.ui.selector.combobox.RichComboBox<any>>formItemEl).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
+                (<RichComboBox<any>>formItemEl).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
             }
         }
@@ -236,7 +249,7 @@ export abstract class ModalDialog
         return formItem;
     }
 
-    protected getFieldById(id: string): api.dom.FormItemEl {
+    protected getFieldById(id: string): FormItemEl {
         return this.fields[id];
     }
 

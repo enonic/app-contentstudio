@@ -1,8 +1,10 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {XData} from './XData';
 import {XDataName} from './XDataName';
 
 export class XDataNames
-    implements api.Equitable {
+    implements Equitable {
 
     private array: XDataName[];
 
@@ -51,13 +53,13 @@ export class XDataNames
         });
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, XDataNames)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, XDataNames)) {
             return false;
         }
 
         let other = <XDataNames>o;
-        return api.ObjectHelper.arrayEquals(this.array, other.array);
+        return ObjectHelper.arrayEquals(this.array, other.array);
     }
 }
 

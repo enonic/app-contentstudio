@@ -1,13 +1,20 @@
+import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-simulate/jquery.simulate.js';
+import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {LiveEditPage} from './page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from './page-editor/ItemViewPlaceholder';
-import KeyBinding = api.ui.KeyBinding;
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {Store} from 'lib-admin-ui/store/Store';
+import {KEY_BINDINGS_KEY, KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 
-declare const wemjq: JQueryStatic;
-
+Store.instance().set('$', $);
 /*
  Prefix must match @_CLS_PREFIX in assets\page-editor\styles\main.less
  */
-api.StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
+StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
 const liveEditPage = new LiveEditPage();
 
@@ -15,13 +22,13 @@ const init = () => {
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
-    wemjq(document).on('keypress keydown keyup', (event) => {
+    $(document).on('keypress keydown keyup', (event) => {
 
         if (shouldBubbleEvent(event)) {
 
             stopBrowserShortcuts(event);
 
-            wemjq(parent.document).simulate(event.type, {
+            $(parent.document).simulate(event.type, {
                 bubbles: event.bubbles,
                 cancelable: event.cancelable,
                 view: parent,
@@ -50,7 +57,9 @@ const init = () => {
 
     function stopBrowserShortcuts(event: any) {
         // get the parent's frame bindings
-        let activeBindings = parent['api']['ui']['KeyBindings'].get().getActiveBindings();
+        const hasKeyBindings = Store.parentInstance().has(KEY_BINDINGS_KEY);
+        const keyBindings = <KeyBindings>Store.parentInstance().get(KEY_BINDINGS_KEY);
+        const activeBindings = hasKeyBindings ? keyBindings.getActiveBindings() : [];
 
         let hasMatch = hasMatchingBinding(activeBindings, event);
 
@@ -98,6 +107,6 @@ const init = () => {
     }
 };
 
-const i18nPromise = (!!window.parent && window.parent['CONFIG']) ? api.util.i18nInit(window.parent['CONFIG'].i18nUrl) : null;
+const i18nPromise = (window.parent && window.parent['CONFIG']) ? i18nInit(window.parent['CONFIG'].i18nUrl) : null;
 
 i18nPromise ? i18nPromise.then(() => init()) : init();

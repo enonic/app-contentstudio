@@ -1,6 +1,6 @@
-import InputTypeViewContext = api.form.inputtype.InputTypeViewContext;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import {InputTypeViewContext} from 'lib-admin-ui/form/inputtype/InputTypeViewContext';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentFormContext} from '../ContentFormContext';
 import {Site} from '../content/Site';
 

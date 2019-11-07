@@ -1,12 +1,14 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {NumberHelper} from 'lib-admin-ui/util/NumberHelper';
+import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import eventInfo = CKEDITOR.eventInfo;
-import i18n = api.util.i18n;
-import FormItem = api.ui.form.FormItem;
-import NumberHelper = api.util.NumberHelper;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
-import Option = api.ui.selector.Option;
 
 enum DialogType {
     TABLE, TABLEPROPERTIES
@@ -53,7 +55,7 @@ export class TableDialog
         super.initElements();
 
         this.dialogType = this.config.dialogType;
-        this.setSubmitAction(new api.ui.Action(i18n('action.ok')));
+        this.setSubmitAction(new Action(i18n('action.ok')));
     }
 
     protected postInitElements() {
@@ -157,7 +159,7 @@ export class TableDialog
         this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
 
-    private static isPositiveWholeNumber(input: api.dom.FormInputEl) {
+    private static isPositiveWholeNumber(input: FormInputEl) {
         const valueAsNumber: number = NumberHelper.toNumber(input.getValue());
 
         if (!NumberHelper.isWholeNumber(valueAsNumber) || !(valueAsNumber > 0)) {
@@ -167,7 +169,7 @@ export class TableDialog
         return undefined;
     }
 
-    private static isPositiveNumber(input: api.dom.FormInputEl) {
+    private static isPositiveNumber(input: FormInputEl) {
         const valueAsNumber: number = NumberHelper.toNumber(input.getValue());
 
         if (!NumberHelper.isNumber(valueAsNumber) || !(valueAsNumber >= 0)) {

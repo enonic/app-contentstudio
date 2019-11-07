@@ -1,17 +1,20 @@
-import i18n = api.util.i18n;
-import SpanEl = api.dom.SpanEl;
-import DivEl = api.dom.DivEl;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {H6El} from 'lib-admin-ui/dom/H6El';
 
 export class PublishIssuesStateBar
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private containsInvalidElement: api.dom.Element;
+    private containsInvalidElement: Element;
 
-    private containsInProgressElement: api.dom.Element;
+    private containsInProgressElement: Element;
 
-    private containsNotPublishableElement: api.dom.Element;
+    private containsNotPublishableElement: Element;
 
-    private loadFailedElement: api.dom.Element;
+    private loadFailedElement: Element;
 
     constructor() {
         super('publish-dialog-issues');
@@ -23,7 +26,7 @@ export class PublishIssuesStateBar
     }
 
     private createContainsInvalidElement() {
-        this.containsInvalidElement = new api.dom.H6El('state-line');
+        this.containsInvalidElement = new H6El('state-line');
         const icon: DivEl = new DivEl('state-icon invalid');
         const span1: SpanEl = new SpanEl('part1').setHtml(i18n('dialog.publish.invalidError.part1'));
         const span2: SpanEl = new SpanEl('part2').setHtml(i18n('dialog.publish.invalidError.part2'));
@@ -31,7 +34,7 @@ export class PublishIssuesStateBar
     }
 
     private createContainsInProgressElement() {
-        this.containsInProgressElement = new api.dom.H6El('state-line');
+        this.containsInProgressElement = new H6El('state-line');
         const icon: DivEl = new DivEl('state-icon in-progress');
         const span1: SpanEl = new SpanEl('part1').setHtml(i18n('dialog.publish.in-progress.part1'));
         const span2: SpanEl = new SpanEl('part2').setHtml(i18n('dialog.publish.in-progress.part2'));
@@ -39,13 +42,13 @@ export class PublishIssuesStateBar
     }
 
     private createContainsNotPublishableElement() {
-        this.containsNotPublishableElement = new api.dom.H6El('not-publishable');
+        this.containsNotPublishableElement = new H6El('not-publishable');
         const span: SpanEl = new SpanEl().setHtml(i18n('dialog.publish.notPublishable'));
         this.containsNotPublishableElement.appendChildren(span);
     }
 
     private createLoadFailedElement() {
-        this.loadFailedElement = new api.dom.H6El('load-failed').setHtml(i18n('dialog.publish.error.loadFailed'));
+        this.loadFailedElement = new H6El('load-failed').setHtml(i18n('dialog.publish.error.loadFailed'));
     }
 
     doRender(): Q.Promise<boolean> {

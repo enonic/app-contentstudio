@@ -1,4 +1,4 @@
-import TreeNode = api.ui.treegrid.TreeNode;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class TreeNodeParentOfContent {

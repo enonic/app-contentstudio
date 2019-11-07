@@ -1,6 +1,5 @@
-import '../../../../../api.ts';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {Insertable} from './Insertable';
-import i18n = api.util.i18n;
 
 export class Insertables {
 

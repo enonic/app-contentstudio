@@ -1,13 +1,16 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {IssueList, IssueListConfig} from './IssueList';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {RowSelector} from '../../inputtype/ui/selector/RowSelector';
 import {OnOffButton} from './OnOffButton';
-import Panel = api.ui.panel.Panel;
-import LoadMask = api.ui.mask.LoadMask;
-import Option = api.ui.selector.Option;
-import i18n = api.util.i18n;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 interface FilterOptions {
     allOptions: Option<string>;
@@ -133,7 +136,7 @@ export class IssuesPanel
             clickHandler: () => {
                 this.toggleClosedIssues()
                     .then(config.issuesToggledHandler)
-                    .catch(api.DefaultErrorHandler.handle);
+                    .catch(DefaultErrorHandler.handle);
             }
         });
     }
@@ -157,7 +160,7 @@ export class IssuesPanel
         this.issuesList.getItemViews()[0].giveFocus();
     }
 
-    private toggleClosedIssues(): wemQ.Promise<void> {
+    private toggleClosedIssues(): Q.Promise<void> {
         const allVisible = this.isAllVisible();
 
         if (allVisible) {
@@ -170,12 +173,12 @@ export class IssuesPanel
         return this.issuesList.getIssueStatus() == null;
     }
 
-    private showClosedIssues(): wemQ.Promise<void> {
+    private showClosedIssues(): Q.Promise<void> {
         this.setIssueStatus(null);
         return this.updateIssuesTogglerAndOptions();
     }
 
-    private hideClosedIssues(): wemQ.Promise<void> {
+    private hideClosedIssues(): Q.Promise<void> {
         this.setIssueStatus(IssueStatus.OPEN);
         return this.updateIssuesTogglerAndOptions();
     }
@@ -184,7 +187,7 @@ export class IssuesPanel
         this.issuesList.updateIssueStatus(status);
     }
 
-    reload(): wemQ.Promise<void> {
+    reload(): Q.Promise<void> {
         return this.issuesList.reload();
     }
 
@@ -194,7 +197,7 @@ export class IssuesPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren<api.dom.Element>(this.filter, this.issuesToggler, this.issuesList);
+            this.appendChildren<Element>(this.filter, this.issuesToggler, this.issuesList);
 
             return rendered;
         });
@@ -304,7 +307,7 @@ export class IssuesPanel
         this.issuesList.updateIssueStatus(IssueStatus.OPEN);
     }
 
-    updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): wemQ.Promise<void> {
+    updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): Q.Promise<void> {
         this.openedIssues = openedIssues;
         this.closedIssues = closedIssues;
 
@@ -320,7 +323,7 @@ export class IssuesPanel
         };
     }
 
-    private updateIssuesTogglerAndOptions(): wemQ.Promise<void> {
+    private updateIssuesTogglerAndOptions(): Q.Promise<void> {
         return this.updateOptions().then(() => {
             this.updateIssuesToggler();
         });
@@ -359,7 +362,7 @@ export class IssuesPanel
         this.issuesToggler.setEnabled(!disableToggler);
     }
 
-    private updateOptions(): wemQ.Promise<void> {
+    private updateOptions(): Q.Promise<void> {
         const total = this.isAllVisible() ? this.getTotalIssues() : this.openedIssues;
 
         this.updateAllOption(total.all);
@@ -388,7 +391,7 @@ export class IssuesPanel
         return this.updateCurrentTotal();
     }
 
-    private updateTotalItems(): wemQ.Promise<void> {
+    private updateTotalItems(): Q.Promise<void> {
         const total = this.getTotalIssues().all;
         const previousTotal = this.issuesList.getTotalItems();
         const hasTotalChanged = total !== previousTotal;
@@ -401,7 +404,7 @@ export class IssuesPanel
         });
     }
 
-    private updateCurrentTotal(): wemQ.Promise<void> {
+    private updateCurrentTotal(): Q.Promise<void> {
         const total = this.isAllVisible() ? this.getTotalIssues() : this.openedIssues;
 
         const shouldDisableFilter = total.all === 0;

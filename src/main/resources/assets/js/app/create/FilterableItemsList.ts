@@ -3,9 +3,9 @@ import {NewContentDialogListItem} from './NewContentDialogListItem';
 import {CreateContentFilter} from './CreateContentFilter';
 import {Content} from '../content/Content';
 import {Site} from '../content/Site';
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ApplicationKey = api.application.ApplicationKey;
-import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ContentTypeSummaries} from 'lib-admin-ui/schema/content/ContentTypeSummaries';
 
 export class FilterableItemsList extends NewContentDialogList {
 

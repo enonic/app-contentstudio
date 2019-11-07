@@ -11,3 +11,7 @@ declare const CONFIG: {
     stylesUrl: string,
     messages: Array<any>
 };
+
+interface JQuery {
+    simulate(event: string, ...data: any[]): JQuery;
+}

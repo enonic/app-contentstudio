@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {XDataResourceRequest} from './XDataResourceRequest';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
@@ -21,13 +24,13 @@ export class GetContentXDataRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getContentXData');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'getContentXData');
     }
 
-    sendAndParse(): wemQ.Promise<XData[]> {
+    sendAndParse(): Q.Promise<XData[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<XDataListJson>) => {
+        return this.send().then((response: JsonResponse<XDataListJson>) => {
             return response.getResult().xdatas.map((xDataJson: XDataJson) => {
                 return this.fromJsonToXData(xDataJson);
             });

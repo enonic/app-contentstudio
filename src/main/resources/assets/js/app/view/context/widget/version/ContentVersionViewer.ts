@@ -1,21 +1,27 @@
-import '../../../../../api.ts';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {ContentVersion} from '../../../../ContentVersion';
-import WorkflowState = api.content.WorkflowState;
-import i18n = api.util.i18n;
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {i18n} from 'lib-admin-ui/util/i18n';
 
 export class ContentVersionViewer
-    extends api.ui.Viewer<ContentVersion> {
+    extends Viewer<ContentVersion> {
 
-    private namesAndIconView: api.app.NamesAndIconView;
+    private namesAndIconView: NamesAndIconView;
 
     constructor() {
         super();
-        this.namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        this.namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         this.appendChild(this.namesAndIconView);
     }
 
     private formatSubName(contentVersion: ContentVersion): string {
-        return i18n('widget.contentversion.modifiedBy', api.util.DateHelper.getModifiedString(contentVersion.modified),
+        return i18n('widget.contentversion.modifiedBy', DateHelper.getModifiedString(contentVersion.modified),
             contentVersion.modifierDisplayName);
     }
 

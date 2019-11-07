@@ -1,13 +1,12 @@
-import FormItem = api.ui.form.FormItem;
-import i18n = api.util.i18n;
-import TextInput = api.ui.text.TextInput;
-import Action = api.ui.Action;
-import eventInfo = CKEDITOR.eventInfo;
-import Checkbox = api.ui.Checkbox;
-import InputAlignment = api.ui.InputAlignment;
-import button = CKEDITOR.ui.dialog.button;
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {Checkbox, InputAlignment} from 'lib-admin-ui/ui/Checkbox';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import eventInfo = CKEDITOR.eventInfo;
+import button = CKEDITOR.ui.dialog.button;
 
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
 export class FindAndReplaceDialog

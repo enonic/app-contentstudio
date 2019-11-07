@@ -1,14 +1,16 @@
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {SlidablePanel, SlidablePanelBuilder} from './SlidablePanel';
 import {ContextView} from './ContextView';
 import {CONTEXT_PANEL_TYPE} from './ContextPanel';
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
+import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
 
 export class FloatingContextPanel
     extends SlidablePanel {
 
-    private splitter: api.dom.DivEl;
-    private ghostDragger: api.dom.DivEl;
-    private mask: api.ui.mask.DragMask;
+    private splitter: DivEl;
+    private ghostDragger: DivEl;
+    private mask: DragMask;
 
     private minWidth: number = 280;
     private parentMinWidth: number = 15;
@@ -18,8 +20,8 @@ export class FloatingContextPanel
         super(new SlidablePanelBuilder(), contextView);
         this.addClass('floating-context-panel');
 
-        this.splitter = new api.dom.DivEl('splitter');
-        this.ghostDragger = new api.dom.DivEl('ghost-dragger');
+        this.splitter = new DivEl('splitter');
+        this.ghostDragger = new DivEl('ghost-dragger');
 
         this.appendChild(this.splitter);
         this.onRendered(() => this.onRenderedHandler());
@@ -29,7 +31,7 @@ export class FloatingContextPanel
         let initialPos = 0;
         let splitterPosition = 0;
         this.actualWidth = this.getEl().getWidth();
-        this.mask = new api.ui.mask.DragMask(this.getParentElement());
+        this.mask = new DragMask(this.getParentElement());
 
         let dragListener = (e: MouseEvent) => {
             if (this.splitterWithinBoundaries(initialPos - e.clientX)) {

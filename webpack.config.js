@@ -1,8 +1,8 @@
-const ErrorLoggerPlugin = require('error-logger-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 
 const path = require('path');
 
@@ -12,11 +12,11 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/bundle': './js/main.ts',
-        'lib/_all': './lib/index.js',
-        'styles/_all': './styles/main.less',
-        'page-editor/js/_all': './js/page-editor.ts',
-        'page-editor/lib/_all': './page-editor/lib/index.js',
-        'page-editor/styles/_all': './page-editor/styles/main.less',
+        'lib/vendor': './lib/index.js',
+        'styles/main': './styles/main.less',
+        'page-editor/js/editor': './js/page-editor.ts',
+        'page-editor/lib/vendor': './page-editor/lib/index.js',
+        'page-editor/styles/main': './page-editor/styles/main.less',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
     },
@@ -67,7 +67,11 @@ module.exports = {
         ]
     },
     plugins: [
-        new ErrorLoggerPlugin(),
+        new ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery'
+        }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: './styles/[id].css'

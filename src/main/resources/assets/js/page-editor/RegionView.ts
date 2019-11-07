@@ -1,3 +1,7 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ClickPosition} from './ClickPosition';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
@@ -25,26 +29,27 @@ import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {assert} from 'lib-admin-ui/util/Assert';
 
 export class RegionViewBuilder {
 
     liveEditModel: LiveEditModel;
 
-    parentElement: api.dom.Element;
+    parentElement: Element;
 
     parentView: ItemView;
 
     region: Region;
 
-    element: api.dom.Element;
+    element: Element;
 
     setLiveEditModel(value: LiveEditModel): RegionViewBuilder {
         this.liveEditModel = value;
         return this;
     }
 
-    setParentElement(value: api.dom.Element): RegionViewBuilder {
+    setParentElement(value: Element): RegionViewBuilder {
         this.parentElement = value;
         return this;
     }
@@ -59,7 +64,7 @@ export class RegionViewBuilder {
         return this;
     }
 
-    setElement(value: api.dom.Element): RegionViewBuilder {
+    setElement(value: Element): RegionViewBuilder {
         this.element = value;
         return this;
     }
@@ -90,7 +95,7 @@ export class RegionView
 
     private mouseOverListener: (e: MouseEvent) => void;
 
-    private resetAction: api.ui.Action;
+    private resetAction: Action;
 
     private textMode: boolean = false;
 
@@ -114,7 +119,7 @@ export class RegionView
         this.componentIndex = 0;
         this.itemViewAddedListeners = [];
         this.itemViewRemovedListeners = [];
-        this.resetAction = new api.ui.Action(i18n('live.view.reset')).onExecuted(() => {
+        this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
             this.deselect();
             this.empty();
         });
@@ -134,7 +139,7 @@ export class RegionView
         this.itemViewRemovedListener = (event: ItemViewRemovedEvent) => {
 
             // Check if removed ItemView is a child, and remove it if so
-            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getView(), ComponentView)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(event.getView(), ComponentView)) {
 
                 const removedComponentView: ComponentView<Component> = <ComponentView<Component>>event.getView();
                 const childIndex = this.getComponentViewIndex(removedComponentView);
@@ -198,7 +203,7 @@ export class RegionView
     }
 
     private addRegionContextMenuActions() {
-        const actions: api.ui.Action[] = [];
+        const actions: Action[] = [];
 
         actions.push(this.createSelectParentAction());
         actions.push(this.createInsertAction());
@@ -511,7 +516,7 @@ export class RegionView
     static isRegionViewFromHTMLElement(htmlElement: HTMLElement): boolean {
 
         const name = htmlElement.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
-        return !api.util.StringHelper.isBlank(name);
+        return !StringHelper.isBlank(name);
     }
 
     private parseComponentViews() {
@@ -525,14 +530,14 @@ export class RegionView
         this.doParseComponentViews();
     }
 
-    private doParseComponentViews(parentElement?: api.dom.Element) {
+    private doParseComponentViews(parentElement?: Element) {
 
         const children = parentElement ? parentElement.getChildren() : this.getChildren();
         const region = this.getRegion();
 
-        children.forEach((childElement: api.dom.Element) => {
+        children.forEach((childElement: Element) => {
             const itemType = ItemType.fromElement(childElement);
-            const isComponentView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
+            const isComponentView = ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
             let component: Component;
             let componentView;
 
@@ -547,7 +552,7 @@ export class RegionView
                     this.registerComponentView(componentView, this.componentIndex);
                 }
             } else if (itemType) {
-                api.util.assert(itemType.isComponentType(),
+                assert(itemType.isComponentType(),
                     'Expected ItemView beneath a Region to be a Component: ' + itemType.getShortName());
                 // components may be nested on different levels so use region wide var for count
                 component = region.getComponentByIndex(this.componentIndex++);

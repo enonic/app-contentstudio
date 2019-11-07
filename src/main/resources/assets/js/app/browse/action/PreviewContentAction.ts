@@ -1,9 +1,9 @@
-import '../../../api.ts';
 import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {BasePreviewAction} from '../../action/BasePreviewAction';
-import i18n = api.util.i18n;
-import ContentSummary = api.content.ContentSummary;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 
 export class PreviewContentAction
     extends BasePreviewAction {
@@ -23,7 +23,7 @@ export class PreviewContentAction
 
                 this.openWindows(contentSummaries);
             } else {
-                api.notify.showWarning(i18n('notify.preview.tooMuch', PreviewContentHandler.BLOCK_COUNT));
+                showWarning(i18n('notify.preview.tooMuch', PreviewContentHandler.BLOCK_COUNT));
             }
         });
     }

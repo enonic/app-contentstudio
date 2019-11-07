@@ -1,22 +1,25 @@
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContextView} from './ContextView';
 import {WidgetView} from './WidgetView';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 
 export class ContextPanel
-    extends api.ui.panel.Panel {
+    extends Panel {
 
     private sizeChangedListeners: {() : void}[] = [];
 
     protected contextView: ContextView;
 
-    private contextViewContainer: api.dom.DivEl;
+    private contextViewContainer: DivEl;
 
     constructor(contextView: ContextView) {
         super('context-panel');
         this.contextView = contextView;
         this.setDoOffset(false);
         this.subscribeOnEvents();
-        this.contextViewContainer = new api.dom.DivEl('context-view-container');
+        this.contextViewContainer = new DivEl('context-view-container');
         this.appendChild(this.contextViewContainer);
     }
 
@@ -28,7 +31,7 @@ export class ContextPanel
         // must be implemented by children
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         return this.contextView.setItem(item);
     }
 

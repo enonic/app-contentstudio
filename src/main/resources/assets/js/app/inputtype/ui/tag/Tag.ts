@@ -1,3 +1,7 @@
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+
 export class TagBuilder {
 
     value: string;
@@ -20,11 +24,11 @@ export class TagBuilder {
 }
 
 export class Tag
-    extends api.dom.LiEl {
+    extends LiEl {
 
-    private removeButtonEl: api.dom.AEl;
+    private removeButtonEl: AEl;
 
-    private valueHolderEl: api.dom.SpanEl;
+    private valueHolderEl: SpanEl;
 
     private value: string;
 
@@ -36,13 +40,13 @@ export class Tag
         super('tag');
         this.value = builder.value;
 
-        this.valueHolderEl = new api.dom.SpanEl();
+        this.valueHolderEl = new SpanEl();
         this.valueHolderEl.setHtml(this.value);
         this.appendChild(this.valueHolderEl);
 
         this.removable = builder.removable;
         if (this.removable) {
-            this.removeButtonEl = new api.dom.AEl('remove-button');
+            this.removeButtonEl = new AEl('remove-button');
             this.appendChild(this.removeButtonEl);
             this.removeButtonEl.onClicked((event: MouseEvent) => {
                 this.notifyRemoveClicked();

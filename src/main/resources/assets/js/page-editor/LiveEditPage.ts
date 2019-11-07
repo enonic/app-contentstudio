@@ -1,3 +1,6 @@
+import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
 import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';
@@ -16,7 +19,9 @@ import {Cursor} from './Cursor';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
 import {DefaultItemViewFactory} from './ItemViewFactory';
-import Exception = api.Exception;
+import {Exception} from 'lib-admin-ui/Exception';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 
 declare const CONFIG;
 
@@ -30,9 +35,9 @@ export class LiveEditPage {
 
     private skipConfirmationListener: (event: SkipLiveEditReloadConfirmationEvent) => void;
 
-    private beforeUnloadListener: (event: Event) => void;
+    private beforeUnloadListener: (event: UIEvent) => void;
 
-    private unloadListener: (event: Event) => void;
+    private unloadListener: (event: UIEvent) => void;
 
     private componentLoadedListener: (event: ComponentLoadedEvent) => void;
 
@@ -62,12 +67,12 @@ export class LiveEditPage {
             console.debug('LiveEditPage: starting live edit initialization');
         }
 
-        api.util.i18nInit(CONFIG.i18nUrl).then(() => {
+        i18nInit(CONFIG.i18nUrl).then(() => {
 
             const liveEditModel = event.getLiveEditModel();
             const modifyPermissions = event.hasModifyPermissions();
 
-            let body = api.dom.Body.get().loadExistingChildren();
+            let body = Body.get().loadExistingChildren();
             try {
                 this.pageView = new PageViewBuilder()
                     .setItemViewIdProducer(new ItemViewIdProducer())
@@ -79,7 +84,7 @@ export class LiveEditPage {
                 if (LiveEditPage.debug) {
                     console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
                 }
-                if (api.ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
                     new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
                                                              error.getMessage()).fire();
                 } else {
@@ -91,7 +96,7 @@ export class LiveEditPage {
 
             DragAndDrop.init(this.pageView);
 
-            api.ui.Tooltip.allowMultipleInstances(false);
+            Tooltip.allowMultipleInstances(false);
 
             this.registerGlobalListeners();
 
@@ -125,7 +130,7 @@ export class LiveEditPage {
             }
         };
 
-        api.dom.WindowDOM.get().onBeforeUnload(this.beforeUnloadListener);
+        WindowDOM.get().onBeforeUnload(this.beforeUnloadListener);
 
         this.unloadListener = () => {
 
@@ -138,7 +143,7 @@ export class LiveEditPage {
             this.pageView.remove();
         };
 
-        api.dom.WindowDOM.get().onUnload(this.unloadListener);
+        WindowDOM.get().onUnload(this.unloadListener);
 
         this.componentLoadedListener = (event: ComponentLoadedEvent) => {
 
@@ -184,9 +189,9 @@ export class LiveEditPage {
 
     private unregisterGlobalListeners(): void {
 
-        api.dom.WindowDOM.get().unBeforeUnload(this.beforeUnloadListener);
+        WindowDOM.get().unBeforeUnload(this.beforeUnloadListener);
 
-        api.dom.WindowDOM.get().unUnload(this.unloadListener);
+        WindowDOM.get().unUnload(this.unloadListener);
 
         ComponentLoadedEvent.un(this.componentLoadedListener);
 

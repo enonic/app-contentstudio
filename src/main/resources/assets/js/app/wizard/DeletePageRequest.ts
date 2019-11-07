@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
@@ -7,9 +11,9 @@ export class DeletePageRequest
     extends PageResourceRequest<ContentJson, Content>
     implements PageCUDRequest {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super();
         super.setMethod('GET');
         this.contentId = contentId;
@@ -21,13 +25,13 @@ export class DeletePageRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'delete');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'delete');
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
+    sendAndParse(): Q.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
         });
     }

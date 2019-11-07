@@ -1,8 +1,12 @@
-import ContentSummary = api.content.ContentSummary;
-import UploadItem = api.ui.uploader.UploadItem;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ObjectHelper = api.ObjectHelper;
-import ContentPath = api.content.ContentPath;
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export class MediaSelectorDisplayValue {
 
@@ -55,20 +59,20 @@ export class MediaSelectorDisplayValue {
         return this.content ? this.content.getId() : this.uploadItem.getId();
     }
 
-    getContentId(): api.content.ContentId {
+    getContentId(): ContentId {
         return this.content ? this.content.getContentId() : null;
     }
 
-    getContentPath(): api.content.ContentPath {
+    getContentPath(): ContentPath {
         return this.content ? this.content.getPath() : null;
     }
 
     getImageUrl(): string {
-        return this.content ? new api.content.util.ContentIconUrlResolver().setContent(this.content).resolve() : null;
+        return this.content ? new ContentIconUrlResolver().setContent(this.content).resolve() : null;
     }
 
     getIconUrl(): string {
-        return this.content ? new api.content.util.ContentIconUrlResolver().setContent(this.content).resolve() : null;
+        return this.content ? new ContentIconUrlResolver().setContent(this.content).resolve() : null;
     }
 
     getLabel(): string {
@@ -95,9 +99,9 @@ export class MediaSelectorDisplayValue {
         return this.content ? this.content.getPath() : this.uploadItem ? new ContentPath([]) : null;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, api.ClassHelper.getClass(this))) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ClassHelper.getClass(this))) {
             return false;
         }
 

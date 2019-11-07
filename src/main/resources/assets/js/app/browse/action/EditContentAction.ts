@@ -1,8 +1,9 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 
 export class EditContentAction extends Action {
 
@@ -16,7 +17,7 @@ export class EditContentAction extends Action {
                 = grid.getSelectedDataList().filter((content) => !content.isReadOnly());
 
             if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
-                api.notify.showWarning(i18n('notify.edit.tooMuch'));
+                showWarning(i18n('notify.edit.tooMuch'));
             } else {
                 new EditContentEvent(contents).fire();
             }

@@ -1,6 +1,6 @@
 import {IssueResourceRequest} from './IssueResourceRequest';
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class DeleteIssueCommentRequest
     extends IssueResourceRequest<any, boolean> {
@@ -23,7 +23,7 @@ export class DeleteIssueCommentRequest
         return Path.fromParent(super.getResourcePath(), 'comment/delete');
     }
 
-    sendAndParse(): wemQ.Promise<boolean> {
+    sendAndParse(): Q.Promise<boolean> {
         return this.send().then((response: JsonResponse<any>) => {
             return response.getResult()['ids'].length > 0;
         });

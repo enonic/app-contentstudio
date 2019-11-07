@@ -1,3 +1,8 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
 import {ItemView} from '../../page-editor/ItemView';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ComponentView} from '../../page-editor/ComponentView';
@@ -8,12 +13,13 @@ import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponen
 import {PageView} from '../../page-editor/PageView';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {Component} from '../page/region/Component';
-import GridDragHandler = api.ui.grid.GridDragHandler;
-import TreeNode = api.ui.treegrid.TreeNode;
+import {DragEventData, GridDragHandler} from 'lib-admin-ui/ui/grid/GridDragHandler';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 
-import DragHelper = api.ui.DragHelper;
-import ElementHelper = api.dom.ElementHelper;
-import Element = api.dom.Element;
+import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {BodyMask} from 'lib-admin-ui/ui/mask/BodyMask';
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 
 export class PageComponentsGridDragHandler
     extends GridDragHandler<ItemView> {
@@ -24,7 +30,7 @@ export class PageComponentsGridDragHandler
         let draggedNode = nodes[row.getSiblingIndex()];
 
         // prevent the grid from cancelling drag'n'drop by default
-        if (draggedNode.getData().isDraggableView() && !api.BrowserHelper.isMobile()) {
+        if (draggedNode.getData().isDraggableView() && !BrowserHelper.isMobile()) {
             e.stopImmediatePropagation();
         }
     }
@@ -32,25 +38,25 @@ export class PageComponentsGridDragHandler
     protected handleDragStart() {
         super.handleDragStart();
 
-        api.ui.mask.BodyMask.get().show();
+        BodyMask.get().show();
         Highlighter.get().hide();
-        this.getDraggableItem().getChildren().forEach((childEl: api.dom.Element) => {
+        this.getDraggableItem().getChildren().forEach((childEl: Element) => {
             childEl.removeClass('selected');
         });
 
         DragHelper.get().setDropAllowed(true);
 
-        api.dom.Body.get().appendChild(DragHelper.get());
-        api.dom.Body.get().onMouseMove(this.handleHelperMove);
+        Body.get().appendChild(DragHelper.get());
+        Body.get().onMouseMove(this.handleHelperMove);
 
         this.contentGrid.onMouseLeave(this.handleMouseLeave);
         this.contentGrid.onMouseEnter(this.handleMouseEnter);
     }
 
     protected handleDragEnd(event: Event, data: any) {
-        api.ui.mask.BodyMask.get().hide();
-        api.dom.Body.get().unMouseMove(this.handleHelperMove);
-        api.dom.Body.get().removeChild(DragHelper.get());
+        BodyMask.get().hide();
+        Body.get().unMouseMove(this.handleHelperMove);
+        Body.get().removeChild(DragHelper.get());
 
         this.contentGrid.unMouseLeave(this.handleMouseLeave);
         this.contentGrid.unMouseEnter(this.handleMouseEnter);
@@ -76,7 +82,7 @@ export class PageComponentsGridDragHandler
         return true;
     }
 
-    protected handleMoveRows(event: Event, args: api.ui.grid.DragEventData) {
+    protected handleMoveRows(event: Event, args: DragEventData) {
         if (DragHelper.get().isDropAllowed()) {
             super.handleMoveRows(event, args);
         }
@@ -138,17 +144,17 @@ export class PageComponentsGridDragHandler
 
         if (parentComponentView) {
 
-            if (api.ObjectHelper.iFrameSafeInstanceOf(draggableComponentView, LayoutComponentView)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(draggableComponentView, LayoutComponentView)) {
                 if (parentComponentView.getName() !== 'main') {
                     DragHelper.get().setDropAllowed(false);
                     return;
                 }
             }
 
-            if (api.ObjectHelper.iFrameSafeInstanceOf(parentComponentView, RegionView)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(parentComponentView, RegionView)) {
 
-                if (api.ObjectHelper.iFrameSafeInstanceOf(draggableComponentView, FragmentComponentView)) {
-                    if (api.ObjectHelper.iFrameSafeInstanceOf(parentComponentView.getParentItemView(), LayoutComponentView)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(draggableComponentView, FragmentComponentView)) {
+                    if (ObjectHelper.iFrameSafeInstanceOf(parentComponentView.getParentItemView(), LayoutComponentView)) {
                         if ((<FragmentComponentView> draggableComponentView).containsLayout()) {
                             // Fragment with layout over Layout region
                             DragHelper.get().setDropAllowed(false);
@@ -170,7 +176,7 @@ export class PageComponentsGridDragHandler
     }
 
     private updateDraggableItemPosition(draggableItem: Element, parentLevel: number) {
-        let margin = parentLevel * api.ui.treegrid.TreeGrid.LEVEL_STEP_INDENT;
+        let margin = parentLevel * TreeGrid.LEVEL_STEP_INDENT;
         let nodes = draggableItem.getEl().getElementsByClassName('toggle icon');
 
         if (nodes.length === 1) {
@@ -191,18 +197,18 @@ export class PageComponentsGridDragHandler
 
         const calcLevel = data[parentPosition - 1].calcLevel();
 
-        const isFirstChildPosition = ( current ? previous.calcLevel() < current.calcLevel() : false)
-                                     || (api.ObjectHelper.iFrameSafeInstanceOf(previous.getData(), RegionView));
+        const isFirstChildPosition = (current ? previous.calcLevel() < current.calcLevel() : false)
+                                     || (ObjectHelper.iFrameSafeInstanceOf(previous.getData(), RegionView));
 
         let parentComponentNode;
         let parentComponentView;
 
         const check = (view, node) => {
-            return !( api.ObjectHelper.iFrameSafeInstanceOf(view, RegionView)
+            return !(ObjectHelper.iFrameSafeInstanceOf(view, RegionView)
                    // lets drag items inside the 'main' region between layouts
-                   || (api.ObjectHelper.iFrameSafeInstanceOf(view, LayoutComponentView)
+                   || (ObjectHelper.iFrameSafeInstanceOf(view, LayoutComponentView)
                        && (node.isExpanded() && node.getChildren().length > 0) )
-                   || api.ObjectHelper.iFrameSafeInstanceOf(view, PageView))
+                   || ObjectHelper.iFrameSafeInstanceOf(view, PageView))
                    || (node.calcLevel() >= calcLevel && !isFirstChildPosition);
         };
 

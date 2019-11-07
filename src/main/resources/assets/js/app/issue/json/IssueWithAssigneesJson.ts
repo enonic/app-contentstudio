@@ -1,5 +1,5 @@
 import {IssueJson} from './IssueJson';
-import PrincipalJson = api.security.PrincipalJson;
+import {PrincipalJson} from 'lib-admin-ui/security/PrincipalJson';
 
 export interface IssueWithAssigneesJson {
 

@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
@@ -5,15 +10,13 @@ import {ComponentPropertyChangedEvent} from '../../../../../page/region/Componen
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
 import {SiteModel} from '../../../../../site/SiteModel';
-import FormView = api.form.FormView;
-import Descriptor = api.content.page.Descriptor;
-import DescriptorKey = api.content.page.DescriptorKey;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import ResourceRequest = api.rest.ResourceRequest;
-import Form = api.form.Form;
-import PropertyTree = api.data.PropertyTree;
-import ApplicationEvent = api.application.ApplicationEvent;
-import ObjectHelper = api.ObjectHelper;
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Form} from 'lib-admin-ui/form/Form';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -51,7 +54,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initListeners() {
         this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
         this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
-        this.debouncedDescriptorsReload = api.util.AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
+        this.debouncedDescriptorsReload = AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
 
         this.initSelectorListeners();
 
@@ -186,7 +189,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                     }
                 }).done();
             }
@@ -217,7 +220,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.appendChild(this.formView);
         component.setDisableEventForwarding(true);
         this.formView.layout().catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).finally(() => {
             component.setDisableEventForwarding(false);
         }).done();

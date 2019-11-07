@@ -1,48 +1,56 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {AggregationQuery} from 'lib-admin-ui/query/aggregation/AggregationQuery';
+import {Filter} from 'lib-admin-ui/query/filter/Filter';
+
 export class ContentQuery
-    implements api.Equitable {
+    implements Equitable {
 
     static POSTLOAD_SIZE: number = 10;
 
     static DEFAULT_SIZE: number = 100;
 
-    private queryExpr: api.query.expr.QueryExpr;
+    private queryExpr: QueryExpr;
 
-    private contentTypeNames: api.schema.content.ContentTypeName[] = [];
+    private contentTypeNames: ContentTypeName[] = [];
 
-    private mustBeReferencedById: api.content.ContentId;
+    private mustBeReferencedById: ContentId;
 
-    private aggregationQueries: api.query.aggregation.AggregationQuery[] = [];
+    private aggregationQueries: AggregationQuery[] = [];
 
-    private queryFilters: api.query.filter.Filter[] = [];
+    private queryFilters: Filter[] = [];
 
     private from: number = 0;
 
     private size: number = ContentQuery.DEFAULT_SIZE;
 
-    setQueryExpr(queryExpr: api.query.expr.QueryExpr): ContentQuery {
+    setQueryExpr(queryExpr: QueryExpr): ContentQuery {
         this.queryExpr = queryExpr;
         return this;
     }
 
-    getQueryExpr(): api.query.expr.QueryExpr {
+    getQueryExpr(): QueryExpr {
         return this.queryExpr;
     }
 
-    setContentTypeNames(contentTypeNames: api.schema.content.ContentTypeName[]): ContentQuery {
+    setContentTypeNames(contentTypeNames: ContentTypeName[]): ContentQuery {
         this.contentTypeNames = contentTypeNames;
         return this;
     }
 
-    getContentTypes(): api.schema.content.ContentTypeName[] {
+    getContentTypes(): ContentTypeName[] {
         return this.contentTypeNames;
     }
 
-    setMustBeReferencedById(id: api.content.ContentId): ContentQuery {
+    setMustBeReferencedById(id: ContentId): ContentQuery {
         this.mustBeReferencedById = id;
         return this;
     }
 
-    getMustBeReferencedById(): api.content.ContentId {
+    getMustBeReferencedById(): ContentId {
         return this.mustBeReferencedById;
     }
 
@@ -64,68 +72,68 @@ export class ContentQuery
         return this.size;
     }
 
-    addAggregationQuery(aggregationQuery: api.query.aggregation.AggregationQuery): ContentQuery {
+    addAggregationQuery(aggregationQuery: AggregationQuery): ContentQuery {
         this.aggregationQueries.push(aggregationQuery);
         return this;
     }
 
-    setAggregationQueries(aggregationQueries: api.query.aggregation.AggregationQuery[]): ContentQuery {
+    setAggregationQueries(aggregationQueries: AggregationQuery[]): ContentQuery {
         this.aggregationQueries = aggregationQueries;
         return this;
     }
 
-    getAggregationQueries(): api.query.aggregation.AggregationQuery[] {
+    getAggregationQueries(): AggregationQuery[] {
         return this.aggregationQueries;
     }
 
-    addQueryFilter(queryFilter: api.query.filter.Filter): ContentQuery {
+    addQueryFilter(queryFilter: Filter): ContentQuery {
         this.queryFilters.push(queryFilter);
         return this;
     }
 
-    setQueryFilters(queryFilters: api.query.filter.Filter[]): ContentQuery {
+    setQueryFilters(queryFilters: Filter[]): ContentQuery {
         this.queryFilters = queryFilters;
         return this;
     }
 
-    getQueryFilters(): api.query.filter.Filter[] {
+    getQueryFilters(): Filter[] {
         return this.queryFilters;
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentQuery)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentQuery)) {
             return false;
         }
 
         let other = <ContentQuery>o;
 
-        if (!api.ObjectHelper.numberEquals(this.from, other.from)) {
+        if (!ObjectHelper.numberEquals(this.from, other.from)) {
             return false;
         }
 
-        if (!api.ObjectHelper.numberEquals(this.size, other.size)) {
+        if (!ObjectHelper.numberEquals(this.size, other.size)) {
             return false;
         }
 
-        if (!api.ObjectHelper.arrayEquals(this.contentTypeNames, other.contentTypeNames)) {
+        if (!ObjectHelper.arrayEquals(this.contentTypeNames, other.contentTypeNames)) {
             return false;
         }
 
-        if (!api.ObjectHelper.anyArrayEquals(this.aggregationQueries, other.aggregationQueries)) {
+        if (!ObjectHelper.anyArrayEquals(this.aggregationQueries, other.aggregationQueries)) {
             return false;
         }
 
-        if (!api.ObjectHelper.anyArrayEquals(this.queryFilters, other.queryFilters)) {
+        if (!ObjectHelper.anyArrayEquals(this.queryFilters, other.queryFilters)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
+        if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
             return false;
         }
 
         if ((!this.queryExpr && other.queryExpr) ||
             (this.queryExpr && !other.queryExpr) ||
             (this.queryExpr && other.queryExpr &&
-             !api.ObjectHelper.stringEquals(this.queryExpr.toString(), other.queryExpr.toString()))) {
+             !ObjectHelper.stringEquals(this.queryExpr.toString(), other.queryExpr.toString()))) {
             return false;
         }
 

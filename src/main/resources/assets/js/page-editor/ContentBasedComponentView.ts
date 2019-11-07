@@ -1,13 +1,13 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {EditContentEvent} from '../app/event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 import {Component} from '../app/page/region/Component';
-import ContentSummary = api.content.ContentSummary;
-import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class ContentBasedComponentViewBuilder<COMPONENT extends Component>
     extends ComponentViewBuilder<COMPONENT> {
@@ -43,8 +43,8 @@ export class ContentBasedComponentView<COMPONENT extends Component>
         }
     }
 
-    private createEditAction(): api.ui.Action {
-        return new api.ui.Action(i18n('action.edit')).onExecuted(() => {
+    private createEditAction(): Action {
+        return new Action(i18n('action.edit')).onExecuted(() => {
             new EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
         });
     }

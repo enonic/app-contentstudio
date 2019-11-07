@@ -1,18 +1,18 @@
-import './../api.ts';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class PagePlaceholderInfoBlock
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private line1: api.dom.DivEl;
+    private line1: DivEl;
 
-    private line2: api.dom.DivEl;
+    private line2: DivEl;
 
     constructor() {
         super('page-placeholder-info');
 
-        this.line1 = new api.dom.DivEl('page-placeholder-info-line1');
-        this.line2 = new api.dom.DivEl('page-placeholder-info-line2');
+        this.line1 = new DivEl('page-placeholder-info-line1');
+        this.line2 = new DivEl('page-placeholder-info-line2');
 
         this.appendChildren(this.line1, this.line2);
     }

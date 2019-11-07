@@ -2,9 +2,9 @@ import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import AEl = api.dom.AEl;
-import AppBarTabId = api.app.bar.AppBarTabId;
-import i18n = api.util.i18n;
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class DeleteItemViewer
     extends ContentSummaryAndCompareStatusViewer {

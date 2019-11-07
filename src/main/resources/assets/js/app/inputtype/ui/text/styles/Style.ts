@@ -1,5 +1,5 @@
 import {StyleJson} from './StylesDescriptor';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export enum StyleType {
     IMAGE = 'image'

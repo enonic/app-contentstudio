@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 
 export class XDataWizardStepForms {
@@ -47,14 +48,14 @@ export class XDataWizardStepForms {
         });
     }
 
-    resetState(): wemQ.Promise<void[]> {
+    resetState(): Q.Promise<void[]> {
         const promises = [];
 
         this.forEach((form: XDataWizardStepForm) => {
             promises.push(form.resetState());
         });
 
-        return wemQ.all(promises);
+        return Q.all(promises);
     }
 
     displayValidationErrors(value: boolean) {

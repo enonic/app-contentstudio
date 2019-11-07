@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {Flow, RoutineContext} from './Flow';
@@ -6,7 +7,7 @@ import {Content} from '../content/Content';
 export class PersistNewContentRoutine
     extends Flow {
 
-    private createContentRequestProducer: {() : wemQ.Promise<CreateContentRequest>; };
+    private createContentRequestProducer: { (): Q.Promise<CreateContentRequest>; };
 
     private doneHandledContent: boolean = false;
 
@@ -14,18 +15,18 @@ export class PersistNewContentRoutine
         super(thisOfProducer);
     }
 
-    public setCreateContentRequestProducer(producer: {() : wemQ.Promise<CreateContentRequest>; }): PersistNewContentRoutine {
+    public setCreateContentRequestProducer(producer: { (): Q.Promise<CreateContentRequest>; }): PersistNewContentRoutine {
         this.createContentRequestProducer = producer;
         return this;
     }
 
-    public execute(): wemQ.Promise<RoutineContext> {
+    public execute(): Q.Promise<RoutineContext> {
 
         let context = new RoutineContext();
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
+    doExecuteNext(context: RoutineContext): Q.Promise<RoutineContext> {
 
         if (!this.doneHandledContent) {
 
@@ -36,11 +37,11 @@ export class PersistNewContentRoutine
 
             });
         } else {
-            return wemQ(context);
+            return Q(context);
         }
     }
 
-    private doHandleCreateContent(context: RoutineContext): wemQ.Promise<void> {
+    private doHandleCreateContent(context: RoutineContext): Q.Promise<void> {
 
         if (this.createContentRequestProducer != null) {
 
@@ -54,6 +55,6 @@ export class PersistNewContentRoutine
             });
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 }

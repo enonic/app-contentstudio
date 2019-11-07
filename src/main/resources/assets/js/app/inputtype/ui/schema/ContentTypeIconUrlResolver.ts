@@ -1,6 +1,7 @@
-import IconUrlResolver = api.icon.IconUrlResolver;
-import Path = api.rest.Path;
-import Schema = api.schema.Schema;
+import {Path} from 'lib-admin-ui/rest/Path';
+import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
+import {Schema} from 'lib-admin-ui/schema/Schema';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class ContentTypeIconUrlResolver
     extends IconUrlResolver {
@@ -11,11 +12,11 @@ export class ContentTypeIconUrlResolver
     }
 
     public static getResourcePath(): Path {
-        return api.rest.Path.fromString('schema/icon');
+        return Path.fromString('schema/icon');
     }
 
     static default(): string {
-        return api.util.UriHelper.getRestUri(Path.fromParent(ContentTypeIconUrlResolver.getResourcePath(),
+        return UriHelper.getRestUri(Path.fromParent(ContentTypeIconUrlResolver.getResourcePath(),
             'base:structured').toString());
     }
 }

@@ -1,8 +1,11 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {AccessControlList} from '../access/AccessControlList';
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 
 export class ContentBrowseItem
-    extends api.app.browse.BrowseItem<ContentSummaryAndCompareStatus> {
+    extends BrowseItem<ContentSummaryAndCompareStatus> {
 
     private accessControlList: AccessControlList;
 
@@ -19,12 +22,12 @@ export class ContentBrowseItem
         this.accessControlList = accessControlList;
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentBrowseItem)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentBrowseItem)) {
             return false;
         }
         let other = <ContentBrowseItem> o;
         return super.equals(o) &&
-               api.ObjectHelper.equals(this.accessControlList, other.getAccessControlList());
+               ObjectHelper.equals(this.accessControlList, other.getAccessControlList());
     }
 }

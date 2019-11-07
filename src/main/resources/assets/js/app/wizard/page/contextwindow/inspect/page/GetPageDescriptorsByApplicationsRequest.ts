@@ -1,6 +1,9 @@
-import PageDescriptor = api.content.page.PageDescriptor;
-import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
-import ApplicationKey = api.application.ApplicationKey;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 
@@ -29,17 +32,17 @@ export class GetPageDescriptorsByApplicationsRequest
         return this;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_applications');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'list', 'by_applications');
     }
 
-    sendAndParse(): wemQ.Promise<PageDescriptor[]> {
+    sendAndParse(): Q.Promise<PageDescriptor[]> {
         const cached = this.cache.getByApplications(this.applicationKeys);
         if (cached) {
-            return wemQ(cached);
+            return Q(cached);
         }
 
-        return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {
+        return this.send().then((response: JsonResponse<PageDescriptorsJson>) => {
             // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
             this.cache.putApplicationKeys(this.applicationKeys);
             return response.getResult().descriptors.map((descJson) => {

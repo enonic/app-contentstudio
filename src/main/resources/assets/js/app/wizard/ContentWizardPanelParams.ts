@@ -1,8 +1,7 @@
-import '../../api.ts';
-import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentId = api.content.ContentId;
-import Application = api.app.Application;
+import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Application} from 'lib-admin-ui/app/Application';
 
 export class ContentWizardPanelParams {
 
@@ -10,35 +9,35 @@ export class ContentWizardPanelParams {
 
     createSite: boolean = false;
 
-    tabId: api.app.bar.AppBarTabId;
+    tabId: AppBarTabId;
 
-    contentTypeName: api.schema.content.ContentTypeName;
+    contentTypeName: ContentTypeName;
 
-    parentContentId: api.content.ContentId;
+    parentContentId: ContentId;
 
-    contentId: api.content.ContentId;
+    contentId: ContentId;
 
     setApplication(app: Application): ContentWizardPanelParams {
         this.application = app;
         return this;
     }
 
-    setTabId(value: api.app.bar.AppBarTabId): ContentWizardPanelParams {
+    setTabId(value: AppBarTabId): ContentWizardPanelParams {
         this.tabId = value;
         return this;
     }
 
-    setContentTypeName(value: api.schema.content.ContentTypeName): ContentWizardPanelParams {
+    setContentTypeName(value: ContentTypeName): ContentWizardPanelParams {
         this.contentTypeName = value;
         return this;
     }
 
-    setParentContentId(value: api.content.ContentId): ContentWizardPanelParams {
+    setParentContentId(value: ContentId): ContentWizardPanelParams {
         this.parentContentId = value;
         return this;
     }
 
-    setContentId(value: api.content.ContentId): ContentWizardPanelParams {
+    setContentId(value: ContentId): ContentWizardPanelParams {
         this.contentId = value;
         return this;
     }

@@ -1,5 +1,8 @@
+import {UlEl} from 'lib-admin-ui/dom/UlEl';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+
 export class TagSuggestions
-    extends api.dom.UlEl {
+    extends UlEl {
 
     private selectedIndex: number = null;
 
@@ -21,7 +24,7 @@ export class TagSuggestions
     setTags(values: string[]) {
         this.removeChildren();
         values.forEach((value: string) => {
-            this.appendChild(new api.dom.LiEl().setHtml(value));
+            this.appendChild(new LiEl().setHtml(value));
         });
         this.selectedIndex = null;
     }

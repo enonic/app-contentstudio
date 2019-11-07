@@ -1,9 +1,10 @@
-import '../../../api.ts';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class ShowLiveEditAction extends api.ui.Action {
+export class ShowLiveEditAction
+    extends Action {
 
     constructor(wizard: ContentWizardPanel) {
         super('Live');

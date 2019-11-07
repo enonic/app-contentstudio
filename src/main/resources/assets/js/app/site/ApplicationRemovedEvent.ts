@@ -1,5 +1,4 @@
-import '../../api.ts';
-import ApplicationKey = api.application.ApplicationKey;
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class ApplicationRemovedEvent {
 

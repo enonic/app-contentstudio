@@ -1,8 +1,13 @@
-import TreeNode = api.ui.treegrid.TreeNode;
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
 
 export class ContentRowFormatter {
 
@@ -24,9 +29,9 @@ export class ContentRowFormatter {
 
     public static orderFormatter(_row: number, _cell: number, value: any, _columnDef: any,
                                  node: TreeNode<ContentSummaryAndCompareStatus>) {
-        let wrapper = new api.dom.SpanEl();
+        let wrapper = new SpanEl();
 
-        if (!api.util.StringHelper.isBlank(value)) {
+        if (!StringHelper.isBlank(value)) {
             wrapper.getEl().setTitle(value);
         }
 
@@ -45,7 +50,7 @@ export class ContentRowFormatter {
                     iconCls += 'icon-menu';
                 }
 
-                icon = new api.dom.DivEl(iconCls);
+                icon = new DivEl(iconCls);
                 wrapper.getEl().setInnerHtml(icon.toString(), false);
             }
         }
@@ -58,7 +63,7 @@ export class ContentRowFormatter {
 
     public static statusSelectorFormatter({}: any, {}: any, value: ContentTreeSelectorItem, {}: any, {}: any) {
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem)) {
 
             const item = <ContentAndStatusTreeSelectorItem>value;
 
@@ -77,7 +82,7 @@ export class ContentRowFormatter {
 
         if (data && data.getContentSummary()) {
 
-            let status = new api.dom.SpanEl();
+            let status = new SpanEl();
 
             status.addClass(data.getStatusClass());
             status.setHtml(data.getStatusText());
@@ -86,8 +91,8 @@ export class ContentRowFormatter {
         }
 
         if (data.getUploadItem()) { // uploading node
-            const compareStatusText = new api.ui.ProgressBar(data.getUploadItem().getProgress());
-            return new api.dom.SpanEl().appendChild(compareStatusText).toString();
+            const compareStatusText = new ProgressBar(data.getUploadItem().getProgress());
+            return new SpanEl().appendChild(compareStatusText).toString();
         }
     }
 }

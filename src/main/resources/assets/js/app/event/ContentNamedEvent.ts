@@ -1,8 +1,10 @@
-import WizardPanel = api.app.wizard.WizardPanel;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Content} from '../content/Content';
 
 export class ContentNamedEvent
-    extends api.event.Event {
+    extends Event {
 
     private wizard: WizardPanel<Content>;
 
@@ -23,11 +25,11 @@ export class ContentNamedEvent
     }
 
     static on(handler: (event: ContentNamedEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentNamedEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 
 }

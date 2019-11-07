@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentVersionJson} from './json/ContentVersionJson';
 
@@ -22,12 +26,12 @@ export class RevertVersionRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'revert');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'revert');
     }
 
-    sendAndParse(): wemQ.Promise<string> {
-        return this.send().then((response: api.rest.JsonResponse<ContentVersionJson>) => {
+    sendAndParse(): Q.Promise<string> {
+        return this.send().then((response: JsonResponse<ContentVersionJson>) => {
             return response.getResult().id;
         });
     }

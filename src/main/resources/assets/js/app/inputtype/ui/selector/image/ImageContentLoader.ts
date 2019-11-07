@@ -1,25 +1,27 @@
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
 
 type RequestToken = {
     contentId: ContentId;
-    promises: wemQ.Deferred<ContentSummary>[];
+    promises: Q.Deferred<ContentSummary>[];
 };
 
 export class ImageContentLoader {
 
     private static requestTokens: RequestToken[] = [];
 
-    private static loadContent: Function = api.util.AppHelper.debounce(ImageContentLoader.doLoadContent, 500);
+    private static loadContent: Function = AppHelper.debounce(ImageContentLoader.doLoadContent, 500);
 
-    static queueContentLoadRequest(contentIds: ContentId[]): wemQ.Promise<ContentSummary[]> {
+    static queueContentLoadRequest(contentIds: ContentId[]): Q.Promise<ContentSummary[]> {
 
-        const contentPromises: wemQ.Promise<ContentSummary>[] = [];
+        const contentPromises: Q.Promise<ContentSummary>[] = [];
 
         contentIds.forEach((contentId: ContentId) => {
 
-            const contentPromise = wemQ.defer<ContentSummary>();
+            const contentPromise = Q.defer<ContentSummary>();
             contentPromises.push(contentPromise.promise);
             const requestToken = ImageContentLoader.requestTokens.filter(token => token.contentId.equals(contentId))[0];
             if (requestToken) {
@@ -33,8 +35,8 @@ export class ImageContentLoader {
 
         });
 
-        const deferred = wemQ.defer<ContentSummary[]>();
-        wemQ.all(contentPromises).then((contents: ContentSummary[]) => {
+        const deferred = Q.defer<ContentSummary[]>();
+        Q.all(contentPromises).then((contents: ContentSummary[]) => {
             deferred.resolve(contents);
         });
 

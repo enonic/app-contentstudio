@@ -1,12 +1,14 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {TemplateOrControllerOption} from './TemplateOrControllerOption';
-import PageDescriptor = api.content.page.PageDescriptor;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 
 export class PageControllerOption
     extends TemplateOrControllerOption<PageDescriptor> {
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PageControllerOption)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, PageControllerOption)) {
             return false;
         }
 
@@ -16,6 +18,6 @@ export class PageControllerOption
             return true;
         }
 
-        return api.ObjectHelper.equals(this.getData(), other.getData());
+        return ObjectHelper.equals(this.getData(), other.getData());
     }
 }

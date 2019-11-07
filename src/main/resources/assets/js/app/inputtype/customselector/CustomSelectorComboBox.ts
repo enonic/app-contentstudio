@@ -1,16 +1,17 @@
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {Input} from 'lib-admin-ui/form/Input';
 
 export class CustomSelectorComboBox
     extends RichComboBox<CustomSelectorItem> {
 
-    constructor(input: api.form.Input, requestPath: string, value: string) {
+    constructor(input: Input, requestPath: string, value: string) {
         let loader = new CustomSelectorLoader(requestPath);
 
         let builder = new RichComboBoxBuilder<CustomSelectorItem>()
@@ -35,11 +36,11 @@ export class CustomSelectorSelectedOptionsView
 }
 
 export class CustomSelectorSelectedOptionView
-    extends api.ui.selector.combobox.RichSelectedOptionView<CustomSelectorItem> {
+    extends RichSelectedOptionView<CustomSelectorItem> {
 
     constructor(option: Option<CustomSelectorItem>) {
         super(
-            new api.ui.selector.combobox.RichSelectedOptionViewBuilder<CustomSelectorItem>(option)
+            new RichSelectedOptionViewBuilder<CustomSelectorItem>(option)
                 .setDraggable(true)
         );
     }

@@ -1,16 +1,18 @@
-import CloseAction = api.app.wizard.CloseAction;
-import SaveAction = api.app.wizard.SaveAction;
-import WizardPanel = api.app.wizard.WizardPanel;
+import * as Q from 'q';
+import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
+import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
+import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class SaveAndCloseAction
-    extends api.ui.Action {
+    extends Action {
 
     constructor(wizardPanel: WizardPanel<any>) {
         super('SaveAndClose', 'mod+enter', true);
 
         this.onExecuted(() => {
 
-            let deferred = wemQ.defer();
+            let deferred = Q.defer();
 
             let saveAction = new SaveAction(wizardPanel);
             saveAction.onAfterExecute(() => {

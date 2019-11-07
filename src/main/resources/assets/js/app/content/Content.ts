@@ -1,9 +1,8 @@
-import Property = api.data.Property;
-import PropertyTree = api.data.PropertyTree;
-import RoleKeys = api.security.RoleKeys;
-import ContentSummary = api.content.ContentSummary;
-import ContentSummaryBuilder = api.content.ContentSummaryBuilder;
-import PropertyTreeHelper = api.util.PropertyTreeHelper;
+import {Property} from 'lib-admin-ui/data/Property';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
+import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
+import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
@@ -13,10 +12,15 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class Content
     extends ContentSummary
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     private data: PropertyTree;
 
@@ -35,7 +39,7 @@ export class Content
     constructor(builder: ContentBuilder) {
         super(builder);
 
-        api.util.assertNotNull(builder.data, 'data is required for Content');
+        assertNotNull(builder.data, 'data is required for Content');
         this.data = builder.data;
         this.attachments = builder.attachments;
         this.extraData = builder.extraData || [];
@@ -81,7 +85,7 @@ export class Content
         return this.overwritePermissions;
     }
 
-    isAnyPrincipalAllowed(principalKeys: api.security.PrincipalKey[], permission: Permission): boolean {
+    isAnyPrincipalAllowed(principalKeys: PrincipalKey[], permission: Permission): boolean {
 
         if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
             return true;
@@ -91,7 +95,7 @@ export class Content
             let entry = this.permissions.getEntries()[i];
 
             if (entry.isAllowed(permission)) {
-                let principalInEntry = principalKeys.some((principalKey: api.security.PrincipalKey) => {
+                let principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
                     if (principalKey.equals(entry.getPrincipalKey())) {
                         return true;
                     }
@@ -137,8 +141,8 @@ export class Content
         return true;
     }
 
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
+    equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Content)) {
             return false;
         }
 
@@ -156,15 +160,15 @@ export class Content
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.pageObj, other.pageObj)) {
+        if (!ObjectHelper.equals(this.pageObj, other.pageObj)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.permissions, other.permissions)) {
+        if (!ObjectHelper.equals(this.permissions, other.permissions)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.attachments, other.attachments)) {
+        if (!ObjectHelper.equals(this.attachments, other.attachments)) {
             return false;
         }
 

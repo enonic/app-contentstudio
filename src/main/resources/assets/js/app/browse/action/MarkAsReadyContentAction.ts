@@ -1,9 +1,11 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class MarkAsReadyContentAction
     extends Action {
@@ -36,16 +38,16 @@ export class MarkAsReadyContentAction
         }
     }
 
-    private static markAsReady(content: ContentSummaryAndCompareStatus[]): wemQ.Promise<void> {
+    private static markAsReady(content: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         const contentIds = content.map(item => item.getContentId());
         const isSingleItem = content.length === 1;
         return new MarkAsReadyRequest(contentIds).sendAndParse().then(() => {
             if (isSingleItem) {
                 const name = content[0].getContentSummary().getName();
-                api.notify.showFeedback(i18n('notify.item.markedAsReady', name));
+                showFeedback(i18n('notify.item.markedAsReady', name));
             } else {
-                api.notify.showFeedback(i18n('notify.item.markedAsReady.multiple', content.length));
+                showFeedback(i18n('notify.item.markedAsReady.multiple', content.length));
             }
-        }).catch(api.DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 }

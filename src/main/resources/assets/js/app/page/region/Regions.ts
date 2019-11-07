@@ -1,3 +1,5 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {Region} from './Region';
 import {RegionsChangedEvent} from './RegionsChangedEvent';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
@@ -7,10 +9,10 @@ import {RegionRemovedEvent} from './RegionRemovedEvent';
 import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
-import RegionDescriptor = api.content.page.region.RegionDescriptor;
+import {RegionDescriptor} from 'lib-admin-ui/content/page/region/RegionDescriptor';
 
 export class Regions
-    implements api.Equitable {
+    implements Equitable {
 
     public static debug: boolean = false;
 
@@ -120,9 +122,9 @@ export class Regions
         return regionJsons;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Regions)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Regions)) {
             return false;
         }
 
@@ -131,7 +133,7 @@ export class Regions
         let thisRegions = this.getRegions();
         let otherRegions = other.getRegions();
 
-        if (!api.ObjectHelper.arrayEquals(thisRegions, otherRegions)) {
+        if (!ObjectHelper.arrayEquals(thisRegions, otherRegions)) {
             return false;
         }
 

@@ -1,9 +1,11 @@
-import i18n = api.util.i18n;
-import eventInfo = CKEDITOR.eventInfo;
-import DivEl = api.dom.DivEl;
-import SpanEl = api.dom.SpanEl;
-import DialogButton = api.ui.dialog.DialogButton;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class SpecialCharDialog
     extends ModalDialog {
@@ -39,7 +41,7 @@ export class SpecialCharDialog
         });
     }
 
-    private createCharsBlock(): api.dom.Element {
+    private createCharsBlock(): Element {
         const charsBlock: DivEl = new DivEl('chars-block');
         const specialChars: (string | [string, string])[] = this.getEditor().config.specialChars || [];
         const chars: string[] = <string[]>(specialChars.length > 0 && specialChars[0] instanceof Array

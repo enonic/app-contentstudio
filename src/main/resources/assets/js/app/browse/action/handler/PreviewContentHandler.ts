@@ -1,8 +1,10 @@
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBrowseItem} from '../../ContentBrowseItem';
 import {IsRenderableRequest} from '../../../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import BrowseItemsChanges = api.app.browse.BrowseItemsChanges;
-import ContentId = api.content.ContentId;
+import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
 
 export class PreviewContentHandler {
 
@@ -17,7 +19,7 @@ export class PreviewContentHandler {
     public static BLOCK_COUNT: number = 10;
 
     updateState(contentBrowseItems: ContentBrowseItem[],
-                changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): wemQ.Promise<any> {
+                changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<any> {
 
         if (contentBrowseItems.length === 0) {
             if (changes && changes.getRemoved().length > 0) {
@@ -49,9 +51,9 @@ export class PreviewContentHandler {
     }
 
     private getRenderablePromise(contentBrowseItems: ContentBrowseItem[],
-                                 changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): wemQ.Promise<any> {
+                                 changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<any> {
 
-        return wemQ.all(this.makeRenderableRequests(contentBrowseItems, changes))
+        return Q.all(this.makeRenderableRequests(contentBrowseItems, changes))
             .then(() => {
 
                 if (changes && changes.getRemoved().length > 0) {
@@ -63,10 +65,10 @@ export class PreviewContentHandler {
                     this.notifyPreviewStateChangedIfNeeded();
                 }
 
-            }).catch((reason: any) => api.DefaultErrorHandler.handle(reason));
+            }).catch((reason: any) => DefaultErrorHandler.handle(reason));
     }
 
-    public checkIfItemIsRenderable(contentBrowseItem: ContentBrowseItem): wemQ.Promise<any> {
+    public checkIfItemIsRenderable(contentBrowseItem: ContentBrowseItem): Q.Promise<any> {
         let contentSummary = contentBrowseItem.getModel().getContentSummary();
 
         return new IsRenderableRequest(contentSummary.getContentId()).sendAndParse()
@@ -74,11 +76,11 @@ export class PreviewContentHandler {
                 contentBrowseItem.setRenderable(value);
 
                 return value;
-            }).catch((reason: any) => api.DefaultErrorHandler.handle(reason));
+            }).catch((reason: any) => DefaultErrorHandler.handle(reason));
     }
 
     private makeRenderableRequests(contentBrowseItems: ContentBrowseItem[],
-                                   changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): wemQ.Promise<any>[] {
+                                   changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<any>[] {
 
         // check existing items if there are no changes
         // because selected items might have become (not) renderable
@@ -105,7 +107,7 @@ export class PreviewContentHandler {
                     }
 
                     return value;
-                }).catch((reason: any) => api.DefaultErrorHandler.handle(reason));
+                }).catch((reason: any) => DefaultErrorHandler.handle(reason));
         });
     }
 

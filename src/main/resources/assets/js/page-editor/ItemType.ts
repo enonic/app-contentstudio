@@ -1,12 +1,16 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ItemTypeConfig} from './ItemTypeConfig';
 import {ComponentType} from '../app/page/region/ComponentType';
-import StringHelper = api.util.StringHelper;
-import i18n = api.util.i18n;
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {assert} from 'lib-admin-ui/util/Assert';
 
 type ShortName = { [shortName: string]: ItemType };
 
 export class ItemType
-    implements api.Equitable {
+    implements Equitable {
 
     static ATTRIBUTE_TYPE: string = 'portal-component-type';
     static ATTRIBUTE_REGION_NAME: string = 'portal-region';
@@ -40,18 +44,18 @@ export class ItemType
     }
 
     toComponentType(): ComponentType {
-        api.util.assert(this.isComponentType(), i18n('live.view.itemtype.error.isnotcomponenttype'));
+        assert(this.isComponentType(), i18n('live.view.itemtype.error.isnotcomponenttype'));
         return ComponentType.byShortName(this.shortName);
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ItemType)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ItemType)) {
             return false;
         }
 
         const other = <ItemType>o;
-        return api.ObjectHelper.stringEquals(this.shortName, other.shortName);
+        return ObjectHelper.stringEquals(this.shortName, other.shortName);
     }
 
     static getDraggables(): ItemType[] {
@@ -86,7 +90,7 @@ export class ItemType
         return ItemType.byShortName(typeAsString);
     }
 
-    static fromElement(element: api.dom.Element): ItemType {
+    static fromElement(element: Element): ItemType {
         return ItemType.fromHTMLElement(element.getHTMLElement());
     }
 }

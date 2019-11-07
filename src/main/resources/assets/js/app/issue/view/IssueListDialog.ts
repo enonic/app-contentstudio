@@ -1,13 +1,16 @@
-import ModalDialog = api.ui.dialog.ModalDialog;
-import Principal = api.security.Principal;
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import TabBar = api.ui.tab.TabBar;
-import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
-import NavigatorEvent = api.ui.NavigatorEvent;
-import TabBarItem = api.ui.tab.TabBarItem;
-import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
-import KeyBinding = api.ui.KeyBinding;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
+import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
+import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
 import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
@@ -15,9 +18,10 @@ import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class IssueListDialog
-    extends ModalDialog {
+    extends ModalDialogWithConfirmation {
 
     private static INSTANCE: IssueListDialog;
 
@@ -39,7 +43,7 @@ export class IssueListDialog
 
     private currentUser: Principal;
 
-    private createAction: api.ui.Action;
+    private createAction: Action;
 
     private keyBinding: KeyBinding;
 
@@ -48,9 +52,10 @@ export class IssueListDialog
     private issueSelectedListeners: { (issue: Issue): void }[] = [];
 
     private constructor() {
-        super(<api.ui.dialog.ModalDialogConfig>{
+        super(<ModalDialogWithConfirmationConfig>{
             title: i18n('field.issues'),
-            class: 'issue-dialog issue-list-dialog grey-header'
+            class: 'issue-dialog issue-list-dialog grey-header',
+            confirmation: {}
         });
 
         this.getBody().addClass('mask-wrapper');
@@ -64,7 +69,7 @@ export class IssueListDialog
     }
 
     private loadCurrentUser() {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
         });
     }
@@ -247,18 +252,18 @@ export class IssueListDialog
         return deckPanel;
     }
 
-    private reloadDeckPanel(): wemQ.Promise<any> {
+    private reloadDeckPanel(): Q.Promise<any> {
         const panel = <IssuesPanel>(this.deckPanel.getPanelShown() || this.allPanel);
         return panel.reload();
     }
 
     show() {
-        api.dom.Body.get().appendChild(this);
+        Body.get().appendChild(this);
         super.show();
         if (!this.skipInitialLoad) {
             this.reload();
         } else {
-            this.updateTabAndFiltersLabels().catch(api.DefaultErrorHandler.handle);
+            this.updateTabAndFiltersLabels().catch(DefaultErrorHandler.handle);
         }
     }
 
@@ -308,17 +313,17 @@ export class IssueListDialog
             })
             .then(() => {
                 if (this.isNotificationToBeShown(updatedIssues)) {
-                    api.notify.NotifyManager.get().showFeedback(i18n('notify.issue.listUpdated'));
+                    NotifyManager.get().showFeedback(i18n('notify.issue.listUpdated'));
                 }
             })
-            .catch(api.DefaultErrorHandler.handle)
+            .catch(DefaultErrorHandler.handle)
             .finally(() => this.hideLoadMask())
             .done();
     }
 
     private handleIssueGlobalEvents() {
 
-        const debouncedReload = api.util.AppHelper.runOnceAndDebounce((issues?: Issue[]) => {
+        const debouncedReload = AppHelper.runOnceAndDebounce((issues?: Issue[]) => {
             this.reload(issues);
         }, 3000);
 
@@ -363,8 +368,8 @@ export class IssueListDialog
         return this.isMasked();
     }
 
-    private updateTabAndFiltersLabels(): wemQ.Promise<void> {
-        return wemQ.all([
+    private updateTabAndFiltersLabels(): Q.Promise<void> {
+        return Q.all([
             new GetIssueStatsRequest().sendAndParse(),
             new GetIssueStatsRequest(IssueType.PUBLISH_REQUEST).sendAndParse(),
             new GetIssueStatsRequest(IssueType.STANDARD).sendAndParse()
@@ -376,7 +381,7 @@ export class IssueListDialog
         });
     }
 
-    private static updatePanelIssuesCount(panel: IssuesPanel, stats: IssueStatsJson): wemQ.Promise<void> {
+    private static updatePanelIssuesCount(panel: IssuesPanel, stats: IssueStatsJson): Q.Promise<void> {
         const openedIssues = IssueListDialog.createOpenedIssues(stats);
         const closedIssues = IssueListDialog.createClosedIssues(stats);
         return panel.updateIssuesCount(openedIssues, closedIssues);

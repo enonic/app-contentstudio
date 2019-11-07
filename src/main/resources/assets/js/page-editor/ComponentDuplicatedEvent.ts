@@ -1,9 +1,10 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
-import Event = api.event.Event;
 
 export class ComponentDuplicatedEvent
-    extends api.event.Event {
+    extends Event {
 
     private originalComponentView: ComponentView<Component>;
 
@@ -25,10 +26,10 @@ export class ComponentDuplicatedEvent
     }
 
     static on(handler: (event: ComponentDuplicatedEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ComponentDuplicatedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

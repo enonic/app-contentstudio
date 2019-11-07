@@ -1,6 +1,10 @@
-import PropertyArray = api.data.PropertyArray;
-import ValueTypes = api.data.ValueTypes;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
+import * as Q from 'q';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {FileUploader} from './FileUploader';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
@@ -10,6 +14,8 @@ import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {Attachment} from '../../attachment/Attachment';
 import {DeleteAttachmentRequest} from '../../resource/DeleteAttachmentRequest';
 import {Content} from '../../content/Content';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 
 export class AttachmentUploader
     extends FileUploader {
@@ -20,9 +26,9 @@ export class AttachmentUploader
         this.config = config;
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
-            propertyArray.convertValues(ValueTypes.STRING);
+            propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
         return super.layout(input, propertyArray).then(() => {
@@ -39,7 +45,7 @@ export class AttachmentUploader
             this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
                 const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
                 this.setFileNameProperty(attachment.getName().toString());
-                api.notify.showFeedback(`"${attachment.getName().toString()}" uploaded`);
+                showFeedback(`"${attachment.getName().toString()}" uploaded`);
             });
 
             this.uploaderEl.onUploadCompleted(() => {
@@ -58,7 +64,7 @@ export class AttachmentUploader
             this.setLayoutInProgress(false);
             this.validate(false);
 
-            return wemQ<void>(null);
+            return Q<void>(null);
         });
     }
 
@@ -122,4 +128,4 @@ export class AttachmentUploader
 
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('AttachmentUploader', AttachmentUploader));
+InputTypeManager.register(new Class('AttachmentUploader', AttachmentUploader));

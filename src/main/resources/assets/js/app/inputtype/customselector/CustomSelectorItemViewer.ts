@@ -1,4 +1,5 @@
-import NamesAndIconViewer = api.ui.NamesAndIconViewer;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {CustomSelectorItem} from './CustomSelectorItem';
 
 export class CustomSelectorItemViewer
@@ -16,9 +17,9 @@ export class CustomSelectorItemViewer
         return object.description;
     }
 
-    resolveIconEl(object: CustomSelectorItem): api.dom.Element {
+    resolveIconEl(object: CustomSelectorItem): Element {
         if (object.icon && object.icon.data) {
-            return api.dom.Element.fromString(object.icon.data);
+            return Element.fromString(object.icon.data);
         }
         return null;
     }

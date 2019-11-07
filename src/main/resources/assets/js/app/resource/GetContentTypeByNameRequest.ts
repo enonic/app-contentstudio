@@ -1,4 +1,7 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTypeCache} from '../content/ContentTypeCache';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentType} from '../inputtype/schema/ContentType';
@@ -24,18 +27,18 @@ export class GetContentTypeByNameRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
+    getRequestPath(): Path {
         return super.getResourcePath();
     }
 
-    sendAndParse(): wemQ.Promise<ContentType> {
+    sendAndParse(): Q.Promise<ContentType> {
 
         let contentTypeCache = ContentTypeCache.get();
         let contentType = contentTypeCache.getByKey(this.name);
         if (contentType) {
-            return wemQ(contentType);
+            return Q(contentType);
         } else {
-            return this.send().then((response: api.rest.JsonResponse<ContentTypeJson>) => {
+            return this.send().then((response: JsonResponse<ContentTypeJson>) => {
                 contentType = this.fromJsonToContentType(response.getResult());
                 contentTypeCache.put(contentType);
                 return contentType;

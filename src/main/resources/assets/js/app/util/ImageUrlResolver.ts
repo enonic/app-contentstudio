@@ -1,6 +1,7 @@
-import ContentId = api.content.ContentId;
-import IconUrlResolver = api.icon.IconUrlResolver;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -75,7 +76,7 @@ export class ImageUrlResolver
     private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
         const url = urlPrefix + this.contentId.toString();
 
-        return isAbsoluteUrl ? api.util.UriHelper.getRestUri(url) : url;
+        return isAbsoluteUrl ? UriHelper.getRestUri(url) : url;
     }
 
     resolveForRender(styleName: string = ''): string {

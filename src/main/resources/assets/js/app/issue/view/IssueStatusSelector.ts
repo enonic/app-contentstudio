@@ -1,15 +1,18 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
-import TabMenuItem = api.ui.tab.TabMenuItem;
-import TabMenu = api.ui.tab.TabMenu;
-import DivEl = api.dom.DivEl;
-import i18n = api.util.i18n;
+import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
+import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
 
 export class IssueStatusSelector
     extends TabMenu {
 
     private value: IssueStatus;
 
-    private valueChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
 
     constructor() {
         super('issue-status-selector');
@@ -46,7 +49,7 @@ export class IssueStatusSelector
     }
 
     protected initListeners() {
-        this.onNavigationItemSelected((event: api.ui.NavigatorEvent) => {
+        this.onNavigationItemSelected((event: NavigatorEvent) => {
             const item = <TabMenuItem> event.getItem();
             const status = item ? IssueStatus[item.getIndex()] : null;
             if (status != null) {
@@ -71,7 +74,7 @@ export class IssueStatusSelector
 
             if (!silent && value !== this.value) {
                 this.notifyValueChanged(
-                    new api.ValueChangedEvent(IssueStatusFormatter.formatStatus(this.value), IssueStatusFormatter.formatStatus(value)));
+                    new ValueChangedEvent(IssueStatusFormatter.formatStatus(this.value), IssueStatusFormatter.formatStatus(value)));
             }
             this.value = value;
         }
@@ -118,25 +121,25 @@ export class IssueStatusSelector
         };
 
         this.onRemoved(() => {
-            api.dom.Body.get().unMouseDown(mouseClickListener);
+            Body.get().unMouseDown(mouseClickListener);
         });
 
         this.onAdded(() => {
-            api.dom.Body.get().onMouseDown(mouseClickListener);
+            Body.get().onMouseDown(mouseClickListener);
         });
     }
 
-    onValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyValueChanged(event: api.ValueChangedEvent) {
+    private notifyValueChanged(event: ValueChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });

@@ -1,7 +1,10 @@
-import ContentId = api.content.ContentId;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {AccessControlList} from '../access/AccessControlList';
 
-export class ContentPermissionsApplyEvent extends api.event.Event {
+export class ContentPermissionsApplyEvent
+    extends Event {
 
     private contentId: ContentId;
 
@@ -40,11 +43,11 @@ export class ContentPermissionsApplyEvent extends api.event.Event {
     }
 
     static on(handler: (event: ContentPermissionsApplyEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ContentPermissionsApplyEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
 }

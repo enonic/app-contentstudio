@@ -1,3 +1,5 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {RegionView} from './RegionView';
 import {SelectedByClickEvent} from './SelectedByClickEvent';
 
@@ -16,10 +18,10 @@ export class RegionSelectedEvent
     }
 
     static on(handler: (event: RegionSelectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: RegionSelectedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

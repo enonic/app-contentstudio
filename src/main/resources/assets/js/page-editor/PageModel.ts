@@ -7,8 +7,10 @@ import {Component} from '../app/page/region/Component';
 import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 import {Page, PageBuilder} from '../app/page/Page';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
-import PropertyTree = api.data.PropertyTree;
-import PageDescriptor = api.content.page.PageDescriptor;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class SetController {
 
@@ -106,7 +108,7 @@ export class PageModel {
 
     private pageModeChangedListeners: { (event: PageModeChangedEvent): void }[] = [];
 
-    private propertyChangedListeners: { (event: api.PropertyChangedEvent): void }[] = [];
+    private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
 
     private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
 
@@ -226,7 +228,7 @@ export class PageModel {
     setController(setController: SetController, silent?: boolean): PageModel {
         let oldControllerKey = this.controller ? this.controller.getKey() : null;
         let newControllerKey = setController.descriptor ? setController.descriptor.getKey() : null;
-        let controllerChanged = !api.ObjectHelper.equals(oldControllerKey, newControllerKey);
+        let controllerChanged = !ObjectHelper.equals(oldControllerKey, newControllerKey);
 
         this.setControllerData(setController);
 
@@ -301,7 +303,7 @@ export class PageModel {
     setTemplate(setTemplate: SetTemplate, ignoreRegionChanges: boolean = false): PageModel {
         let oldTemplateKey = this.template ? this.template.getKey() : null;
         let newTemplateKey = setTemplate.template ? setTemplate.template.getKey() : null;
-        let templateOrModeChanged = !api.ObjectHelper.equals(oldTemplateKey, newTemplateKey) || this.hasController();
+        let templateOrModeChanged = !ObjectHelper.equals(oldTemplateKey, newTemplateKey) || this.hasController();
 
         if (setTemplate.template) {
             this.setMode(PageMode.FORCED_TEMPLATE);
@@ -537,19 +539,19 @@ export class PageModel {
         });
     }
 
-    onPropertyChanged(listener: (event: api.PropertyChangedEvent) => void) {
+    onPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
         this.propertyChangedListeners.push(listener);
     }
 
-    unPropertyChanged(listener: (event: api.PropertyChangedEvent) => void) {
-        this.propertyChangedListeners = this.propertyChangedListeners.filter((curr: (event: api.PropertyChangedEvent) => void) => {
+    unPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
+        this.propertyChangedListeners = this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => {
             return listener !== curr;
         });
     }
 
     private notifyPropertyChanged(property: string, oldValue: any, newValue: any, origin: any) {
-        let event = new api.PropertyChangedEvent(property, oldValue, newValue, origin);
-        this.propertyChangedListeners.forEach((listener: (event: api.PropertyChangedEvent) => void) => {
+        let event = new PropertyChangedEvent(property, oldValue, newValue, origin);
+        this.propertyChangedListeners.forEach((listener: (event: PropertyChangedEvent) => void) => {
             listener(event);
         });
     }
