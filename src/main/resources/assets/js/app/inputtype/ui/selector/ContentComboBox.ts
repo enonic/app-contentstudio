@@ -24,7 +24,7 @@ import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
-import {ValueChangedEvent} from 'lib-admin-ui';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
