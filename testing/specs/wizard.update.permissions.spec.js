@@ -22,81 +22,72 @@ describe('wizard.update.permissions.spec: update permissions and check the state
         let displayName = contentBuilder.generateRandomName('folder');
         let newDisplayName = contentBuilder.generateRandomName('folder');
 
-        it(`GIVEN content is saved in wizard WHEN permissions have been changed THEN 'Saved' button should be visible on toolbar`,
-            () => {
+        it(`GIVEN new folder wizard is opened and the folder is saved WHEN permissions have been updated THEN 'Saved' button should still be present after applying permissions `,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let accessStepForm = new AccessStepForm();
                 let editPermissionsDialog = new EditPermissionsDialog();
-                return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
-                    return contentWizard.typeDisplayName(displayName);
-                }).then(() => {
-                    return contentWizard.waitAndClickOnSave();
-                }).then(() => {
-                    return contentWizard.pause(1000);
-                }).then(() => {
-                    return accessStepForm.clickOnEditPermissionsButton();
-                }).then(() => {
-                    //uncheck the 'Inherit permissions'
-                    return editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-                }).then(() => {
-                    // add default permissions for 'Anonymous user'
-                    return editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
-                }).then(() => {
-                    return editPermissionsDialog.clickOnApplyButton();
-                }).then(() => {
-                    let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
-                    return contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-                }).then(() => {
-                    return assert.eventually.isTrue(contentWizard.waitForSavedButtonVisible(),
-                        "'Saved' button should be on the wizard-toolbar");
-                });
+                //Open new folder-wizard, type a name and save it:
+                await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+                await contentWizard.typeDisplayName(displayName);
+                //'Saved' button should appear in the toolbar:
+                await contentWizard.waitAndClickOnSave();
+                await contentWizard.pause(1000);
+                //Open 'Edit Permissions' dialog:
+                await accessStepForm.clickOnEditPermissionsButton();
+                //Uncheck the 'Inherit permissions'
+                await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+
+                // Add default permissions for 'Anonymous user'
+                await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
+                await editPermissionsDialog.clickOnApplyButton();
+
+                let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
+                await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
+                //'Saved' button should not change state - this button should still be present after applying permissions:
+                await contentWizard.waitForSavedButtonVisible();
             });
 
-        it(`GIVEN existing content is opened WHEN display name has been changed AND new permissions applied THEN 'Save' button should be visible on wizard-toolbar`,
-            () => {
+        it(`GIVEN existing folder is opened WHEN display name has been changed AND new permissions applied THEN 'Save' button gets enabled in the wizard-toolbar`,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let editPermissionsDialog = new EditPermissionsDialog();
                 let accessStepForm = new AccessStepForm();
-                return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
-                    return contentWizard.typeDisplayName(newDisplayName);
-                }).then(() => {
-                    return accessStepForm.clickOnEditPermissionsButton();
-                }).then(() => {
-                    // add default permissions for 'Everyone'
-                    return editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.EVERYONE);
-                }).then(() => {
-                    return editPermissionsDialog.clickOnApplyButton();
-                }).then(() => {
-                    let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
-                    return contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-                }).then(() => {
-                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonEnabled(),
-                        "'Save' button should be enabled on the wizard-toolbar");
-                });
+                await studioUtils.selectAndOpenContentInWizard(displayName);
+                //1. Update the display name:
+                await contentWizard.typeDisplayName(newDisplayName);
+                await accessStepForm.clickOnEditPermissionsButton();
+
+                //2. Update permissions(add default permissions for 'Everyone')
+                await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.EVERYONE);
+                return editPermissionsDialog.clickOnApplyButton();
+                //3. Check the notification message:
+                let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
+                await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
+
+                //4.'Save' button gets enabled in the wizard-toolbar:
+                await contentWizard.waitForSaveButtonEnabled();
             });
 
-        it(`GIVEN existing content is opened WHEN permissions for the content have been updated in browse panel (Details Panel) THEN 'Save' button should be disabled in the wizard`,
-            () => {
+        it(`GIVEN existing content is opened WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
+            async () => {
                 let editPermissionsDialog = new EditPermissionsDialog();
                 let userAccessWidget = new UserAccessWidget();
                 let contentWizard = new ContentWizard();
-                return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
-                    return studioUtils.doSwitchToContentBrowsePanel();
-                }).then(() => {
-                    return studioUtils.openBrowseDetailsPanel();
-                }).then(() => {
-                    return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-                }).then(() => {
-                    // add default permissions for 'Super User'
-                    return editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.SUPER_USER);
-                }).then(() => {
-                    return editPermissionsDialog.clickOnApplyButton();
-                }).then(() => {
-                    return studioUtils.switchToContentTabWindow(displayName)
-                }).then(() => {
-                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonVisible(),
-                        "'Save' button should be visible and disabled on the wizard-toolbar");
-                });
+                //1. Select and open the folder:
+                await studioUtils.selectAndOpenContentInWizard(displayName);
+
+                //2. Go to browse-panel and add default permissions for 'Super User'
+                await studioUtils.doSwitchToContentBrowsePanel();
+                await studioUtils.openBrowseDetailsPanel();
+                await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+                await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.SUPER_USER);
+                await editPermissionsDialog.clickOnApplyButton();
+                //3. Go to the wizard:
+                await studioUtils.switchToContentTabWindow(displayName)
+                // 'Save(Disabled)' button should still be present after applying permissions in browse-panel:
+                await contentWizard.waitForSaveButtonVisible();
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

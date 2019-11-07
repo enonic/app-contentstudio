@@ -157,21 +157,17 @@ module.exports = {
             return browsePanel.pause(1000);
         });
     },
-    openContentWizard: function (contentType) {
+    async openContentWizard(contentType) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3).then(() => {
-            return browsePanel.clickOnNewButton();
-        }).then(() => {
-            return newContentDialog.waitForOpened();
-        }).then(() => {
-            return newContentDialog.clickOnContentType(contentType);
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        })
+        await browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3);
+        await browsePanel.clickOnNewButton();
+        await newContentDialog.waitForOpened();
+        await newContentDialog.clickOnContentType(contentType);
+        //Switch to the new wizard:
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
     selectAndOpenContentInWizard: function (contentName) {
         let contentWizardPanel = new ContentWizardPanel();
