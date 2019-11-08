@@ -218,40 +218,11 @@ export class PageComponentsView
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
-            let parentNode = this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
-            if (parentNode) {
-                // deselect all otherwise node is going to be added as child to selection (that is weird btw)
-                this.tree.deselectAll();
-                let index = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
-                if (index >= 0) {
-                    this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
-                        // expand parent node to show added one
-                        this.tree.expandNode(parentNode);
-
-                        if (event.getComponentView().isSelected()) {
-                            this.tree.selectNode(this.tree.getDataId(event.getComponentView()));
-                        }
-
-                        if (this.tree.hasChildren(event.getComponentView())) {
-                            const componentDataId = this.tree.getDataId(event.getComponentView());
-                            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
-
-                            if (event.isDragged()) {
-                                this.tree.collapseNode(componentNode, true);
-                            } else {
-                                this.tree.expandNode(componentNode, true);
-                            }
-                        }
-
-                        if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
-                            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
-                        }
-
-                        this.constrainToParent();
-                        this.highlightInvalidItems();
-                    });
+            this.addComponent(event).then((added: boolean) => {
+                if (added) {
+                    this.handleComponentAdded(event);
                 }
-            }
+            }).catch(api.DefaultErrorHandler.handle);
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -287,6 +258,50 @@ export class PageComponentsView
 
             this.removeFromInvalidItems(oldDataId);
         });
+    }
+
+    private addComponent(event: ComponentAddedEvent): wemQ.Promise<boolean> {
+        const parentNode: TreeNode<ItemView> =
+            this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
+        if (!parentNode) {
+            return wemQ(false);
+        }
+        // deselect all otherwise node is going to be added as child to selection (that is weird btw)
+        this.tree.deselectAll();
+        const index: number = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
+        if (index < 0) {
+            return wemQ(false);
+        }
+
+        return this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
+            return this.tree.expandNode(parentNode).then(() => { // expand parent node to show added one
+                return true;
+            });
+        });
+    }
+
+    private handleComponentAdded(event: ComponentAddedEvent) {
+        if (event.getComponentView().isSelected()) {
+            this.tree.selectNode(this.tree.getDataId(event.getComponentView()));
+        }
+
+        if (this.tree.hasChildren(event.getComponentView())) {
+            const componentDataId = this.tree.getDataId(event.getComponentView());
+            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
+
+            if (event.isDragged()) {
+                this.tree.collapseNode(componentNode, true);
+            } else {
+                this.tree.expandNode(componentNode, true);
+            }
+        }
+
+        if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
+            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
+        }
+
+        this.constrainToParent();
+        this.highlightInvalidItems();
     }
 
     private refreshComponentViewNode(componentView: ComponentView<Component>,
