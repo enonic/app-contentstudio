@@ -45,6 +45,7 @@ export class PageComponentsView
     private modal: boolean;
     private floating: boolean;
     private draggable: boolean;
+    private selectedItemId: string;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -166,6 +167,9 @@ export class PageComponentsView
 
             this.tree.setPageView(pageView).then(() => {
                 this.initLock();
+                if (this.selectedItemId) {
+                    this.selectItemById();
+                }
             });
         }
 
@@ -203,14 +207,14 @@ export class PageComponentsView
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                let selectedItemId = this.tree.getDataId(event.getItemView());
-                this.tree.selectNode(selectedItemId, true);
-                this.tree.getGrid().focus();
+                this.selectedItemId = this.tree.getDataId(event.getItemView());
+                this.selectItemById();
             }
         });
 
         this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
             this.tree.deselectNodes([this.tree.getDataId(event.getItemView())]);
+            this.selectedItemId = null;
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
@@ -529,6 +533,11 @@ export class PageComponentsView
     private selectItem(treeNode: TreeNode<ItemView>) {
         treeNode.getData().selectWithoutMenu();
         this.scrollToItem(treeNode.getDataId());
+    }
+
+    private selectItemById() {
+        this.tree.selectNode(this.selectedItemId, true);
+        this.tree.getGrid().focus();
     }
 
     isDraggable(): boolean {
