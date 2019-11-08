@@ -19,7 +19,7 @@ import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {PublishRequest} from '../PublishRequest';
 import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
-import {DetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
+import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
@@ -81,7 +81,7 @@ export class IssueDetailsDialog
 
     private commentAction: Action;
 
-    private detailsSubTitle: DetailsDialogSubTitle;
+    private detailsSubTitle: IssueDetailsDialogSubTitle;
 
     private publishAction: ContentPublishDialogAction;
 
@@ -125,6 +125,8 @@ export class IssueDetailsDialog
 
     private publishMessage: H6El;
 
+    private isUpdatePending: boolean;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.issue'),
@@ -156,7 +158,7 @@ export class IssueDetailsDialog
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
 
         this.commentTextArea = new IssueCommentTextArea();
-        this.detailsSubTitle = new DetailsDialogSubTitle(this.issue);
+        this.detailsSubTitle = new IssueDetailsDialogSubTitle(this.issue);
         this.loadCurrentUser().done(currentUser => {
             this.commentTextArea.setUser(currentUser);
             this.detailsSubTitle.setUser(currentUser);
@@ -165,24 +167,6 @@ export class IssueDetailsDialog
         this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
         this.publishScheduleForm.layout(false);
-        this.scheduleFormPropertySet.onChanged(() => {
-            if (this.isRendered()) {
-                this.updateItemsCountAndButtonLabels();
-                if (this.publishScheduleForm.isFormVisible() && this.publishScheduleForm.isFormValid()) {
-                    this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
-                }
-            }
-        });
-        this.publishScheduleForm.onFormVisibilityChanged((visible) => {
-            if (this.isRendered()) {
-                this.updateItemsCountAndButtonLabels();
-                if (!visible) {
-                    this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
-                }
-            }
-            this.toggleClass('with-schedule-form', visible);
-        });
-
         this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
 
         this.backButton = new AEl('back-button');
@@ -199,6 +183,7 @@ export class IssueDetailsDialog
         this.createScheduleButton();
 
         this.errorTooltip = new Tooltip(this.actionButton, i18n('dialog.publish.invalidError'), 500);
+        this.isUpdatePending = false;
     }
 
     protected initTabs() {
@@ -261,9 +246,8 @@ export class IssueDetailsDialog
             }
         });
 
-        this.detailsSubTitle.onIssueStatusChanged((event) => {
-            const newStatus = IssueStatusFormatter.fromString(event.getNewValue());
-            this.debouncedUpdateIssue(newStatus);
+        this.detailsSubTitle.onIssueStatusChanged(() => {
+            this.updateIssue();
         });
 
         this.backButton.onClicked(() => this.close());
@@ -276,7 +260,7 @@ export class IssueDetailsDialog
             }
             this.updateTabLabel(2, i18n('field.assignees'), count);
             if (save) {
-                this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+                this.updateIssue();
             }
         };
 
@@ -299,6 +283,7 @@ export class IssueDetailsDialog
 
         this.itemSelector.onOptionSelected(option => {
             this.saveOnLoaded = true;
+            this.isUpdatePending = true;
             const ids = [option.getSelectedOption().getOption().displayValue.getContentId()];
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
                 this.addListItems(result);
@@ -307,6 +292,7 @@ export class IssueDetailsDialog
 
         this.itemSelector.onOptionDeselected(option => {
             this.saveOnLoaded = true;
+            this.isUpdatePending = true;
             const id = option.getSelectedOption().getOption().displayValue.getContentId();
             const items = [this.getItemList().getItem(id.toString())];
             this.removeListItems(items);
@@ -345,6 +331,24 @@ export class IssueDetailsDialog
         this.commentAction.onExecuted(action => {
             const comment = this.commentTextArea.getValue();
             this.saveComment(comment, action);
+        });
+
+        this.scheduleFormPropertySet.onChanged(() => {
+            if (this.isRendered()) {
+                this.updateItemsCountAndButtonLabels();
+                if (this.publishScheduleForm.isFormVisible() && this.publishScheduleForm.isFormValid()) {
+                    this.updateIssue();
+                }
+            }
+        });
+        this.publishScheduleForm.onFormVisibilityChanged((visible) => {
+            if (this.isRendered()) {
+                this.updateItemsCountAndButtonLabels();
+                if (!visible) {
+                    this.updateIssue();
+                }
+            }
+            this.toggleClass('with-schedule-form', visible);
         });
 
         this.initElementListeners();
@@ -501,6 +505,7 @@ export class IssueDetailsDialog
             this.tabPanel.selectPanelByIndex(this.isPublishRequest() ? 1 : 0);
         }
         this.toggleClass('with-schedule-form', this.publishScheduleForm.isFormVisible());
+        this.isUpdatePending = false;
 
         Router.setHash('issue/' + this.issue.getId());
     }
@@ -534,6 +539,7 @@ export class IssueDetailsDialog
         });
         itemList.onItemsRemoved(() => {
             this.updateItemsCountAndButtonLabels();
+            this.isUpdatePending = true;
         });
         itemList.onItemRemoveClicked(handleRemoveItemClicked);
         itemList.onChildrenListChanged(() => {
@@ -555,13 +561,17 @@ export class IssueDetailsDialog
         this.publishProcessor.onLoadingFinished(() => {
             this.updateItemsCountAndButtonLabels();
             if (this.saveOnLoaded) {
-                this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+                this.updateIssue();
                 this.saveOnLoaded = false;
             }
 
             if (this.publishProcessor.containsInvalidDependants()) {
                 this.setDependantListVisible(true);
             }
+        });
+
+        this.publishProcessor.onLoadingFailed(() => {
+            this.isUpdatePending = false;
         });
     }
 
@@ -748,7 +758,7 @@ export class IssueDetailsDialog
     protected createHeader(title: string): ModalDialogHeader {
         const header = new IssueDetailsDialogHeader(title);
         header.onTitleChanged(() => {
-            this.debouncedUpdateIssue(this.issue.getIssueStatus(), true);
+            this.updateIssue();
         });
         return header;
     }
@@ -876,14 +886,26 @@ export class IssueDetailsDialog
         return updateIssueRequest;
     }
 
-    private doUpdateIssue(newStatus: IssueStatus, autoSave: boolean = false): Q.Promise<void> {
-        const publishRequest = this.createPublishRequest();
-        const statusChanged = newStatus !== this.issue.getIssueStatus();
+    private updateIssue() {
+        this.isUpdatePending = true;
+        this.debouncedUpdateIssue();
+    }
+
+    private doUpdateIssue(): Q.Promise<void> {
+        if (!this.isUpdatePending || !this.isVisible()) {
+            return;
+        }
+
+        this.isUpdatePending = false;
+
+        const publishRequest: PublishRequest = this.createPublishRequest();
+        const status: IssueStatus = this.detailsSubTitle.getStatus();
+        const statusChanged: boolean = status !== this.issue.getIssueStatus();
 
         const updateIssueRequest = new UpdateIssueRequest(this.issue.getId())
             .setTitle(this.header.getTitle().trim())
-            .setStatus(newStatus)
-            .setAutoSave(autoSave)
+            .setStatus(status)
+            .setAutoSave(!statusChanged)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
             .setPublishRequest(publishRequest);
 
@@ -891,8 +913,8 @@ export class IssueDetailsDialog
             .then((updatedIssue: Issue) => {
                 if (statusChanged) {
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.status' : 'notify.issue.status';
-                    showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(newStatus)));
-                    this.toggleControlsAccordingToStatus(newStatus);
+                    showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(status)));
+                    this.toggleControlsAccordingToStatus(status);
                     this.detailsSubTitle.setIssue(updatedIssue, true);
                 } else {
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.updated' : 'notify.issue.updated';
@@ -974,8 +996,10 @@ export class IssueDetailsDialog
     }
 
     close() {
-        // FormInputEl:32
-        // setValue(originalValue) will be called on show() after setIssue() so reset originalValue to current
+        if (this.isUpdatePending) {
+            this.doUpdateIssue();
+        }
+
         this.itemSelector.resetBaseValues();
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();

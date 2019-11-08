@@ -46,7 +46,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                 }).then(() => {
                     return pageComponentView.openMenu("main");
                 }).then(() => {
-                    return pageComponentView.selectMenuItem(["Insert", "Image"]);
+                    return pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
                 }).then(() => {
                     return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
                 }).then(() => {

@@ -61,6 +61,7 @@ export class ImageInspectionPanel
 
     setModel(liveEditModel: LiveEditModel) {
         super.setModel(liveEditModel);
+        this.imageSelector.load();
     }
 
     setImageComponentView(imageView: ImageComponentView) {

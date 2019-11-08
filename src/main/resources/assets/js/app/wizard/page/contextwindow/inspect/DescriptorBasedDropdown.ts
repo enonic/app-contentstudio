@@ -21,6 +21,8 @@ export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
     }
 
     setDescriptor(descriptor: Descriptor) {
+        this.resetActiveSelection();
+        this.resetSelected();
 
         if (descriptor) {
             let option = this.getOptionByValue(descriptor.getKey().toString());

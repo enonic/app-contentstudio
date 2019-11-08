@@ -12,15 +12,16 @@ import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {Content} from '../../content/Content';
-import {ImageUrlResolver} from '../../util/ImageUrlResolver';
 import {BaseInputTypeSingleOccurrence} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {Content} from '../../content/Content';
+import {ImageUrlResolver} from '../../util/ImageUrlResolver';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -92,6 +93,10 @@ export class MediaUploader
 
             this.toggleClass('with-svg-image', isVectorMedia);
             this.uploaderWrapper.removeClass('uploading');
+        });
+
+        this.mediaUploaderEl.onUploadCompleted(() => {
+            new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
         });
 
         this.mediaUploaderEl.onUploadFailed(() => {

@@ -23,13 +23,11 @@ describe('Shortcut parameters specification', function () {
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
 
     it(`WHEN shortcut-wizard is opened THEN 'Add Parameter' button should be present`,
-        () => {
+        async () => {
             let shortcutForm = new ShortcutForm();
-            return studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT).then(() => {
-            }).then(() => {
-                return assert.eventually.isTrue(shortcutForm.waitForAddParametersButtonVisible(),
-                    "Add Parameters button should be visible");
-            });
+            await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
+            let result = await shortcutForm.waitForAddParametersButtonVisible();
+            assert.isTrue(result, "Add Parameters button should be visible");
         });
 
     it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the content is getting not valid because parameter's inputs are required`,
@@ -133,7 +131,7 @@ describe('Shortcut parameters specification', function () {
                 return wizardVersionsWidget.clickAndExpandVersion(1);
             }).then(result => {
                 studioUtils.saveScreenshot("shortcut_version_selected");
-                return wizardVersionsWidget.clickOnRestoreButton();
+                return wizardVersionsWidget.clickOnRevertButton();
             }).then(() => {
                 studioUtils.saveScreenshot("shortcut_parameter_version_rollback");
                 return shortcutForm.getParameterName();

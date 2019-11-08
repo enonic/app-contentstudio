@@ -90,7 +90,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
 
         strings = [
             new FieldString().setName(i18n('field.type')).setValue(this.content.getType().getLocalName()
-                                                                   ? this.content.getType().getLocalName() : this.content.getType().toString()),
+                ? this.content.getType().getLocalName() : this.content.getType().toString()),
 
             new FieldString().setName(i18n('field.app')).setValue(
                 application ? application.getDisplayName() : this.content.getType().getApplicationKey().getName()),

@@ -11,6 +11,8 @@ import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
 import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
 import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
@@ -44,6 +46,8 @@ export class IssueListDialog
     private currentUser: Principal;
 
     private createAction: Action;
+
+    private keyBinding: KeyBinding;
 
     private skipInitialLoad: boolean = false;
 
@@ -105,6 +109,104 @@ export class IssueListDialog
     protected initListeners() {
         super.initListeners();
         this.handleIssueGlobalEvents();
+        this.setupKeyNavigation();
+
+        this.onShown(() => {
+            if (this.isRendered()) {
+                this.allTab.getFirstChild().giveFocus();
+            } else {
+                this.onRendered(() => {
+                    this.allTab.getFirstChild().giveFocus();
+                });
+            }
+        });
+    }
+
+    private setupKeyNavigation() {
+        this.keyBinding = new KeyBinding('tab', (event) => {
+            if (this.isAllTabFocused() && !this.allPanel.isEmpty()) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.allPanel.focusFirstItem();
+
+                return;
+            }
+
+            if (this.isLastListItemFocused(this.allPanel)) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.publishRequestsTab.getFirstChild().giveFocus();
+
+                return;
+            }
+
+            if (this.isPublishRequestsTabFocused() && !this.publishRequestsPanel.isEmpty()) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.publishRequestsPanel.focusFirstItem();
+
+                return;
+            }
+
+            if (this.isLastListItemFocused(this.publishRequestsPanel)) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.issuesTab.getFirstChild().giveFocus();
+
+                return;
+            }
+
+            if (this.isIssuesTabFocused() && !this.issuesPanel.isEmpty()) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.issuesPanel.focusFirstItem();
+
+                return;
+            }
+        });
+
+        this.allTab.onClicked(() => {
+            this.allTab.getFirstChild().giveFocus();
+        });
+
+        this.allTab.getFirstChild().onFocus(() => {
+            this.allTab.select();
+        });
+
+        this.publishRequestsTab.onClicked(() => {
+            this.publishRequestsTab.getFirstChild().giveFocus();
+        });
+
+        this.publishRequestsTab.getFirstChild().onFocus(() => {
+            this.publishRequestsTab.select();
+        });
+
+        this.issuesTab.onClicked(() => {
+            this.issuesTab.getFirstChild().giveFocus();
+        });
+
+        this.issuesTab.getFirstChild().onFocus(() => {
+            this.issuesTab.select();
+        });
+    }
+
+    private isAllTabFocused(): boolean {
+        return document.activeElement === this.allTab.getFirstChild().getHTMLElement() || document.activeElement ===
+               this.allTab.getHTMLElement();
+    }
+
+    private isPublishRequestsTabFocused(): boolean {
+        return document.activeElement === this.publishRequestsTab.getFirstChild().getHTMLElement() || document.activeElement ===
+               this.publishRequestsTab.getHTMLElement();
+    }
+
+    private isIssuesTabFocused(): boolean {
+        return document.activeElement === this.issuesTab.getFirstChild().getHTMLElement() || document.activeElement ===
+               this.issuesTab.getHTMLElement();
+    }
+
+    private isLastListItemFocused(issuesPanel: IssuesPanel): boolean {
+        return document.activeElement === issuesPanel.getIssueList().getLastChild().getHTMLElement();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -115,6 +217,11 @@ export class IssueListDialog
 
             return rendered;
         });
+    }
+
+    unmask() {
+        super.unmask();
+        this.tabBar.getSelectedNavigationItem().getFirstChild().giveFocus();
     }
 
     private createTabBar(): TabBar {
@@ -132,8 +239,9 @@ export class IssueListDialog
     }
 
     private static createTab(label: string): TabBarItem {
-        const builder = new TabBarItemBuilder();
-        return builder.setLabel(label).setAddLabelTitleAttribute(false).build();
+        const tabBarItem: TabBarItem = new TabBarItemBuilder().setLabel(label).setAddLabelTitleAttribute(false).build();
+
+        return tabBarItem;
     }
 
     private createDeckPanel(): NavigatedDeckPanel {
@@ -165,6 +273,7 @@ export class IssueListDialog
         super.close();
         this.resetFiltersAndTab();
         this.remove();
+        KeyBindings.get().unbindKey(this.keyBinding);
     }
 
     open(assignedToMe: boolean = false, createdByMe: boolean = false) {
@@ -186,6 +295,8 @@ export class IssueListDialog
             this.publishRequestsPanel.selectAssignedByMe();
             this.issuesPanel.selectAssignedByMe();
         }
+
+        KeyBindings.get().bindKey(this.keyBinding);
     }
 
     private resetFiltersAndTab() {

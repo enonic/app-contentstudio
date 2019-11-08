@@ -118,8 +118,8 @@ class HtmlAreaForm extends Page {
 
     showToolbar() {
         return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(`//a[contains(@class,'cke_button')]`, appConst.TIMEOUT_3).catch(err => {
-                throw new Error('CKE toolbar was not shown in ' + appConst.TIMEOUT_3 + ' ' + err);
+            return this.waitUntilDisplayed(`//span[contains(@class,'cke_toolbox')]`, appConst.TIMEOUT_3).catch(err => {
+                throw new Error('CKE toolbar is not shown in ' + appConst.TIMEOUT_3 + ' ' + err);
             })
         });
     }

@@ -3,19 +3,11 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {ContentVersionViewer} from './ContentVersionViewer';
-import {ContentVersion} from '../../../../ContentVersion';
-import {ContentVersions} from '../../../../ContentVersions';
-import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
-import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
-import {SetActiveContentVersionRequest} from '../../../../resource/SetActiveContentVersionRequest';
-import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ContentId}  from 'lib-admin-ui/content/ContentId';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
@@ -24,6 +16,14 @@ import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {ContentVersionViewer} from './ContentVersionViewer';
+import {ContentVersion} from '../../../../ContentVersion';
+import {ContentVersions} from '../../../../ContentVersions';
+import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
+import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
+import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 
 export class VersionsView
     extends ListBox<ContentVersion> {
@@ -187,32 +187,36 @@ export class VersionsView
         }
 
         let isActive = item.id === this.activeVersion.id;
-        let restoreButton = new ActionButton(
-            new Action(isActive ? i18n('field.version.active') : i18n('field.version.restore'))
+        const revertButton = new ActionButton(
+            new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
                 .onExecuted((action: Action) => {
                     if (!isActive) {
-                        new SetActiveContentVersionRequest(item.id, this.getContentId()).sendAndParse().then(
-                            (contentId: ContentId) => {
-                                NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
-                                new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
+                        new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
+                            (contentVersionId: string) => {
+                                if (contentVersionId === this.activeVersion.id) {
+                                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                                } else {
+                                    NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
+                                    new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
+                                }
                             });
                     }
                 }), false);
 
         if (isActive) {
-            restoreButton.addClass('active');
+            revertButton.addClass('active');
         }
 
         if (this.content.isReadOnly()) {
-            restoreButton.setEnabled(false);
+            revertButton.setEnabled(false);
         }
 
-        restoreButton.onClicked((event: MouseEvent) => {
+        revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
         });
 
-        versionInfoDiv.appendChildren(restoreButton);
+        versionInfoDiv.appendChildren(revertButton);
 
         return versionInfoDiv;
     }

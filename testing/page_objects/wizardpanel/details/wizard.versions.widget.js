@@ -39,7 +39,7 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         });
     }
 
-    async clickOnRestoreButton() {
+    async clickOnRevertButton() {
         try {
             let selector = xpath.versionItemExpanded + "//button";
             await this.waitForElementDisplayed(selector);

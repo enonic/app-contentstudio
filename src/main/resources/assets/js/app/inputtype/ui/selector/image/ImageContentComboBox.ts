@@ -79,6 +79,10 @@ export class ImageContentComboBox
         return <ImageOptionDataLoader>super.getLoader();
     }
 
+    load() {
+        this.reload('');
+    }
+
     public static create(): ImageContentComboBoxBuilder {
         return new ImageContentComboBoxBuilder();
     }

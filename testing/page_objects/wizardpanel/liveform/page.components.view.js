@@ -4,6 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const ContentWizard = require('../../wizardpanel/content.wizard.panel');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
@@ -19,6 +20,7 @@ const xpath = {
                lib.P_SUB_NAME;
     },
 };
+
 //Modal Dialog:
 class PageComponentView extends Page {
 
@@ -58,10 +60,10 @@ class PageComponentView extends Page {
     }
 
     async isComponentSelected(displayName) {
-        let rowXpath = lib.slickRowByDisplayName(xpath.container,displayName)+ "//div[contains(@class,'slick-cell')]";
-        await this.waitForElementDisplayed(rowXpath,appConst.TIMEOUT_2);
+        let rowXpath = lib.slickRowByDisplayName(xpath.container, displayName) + "//div[contains(@class,'slick-cell')]";
+        await this.waitForElementDisplayed(rowXpath, appConst.TIMEOUT_2);
         let cell = await this.findElement(rowXpath);
-        let attr=  await cell.getAttribute("class");
+        let attr = await cell.getAttribute("class");
         return attr.includes("selected");
     }
 
@@ -82,6 +84,14 @@ class PageComponentView extends Page {
         return result;
     }
 
+    async selectMenuItemAndCloseDialog(items) {
+        let contentWizard = new ContentWizard();
+        await this.selectMenuItem(items);
+        await this.pause(500);
+        await contentWizard.clickOnHideComponentViewToggler();
+        return await this.waitForClosed();
+    }
+
     clickOnMenuItem(menuItem) {
         let selector = xpath.contextMenuItemByName(menuItem);
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
@@ -96,6 +106,10 @@ class PageComponentView extends Page {
 
     waitForOpened() {
         return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2);
+    }
+
+    waitForClosed() {
+        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
     }
 
     async swapComponents(sourceName, destinationName) {

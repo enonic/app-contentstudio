@@ -308,6 +308,11 @@ export class IssueList
         const itemEl = new IssueListItem(issueWithAssignees, this.currentUser);
 
         itemEl.onClicked(() => this.notifyIssueSelected(issueWithAssignees));
+        itemEl.onKeyPressed((event: KeyboardEvent) => {
+            if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+                this.notifyIssueSelected(issueWithAssignees);
+            }
+        });
 
         return itemEl;
     }

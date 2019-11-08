@@ -36,7 +36,7 @@ export class HtmlEditor {
         this.editorParams = htmlEditorParams;
 
         this.createEditor(config);
-        this.allowFigureHaveAnyClasses();
+        this.modifyImagePlugin();
         this.transformTableAttrs();
         this.listenEditorEvents();
         this.handleFileUpload();
@@ -54,14 +54,46 @@ export class HtmlEditor {
                       CKEDITOR.replace(this.editorParams.getEditorContainerId(), config);
     }
 
-    private allowFigureHaveAnyClasses() {
+    private modifyImagePlugin() {
         this.editor.on('widgetDefinition', (e: eventInfo) => {
             if (e.data.name === 'image') {
-                e.data.allowedContent.figure.classes = ['*'];
-                e.data.allowedContent.figure.styles = ['*'];
-                e.data.allowedContent.img.styles = ['*'];
+                this.allowFigureHaveAnyClasses2(e);
+                this.modifyImagePluginUpcastFunction(e);
             }
         });
+    }
+
+    private allowFigureHaveAnyClasses2(e: eventInfo) {
+        e.data.allowedContent.figure.classes = ['*'];
+        e.data.allowedContent.figure.styles = ['*'];
+        e.data.allowedContent.img.styles = ['*'];
+    }
+
+    private modifyImagePluginUpcastFunction(e: eventInfo) {
+        const originalUpcastFunction: Function = e.data.upcast;
+        const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
+            const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
+
+            if (result && result.name === 'img') { // standalone image
+                return null;
+            }
+
+            if (result && result.name === 'a' && (<any>result).parent.name !== 'figure') { // standalone image wrapped with link
+                return null;
+            }
+
+            if (!result && el.name === 'figure') {
+                if (el.getFirst('img') ?
+                    el.getFirst('img') : el.getFirst('a') ?
+                                         (<CKEDITOR.htmlParser.element>el.getFirst('a')).getFirst('img') : null) {
+                    return el;
+                }
+            }
+
+            return result;
+        };
+
+        e.data.upcast = newUpcastFunction;
     }
 
     private transformTableAttrs() {

@@ -72,7 +72,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await wizard.openVersionsHistoryPanel();
             await versionPanel.clickAndExpandVersion(1);
-            await versionPanel.clickOnRestoreButton();
+            await versionPanel.clickOnRevertButton();
             studioUtils.saveScreenshot("rollback_workflow_state");
 
             let state = await wizard.getToolbarWorkflowState(TEST_FOLDER.displayName);

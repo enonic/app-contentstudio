@@ -110,7 +110,7 @@ function rollbackVersion() {
     }).then(() => {
         return wizardVersionsWidget.clickAndExpandVersion(1)
     }).then(() => {
-        return wizardVersionsWidget.clickOnRestoreButton();
+        return wizardVersionsWidget.clickOnRevertButton();
     });
 }
 
