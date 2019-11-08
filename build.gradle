@@ -81,6 +81,7 @@ task webpack( type: NodeTask, dependsOn: [npmInstall, lint] ) {
     description = 'Build UI resources (ts, css, etc).'
     inputs.dir '.xp/dev'
     inputs.dir 'src/main'
+    inputs.file 'webpack.config.js'
     outputs.dir "${buildDir}/resources/main"
     script = file( './node_modules/webpack/bin/webpack' )
 }
@@ -98,6 +99,9 @@ jar {
     exclude 'assets/page-editor/lib/_include.js'
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/fonts/*.*'
+    if (isProd()) {
+        exclude 'assets/**/*.map'
+    }
 
     dependsOn += webpack
 }
@@ -147,6 +151,9 @@ def nodeEnvironment() {
     return nodeEnv != null ? nodeEnv : 'production'
 }
 
+def isProd() {
+    return hasProperty( 'env' ) ? (env == 'prod') : true
+}
 
 asciidoctor {
     sourceDir = file('docs')
