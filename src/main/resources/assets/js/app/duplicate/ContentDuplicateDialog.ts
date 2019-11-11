@@ -92,12 +92,12 @@ export class ContentDuplicateDialog
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
-            this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
-                this.countItemsToDuplicateAndUpdateButtonCounter();
             }).finally(() => {
                 this.hideLoadMask();
                 this.unlockControls();
+                this.countItemsToDuplicateAndUpdateButtonCounter();
                 this.updateTabbable();
                 this.actionButton.giveFocus();
             });

@@ -41,6 +41,7 @@ import {H2El} from 'lib-admin-ui/dom/H2El';
 import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class PageComponentsView
     extends DivEl {
@@ -57,6 +58,7 @@ export class PageComponentsView
     private modal: boolean;
     private floating: boolean;
     private draggable: boolean;
+    private selectedItemId: string;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -178,6 +180,9 @@ export class PageComponentsView
 
             this.tree.setPageView(pageView).then(() => {
                 this.initLock();
+                if (this.selectedItemId) {
+                    this.selectItemById();
+                }
             });
         }
 
@@ -215,51 +220,22 @@ export class PageComponentsView
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                let selectedItemId = this.tree.getDataId(event.getItemView());
-                this.tree.selectNode(selectedItemId, true);
-                this.tree.getGrid().focus();
+                this.selectedItemId = this.tree.getDataId(event.getItemView());
+                this.selectItemById();
             }
         });
 
         this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
             this.tree.deselectNodes([this.tree.getDataId(event.getItemView())]);
+            this.selectedItemId = null;
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
-            let parentNode = this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
-            if (parentNode) {
-                // deselect all otherwise node is going to be added as child to selection (that is weird btw)
-                this.tree.deselectAll();
-                let index = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
-                if (index >= 0) {
-                    this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
-                        // expand parent node to show added one
-                        this.tree.expandNode(parentNode);
-
-                        if (event.getComponentView().isSelected()) {
-                            this.tree.selectNode(this.tree.getDataId(event.getComponentView()));
-                        }
-
-                        if (this.tree.hasChildren(event.getComponentView())) {
-                            const componentDataId = this.tree.getDataId(event.getComponentView());
-                            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
-
-                            if (event.isDragged()) {
-                                this.tree.collapseNode(componentNode, true);
-                            } else {
-                                this.tree.expandNode(componentNode, true);
-                            }
-                        }
-
-                        if (ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
-                            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
-                        }
-
-                        this.constrainToParent();
-                        this.highlightInvalidItems();
-                    });
+            this.addComponent(event).then((added: boolean) => {
+                if (added) {
+                    this.handleComponentAdded(event);
                 }
-            }
+            }).catch(DefaultErrorHandler.handle);
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -295,6 +271,50 @@ export class PageComponentsView
 
             this.removeFromInvalidItems(oldDataId);
         });
+    }
+
+    private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
+        const parentNode: TreeNode<ItemView> =
+            this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
+        if (!parentNode) {
+            return Q(false);
+        }
+        // deselect all otherwise node is going to be added as child to selection (that is weird btw)
+        this.tree.deselectAll();
+        const index: number = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
+        if (index < 0) {
+            return Q(false);
+        }
+
+        return this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
+            return this.tree.expandNode(parentNode).then(() => { // expand parent node to show added one
+                return true;
+            });
+        });
+    }
+
+    private handleComponentAdded(event: ComponentAddedEvent) {
+        if (event.getComponentView().isSelected()) {
+            this.tree.selectNode(this.tree.getDataId(event.getComponentView()));
+        }
+
+        if (this.tree.hasChildren(event.getComponentView())) {
+            const componentDataId = this.tree.getDataId(event.getComponentView());
+            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
+
+            if (event.isDragged()) {
+                this.tree.collapseNode(componentNode, true);
+            } else {
+                this.tree.expandNode(componentNode, true);
+            }
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
+            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
+        }
+
+        this.constrainToParent();
+        this.highlightInvalidItems();
     }
 
     private refreshComponentViewNode(componentView: ComponentView<Component>,
@@ -526,6 +546,11 @@ export class PageComponentsView
     private selectItem(treeNode: TreeNode<ItemView>) {
         treeNode.getData().selectWithoutMenu();
         this.scrollToItem(treeNode.getDataId());
+    }
+
+    private selectItemById() {
+        this.tree.selectNode(this.selectedItemId, true);
+        this.tree.getGrid().focus();
     }
 
     isDraggable(): boolean {

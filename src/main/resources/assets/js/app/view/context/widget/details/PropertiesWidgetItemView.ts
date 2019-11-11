@@ -11,8 +11,7 @@ import {DlEl} from 'lib-admin-ui/dom/DlEl';
 import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {DdDtEl} from 'lib-admin-ui/dom/DdDtEl';
 
-export class PropertiesWidgetItemView
-    extends WidgetItemView {
+export class PropertiesWidgetItemView extends WidgetItemView {
 
     private content: ContentSummary;
 

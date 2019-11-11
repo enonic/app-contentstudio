@@ -1,5 +1,5 @@
 /**
- * Created on 21.03.2019.
+ * Created on 05.11.2019.
  */
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -9,21 +9,20 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
-describe("image.component.default.caption.spec: Type a caption in image-wizard and check it in an inserted image component",
+describe("revert.site.with.component.spec: Insert image component then revert the previous version and check Live Frame",
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-        let IMAGE_DISPLAY_NAME = 'bro';
+        let IMAGE_DISPLAY_NAME = 'seng';
         let SITE;
         let CONTROLLER_NAME = 'main region';
-        let EXPECTED_CAPTION = "bro caption";
 
         it(`Preconditions: new site should be created`,
             async () => {
@@ -32,21 +31,7 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
                 await studioUtils.doAddSite(SITE);
             });
 
-        it(`GIVEN existing image is opened WHEN caption has been typed in the wizard AND the image has been saved THEN the caption should be saved`,
-            async () => {
-                let imageFormPanel = new ImageFormPanel();
-                let contentWizard = new ContentWizard();
-                //1. Open the image:
-                await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
-                //2. Type a caption then save the image:
-                await imageFormPanel.typeCaption(EXPECTED_CAPTION);
-                await contentWizard.waitAndClickOnSave();
-                //3. Get the saved caption in the image-wizard:
-                let result = await imageFormPanel.getCaption();
-                assert.equal(result, EXPECTED_CAPTION, "caption should be saved");
-            });
-
-        it(`GIVEN existing site is opened WHEN test image has been inserted THEN expected default caption should be present in the Image Inspection Panel`,
+        it(`Preconditions: GIVEN existing site is opened AND a test image has been inserted`,
             async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
@@ -63,13 +48,34 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
                 await contentWizard.clickOnHideComponentViewToggler();
                 //5. Select the image in the Page Editor:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
+                //6. The image should appear in Live Frame:
+                await liveFormPanel.waitForImageDisplayed(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();
+                //The site should be saved automatically!
+                await contentWizard.waitForSaveButtonDisabled();
+            });
 
-                //Default caption should be loaded in the Caption-Input
-                let result = await imageInspectPanel.getCaptionText();
+        //Verifies https://github.com/enonic/xp/issues/7603  (Page changes are not reverted on version revert )
+        it(`GIVEN existing site with image component is opened WHEN the version without the image has been reverted THEN the image should not be present in Live Edit frame`,
+            async () => {
+                let contentWizard = new ContentWizard();
+                let versionPanel = new WizardVersionsWidget();
+                let imageInspectPanel = new ImageInspectPanel();
+                let liveFormPanel = new LiveFormPanel();
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                //1. Open  'Versions Panel':
+                await contentWizard.openVersionsHistoryPanel();
+                //2. Revert the previous version:
+                await versionPanel.clickAndExpandVersion(1);
+                await versionPanel.clickOnRevertButton();
+                studioUtils.saveScreenshot("site_reverted1");
 
-                studioUtils.saveScreenshot('inspect_image_panel_default_caption');
-                assert.equal(result, EXPECTED_CAPTION, "actual and expected captions should be equal");
+                await contentWizard.switchToLiveEditFrame();
+                //3. Image should not be present in Live Frame
+                await liveFormPanel.waitForImageNotDisplayed(IMAGE_DISPLAY_NAME);
+                await contentWizard.switchToMainFrame();
+                //4. Save button should be disabled after the reverting:
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -13,7 +13,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
-describe('Menu Items: `Save as fragment` and `Detach from Fragment` specification', function () {
+describe('Menu Items: Save as fragment and Detach from Fragment specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -27,29 +27,42 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN 'Detach from Fragment' menu item should appear`,
-        () => {
+    //verifies https://github.com/enonic/app-contentstudio/issues/1108 (tooltip 'Hide Component View' does not appear. )
+    it(`GIVEN existing site is opened WHEN 'Show Component View' toggler has been clicked THEN 'Hide Component View' should appear`,
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return pageComponentView.openMenu("Text");
-            }).then(() => {
-                return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).then(() => {
-                return pageComponentView.pause(2000);
-            }).then(() => {
-                return pageComponentView.openMenu("Text");
-            }).then(() => {
-                studioUtils.saveScreenshot('text_saved_as_fragment');
-                return assert.eventually.isTrue(pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT),
-                    "Detach from Fragment menu item should appear");
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //Click on 'Show Component View'
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.waitForOpened();
+            await pageComponentView.openMenu("main");
+            //'Hide Component View' should appear:
+            await contentWizard.waitForHideComponentViewTogglerDisplayed();
+        });
+
+    it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN 'Detach from Fragment' menu item should appear`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //Click on 'Show Component View'
+            await contentWizard.clickOnShowComponentViewToggler();
+            //Open the context menu:
+            await pageComponentView.openMenu("main");
+            //Select "Insert>Text"
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            //Open text-component's context menu:
+            await pageComponentView.openMenu("Text");
+            //Click on 'Save as Fragment' menu item:
+            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.pause(2000);
+            //Open text-component's context menu:
+            await pageComponentView.openMenu("Text");
+            studioUtils.saveScreenshot('text_saved_as_fragment');
+            let result = await pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            assert.isTrue(result, "'Detach from Fragment' menu item should appear in the menu");
         });
 
     //verifies: New fragment should be created in the same workflow state as the content it was created from xp/issues/7244
@@ -60,10 +73,8 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //1. Open Page Component View:
             await contentWizard.clickOnShowComponentViewToggler();
-
             //2. Select the fragment and open the context-menu:
             await pageComponentView.openMenu("Text");
-
             //3. Open this fragment in new browser-tab:
             await pageComponentView.selectMenuItem(["Edit"]);
             await studioUtils.doSwitchToNextTab();
@@ -81,10 +92,8 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //1. Open Page Component View:
             await contentWizard.clickOnShowComponentViewToggler();
-
             //2. Click on the existing component and select it:
             await pageComponentView.clickOnComponent("Text");
-
             //3. Update the site-description and save the site:
             await siteFormPanel.typeDescription("description111");
             await contentWizard.waitAndClickOnSave();
@@ -93,25 +102,22 @@ describe('Menu Items: `Save as fragment` and `Detach from Fragment` specificatio
             assert.isTrue(result, "The component should be selected after changes are saved");
         });
 
-    it(`GIVEN Page Component View is opened WHEN text-fragment clicked AND Detach from Fragment has been clicked THEN 'Save as Fragment' menu item should appear again`,
-        () => {
+    it(`GIVEN Page Component View is opened WHEN text-fragment context menu has been opened AND 'Detach from Fragment' has been clicked THEN 'Save as Fragment' menu item should appear again`,
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("Text");
-            }).then(() => {
-                return pageComponentView.selectMenuItem([appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT]);
-            }).then(() => {
-                return pageComponentView.pause(2000);
-            }).then(() => {
-                return pageComponentView.openMenu("Text");
-            }).then(() => {
-                studioUtils.saveScreenshot('text_is_detached');
-                return assert.eventually.isTrue(pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT),
-                    "'Save as Fragment' menu item should appear again");
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //text-component context menu has been opened:
+            await pageComponentView.openMenu("Text");
+            //'Detach from Fragment' menu item has been clicked:
+            await pageComponentView.selectMenuItem([appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT]);
+            await pageComponentView.pause(2000);
+            //text-component context menu has been opened:
+            await pageComponentView.openMenu("Text");
+            studioUtils.saveScreenshot('text_is_detached');
+            let result = await pageComponentView.isMenuItemPresent(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            assert.isTrue(result, "'Save as Fragment' menu item should appear again");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

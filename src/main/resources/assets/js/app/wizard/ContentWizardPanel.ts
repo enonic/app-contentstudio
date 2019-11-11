@@ -1968,7 +1968,9 @@ export class ContentWizardPanel
                 this.notifyContentNamed(content);
             }
 
-            this.showFeedbackContentSaved(content);
+            if (context.dataUpdated || context.pageUpdated) {
+                this.showFeedbackContentSaved(content);
+            }
 
             this.getWizardHeader().resetBaseValues();
 

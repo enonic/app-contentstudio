@@ -10,6 +10,10 @@ const LoaderComboBox = require('../../../page_objects/components/loader.combobox
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
+    imageComponentView: "//figure[contains(@id,'ImageComponentView')]",
+    imageComponentByDisplayName:
+        displayName => `//figure[contains(@id,'ImageComponentView')]//img[contains(@src,'${displayName}')]`,
+
 };
 
 class LiveFormPanel extends Page {
@@ -28,6 +32,7 @@ class LiveFormPanel extends Page {
             await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
+            this.saveScreenshot('err_select_image_' + displayName);
             throw new Error(`Error when selecting the image:  ${displayName} in Live Edit - ` + err);
         }
     }
@@ -41,6 +46,7 @@ class LiveFormPanel extends Page {
             await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
+            this.saveScreenshot('err_select_part_' + displayName);
             throw new Error("Error when selecting the part in Live Edit - " + err);
         }
     }
@@ -48,10 +54,30 @@ class LiveFormPanel extends Page {
     async getTextInPart() {
         try {
             let selector = "//div[contains(@id,'PartComponentView')]/p";
-            await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
             return await this.getText(selector);
         } catch (err) {
             throw new Error("Error when getting text in the part component! " + err);
+        }
+    }
+
+    async waitForImageDisplayed(imageName) {
+        try {
+            let selector = xpath.imageComponentByDisplayName(imageName);
+            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_image_component1");
+            throw new Error("Image component is not visible in Live Editor! " + err);
+        }
+    }
+
+    async waitForImageNotDisplayed(imageName) {
+        try {
+            let selector = xpath.imageComponentByDisplayName(imageName);
+            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_image_component2");
+            throw new Error("Image component should not visible in Live Editor! " + err);
         }
     }
 };

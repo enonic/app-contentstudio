@@ -11,6 +11,8 @@ import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
 import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
 import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {IssuesCount, IssuesPanel, IssuesPanelConfig} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
@@ -19,8 +21,6 @@ import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
-import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {

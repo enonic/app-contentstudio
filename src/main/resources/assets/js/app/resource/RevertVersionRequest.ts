@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentVersionJson} from './json/ContentVersionJson';

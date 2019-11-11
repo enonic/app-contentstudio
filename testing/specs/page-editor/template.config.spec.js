@@ -49,7 +49,6 @@ describe('template.config.spec: template config should be displayed in the Inspe
             //Click on Apply button in the Inspect Panel and save the changes:
             await defaultPageInspectionPanel.clickOnApplyButton();
             let result = await defaultPageInspectionPanel.getTitle();
-
             assert.equal(result, TITLE_TEXT, "expected and actual title should be equal");
         });
 
