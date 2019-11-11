@@ -24,9 +24,7 @@ import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest'
+import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 
 export class VersionsView
     extends ListBox<ContentVersion> {

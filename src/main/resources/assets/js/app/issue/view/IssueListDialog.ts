@@ -19,6 +19,8 @@ import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {
@@ -271,7 +273,7 @@ export class IssueListDialog
         super.close();
         this.resetFiltersAndTab();
         this.remove();
-        api.ui.KeyBindings.get().unbindKey(this.keyBinding);
+        KeyBindings.get().unbindKey(this.keyBinding);
     }
 
     open(assignedToMe: boolean = false, createdByMe: boolean = false) {
@@ -294,7 +296,7 @@ export class IssueListDialog
             this.issuesPanel.selectAssignedByMe();
         }
 
-        api.ui.KeyBindings.get().bindKey(this.keyBinding);
+        KeyBindings.get().bindKey(this.keyBinding);
     }
 
     private resetFiltersAndTab() {

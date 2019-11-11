@@ -1,10 +1,3 @@
-import ModalDialog = api.ui.dialog.ModalDialog;
-import i18n = api.util.i18n;
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import DivEl = api.dom.DivEl;
-import ContentId = api.content.ContentId;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import CheckboxBuilder = api.ui.CheckboxBuilder;
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
@@ -15,6 +8,17 @@ import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsFo
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
 import {AttachmentJson} from '../attachment/AttachmentJson';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import * as Q from 'q';
 
 
 export class CompareContentVersionsDialog
@@ -32,15 +36,15 @@ export class CompareContentVersionsDialog
 
     private toolbar: DivEl;
 
-    private leftDropdown: api.ui.selector.dropdown.Dropdown<ContentVersion>;
+    private leftDropdown: Dropdown<ContentVersion>;
 
-    private rightDropdown: api.ui.selector.dropdown.Dropdown<ContentVersion>;
+    private rightDropdown: Dropdown<ContentVersion>;
 
     private comparisonContainer: DivEl;
 
-    private revertLeftButton: api.ui.button.Button;
+    private revertLeftButton: Button;
 
-    private revertRightButton: api.ui.button.Button;
+    private revertRightButton: Button;
 
     private contentCache: { [key: string]: Object };
 
@@ -70,7 +74,7 @@ export class CompareContentVersionsDialog
                 dataIdProperty: 'value',
                 value: this.leftVersion
             });
-            this.revertLeftButton = new api.ui.button.Button(i18n('dialog.compare.revertThis'));
+            this.revertLeftButton = new Button(i18n('dialog.compare.revertThis'));
             this.leftDropdown.onValueChanged(event => {
                 this.updateButtonsState();
                 this.displayDiff(event.getNewValue(), this.rightDropdown.getValue());
@@ -82,7 +86,7 @@ export class CompareContentVersionsDialog
                 });
             });
             const leftContainer = new DivEl('container');
-            leftContainer.appendChildren<api.dom.Element>(this.revertLeftButton, this.leftDropdown);
+            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown);
 
 
             this.rightDropdown = new Dropdown('right-version', {
@@ -91,7 +95,7 @@ export class CompareContentVersionsDialog
                 disableFilter: true,
                 value: this.rightVersion
             });
-            this.revertRightButton = new api.ui.button.Button(i18n('dialog.compare.revertThis'));
+            this.revertRightButton = new Button(i18n('dialog.compare.revertThis'));
             this.rightDropdown.onValueChanged(event => {
                 this.updateButtonsState();
                 this.displayDiff(this.leftDropdown.getValue(), event.getNewValue());
@@ -103,7 +107,7 @@ export class CompareContentVersionsDialog
                 });
             });
             const rightContainer = new DivEl('container');
-            rightContainer.appendChildren<api.dom.Element>(this.rightDropdown, this.revertRightButton);
+            rightContainer.appendChildren<Element>(this.rightDropdown, this.revertRightButton);
 
             const bottomContainer = new DivEl('container bottom');
             const htmlFormatter = (<any>formatters.html);
@@ -187,7 +191,7 @@ export class CompareContentVersionsDialog
                     this.rightDropdown.removeAllOptions();
                 }
 
-                let options: api.ui.selector.Option<ContentVersion>[] = [];
+                let options: Option<ContentVersion>[] = [];
                 const versions = contentVersions.getContentVersions();
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
@@ -210,7 +214,7 @@ export class CompareContentVersionsDialog
         super.close();
     }
 
-    private displayDiff(leftVersion: string, rightVersion: string): wemQ.Promise<void> {
+    private displayDiff(leftVersion: string, rightVersion: string): Q.Promise<void> {
         let leftCache = this.contentCache[leftVersion];
         let rightCache = this.contentCache[rightVersion];
 
@@ -224,7 +228,7 @@ export class CompareContentVersionsDialog
                     return processedContent;
                 }));
         } else {
-            promises.push(wemQ(leftCache));
+            promises.push(Q(leftCache));
         }
         if (!rightCache) {
             promises.push(new GetContentByIdRequest(this.contentId)
@@ -235,11 +239,11 @@ export class CompareContentVersionsDialog
                     return processedContent;
                 }));
         } else {
-            promises.push(wemQ(rightCache));
+            promises.push(Q(rightCache));
         }
         this.comparisonContainer.addClass('loading');
 
-        return wemQ.all(promises).spread((leftJson: Object, rightJson: Object) => {
+        return Q.all(promises).spread((leftJson: Object, rightJson: Object) => {
             const delta: Delta = this.diffPatcher.diff(leftJson, rightJson);
             let text;
             let isEmpty = false;
@@ -254,13 +258,13 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private restoreVersion(version: string): wemQ.Promise<void> {
+    private restoreVersion(version: string): Q.Promise<void> {
         return new RevertVersionRequest(version, this.contentId.toString()).sendAndParse()
             .then((contentKey: string) => {
                 if (contentKey === this.activeVersion) {
-                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                 } else {
-                    api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', contentKey));
+                    NotifyManager.get().showFeedback(i18n('notify.version.changed', contentKey));
                     new ActiveContentVersionSetEvent(this.contentId, contentKey).fire();
                     this.activeVersion = contentKey;
                     return this.reloadVersions();
