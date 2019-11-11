@@ -49,9 +49,17 @@
           .version-info {
             color: @admin-black;
             background-color: @admin-white;
+
+            .names-and-icon-view {
+              width: 100%;
+            }
           }
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-green;
+          }
+
+          button.compare {
+            display: none !important;
           }
 
         }
@@ -88,6 +96,7 @@
           padding: 7px;
           font-size: 12px;
           display: flex;
+          flex-wrap: wrap;
 
           .names-and-icon-view {
             padding: 10px 0;

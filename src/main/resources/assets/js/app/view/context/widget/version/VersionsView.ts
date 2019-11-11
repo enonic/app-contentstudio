@@ -229,6 +229,8 @@ export class VersionsView
                         .open();
                 }), false);
 
+        compareButton.addClass('compare');
+
         versionInfoDiv.appendChildren(revertButton, compareButton);
 
         revertButton.onClicked(swallowEvent);
