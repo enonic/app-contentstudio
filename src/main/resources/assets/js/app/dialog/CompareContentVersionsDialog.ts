@@ -85,7 +85,7 @@ export class CompareContentVersionsDialog
                     this.updateButtonsState();
                 });
             });
-            const leftContainer = new DivEl('container');
+            const leftContainer = new DivEl('container left');
             leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown);
 
 
@@ -106,7 +106,7 @@ export class CompareContentVersionsDialog
                     this.updateButtonsState();
                 });
             });
-            const rightContainer = new DivEl('container');
+            const rightContainer = new DivEl('container right');
             rightContainer.appendChildren<Element>(this.rightDropdown, this.revertRightButton);
 
             const bottomContainer = new DivEl('container bottom');
