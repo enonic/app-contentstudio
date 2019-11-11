@@ -4,7 +4,6 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentVersionViewer
     extends Viewer<ContentVersion> {
@@ -17,11 +16,6 @@ export class ContentVersionViewer
         this.appendChild(this.namesAndIconView);
     }
 
-    private formatSubName(contentVersion: ContentVersion): string {
-        return i18n('widget.contentversion.modifiedBy', DateHelper.getModifiedString(contentVersion.modified),
-            contentVersion.modifierDisplayName);
-    }
-
     getPreferredHeight(): number {
         return 50;
     }
@@ -29,14 +23,13 @@ export class ContentVersionViewer
     setObject(contentVersion: ContentVersion, row?: number) {
 
         this.namesAndIconView
-            .setMainName(contentVersion.comment ? contentVersion.comment : contentVersion.displayName
-                                                                           ? contentVersion.displayName
-                                                                           : contentVersion.id)
-            .setSubName(this.formatSubName(contentVersion))
-            .setIconClass(contentVersion.publishInfo ? 'icon-version-published' : contentVersion.workflowInfo && WorkflowState.READY ===
-                                                                                  contentVersion.workflowInfo.getState()
-                                                                                  ? 'icon-state-ready'
-                                                                                  : 'icon-version-modified');
+            .setMainName(contentVersion.modifierDisplayName)
+            .setSubName(DateHelper.getModifiedString(contentVersion.modified))
+            .setIconClass(contentVersion.publishInfo
+                          ? 'icon-version-published'
+                          : contentVersion.workflowInfo && WorkflowState.READY === contentVersion.workflowInfo.getState()
+                            ? 'icon-state-ready'
+                            : 'icon-version-modified');
 
         return super.setObject(contentVersion);
     }
