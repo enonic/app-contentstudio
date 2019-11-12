@@ -1,0 +1,46 @@
+/**
+ * Created on 11.11.2019.
+ */
+const chai = require('chai');
+const assert = chai.assert;
+const webDriverHelper = require('../libs/WebDriverHelper');
+const appConstant = require('../libs/app_const');
+const studioUtils = require('../libs/studio.utils.js');
+const contentBuilder = require("../libs/content.builder");
+const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+
+describe('save.folder.failed.attempt.spec: Save a folder with a name that is already in use', function () {
+    this.timeout(appConstant.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+    let TEST_FOLDER;
+
+    it(`Preconditions: new folder should be added`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('folder');
+            TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddFolder(TEST_FOLDER);
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/1022 Save button should remain enabled after failed attempt to save a content
+    it(`GIVEN new wizard is opened WHEN type the existing name AND click on Save button THEN Save button should remain enabled after failed attempt to save the content`,
+        async () => {
+            let wizard = new ContentWizard();
+            //1. Open new folder-wizard:
+            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            //2. type the a name of existing content:
+            await wizard.typeDisplayName(TEST_FOLDER.displayName);
+            //3. click on 'Save' button:
+            await wizard.waitAndClickOnSave();
+            let expectedMessage = appConstant.saveFailedAttempt(TEST_FOLDER.displayName);
+            studioUtils.saveScreenshot("save_folder_failed_attempt");
+            await wizard.waitForExpectedNotificationMessage(expectedMessage);
+            //4. 'Save' button remains enabled:
+            await wizard.waitForSaveButtonEnabled();
+        });
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+});

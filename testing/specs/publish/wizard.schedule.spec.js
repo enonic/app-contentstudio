@@ -58,7 +58,7 @@ describe('Wizard page - verify schedule form`', function () {
             });
         });
 
-    it(`WHEN existing online-content is opened THEN Expected date time should be displayed in 'Online from'`,
+    it(`WHEN existing published content is opened THEN Expected date time should be displayed in 'Online from'`,
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
@@ -68,7 +68,7 @@ describe('Wizard page - verify schedule form`', function () {
             assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
         });
 
-    it(`GIVEN existing online-content is opened WHEN content has been unpublished THEN 'Schedule' form is getting not visible`,
+    it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form is getting not visible`,
         () => {
             let contentWizard = new ContentWizard();
             return studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName).then(() => {

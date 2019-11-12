@@ -26,6 +26,9 @@ module.exports = Object.freeze({
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
     },
+    saveFailedAttempt: function (name) {
+        return `Content \[${name}\] could not be updated. A content with that name already exists`;
+    },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,

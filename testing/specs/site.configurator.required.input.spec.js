@@ -14,7 +14,6 @@ const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 
-
 describe('site.configurator.required.input.spec: verifies the wizard-validation when the dialog contains required input', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
@@ -42,35 +41,29 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed near the content`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                studioUtils.saveScreenshot('site_conf_required_empty');
-                assert.isTrue(isDisplayed, 'red icon should be present near the content!');
-            });
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
+            studioUtils.saveScreenshot('site_conf_required_empty');
+            assert.isTrue(isDisplayed, 'red icon should be present near the content!');
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN red icon should be displayed in the wizard`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.isContentInvalid();
-            }).then(isRedIconDisplayed => {
-                studioUtils.saveScreenshot('site_conf_required_empty_validation');
-                assert.isTrue(isRedIconDisplayed, 'red icon should be present in the wizard!');
-            });
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            let isRedIconDisplayed = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('site_conf_required_empty_validation');
+            assert.isTrue(isRedIconDisplayed, 'red icon should be present in the wizard!');
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is empty THEN the selected application-configurator option-view should be red`,
-        () => {
+        async () => {
             let siteFormPanel = new SiteFormPanel();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
-            }).then(isInvalid => {
-                assert.isTrue(isInvalid, 'Selected option view should be red colour because, the required input is empty');
-            });
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
+            assert.isTrue(isInvalid, 'Selected option view should be red colour because, the required input is empty');
         });
 
     it(`GIVEN existing site with the configurator is opened WHEN required input has been filled THEN the content is getting valid`,
@@ -94,15 +87,14 @@ describe('site.configurator.required.input.spec: verifies the wizard-validation 
                     'the site is getting valid, red icon is getting not visible');
             })
         });
+
     it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in the grid`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                studioUtils.saveScreenshot('site_conf_required_input_filled');
-                assert.isFalse(isDisplayed, 'red icon should be present near the content!');
-            });
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
+            studioUtils.saveScreenshot('site_conf_required_input_filled');
+            assert.isFalse(isDisplayed, 'red icon should be present near the content!');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
