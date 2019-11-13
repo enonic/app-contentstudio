@@ -4,9 +4,9 @@ export class RoutineContext {
 
     content: Content = null;
 
-    dataUpdated: boolean;
+    dataUpdated: boolean = false;
 
-    pageUpdated: boolean;
+    pageUpdated: boolean = false;
 }
 
 export class Flow {

@@ -530,7 +530,6 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         return super.saveChanges().then((content: Content) => {
-
             const persistedItem = content.clone();
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
@@ -550,6 +549,8 @@ export class ContentWizardPanel
                     }
                 }
                 this.xDataWizardStepForms.resetDisabledForms();
+            } else if (persistedItem.isSite()) {
+                this.updateWizardStepForms(persistedItem, false);
             } else if (this.securityWizardStepForm) {
                 // https://github.com/enonic/app-contentstudio/issues/1042
                 // update security form to update content path despite form hasn't changed
