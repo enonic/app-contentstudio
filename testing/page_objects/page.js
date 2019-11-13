@@ -238,7 +238,7 @@ class Page {
             let notificationXpath = `//div[@class='notification-content']/span`;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            },appConst.TIMEOUT_2);
+            }, appConst.TIMEOUT_2);
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
@@ -277,12 +277,14 @@ class Page {
         return await this.getText(selector);
     }
 
-    async doRightClick(selector) {
+    async doRightClick(selector, offsetX, offsetY) {
         let el = await this.findElement(selector);
         await el.moveTo();
-        let x = await el.getLocation('x');
-        let y = await el.getLocation('y');
-        console.log("X:" + x + "Y " + y);
+        let xValue = await el.getLocation('x');
+        let yValue = await el.getLocation('y');
+        let y = parseInt(yValue) + offsetY;
+        let x = parseInt(xValue) + offsetX;
+        console.log("X:" + x + " Y " + y);
         return await this.browser.performActions([{
             type: 'pointer',
             id: 'pointer1',
@@ -346,7 +348,6 @@ class Page {
     async switchToFrame(selector) {
         try {
             await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
-            let els = await this.findElements(selector);
             let el = await this.findElement(selector);
             //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
             return await this.getBrowser().switchToFrame(el);
