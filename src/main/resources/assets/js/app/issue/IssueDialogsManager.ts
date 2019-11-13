@@ -25,6 +25,7 @@ export class IssueDialogsManager {
     private publishDialogBeforeClosedHandler: () => void;
     private publishDialogCloseHandler: () => void;
     private detailsDialogCloseHandler: () => void;
+    private detailsDialogBackButtonClickedHandler: () => void;
     private issueUpdateHandler: (issues: Issue[]) => void;
 
     private constructor() {
@@ -59,7 +60,19 @@ export class IssueDialogsManager {
             this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
             IssueServerEventsHandler.getInstance().unIssueUpdated(this.issueUpdateHandler);
         };
+
+        let backButtonClicked: boolean = false;
         this.detailsDialogCloseHandler = () => {
+            if (backButtonClicked) {
+                return;
+            }
+            this.listDialog.close();
+            this.listDialog.unmask();
+        };
+        this.detailsDialogBackButtonClickedHandler = () => {
+            backButtonClicked = true;
+            IssueDialogsManager.closeDialog(this.detailsDialog);
+            backButtonClicked = false;
             this.listDialog.unmask();
             if (this.listDialog.isVisible()) {
                 this.listDialog.getEl().focus();
@@ -121,6 +134,7 @@ export class IssueDialogsManager {
     private listenDetailsDialog() {
         this.detailsDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.detailsDialog));
         this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
+        this.detailsDialog.onBackButtonClicked(this.detailsDialogBackButtonClickedHandler);
     }
 
     private listenPublishDialog() {
