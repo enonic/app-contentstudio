@@ -3,7 +3,7 @@ import {ContentVersionViewer} from '../view/context/widget/version/ContentVersio
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {Content} from '../content/Content';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {Delta, DiffContext, DiffPatcher, formatters} from 'jsondiffpatch';
+import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsForViewRequest';
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
@@ -19,6 +19,7 @@ import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import * as Q from 'q';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 
 export class CompareContentVersionsDialog
@@ -49,19 +50,15 @@ export class CompareContentVersionsDialog
     private contentCache: { [key: string]: Object };
 
     private diffPatcher: DiffPatcher;
-
-    private skipProps: string[] = ['extraData', 'data', 'page'];
+    private leftActiveIndicator: SpanEl;
+    private rightActiveIndicator: SpanEl;
 
     protected constructor() {
         super(<ModalDialogConfig>{
             class: 'compare-content-versions-dialog grey-header',
         });
 
-        this.diffPatcher = new DiffPatcher({
-            propertyFilter: (name: string, context: DiffContext) => {
-                return this.skipProps.indexOf(name) === -1;
-            }
-        });
+        this.diffPatcher = new DiffPatcher();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -74,7 +71,7 @@ export class CompareContentVersionsDialog
                 dataIdProperty: 'value',
                 value: this.leftVersion
             });
-            this.revertLeftButton = new Button(i18n('dialog.compare.revertThis'));
+            this.revertLeftButton = new Button(i18n('field.version.revert'));
             this.leftDropdown.onValueChanged(event => {
                 this.updateButtonsState();
                 this.displayDiff(event.getNewValue(), this.rightDropdown.getValue());
@@ -86,7 +83,9 @@ export class CompareContentVersionsDialog
                 });
             });
             const leftContainer = new DivEl('container left');
-            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown);
+            this.leftActiveIndicator = new SpanEl('active-indicator');
+            this.leftActiveIndicator.setHtml(i18n('dialog.compare.activeVersion'));
+            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown, this.leftActiveIndicator);
 
 
             this.rightDropdown = new Dropdown('right-version', {
@@ -95,7 +94,7 @@ export class CompareContentVersionsDialog
                 disableFilter: true,
                 value: this.rightVersion
             });
-            this.revertRightButton = new Button(i18n('dialog.compare.revertThis'));
+            this.revertRightButton = new Button(i18n('field.version.revert'));
             this.rightDropdown.onValueChanged(event => {
                 this.updateButtonsState();
                 this.displayDiff(this.leftDropdown.getValue(), event.getNewValue());
@@ -106,8 +105,10 @@ export class CompareContentVersionsDialog
                     this.updateButtonsState();
                 });
             });
+            this.rightActiveIndicator = new SpanEl('active-indicator');
+            this.rightActiveIndicator.setHtml(i18n('dialog.compare.activeVersion'));
             const rightContainer = new DivEl('container right');
-            rightContainer.appendChildren<Element>(this.rightDropdown, this.revertRightButton);
+            rightContainer.appendChildren<Element>(this.rightDropdown, this.revertRightButton, this.rightActiveIndicator);
 
             const bottomContainer = new DivEl('container bottom');
             const htmlFormatter = (<any>formatters.html);
@@ -122,9 +123,9 @@ export class CompareContentVersionsDialog
 
             this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
-            this.getContentPanel().appendChildren(this.toolbar, this.comparisonContainer);
+            this.appendChildToHeader(this.toolbar);
+            this.appendChildToContentPanel(this.comparisonContainer);
 
-            this.addCancelButtonToBottom();
             this.updateButtonsState();
 
             return rendered;
@@ -274,10 +275,14 @@ export class CompareContentVersionsDialog
 
     private updateButtonsState() {
         if (this.revertLeftButton) {
-            this.revertLeftButton.setEnabled(this.leftDropdown.getValue() !== this.activeVersion);
+            const leftActive = this.leftDropdown.getValue() === this.activeVersion;
+            this.revertLeftButton.setEnabled(!leftActive);
+            this.leftActiveIndicator.toggleClass('active', leftActive);
         }
         if (this.revertRightButton) {
-            this.revertRightButton.setEnabled(this.rightDropdown.getValue() !== this.activeVersion);
+            const rightActive = this.rightDropdown.getValue() === this.activeVersion;
+            this.revertRightButton.setEnabled(!rightActive);
+            this.rightActiveIndicator.toggleClass('active', rightActive);
         }
     }
 
@@ -292,16 +297,7 @@ export class CompareContentVersionsDialog
             type: content.getType().toString(),
             iconUrl: content.getIconUrl(),
             valid: content.isValid(),
-            publishFrom: content.getPublishFromTime(),
-            publishTo: content.getPublishToTime(),
-            publishFirstTime: content.getPublishFirstTime(),
-            inheritPermissions: content.isInheritPermissionsEnabled(),
-            overwritePermissions: content.isOverwritePermissionsEnabled(),
-            permissions: content.getPermissions().toJson(),
             owner: content.getOwner() ? content.getOwner().toString() : undefined,
-            createdTime: content.getCreatedTime(),
-            modifier: content.getModifier(),
-            modifiedTime: content.getModifiedTime(),
             language: content.getLanguage(),
             data: content.getContentData().toJson(),
             page: content.getPage() ? content.getPage().toJson() : undefined,

@@ -4,12 +4,29 @@
   min-width: 880px;
   max-width: initial;
 
-  .cancel-button-top {
+  .modal-dialog-footer {
     display: none;
+  }
+
+  .cancel-button-top {
+    top: 0;
+    right: 0;
+    z-index: 1;
+
+    &:before, &:after {
+      background-color: @admin-dark-gray;
+    }
+
+    &:hover {
+      &:before, &:after {
+        background-color: lighten(@admin-dark-gray, 10%)
+      }
+    }
   }
 
   .toolbar-container {
     padding: 0;
+    margin-top: 20px;
 
     .container {
       padding-bottom: 10px;
@@ -18,15 +35,38 @@
         display: inline-block;
       }
 
+      .active-indicator {
+        text-align: center;
+        display: none;
+        margin-top: 5px;
+
+        &.active {
+          display: block;
+        }
+      }
+
       &.left {
         margin-right: 20px;
+
+        .selected-option {
+          background-color: #ffbbbb;
+        }
+
+        .active-indicator {
+          margin-left: 120px;
+        }
       }
 
       &.right {
         float: right;
+
+        .selected-option {
+          background-color: #bbffbb;
+        }
       }
 
-      .@{_COMMON_PREFIX}dropdown {
+      .@{_COMMON_PREFIX}dropdown,
+      .active-indicator {
         width: 270px;
       }
 
@@ -36,9 +76,6 @@
         text-align: center;
       }
     }
-
-    border-bottom: 1px solid @admin-dark-gray-border;
-    margin-bottom: 20px;
 
     button {
       line-height: 45px;
@@ -50,6 +87,10 @@
     max-height: initial;
 
     .jsondiffpatch-delta {
+
+      ul {
+        padding: 0 0 0 10px;
+      }
 
       &.empty {
         display: block;
@@ -80,23 +121,29 @@ body {
       margin: 0;
       min-width: 440px;
 
-      .modal-dialog-body {
+      .toolbar-container {
+        .container {
+          &:not(.bottom) {
+            display: block;
+            margin: 0;
+          }
 
-        .toolbar-container {
-          .container {
-            &:not(.bottom) {
-              display: block;
-              margin: 0;
+          .active-indicator {
+            margin-bottom: 5px;
+          }
+
+
+          &.right {
+            float: none;
+          }
+
+          &.left {
+            .@{_COMMON_PREFIX}dropdown {
+              float: left;
             }
 
-            &.right {
-              float: none;
-            }
-
-            &.left {
-              .@{_COMMON_PREFIX}dropdown {
-                float: left;
-              }
+            .active-indicator {
+              margin-left: 0;
             }
           }
         }

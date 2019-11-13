@@ -161,6 +161,23 @@ export class VersionsView
         let descriptionDiv = new ContentVersionViewer();
         descriptionDiv.addClass('description');
         descriptionDiv.setObject(item);
+
+        const compareButton = new ActionButton(
+            new Action()
+                .onExecuted((action: Action) => {
+                    CompareContentVersionsDialog.get()
+                        .setContentId(this.content.getContentId())
+                        .setContentDisplayName(this.content.getDisplayName())
+                        .setLeftVersion(this.activeVersion.id)
+                        .setRightVersion(item.id)
+                        .setActiveVersion(this.activeVersion.id)
+                        .open();
+                }), false);
+
+        compareButton.addClass('compare icon-copy transparent large');
+
+        descriptionDiv.appendChild(compareButton);
+
         return descriptionDiv;
     }
 
@@ -212,29 +229,12 @@ export class VersionsView
             revertButton.setEnabled(false);
         }
 
-        const swallowEvent = (event: MouseEvent) => {
+        versionInfoDiv.appendChild(revertButton);
+
+        revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-        };
-
-        const compareButton = new ActionButton(
-            new Action(i18n('field.version.compare'))
-                .onExecuted((action: Action) => {
-                    CompareContentVersionsDialog.get()
-                        .setContentId(this.content.getContentId())
-                        .setContentDisplayName(this.content.getDisplayName())
-                        .setLeftVersion(this.activeVersion.id)
-                        .setRightVersion(item.id)
-                        .setActiveVersion(this.activeVersion.id)
-                        .open();
-                }), false);
-
-        compareButton.addClass('compare');
-
-        versionInfoDiv.appendChildren(revertButton, compareButton);
-
-        revertButton.onClicked(swallowEvent);
-        compareButton.onClicked(swallowEvent);
+        });
 
         return versionInfoDiv;
     }

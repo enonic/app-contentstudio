@@ -22,11 +22,18 @@
         box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
         border: 2px solid @admin-white;
 
+        &:first-of-type {
+          button.compare {
+            display: none !important;
+          }
+        }
+
         &:hover {
           background-color: @admin-bg-light-gray;
           border-color: @admin-bg-light-gray;
 
         }
+
         &.active {
           color: @admin-white;
           background-color: @admin-dark-gray;
@@ -36,7 +43,7 @@
             background-color: @admin-dark-gray;
           }
 
-          &:not(.online):hover *{
+          &:not(.online):hover * {
             cursor: default;
           }
 
@@ -46,35 +53,38 @@
           color: @admin-white;
           background-color: @admin-green;
           border-color: @admin-green;
+
           .version-info {
             color: @admin-black;
             background-color: @admin-white;
-
-            .names-and-icon-view {
-              width: 100%;
-            }
           }
+
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-green;
           }
-
-          button.compare {
-            display: none !important;
-          }
-
         }
 
-        .viewer {
+        .viewer.description {
+          display: flex;
+
           .names-and-icon-view {
+            flex: 1;
+
             .font-icon-default {
               &:before {
                 font-size: 26px;
                 color: @admin-dark-gray;
               }
+
               &.icon-version-published:before {
                 color: @admin-green;
               }
             }
+          }
+
+          button.compare {
+            font-size: 24px;
+            line-height: 32px;
           }
         }
 
@@ -95,8 +105,6 @@
         .version-info {
           padding: 7px;
           font-size: 12px;
-          display: flex;
-          flex-wrap: wrap;
 
           .names-and-icon-view {
             padding: 10px 0;
@@ -134,9 +142,9 @@
           }
 
           button {
-            flex: 1;
+            width: 80%;
             text-align: center;
-            margin: 10px 10px 5px;
+            margin: 10px auto 5px auto;
             padding-top: 5px;
             padding-bottom: 5px;
             display: block !important;
@@ -144,6 +152,7 @@
 
             &.active {
               cursor: default;
+
               span {
                 cursor: default;
                 color: @admin-white;
