@@ -530,16 +530,11 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         return super.saveChanges().then((content: Content) => {
-            let isUpdateWizardStepFormsNeeded: boolean = false;
             const persistedItem = content.clone();
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
                 if (this.reloadPageEditorOnSave && this.pageEditorUpdatedDuringSave) {
                     this.updateLiveForm(persistedItem);
-
-                    if (persistedItem.isSite()) {
-                        isUpdateWizardStepFormsNeeded = true;
-                    }
                 }
             }
 
@@ -554,8 +549,7 @@ export class ContentWizardPanel
                     }
                 }
                 this.xDataWizardStepForms.resetDisabledForms();
-                isUpdateWizardStepFormsNeeded = false;
-            } else if (isUpdateWizardStepFormsNeeded) {
+            } else if (persistedItem.isSite()) {
                 this.updateWizardStepForms(persistedItem, false);
             } else if (this.securityWizardStepForm) {
                 // https://github.com/enonic/app-contentstudio/issues/1042
