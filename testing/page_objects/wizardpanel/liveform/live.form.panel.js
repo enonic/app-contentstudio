@@ -11,6 +11,7 @@ const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     imageComponentView: "//figure[contains(@id,'ImageComponentView')]",
+    itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     imageComponentByDisplayName:
         displayName => `//figure[contains(@id,'ImageComponentView')]//img[contains(@src,'${displayName}')]`,
 
@@ -79,6 +80,36 @@ class LiveFormPanel extends Page {
             this.saveScreenshot("err_live_frame_image_component2");
             throw new Error("Image component should not visible in Live Editor! " + err);
         }
+    }
+
+    async doRightClickOnImageComponent(imageName, liveFrameX, liveFrameY) {
+        try {
+            if(isNaN(liveFrameX) || isNaN(liveFrameY)) {
+                throw new Error("Error when clicking on Image Component  in Live Frame!")
+            }
+            let selector = xpath.imageComponentByDisplayName(imageName);
+            await this.doRightClick(selector, liveFrameX + 35, liveFrameY + 35);
+            return await this.pause(200);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_right_click");
+            throw new Error("Error when showing context menu in Live Editor! " + err);
+        }
+    }
+
+    async waitForItemViewContextMenu() {
+        try {
+            let selector = xpath.itemViewContextMenu;
+            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_item_view_context_menu");
+            throw new Error("Image component should not visible in Live Editor! " + err);
+        }
+    }
+
+    async getItemViewContextMenuItems() {
+        let selector = "//dt[contains(@id,'TreeMenuItem')]";
+        await this.waitForItemViewContextMenu();
+        return await this.getTextInElements(selector);
     }
 };
 module.exports = LiveFormPanel;

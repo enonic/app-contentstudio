@@ -367,6 +367,13 @@ class ContentWizardPanel extends Page {
         return this.switchToFrame(XPATH.liveEditFrame);
     }
 
+    async getLiveFramePosition() {
+        let el = await this.findElement(XPATH.liveEditFrame);
+        let xValue = parseInt(await el.getLocation('x'));
+        let yValue = parseInt(await el.getLocation('y'));
+        return {x: xValue, y: yValue};
+    }
+
     doOpenContextWindow() {
         let contextWindow = new ContextWindow();
         return this.clickOnShowInspectionPanelToggler().then(() => {
