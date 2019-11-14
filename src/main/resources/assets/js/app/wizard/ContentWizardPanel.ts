@@ -549,7 +549,7 @@ export class ContentWizardPanel
                     }
                 }
                 this.xDataWizardStepForms.resetDisabledForms();
-            } else if (persistedItem.isSite()) {
+            } else if (persistedItem.isSite() && !this.isNew()) {
                 this.updateWizardStepForms(persistedItem, false);
             } else if (this.securityWizardStepForm) {
                 // https://github.com/enonic/app-contentstudio/issues/1042
