@@ -1,0 +1,159 @@
+.compare-content-versions-dialog {
+  width: 50%;
+  height: 100%;
+  min-width: 880px;
+  max-width: initial;
+
+  .modal-dialog-footer {
+    display: none;
+  }
+
+  .cancel-button-top {
+    top: 0;
+    right: 0;
+    z-index: 1;
+
+    &:before, &:after {
+      background-color: @admin-dark-gray;
+    }
+
+    &:hover {
+      &:before, &:after {
+        background-color: lighten(@admin-dark-gray, 10%)
+      }
+    }
+  }
+
+  .toolbar-container {
+    padding: 0;
+    margin-top: 20px;
+
+    .container {
+      padding-bottom: 10px;
+
+      &:not(.bottom) {
+        display: inline-block;
+      }
+
+      .font-icon-default {
+        font-size: 24px;
+      }
+
+      .active-indicator {
+        text-align: center;
+        display: none;
+        margin-top: 5px;
+        font-size: 14px;
+
+        &.active {
+          display: block;
+        }
+      }
+
+      &.left {
+        margin-right: 20px;
+
+        .selected-option {
+          background-color: #ffbbbb;
+        }
+
+        .active-indicator {
+          margin-left: 120px;
+        }
+      }
+
+      &.right {
+        float: right;
+
+        .selected-option {
+          background-color: #bbffbb;
+        }
+      }
+
+      .@{_COMMON_PREFIX}dropdown,
+      .active-indicator {
+        width: 270px;
+      }
+
+      .@{_COMMON_PREFIX}button {
+        vertical-align: top;
+        width: 120px;
+        text-align: center;
+      }
+    }
+
+    button {
+      line-height: 45px;
+      display: inline-block;
+    }
+  }
+
+  .modal-dialog-body {
+    max-height: initial;
+
+    .jsondiffpatch-delta {
+
+      ul {
+        padding: 0 0 0 10px;
+      }
+
+      &.empty {
+        display: block;
+
+        h3 {
+          display: block;
+          text-align: center;
+          color: @admin-font-gray1;
+          font-family: @admin-font-family;
+          margin-top: 50px;
+        }
+      }
+    }
+  }
+}
+
+body {
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720,
+  &._720-960,
+  &._960-1200 {
+
+    .compare-content-versions-dialog {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      min-width: 440px;
+
+      .toolbar-container {
+        .container {
+          &:not(.bottom) {
+            display: block;
+            margin: 0;
+          }
+
+          .active-indicator {
+            margin-bottom: 5px;
+          }
+
+
+          &.right {
+            float: none;
+          }
+
+          &.left {
+            .@{_COMMON_PREFIX}dropdown {
+              float: left;
+            }
+
+            .active-indicator {
+              margin-left: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
