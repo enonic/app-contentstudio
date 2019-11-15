@@ -246,7 +246,7 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private restoreVersion(version: string): Q.Promise<void> {
+    private restoreVersion(version: string): wemQ.Promise<void> {
         return new RevertVersionRequest(version, this.contentId.toString()).sendAndParse()
             .then((contentKey: string) => {
                 if (contentKey === this.activeVersion) {
