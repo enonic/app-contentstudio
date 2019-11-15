@@ -174,7 +174,9 @@ export class VersionsView
                         .open();
                 }), false);
 
-        compareButton.addClass('compare icon-copy transparent large');
+        compareButton
+            .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
+            .addClass('compare icon-copy transparent');
 
         descriptionDiv.appendChild(compareButton);
 

@@ -62,6 +62,21 @@
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-green;
           }
+
+          .viewer.description {
+            button.compare {
+
+              top: -25px;
+
+              &:before {
+                color: @admin-white;
+              }
+
+              &:hover:before {
+                color: @admin-font-gray;
+              }
+            }
+          }
         }
 
         .viewer.description {
@@ -83,13 +98,31 @@
           }
 
           button.compare {
-            font-size: 24px;
-            line-height: 32px;
+            font-size: 14px;
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            padding: 0;
+            z-index: 1;
+
+            &:before {
+              color: @admin-font-gray2;
+            }
+
+            &:hover:before {
+              color: @admin-font-gray3;
+            }
+
+            &:focus {
+              border: none;
+              outline: none;
+            }
           }
         }
 
         .description {
           padding: 7px 7px 7px 10px;
+          position: relative;
         }
 
         .status {
@@ -163,7 +196,7 @@
         }
 
         &.online, &.active {
-          .icon-user, .version-modifier, .viewer .names-and-icon-view .font-icon-default:before {
+          .icon-user, p.@{_COMMON_PREFIX}sub-name, .viewer .names-and-icon-view .font-icon-default:before {
             color: @admin-white;
           }
         }
