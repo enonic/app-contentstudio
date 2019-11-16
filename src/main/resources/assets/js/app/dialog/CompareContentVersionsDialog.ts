@@ -112,16 +112,22 @@ export class CompareContentVersionsDialog
             });
             bottomContainer.appendChild(changesCheckbox);
 
-            this.toolbar.appendChildren(leftContainer, rightContainer, bottomContainer);
+            return this.reloadVersions().then(() => {
 
-            this.comparisonContainer = new DivEl('jsondiffpatch-delta');
+                this.leftDropdown.setValue(this.leftVersion);
+                this.rightDropdown.setValue(this.rightVersion);
 
-            this.appendChildToHeader(this.toolbar);
-            this.appendChildToContentPanel(this.comparisonContainer);
+                this.toolbar.appendChildren(leftContainer, rightContainer, bottomContainer);
 
-            this.updateButtonsState();
+                this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
-            return rendered;
+                this.appendChildToHeader(this.toolbar);
+                this.appendChildToContentPanel(this.comparisonContainer);
+
+                this.updateButtonsState();
+
+                return rendered;
+            });
         });
     }
 
@@ -134,17 +140,13 @@ export class CompareContentVersionsDialog
 
     setLeftVersion(value: string): CompareContentVersionsDialog {
         this.leftVersion = value;
-        if (this.leftDropdown) {
-            this.leftDropdown.setValue(value);
-        }
+
         return this;
     }
 
     setRightVersion(value: string): CompareContentVersionsDialog {
         this.rightVersion = value;
-        if (this.rightDropdown) {
-            this.rightDropdown.setValue(value);
-        }
+
         return this;
     }
 
@@ -167,14 +169,17 @@ export class CompareContentVersionsDialog
     open() {
         super.open();
         this.contentCache = {};
-        if (this.contentId) {
+        /*if (this.contentId) {
             this.reloadVersions().then(() => {
                 this.displayDiff(this.leftVersion, this.rightVersion);
             });
-        }
+        }*/
     }
 
-    private reloadVersions() {
+    private reloadVersions(): wemQ.Promise<void> {
+        if (!this.contentId) {
+            return;
+        }
         return new GetContentVersionsForViewRequest(this.contentId).setSize(-1).sendAndParse()
             .then((contentVersions: ContentVersions) => {
 
