@@ -17,6 +17,7 @@ import Element = api.dom.Element;
 import DivEl = api.dom.DivEl;
 import ContentId = api.content.ContentId;
 import Option = api.ui.selector.Option;
+import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
 import Dropdown = api.ui.selector.dropdown.Dropdown;
 import CheckboxBuilder = api.ui.CheckboxBuilder;
 
@@ -66,10 +67,13 @@ export class CompareContentVersionsDialog
             value: version
         });
 
-        dropdown.onValueChanged(event => {
+        dropdown.onOptionSelected((event: OptionSelectedEvent<ContentVersion>) => {
+            if (!this.isRendered()) {
+                return;
+            }
             const sourceDropdown = (dropdown === this.rightDropdown) ? this.leftDropdown : this.rightDropdown;
             this.updateButtonsState();
-            this.displayDiff(event.getNewValue(), sourceDropdown.getValue());
+            this.displayDiff(event.getOption().value, sourceDropdown.getValue());
         });
         return dropdown;
     }
@@ -125,6 +129,7 @@ export class CompareContentVersionsDialog
                 this.appendChildToContentPanel(this.comparisonContainer);
 
                 this.updateButtonsState();
+                this.displayDiff(this.leftVersion, this.rightVersion);
 
                 return rendered;
             });
@@ -140,19 +145,16 @@ export class CompareContentVersionsDialog
 
     setLeftVersion(value: string): CompareContentVersionsDialog {
         this.leftVersion = value;
-
         return this;
     }
 
     setRightVersion(value: string): CompareContentVersionsDialog {
         this.rightVersion = value;
-
         return this;
     }
 
     setActiveVersion(value: string): CompareContentVersionsDialog {
         this.activeVersion = value;
-        this.updateButtonsState();
         return this;
     }
 
@@ -169,11 +171,15 @@ export class CompareContentVersionsDialog
     open() {
         super.open();
         this.contentCache = {};
-        /*if (this.contentId) {
-            this.reloadVersions().then(() => {
-                this.displayDiff(this.leftVersion, this.rightVersion);
-            });
-        }*/
+
+        if (!this.isRendered()) {
+            return;
+        }
+
+        this.reloadVersions().then(() => {
+            this.leftDropdown.setValue(this.leftVersion);
+            this.rightDropdown.setValue(this.rightVersion);
+        });
     }
 
     private reloadVersions(): wemQ.Promise<void> {

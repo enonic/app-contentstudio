@@ -31,12 +31,27 @@
     .container {
       padding-bottom: 10px;
 
+      &.bottom {
+        padding: 10px 0;
+      }
+
       &:not(.bottom) {
         display: inline-block;
       }
 
       .font-icon-default {
-        font-size: 24px;
+
+        &:before {
+          font-size: 24px;
+          color: @admin-dark-gray;
+        }
+        &.icon-version-published:before {
+          color: @admin-green;
+        }
+      }
+
+      .options-container {
+        margin-top: 10px;
       }
 
       .active-indicator {
