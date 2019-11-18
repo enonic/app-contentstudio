@@ -33,6 +33,7 @@
     "eslint-plugin-prettier": "^2.6.0",
     "file-loader": "^1.1.11",
     "js-yaml": "^3.11.0",
+    "jsondiffpatch": "^0.3.11",
     "less": "^3.8.1",
     "less-loader": "^4.1.0",
     "mini-css-extract-plugin": "^0.6.0",
