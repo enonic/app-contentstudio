@@ -202,11 +202,13 @@ class Page {
         return await element.waitForDisplayed(ms);
     }
 
-    waitForSpinnerNotVisible() {
-        let message = "Spinner still displayed! timeout is " + appConst.TIMEOUT_7;
+    waitForSpinnerNotVisible(ms) {
+        let timeout;
+        timeout = ms === undefined ? appConst.TIMEOUT_7 : ms;
+        let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(`//div[@class='spinner']`);
-        }, appConst.TIMEOUT_7, message);
+        }, timeout, message);
     }
 
     waitUntilElementNotVisible(selector, timeout) {
@@ -284,7 +286,6 @@ class Page {
         let yValue = await el.getLocation('y');
         let y = parseInt(yValue) + offsetY;
         let x = parseInt(xValue) + offsetX;
-        console.log("X:" + x + " Y " + y);
         return await this.browser.performActions([{
             type: 'pointer',
             id: 'pointer1',
