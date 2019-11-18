@@ -45,8 +45,13 @@ image::html-area-fullscreen.png[Fullscreen mode, 1145]
 
 ** New "_Caption_" property in the "*Table Properties*" modal dialog allows adding caption for a table.
 ** _Border_, _Cell spacing_ and _Cell padding_ properties have been removed. These properties should be set via stylesheets.
+
+* *Misc changes*
+
 ** Cursor position is kept when switching to the "_Fullscreen_" mode
-** Cursor position is kept after user clicks inside HTML Area input to start editing
+
+** Cursor position is set to clicked position after user clicks inside HTML Area input to start editing
+
 ** Toolbar buttons for *B* (Bold), *I* (Italic) and *U* (underline) are removed inside HTML Area input type to give room for the
 new paste mode button. <<keyboard-shortcuts#rich_text_editor,Keyboard shortcuts>> should be used to apply this styling. They are still present in Fullscreen mode and inside Text component editor.
 
