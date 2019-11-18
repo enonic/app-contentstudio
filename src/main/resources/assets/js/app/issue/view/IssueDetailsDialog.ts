@@ -111,6 +111,8 @@ export class IssueDetailsDialog
 
     private updatedListeners: { (issue: Issue): void }[] = [];
 
+    private backButtonClickedListeners: { (): void }[] = [];
+
     private scheduleFormToggle: api.dom.ButtonEl;
 
     private publishMessage: api.dom.H6El;
@@ -239,7 +241,7 @@ export class IssueDetailsDialog
             this.updateIssue();
         });
 
-        this.backButton.onClicked(() => this.close());
+        this.backButton.onClicked(() => this.notifyBackButtonClicked());
 
         const updateTabCount = (save) => {
             let count = 0;
@@ -1021,5 +1023,17 @@ export class IssueDetailsDialog
 
     private notifyIssueUpdated(issue: Issue) {
         this.updatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners.push(listener);
+    }
+
+    public unBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners = this.backButtonClickedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyBackButtonClicked() {
+        this.backButtonClickedListeners.forEach(listener => listener());
     }
 }
