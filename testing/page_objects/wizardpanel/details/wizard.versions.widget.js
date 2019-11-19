@@ -41,7 +41,7 @@ class WizardVersionsWidget extends BaseVersionsWidget {
 
     async clickOnRevertButton() {
         try {
-            let selector = xpath.versionItemExpanded + "//button";
+            let selector = xpath.versionItemExpanded + "//button/span[text()='Revert']";
             await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(2000);
