@@ -30,7 +30,7 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
                 return;
             }
             wemjq(toolbarButton).data('_tooltip', tooltipText);
-            wemjq(tooltipId).html(tooltipText)
+            wemjq(tooltipId).text(tooltipText);
         }
 
         editor.ui.addButton('PasteModeSwitcher', {

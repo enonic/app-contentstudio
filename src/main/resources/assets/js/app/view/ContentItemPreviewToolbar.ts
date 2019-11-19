@@ -105,7 +105,7 @@ export class ContentItemPreviewToolbar
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private createIssueAction(issue: Issue) {
+    private createIssueAction(issue: Issue): Action {
         const type = issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
         const action = new Action(`<span class="icon icon-${type} opened"></span><i>${issue.getTitle()}</i>`);
         action.onExecuted((a) => {

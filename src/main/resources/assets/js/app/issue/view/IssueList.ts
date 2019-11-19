@@ -388,7 +388,7 @@ export class IssueListItem
         const status = IssueStatusFormatter.formatStatus(issueStatus);
         const statusClass = (issueStatus != null ? IssueStatus[issueStatus] : '').toLowerCase();
 
-        statusEl.setHtml(status, true);
+        statusEl.setHtml(status);
         statusEl.addClass(statusClass);
 
         return statusEl;
