@@ -43,7 +43,7 @@ export class EmulatorGrid
 
         const subtitle = new H6El();
         const units = data.getDisplayUnits() ? data.getUnits() : '';
-        subtitle.getEl().setInnerHtml(data.getWidth().toString() + units + ' &times; ' + data.getHeight().toString() + units, false);
+        subtitle.setHtml(`${data.getWidth().toString()}${units} × ${data.getHeight().toString()}${units}`);
         rowEl.appendChild(icon);
         rowEl.appendChild(title);
         rowEl.appendChild(subtitle);

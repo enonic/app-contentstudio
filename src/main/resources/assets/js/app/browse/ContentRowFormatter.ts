@@ -51,7 +51,7 @@ export class ContentRowFormatter {
                 }
 
                 icon = new DivEl(iconCls);
-                wrapper.getEl().setInnerHtml(icon.toString(), false);
+                wrapper.appendChild(icon);
             }
         }
         return wrapper.toString();
