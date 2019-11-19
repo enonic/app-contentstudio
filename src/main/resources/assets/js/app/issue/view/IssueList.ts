@@ -9,20 +9,29 @@ import {IssueType} from '../IssueType';
 import ListBox = api.ui.selector.list.ListBox;
 import Principal = api.security.Principal;
 import SpanEl = api.dom.SpanEl;
-import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
 import DivEl = api.dom.DivEl;
 import Tooltip = api.ui.Tooltip;
-import Element = api.dom.Element;
 import LoadMask = api.ui.mask.LoadMask;
 import NamesAndIconView = api.app.NamesAndIconView;
 import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
 import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
 import LiEl = api.dom.LiEl;
+import i18n = api.util.i18n;
 
-export interface IssueListConfig {
-    storage: IssuesStorage;
-    noIssuesMessage: string;
-    issueType?: IssueType;
+export enum FilterType {
+    ALL, ASSIGNED_TO_ME, CREATED_BY_ME, PUBLISH_REQUESTS, TASKS
+}
+
+export class FilterState {
+    filterStatus: IssueStatus;
+    filterType: FilterType;
+    currentTotal: number;
+
+    constructor(filterStatus: IssueStatus = IssueStatus.OPEN, filterType: FilterType = FilterType.ALL, currentTotal: number = 0) {
+        this.filterStatus = filterStatus;
+        this.filterType = filterType;
+        this.currentTotal = currentTotal;
+    }
 }
 
 export class IssueList
@@ -30,23 +39,11 @@ export class IssueList
 
     private static MAX_VISIBLE_OPTIONS: number = 15;
 
-    private issueStatus: IssueStatus;
-
-    private issueType: IssueType;
+    private filterState: FilterState;
 
     private currentUser: Principal;
 
-    private loadAssignedToMe: boolean = false;
-
-    private loadMyIssues: boolean = false;
-
     private allIssuesStorage: IssuesStorage;
-
-    private issuesOfType: number;
-
-    private totalItems: number;
-
-    private currentTotal: number;
 
     private noIssues: LiEl;
 
@@ -56,20 +53,18 @@ export class IssueList
 
     private issuesLoadedListeners: { (): void }[] = [];
 
-    constructor(config: IssueListConfig) {
+    constructor() {
         super('issue-list');
-        this.issueStatus = IssueStatus.OPEN;
-        this.issueType = config.issueType;
-        this.allIssuesStorage = config.storage;
-        this.issuesOfType = 0;
-        this.initElements(config.noIssuesMessage);
+        this.filterState = new FilterState();
+        this.allIssuesStorage = new IssuesStorage();
+        this.initElements();
         this.initListeners();
         this.loadCurrentUser();
         this.setupLazyLoading();
     }
 
-    protected initElements(noIssuesMessage: string) {
-        this.noIssues = new LiEl('no-issues-message').setHtml(noIssuesMessage);
+    protected initElements() {
+        this.noIssues = new LiEl('no-issues-message').setHtml(i18n('dialog.issue.noIssuesAndPublishRequests'));
     }
 
     protected initListeners() {
@@ -78,80 +73,36 @@ export class IssueList
 
             if (hasIssues) {
                 // Issues updated, so full check required, which may cause performance problems
-                this.filter();
+                this.setItems(this.doFilter());
             } else {
                 this.clearItems();
             }
-            this.issuesOfType = this.countIssuesOfType();
             this.showNoIssuesMessage();
         });
-    }
-
-    getIssueStatus(): IssueStatus {
-        return this.issueStatus;
-    }
-
-    updateIssueStatus(issueStatus: IssueStatus) {
-        this.issueStatus = issueStatus;
-        this.issuesOfType = this.countIssuesOfType();
-        this.filterIfChanged();
-    }
-
-    hasIssueType(): boolean {
-        return this.issueType != null;
     }
 
     setLoadMask(loadMask: LoadMask) {
         this.loadMask = loadMask;
     }
 
-    setLoadMyIssues(value: boolean) {
-        this.loadMyIssues = value;
+    setFilterState(value: FilterState) {
+        this.filterState = value;
     }
 
-    setLoadAssignedToMe(value: boolean) {
-        this.loadAssignedToMe = value;
-    }
-
-    updateCurrentTotal(currentTotal: number): wemQ.Promise<void> {
-        if (this.currentTotal !== currentTotal) {
-            this.currentTotal = currentTotal;
-            return this.filterAndFetchItems(true).then(() => {
-                this.showNoIssuesMessage();
-            });
-        }
-
-        return wemQ.fcall(() => {
+    filter(): wemQ.Promise<void> {
+        return this.filterAndFetchItems(true).then(() => {
             this.showNoIssuesMessage();
         });
     }
 
     private showNoIssuesMessage() {
-        const hasNoIssues = this.currentTotal === 0;
+        const hasNoIssues = this.filterState.currentTotal === 0;
         if (hasNoIssues && this.getItemCount() === 0) {
             this.appendChild(this.noIssues);
         }
     }
 
-    getTotalItems(): number {
-        return this.totalItems;
-    }
-
-    updateTotalItems(totalItems: number): wemQ.Promise<void> {
-        if (this.totalItems !== totalItems) {
-            this.totalItems = totalItems;
-            return this.filterAndFetchItems();
-        }
-
-        return wemQ(null);
-    }
-
-    filter() {
-        const issues = this.doFilter();
-        this.setItems(issues);
-    }
-
-    filterIfChanged() {
+    private filterIfChanged() {
         const issues = this.doFilter();
         const items = this.getItems();
         const wasChanged = issues.length !== this.getItemCount() || issues.some((issue, index) => {
@@ -164,22 +115,39 @@ export class IssueList
 
     private doFilter(): IssueWithAssignees[] {
         const allIssues = this.allIssuesStorage.copyIssues();
-        const needToFilter = !(this.issueStatus == null && !this.loadMyIssues && !this.loadAssignedToMe) || this.hasIssueType();
 
-        if (needToFilter) {
-            return allIssues.filter((issueWithAssignee: IssueWithAssignees) => {
-                const issue = issueWithAssignee.getIssue();
-                const assignees = issueWithAssignee.getAssignees();
+        return allIssues.filter(this.matchesFilter.bind(this));
+    }
 
-                const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
-                const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
-                const assignedByMeMatched = !this.loadMyIssues || issue.getCreator() === this.currentUser.getKey().toString();
-                const assignedToMeMatched = !this.loadAssignedToMe || assignees.some(assignee => assignee.equals(this.currentUser));
-                return typeMatches && statusMatches && assignedToMeMatched && assignedByMeMatched;
-            });
+    private matchesFilter(issueWithAssignee: IssueWithAssignees): boolean {
+        const issue = issueWithAssignee.getIssue();
+        const assignees = issueWithAssignee.getAssignees();
+
+        if (issue.getIssueStatus() !== this.filterState.filterStatus) {
+            return false;
         }
 
-        return allIssues;
+        if (this.filterState.filterType === FilterType.ALL) {
+            return true;
+        }
+
+        if (this.filterState.filterType === FilterType.CREATED_BY_ME) {
+            return issue.getCreator() === this.currentUser.getKey().toString();
+        }
+
+        if (this.filterState.filterType === FilterType.ASSIGNED_TO_ME) {
+            return assignees.some(assignee => assignee.equals(this.currentUser));
+        }
+
+        if (this.filterState.filterType === FilterType.PUBLISH_REQUESTS) {
+            return issue.getType() === IssueType.PUBLISH_REQUEST;
+        }
+
+        if (this.filterState.filterType === FilterType.TASKS) {
+            return issue.getType() === IssueType.STANDARD;
+        }
+
+        return false;
     }
 
     reload(): wemQ.Promise<void> {
@@ -240,7 +208,6 @@ export class IssueList
                 }
 
                 this.allIssuesStorage.setTotalIssues(totalHits);
-                this.issuesOfType = this.countIssuesOfType();
 
                 const loadMore = hasLoadedIssues && this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
 
@@ -250,18 +217,9 @@ export class IssueList
             });
     }
 
-    private countIssuesOfType(): number {
-        return this.allIssuesStorage.copyIssues().filter((issueWithAssignee: IssueWithAssignees) => {
-            const issue = issueWithAssignee.getIssue();
-
-            const typeMatches = !this.hasIssueType() || issue.getType() === this.issueType;
-            const statusMatches = this.issueStatus == null || issue.getIssueStatus() === this.issueStatus;
-            return typeMatches && statusMatches;
-        }).length;
-    }
-
     private needToLoad(): boolean {
-        return this.currentTotal > this.issuesOfType;
+        const total = this.allIssuesStorage.copyIssues().filter((issue: IssueWithAssignees) => this.matchesFilter(issue)).length;
+        return this.filterState.currentTotal > total;
     }
 
     private showLoadMask() {
@@ -410,63 +368,5 @@ export class IssueListItem
     private makeSubName(): string {
         return IssueStatusInfoGenerator.create().setIssue(this.issue).setIssueStatus(this.issue.getIssueStatus()).setCurrentUser(
             this.currentUser).generate();
-    }
-}
-
-export class AssigneesLine
-    extends DivEl {
-
-    private assignees: Principal[];
-
-    private currentUser: Principal;
-
-    private limitToShow: number = 2;
-
-    constructor(assignees: Principal[], currentUser?: Principal) {
-        super('assignees-line');
-
-        this.assignees = assignees;
-        this.currentUser = currentUser;
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-            this.removeChildren();
-            if (this.assignees.length > this.limitToShow) {
-                for (let i = 0; i < this.limitToShow; i++) {
-                    this.appendChild(this.createPrincipalViewer(this.assignees[i]));
-                }
-                this.appendChild(this.createElemWithAssigneesAsTooltip());
-            } else {
-                this.assignees.forEach((assignee: Principal) => {
-                    this.appendChild(this.createPrincipalViewer(assignee));
-                });
-            }
-
-            return rendered;
-        });
-    }
-
-    setAssignees(value: Principal[]) {
-        this.assignees = value;
-        this.doRender();
-    }
-
-    private createPrincipalViewer(assignee: Principal): PrincipalViewerCompact {
-        const principalViewer: PrincipalViewerCompact = new PrincipalViewerCompact();
-        principalViewer.setObject(assignee);
-        principalViewer.setCurrentUser(this.currentUser);
-
-        return principalViewer;
-    }
-
-    private createElemWithAssigneesAsTooltip(): Element {
-        const span: SpanEl = new SpanEl('all-assignees-tooltip');
-        span.setHtml('…');
-        new Tooltip(span, this.assignees.map(user => user.getDisplayName())
-            .join('\n'), 200)
-            .setMode(Tooltip.MODE_GLOBAL_STATIC);
-
-        return span;
     }
 }
