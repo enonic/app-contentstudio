@@ -80,7 +80,7 @@ export class ImageContentComboBox
     }
 
     load() {
-        this.reload('');
+        this.reload(this.getComboBox().getInput().getValue());
     }
 
     public static create(): ImageContentComboBoxBuilder {
