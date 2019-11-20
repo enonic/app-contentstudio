@@ -140,8 +140,16 @@ class IssuesListDialog extends Page {
     }
 
     async clickOnShowClosedIssuesButton() {
-        await this.clickOnElement(this.showClosedIssuesButton);
-        return await this.pause(400);
+        try {
+            let el = await this.getDisplayedElements(this.showClosedIssuesButton);
+            await el[0].waitForEnabled(appConst.TIMEOUT_2);
+            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
+            await this.clickOnElement(this.showClosedIssuesButton);
+            return await this.pause(400);
+        }catch(err){
+            this.saveScreenshot("err_show_closed_issues_issues_list");
+            throw new Error("Error when clicking on 'Show Closed Issues'  "+ err);
+        }
     }
 
     //clicks on dropdown handle and selects required option
