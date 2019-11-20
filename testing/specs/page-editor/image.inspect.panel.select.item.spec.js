@@ -14,8 +14,7 @@ const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspe
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../../page_objects/wizardpanel/site.configurator.dialog');
 
-
-describe("image.component.inspect.panel.spec: Inserts a image component and checks 'Inspect Panel' on the Context Window ",
+describe("image.inspect.panel.select.item.spec: Inserts a image component and update the site-configurator",
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();

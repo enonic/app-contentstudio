@@ -2,8 +2,6 @@
  * Created on 05.01.2017.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -32,31 +30,26 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             assert.isTrue(issuesTab, "`Issues` tab should be displayed");
 
             let result = await issueListDialog.getAssignedSelectedOption();
-            assert.isTrue(result.includes(`Created by Me`), '`Created by Me` option should be selected in Show combobox')
-
+            assert.isTrue(result.includes(`All`), '`All` option should be selected in Show combobox')
         });
 
     it(`GIVEN 'Issues List Dialog' has been opened WHEN Issues tab has been clicked THEN 'New Issue...' button should be present`,
         async () => {
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
-            //Issues tab has been clicked:
+            //'Issues' tab has been clicked:
             await issueListDialog.clickOnIssuesTab();
-
             let isNewButtonDisplayed = await issueListDialog.isNewIssueButtonVisible();
             assert.isTrue(isNewButtonDisplayed, "`New Issue...` button should be displayed");
         });
 
-
     it(`GIVEN 'Issues List Dialog' is opened WHEN 'Show closed issues' button has been clicked THEN 'Hide closed issues' button is getting visible`,
-        () => {
+        async () => {
             let issueListDialog = new IssueListDialog();
-            return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnShowClosedIssuesButton();
-            }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.waitForHideClosedIssuesButtonVisible(),
-                    "`Hide closed issues` button should be displayed");
-            });
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnShowClosedIssuesButton();
+            //`Hide closed issues` button should be displayed:
+            await issueListDialog.waitForHideClosedIssuesButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
@@ -64,5 +57,4 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
-})
-;
+});
