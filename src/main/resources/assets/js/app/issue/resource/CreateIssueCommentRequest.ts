@@ -11,6 +11,7 @@ export class CreateIssueCommentRequest
     private creator: PrincipalKey;
     private text: string;
     private issueId: string;
+    private silent: boolean;
 
     constructor(issueId: string) {
         super();
@@ -28,11 +29,17 @@ export class CreateIssueCommentRequest
         return this;
     }
 
+    setSilent(silent: boolean) {
+        this.silent = silent;
+        return this;
+    }
+
     getParams(): Object {
         return {
             issue: this.issueId,
             text: this.text,
-            creator: this.creator.toString()
+            creator: this.creator.toString(),
+            silent: this.silent
         };
     }
 
