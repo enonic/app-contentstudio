@@ -15,15 +15,24 @@
       display: flex;
       justify-content: space-between;
       width: 100%;
+      padding-bottom: 5px;
+
+      .label-filter {
+        font-size: 14px;
+        padding-right: 14px;
+      }
 
       .menu-button {
         border: 1px solid #cccccc;
+        height: 32px;
 
         .@{_COMMON_PREFIX}dropdown-handle {
           background-color: @admin-white;
           &:after {
             border-top-color: @admin-black;
           }
+
+          left: auto;
         }
 
         .action-button {
@@ -32,11 +41,15 @@
           span {
             color: @admin-black;
           }
+
+          margin-right: 41px;
+          margin-left: 0px;
         }
       }
 
       .status-filter {
         display: flex;
+        margin-left: auto;
 
         .status-button {
           span {

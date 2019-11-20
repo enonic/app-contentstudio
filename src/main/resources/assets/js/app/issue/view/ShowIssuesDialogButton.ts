@@ -1,10 +1,10 @@
 import ActionButton = api.ui.button.ActionButton;
+import i18n = api.util.i18n;
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
-import i18n = api.util.i18n;
 
 export class ShowIssuesDialogButton extends ActionButton {
 
@@ -52,7 +52,7 @@ export class ShowIssuesDialogButton extends ActionButton {
         this.getEl().setTitle(i18n('text.publishingissues'));
         this.removeClass('has-assigned-issues has-issues');
         this.setLabel('');
-        this.getAction().setAssignedToMe(false).setCreatedByMe(false);
+        this.getAction().setAssignedToMe(false);
     }
 
     private fetchIssuesAndCreateLink() {
@@ -72,7 +72,7 @@ export class ShowIssuesDialogButton extends ActionButton {
                         this.setLabel(i18n('field.myIssues'));
                         this.addClass('has-issues');
                         this.setIssueCount(hits);
-                        this.getAction().setCreatedByMe(true);
+                        this.getAction();
                     })
                     .fail(() =>
                         this.fetchIssueList(this.resetIssueRequest())

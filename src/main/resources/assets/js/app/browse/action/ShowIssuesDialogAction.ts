@@ -4,13 +4,12 @@ import {ShowIssuesDialogEvent} from '../ShowIssuesDialogEvent';
 export class ShowIssuesDialogAction extends api.ui.Action {
 
     private assignedToMe: boolean = false;
-    private createdByMe: boolean = false;
 
     constructor() {
         super();
         this.setEnabled(true);
         this.onExecuted(() => {
-            new ShowIssuesDialogEvent().setAssignedToMe(this.assignedToMe).setCreatedByMe(this.createdByMe).fire();
+            new ShowIssuesDialogEvent().setAssignedToMe(this.assignedToMe).fire();
         });
     }
 
@@ -18,10 +17,6 @@ export class ShowIssuesDialogAction extends api.ui.Action {
         this.assignedToMe = value;
 
         return this;
-    }
-
-    setCreatedByMe(value: boolean) {
-        this.createdByMe = value;
     }
 
 }

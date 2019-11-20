@@ -84,19 +84,18 @@ export class IssueListDialog
         this.remove();
     }
 
-    open(assignedToMe: boolean = false, createdByMe: boolean = false) {
+    open(assignedToMe: boolean = false) {
 
-        if (assignedToMe || createdByMe) {
+        if (assignedToMe) {
             this.skipInitialLoad = true;
         }
 
         super.open();
 
         this.skipInitialLoad = false;
+
         if (assignedToMe) {
             this.issuesPanel.selectAssignedToMe();
-        } else if (createdByMe) {
-            this.issuesPanel.selectCreatedByMe();
         }
     }
 

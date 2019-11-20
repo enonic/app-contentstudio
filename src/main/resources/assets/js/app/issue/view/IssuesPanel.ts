@@ -8,6 +8,7 @@ import Action = api.ui.Action;
 import MenuButton = api.ui.button.MenuButton;
 import DivEl = api.dom.DivEl;
 import Button = api.ui.button.Button;
+import LabelEl = api.dom.LabelEl;
 
 export interface IssuesCount {
     all: number;
@@ -57,8 +58,9 @@ export class IssuesPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            const labelEl: LabelEl = new LabelEl(i18n('dialog.issue.filter.label'), this.typeFilter, 'label-filter');
             const filtersWrapper: DivEl = new DivEl('filters-block');
-            filtersWrapper.appendChildren<api.dom.Element>(this.typeFilter, this.statusFilter);
+            filtersWrapper.appendChildren<api.dom.Element>(labelEl, this.typeFilter, this.statusFilter);
             this.appendChildren<api.dom.Element>(filtersWrapper, this.issuesList);
 
             return rendered;
@@ -77,10 +79,6 @@ export class IssuesPanel
         this.typeFilter.selectAssignedToMe();
     }
 
-    selectCreatedByMe() {
-        this.typeFilter.selectCreatedByMe();
-    }
-
     resetFilters() {
         this.issuesList.setFilterState(new FilterState());
         this.typeFilter.selectFirstEnabledOption();
@@ -89,6 +87,7 @@ export class IssuesPanel
     updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): wemQ.Promise<void> {
         this.typeFilter.updateOptionsTotal(openedIssues, closedIssues);
         this.typeFilter.toggleActionsByStatus();
+        this.typeFilter.getParentElement().setVisible(openedIssues.all + closedIssues.all > 0);
         this.updateStatusButtons();
         return this.filter();
     }
@@ -199,6 +198,7 @@ class TypeFilter
         this.menuActions = [filterAllIssuesAction, filterAssignedToMeAction, filterCreatedByMeAction,
             filterPublishRequestAction, filterTasksAction];
         this.addMenuActions(this.menuActions);
+        this.currentSelection = filterAllIssuesAction;
     }
 
     private initSelectionListeners() {
@@ -230,10 +230,6 @@ class TypeFilter
 
     selectAssignedToMe() {
         this.menuActions[1].execute();
-    }
-
-    selectCreatedByMe() {
-        this.menuActions[2].execute();
     }
 
     updateOptionsTotal(open: IssuesCount, closed: IssuesCount) {
