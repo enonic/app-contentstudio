@@ -434,7 +434,7 @@ export class ContentWizardPanel
                 console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
             }
 
-            this.appendChild(this.getContentWizardToolbarPublishControls().getPublishButtonForMobile());
+            this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.getLivePanel()) {
                 this.getLivePanel().setModifyPermissions(this.modifyPermissions);

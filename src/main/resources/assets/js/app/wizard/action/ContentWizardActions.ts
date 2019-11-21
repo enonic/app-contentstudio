@@ -49,7 +49,6 @@ type ActionNames =
     'SHOW_FORM' |
     'SHOW_SPLIT_EDIT' |
     'SAVE_AND_CLOSE' |
-    'PUBLISH_MOBILE' |
     'UNDO_PENDING_DELETE';
 
 type ActionsMap = {
@@ -69,7 +68,6 @@ type ActionsMap = {
     SHOW_FORM?: Action,
     SHOW_SPLIT_EDIT?: Action,
     SAVE_AND_CLOSE?: Action,
-    PUBLISH_MOBILE?: Action,
     UNDO_PENDING_DELETE?: Action,
 };
 
@@ -90,7 +88,6 @@ type ActionsState = {
     SHOW_FORM?: boolean,
     SHOW_SPLIT_EDIT?: boolean,
     SAVE_AND_CLOSE?: boolean,
-    PUBLISH_MOBILE?: boolean,
     UNDO_PENDING_DELETE?: boolean,
 };
 
@@ -146,7 +143,6 @@ export class ContentWizardActions
             new ShowFormAction(wizardPanel),
             new ShowSplitEditAction(wizardPanel),
             new SaveAndCloseAction(wizardPanel),
-            new PublishAction(wizardPanel),
             new UndoPendingDeleteAction(wizardPanel)
         );
 
@@ -171,8 +167,7 @@ export class ContentWizardActions
             SHOW_FORM: actions[13],
             SHOW_SPLIT_EDIT: actions[14],
             SAVE_AND_CLOSE: actions[15],
-            PUBLISH_MOBILE: actions[16],
-            UNDO_PENDING_DELETE: actions[17],
+            UNDO_PENDING_DELETE: actions[16],
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -181,7 +176,6 @@ export class ContentWizardActions
             PUBLISH: this.actionsMap.PUBLISH,
             PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
             UNPUBLISH: this.actionsMap.UNPUBLISH,
-            PUBLISH_MOBILE: this.actionsMap.PUBLISH_MOBILE,
         };
 
         this.stateManager = new ActionsStateManager(this.actionsMap);
@@ -311,10 +305,7 @@ export class ContentWizardActions
             PUBLISH: nonDeleteMode,
             CREATE_ISSUE: nonDeleteMode,
             UNPUBLISH: nonDeleteMode,
-            PUBLISH_MOBILE: nonDeleteMode,
         });
-
-        this.actionsMap.PUBLISH_MOBILE.setVisible(!valueOn);
 
         if (valueOn) {
             this.enableDeleteIfAllowed(content);
@@ -353,10 +344,7 @@ export class ContentWizardActions
                     CREATE_ISSUE: true,
                     UNPUBLISH: false,
                     PUBLISH_TREE: false,
-                    PUBLISH_MOBILE: false,
                 });
-
-                this.actionsMap.PUBLISH_MOBILE.setVisible(false);
             }
 
             if (existing.hasParent()) {
@@ -443,13 +431,11 @@ export class ContentWizardActions
             PUBLISH: canBePublished,
             CREATE_ISSUE: true,
             UNPUBLISH: canBeUnpublished,
-            PUBLISH_MOBILE: canBePublished,
             MARK_AS_READY: canBeMarkedAsReady,
             REQUEST_PUBLISH: canBeRequestedPublish,
             OPEN_REQUEST: this.hasPublishRequest
         });
 
-        this.actionsMap.PUBLISH_MOBILE.setVisible(canBePublished);
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
     }
 
@@ -555,10 +541,6 @@ export class ContentWizardActions
 
     getShowSplitEditAction(): Action {
         return this.actionsMap.SHOW_SPLIT_EDIT;
-    }
-
-    getPublishMobileAction(): Action {
-        return this.actionsMap.PUBLISH_MOBILE;
     }
 
     getUndoPendingDeleteAction(): Action {

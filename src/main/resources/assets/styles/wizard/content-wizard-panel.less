@@ -264,8 +264,16 @@
   }
 
   &._0-240, &._240-360, &._360-540, &._540-720 {
-    .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
+    .mobile-edit-publish-button {
       .button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 30%));
+    }
+
+    .mobile-edit-mark-as-ready-button {
+      .button(@form-button-font, #CBAD00, @form-button-font, lighten(#CBAD00, 30%));
+    }
+
+    .mobile-edit-publish-button,
+    .mobile-edit-mark-as-ready-button {
       position: fixed;
       bottom: 0;
       text-align: center;
@@ -286,6 +294,22 @@
       }
     }
 
+    .mobile-edit-publish-controls {
+      &:not(.enabled) {
+        display: none;
+      }
+      &.mark-as-ready {
+        .mobile-edit-publish-button {
+          display: none !important;
+        }
+      }
+      &:not(.mark-as-ready) {
+        .mobile-edit-mark-as-ready-button {
+          display: none !important;
+        }
+      }
+    }
+
     .@{_COMMON_PREFIX}button.cycle-button {
       margin-left: auto;
     }
@@ -298,8 +322,8 @@
 
   &._720-960, &._960-1200, &._1200-1380, &._1380-1620, &._1620-1920, &._1920-Infinity {
 
-    .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
-      display: none !important;
+    .mobile-edit-publish-controls {
+      display: none;
     }
 
     .content-wizard-toolbar {
