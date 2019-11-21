@@ -172,7 +172,7 @@ export class CreateIssueAction
     }
 
     public updateLabel(count: number) {
-        let label = i18n('action.createIssue');
+        let label = i18n('action.createTask');
         if (count > 1) {
             label += ' (' + count + ')';
         }

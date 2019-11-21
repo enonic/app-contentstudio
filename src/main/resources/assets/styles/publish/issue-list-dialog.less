@@ -1,36 +1,7 @@
 .issue-list-dialog {
 
-  .dialog-buttons {
-    display: none;
-  }
-
   &.show-footer .dialog-buttons {
     display: block;
-  }
-
-  .modal-dialog-header,
-  &.grey-header .modal-dialog-header {
-    padding-bottom: 0;
-  }
-
-  .modal-dialog-header {
-    .tab-bar {
-      display: flex;
-      margin: 10px 0 0;
-      background-color: transparent;
-      border: none;
-
-      .tab-bar-item {
-        flex: 1;
-      }
-    }
-  }
-
-  .docked-panel {
-    width: auto;
-    box-shadow: none;
-    position: inherit !important;
-    background-color: transparent;
   }
 
   .panel {
@@ -40,27 +11,64 @@
 
   .issues-panel {
 
-    &.no-issues .on-off-button,
-    &.no-filter .row-selector {
-        display: none;
-    }
-
-    .filters {
-      margin-bottom: 20px;
-      padding: 0 5px;
+    .filters-block {
       display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 5px;
 
-      .checkbox {
-        padding: 8px 5px 8px 0;
+      .label-filter {
+        font-size: 14px;
+        padding-right: 14px;
+      }
 
-        &.disabled {
-          opacity: 0.5;
-          pointer-events: none;
+      .menu-button {
+        border: 1px solid #cccccc;
+        height: 32px;
+
+        .@{_COMMON_PREFIX}dropdown-handle {
+          background-color: @admin-white;
+          &:after {
+            border-top-color: @admin-black;
+          }
+
+          left: auto;
+        }
+
+        .action-button {
+          cursor: default;
+          background-color: @admin-white;
+          span {
+            color: @admin-black;
+          }
+
+          margin-right: 41px;
+          margin-left: 0px;
         }
       }
 
-      .my-issues-filter {
-        margin-right: 20px;
+      .status-filter {
+        display: flex;
+        margin-left: auto;
+
+        .status-button {
+          span {
+            color: @admin-black;
+          }
+
+          background-color: @admin-white;
+          border-bottom: 4px solid transparent;
+          outline: none;
+
+          &.active {
+            border-bottom: 4px solid @admin-blue;
+            span {
+              color: @admin-blue;
+            }
+
+            outline: none;
+          }
+        }
       }
     }
 

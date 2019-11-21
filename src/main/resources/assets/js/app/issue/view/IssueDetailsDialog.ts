@@ -414,12 +414,12 @@ export class IssueDetailsDialog
         if (isPublishRequest) {
             return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
         } else {
-            return canComment ? i18n('action.commentAndCloseIssue') : i18n('action.closeIssue');
+            return canComment ? i18n('action.commentAndCloseTask') : i18n('action.closeTask');
         }
     }
 
     private getReopenButtonLabel(): string {
-        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
+        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenTask');
     }
 
     private getPublishButtonLabel(itemsCount: number = 0): string {

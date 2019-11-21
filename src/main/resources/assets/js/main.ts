@@ -10,17 +10,6 @@ import LostConnectionDetector = api.system.ConnectionDetector;
 // fix the widgets that are using window['HTMLImports'] object
 // and update the docs on widgets to suggest a different way for embedding.
 import '@webcomponents/html-imports';
-
-declare const CONFIG;
-
-const body = api.dom.Body.get();
-
-// Dynamically import and execute all input types, since they are used
-// on-demand, when parsing XML schemas and has not real usage in app
-declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
-const importAll = r => r.keys().forEach(r);
-importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
-
 import {Router} from './app/Router';
 import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
 import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent';
@@ -48,6 +37,16 @@ import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
 import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
 import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
+
+declare const CONFIG;
+
+const body = api.dom.Body.get();
+
+// Dynamically import and execute all input types, since they are used
+// on-demand, when parsing XML schemas and has not real usage in app
+declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+const importAll = r => r.keys().forEach(r);
+importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
 
 function getApplication(): api.app.Application {
     const application = new api.app.Application(
@@ -357,7 +356,7 @@ function startApplication() {
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
     ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
-        IssueDialogsManager.get().openListDialog(event.getAssignedToMe(), event.getCreatedByMe()));
+        IssueDialogsManager.get().openListDialog(event.getAssignedToMe()));
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
