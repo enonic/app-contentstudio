@@ -305,7 +305,7 @@ export class IssueDetailsDialog
             const hasComment = !api.util.StringHelper.isEmpty(comment);
             if (hasComment) {
                 action.setEnabled(false);
-                this.saveComment(comment, this.commentAction).then(() => {
+                this.saveComment(comment, this.commentAction, true).then(() => {
                     this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
                 }).catch(api.DefaultErrorHandler.handle).finally(() => {
                     action.setEnabled(true);
@@ -724,11 +724,12 @@ export class IssueDetailsDialog
         }, false);
     }
 
-    private saveComment(text: string, action: Action): wemQ.Promise<void> {
+    private saveComment(text: string, action: Action, silent?: boolean): wemQ.Promise<void> {
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
         return new CreateIssueCommentRequest(this.issue.getId())
             .setCreator(this.currentUser.getKey())
+            .setSilent(silent)
             .setText(text).sendAndParse()
             .then(issueComment => {
                 this.commentsList.addItem(issueComment);
