@@ -6,7 +6,7 @@ import i18n = api.util.i18n;
 
 export class CreateIssueAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
-        super({wizard, label: i18n('action.createIssueMore'), omitCanPublishCheck: true});
+        super({wizard, label: i18n('action.createTaskMore'), omitCanPublishCheck: true});
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {

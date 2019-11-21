@@ -7,7 +7,7 @@ import i18n = api.util.i18n;
 export class CreateIssueAction extends Action {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.createIssueMore'));
+        super(i18n('action.createTaskMore'));
 
         this.setEnabled(false);
 
