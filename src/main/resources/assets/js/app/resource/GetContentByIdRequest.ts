@@ -10,6 +10,8 @@ export class GetContentByIdRequest
 
     private expand: string;
 
+    private versionId: string;
+
     constructor(id: ContentId) {
         super();
         super.setMethod('GET');
@@ -21,9 +23,15 @@ export class GetContentByIdRequest
         return this;
     }
 
+    public setVersion(version: string): GetContentByIdRequest {
+        this.versionId = version;
+        return this;
+    }
+
     getParams(): Object {
         return {
             id: this.id.toString(),
+            versionId: this.versionId,
             expand: this.expand
         };
     }

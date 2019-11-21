@@ -111,6 +111,8 @@ export class IssueDetailsDialog
 
     private updatedListeners: { (issue: Issue): void }[] = [];
 
+    private backButtonClickedListeners: { (): void }[] = [];
+
     private scheduleFormToggle: api.dom.ButtonEl;
 
     private publishMessage: api.dom.H6El;
@@ -239,7 +241,7 @@ export class IssueDetailsDialog
             this.updateIssue();
         });
 
-        this.backButton.onClicked(() => this.close());
+        this.backButton.onClicked(() => this.notifyBackButtonClicked());
 
         const updateTabCount = (save) => {
             let count = 0;
@@ -303,7 +305,7 @@ export class IssueDetailsDialog
             const hasComment = !api.util.StringHelper.isEmpty(comment);
             if (hasComment) {
                 action.setEnabled(false);
-                this.saveComment(comment, this.commentAction).then(() => {
+                this.saveComment(comment, this.commentAction, true).then(() => {
                     this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
                 }).catch(api.DefaultErrorHandler.handle).finally(() => {
                     action.setEnabled(true);
@@ -722,11 +724,12 @@ export class IssueDetailsDialog
         }, false);
     }
 
-    private saveComment(text: string, action: Action): wemQ.Promise<void> {
+    private saveComment(text: string, action: Action, silent?: boolean): wemQ.Promise<void> {
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
         return new CreateIssueCommentRequest(this.issue.getId())
             .setCreator(this.currentUser.getKey())
+            .setSilent(silent)
             .setText(text).sendAndParse()
             .then(issueComment => {
                 this.commentsList.addItem(issueComment);
@@ -1021,5 +1024,17 @@ export class IssueDetailsDialog
 
     private notifyIssueUpdated(issue: Issue) {
         this.updatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners.push(listener);
+    }
+
+    public unBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners = this.backButtonClickedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyBackButtonClicked() {
+        this.backButtonClickedListeners.forEach(listener => listener());
     }
 }

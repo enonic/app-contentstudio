@@ -77,6 +77,7 @@ export class SettingsWizardStepForm extends api.app.wizard.WizardStepForm {
 
     reset() {
         this.localeCombo.resetBaseValues();
+        this.ownerCombo.resetBaseValues();
     }
 
     onPropertyChanged(listener: {(event: api.PropertyChangedEvent): void;}) {

@@ -2,8 +2,6 @@
  * Created on 17.09.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
@@ -14,7 +12,6 @@ const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const IssueDetailsItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should be updated, when new issue is created or updated',
     function () {
@@ -43,7 +40,7 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should b
 
                 //Close Issue Details dialog and Issue List dialog:
                 await issueDetailsDialog.clickOnCancelTopButton();
-                await issueListDialog.clickOnCancelTopButton();
+                await issueDetailsDialog.waitForDialogClosed();
                 await issueListDialog.waitForDialogClosed();
 
                 //New menu item should appear in the Wizard Publish Menu:
@@ -61,7 +58,6 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should b
                 let issueDetailsItemsTab = new IssueDetailsItemsTab();
                 //Open existing folder:
                 await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
-
                 //expand the Publish Menu and click on the issue-name
                 await contentWizard.openPublishMenuSelectItem("issue1");
                 //Click on the remove icon and exclude this folder in Items:

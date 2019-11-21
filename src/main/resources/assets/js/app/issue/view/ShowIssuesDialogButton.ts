@@ -52,52 +52,45 @@ export class ShowIssuesDialogButton extends ActionButton {
         this.getEl().setTitle(i18n('text.publishingissues'));
         this.removeClass('has-assigned-issues has-issues');
         this.setLabel('');
-        this.getAction().setAssignedToMe(false);
+        this.getAction().setAssignedToMe(false).setCreatedByMe(false);
     }
 
     private fetchIssuesAndCreateLink() {
         this.resetButton();
 
-        this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true))
-            .then(hits => {
-                this.setLabel(i18n('field.assignedToMe'));
-                this.addClass('has-assigned-issues');
-                this.getEl().setTitle(i18n('text.youhaveissues'));
-                this.setIssueCount(hits);
-                this.getAction().setAssignedToMe(true);
-            })
-            .fail(() =>
-                this.fetchIssueList(this.resetIssueRequest().setCreatedByMe(true))
-                    .then(hits => {
-                        this.setLabel(i18n('field.myIssues'));
-                        this.addClass('has-issues');
-                        this.setIssueCount(hits);
-                        this.getAction();
-                    })
-                    .fail(() =>
-                        this.fetchIssueList(this.resetIssueRequest())
-                            .then(hits => {
-                                this.setLabel(i18n('field.openIssues') + ` (${hits})`);
-                            })
-                            .fail(() => {
-                                this.setLabel(i18n('field.noOpenIssues'));
-                            })
-                    )
-            );
+        this.fetchNumberOfOpenIssuesAssignedToMe().then((totalAssignedToMe: number) => {
+            if (totalAssignedToMe > 0) {
+                this.showAssignedToMeIssues(totalAssignedToMe);
+            } else {
+                this.fetchNumberOfOpenIssues().then((totalOpenIssues: number) => {
+                    if (totalOpenIssues > 0) {
+                        this.setLabel(i18n('field.openIssues') + ` (${totalOpenIssues})`);
+                    } else {
+                        this.setLabel(i18n('field.noOpenIssues'));
+                    }
+                }).catch(api.DefaultErrorHandler.handle);
+            }
+
+        }).catch(api.DefaultErrorHandler.handle);
+    }
+
+    private fetchNumberOfOpenIssuesAssignedToMe(): wemQ.Promise<number> {
+        return this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true));
     }
 
     private fetchIssueList(listIssueRequest: ListIssuesRequest): wemQ.Promise<number> {
-        const deferred = wemQ.defer<number>();
-        listIssueRequest.sendAndParse().then(
-            (response: IssueResponse) => {
-                const hitsCount = response.getMetadata().getTotalHits();
-
-                (hitsCount > 0) ? deferred.resolve(hitsCount) : deferred.reject(0);
-            }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
-        });
-
-        return deferred.promise;
+        return listIssueRequest.sendAndParse().then((response: IssueResponse) => response.getMetadata().getTotalHits());
     }
 
+    private fetchNumberOfOpenIssues(): wemQ.Promise<number> {
+        return this.fetchIssueList(this.resetIssueRequest());
+    }
+
+    private showAssignedToMeIssues(issuesCount: number) {
+        this.setLabel(i18n('field.assignedToMe'));
+        this.addClass('has-assigned-issues');
+        this.getEl().setTitle(i18n('text.youhaveissues'));
+        this.setIssueCount(issuesCount);
+        this.getAction().setAssignedToMe(true);
+    }
 }

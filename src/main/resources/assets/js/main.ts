@@ -49,7 +49,13 @@ const importAll = r => r.keys().forEach(r);
 importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
 
 function getApplication(): api.app.Application {
-    let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
+    const application = new api.app.Application(
+        'content-studio',
+        i18n('app.name'),
+        i18n('app.abbr'),
+        CONFIG.appIconUrl,
+        `${i18n('app.name')} v${CONFIG.appVersion}`
+    );
     application.setPath(api.rest.Path.fromString(Router.getPath()));
     application.setWindow(window);
 

@@ -9,6 +9,9 @@ import ContentId = api.content.ContentId;
 import WorkflowState = api.content.WorkflowState;
 import i18n = api.util.i18n;
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
+import ActionButton = api.ui.button.ActionButton;
+import Action = api.ui.Action;
+import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 
 export class VersionsView
     extends api.ui.selector.list.ListBox<ContentVersion> {
@@ -145,12 +148,30 @@ export class VersionsView
         let descriptionDiv = new ContentVersionViewer();
         descriptionDiv.addClass('description');
         descriptionDiv.setObject(item);
+
+        const compareButton = new ActionButton(
+            new Action()
+                .onExecuted((action: Action) => {
+                    CompareContentVersionsDialog.get()
+                        .setContentId(this.content.getContentId())
+                        .setContentDisplayName(this.content.getDisplayName())
+                        .setLeftVersion(this.activeVersion.id)
+                        .setRightVersion(item.id)
+                        .setActiveVersion(this.activeVersion.id)
+                        .open();
+                }), false);
+
+        compareButton
+            .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
+            .addClass('compare icon-copy transparent');
+
+        descriptionDiv.appendChild(compareButton);
+
         return descriptionDiv;
     }
 
     private createVersionInfoBlock(item: ContentVersion): api.dom.Element {
-        let versionInfoDiv = new api.dom.DivEl('version-info hidden');
-
+        const versionInfoDiv = new api.dom.DivEl('version-info hidden');
 
         if (item.publishInfo) {
             if (item.publishInfo.message) {
@@ -171,8 +192,8 @@ export class VersionsView
 
         }
 
-        let isActive = item.id === this.activeVersion.id;
-        let revertButton = new api.ui.button.ActionButton(
+        const isActive = item.id === this.activeVersion.id;
+        const revertButton = new ActionButton(
             new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
                 .onExecuted((action: api.ui.Action) => {
                     if (!isActive) {
@@ -195,6 +216,8 @@ export class VersionsView
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
         }
+
+        versionInfoDiv.appendChild(revertButton);
 
         revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();

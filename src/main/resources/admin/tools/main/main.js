@@ -19,7 +19,7 @@ function handleGet() {
         }),
         appName: 'Content Studio',
         appId: app.name,
-        xpVersion: app.version,
+        appVersion: app.version,
         branch: branch,
         repository: repository,
         locale: admin.getLocale(),

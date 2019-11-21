@@ -63,7 +63,7 @@ export class ContentAppPanel
             if (id) {
                 new GetIssueRequest(id).sendAndParse().then(
                     (issue: Issue) => {
-                        IssueDialogsManager.get().openDetailsDialog(issue);
+                        IssueDialogsManager.get().openDetailsDialogWithListDialog(issue);
                     });
             }
             break;

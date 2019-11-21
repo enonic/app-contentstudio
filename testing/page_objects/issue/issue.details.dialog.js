@@ -217,7 +217,7 @@ class IssueDetailsDialog extends Page {
 
     async clickOnReopenIssueButton() {
         await this.clickOnElement(this.reopenIssueButton);
-        await this.pause(300);
+        await this.pause(400);
     }
 
     pressEscKey() {
