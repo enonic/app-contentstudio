@@ -123,13 +123,13 @@ export class IssueListDialog
         }, 3000);
 
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
-            if (this.isVisible()) {
+            if (this.isOpen()) {
                 debouncedReload(issues);
             }
         });
 
         IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
-            if (this.isVisible()) {
+            if (this.isOpen()) {
                 debouncedReload(issues);
             }
         });
@@ -157,10 +157,6 @@ export class IssueListDialog
         }
 
         return issue.getCreator() === this.currentUser.getKey().toString();
-    }
-
-    protected hasSubDialog(): boolean {
-        return this.isMasked();
     }
 
     private updateTabAndFiltersLabels(): wemQ.Promise<void> {

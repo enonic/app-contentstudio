@@ -53,7 +53,7 @@ export class IssueDialogsManager {
         };
         this.publishDialogCloseHandler = () => {
             this.detailsDialog.unmask();
-            if (this.detailsDialog.isVisible()) {
+            if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.getEl().focus();
             }
             this.publishDialog.unClosed(this.publishDialogCloseHandler);
@@ -74,7 +74,7 @@ export class IssueDialogsManager {
             IssueDialogsManager.closeDialog(this.detailsDialog);
             backButtonClicked = false;
             this.listDialog.unmask();
-            if (this.listDialog.isVisible()) {
+            if (this.listDialog.isOpen()) {
                 this.listDialog.getEl().focus();
             }
         };
@@ -139,7 +139,7 @@ export class IssueDialogsManager {
 
     private listenPublishDialog() {
         ContentPublishPromptEvent.on(() => {
-            if (this.detailsDialog.isVisible()) {
+            if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
@@ -152,7 +152,7 @@ export class IssueDialogsManager {
 
     private listenRequestPublishDialog() {
         this.requestPublishDialog.onIssueCreated(issue => {
-            if (this.requestPublishDialog.isVisible()) {
+            if (this.requestPublishDialog.isOpen()) {
                 if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
                     this.requestPublishDialog.close();
                 }
@@ -162,14 +162,14 @@ export class IssueDialogsManager {
     }
 
     private static closeDialog(dialog: ModalDialog) {
-        if (dialog.isVisible()) {
+        if (dialog.isOpen()) {
             dialog.unmask();
             dialog.close();
         }
     }
 
     openDetailsDialogWithListDialog(issue: Issue) {
-        if (!this.listDialog.isVisible()) {
+        if (!this.listDialog.isOpen()) {
             this.listDialog.open();
             this.listDialog.mask();
         }

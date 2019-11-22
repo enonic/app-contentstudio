@@ -7,9 +7,9 @@ import ApplicationConfig = api.application.ApplicationConfig;
 import NamesAndIconView = api.app.NamesAndIconView;
 import DivEl = api.dom.DivEl;
 import GetApplicationRequest = api.application.GetApplicationRequest;
+import DialogManager = api.ui.dialog.DialogManager;
+import ModalDialog = api.ui.dialog.ModalDialog;
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
-import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
-import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
@@ -128,7 +128,7 @@ export class SiteConfiguratorSelectedOptionView
         }
     }
 
-    initConfigureDialog(): SiteConfiguratorDialog {
+    private initConfigureDialog(): SiteConfiguratorDialog {
         if (!this.isEditable()) {
             if (!this.formView) {
                 this.formView = this.createFormView(this.siteConfig);
@@ -162,19 +162,24 @@ export class SiteConfiguratorSelectedOptionView
         );
 
         const handleAvailableSizeChanged = () => siteConfiguratorDialog.handleAvailableSizeChanged();
-        const toggleMask = () => {
+        const toggleMask = (openDialog: ModalDialog) => {
+            if (openDialog === siteConfiguratorDialog) {
+                return;
+            }
             siteConfiguratorDialog.toggleMask(true);
-            HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
+            const removeHandler = () => {
                 siteConfiguratorDialog.toggleMask(false);
-            });
+                openDialog.unRemoved(removeHandler);
+            };
+            openDialog.onRemoved(removeHandler);
         };
 
         HtmlAreaResizeEvent.on(handleAvailableSizeChanged);
-        CreateHtmlAreaDialogEvent.on(toggleMask);
+        DialogManager.onDialogOpen(toggleMask);
 
         siteConfiguratorDialog.onRemoved(() => {
             HtmlAreaResizeEvent.un(handleAvailableSizeChanged);
-            CreateHtmlAreaDialogEvent.un(toggleMask);
+            DialogManager.unDialogOpen(toggleMask);
         });
 
         return siteConfiguratorDialog;

@@ -606,7 +606,7 @@ export class IssueDetailsDialog
     }
 
     private canUpdateDialog(): boolean {
-        const isPresent = this.isVisible() || this.getParentElement() != null;
+        const isPresent = this.isOpen() || this.getParentElement() != null;
         return isPresent && !this.skipNextServerUpdatedEvent;
     }
 
@@ -884,7 +884,7 @@ export class IssueDetailsDialog
     }
 
     private doUpdateIssue(): wemQ.Promise<void> {
-        if (!this.isUpdatePending || !this.isVisible()) {
+        if (!this.isUpdatePending || !this.isOpen()) {
             return;
         }
 
