@@ -15,6 +15,7 @@ import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
 import i18n = api.util.i18n;
 import Element = api.dom.Element;
 import DivEl = api.dom.DivEl;
+import LabelEl = api.dom.LabelEl;
 import ContentId = api.content.ContentId;
 import Option = api.ui.selector.Option;
 import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
@@ -40,6 +41,10 @@ export class CompareContentVersionsDialog
 
     private rightDropdown: Dropdown<ContentVersion>;
 
+    private leftLabel: LabelEl;
+
+    private rightLabel: LabelEl;
+
     private comparisonContainer: DivEl;
 
     private revertLeftButton: Button;
@@ -49,6 +54,8 @@ export class CompareContentVersionsDialog
     private contentCache: { [key: string]: Object };
 
     private diffPatcher: DiffPatcher;
+
+    private htmlFormatter: any;
 
     protected constructor() {
         super(<ModalDialogConfig>{
@@ -105,21 +112,23 @@ export class CompareContentVersionsDialog
             this.leftDropdown = this.createVersionDropdown('left', this.leftVersion);
             this.revertLeftButton = this.createVersionRevertButton(this.leftDropdown);
 
+            this.leftLabel = new api.dom.LabelEl(i18n('dialog.compareVersions.olderVersion'));
             const leftContainer = new DivEl('container left');
-            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown);
+            leftContainer.appendChildren<Element>(this.leftLabel, this.leftDropdown, this.revertLeftButton);
 
+            this.rightLabel = new api.dom.LabelEl(i18n('dialog.compareVersions.newerVersion'));
             this.rightDropdown = this.createVersionDropdown('right', this.rightVersion);
             this.revertRightButton = this.createVersionRevertButton(this.rightDropdown);
 
             const rightContainer = new DivEl('container right');
-            rightContainer.appendChildren<Element>(this.rightDropdown, this.revertRightButton);
+            rightContainer.appendChildren<Element>(this.rightLabel, this.rightDropdown, this.revertRightButton);
 
             const bottomContainer = new DivEl('container bottom');
-            const htmlFormatter = (<any>formatters.html);
-            htmlFormatter.showUnchanged(false, null, 0);
+            this.htmlFormatter = (<any>formatters.html);
+            this.htmlFormatter.showUnchanged(false, null, 0);
             const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('dialog.compareVersions.showUnchanged')).build();
             changesCheckbox.onValueChanged(event => {
-                htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
+                this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
             });
             bottomContainer.appendChild(changesCheckbox);
 
@@ -183,6 +192,7 @@ export class CompareContentVersionsDialog
             return;
         }
 
+        this.htmlFormatter.showUnchanged(false, null, 0);
         this.reloadVersions().then(() => {
             this.leftDropdown.setValue(this.leftVersion, true);
             this.rightDropdown.setValue(this.rightVersion);
@@ -220,10 +230,6 @@ export class CompareContentVersionsDialog
                 this.leftDropdown.setOptions(options);
                 this.rightDropdown.setOptions(options);
             });
-    }
-
-    close() {
-        super.close();
     }
 
     private fetchVersionPromise(version: string): wemQ.Promise<Object> {
@@ -278,18 +284,18 @@ export class CompareContentVersionsDialog
             });
     }
 
-    private updateButtonState(button: Button, versionDropdown: Dropdown<ContentVersion>) {
-        if (!button) {
-            return;
-        }
-        const isCurrentVersion = versionDropdown.getValue() === this.activeVersion;
-        button.setEnabled(!isCurrentVersion);
-        button.setLabel(i18n(isCurrentVersion ? 'dialog.compareVersions.current' : 'field.version.revert'));
-    }
-
     private updateButtonsState() {
-        this.updateButtonState(this.revertLeftButton, this.leftDropdown);
-        this.updateButtonState(this.revertRightButton, this.rightDropdown);
+        const isCurrentVersionLeft = this.leftDropdown.getValue() === this.activeVersion;
+        const isCurrentVersionRight = this.rightDropdown.getValue() === this.activeVersion;
+
+        const leftLabel = i18n(isCurrentVersionLeft ? 'dialog.compareVersions.current' : 'dialog.compareVersions.olderVersion');
+        const rightLabel = i18n(isCurrentVersionRight ? 'dialog.compareVersions.current' : 'dialog.compareVersions.newerVersion');
+
+        this.revertLeftButton.setEnabled(!isCurrentVersionLeft);
+        this.revertRightButton.setEnabled(!isCurrentVersionRight);
+
+        this.leftLabel.setValue(leftLabel);
+        this.rightLabel.setValue(rightLabel);
     }
 
     private processContent(content: Content): Object {
