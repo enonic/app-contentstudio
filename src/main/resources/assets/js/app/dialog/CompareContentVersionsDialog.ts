@@ -71,9 +71,16 @@ export class CompareContentVersionsDialog
             if (!this.isRendered()) {
                 return;
             }
-            const sourceDropdown = (dropdown === this.rightDropdown) ? this.leftDropdown : this.rightDropdown;
+
+            const leftVersion = this.leftDropdown.getValue();
+            const rightVersion = this.rightDropdown.getValue();
+
+            if (!leftVersion || !rightVersion) {
+                return;
+            }
+
             this.updateButtonsState();
-            this.displayDiff(event.getOption().value, sourceDropdown.getValue());
+            this.displayDiff(leftVersion, rightVersion);
         });
         return dropdown;
     }
@@ -177,7 +184,7 @@ export class CompareContentVersionsDialog
         }
 
         this.reloadVersions().then(() => {
-            this.leftDropdown.setValue(this.leftVersion);
+            this.leftDropdown.setValue(this.leftVersion, true);
             this.rightDropdown.setValue(this.rightVersion);
         });
     }
@@ -247,7 +254,7 @@ export class CompareContentVersionsDialog
             let text;
             let isEmpty = false;
             if (delta) {
-                text = formatters.html.format(delta, leftJson);
+                text = formatters.html.format(delta, rightJson);
             } else {
                 isEmpty = true;
                 text = `<h3>${i18n('dialog.compareVersions.versionsIdentical')}</h3>`;

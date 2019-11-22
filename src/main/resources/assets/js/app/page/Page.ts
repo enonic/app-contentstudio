@@ -150,7 +150,7 @@ export class Page
             template: this.template ? this.template.toString() : undefined,
             regions: this.regions ? this.regions.toJson() : undefined,
             fragment: componentJson,
-            config: this.config.toJson(),
+            config: this.config ? this.config.toJson() : undefined,
             customized: this.customized
         };
     }

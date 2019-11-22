@@ -155,8 +155,8 @@ export class VersionsView
                     CompareContentVersionsDialog.get()
                         .setContentId(this.content.getContentId())
                         .setContentDisplayName(this.content.getDisplayName())
-                        .setLeftVersion(this.activeVersion.id)
-                        .setRightVersion(item.id)
+                        .setLeftVersion(item.id)
+                        .setRightVersion(this.activeVersion.id)
                         .setActiveVersion(this.activeVersion.id)
                         .open();
                 }), false);
