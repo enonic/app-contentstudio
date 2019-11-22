@@ -99,7 +99,7 @@ export class PageComponentsView
         this.header.setHtml(i18n('field.components'));
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(api.dom.Body.get(), (item: ResponsiveItem) => {
-            let smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
+            const smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
             const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
             this.toggleClass('compact', compactSize);
             if (this.tree) {
@@ -110,6 +110,9 @@ export class PageComponentsView
             }
             if (item.isRangeSizeChanged()) {
                 this.setModal(smallSize).setDraggable(!smallSize);
+            }
+            if (this.tree && compactSize) {
+                this.tree.getGrid().resizeCanvas();
             }
         });
 
