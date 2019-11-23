@@ -86,6 +86,12 @@ export class CompareContentVersionsDialog
                 return;
             }
 
+            if (dropdown === this.rightDropdown && this.leftVersionRequiresForcedSelection()) {
+                this.forceSelectLeftVersion();
+
+                return;
+            }
+
             this.updateButtonsState();
             this.displayDiff(leftVersion, rightVersion);
         });
@@ -110,6 +116,9 @@ export class CompareContentVersionsDialog
             this.toolbar = new DivEl('toolbar-container');
 
             this.leftDropdown = this.createVersionDropdown('left', this.leftVersion);
+
+            this.leftDropdown.onExpanded(() => this.disableLeftVersions());
+
             this.revertLeftButton = this.createVersionRevertButton(this.leftDropdown);
 
             this.leftLabel = new api.dom.LabelEl(i18n('dialog.compareVersions.olderVersion'));
@@ -133,9 +142,6 @@ export class CompareContentVersionsDialog
             bottomContainer.appendChild(changesCheckbox);
 
             return this.reloadVersions().then(() => {
-
-                this.leftDropdown.setValue(this.leftVersion);
-                this.rightDropdown.setValue(this.rightVersion);
 
                 this.toolbar.appendChildren(leftContainer, rightContainer, bottomContainer);
 
@@ -193,10 +199,7 @@ export class CompareContentVersionsDialog
         }
 
         this.htmlFormatter.showUnchanged(false, null, 0);
-        this.reloadVersions().then(() => {
-            this.leftDropdown.setValue(this.leftVersion, true);
-            this.rightDropdown.setValue(this.rightVersion);
-        });
+        this.reloadVersions();
     }
 
     private reloadVersions(): wemQ.Promise<void> {
@@ -229,7 +232,68 @@ export class CompareContentVersionsDialog
 
                 this.leftDropdown.setOptions(options);
                 this.rightDropdown.setOptions(options);
+
+                this.leftDropdown.setValue(this.leftVersion, true);
+                this.rightDropdown.setValue(this.rightVersion);
             });
+    }
+
+    private getSelectedRightVersion(): string {
+        const rightSelectedOption: Option<ContentVersion> = this.rightDropdown.getSelectedOption();
+        if (!rightSelectedOption) {
+            return null;
+        }
+
+        return rightSelectedOption.value;
+    }
+
+    private getSelectedIndex(version: string, options: Option<ContentVersion>[]): number {
+        return options.findIndex((option: Option<ContentVersion>) => option.value === version);
+    }
+
+    private leftVersionRequiresForcedSelection() {
+
+        const options = this.leftDropdown.getOptions();
+
+        const leftIndex = this.getSelectedIndex(this.leftDropdown.getValue(), options);
+        const rightIndex = this.getSelectedIndex(this.rightDropdown.getValue(), options);
+
+        return leftIndex < rightIndex;
+    }
+
+    private forceSelectLeftVersion() {
+        if (!this.leftVersionRequiresForcedSelection()) {
+            return;
+        }
+
+        const options = this.leftDropdown.getOptions();
+        const rightIndex = this.getSelectedIndex(this.rightDropdown.getValue(), options);
+
+        const nextIndex = (rightIndex + 1 === this.rightDropdown.getOptionCount()) ? rightIndex : rightIndex + 1;
+
+        this.leftDropdown.resetActiveSelection();
+        this.leftDropdown.setValue(options[nextIndex].value);
+    }
+
+    private disableLeftVersions() {
+        const rightVersion = this.getSelectedRightVersion();
+
+        if (!rightVersion) {
+            return;
+        }
+        const readonlyOptions = [];
+        this.leftDropdown.getOptions().every((option: Option<ContentVersion>) => {
+            if (option.value === rightVersion) {
+                if (readonlyOptions.length) {
+                    this.leftDropdown.markReadOnly(readonlyOptions);
+                }
+                return false;
+            }
+
+            option.readOnly = true;
+            readonlyOptions.push(option);
+            return true;
+        });
     }
 
     private fetchVersionPromise(version: string): wemQ.Promise<Object> {
@@ -250,17 +314,19 @@ export class CompareContentVersionsDialog
 
     private displayDiff(leftVersion: string, rightVersion: string): wemQ.Promise<void> {
         const promises = [
-            this.fetchVersionPromise(leftVersion),
-            this.fetchVersionPromise(rightVersion)
+            this.fetchVersionPromise(leftVersion)
         ];
+        if (leftVersion !== rightVersion) {
+            promises.push(this.fetchVersionPromise(rightVersion));
+        }
         this.comparisonContainer.addClass('loading');
 
         return wemQ.all(promises).spread((leftJson: Object, rightJson: Object) => {
-            const delta: Delta = this.diffPatcher.diff(leftJson, rightJson);
+            const delta: Delta = this.diffPatcher.diff(leftJson, rightJson || leftJson);
             let text;
             let isEmpty = false;
             if (delta) {
-                text = formatters.html.format(delta, rightJson);
+                text = formatters.html.format(delta, rightJson || leftJson);
             } else {
                 isEmpty = true;
                 text = `<h3>${i18n('dialog.compareVersions.versionsIdentical')}</h3>`;
