@@ -101,12 +101,7 @@ export class CompareContentVersionsDialog
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
         const button = new Button(i18n('field.version.revert'));
 
-        button.onClicked(event => {
-            this.restoreVersion(dropdown.getValue()).then(() => {
-                dropdown.setValue(this.activeVersion);
-                this.updateButtonsState();
-            });
-        });
+        button.onClicked(event => this.restoreVersion(dropdown.getValue()));
 
         return button;
     }
@@ -345,6 +340,7 @@ export class CompareContentVersionsDialog
                     NotifyManager.get().showFeedback(i18n('notify.version.changed', contentKey));
                     new ActiveContentVersionSetEvent(this.contentId, contentKey).fire();
                     this.activeVersion = contentKey;
+                    this.rightVersion = contentKey;
                     return this.reloadVersions();
                 }
             });
