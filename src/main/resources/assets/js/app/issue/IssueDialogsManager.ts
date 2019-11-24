@@ -52,7 +52,6 @@ export class IssueDialogsManager {
             this.publishDialog.unCloseButtonClicked(this.publishDialogBeforeClosedHandler);
         };
         this.publishDialogCloseHandler = () => {
-            this.detailsDialog.unmask();
             if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.getEl().focus();
             }
@@ -67,13 +66,11 @@ export class IssueDialogsManager {
                 return;
             }
             this.listDialog.close();
-            this.listDialog.unmask();
         };
         this.detailsDialogBackButtonClickedHandler = () => {
             backButtonClicked = true;
             IssueDialogsManager.closeDialog(this.detailsDialog);
             backButtonClicked = false;
-            this.listDialog.unmask();
             if (this.listDialog.isOpen()) {
                 this.listDialog.getEl().focus();
             }
@@ -120,13 +117,11 @@ export class IssueDialogsManager {
             this.listDialog.addClickIgnoredElement(this.createDialog);
         });
         this.listDialog.onIssueSelected(issue => {
-            this.listDialog.mask();
             new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
                 this.openDetailsDialogWithListDialog(issueWithComments);
             });
         });
         this.listDialog.onCreateButtonClicked(() => {
-            this.listDialog.mask();
             this.openCreateDialog();
         });
     }
@@ -144,7 +139,6 @@ export class IssueDialogsManager {
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();
-                this.detailsDialog.mask();
                 IssueServerEventsHandler.getInstance().onIssueUpdated(this.issueUpdateHandler);
             }
         });
@@ -163,7 +157,6 @@ export class IssueDialogsManager {
 
     private static closeDialog(dialog: ModalDialog) {
         if (dialog.isOpen()) {
-            dialog.unmask();
             dialog.close();
         }
     }
@@ -171,7 +164,6 @@ export class IssueDialogsManager {
     openDetailsDialogWithListDialog(issue: Issue) {
         if (!this.listDialog.isOpen()) {
             this.listDialog.open();
-            this.listDialog.mask();
         }
 
         this.detailsDialog.showBackButton();

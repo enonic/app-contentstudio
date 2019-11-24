@@ -7,8 +7,6 @@ import ApplicationConfig = api.application.ApplicationConfig;
 import NamesAndIconView = api.app.NamesAndIconView;
 import DivEl = api.dom.DivEl;
 import GetApplicationRequest = api.application.GetApplicationRequest;
-import DialogManager = api.ui.dialog.DialogManager;
-import ModalDialog = api.ui.dialog.ModalDialog;
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
@@ -162,24 +160,10 @@ export class SiteConfiguratorSelectedOptionView
         );
 
         const handleAvailableSizeChanged = () => siteConfiguratorDialog.handleAvailableSizeChanged();
-        const toggleMask = (openDialog: ModalDialog) => {
-            if (openDialog === siteConfiguratorDialog) {
-                return;
-            }
-            siteConfiguratorDialog.toggleMask(true);
-            const removeHandler = () => {
-                siteConfiguratorDialog.toggleMask(false);
-                openDialog.unRemoved(removeHandler);
-            };
-            openDialog.onRemoved(removeHandler);
-        };
-
         HtmlAreaResizeEvent.on(handleAvailableSizeChanged);
-        DialogManager.onDialogOpen(toggleMask);
 
         siteConfiguratorDialog.onRemoved(() => {
             HtmlAreaResizeEvent.un(handleAvailableSizeChanged);
-            DialogManager.unDialogOpen(toggleMask);
         });
 
         return siteConfiguratorDialog;
