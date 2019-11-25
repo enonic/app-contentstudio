@@ -2,7 +2,7 @@ import i18n = api.util.i18n;
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
 import ImgEl = api.dom.ImgEl;
-import LostConnectionDetector = api.system.ConnectionDetector;
+import ConnectionDetector = api.system.ConnectionDetector;
 
 // This is added for backwards compatibility of those widgets that use
 // window['HTMLImports'].whenReady(...) to embed their contents.
@@ -62,26 +62,18 @@ function getApplication(): api.app.Application {
     return application;
 }
 
-function startLostConnectionDetector(): LostConnectionDetector {
-    let messageId;
+function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId;
 
-    let lostConnectionDetector = new LostConnectionDetector();
+    const connectionDetector =
+        ConnectionDetector.get()
+        .setAuthenticated(true)
+        .setConnectionLostCallback(() => {
+            window.location.href = api.util.UriHelper.getToolUri('');
+        })
+        .setNotificationMessage(i18n('notify.connection.loss'));
 
-    lostConnectionDetector.setAuthenticated(true);
-
-    lostConnectionDetector.onConnectionLost(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-        messageId = api.notify.showError(i18n('notify.connection.loss'), false);
-    });
-    lostConnectionDetector.onSessionExpired(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-        window.location.href = api.util.UriHelper.getToolUri('');
-    });
-    lostConnectionDetector.onConnectionRestored(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-    });
-    lostConnectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
+    connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
             readonlyMessageId = api.notify.showWarning(i18n('notify.repo.readonly'), false);
         } else if (readonlyMessageId) {
@@ -89,9 +81,9 @@ function startLostConnectionDetector(): LostConnectionDetector {
             readonlyMessageId = null;
         }
     });
+    connectionDetector.startPolling(true);
 
-    lostConnectionDetector.startPolling(true);
-    return lostConnectionDetector;
+    return connectionDetector;
 }
 
 function initApplicationEventListener() {
@@ -380,7 +372,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: LostConnectionDetector) {
+function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
 
     import('./app/wizard/ContentWizardPanel').then(def => {
 
