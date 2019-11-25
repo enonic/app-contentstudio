@@ -24,6 +24,7 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {IssueType} from '../IssueType';
 import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
+import {IssueComment} from '../IssueComment';
 import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import TaskState = api.task.TaskState;
@@ -270,6 +271,25 @@ export class IssueDetailsDialog
             this.commentTextArea.setReadOnly(editMode);
             this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
+        });
+
+        this.commentsList.onItemsAdded((itemsAdded: IssueComment[]) => {
+            const debouncedScroll: Function = api.util.AppHelper.debounce(() => {
+                if (this.commentsList.isVisible()) {
+                    const element: HTMLElement = this.getBody().getHTMLElement();
+                    element.scrollTop = element.scrollHeight - element.clientHeight;
+                }
+            }, 100);
+            itemsAdded.forEach((itemAdded: IssueComment) => {
+                const itemView: api.dom.Element = this.commentsList.getItemView(itemAdded);
+                if (!!itemView && !itemView.isRendered()) {
+                    const renderedHandler = () => {
+                        debouncedScroll();
+                        itemView.unRendered(renderedHandler);
+                    };
+                    itemView.onRendered(renderedHandler);
+                }
+            });
         });
 
         this.itemSelector.onOptionSelected(option => {
