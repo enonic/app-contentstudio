@@ -230,7 +230,7 @@ export class PageComponentsTreeGrid
         let wrapper = new SpanEl();
 
         let icon = new DivEl('menu-icon icon-menu2');
-        wrapper.getEl().setInnerHtml(icon.toString(), false);
+        wrapper.appendChild(icon);
         return wrapper.toString();
     }
 

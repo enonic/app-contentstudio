@@ -156,7 +156,7 @@ function initToolTip() {
             left = windowWidth - tooltipWidth;
         }
         $(`#${ID}`).remove();
-        $(`<div id='${ID}' />`).html(tooltipText).css({
+        $(`<div id='${ID}' />`).text(tooltipText).css({
             position: 'absolute', top, left
         }).appendTo('body').show();
     };
@@ -223,7 +223,7 @@ function isVisible(target: HTMLElement) {
 }
 
 function updateTabTitle(title: string) {
-    $('title').html(`${title} / ${i18n('app.name')}`);
+    $('title').text(`${title} / ${i18n('app.name')}`);
 }
 
 function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
