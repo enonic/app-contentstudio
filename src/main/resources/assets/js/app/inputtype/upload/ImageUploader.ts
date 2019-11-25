@@ -79,6 +79,8 @@ export class ImageUploader
             api.notify.showFeedback(content.getDisplayName() + ' saved');
         });
 
+        this.imageUploader.onUploadCompleted(() => this.imageUploader.resetBaseValues());
+
         this.imageUploader.onUploadReset(() => {
             this.saveToProperty(this.newInitialValue());
             this.imageUploader.getUploadButton().show();
