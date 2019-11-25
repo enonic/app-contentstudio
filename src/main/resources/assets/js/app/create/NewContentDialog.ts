@@ -251,7 +251,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.fileInput.reset();
         this.newContentUploader.reset();
 
-        if (this.isVisible()) {
+        if (this.isOpen()) {
             super.close();
         }
     }

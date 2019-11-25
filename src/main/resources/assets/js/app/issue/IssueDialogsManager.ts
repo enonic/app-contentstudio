@@ -52,8 +52,7 @@ export class IssueDialogsManager {
             this.publishDialog.unCloseButtonClicked(this.publishDialogBeforeClosedHandler);
         };
         this.publishDialogCloseHandler = () => {
-            this.detailsDialog.unmask();
-            if (this.detailsDialog.isVisible()) {
+            if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.getEl().focus();
             }
             this.publishDialog.unClosed(this.publishDialogCloseHandler);
@@ -67,14 +66,12 @@ export class IssueDialogsManager {
                 return;
             }
             this.listDialog.close();
-            this.listDialog.unmask();
         };
         this.detailsDialogBackButtonClickedHandler = () => {
             backButtonClicked = true;
             IssueDialogsManager.closeDialog(this.detailsDialog);
             backButtonClicked = false;
-            this.listDialog.unmask();
-            if (this.listDialog.isVisible()) {
+            if (this.listDialog.isOpen()) {
                 this.listDialog.getEl().focus();
             }
         };
@@ -120,13 +117,11 @@ export class IssueDialogsManager {
             this.listDialog.addClickIgnoredElement(this.createDialog);
         });
         this.listDialog.onIssueSelected(issue => {
-            this.listDialog.mask();
             new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
                 this.openDetailsDialogWithListDialog(issueWithComments);
             });
         });
         this.listDialog.onCreateButtonClicked(() => {
-            this.listDialog.mask();
             this.openCreateDialog();
         });
     }
@@ -139,12 +134,11 @@ export class IssueDialogsManager {
 
     private listenPublishDialog() {
         ContentPublishPromptEvent.on(() => {
-            if (this.detailsDialog.isVisible()) {
+            if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();
-                this.detailsDialog.mask();
                 IssueServerEventsHandler.getInstance().onIssueUpdated(this.issueUpdateHandler);
             }
         });
@@ -152,7 +146,7 @@ export class IssueDialogsManager {
 
     private listenRequestPublishDialog() {
         this.requestPublishDialog.onIssueCreated(issue => {
-            if (this.requestPublishDialog.isVisible()) {
+            if (this.requestPublishDialog.isOpen()) {
                 if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
                     this.requestPublishDialog.close();
                 }
@@ -162,16 +156,14 @@ export class IssueDialogsManager {
     }
 
     private static closeDialog(dialog: ModalDialog) {
-        if (dialog.isVisible()) {
-            dialog.unmask();
+        if (dialog.isOpen()) {
             dialog.close();
         }
     }
 
     openDetailsDialogWithListDialog(issue: Issue) {
-        if (!this.listDialog.isVisible()) {
+        if (!this.listDialog.isOpen()) {
             this.listDialog.open();
-            this.listDialog.mask();
         }
 
         this.detailsDialog.showBackButton();
