@@ -2,8 +2,6 @@
  * Created on 05.08.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
@@ -19,7 +17,6 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER;
-
 
     //verifies https://github.com/enonic/app-contentstudio/issues/697
     //         https://github.com/enonic/lib-admin-ui/issues/1061
@@ -74,8 +71,8 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             studioUtils.saveScreenshot("schedule_picker_popup2");
             await dateRangeInput.pause(1000);
             await dateRangeInput.waitForOnlineFromPickerDisplayed();
-
         });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

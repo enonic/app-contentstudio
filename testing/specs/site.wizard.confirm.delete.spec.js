@@ -2,8 +2,6 @@
  * Created on 01.08.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -15,7 +13,6 @@ const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
 const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
-
 
 describe('site.wizard.confirm.delete.spec: opens a site and delete it', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -47,7 +44,6 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await confirmContentDeleteDialog.waitForCancelButtonEnabled();
             //'Confirm' button should be disabled, because the number of content is not filled yet.
             await confirmContentDeleteDialog.waitForConfirmButtonDisabled();
-
         });
 
     it(`GIVEN existing site is opened AND 'Confirm Delete Dialog' has been opened WHEN required number of content has been typed AND 'Confirm' button pressed THEN wizard closes AND the site should be deleted`,
@@ -67,7 +63,6 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await confirmContentDeleteDialog.clickOnConfirmButton();
             await studioUtils.doSwitchToContentBrowsePanel();
             studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
-
             //the site should not be present in the grid:
             await contentBrowsePanel.waitForContentNotDisplayed(SITE.displayName);
         });

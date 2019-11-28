@@ -2,8 +2,6 @@
  * Created on 25.07.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -83,5 +81,4 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-})
-;
+});

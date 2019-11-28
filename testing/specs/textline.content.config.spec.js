@@ -7,7 +7,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const TextLine = require('../page_objects/wizardpanel/textline.form.panel');
@@ -23,7 +22,6 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
-
 
     it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,
         () => {
