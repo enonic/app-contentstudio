@@ -71,11 +71,11 @@ class ImageInspectionPanel extends Page {
     }
 
     isImageComboBoxDisplayed() {
-        return this.isElementDisplayed(xpath.container + xpath.imageContentComboBox);
+        return this.isElementDisplayed(xpath.container + xpath.imageContentComboBox+ "//input[contains(@id,'ComboBoxOptionFilterInput')]");
     }
 
     isErrorMessageDisplayed() {
-        return this.isElementDisplayed(xpath.container + "div[contains(@class,'error-container')]");
+        return this.isElementDisplayed(xpath.container + "//div[contains(@class,'error-container')]");
     }
 
 };
