@@ -2,16 +2,14 @@
  * Created on 15.08.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
-const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
@@ -27,16 +25,17 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            //1. Open existing folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
-            //Click on 'MARK AS READY' button
+            //2. Click on 'MARK AS READY' button
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.pause(1000);
-
+            //3. Get 'workflow state' in toolbar in the wizard-page:
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_1");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
-
+            //4. Check the icon:
             let iconState = await contentWizard.getIconWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
             await contentWizard.waitForPublishButtonDisplayed();
@@ -47,16 +46,18 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     it(`GIVEN new folder-wizard, name has been typed WHEN 'Request Publishing' dialog has been opened THEN 'workflow-state' should be updated(automatically) to Ready For Publishing`,
         async () => {
             let contentWizard = new ContentWizard();
-            let requestContentPublishDialog = new RequestContentPublishDialog();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            //1. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
-            // Request Publishing dialog has been opened:
+            //2. Click on menu item and open 'Request Publishing' dialog:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
 
             //Close Request Publishing dialog:
-            await requestContentPublishDialog.clickOnCancelButtonTop();
+            await createRequestPublishDialog.clickOnCancelButtonTop();
+            //3. Workflow should be automatically updated (ready for publishing now)
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_2");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -72,20 +73,19 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     it(`GIVEN new folder-wizard is opened, a name has been typed WHEN new 'Publish Request' has been created THEN default action gets OPEN REQUEST`,
         async () => {
             let contentWizard = new ContentWizard();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            //1. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
-            // Request Publishing dialog has been opened and new request created.
+            //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
-
-            // 'Issue Details' Dialog should be loaded now, do close it:
-            await issueDetailsDialog.waitForDialogOpened();
-            await issueDetailsDialog.clickOnCancelTopButton();
-            //Open Request action gets default in the wizard.
+            // 3. 'Issue Details' Dialog should be automatically loaded , do close it:
+            await taskDetailsDialog.waitForDialogOpened();
+            await taskDetailsDialog.clickOnCancelTopButton();
+            //4. 'Open Request' - this action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
-
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_3");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -114,7 +114,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
 
             //Workflow state icon should not be displayed!
             await contentBrowsePanel.waitForStateIconNotDisplayed(TEST_FOLDER.displayName);
-
             //AND: 'Publish...' should be default on the browse-toolbar:
             await contentBrowsePanel.waitForPublishButtonVisible();
         });

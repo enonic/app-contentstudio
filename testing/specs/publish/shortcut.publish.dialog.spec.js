@@ -3,8 +3,6 @@
  * verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -16,7 +14,6 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-
     let FOLDER_1;
 
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
@@ -31,9 +28,8 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
             await studioUtils.findAndSelectItem(FOLDER_1.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
-
             //Publish button should be enabled, because this content automatically gets "Ready to Publish"
-            return contentPublishDialog.waitForPublishNowButtonEnabled();
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
     it(`GIVEN 'Work in progress' and 'Ready to Publish' folders are selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish now button should be disabled`,
@@ -51,9 +47,9 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
             //Publish button should be disabled, because one content is "Work in progress"
-            return contentPublishDialog.waitForPublishNowButtonDisabled();
-
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
