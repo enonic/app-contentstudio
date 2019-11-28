@@ -2,8 +2,6 @@
  * Created on 21.11.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -64,7 +62,6 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 //3. Check the notification message:
                 let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
                 await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-
                 //4.'Save' button gets enabled in the wizard-toolbar:
                 await contentWizard.waitForSaveButtonEnabled();
             });
@@ -76,7 +73,6 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 let contentWizard = new ContentWizard();
                 //1. Select and open the folder:
                 await studioUtils.selectAndOpenContentInWizard(displayName);
-
                 //2. Go to browse-panel and add default permissions for 'Super User'
                 await studioUtils.doSwitchToContentBrowsePanel();
                 await studioUtils.openBrowseDetailsPanel();
