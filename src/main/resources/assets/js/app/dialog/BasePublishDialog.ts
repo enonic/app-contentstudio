@@ -275,7 +275,7 @@ export abstract class BasePublishDialog
 
     open() {
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
-
+        this.publishIssuesStateBar.reset();
         CreateIssueDialog.get().reset();
 
         super.open();
