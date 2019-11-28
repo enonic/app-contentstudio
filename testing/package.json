@@ -17,6 +17,6 @@
     "mochawesome": "4.0.1",
     "properties-reader": "0.0.15",
     "selenium-standalone": "^6.16.0",
-    "webdriverio": "^5.13.2"
+    "webdriverio": "^5.15.1"
   }
 }

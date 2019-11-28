@@ -9,12 +9,12 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
+const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const IssueDetailsDialogCommentsTab = require('../../page_objects/issue/issue.details.dialog.comments.tab');
 
-describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', function () {
+describe('task.details.dialog.spec: add a comment and check CommentsTabItem', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let MY_COMMENT = appConstant.generateRandomName('comment');
@@ -23,28 +23,27 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
 
     it(`WHEN new empty issue has been created THEN expected notification should be displayed`,
         async () => {
-            let createIssueDialog = new CreateIssueDialog();
-            await studioUtils.openCreateIssueDialog();
-            await createIssueDialog.typeTitle(ISSUE_TITLE);
-            await createIssueDialog.clickOnCreateIssueButton();
-            let message = await createIssueDialog.waitForNotificationMessage();
-            return assert.equal(message, 'New issue created successfully.', 'expected notification message should appear');
+            let createTaskDialog = new CreateTaskDialog();
+            await studioUtils.openCreateTaskDialog();
+            await createTaskDialog.typeTitle(ISSUE_TITLE);
+            await createTaskDialog.clickOnCreateTaskButton();
+            let message = await createTaskDialog.waitForNotificationMessage();
+            assert.equal(message, 'New issue created successfully.', 'expected notification message should appear');
         });
 
     it(`GIVEN issues list dialog is opened WHEN existing issue has been clicked THEN Issue Details dialog should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
-            let isActive = await issueDetailsDialog.isCommentsTabBarItemActive();
+            await taskDetailsDialog.waitForDialogOpened();
+            let isActive = await taskDetailsDialog.isCommentsTabBarItemActive();
             assert.isTrue(isActive, 'Comments Tab should be active');
 
-            let isCloseButtonDisplayed = await issueDetailsDialog.isCloseIssueButtonDisplayed();
+            let isCloseButtonDisplayed = await taskDetailsDialog.isCloseIssueButtonDisplayed();
             assert.isTrue(isCloseButtonDisplayed, 'Close Issue button should be present');
-
             //Comment button should be disabled, because it is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
             assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
@@ -53,15 +52,15 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             assert.isTrue(isTextAreaDisplayed, 'Text area for comments should be displayed');
         });
 
-    it(`GIVEN issue Details dialog is opened WHEN comment has been typed in the area THEN Comment button is getting enabled`,
+    it(`GIVEN Task Details dialog is opened WHEN comment has been typed in the area THEN Comment button is getting enabled`,
         () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(ISSUE_TITLE);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
+                return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return commentsTab.typeComment(MY_COMMENT);
             }).then(() => {
@@ -70,21 +69,21 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             });
         });
 
-    it(`GIVEN Issue Details dialog is opened WHEN comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
+    it(`GIVEN Task Details dialog is opened WHEN comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
         () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(ISSUE_TITLE);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
+                return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return commentsTab.typeComment(MY_COMMENT);
             }).then(() => {
                 return commentsTab.clickOnCommentButton();
             }).then(() => {
-                return issueDetailsDialog.waitForNotificationMessage();
+                return taskDetailsDialog.waitForNotificationMessage();
             }).then(message => {
                 studioUtils.saveScreenshot("issue_comment_added");
                 assert.equal(message, appConstant.YOUR_COMMENT_ADDED,
@@ -95,15 +94,15 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             });
         });
 
-    it(`WHEN Issue Details dialog is opened THEN just created comment should be present in the comments-list`,
+    it(`WHEN Task Details dialog is opened THEN just created comment should be present in the comments-list`,
         () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(ISSUE_TITLE);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
+                return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return commentsTab.isCommentPresent(MY_COMMENT);
             }).then(result => {
@@ -112,15 +111,15 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             })
         });
 
-    it(`GIVEN existing issue with a comment WHEN Issue Details dialog is opened  AND the comment has been changed THEN updated comment should be present in the comments-list`,
+    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been changed THEN updated comment should be present in the comments-list`,
         () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(ISSUE_TITLE);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
+                return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return commentsTab.clickOnEditCommentMenuItem(MY_COMMENT);
             }).then(() => {
@@ -135,16 +134,16 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             })
         });
 
-    it(`GIVEN existing issue with a comment WHEN Issue Details dialog is opened  AND the comment has been deleted THEN the comment should not be present in the comments-list`,
+    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been deleted THEN the comment should not be present in the comments-list`,
         () => {
             let issueListDialog = new IssueListDialog();
-            let issueDetailsDialog = new IssueDetailsDialog();
+            let taskDetailsDialog = new TaskDetailsDialog();
             let confirmationDialog = new ConfirmationDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
                 return issueListDialog.clickOnIssue(ISSUE_TITLE);
             }).then(() => {
-                return issueDetailsDialog.waitForDialogOpened();
+                return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
                 return commentsTab.clickOnDeleteCommentMenuItem(newText);
             }).then(() => {

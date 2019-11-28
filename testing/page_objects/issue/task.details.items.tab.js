@@ -10,6 +10,8 @@ const xpath = {
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     publishButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish...')]]`,
+    closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
+    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
@@ -22,11 +24,19 @@ const xpath = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
 
-class IssueDetailsDialogItemsTab extends Page {
+class TaskDetailsDialogItemsTab extends Page {
 
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
+
+    get closeIssueButton() {
+        return xpath.container + xpath.closeIssueButton;
+    }
+    get reopenIssueButton() {
+        return xpath.container + xpath.reopenIssueButton;
+    }
+
 
     get publishButton() {
         return xpath.container + xpath.buttonRow + xpath.publishButton;
@@ -81,7 +91,7 @@ class IssueDetailsDialogItemsTab extends Page {
         return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
     }
 
-    isContentOptionsFilterInputPresent() {
+    waitForContentOptionsFilterInputDisplayed() {
         return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
         })
@@ -109,7 +119,6 @@ class IssueDetailsDialogItemsTab extends Page {
         return await this.getBrowser().getElementText(result[0].elementId);
     };
 
-
     //Show dependent items
     async clickOnShowDependentItems(text) {
         try {
@@ -121,10 +130,10 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    isShowDependentItemsLinkDisplayed() {
+    waitForShowDependentItemsLinkDisplayed() {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
-            console.log(err);
-            return false;
+            this.saveScreenshot("err_show_dep_items_link_should_be_displayed")
+            throw new Error("Show Dependent Items link should be displayed! " + err);
         })
     }
 
@@ -139,10 +148,10 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    isHideDependentItemsLinkDisplayed() {
+    waitForHideDependentItemsLinkDisplayed() {
         return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
-            console.log(err);
-            return false;
+            this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
+            throw new Error("Hide Dependent Items link should be displayed! " + err);
         })
     }
 
@@ -167,6 +176,7 @@ class IssueDetailsDialogItemsTab extends Page {
             throw new Error('error when clicking on `remove icon`: ' + err)
         })
     }
+
     excludeItem(displayName) {
         let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
         return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
@@ -177,5 +187,17 @@ class IssueDetailsDialogItemsTab extends Page {
             throw new Error('error when clicking on `remove icon`: ' + err)
         })
     }
+
+    async clickOnCloseIssueButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeIssueButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.closeIssueButton);
+            //reopen Issue button should appear!
+            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot('err_click_close_issue_button');
+            throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+        }
+    }
 };
-module.exports = IssueDetailsDialogItemsTab;
+module.exports = TaskDetailsDialogItemsTab;

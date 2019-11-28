@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -32,24 +30,25 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await studioUtils.doAddSite(SITE);
     });
 
-    it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE ISSUE...' button should appear in the browse-toolbar`, async () => {
+    it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE TASK...' button should appear in the browse-toolbar`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
-        await contentBrowsePanel.waitForCreateIssueButtonVisible();
+        await contentBrowsePanel.waitForCreateTaskButtonDisplayed();
     });
 
-    it(`WHEN existing folder(New and Ready to publish) has been selected THEN 'Publish' button should appear in the browse-toolbar`, () => {
-        let contentBrowsePanel = new ContentBrowsePanel();
-        return studioUtils.findAndSelectItem(FOLDER.displayName).then(() => {
-            return contentBrowsePanel.clickOnMarkAsReadyButton();
-        }).then(() => {
-            // do publish the folder
-            return studioUtils.doPublish();
-        }).then(() => {
-            return expect(contentBrowsePanel.getContentStatus(FOLDER.displayName)).to.eventually.equal('Published');
-        })
-    });
+    it(`WHEN existing folder(New and Ready to publish) has been selected THEN 'Publish' button should appear in the browse-toolbar`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the folder:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2. Click on Mark As Ready:
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            //3.  do publish the folder:
+            await studioUtils.doPublish();
+            let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
+            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be Published");
+        });
 
-    it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Issue' is enabled`,
+    it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(FOLDER.displayName);
@@ -57,7 +56,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items1");
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_ISSUE);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 

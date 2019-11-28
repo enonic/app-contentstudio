@@ -1,4 +1,4 @@
-const Page = require('../page');
+const BaseDetailsDialog= require('./base.details.dialog')
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
@@ -23,8 +23,10 @@ const xpath = {
     selectionItemStatusByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
-
-class IssueDetailsDialogRequestTab extends Page {
+//Dialog loads :
+// 1. after clicking on 'Create request' button in "Create request dialog"
+//2. after clicking on a request in Issues List dialog
+class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
@@ -94,8 +96,8 @@ class IssueDetailsDialogRequestTab extends Page {
         return this.waitForElementDisabled(this.publishNowButton, appConst.TIMEOUT_4);
     }
 
-    isContentOptionsFilterInputPresent() {
-        return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
+    waitContentOptionsFilterInputDisplayed() {
+        return this.waitForElementDisplayed(this.contentOptionsFilterInput,appConst.TIMEOUT_2).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
         })
     }
@@ -154,8 +156,8 @@ class IssueDetailsDialogRequestTab extends Page {
 
     isHideDependentItemsLinkDisplayed() {
         return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
-            console.log(err);
-            return false;
+            this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
+            throw new Error("Publish request -Hide Dependent Items link should be displayed! " + err)
         })
     }
 
@@ -206,4 +208,4 @@ class IssueDetailsDialogRequestTab extends Page {
         }
     }
 };
-module.exports = IssueDetailsDialogRequestTab;
+module.exports = PublishRequestDetailsDialog;
