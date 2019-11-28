@@ -191,6 +191,7 @@ export class PageComponentsTreeGrid
                     const comp = componentMap[desc.getKey().toString()];
                     if (comp) {
                         comp.setDescription(desc.getDescription());
+                        comp.setIcon(desc.getIcon());
                     }
                 });
             });

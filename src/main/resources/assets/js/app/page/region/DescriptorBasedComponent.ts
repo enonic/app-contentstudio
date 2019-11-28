@@ -71,6 +71,10 @@ export abstract class DescriptorBasedComponent
         return this.icon;
     }
 
+    setIcon(value: string) {
+        this.icon = value;
+    }
+
     doReset() {
         this.setDescriptor(null);
     }
