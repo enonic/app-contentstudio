@@ -231,11 +231,12 @@ export class PublishProcessor {
     }
 
     public containsItemsInProgress(): boolean {
-        return this.itemList.getItems().some(this.isOfflineItemInProgress) || this.dependantList.getItems().some(this.isItemInProgress);
+        return this.itemList.getItems().some(this.isOfflineItemInProgress.bind(this)) ||
+               this.dependantList.getItems().some(this.isItemInProgress.bind(this));
     }
 
     private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
+        return !item.isOnline() && this.isItemInProgress(item) && !item.getContentSummary().getContentState().isPendingDelete();
     }
 
     private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
