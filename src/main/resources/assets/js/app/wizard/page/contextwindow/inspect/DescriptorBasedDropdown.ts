@@ -31,6 +31,7 @@ export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
             }
         } else {
             this.reset();
+            this.hideDropdown();
         }
     }
 

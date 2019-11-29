@@ -68,6 +68,7 @@ export class FragmentDropdown
             }
         } else {
             this.reset();
+            this.hideDropdown();
         }
     }
 
