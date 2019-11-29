@@ -1,5 +1,4 @@
 import {ContentVersion} from '../../../../ContentVersion';
-import WorkflowState = api.content.WorkflowState;
 import DateHelper = api.util.DateHelper;
 
 export class ContentVersionViewer
@@ -16,16 +15,16 @@ export class ContentVersionViewer
         return 50;
     }
 
-    setObject(contentVersion: ContentVersion, row?: number) {
+    setObject(contentVersion: ContentVersion, isInMaster?: boolean) {
 
         this.namesAndIconView
-            .setMainName(contentVersion.modifierDisplayName)
-            .setSubName(DateHelper.getModifiedString(contentVersion.modified))
-            .setIconClass(contentVersion.publishInfo
-                ? 'icon-version-published'
-                : contentVersion.workflowInfo && WorkflowState.READY === contentVersion.workflowInfo.getState()
-                    ? 'icon-state-ready'
-                    : 'icon-version-modified');
+            .setMainName(contentVersion.getModifierDisplayName())
+            .setSubName(DateHelper.getModifiedString(contentVersion.getModified()))
+            .setIconClass(contentVersion.getPublishInfo() && isInMaster
+                          ? 'icon-version-published'
+                          : contentVersion.isInReadyState()
+                            ? 'icon-state-ready'
+                            : 'icon-version-modified');
 
         return super.setObject(contentVersion);
     }

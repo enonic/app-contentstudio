@@ -216,13 +216,13 @@ export class CompareContentVersionsDialog
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
                     options.push({
-                        value: version.id,
+                        value: version.getId(),
                         displayValue: version
                     });
                 }
 
                 options = options.sort((a, b) => {
-                    return b.displayValue.modified.getTime() - a.displayValue.modified.getTime();
+                    return b.displayValue.getModified().getTime() - a.displayValue.getModified().getTime();
                 });
 
                 this.leftDropdown.setOptions(options);
