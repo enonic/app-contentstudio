@@ -232,7 +232,7 @@ export class PublishProcessor {
 
     public containsItemsInProgress(): boolean {
         return this.itemList.getItems().some(this.isOfflineItemInProgress.bind(this)) ||
-               this.dependantList.getItems().some(this.isItemInProgress.bind);
+               this.dependantList.getItems().some(this.isItemInProgress.bind(this));
     }
 
     private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
