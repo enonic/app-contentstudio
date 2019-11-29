@@ -11,8 +11,12 @@ export class ContentWizardToolbarPublishControls
 
     private mobilePublishControls: DivEl;
 
+    private actions: ContentWizardActions;
+
     constructor(actions: ContentWizardActions) {
         super('toolbar-publish-controls');
+
+        this.actions = actions;
 
         this.publishButton = new ContentWizardPublishMenuButton({
             publishAction: actions.getPublishAction(),
@@ -26,59 +30,71 @@ export class ContentWizardToolbarPublishControls
         actions.getPublishAction().setIconClass('publish-action');
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
-        this.initMobilePublishControls(actions);
+        this.initMobilePublishControls();
 
-        this.initListeners(actions);
+        this.initListeners();
 
         this.appendChild(this.publishButton);
     }
 
-    protected initMobilePublishControls(actions: ContentWizardActions) {
+    protected initMobilePublishControls() {
         this.mobilePublishControls = new DivEl('mobile-edit-publish-controls');
-        const publishButtonForMobile = this.createPublishButtonForMobile(actions);
-        const markAsReadyButtonForMobile = this.createMarkAsReadyButtonForMobile(actions);
+        const publishButtonForMobile = this.createPublishButtonForMobile();
+        const markAsReadyButtonForMobile = this.createMarkAsReadyButtonForMobile();
         this.mobilePublishControls.appendChildren(publishButtonForMobile, markAsReadyButtonForMobile);
+
+        this.handleMarkAsReadyStatus();
     }
 
-    protected createPublishButtonForMobile(actions: ContentWizardActions): ActionButton {
-        const publishButtonForMobile = new ActionButton(actions.getPublishAction());
+    protected createPublishButtonForMobile(): ActionButton {
+        const publishButtonForMobile = new ActionButton(this.actions.getPublishAction());
         publishButtonForMobile.addClass('mobile-edit-publish-button');
-        publishButtonForMobile.setVisible(false);
 
         return publishButtonForMobile;
     }
 
-    protected createMarkAsReadyButtonForMobile(actions: ContentWizardActions): ActionButton {
-        const markAsReadyButtonForMobile = new ActionButton(actions.getMarkAsReadyAction());
+    protected createMarkAsReadyButtonForMobile(): ActionButton {
+        const markAsReadyButtonForMobile = new ActionButton(this.actions.getMarkAsReadyAction());
         markAsReadyButtonForMobile.addClass('mobile-edit-mark-as-ready-button');
-        markAsReadyButtonForMobile.setVisible(false);
 
         return markAsReadyButtonForMobile;
     }
 
-    protected initListeners(actions: ContentWizardActions) {
-        const publishAction = actions.getPublishAction();
-        const markAsReadyAction = actions.getMarkAsReadyAction();
+    protected initListeners() {
+        const publishAction = this.actions.getPublishAction();
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
 
-        const controlsChangedHandler = () => {
-            const controlsEnabled = publishAction.isEnabled() || markAsReadyAction.isEnabled();
-            this.mobilePublishControls.toggleClass('enabled', controlsEnabled);
-        };
-
-        publishAction.onPropertyChanged(controlsChangedHandler);
-        markAsReadyAction.onPropertyChanged(() => {
-            controlsChangedHandler();
-            const markAsReadyEnabled = markAsReadyAction.isEnabled();
-            this.mobilePublishControls.toggleClass('mark-as-ready', markAsReadyEnabled);
+        publishAction.onPropertyChanged(() => {
+            this.handleControlsChanged();
         });
 
-        actions.onBeforeActionsStashed(() => {
+        markAsReadyAction.onPropertyChanged(() => {
+            this.handleControlsChanged();
+            this.handleMarkAsReadyStatus();
+        });
+
+        this.actions.onBeforeActionsStashed(() => {
             this.publishButton.setRefreshDisabled(true);
         });
 
-        actions.onActionsUnstashed(() => {
+        this.actions.onActionsUnstashed(() => {
             this.publishButton.setRefreshDisabled(false);
         });
+    }
+
+    private handleControlsChanged() {
+        const publishAction = this.actions.getPublishAction();
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
+
+        const controlsEnabled = publishAction.isEnabled() || markAsReadyAction.isEnabled();
+        this.mobilePublishControls.toggleClass('enabled', controlsEnabled);
+    }
+
+    private handleMarkAsReadyStatus() {
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
+
+        const markAsReadyEnabled = markAsReadyAction.isEnabled();
+        this.mobilePublishControls.toggleClass('mark-as-ready', markAsReadyEnabled);
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardToolbarPublishControls {
