@@ -11,7 +11,7 @@ const xpath = {
         return `//li[contains(@id,'IssueListItem')]//h6[contains(@class,'main-name') and contains(.,'${name}')]`
     },
     typeFilterOption: option => {
-        return `//div[contains(@id,'TypeFilter')]//li[contains(@id,'MenuItem')and contains(.,'${option}']] `
+        return `//div[contains(@id,'TypeFilter')]//li[contains(@id,'MenuItem') and contains(.,'${option}')]`
     },
     publishRequestsMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Publish requests']]",
     createdByMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Created by Me']]",
@@ -156,6 +156,19 @@ class IssuesListDialog extends Page {
         let optionXpath = xpath.typeFilterOption(option);
         await this.waitForElementDisplayed(optionXpath, appConst.TIMEOUT_2);
         await this.clickOnElement(optionXpath);
+        return this.pause(300);
+    }
+
+    async isTypeFilterOptionDisabled(option) {
+        await this.clickOnElement(this.typeFilterDropDownHandle);
+        let optionXpath = xpath.typeFilterOption(option);
+        return await this.waitForElementDisabled(optionXpath, appConst.TIMEOUT_2);
+    }
+
+    async clickOnTypeFilterDropDownHandle() {
+        await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.TIMEOUT_2);
+        await this.clickOnElement(this.typeFilterDropDownHandle);
+        return await this.pause(200);
     }
 
     getTypeFilterSelectedOption() {
@@ -163,6 +176,33 @@ class IssuesListDialog extends Page {
         return this.getText(selector);
     }
 
+    async getTypeFilterOptions() {
+        let selector = xpath.container + xpath.typeFilter + "//li[contains(@id,'MenuItem')]";
+        await this.clickOnTypeFilterDropDownHandle();
+        let result = await this.getTextInElements(selector);
+        return [].concat(result);
+
+    }
+
+    //Wait for state(Disable or Enabled) of the option in the Type Filter:
+    async waitForFilterOptionDisabled(option) {
+        try {
+            let optionXpath = xpath.typeFilterOption(option);
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(optionXpath,"class");
+                return text.includes('disabled');
+            }, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_type_filter1");
+            throw new Error("Type Filter - menu item:" + option + " should be disabled! " + err);
+        }
+    }
+
+    async isFilterOptionDisabled(option) {
+        let optionXpath = xpath.typeFilterOption(option);
+        let attr = await this.getAttribute(optionXpath, "class");
+        return attr.includes('disabled');
+    }
 
     isIssuePresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
@@ -200,7 +240,8 @@ class IssuesListDialog extends Page {
         let result = await this.getAttribute(this.openButton, 'class');
         return result.includes('active');
     }
-    async isClosedButtonActive(){
+
+    async isClosedButtonActive() {
         await this.waitForOpenButtonDisplayed();
         let result = await this.getAttribute(this.closedButton, 'class');
         return result.includes('active');

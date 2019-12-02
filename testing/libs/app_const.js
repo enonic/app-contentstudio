@@ -157,4 +157,11 @@ module.exports = Object.freeze({
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
+    ISSUE_LIST_TYPE_FILTER:{
+        ALL:'All',
+        ASSIGNED_TO_ME: 'Assigned to Me',
+        CREATED_BY_ME:'Created by Me',
+        PUBLISH_REQUESTS:'Publish requests',
+        TASKS:'Tasks'
+    }
 });
