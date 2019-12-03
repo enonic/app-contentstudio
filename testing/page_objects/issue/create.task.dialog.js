@@ -6,7 +6,8 @@ const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
-    createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
+    dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
+    createTaskButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Task')]]`,
     cancelButton: `//button[contains(@class,'button-bottom')]`,
     titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
     addItemsButton: "//button[contains(@id,'button') and child::span[text()='Add items']]",
@@ -16,7 +17,7 @@ const XPATH = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
 };
 
-class CreateIssueDialog extends Page {
+class CreateTaskDialog extends Page {
 
     get cancelTopButton() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
@@ -50,18 +51,22 @@ class CreateIssueDialog extends Page {
         return XPATH.container + lib.TEXT_AREA;
     }
 
-    get createIssueButton() {
-        return XPATH.container + XPATH.createIssueButton;
+    get createTaskButton() {
+        return XPATH.container + XPATH.createTaskButton;
     }
 
-    async clickOnCreateIssueButton() {
+    getDialogTitle() {
+        return this.getText(XPATH.container + XPATH.dialogTitle);
+    }
+
+    async clickOnCreateTaskButton() {
         try {
-            await this.waitForElementEnabled(this.createIssueButton, appConst.TIMEOUT_2);
-            await this.clickOnElement(this.createIssueButton);
+            await this.waitForElementEnabled(this.createTaskButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(this.createTaskButton);
             await this.pause(400);
         } catch (err) {
-            this.saveScreenshot('err_click_create_issue_button');
-            throw new Error('create issue dialog: ' + err);
+            this.saveScreenshot('err_click_create_task_button');
+            throw new Error('create task dialog: ' + err);
         }
     }
 
@@ -76,28 +81,30 @@ class CreateIssueDialog extends Page {
         return this.clickOnElement(this.cancelBottomButton).then(() => {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
         }).catch(err => {
-            this.saveScreenshot('err_close_issue_dialog');
-            throw new Error('Create Issue dialog must be closed!')
+            this.saveScreenshot('err_close_task_dialog');
+            throw new Error('Create Task dialog must be closed!')
         })
     }
 
     async clickOnIncludeChildrenToggler(displayName) {
-        let selector = XPATH.container + XPATH.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        return await this.clickOnElement(selector).catch(err => {
+        try {
+            let selector = XPATH.container + XPATH.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+            return await this.clickOnElement(selector);
+        } catch (err) {
             this.saveScreenshot('err_click_on_include_children');
             throw new Error('Error when clicking on `include children` icon ' + displayName + ' ' + err);
-        });
+        }
     }
 
     getValidationMessageForTitleInput() {
         return this.getText(this.titleInputValidationMessage);
     }
 
-    typeTitle(issueName) {
-        return this.typeTextInInput(this.titleInput, issueName).catch(err => {
-            this.saveScreenshot("err_type_issue_name");
-            throw new Error('error when type issue-name ' + err);
+    typeTitle(taskName) {
+        return this.typeTextInInput(this.titleInput, taskName).catch(err => {
+            this.saveScreenshot("err_type_task_name");
+            throw new Error('error when type the task-name ' + err);
         })
     }
 
@@ -106,11 +113,11 @@ class CreateIssueDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
     }
 
     isWarningMessageDisplayed() {
@@ -121,8 +128,8 @@ class CreateIssueDialog extends Page {
         return this.isElementDisplayed(this.titleInput);
     }
 
-    isCreateIssueButtonDisplayed() {
-        return this.isElementDisplayed(this.createIssueButton);
+    isCreateTaskButtonDisplayed() {
+        return this.isElementDisplayed(this.createTaskButton);
     }
 
     isCancelButtonTopDisplayed() {
@@ -149,4 +156,4 @@ class CreateIssueDialog extends Page {
         return this.isElementDisplayed(this.assigneesOptionFilterInput);
     }
 };
-module.exports = CreateIssueDialog;
+module.exports = CreateTaskDialog;

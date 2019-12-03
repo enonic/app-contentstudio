@@ -340,7 +340,6 @@ export class CompareContentVersionsDialog
                     NotifyManager.get().showFeedback(i18n('notify.version.changed', contentKey));
                     new ActiveContentVersionSetEvent(this.contentId, contentKey).fire();
                     this.activeVersion = contentKey;
-                    this.rightVersion = contentKey;
                     return this.reloadVersions();
                 }
             });

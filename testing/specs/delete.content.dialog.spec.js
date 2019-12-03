@@ -2,8 +2,6 @@
  * Created on 04.10.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -12,7 +10,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
-describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
+describe('delete.content.dialog.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -107,7 +105,6 @@ describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
             let deleteContentDialog = new DeleteContentDialog();
             //1. Click on the checkbox and select the first folder:
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-
             //2. Click on the checkbox and select the second folder:
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
 
@@ -131,12 +128,10 @@ describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
             //2. Open Delete Dialog:
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-
             //3. Click on 'Delete Now' button
             await deleteContentDialog.clickOnDeleteNowButton();
             await contentBrowsePanel.waitForContentNotDisplayed(FOLDER1.displayName);
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

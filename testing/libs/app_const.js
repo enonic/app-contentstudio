@@ -150,11 +150,18 @@ module.exports = Object.freeze({
         PUBLISH_TREE: "Publish Tree...",
         MARK_AS_READY: "Mark as ready",
         UNPUBLISH: "Unpublish...",
-        CREATE_ISSUE: "Create Issue..."
+        CREATE_TASK: "Create Task..."
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
+    ISSUE_LIST_TYPE_FILTER:{
+        ALL:'All',
+        ASSIGNED_TO_ME: 'Assigned to Me',
+        CREATED_BY_ME:'Created by Me',
+        PUBLISH_REQUESTS:'Publish requests',
+        TASKS:'Tasks'
+    }
 });

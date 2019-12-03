@@ -12,7 +12,6 @@ const contentBuilder = require("../libs/content.builder");
 const TagForm = require('../page_objects/wizardpanel/tag.form.panel');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
-
 describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();

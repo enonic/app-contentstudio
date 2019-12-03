@@ -20,8 +20,9 @@ const xpath = {
         displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 
 };
-
-class RequestContentPublishDialog extends Page {
+//Modal Dialog for creating of new publish request
+//Select a content then expand Publish menu and click on 'Request Publishing...' menu item
+class CreateRequestPublishDialog extends Page {
 
     get nextButton() {
         return xpath.container + xpath.nextButton;
@@ -187,8 +188,8 @@ class RequestContentPublishDialog extends Page {
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
         await this.clickOnElement(this.createRequestButton);
-        return this.pause(300);
+        return this.pause(400);
     }
 };
-module.exports = RequestContentPublishDialog;
+module.exports = CreateRequestPublishDialog;
 

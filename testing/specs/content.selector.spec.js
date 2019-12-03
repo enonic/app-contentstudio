@@ -50,6 +50,7 @@ describe('content.selector.spec: content-selector specification', function () {
                 assert.isTrue(mode == 'flat', 'Flat mode should be by default');
             });
         });
+
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
         () => {
             let contentSelector = new ContentSelector();
@@ -76,7 +77,6 @@ describe('content.selector.spec: content-selector specification', function () {
             //3. Parent site should be present in the options
             studioUtils.saveScreenshot('content_sel_tree_mode_option');
             assert.strictEqual(options[0], SITE.displayName);
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

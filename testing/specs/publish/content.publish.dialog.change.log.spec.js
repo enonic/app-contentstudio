@@ -2,8 +2,6 @@
  * Created on 16.09.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
@@ -36,7 +34,6 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
             let actualText = await contentPublishDialog.getTextInChangeLog();
             assert.equal(actualText, TEST_TEXT, "Change log input - actual and expected text should be equal");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
