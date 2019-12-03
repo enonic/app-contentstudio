@@ -68,9 +68,7 @@ function startLostConnectionDetector(): ConnectionDetector {
     const connectionDetector =
         ConnectionDetector.get()
         .setAuthenticated(true)
-        .setConnectionLostCallback(() => {
-            window.location.href = api.util.UriHelper.getToolUri('');
-        })
+        .setSessionExpireRedirectUrl(api.util.UriHelper.getToolUri(''))
         .setNotificationMessage(i18n('notify.connection.loss'));
 
     connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
@@ -277,16 +275,16 @@ function preLoadApplication() {
 
 function startApplication() {
 
-    let application: api.app.Application = getApplication();
+    const application: api.app.Application = getApplication();
 
-    let serverEventsListener = new AggregatedServerEventsListener([application]);
+    const serverEventsListener = new AggregatedServerEventsListener([application]);
     serverEventsListener.start();
 
     initApplicationEventListener();
 
-    let connectionDetector = startLostConnectionDetector();
+    const connectionDetector = startLostConnectionDetector();
 
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
+    const wizardParams = ContentWizardPanelParams.fromApp(application);
     if (wizardParams) {
         startContentWizard(wizardParams, connectionDetector);
     } else {
