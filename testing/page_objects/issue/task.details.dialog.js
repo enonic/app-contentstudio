@@ -93,7 +93,7 @@ class TaskDetailsDialog extends BaseDetailsDialog {
 
     async clickOnReopenIssueButton() {
         await this.clickOnElement(this.reopenIssueButton);
-        await this.pause(400);
+        await this.pause(800);
     }
 
     isCloseIssueButtonDisplayed() {
