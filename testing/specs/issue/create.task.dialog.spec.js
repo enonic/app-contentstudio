@@ -67,6 +67,7 @@ describe('create.task.dialog.spec: Create Task Dialog specification', function (
             let createTaskDialog = new CreateTaskDialog();
             //1. Open Issues List Dialog:
             await studioUtils.openCreateTaskDialog();
+            await createTaskDialog.pause(300);
             //2. Click on Esc:
             await createTaskDialog.pressEscKey();
             await createTaskDialog.waitForDialogClosed();
