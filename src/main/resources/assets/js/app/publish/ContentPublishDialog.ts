@@ -320,8 +320,7 @@ export class ContentPublishDialogSubTitle
                 return;
             }
 
-            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
-                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
 
             if (!isPublishMessageInputFocused && isLetterOrNumber) {
                 this.toggleInput(true);
