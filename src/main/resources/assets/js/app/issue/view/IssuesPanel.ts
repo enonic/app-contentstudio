@@ -95,16 +95,12 @@ export class IssuesPanel
     }
 
     private updateStatusFilterSelection() {
-        if (this.statusFilter.getStatus() === IssueStatus.OPEN && this.typeFilter.getTotalFilteredByStatus(IssueStatus.OPEN) === 0 &&
-            this.typeFilter.getTotalFilteredByStatus(IssueStatus.CLOSED) > 0) {
-            this.statusFilter.setStatus(IssueStatus.CLOSED);
-            return;
-        }
+        const currentStatus = this.statusFilter.getStatus();
+        const newStatus = currentStatus === IssueStatus.OPEN ? IssueStatus.CLOSED : IssueStatus.OPEN;
 
-        if (this.statusFilter.getStatus() === IssueStatus.CLOSED && this.typeFilter.getTotalFilteredByStatus(IssueStatus.CLOSED) === 0 &&
-            this.typeFilter.getTotalFilteredByStatus(IssueStatus.OPEN) > 0) {
-            this.statusFilter.setStatus(IssueStatus.OPEN);
-            return;
+        if (this.typeFilter.getTotalFilteredByStatus(currentStatus) === 0 &&
+            this.typeFilter.getTotalFilteredByStatus(newStatus) > 0) {
+            this.statusFilter.setStatus(newStatus);
         }
     }
 
