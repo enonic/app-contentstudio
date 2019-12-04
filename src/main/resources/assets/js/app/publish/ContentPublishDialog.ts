@@ -126,17 +126,19 @@ export class ContentPublishDialog
         const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
         const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
 
-        const anyIncluded = this.getItemList().getItemViews()
-            .some(itemView => {
-                const hasToggler = itemView.getIncludeChildrenToggler() != null;
-                if (hasToggler) {
-                    const isIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
-                    itemView.getIncludeChildrenToggler().toggle(isIncluded);
-                    return isIncluded;
+        let noIdsIncluded: boolean = true;
+        this.getItemList().getItemViews().forEach(itemView => {
+            const toggler = itemView.getIncludeChildrenToggler();
+            if (toggler) {
+                const idIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                toggler.toggle(idIncluded);
+                if (idIncluded && noIdsIncluded) {
+                    noIdsIncluded = false;
                 }
-            });
+            }
+        });
 
-        if (!anyIncluded) {
+        if (noIdsIncluded) {
             // do reload dependencies manually if no children included to update buttons
             this.publishProcessor.reloadPublishDependencies(true);
         }
