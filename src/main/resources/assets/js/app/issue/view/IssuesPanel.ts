@@ -42,7 +42,7 @@ export class IssuesPanel
 
     private initListeners() {
         this.typeFilter.onSelected((type: FilterType) => {
-            this.updateStatusButtons();
+            this.updateStatusFilterButtons();
             this.filter();
         });
 
@@ -86,13 +86,25 @@ export class IssuesPanel
 
     updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): wemQ.Promise<void> {
         this.typeFilter.updateOptionsTotal(openedIssues, closedIssues);
-        this.typeFilter.toggleActionsByStatus();
+        this.updateStatusFilterSelection();
+        this.typeFilter.toggleActionsByStatus(this.statusFilter.getStatus());
         this.typeFilter.getParentElement().setVisible(openedIssues.all + closedIssues.all > 0);
-        this.updateStatusButtons();
+        this.updateStatusFilterButtons();
+
         return this.filter();
     }
 
-    private updateStatusButtons() {
+    private updateStatusFilterSelection() {
+        const currentStatus = this.statusFilter.getStatus();
+        const newStatus = currentStatus === IssueStatus.OPEN ? IssueStatus.CLOSED : IssueStatus.OPEN;
+
+        if (this.typeFilter.getTotalFilteredByStatus(currentStatus) === 0 &&
+            this.typeFilter.getTotalFilteredByStatus(newStatus) > 0) {
+            this.statusFilter.setStatus(newStatus);
+        }
+    }
+
+    private updateStatusFilterButtons() {
         const open: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.OPEN);
         const closed: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.CLOSED);
         this.statusFilter.updateStatusButtons(open, closed);
@@ -240,7 +252,7 @@ class TypeFilter
         this.menuActions[4].setTotalOpen(open.tasks).setTotalClosed(closed.tasks);
     }
 
-    toggleActionsByStatus(status: IssueStatus = IssueStatus.OPEN) {
+    toggleActionsByStatus(status: IssueStatus) {
         this.menuActions.forEach((action: IssuePanelFilterAction) => {
             action.updateByStatus(status);
         });
@@ -351,6 +363,10 @@ class StatusFilter
 
     getStatus(): IssueStatus {
         return this.currentStatus;
+    }
+
+    setStatus(value: IssueStatus) {
+        this.currentStatus = value;
     }
 
     onStatusChanged(handler: (status: IssueStatus) => void) {
