@@ -35,7 +35,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
-    it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Issue' is enabled`,
+    it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
@@ -43,7 +43,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items2");
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 
@@ -67,7 +67,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
-    it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue' is enabled`,
+    it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Task...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
@@ -75,7 +75,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items3");
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 

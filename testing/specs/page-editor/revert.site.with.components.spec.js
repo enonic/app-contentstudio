@@ -55,6 +55,29 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 await contentWizard.waitForSaveButtonDisabled();
             });
 
+        it(`GIVEN existing site with image component is opened WHEN do right click on the image-component THEN component's context menu should appear`,
+            async () => {
+                let contentWizard = new ContentWizard();
+                let liveFormPanel = new LiveFormPanel();
+                //1. Open the site with inserted image:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                let position = await contentWizard.getLiveFramePosition();
+                //2. Do right click on the image-component:
+                await contentWizard.switchToLiveEditFrame();
+                await liveFormPanel.doRightClickOnImageComponent(IMAGE_DISPLAY_NAME, position.x, position.y);
+                studioUtils.saveScreenshot("image_component_context_menu");
+                //3. Verify menu items:
+                let result = await liveFormPanel.getItemViewContextMenuItems();
+                assert.equal(result[0], 'Select parent');
+                assert.equal(result[1], 'Insert');
+                assert.equal(result[2], "Inspect");
+                assert.equal(result[3], "Reset");
+                assert.equal(result[4], "Remove");
+                assert.equal(result[5], "Duplicate");
+                assert.equal(result[6], "Save as Fragment");
+                assert.equal(result[7], "Edit");
+            });
+
         //Verifies https://github.com/enonic/xp/issues/7603  (Page changes are not reverted on version revert )
         it(`GIVEN existing site with image component is opened WHEN the version without the image has been reverted THEN the image should not be present in Live Edit frame`,
             async () => {

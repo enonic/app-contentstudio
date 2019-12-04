@@ -267,7 +267,7 @@ export class NewContentDialog
         this.fileInput.reset();
         this.newContentUploader.reset();
 
-        if (this.isVisible()) {
+        if (this.isOpen()) {
             super.close();
         }
     }

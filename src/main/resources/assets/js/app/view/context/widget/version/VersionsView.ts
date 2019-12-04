@@ -7,7 +7,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {ContentId}  from 'lib-admin-ui/content/ContentId';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
@@ -24,6 +24,7 @@ import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentV
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
+import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 
 export class VersionsView
     extends ListBox<ContentVersion> {
@@ -160,12 +161,30 @@ export class VersionsView
         let descriptionDiv = new ContentVersionViewer();
         descriptionDiv.addClass('description');
         descriptionDiv.setObject(item);
+
+        const compareButton = new ActionButton(
+            new Action()
+                .onExecuted((action: Action) => {
+                    CompareContentVersionsDialog.get()
+                        .setContentId(this.content.getContentId())
+                        .setContentDisplayName(this.content.getDisplayName())
+                        .setLeftVersion(item.id)
+                        .setRightVersion(this.activeVersion.id)
+                        .setActiveVersion(this.activeVersion.id)
+                        .open();
+                }), false);
+
+        compareButton
+            .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
+            .addClass('compare icon-compare icon-medium transparent');
+
+        descriptionDiv.appendChild(compareButton);
+
         return descriptionDiv;
     }
 
     private createVersionInfoBlock(item: ContentVersion): Element {
-        let versionInfoDiv = new DivEl('version-info hidden');
-
+        const versionInfoDiv = new DivEl('version-info hidden');
 
         if (item.publishInfo) {
             if (item.publishInfo.message) {
@@ -186,7 +205,7 @@ export class VersionsView
 
         }
 
-        let isActive = item.id === this.activeVersion.id;
+        const isActive = item.id === this.activeVersion.id;
         const revertButton = new ActionButton(
             new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
                 .onExecuted((action: Action) => {
@@ -210,6 +229,8 @@ export class VersionsView
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
         }
+
+        versionInfoDiv.appendChild(revertButton);
 
         revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();

@@ -42,14 +42,14 @@ export class PageComponentsTreeGrid
                 .setId('displayName')
                 .setField('displayName')
                 .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
-                .setMinWidth(295)
+                .setMinWidth(250)
                 .setBehavior('selectAndMove')
-                .setResizable(false)
+                .setResizable(true)
                 .build(),
             new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
                 .setName(i18n('field.menu'))
                 .setId('menu')
-                .setMinWidth(45)
+                .setMinWidth(30)
                 .setMaxWidth(45)
                 .setField('menu')
                 .setCssClass('menu-cell')
@@ -196,6 +196,7 @@ export class PageComponentsTreeGrid
                     const comp = componentMap[desc.getKey().toString()];
                     if (comp) {
                         comp.setDescription(desc.getDescription());
+                        comp.setIcon(desc.getIcon());
                     }
                 });
             });

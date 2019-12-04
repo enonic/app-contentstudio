@@ -5,6 +5,7 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {Issue} from '../Issue';
@@ -55,6 +56,7 @@ import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {IssueComment} from '../IssueComment';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -122,6 +124,8 @@ export class IssueDetailsDialog
     private updatedListeners: { (issue: Issue): void }[] = [];
 
     private scheduleFormToggle: ButtonEl;
+
+    private backButtonClickedListeners: { (): void }[] = [];
 
     private publishMessage: H6El;
 
@@ -250,7 +254,7 @@ export class IssueDetailsDialog
             this.updateIssue();
         });
 
-        this.backButton.onClicked(() => this.close());
+        this.backButton.onClicked(() => this.notifyBackButtonClicked());
 
         const updateTabCount = (save) => {
             let count = 0;
@@ -279,6 +283,25 @@ export class IssueDetailsDialog
             this.commentTextArea.setReadOnly(editMode);
             this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
+        });
+
+        this.commentsList.onItemsAdded((itemsAdded: IssueComment[]) => {
+            const debouncedScroll: Function = AppHelper.debounce(() => {
+                if (this.commentsList.isVisible()) {
+                    const element: HTMLElement = this.getBody().getHTMLElement();
+                    element.scrollTop = element.scrollHeight - element.clientHeight;
+                }
+            }, 100);
+            itemsAdded.forEach((itemAdded: IssueComment) => {
+                const itemView: Element = this.commentsList.getItemView(itemAdded);
+                if (!!itemView && !itemView.isRendered()) {
+                    const renderedHandler = () => {
+                        debouncedScroll();
+                        itemView.unRendered(renderedHandler);
+                    };
+                    itemView.onRendered(renderedHandler);
+                }
+            });
         });
 
         this.itemSelector.onOptionSelected(option => {
@@ -314,7 +337,7 @@ export class IssueDetailsDialog
             const hasComment = !StringHelper.isEmpty(comment);
             if (hasComment) {
                 action.setEnabled(false);
-                this.saveComment(comment, this.commentAction).then(() => {
+                this.saveComment(comment, this.commentAction, true).then(() => {
                     this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
                 }).catch(DefaultErrorHandler.handle).finally(() => {
                     action.setEnabled(true);
@@ -423,12 +446,12 @@ export class IssueDetailsDialog
         if (isPublishRequest) {
             return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
         } else {
-            return canComment ? i18n('action.commentAndCloseIssue') : i18n('action.closeIssue');
+            return canComment ? i18n('action.commentAndCloseTask') : i18n('action.closeTask');
         }
     }
 
     private getReopenButtonLabel(): string {
-        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
+        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenTask');
     }
 
     private getPublishButtonLabel(itemsCount: number = 0): string {
@@ -615,7 +638,7 @@ export class IssueDetailsDialog
     }
 
     private canUpdateDialog(): boolean {
-        const isPresent = this.isVisible() || this.getParentElement() != null;
+        const isPresent = this.isOpen() || this.getParentElement() != null;
         return isPresent && !this.skipNextServerUpdatedEvent;
     }
 
@@ -733,11 +756,12 @@ export class IssueDetailsDialog
         }, false);
     }
 
-    private saveComment(text: string, action: Action): Q.Promise<void> {
+    private saveComment(text: string, action: Action, silent?: boolean): Q.Promise<void> {
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
         return new CreateIssueCommentRequest(this.issue.getId())
             .setCreator(this.currentUser.getKey())
+            .setSilent(silent)
             .setText(text).sendAndParse()
             .then(issueComment => {
                 this.commentsList.addItem(issueComment);
@@ -892,7 +916,7 @@ export class IssueDetailsDialog
     }
 
     private doUpdateIssue(): Q.Promise<void> {
-        if (!this.isUpdatePending || !this.isVisible()) {
+        if (!this.isUpdatePending || !this.isOpen()) {
             return;
         }
 
@@ -1032,5 +1056,17 @@ export class IssueDetailsDialog
 
     private notifyIssueUpdated(issue: Issue) {
         this.updatedListeners.forEach(listener => listener(issue));
+    }
+
+    public onBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners.push(listener);
+    }
+
+    public unBackButtonClicked(listener: () => void) {
+        this.backButtonClickedListeners = this.backButtonClickedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyBackButtonClicked() {
+        this.backButtonClickedListeners.forEach(listener => listener());
     }
 }

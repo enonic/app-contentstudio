@@ -26,6 +26,9 @@ module.exports = Object.freeze({
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
     },
+    saveFailedAttempt: function (name) {
+        return `Content \[${name}\] could not be updated. A content with that name already exists`;
+    },
     ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
@@ -45,6 +48,7 @@ module.exports = Object.freeze({
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
     TIMEOUT_7: 7000,
+    TIMEOUT_10: 10000,
     TIMEOUT_2: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
@@ -146,11 +150,18 @@ module.exports = Object.freeze({
         PUBLISH_TREE: "Publish Tree...",
         MARK_AS_READY: "Mark as ready",
         UNPUBLISH: "Unpublish...",
-        CREATE_ISSUE: "Create Issue..."
+        CREATE_TASK: "Create Task..."
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
+    ISSUE_LIST_TYPE_FILTER:{
+        ALL:'All',
+        ASSIGNED_TO_ME: 'Assigned to Me',
+        CREATED_BY_ME:'Created by Me',
+        PUBLISH_REQUESTS:'Publish requests',
+        TASKS:'Tasks'
+    }
 });

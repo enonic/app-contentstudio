@@ -1,17 +1,20 @@
+import * as Q from 'q';
 import {ApplicationConfiguratorDialog} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
-import {HTMLAreaDialogHandler} from '../text/dialog/HTMLAreaDialogHandler';
-
 export class SiteConfiguratorDialog
     extends ApplicationConfiguratorDialog {
-
-    protected hasSubDialog(): boolean {
-        return super.hasSubDialog() || !!HTMLAreaDialogHandler.getOpenDialog();
-    }
 
     close() {
         this.destroyCkeInstancesInDialog();
         super.close();
         this.remove();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('site-configurator-dialog');
+
+            return rendered;
+        });
     }
 
     private destroyCkeInstancesInDialog() {

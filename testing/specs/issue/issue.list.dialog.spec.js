@@ -2,13 +2,12 @@
  * Created on 05.01.2017.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 
 describe('issue.list.dialog.spec: Issue List modal Dialog specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -19,50 +18,59 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             let title = await issueListDialog.getTitle();
-            assert.strictEqual(title, 'Issues');
-            let showClosedIssuesLink = await issueListDialog.isShowClosedIssuesButtonVisible();
-            assert.isTrue(showClosedIssuesLink, "'Show closed Issues' link should be present");
+            assert.strictEqual(title, 'Issues', "Expected dialog hider should be displayed");
+            //'Open' button should be displayed
+            await issueListDialog.waitForOpenButtonDisplayed();
+            let closedButtonDisplayed = await issueListDialog.isClosedButtonDisplayed();
+            assert.isTrue(closedButtonDisplayed, "'Closed' button should be displayed");
 
-            let pubReqTab = await issueListDialog.isPublishRequestsTabDisplayed();
-            assert.isTrue(pubReqTab, "`Publish Requests` tab should be displayed");
+            let typeFilter = await issueListDialog.isTypeFilterSelectorDisplayed();
+            assert.isTrue(typeFilter, "'Type Filter' selector  should be displayed");
+            let newTaskButton = await issueListDialog.isNewTaskButtonDisplayed();
+            assert.isTrue(newTaskButton, "`Issues` tab should be displayed");
 
-            let allIssuesTab = await issueListDialog.isAllIssuesTabDisplayed();
-            assert.isTrue(allIssuesTab, "`All Issues` tab should be displayed");
-            let issuesTab = await issueListDialog.isIssuesTabDisplayed();
-            assert.isTrue(issuesTab, "`Issues` tab should be displayed");
-
-            let result = await issueListDialog.getAssignedSelectedOption();
-            assert.isTrue(result.includes(`Created by Me`), '`Created by Me` option should be selected in Show combobox')
-
+            let result = await issueListDialog.getTypeFilterSelectedOption();
+            assert.isTrue(result.includes(`All`), "All' option should be selected in 'Type Filter'");
         });
 
-    it(`GIVEN 'Issues List Dialog' has been opened WHEN Issues tab has been clicked THEN 'New Issue...' button should be present`,
+    it(`GIVEN 'Issues List Dialog' has been opened WHEN 'New task' button has been clicked THEN 'Create Task' dialog should be loaded`,
+        async () => {
+            let issueListDialog = new IssueListDialog();
+            let createTaskDialog = new CreateTaskDialog();
+            await studioUtils.openIssuesListDialog();
+            //'New task' button has been clicked:
+            await issueListDialog.clickOnNewTaskButton();
+            //Create Task modal dialog should be loaded:
+            await createTaskDialog.waitForDialogLoaded();
+        });
+
+    it(`WHEN 'Issues List Dialog' has been opened THEN 'Open' issues should be loaded by default`,
         async () => {
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
-            //Issues tab has been clicked:
-            await issueListDialog.clickOnIssuesTab();
-
-            let isNewButtonDisplayed = await issueListDialog.isNewIssueButtonVisible();
-            assert.isTrue(isNewButtonDisplayed, "`New Issue...` button should be displayed");
+            let openButton = await issueListDialog.isOpenButtonActive();
+            assert.isTrue(openButton, "Open issues should be loaded by default");
+            let closedButton = await issueListDialog.isClosedButtonActive();
+            assert.isFalse(closedButton, "Closed issues should be hidden by default");
         });
 
-
-    it(`GIVEN 'Issues List Dialog' is opened WHEN 'Show closed issues' button has been clicked THEN 'Hide closed issues' button is getting visible`,
-        () => {
+    it(`GIVEN 'Issues List Dialog' has been opened WHEN 'Esc' key has been clicked THEN issues list dialog closes`,
+        async () => {
             let issueListDialog = new IssueListDialog();
-            return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnShowClosedIssuesButton();
-            }).then(() => {
-                return assert.eventually.isTrue(issueListDialog.waitForHideClosedIssuesButtonVisible(),
-                    "`Hide closed issues` button should be displayed");
-            });
+            //1. Open Issues List Dialog:
+            await studioUtils.openIssuesListDialog();
+            //2. Click on Esc:
+            await issueListDialog.pressEscKey();
+            await issueListDialog.waitForDialogClosed();
         });
+
+    //TODO it(`GIVEN 'Issues List Dialog' is opened WHEN 'Closed' button has been clicked THEN 'Open' button is getting not active`,
+    // TODO it(`GIVEN 'Issues List Dialog' is opened WHEN type filter selector  has been expanded THEN required options should be present in the selector`
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
-})
-;
+});

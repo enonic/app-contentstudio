@@ -253,8 +253,4 @@ export abstract class IssueDialog
         return <PublishDialogDependantList>super.getDependantList();
     }
 
-    protected hasSubDialog(): boolean {
-        return false;
-    }
-
 }

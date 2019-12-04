@@ -44,7 +44,7 @@ export class ContentItemPreviewPanel
     constructor() {
         super('content-item-preview-panel');
 
-        this.debouncedSetItem = AppHelper.debounce(this.doSetItem.bind(this), 1000, true);
+        this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();
 

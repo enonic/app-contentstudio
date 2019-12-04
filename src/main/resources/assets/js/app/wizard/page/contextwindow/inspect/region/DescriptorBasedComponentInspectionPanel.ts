@@ -161,7 +161,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     private componentEqualTo(component: COMPONENT): boolean {
-        if (!this.formView) {
+        if (!this.formView && component.hasDescriptor()) {
             return false;
         }
 

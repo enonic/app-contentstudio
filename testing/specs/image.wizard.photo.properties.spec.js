@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -51,11 +49,9 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
                 studioUtils.saveScreenshot("photo_form_date_time_rollback");
                 let result = await imagePhotoInfoFormPanel.getDateTimeValue();
                 assert.equal(result, "", "Date Time input should be empty after rollback the version");
-
                 //'Saved' button should be displayed. (exception will bw thrown when timeout expired)
                 await contentWizard.waitForSavedButtonVisible();
             });
-
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

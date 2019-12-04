@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -17,7 +15,6 @@ const PageComponentView = require("../page_objects/wizardpanel/liveform/page.com
 const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
-
 
 describe('wizard.detailspanel.inbound.outbound: select a content with inbound and outbound dependencies and check dependencies',
     function () {

@@ -22,6 +22,12 @@
         box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
         border: 2px solid @admin-white;
 
+        &:first-of-type {
+          button.compare {
+            display: none !important;
+          }
+        }
+
         &:hover {
           background-color: @admin-bg-light-gray;
           border-color: @admin-bg-light-gray;
@@ -46,32 +52,86 @@
           color: @admin-white;
           background-color: @admin-green;
           border-color: @admin-green;
+
           .version-info {
             color: @admin-black;
             background-color: @admin-white;
-          }
-          .viewer .names-and-icon-view .font-icon-default:before {
-            background-color: @admin-green;
+
+            p.@{_COMMON_PREFIX}sub-name {
+              color: @admin-font-gray2;
+            }
           }
 
+          .viewer .names-and-icon-view {
+
+            .font-icon-default:before {
+              color: @admin-white !important;
+              background-color: @admin-green;
+            }
+          }
+
+          .viewer.description {
+
+            button.compare {
+
+              top: -25px;
+
+              &:before {
+                color: @admin-white;
+              }
+
+              &:hover:before {
+                color: @admin-font-gray;
+              }
+            }
+          }
         }
 
-        .viewer {
+        .viewer.description {
+
+          display: flex;
+
           .names-and-icon-view {
+
+            flex: 1;
+
             .font-icon-default {
               &:before {
                 font-size: 26px;
                 color: @admin-dark-gray;
               }
+
               &.icon-version-published:before {
                 color: @admin-green;
               }
+            }
+          }
+
+          button.compare {
+            position: absolute;
+            top: 11px;
+            right: 7px;
+            padding: 0;
+            z-index: 1;
+
+            &:before {
+              color: @admin-font-gray2;
+            }
+
+            &:hover:before {
+              color: @admin-font-gray3;
+            }
+
+            &:focus {
+              border: none;
+              outline: none;
             }
           }
         }
 
         .description {
           padding: 7px 7px 7px 10px;
+          position: relative;
         }
 
         .status {
@@ -144,7 +204,7 @@
         }
 
         &.online, &.active {
-          .icon-user, .version-modifier, .viewer .names-and-icon-view .font-icon-default:before {
+          .icon-user, p.@{_COMMON_PREFIX}sub-name, .viewer .names-and-icon-view .font-icon-default:before {
             color: @admin-white;
           }
         }

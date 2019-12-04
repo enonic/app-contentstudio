@@ -2,8 +2,6 @@
  * Created on 05.09.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
@@ -26,16 +24,14 @@ describe('wizard.mark.as.ready.multiselection.spec - select 2 folders and do Mar
             let name2 = contentBuilder.generateRandomName('folder');
             TEST_FOLDER1 = contentBuilder.buildFolder(name1);
             TEST_FOLDER2 = contentBuilder.buildFolder(name2);
-            // 2 folders have been added:
+            //1. Two folders have been added:
             await studioUtils.doAddFolder(TEST_FOLDER1);
             await studioUtils.doAddFolder(TEST_FOLDER2);
-
-            //Click on checkboxes and select both folders:
+            //2. Click on checkboxes and select both folders:
             await studioUtils.findContentAndClickCheckBox(name1);
             await studioUtils.findContentAndClickCheckBox(name2);
-            //Click on 'MARK AS READY' button
+            //3. Click on 'MARK AS READY' button
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-
             await confirmationDialog.waitForDialogOpened();
             let message = await confirmationDialog.getWarningMessage();
 
@@ -48,13 +44,10 @@ describe('wizard.mark.as.ready.multiselection.spec - select 2 folders and do Mar
             let contentBrowsePanel = new ContentBrowsePanel();
             let name = contentBuilder.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(name);
-
             // the folder has been added:
             await studioUtils.doAddFolder(folder);
-
             //Click on checkboxes and select the folder:
             await studioUtils.findContentAndClickCheckBox(name);
-
             //Click on 'MARK AS READY' button, no confirmation needed for single content:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
 

@@ -20,6 +20,9 @@ import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
 import {ComponentPath} from './region/ComponentPath';
 import {ComponentType} from './region/ComponentType';
+import {TextComponentType} from './region/TextComponentType';
+import {PartComponentType} from './region/PartComponentType';
+import {ComponentJson} from './region/ComponentJson';
 
 export class Page
     implements Equitable, Cloneable {
@@ -119,6 +122,39 @@ export class Page
         }
 
         return PropertyTreeHelper.propertyTreesEqual(this.config, other.config);
+    }
+
+    toJson(): PageJson {
+        let componentJson: ComponentJson;
+        if (this.fragment) {
+            const json = this.fragment.toJson();
+            switch (this.fragment.getType()) {
+                case ImageComponentType.get():
+                    componentJson = json.ImageComponent;
+                    break;
+                case TextComponentType.get():
+                    componentJson = json.TextComponent;
+                    break;
+                case PartComponentType.get():
+                    componentJson = json.PartComponent;
+                    break;
+                case LayoutComponentType.get():
+                    componentJson = json.LayoutComponent;
+                    break;
+                case FragmentComponentType.get():
+                    componentJson = json.FragmentComponent;
+                    break;
+            }
+        }
+
+        return {
+            controller: this.controller ? this.controller.toString() : undefined,
+            template: this.template ? this.template.toString() : undefined,
+            regions: this.regions ? this.regions.toJson() : undefined,
+            fragment: componentJson,
+            config: this.config ? this.config.toJson() : undefined,
+            customized: this.customized
+        };
     }
 
     private regionsEquals(otherRegions: Regions): boolean {

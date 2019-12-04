@@ -15,10 +15,8 @@ import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class HTMLAreaDialogHandler {
 
-    private static modalDialog: ModalDialog;
-
     static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        let modalDialog;
+        let modalDialog: ModalDialog;
 
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
@@ -50,18 +48,7 @@ export class HTMLAreaDialogHandler {
             break;
         }
 
-        if (modalDialog) {
-            this.modalDialog = modalDialog;
-            modalDialog.onHidden(() => {
-                this.modalDialog = null;
-            });
-        }
-
-        return this.modalDialog;
-    }
-
-    static getOpenDialog(): ModalDialog {
-        return this.modalDialog;
+        return modalDialog;
     }
 
     private static openLinkDialog(config: eventInfo, content: ContentSummary): ModalDialog {
@@ -94,26 +81,7 @@ export class HTMLAreaDialogHandler {
     }
 
     private static openFullscreenDialog(config: any): ModalDialog {
-        const fullscreenDialog = new FullscreenDialog(config);
-
-        const createHtmlAreaDialogHandler = () => {
-            if (HTMLAreaDialogHandler.getOpenDialog() === fullscreenDialog) {
-                return;
-            }
-            fullscreenDialog.mask();
-
-            HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
-                fullscreenDialog.unmask();
-            });
-        };
-
-        CreateHtmlAreaDialogEvent.on(createHtmlAreaDialogHandler);
-
-        fullscreenDialog.onRemoved(() => {
-            CreateHtmlAreaDialogEvent.un(createHtmlAreaDialogHandler);
-        });
-
-        return this.openDialog(fullscreenDialog);
+        return this.openDialog(new FullscreenDialog(config));
     }
 
     private static openTableDialog(config: eventInfo): ModalDialog {

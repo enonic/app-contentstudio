@@ -7,7 +7,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 export class CreateIssueAction extends Action {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.createIssueMore'));
+        super(i18n('action.createTaskMore'));
 
         this.setEnabled(false);
 

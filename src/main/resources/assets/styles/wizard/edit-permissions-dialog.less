@@ -13,10 +13,6 @@
   }
 
   .modal-dialog-header {
-    @media screen and (max-height: 360px) {
-      margin-bottom: 5px;
-    }
-
     .sub-title {
       margin-top: 15px;
     }
@@ -24,10 +20,6 @@
 
   .inherit-perm-check {
     margin-bottom: 20px;
-
-    @media screen and (max-height: 360px) {
-      margin-bottom: 5px;
-    }
   }
 
   .overwrite-child-check {
@@ -36,22 +28,6 @@
     z-index: 1;
     &.checkbox label {
       color: @admin-blue !important;
-    }
-
-    @media screen and (max-height: 360px) {
-      bottom: 25px;
-    }
-  }
-
-  .form-view {
-    @media screen and (max-height: 360px) {
-      margin-top: 5px;
-    }
-  }
-
-  .@{_COMMON_PREFIX}.combobox.followed-by-options {
-    @media screen and (max-height: 360px) {
-      margin-bottom: 5px;
     }
   }
 
@@ -124,5 +100,66 @@
   section {
     height: 100%;
   }
+}
 
+body {
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .overwrite-child-check {
+      bottom: 62px;
+    }
+
+    .modal-dialog-footer {
+      padding-top: 50px;
+    }
+  }
+}
+
+@media screen and (max-height: 360px) {
+  .edit-permissions-dialog {
+
+    .modal-dialog-header {
+      margin-bottom: 5px;
+    }
+
+    .modal-dialog-body {
+      padding-top: 0;
+    }
+
+    .inherit-perm-check {
+      margin-bottom: 5px;
+    }
+
+    .overwrite-child-check {
+      bottom: 25px;
+    }
+
+    .form-view {
+      margin-top: 5px;
+    }
+
+    .@{_COMMON_PREFIX}.combobox.followed-by-options {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+@media screen and (max-height: 300px) {
+  body {
+    .@{_COMMON_PREFIX}modal-dialog.edit-permissions-dialog {
+      .modal-dialog-header {
+        padding-top: 10px;
+      }
+
+      .modal-dialog-body {
+        padding-top: 0;
+      }
+
+      .modal-dialog-footer {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+    }
+  }
 }

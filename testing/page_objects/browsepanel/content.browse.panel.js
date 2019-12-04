@@ -3,11 +3,11 @@
  */
 const Page = require('../page');
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
-const CreateIssueDialog = require('../issue/create.issue.dialog');
+const CreateTaskDialog = require('../issue/create.task.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
-const RequestContentPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 
@@ -21,10 +21,10 @@ const XPATH = {
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
-    createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
+    createTaskMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Task...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
-    createIssueButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Issue...']",
+    createTaskButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Task...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
@@ -90,8 +90,8 @@ class ContentBrowsePanel extends Page {
         return XPATH.toolbar + XPATH.contentPublishMenuButton + lib.DROP_DOWN_HANDLE;
     }
 
-    get createIssueMenuItem() {
-        return XPATH.toolbar + XPATH.createIssueMenuItem;
+    get createTaskMenuItem() {
+        return XPATH.toolbar + XPATH.createTaskMenuItem;
     }
 
     get requestPublishMenuItem() {
@@ -102,8 +102,8 @@ class ContentBrowsePanel extends Page {
         return XPATH.toolbar + XPATH.markAsReadyMenuItem;
     }
 
-    get createIssueButton() {
-        return XPATH.toolbar + XPATH.createIssueButton;
+    get createTaskButton() {
+        return XPATH.toolbar + XPATH.createTaskButton;
     }
 
     get showIssuesListButton() {
@@ -461,7 +461,6 @@ class ContentBrowsePanel extends Page {
         })
     }
 
-
     waitForSortButtonDisabled() {
         return this.waitForElementDisabled(this.sortButton, 3000).catch(err => {
             this.saveScreenshot('err_sort_disabled_button');
@@ -665,20 +664,20 @@ class ContentBrowsePanel extends Page {
         return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.TIMEOUT_3);
     }
 
-    waitForCreateIssueButtonVisible() {
-        return this.waitForElementDisplayed(this.createIssueButton, appConst.TIMEOUT_5).catch(err => {
+    waitForCreateTaskButtonDisplayed() {
+        return this.waitForElementDisplayed(this.createTaskButton, appConst.TIMEOUT_5).catch(err => {
             this.saveScreenshot("err_create_issue_button");
-            throw new Error("Create issue button is not visible on the toolbar! " + err);
+            throw new Error("Create Task button is not visible on the toolbar! " + err);
         });
     }
 
-    async clickOnCreateIssueButton() {
+    async clickOnCreateTaskButton() {
         try {
-            await this.waitForCreateIssueButtonVisible();
-            return await this.clickOnElement(this.createIssueButton);
+            await this.waitForCreateTaskButtonDisplayed();
+            return await this.clickOnElement(this.createTaskButton);
         } catch (err) {
             this.saveScreenshot("err_click_create_issue_button");
-            throw new Error("Browse Panel. Error when click on Create issue button on the toolbar! " + err);
+            throw new Error("Browse Panel. Error when click on Create Task button in the toolbar! " + err);
         }
     }
 
@@ -721,16 +720,16 @@ class ContentBrowsePanel extends Page {
         }
     }
 
-    async openPublishMenuAndClickOnCreateIssue() {
-        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_ISSUE);
-        let createIssueDialog = new CreateIssueDialog();
-        return await createIssueDialog.waitForDialogLoaded();
+    async openPublishMenuAndClickOnCreateTask() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_TASK);
+        let createTaskDialog = new CreateTaskDialog();
+        return await createTaskDialog.waitForDialogLoaded();
     }
 
     async openPublishMenuAndClickOnRequestPublish() {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-        let requestContentPublishDialog = new RequestContentPublishDialog();
-        return await requestContentPublishDialog.waitForDialogLoaded();
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
+        return await createRequestPublishDialog.waitForDialogLoaded();
     }
 
     async openPublishMenuAndClickOnMarAsReady() {

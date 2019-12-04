@@ -1,10 +1,9 @@
-// This is added for backwards compatibility of those widgets that use
-// window['HTMLImports'].whenReady(...) to embed their contents.
-// In 3.0 we should remove this import, remove the dependency from package.json,
-// fix the widgets that are using window['HTMLImports'] object
-// and update the docs on widgets to suggest a different way for embedding.
-import '@webcomponents/html-imports';
 import * as $ from 'jquery';
+// Polyfills added for compatibility with IE11
+import 'promise-polyfill/src/polyfill';
+import 'whatwg-fetch';
+import 'mutation-observer';
+// End of Polyfills
 
 import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
@@ -72,7 +71,13 @@ importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
 const body = Body.get();
 
 function getApplication(): Application {
-    let application = new Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
+    const application = new Application(
+        'content-studio',
+        i18n('app.name'),
+        i18n('app.abbr'),
+        CONFIG.appIconUrl,
+        `${i18n('app.name')} v${CONFIG.appVersion}`
+    );
     application.setPath(Path.fromString(Router.getPath()));
     application.setWindow(window);
 
@@ -373,7 +378,7 @@ function startApplication() {
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
     ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
-        IssueDialogsManager.get().openListDialog(event.getAssignedToMe(), event.getCreatedByMe()));
+        IssueDialogsManager.get().openListDialog(event.getAssignedToMe()));
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 

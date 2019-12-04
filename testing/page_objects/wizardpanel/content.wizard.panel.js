@@ -12,7 +12,7 @@ const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const RequestPublishDialog = require('../../page_objects/issue/request.content.publish.dialog');
+const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
@@ -365,6 +365,13 @@ class ContentWizardPanel extends Page {
 
     switchToLiveEditFrame() {
         return this.switchToFrame(XPATH.liveEditFrame);
+    }
+
+    async getLiveFramePosition() {
+        let el = await this.findElement(XPATH.liveEditFrame);
+        let xValue = parseInt(await el.getLocation('x'));
+        let yValue = parseInt(await el.getLocation('y'));
+        return {x: xValue, y: yValue};
     }
 
     doOpenContextWindow() {
@@ -739,13 +746,13 @@ class ContentWizardPanel extends Page {
     }
 
     async openPublishMenuAndCreateRequestPublish(changes, assignees) {
-        let requestPublishDialog = new RequestPublishDialog();
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-        await requestPublishDialog.waitForDialogLoaded();
-        await requestPublishDialog.clickOnNextButton();
-        await requestPublishDialog.typeInChangesInput(changes);
-        return await requestPublishDialog.clickOnCreateRequestButton();
+        await createRequestPublishDialog.waitForDialogLoaded();
+        await createRequestPublishDialog.clickOnNextButton();
+        await createRequestPublishDialog.typeInChangesInput(changes);
+        return await createRequestPublishDialog.clickOnCreateRequestButton();
     }
 
     async showPublishMenuClickOnMarkAsReadyMenuItem() {

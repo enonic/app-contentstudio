@@ -11,13 +11,11 @@ export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
         indices.push(descriptor.getDisplayName());
         indices.push(descriptor.getName().toString());
 
-        let option = <Option<DESCRIPTOR>>{
+        return <Option<DESCRIPTOR>>{
             value: descriptor.getKey().toString(),
             displayValue: descriptor,
             indices: indices
         };
-
-        return option;
     }
 
     setDescriptor(descriptor: Descriptor) {
@@ -31,6 +29,7 @@ export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
             }
         } else {
             this.reset();
+            this.hideDropdown();
         }
     }
 

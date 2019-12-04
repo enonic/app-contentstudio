@@ -6,13 +6,12 @@ const HomePage = require('../page_objects/home.page');
 const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
-const ConfirmationDialog = require("../page_objects/confirmation.dialog");
 const appConst = require("./app_const");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
 const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
-const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
+const CreateTaskDialog = require('../page_objects/issue/create.task.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
@@ -85,16 +84,13 @@ module.exports = {
         });
 
     },
-    insertEmailLinkInCke: function (text, email) {
+    async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.typeText(text).then(() => {
-            return insertLinkDialog.fillEmailForm(email);
-        }).then(() => {
-            this.saveScreenshot('email_link_dialog');
-            return insertLinkDialog.clickOnInsertButton();
-        }).then(() => {
-            return insertLinkDialog.pause(700);
-        });
+        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.fillEmailForm(email);
+        this.saveScreenshot('email_link_dialog');
+        await insertLinkDialog.clickOnInsertButton();
+        return await insertLinkDialog.pause(700);
     },
 
     insertContentLinkInCke: function (text, contentDisplayName) {
@@ -122,25 +118,24 @@ module.exports = {
         await issueListDialog.waitForDialogOpened();
         return await issueListDialog.pause(300);
     },
-    async openCreateIssueDialog() {
+    async openCreateTaskDialog() {
         try {
             let browsePanel = new BrowsePanel();
-            let createIssueDialog = new CreateIssueDialog();
+            let createTaskDialog = new CreateTaskDialog();
             let issueListDialog = new IssueListDialog();
             await browsePanel.clickOnShowIssuesListButton();
             await issueListDialog.waitForDialogOpened();
-            await issueListDialog.clickOnIssuesTab();
-            await issueListDialog.clickOnNewIssueButton();
-            return await createIssueDialog.waitForDialogLoaded();
+            await issueListDialog.clickOnNewTaskButton();
+            return await createTaskDialog.waitForDialogLoaded();
         } catch (err) {
-            throw new Error("Error when opening Create Issue Dialog " + err);
+            throw new Error("Error when opening Create Task Dialog " + err);
         }
     },
-    async openPublishMenuAndClickOnCreateIssue() {
+    async openPublishMenuAndClickOnCreateTask() {
         let browsePanel = new BrowsePanel();
-        let createIssueDialog = new CreateIssueDialog();
-        await browsePanel.openPublishMenuAndClickOnCreateIssue();
-        return await createIssueDialog.waitForDialogLoaded();
+        let createTaskDialog = new CreateTaskDialog();
+        await browsePanel.openPublishMenuAndClickOnCreateTask();
+        return await createTaskDialog.waitForDialogLoaded();
     },
     openBrowseDetailsPanel: function () {
         let browsePanel = new BrowsePanel();

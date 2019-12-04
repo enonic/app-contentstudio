@@ -85,6 +85,7 @@ export class ImageInspectionPanel
                 this.setImage(image);
             } else {
                 new GetContentSummaryByIdRequest(contentId).sendAndParse().then((receivedImage: ContentSummary) => {
+                    this.imageSelector.clearSelection(true);
                     this.setImage(receivedImage);
                 }).catch((reason: any) => {
                     if (this.isNotFoundError(reason)) {

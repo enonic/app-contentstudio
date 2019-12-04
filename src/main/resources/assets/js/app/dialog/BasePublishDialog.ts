@@ -194,10 +194,6 @@ export abstract class BasePublishDialog
         this.toggleClass('no-action', !enable);
     }
 
-    protected hasSubDialog(): boolean {
-        return this.isMasked();
-    }
-
     private loadCurrentUser() {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
@@ -207,7 +203,7 @@ export abstract class BasePublishDialog
     private handleIssueGlobalEvents() {
 
         IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
-            if (this.isVisible()) {
+            if (this.isOpen()) {
                 if (issues.some((issue) => this.isIssueCreatedByCurrentUser(issue))) {
                     this.close();
                 }
@@ -284,7 +280,7 @@ export abstract class BasePublishDialog
 
     open() {
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
-
+        this.publishIssuesStateBar.reset();
         CreateIssueDialog.get().reset();
 
         super.open();

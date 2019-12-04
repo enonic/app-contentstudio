@@ -84,6 +84,7 @@ export class SettingsWizardStepForm
 
     reset() {
         this.localeCombo.resetBaseValues();
+        this.ownerCombo.resetBaseValues();
     }
 
     onPropertyChanged(listener: { (event: PropertyChangedEvent): void; }) {

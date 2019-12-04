@@ -2,132 +2,112 @@
  * Created on 08.07.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
-const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
+const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
-describe('issue.status.selector.spec: open and close issue by clicking on menu buttons, edit issue-title, save and update the issue',
+describe('issue.status.selector.spec: open and close task by clicking on menu buttons, edit task-title, save and update the task',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
-        let issueTitle = appConstant.generateRandomName('issue');
+        let issueTitle = appConstant.generateRandomName('task');
         let newTitle = "new title";
 
         let TEST_FOLDER;
-        it(`Precondition: create a folder and create new issue`, async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let createIssueDialog = new CreateIssueDialog();
+        it(`Precondition: create a folder and create new task`, async () => {
+            let taskDetailsDialog = new TaskDetailsDialog();
+            let createTaskDialog = new CreateTaskDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-
-            //open 'Create Issue' dialog and create new issue.
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            await createIssueDialog.typeTitle(issueTitle);
-            await createIssueDialog.clickOnCreateIssueButton();
+            //open 'Create Task' dialog and create new task:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
+            await createTaskDialog.typeTitle(issueTitle);
+            await createTaskDialog.clickOnCreateTaskButton();
             //issue details dialog should be loaded
-            await issueDetailsDialog.waitForDialogOpened();
+            await taskDetailsDialog.waitForDialogOpened();
         });
 
-        it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been opened and 'Closed'-item selected THEN issue should be 'Closed' and 'Reopen Issue' button is getting visible`,
-            () => {
-                let issueDetailsDialog = new IssueDetailsDialog();
+        it(`GIVEN existing 'open' issue AND Task Details Dialog is opened WHEN 'Status menu' has been expanded and 'Closed'-item selected THEN task gets 'Closed' and 'Reopen Issue' button gets visible`,
+            async () => {
+                let taskDetailsDialog = new TaskDetailsDialog();
                 let contentItemPreviewPanel = new ContentItemPreviewPanel();
-                return studioUtils.findAndSelectItem(TEST_FOLDER.displayName).then(() => {
-                    return contentItemPreviewPanel.clickOnIssueMenuButton();
-                }).then(() => {
-                    return issueDetailsDialog.waitForDialogOpened();
-                }).then(() => {
-                    return issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-                }).then(() => {
-                    return issueDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
-                }).then(message => {
-                    // studioUtils.saveScreenshot('status_menu_closed_issue');
-                    //assert.equal(message, appConstant.ISSUE_CLOSED_MESSAGE, 'expected -notification message should be displayed');
-                }).then(() => {
-                    return assert.eventually.isTrue(issueDetailsDialog.waitForReopenButtonLoaded(),
-                        '`Reopen Issue` button should be loaded');
-                });
+                //1. Select the folder and click on the task-name in the Preview Toolbar:
+                await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+                await contentItemPreviewPanel.clickOnIssueMenuButton();
+                await taskDetailsDialog.waitForDialogOpened();
+                //2. Expand the status menu and close the task:
+                await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
+                studioUtils.saveScreenshot('status_menu_closed_task');
+                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
+                //3. 'Reopen Issue' button should appear in the details dialog:
+                await taskDetailsDialog.waitForReopenButtonLoaded();
             });
 
-        it(`GIVEN existing 'closed' issue WHEN 'Issue Details'  Dialog is opened THEN 'Edit' button should not be visible on the dialog header`,
+        it(`GIVEN existing 'closed' task WHEN 'Task Details' dialog is opened THEN title input should not be editable`,
             async () => {
-                let issueDetailsDialog = new IssueDetailsDialog();
+                let taskDetailsDialog = new TaskDetailsDialog();
                 let issueListDialog = new IssueListDialog();
                 await studioUtils.openIssuesListDialog();
-                await issueListDialog.clickOnShowClosedIssuesButton();
+                //1. Click on 'Closed' button (load closed issues):
+                await issueListDialog.clickOnClosedButton();
 
-                //Open issue-details dialog:
+                //2. Click on the closed task and open task-details dialog:
                 await issueListDialog.clickOnIssue(issueTitle);
-                await issueDetailsDialog.waitForDialogOpened();
-
-                // the issue is closed, so it is not editable.
-                await issueDetailsDialog.waitForIssueTitleInputNotEditable();
+                await taskDetailsDialog.waitForDialogOpened();
+                // the task should not be editable, because this task is closed:
+                await taskDetailsDialog.waitForIssueTitleInputNotEditable();
             });
 
-        it(`GIVEN existing 'closed' issue AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the issue is getting 'open' AND 'Close Issue' button is getting visible`,
-            () => {
-                let issueDetailsDialog = new IssueDetailsDialog();
-                let createIssueDialog = new CreateIssueDialog();
-                let issueListDialog = new IssueListDialog();
-                return studioUtils.openIssuesListDialog().then(() => {
-                    return issueListDialog.isShowClosedIssuesButtonVisible().then(result => {
-                        if (result) {
-                            return issueListDialog.clickOnShowClosedIssuesButton();
-                        }
-                    })
-                }).then(() => {
-                    return issueListDialog.clickOnIssue(issueTitle);
-                }).then(() => {
-                    return issueDetailsDialog.waitForDialogOpened();
-                }).then(() => {
-                    return issueDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
-                }).then(() => {
-                    return createIssueDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_OPENED_MESSAGE);
-                }).then(result => {
-                    studioUtils.saveScreenshot("status_menu_issue_reopened");
-                    return assert.isTrue(result, 'Correct notification should appear');
-                }).then(() => {
-                    return assert.eventually.isTrue(issueDetailsDialog.waitForCloseButtonLoaded(),
-                        '`Close Issue` button should be displayed on the dialog, because the issue is reopened');
-                });
-            });
-
-        it.skip(`GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
+        it(`GIVEN existing 'closed' task AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the task gets 'open' AND 'Close Issue' button gets visible`,
             async () => {
-                let issueDetailsDialog = new IssueDetailsDialog();
-                let createIssueDialog = new CreateIssueDialog();
+                let taskDetailsDialog = new TaskDetailsDialog();
+                let issueListDialog = new IssueListDialog();
+                await studioUtils.openIssuesListDialog();
+                //1. Click on 'Closed' button in the Issues List dialog:
+                await issueListDialog.clickOnClosedButton();
+                //2. Click on the task:
+                await issueListDialog.clickOnIssue(issueTitle);
+                await taskDetailsDialog.waitForDialogOpened();
+                //3. Click on 'Open' menu item:
+                await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
+                studioUtils.saveScreenshot("status_menu_task_reopened");
+                //4. 'The task is opened' - this message should appear:
+                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_OPENED_MESSAGE);
+                //5. 'Close Issue' button should appear in the dialog, because the issue is reopened
+                await taskDetailsDialog.waitForCloseButtonLoaded();
+            });
+
+        it.skip(
+            `GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
+            async () => {
+                let taskDetailsDialog = new TaskDetailsDialog();
                 let contentItemPreviewPanel = new ContentItemPreviewPanel();
                 await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
                 await contentItemPreviewPanel.clickOnIssueMenuButton();
+                await taskDetailsDialog.waitForDialogOpened();
 
-                await issueDetailsDialog.waitForDialogOpened();
-
-                await issueDetailsDialog.clickOnEditTitle();
-                await issueDetailsDialog.pause(5000);
-                await issueDetailsDialog.updateTitle(newTitle);
+                await taskDetailsDialog.clickOnEditTitle();
+                await taskDetailsDialog.pause(5000);
+                await taskDetailsDialog.updateTitle(newTitle);
 
                 //just for closing edit mode in title-input:
-                await issueDetailsDialog.clickOnCommentsTabBarItem();
-                let result = await createIssueDialog.waitForNotificationMessage();
-
+                await taskDetailsDialog.clickOnCommentsTabBarItem();
+                let result = await taskDetailsDialog.waitForNotificationMessage();
                 studioUtils.saveScreenshot("issue_title_updated");
                 assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
 
-                let actualTitle = await issueDetailsDialog.getIssueTitle();
+                let actualTitle = await taskDetailsDialog.getIssueTitle();
                 assert.equal(actualTitle, newTitle, 'Expected and actual title should be equal');
-
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

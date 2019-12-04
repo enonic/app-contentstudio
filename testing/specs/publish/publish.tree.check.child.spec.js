@@ -4,8 +4,6 @@
  *            Publish Tree action - implement a check for unpublished child items #174
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -34,7 +32,6 @@ describe('publish.tree.check.child.spec - Publish Tree action - check for unpubl
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-
             //Parent folder has been published:
             await studioUtils.doPublish();
             //PUBLISH TREE... should be default action
@@ -45,7 +42,6 @@ describe('publish.tree.check.child.spec - Publish Tree action - check for unpubl
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
-
             //Child folder has been published:
             await studioUtils.doPublish();
             //Select the parent folder:
