@@ -283,9 +283,7 @@ export abstract class BasePublishDialog
 
     close() {
         super.close();
-        this.getItemList().clearExcludeChildrenIds();
-        this.publishProcessor.resetExcludedIds();
-
+        this.publishProcessor.reset();
         CreateIssueDialog.get().reset();
     }
 }
