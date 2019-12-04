@@ -49,6 +49,7 @@ export class ContentPublishMenuButton
     private activeClass: string;
 
     private initializedListeners: Function[] = [];
+    private actionUpdatedHandler: Function;
 
     protected publishAction: ContentPublishMenuAction;
     protected unpublishAction: ContentPublishMenuAction;
@@ -136,6 +137,10 @@ export class ContentPublishMenuButton
 
     setRefreshDisabled(value: boolean) {
         this.isRefreshDisabled = value;
+
+        if (!value) {
+            this.actionUpdatedHandler();
+        }
     }
 
     private notifyInitialized() {
@@ -168,13 +173,13 @@ export class ContentPublishMenuButton
     }
 
     private handleActionsUpdated() {
-        const actionUpdatedHandler = api.util.AppHelper.debounce(() => {
+        this.actionUpdatedHandler = api.util.AppHelper.debounce(() => {
             this.updateActiveClass();
         }, 50);
 
         this.getActions().forEach((action: Action) => action.onPropertyChanged(() => {
             if (!this.isRefreshDisabled) {
-                actionUpdatedHandler();
+                this.actionUpdatedHandler();
             }
         }));
     }
