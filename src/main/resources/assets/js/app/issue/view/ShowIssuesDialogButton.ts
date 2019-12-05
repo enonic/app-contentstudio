@@ -49,7 +49,6 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private resetButton() {
-        this.getEl().setTitle(i18n('text.publishingissues'));
         this.removeClass('has-assigned-issues has-issues');
         this.setLabel('');
         this.getAction().setAssignedToMe(false).setCreatedByMe(false);
@@ -89,7 +88,6 @@ export class ShowIssuesDialogButton extends ActionButton {
     private showAssignedToMeIssues(issuesCount: number) {
         this.setLabel(i18n('field.assignedToMe'));
         this.addClass('has-assigned-issues');
-        this.getEl().setTitle(i18n('text.youhaveissues'));
         this.setIssueCount(issuesCount);
         this.getAction().setAssignedToMe(true);
     }
