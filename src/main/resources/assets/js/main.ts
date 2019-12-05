@@ -85,25 +85,15 @@ function getApplication(): Application {
 }
 
 function startLostConnectionDetector(): ConnectionDetector {
-    let messageId;
     let readonlyMessageId;
 
-    let lostConnectionDetector = new ConnectionDetector();
+    const connectionDetector =
+        ConnectionDetector.get()
+        .setAuthenticated(true)
+        .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
+        .setNotificationMessage(i18n('notify.connection.loss'));
 
-    lostConnectionDetector.setAuthenticated(true);
-
-    lostConnectionDetector.onConnectionLost(() => {
-        NotifyManager.get().hide(messageId);
-        messageId = showError(i18n('notify.connection.loss'), false);
-    });
-    lostConnectionDetector.onSessionExpired(() => {
-        NotifyManager.get().hide(messageId);
-        window.location.href = UriHelper.getToolUri('');
-    });
-    lostConnectionDetector.onConnectionRestored(() => {
-        NotifyManager.get().hide(messageId);
-    });
-    lostConnectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
+    connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
             readonlyMessageId = showWarning(i18n('notify.repo.readonly'), false);
         } else if (readonlyMessageId) {
@@ -111,9 +101,9 @@ function startLostConnectionDetector(): ConnectionDetector {
             readonlyMessageId = null;
         }
     });
+    connectionDetector.startPolling(true);
 
-    lostConnectionDetector.startPolling(true);
-    return lostConnectionDetector;
+    return connectionDetector;
 }
 
 function initApplicationEventListener() {
@@ -307,16 +297,16 @@ function preLoadApplication() {
 
 function startApplication() {
 
-    let application: Application = getApplication();
+    const application: Application = getApplication();
 
-    let serverEventsListener = new AggregatedServerEventsListener([application]);
+    const serverEventsListener = new AggregatedServerEventsListener([application]);
     serverEventsListener.start();
 
     initApplicationEventListener();
 
-    let connectionDetector = startLostConnectionDetector();
+    const connectionDetector = startLostConnectionDetector();
 
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
+    const wizardParams = ContentWizardPanelParams.fromApp(application);
     if (wizardParams) {
         startContentWizard(wizardParams, connectionDetector);
     } else {

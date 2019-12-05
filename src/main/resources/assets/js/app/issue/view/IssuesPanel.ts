@@ -44,7 +44,7 @@ export class IssuesPanel
 
     private initListeners() {
         this.typeFilter.onSelected((type: FilterType) => {
-            this.updateStatusButtons();
+            this.updateStatusFilterButtons();
             this.filter();
         });
 
@@ -88,13 +88,25 @@ export class IssuesPanel
 
     updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): Q.Promise<void> {
         this.typeFilter.updateOptionsTotal(openedIssues, closedIssues);
-        this.typeFilter.toggleActionsByStatus();
+        this.updateStatusFilterSelection();
+        this.typeFilter.toggleActionsByStatus(this.statusFilter.getStatus());
         this.typeFilter.getParentElement().setVisible(openedIssues.all + closedIssues.all > 0);
-        this.updateStatusButtons();
+        this.updateStatusFilterButtons();
+
         return this.filter();
     }
 
-    private updateStatusButtons() {
+    private updateStatusFilterSelection() {
+        const currentStatus = this.statusFilter.getStatus();
+        const newStatus = currentStatus === IssueStatus.OPEN ? IssueStatus.CLOSED : IssueStatus.OPEN;
+
+        if (this.typeFilter.getTotalFilteredByStatus(currentStatus) === 0 &&
+            this.typeFilter.getTotalFilteredByStatus(newStatus) > 0) {
+            this.statusFilter.setStatus(newStatus);
+        }
+    }
+
+    private updateStatusFilterButtons() {
         const open: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.OPEN);
         const closed: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.CLOSED);
         this.statusFilter.updateStatusButtons(open, closed);

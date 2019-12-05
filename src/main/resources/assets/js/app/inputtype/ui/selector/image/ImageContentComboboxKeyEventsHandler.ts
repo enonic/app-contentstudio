@@ -56,6 +56,11 @@ export class ImageContentComboboxKeyEventsHandler
             }
             return true;
         }
+
+        if (this.grid.getGrid().hasClass('reverted')) {
+            this.handleDown(e);
+            return true;
+        }
     }
 
     private handleRight(e: KeyboardEvent): boolean {

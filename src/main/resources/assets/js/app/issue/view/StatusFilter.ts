@@ -58,6 +58,10 @@ export class StatusFilter
         return this.currentStatus;
     }
 
+    setStatus(value: IssueStatus) {
+        this.currentStatus = value;
+    }
+
     onStatusChanged(handler: (status: IssueStatus) => void) {
         this.statusChangedListeners.push(handler);
     }

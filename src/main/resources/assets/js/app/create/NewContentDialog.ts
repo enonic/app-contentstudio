@@ -160,8 +160,7 @@ export class NewContentDialog
 
     private initKeyDownHandler() {
         this.keyDownHandler = (event: KeyboardEvent) => {
-            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
-                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
 
             if (isLetterOrNumber) {
                 this.fileInput.show();

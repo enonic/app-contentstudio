@@ -188,7 +188,7 @@ class CreateRequestPublishDialog extends Page {
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
         await this.clickOnElement(this.createRequestButton);
-        return this.pause(300);
+        return this.pause(400);
     }
 };
 module.exports = CreateRequestPublishDialog;
