@@ -26,7 +26,7 @@ export class CreateIssueDialog
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
-        super(i18n('dialog.newIssue'));
+        super(i18n('dialog.newTask'));
     }
 
     static get(): CreateIssueDialog {
