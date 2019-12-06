@@ -18,32 +18,32 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let MY_COMMENT = appConstant.generateRandomName('comment');
-    let ISSUE_TITLE = appConstant.generateRandomName('issue');
+    let TASK_TITLE = appConstant.generateRandomName('task');
     let newText = "Comment is updated";
 
-    it(`WHEN new empty issue has been created THEN expected notification should be displayed`,
+    it(`WHEN new task(no items) has been created THEN expected notification should be displayed`,
         async () => {
             let createTaskDialog = new CreateTaskDialog();
             await studioUtils.openCreateTaskDialog();
-            await createTaskDialog.typeTitle(ISSUE_TITLE);
+            await createTaskDialog.typeTitle(TASK_TITLE);
             await createTaskDialog.clickOnCreateTaskButton();
             let message = await createTaskDialog.waitForNotificationMessage();
             assert.equal(message, 'New issue created successfully.', 'expected notification message should appear');
         });
 
-    it(`GIVEN issues list dialog is opened WHEN existing issue has been clicked THEN Issue Details dialog should be loaded`,
+    it(`GIVEN issues list dialog is opened WHEN existing task has been clicked THEN Task Details dialog should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             let isActive = await taskDetailsDialog.isCommentsTabBarItemActive();
             assert.isTrue(isActive, 'Comments Tab should be active');
 
-            let isCloseButtonDisplayed = await taskDetailsDialog.isCloseIssueButtonDisplayed();
-            assert.isTrue(isCloseButtonDisplayed, 'Close Issue button should be present');
+            let isCloseButtonDisplayed = await taskDetailsDialog.isCloseTaskButtonDisplayed();
+            assert.isTrue(isCloseButtonDisplayed, 'Close Task button should be present');
             //Comment button should be disabled, because it is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
             assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
@@ -58,7 +58,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnIssue(ISSUE_TITLE);
+                return issueListDialog.clickOnIssue(TASK_TITLE);
             }).then(() => {
                 return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
@@ -75,7 +75,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnIssue(ISSUE_TITLE);
+                return issueListDialog.clickOnIssue(TASK_TITLE);
             }).then(() => {
                 return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
@@ -95,20 +95,18 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
         });
 
     it(`WHEN Task Details dialog is opened THEN just created comment should be present in the comments-list`,
-        () => {
+        async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
-            return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnIssue(ISSUE_TITLE);
-            }).then(() => {
-                return taskDetailsDialog.waitForDialogOpened();
-            }).then(() => {
-                return commentsTab.isCommentPresent(MY_COMMENT);
-            }).then(result => {
-                studioUtils.saveScreenshot("issue_comment_added");
-                assert.isTrue(result, 'Comment with the name should be present ');
-            })
+            //1. Open Issue List Dialog:
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnIssue(TASK_TITLE);
+            //2. Open Task Details Dialog:
+            await taskDetailsDialog.waitForDialogOpened();
+            let result = await commentsTab.isCommentPresent(MY_COMMENT);
+            studioUtils.saveScreenshot("issue_comment_added");
+            assert.isTrue(result, 'Comment with the name should be present ');
         });
 
     it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been changed THEN updated comment should be present in the comments-list`,
@@ -117,7 +115,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnIssue(ISSUE_TITLE);
+                return issueListDialog.clickOnIssue(TASK_TITLE);
             }).then(() => {
                 return taskDetailsDialog.waitForDialogOpened();
             }).then(() => {
@@ -135,32 +133,29 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
         });
 
     it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been deleted THEN the comment should not be present in the comments-list`,
-        () => {
+        async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             let confirmationDialog = new ConfirmationDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
-            return studioUtils.openIssuesListDialog().then(() => {
-                return issueListDialog.clickOnIssue(ISSUE_TITLE);
-            }).then(() => {
-                return taskDetailsDialog.waitForDialogOpened();
-            }).then(() => {
-                return commentsTab.clickOnDeleteCommentMenuItem(newText);
-            }).then(() => {
-                return confirmationDialog.waitForDialogOpened();
-            }).then(() => {
-                return confirmationDialog.clickOnYesButton();
-            }).then(() => {
-                return commentsTab.isCommentPresent(newText);
-            }).then(result => {
-                studioUtils.saveScreenshot("issue_comment_deleted");
-                assert.isFalse(result, 'Comment with the text should be deleted');
-            })
+            //1. Click on the task and open Task Details Dialog:
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnIssue(TASK_TITLE);
+            await taskDetailsDialog.waitForDialogOpened();
+            //2. Expand menu and click on Delete Comment:
+            await commentsTab.clickOnDeleteCommentMenuItem(newText);
+            //3. Confirm the deleting:
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+
+            let result = await commentsTab.isCommentPresent(newText);
+            studioUtils.saveScreenshot("issue_comment_deleted");
+            assert.isFalse(result, 'Comment with the text should be deleted');
         });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-})
-;
+});

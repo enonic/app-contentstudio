@@ -29,8 +29,8 @@ module.exports = Object.freeze({
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
-    ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
-    ISSUE_OPENED_MESSAGE: 'The issue is Open.',
+    TASK_CLOSED_MESSAGE: 'The task is Closed.',
+    TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
