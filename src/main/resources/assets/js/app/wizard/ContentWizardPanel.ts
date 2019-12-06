@@ -57,6 +57,7 @@ import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
 import {RoutineContext} from './Flow';
+import {ContentIds} from '../ContentIds';
 import PropertyTree = api.data.PropertyTree;
 import FormView = api.form.FormView;
 import ContentId = api.content.ContentId;
@@ -1067,34 +1068,28 @@ export class ContentWizardPanel
         };
 
         const updatePermissionsHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
-            const contentId: ContentId = updatedContent.getContentId();
+            const isAlreadyUpdated: boolean = updatedContent.equals(this.getPersistedItem());
 
-            if (this.isCurrentContentId(contentId)) {
-                const isAlreadyUpdated = updatedContent.equals(this.getPersistedItem());
-
-                if (isAlreadyUpdated) {
-                    return;
-                }
-                this.setUpdatedContent(updatedContent);
-
-                this.fetchPersistedContent().then((content) => {
-                    this.setPersistedItem(content.clone());
-                    this.securityWizardStepForm.update(content, true);
-                    this.updateSecurityWizardStepIcon(content);
-                    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                        const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-                        const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
-                        this.wizardActions
-                            .setUserCanPublish(userCanPublish)
-                            .setUserCanModify(userCanModify)
-                            .refreshState();
-                        this.toggleStepFormsVisibility(loginResult);
-                    });
-                });
-
-            } else {
-                this.handleOtherContentUpdate(updatedContent);
+            if (isAlreadyUpdated) {
+                return;
             }
+
+            this.setUpdatedContent(updatedContent);
+
+            this.fetchPersistedContent().then((content) => {
+                this.setPersistedItem(content.clone());
+                this.securityWizardStepForm.update(content, true);
+                this.updateSecurityWizardStepIcon(content);
+                new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                    const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
+                    const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
+                    this.wizardActions
+                        .setUserCanPublish(userCanPublish)
+                        .setUserCanModify(userCanModify)
+                        .refreshState();
+                    this.toggleStepFormsVisibility(loginResult);
+                }).catch(api.DefaultErrorHandler.handle);
+            });
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
@@ -1147,12 +1142,21 @@ export class ContentWizardPanel
             }
         };
 
-        const contentPermissionsUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (!this.contentUpdateDisabled) {
-                data.forEach((updated: ContentSummaryAndCompareStatus) => {
-                    updatePermissionsHandler(updated);
-                });
+        const contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+            if (this.contentUpdateDisabled || !this.getPersistedItem()) {
+                return;
             }
+
+            const thisContentId: ContentId = this.getPersistedItem().getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+                .then(updatePermissionsHandler)
+                .catch(api.DefaultErrorHandler.handle);
         };
 
         const versionChangeHandler = this.updateButtonsState.bind(this);

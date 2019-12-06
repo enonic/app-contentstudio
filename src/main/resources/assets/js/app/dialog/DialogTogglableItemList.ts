@@ -3,6 +3,7 @@ import {StatusSelectionItem} from './StatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {ContentIds} from '../ContentIds';
 import BrowseItem = api.app.browse.BrowseItem;
 import Tooltip = api.ui.Tooltip;
 import i18n = api.util.i18n;
@@ -183,10 +184,15 @@ export class DialogTogglableItemList
     private initListItemListeners(item: ContentSummaryAndCompareStatus, view: StatusSelectionItem) {
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
+        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const itemContentId: ContentId = item.getContentId();
+            if (contentIds.contains(itemContentId)) {
                 this.notifyListItemsDataChanged();
             }
+        };
+
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
         };
         const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
@@ -194,12 +200,12 @@ export class DialogTogglableItemList
             }
         };
         serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentPermissionsUpdated(updatedHandler);
+        serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
         serverEvents.onContentDeleted(deletedHandler);
 
         view.onRemoved(() => {
             serverEvents.unContentUpdated(updatedHandler);
-            serverEvents.unContentPermissionsUpdated(updatedHandler);
+            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
     }
