@@ -46,6 +46,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {ContentIds} from '../ContentIds';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -330,7 +331,7 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+        handler.onContentPermissionsUpdated((contentIds: ContentIds) => this.handleContentPermissionsUpdated(contentIds));
 
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentRenamed(data, oldPaths);
@@ -392,6 +393,24 @@ export class ContentBrowsePanel
                 this.updatePreviewIfNeeded(data);
             });
         });
+    }
+
+    private handleContentPermissionsUpdated(contentIds: ContentIds) {
+        if (ContentBrowsePanel.debug) {
+            console.debug('ContentBrowsePanel: permissions updated', contentIds);
+        }
+
+        const contentsToUpdateIds: ContentId[] = this.treeGrid.getAllNodes()
+            .map((treeNode: TreeNode<ContentSummaryAndCompareStatus>) => treeNode.getData().getContentId())
+            .filter((contentId: ContentId) => contentIds.contains(contentId));
+
+        if (contentsToUpdateIds.length === 0) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+            .then(this.handleContentUpdated.bind(this))
+            .catch(api.DefaultErrorHandler.handle);
     }
 
     private handleContentDeleted(paths: ContentPath[]) {

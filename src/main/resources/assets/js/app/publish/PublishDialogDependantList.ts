@@ -87,10 +87,15 @@ export class PublishDialogDependantList
 
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
+        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const itemContentId: ContentId = item.getContentId();
+            if (contentIds.contains(itemContentId)) {
                 this.notifyListChanged();
             }
+        };
+
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
         };
         const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
@@ -98,12 +103,12 @@ export class PublishDialogDependantList
             }
         };
         serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentPermissionsUpdated(updatedHandler);
+        serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
         serverEvents.onContentDeleted(deletedHandler);
 
         view.onRemoved(() => {
             serverEvents.unContentUpdated(updatedHandler);
-            serverEvents.unContentPermissionsUpdated(updatedHandler);
+            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
     }
