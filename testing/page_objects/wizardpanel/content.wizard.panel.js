@@ -601,7 +601,7 @@ class ContentWizardPanel extends Page {
         if (content.settings != null) {
             await this.typeSettings(content.settings);
         }
-        await this.pause(500);
+        return await this.pause(500);
     }
 
     clickOnPublishMenuDropdownHandle() {

@@ -53,8 +53,8 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             //3. Go to 'Items' tab:
             await taskDetailsDialog.clickOnItemsTabBarItem();
             studioUtils.saveScreenshot("publish_close_issue_should_be_disabled");
-            // 4.'Publish & Close button should be disabled, because invalid child is present'
-            let result = await issueDetailsDialogItemsTab.isPublishAndCloseIssueButtonEnabled();
+            // 4.'Publish...' button should be disabled, because invalid child is present'
+            let result = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
             assert.isFalse(result, 'Publish & Close button should be disabled(invalid child)');
         });
 
@@ -72,8 +72,8 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             await issueDetailsDialog.clickOnItemsTabBarItem();
             //4. Exclude the not valid content:
             await taskDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
-            //5.'Publish & Close' button gets enabled, because invalid child is excluded'
-            await taskDetailsDialogItemsTab.waitForPublishAndCloseIssueButtonEnabled();
+            //5.'Publish...' button gets enabled, because invalid child is excluded'
+            await taskDetailsDialogItemsTab.waitForPublishButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

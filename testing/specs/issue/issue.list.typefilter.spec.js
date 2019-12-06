@@ -108,12 +108,12 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //3. Close the task:
-            await taskDetailsDialog.clickOnCloseIssueButton();
+            await taskDetailsDialog.clickOnCloseTaskButton();
             await taskDetailsDialog.clickOnBackButton();
             await issueListDialog.pause(500);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
 
-            //4. Number of closed and Open  issues should be updated:
+            //4. Number of closed and Open issues should be updated:
             await issueListDialog.isOpenButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
             let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
@@ -139,8 +139,8 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             //2. Click on 'Closed' button, load Closed-issues then click on the closed task( open 'Task Details' dialog):
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
-            //3. Click on 'Reopen Issue' button and reopen the task:
-            await taskDetailsDialog.clickOnReopenIssueButton();
+            //3. Click on 'Reopen Task' button and reopen the task:
+            await taskDetailsDialog.clickOnReopenTaskButton();
             //4. Go to Issue List  dialog:
             await taskDetailsDialog.clickOnBackButton();
             await issueListDialog.pause(3000);
@@ -161,7 +161,6 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     it(`GIVEN Issue List dialog is opened WHEN 'Tasks' option item has been selected THEN publish requests should not be displayed in the dialog`,
         async () => {
             let issueListDialog = new IssueListDialog();
-            let taskDetailsDialog = new TaskDetailsDialog();
             //1.Open 'Issue List' dialog:
             await studioUtils.openIssuesListDialog();
             //2. Select 'Tasks' in the filter:
@@ -176,7 +175,6 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     it(`GIVEN Issue List dialog is opened WHEN 'Publish Requests' option item has been selected THEN existing task should not be displayed in the dialog`,
         async () => {
             let issueListDialog = new IssueListDialog();
-            let taskDetailsDialog = new TaskDetailsDialog();
             //1.Open 'Issue List' dialog:
             await studioUtils.openIssuesListDialog();
             //2. Select 'Publish Requests' in the filter:

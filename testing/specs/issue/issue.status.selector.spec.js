@@ -17,7 +17,7 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
-        let issueTitle = appConstant.generateRandomName('task');
+        let TASK_TITLE = appConstant.generateRandomName('task');
         let newTitle = "new title";
 
         let TEST_FOLDER;
@@ -31,7 +31,7 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             //open 'Create Task' dialog and create new task:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
-            await createTaskDialog.typeTitle(issueTitle);
+            await createTaskDialog.typeTitle(TASK_TITLE);
             await createTaskDialog.clickOnCreateTaskButton();
             //issue details dialog should be loaded
             await taskDetailsDialog.waitForDialogOpened();
@@ -48,8 +48,8 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
                 //2. Expand the status menu and close the task:
                 await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
                 studioUtils.saveScreenshot('status_menu_closed_task');
-                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
-                //3. 'Reopen Issue' button should appear in the details dialog:
+                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_CLOSED_MESSAGE);
+                //3. 'Reopen Task' button should appear in the details dialog:
                 await taskDetailsDialog.waitForReopenButtonLoaded();
             });
 
@@ -60,9 +60,8 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
                 await studioUtils.openIssuesListDialog();
                 //1. Click on 'Closed' button (load closed issues):
                 await issueListDialog.clickOnClosedButton();
-
                 //2. Click on the closed task and open task-details dialog:
-                await issueListDialog.clickOnIssue(issueTitle);
+                await issueListDialog.clickOnIssue(TASK_TITLE);
                 await taskDetailsDialog.waitForDialogOpened();
                 // the task should not be editable, because this task is closed:
                 await taskDetailsDialog.waitForIssueTitleInputNotEditable();
@@ -76,13 +75,13 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
                 //1. Click on 'Closed' button in the Issues List dialog:
                 await issueListDialog.clickOnClosedButton();
                 //2. Click on the task:
-                await issueListDialog.clickOnIssue(issueTitle);
+                await issueListDialog.clickOnIssue(TASK_TITLE);
                 await taskDetailsDialog.waitForDialogOpened();
                 //3. Click on 'Open' menu item:
                 await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
                 studioUtils.saveScreenshot("status_menu_task_reopened");
                 //4. 'The task is opened' - this message should appear:
-                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_OPENED_MESSAGE);
+                await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_OPENED_MESSAGE);
                 //5. 'Close Issue' button should appear in the dialog, because the issue is reopened
                 await taskDetailsDialog.waitForCloseButtonLoaded();
             });
