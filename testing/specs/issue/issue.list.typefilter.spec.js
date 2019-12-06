@@ -143,14 +143,15 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await taskDetailsDialog.clickOnReopenIssueButton();
             //4. Go to Issue List  dialog:
             await taskDetailsDialog.clickOnBackButton();
-            await issueListDialog.pause(500);
+            await issueListDialog.pause(3000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             //4. 'Closed()' button should be active:
             await issueListDialog.isClosedButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
             let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
+            studioUtils.saveScreenshot("issue_list_number_in_all");
             //Number in 'All()' should be reduced, because 'Closed' button is active:
-            assert.isTrue(filterInputNumberBeforeReopen - filterInputNumber === 1, "number in 'All' should be reduced");
+            assert.equal((filterInputNumberBeforeReopen - filterInputNumber), 1, "number in 'All' should be reduced");
             //Number of Open issues should be increased:
             assert.isTrue(openNumber - openNumberBeforeReopen === 1, "Number of open-issues should be increased - 'Open()' button)");
             //Number of closed issues should be reduced:
