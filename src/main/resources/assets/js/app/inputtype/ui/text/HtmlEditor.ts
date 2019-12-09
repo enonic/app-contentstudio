@@ -58,7 +58,7 @@ export class HtmlEditor {
         this.editor.on('widgetDefinition', (e: eventInfo) => {
             if (e.data.name === 'image') {
                 this.allowFigureHaveAnyClasses2(e);
-                this.modifyImagePluginUpcastFunction(e);
+                this.modifyImagePluginUpcastDowncastFunctions(e);
             }
         });
     }
@@ -69,7 +69,7 @@ export class HtmlEditor {
         e.data.allowedContent.img.styles = ['*'];
     }
 
-    private modifyImagePluginUpcastFunction(e: eventInfo) {
+    private modifyImagePluginUpcastDowncastFunctions(e: eventInfo) {
         const originalUpcastFunction: Function = e.data.upcast;
         const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
@@ -93,7 +93,17 @@ export class HtmlEditor {
             return result;
         };
 
+        const originalDowncastFunction: Function = e.data.downcast;
+        const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
+            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                return el;
+            }
+
+            return originalDowncastFunction.call(this, el);
+        };
+
         e.data.upcast = newUpcastFunction;
+        e.data.downcast = newDowncastFunction;
     }
 
     private transformTableAttrs() {
