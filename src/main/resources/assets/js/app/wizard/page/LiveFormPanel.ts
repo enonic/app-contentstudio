@@ -69,9 +69,12 @@ import {PageMode} from '../../page/PageMode';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentIds} from '../../ContentIds';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import Panel = api.ui.panel.Panel;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export interface LiveFormPanelConfig {
 
@@ -136,6 +139,7 @@ export class LiveFormPanel
     private componentPropertyChangedHandler: (event: ComponentPropertyChangedEvent) => void;
     private propertyChangedHandler: (event: api.PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
 
     private pageViewReadyListeners: { (pageView: PageView): void }[];
 
@@ -168,7 +172,7 @@ export class LiveFormPanel
         ShowSplitEditEvent.on(this.showLoadMaskHandler);
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
-        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentUpdatedHandler);
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
     }
 
     private initEventHandlers() {
@@ -277,6 +281,20 @@ export class LiveFormPanel
                     return true;
                 }
             });
+        };
+
+        this.contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+                .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
+                    contentSummary.getContentSummary()))
+                .catch(api.DefaultErrorHandler.handle);
         };
     }
 

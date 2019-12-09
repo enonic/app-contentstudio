@@ -26,6 +26,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
+import {ContentIds} from '../ContentIds';
 import TreeNode = api.ui.treegrid.TreeNode;
 import BrowseItem = api.app.browse.BrowseItem;
 import UploadItem = api.ui.uploader.UploadItem;
@@ -45,6 +46,7 @@ import Action = api.ui.Action;
 import AppHelper = api.util.AppHelper;
 import ViewItem = api.app.view.ViewItem;
 import BrowserHelper = api.BrowserHelper;
+import ContentId = api.content.ContentId;
 
 export class ContentBrowsePanel
     extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -329,7 +331,7 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+        handler.onContentPermissionsUpdated((contentIds: ContentIds) => this.handleContentPermissionsUpdated(contentIds));
 
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentRenamed(data, oldPaths);
@@ -391,6 +393,24 @@ export class ContentBrowsePanel
                 this.updatePreviewIfNeeded(data);
             });
         });
+    }
+
+    private handleContentPermissionsUpdated(contentIds: ContentIds) {
+        if (ContentBrowsePanel.debug) {
+            console.debug('ContentBrowsePanel: permissions updated', contentIds);
+        }
+
+        const contentsToUpdateIds: ContentId[] = this.treeGrid.getAllNodes()
+            .map((treeNode: TreeNode<ContentSummaryAndCompareStatus>) => treeNode.getData().getContentId())
+            .filter((contentId: ContentId) => contentIds.contains(contentId));
+
+        if (contentsToUpdateIds.length === 0) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+            .then(this.handleContentUpdated.bind(this))
+            .catch(api.DefaultErrorHandler.handle);
     }
 
     private handleContentDeleted(paths: ContentPath[]) {

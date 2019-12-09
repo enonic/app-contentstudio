@@ -475,7 +475,7 @@ export class ContentTreeGrid
         return result;
     }
 
-    private getAllNodes(): TreeNode<ContentSummaryAndCompareStatus>[] {
+    getAllNodes(): TreeNode<ContentSummaryAndCompareStatus>[] {
         const root: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getDefaultRoot().treeToList(false, false);
         const filter: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getFilteredRoot().treeToList(false, false);
         return root.concat(filter);
