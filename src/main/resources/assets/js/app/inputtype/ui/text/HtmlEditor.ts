@@ -51,11 +51,53 @@ export class HtmlEditor {
     private allowFigureHaveAnyClasses() {
         this.editor.on('widgetDefinition', (e: eventInfo) => {
             if (e.data.name === 'image') {
-                e.data.allowedContent.figure.classes = ['*'];
-                e.data.allowedContent.figure.styles = ['*'];
-                e.data.allowedContent.img.styles = ['*'];
+                this.allowFigureHaveAnyClasses2(e);
+                this.modifyImagePluginUpcastDowncastFunctions(e);
             }
         });
+    }
+
+    private allowFigureHaveAnyClasses2(e: eventInfo) {
+        e.data.allowedContent.figure.classes = ['*'];
+        e.data.allowedContent.figure.styles = ['*'];
+        e.data.allowedContent.img.styles = ['*'];
+    }
+
+    private modifyImagePluginUpcastDowncastFunctions(e: eventInfo) {
+        const originalUpcastFunction: Function = e.data.upcast;
+        const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
+            const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
+
+            if (result && result.name === 'img') { // standalone image
+                return null;
+            }
+
+            if (result && result.name === 'a' && (<any>result).parent.name !== 'figure') { // standalone image wrapped with link
+                return null;
+            }
+
+            if (!result && el.name === 'figure') {
+                if (el.getFirst('img') ?
+                    el.getFirst('img') : el.getFirst('a') ?
+                                         (<CKEDITOR.htmlParser.element>el.getFirst('a')).getFirst('img') : null) {
+                    return el;
+                }
+            }
+
+            return result;
+        };
+
+        const originalDowncastFunction: Function = e.data.downcast;
+        const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
+            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                return el;
+            }
+
+            return originalDowncastFunction.call(this, el);
+        };
+
+        e.data.upcast = newUpcastFunction;
+        e.data.downcast = newDowncastFunction;
     }
 
     private transformTableAttrs() {
