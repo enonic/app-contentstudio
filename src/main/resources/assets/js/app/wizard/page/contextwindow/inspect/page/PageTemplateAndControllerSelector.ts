@@ -63,7 +63,7 @@ export class PageTemplateAndControllerSelector
 
     private initServerEventsListeners() {
         const eventsHandler = ContentServerEventsHandler.getInstance();
-        const updatedHandlerDebounced = AppHelper.debounce((summaries) => {
+        const updatedHandlerDebounced = AppHelper.debounce((summaries: ContentSummaryAndCompareStatus[]) => {
             const reloadNeeded =
                 summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel));
             if (reloadNeeded) {

@@ -139,8 +139,8 @@ class BaseDetailsDialog extends Page {
         return this.getBrowser().keys(['Escape']);
     }
 
-    isCloseIssueButtonDisplayed() {
-        return this.isElementDisplayed(this.closeIssueButton);
+    isCloseTaskButtonDisplayed() {
+        return this.isElementDisplayed(this.closeTaskButton);
     }
 
     async getIssueTitle() {

@@ -1116,7 +1116,7 @@ export class ContentWizardPanel
                         .setUserCanModify(userCanModify)
                         .refreshState();
                     this.toggleStepFormsVisibility(loginResult);
-                }).catch(api.DefaultErrorHandler.handle);
+                }).catch(DefaultErrorHandler.handle);
             });
         };
 
@@ -1184,7 +1184,7 @@ export class ContentWizardPanel
 
             ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
                 .then(updatePermissionsHandler)
-                .catch(api.DefaultErrorHandler.handle);
+                .catch(DefaultErrorHandler.handle);
         };
 
         const contentRenamedHandler = (contents: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {

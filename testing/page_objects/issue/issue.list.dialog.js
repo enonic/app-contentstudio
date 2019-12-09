@@ -3,7 +3,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
-    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New task']]`,
+    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Task']]`,
     closedButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Closed')]]",
     openButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Open')]]",
     hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",

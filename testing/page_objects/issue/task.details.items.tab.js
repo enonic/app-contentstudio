@@ -10,8 +10,8 @@ const xpath = {
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     publishButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish...')]]`,
-    closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
-    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
+    closeTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Task']]`,
+    reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
@@ -30,11 +30,11 @@ class TaskDetailsDialogItemsTab extends Page {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get closeIssueButton() {
-        return xpath.container + xpath.closeIssueButton;
+    get closeTaskButton() {
+        return xpath.container + xpath.closeTaskButton;
     }
-    get reopenIssueButton() {
-        return xpath.container + xpath.reopenIssueButton;
+    get reopenTaskButton() {
+        return xpath.container + xpath.reopenTaskButton;
     }
 
 
@@ -83,12 +83,12 @@ class TaskDetailsDialogItemsTab extends Page {
         return this.isElementDisplayed(this.publishButton);
     }
 
-    isPublishAndCloseIssueButtonEnabled() {
+    isPublishButtonEnabled() {
         return this.isElementEnabled(this.publishButton);
     }
 
-    waitForPublishAndCloseIssueButtonEnabled() {
-        return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
+    async waitForPublishButtonEnabled() {
+        return await this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
     }
 
     waitForContentOptionsFilterInputDisplayed() {
@@ -188,15 +188,15 @@ class TaskDetailsDialogItemsTab extends Page {
         })
     }
 
-    async clickOnCloseIssueButton() {
+    async clickOnCloseTaskButton() {
         try {
-            await this.waitForElementDisplayed(this.closeIssueButton, appConst.TIMEOUT_3);
-            await this.clickOnElement(this.closeIssueButton);
+            await this.waitForElementDisplayed(this.closeTaskButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.closeTaskButton);
             //reopen Issue button should appear!
-            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
         } catch (err) {
             this.saveScreenshot('err_click_close_issue_button');
-            throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+            throw  new Error('Error when clicking on the `Close Task`  ' + err);
         }
     }
 };

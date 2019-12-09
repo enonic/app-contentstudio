@@ -21,7 +21,7 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should b
 
         // verifies https://github.com/enonic/app-contentstudio/issues/808
         // Publish Menu is not updated after an item is removed from an issue or request.
-        it(`GIVEN new folder is opened WHEN new issue has been created in the wizard THEN new menu item should be added in the Publish Menu`,
+        it(`GIVEN new folder is opened WHEN new task has been created in the wizard THEN new menu item should be added in the Publish Menu`,
             async () => {
                 let contentWizard = new ContentWizard();
                 let createTaskDialog = new CreateTaskDialog();

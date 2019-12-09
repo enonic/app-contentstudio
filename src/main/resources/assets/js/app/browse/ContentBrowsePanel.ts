@@ -47,6 +47,8 @@ import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -410,7 +412,7 @@ export class ContentBrowsePanel
 
         ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
             .then(this.handleContentUpdated.bind(this))
-            .catch(api.DefaultErrorHandler.handle);
+            .catch(DefaultErrorHandler.handle);
     }
 
     private handleContentDeleted(paths: ContentPath[]) {

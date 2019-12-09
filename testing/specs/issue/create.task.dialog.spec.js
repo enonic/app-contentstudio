@@ -29,7 +29,7 @@ describe('create.task.dialog.spec: Create Task Dialog specification', function (
             let createTaskDialog = new CreateTaskDialog();
             await studioUtils.openCreateTaskDialog();
             let dialogTitle = await createTaskDialog.getDialogTitle();
-            assert.equal(dialogTitle, "New Issue", "Required dialog's title should be displayed");
+            assert.equal(dialogTitle, "New Task", "Required dialog's title should be displayed");
             //Title input should be present:
             let result = await createTaskDialog.isTitleInputDisplayed();
             assert.isTrue(result, 'Title input should be present');

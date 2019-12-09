@@ -1,7 +1,12 @@
 {
   "name": "app-contentstudio",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Enonix XP - Content Studio App",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enonic/app-contentstudio"
+  },
   "scripts": {
     "build": "webpack --hide-modules",
     "lint": "tslint -p tsconfig.build.json -c tslint.json",
@@ -29,7 +34,7 @@
     "browserslist": "^4.7.1",
     "browserslist-config-enonic": "^1.0.3",
     "circular-dependency-plugin": "^5.0.2",
-    "copy-webpack-plugin": "^5.0.4",
+    "copy-webpack-plugin": "^5.0.5",
     "css-loader": "^3.2.0",
     "css-mqpacker": "^7.0.0",
     "cssnano": "^4.1.3",

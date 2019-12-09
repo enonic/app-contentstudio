@@ -79,14 +79,15 @@ import {PageMode} from '../../page/PageMode';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentIds} from '../../ContentIds';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {ContentIds} from '../../ContentIds';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 
 export interface LiveFormPanelConfig {
 
@@ -306,7 +307,7 @@ export class LiveFormPanel
             ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
                 .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
                     contentSummary.getContentSummary()))
-                .catch(api.DefaultErrorHandler.handle);
+                .catch(DefaultErrorHandler.handle);
         };
     }
 

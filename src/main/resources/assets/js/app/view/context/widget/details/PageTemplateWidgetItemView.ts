@@ -36,6 +36,7 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ContentIds} from '../../../../ContentIds';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -76,7 +77,7 @@ export class PageTemplateWidgetItemView
 
             ContentSummaryAndCompareStatusFetcher.fetch(this.content.getContentId())
                 .then(this.setContentAndUpdateView.bind(this))
-                .catch(api.DefaultErrorHandler.handle);
+                .catch(DefaultErrorHandler.handle);
 
         };
 

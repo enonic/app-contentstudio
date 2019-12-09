@@ -44,7 +44,6 @@ describe('Browse panel, properties widget, language spec`', function () {
             await studioUtils.doSwitchToContentBrowsePanel();
             //3. Open details panel:
             await studioUtils.openBrowseDetailsPanel();
-
             //4. Language should not be present in the widget now :
             studioUtils.saveScreenshot("details_panel_language_removed");
             await propertiesWidget.waitForLanguageNotVisible();
