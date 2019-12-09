@@ -1,3 +1,9 @@
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Store} from 'lib-admin-ui/store/Store';
+// get jQuery from the global scope
+var $ = Store.instance().get('$');
+
 CKEDITOR.plugins.add('pasteModeSwitcher', {
     init: function (editor) {
 
@@ -8,13 +14,12 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
             exec: function (editor) {
                 pasteTextOnly = !pasteTextOnly;
                 editor.getCommand('switchPasteMode').setState(pasteTextOnly ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
-                var tooltipText = pasteTextOnly ? api.util.i18n('tooltip.editor.pastemode.plain') :
-                                                    api.util.i18n('tooltip.editor.pastemode.formatted');
+                var tooltipText = pasteTextOnly ? i18n('tooltip.editor.pastemode.plain') :
+                                  i18n('tooltip.editor.pastemode.formatted');
                 replaceTooltip(tooltipText);
 
                 return true;
             },
-
             contextSensitive: false
         });
 
@@ -25,16 +30,16 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
                 toolbarButton.title = tooltipText;
             }
 
-            var tooltipId = '#' + api.StyleHelper.getCls('tooltip', api.StyleHelper.COMMON_PREFIX);
-            if (!wemjq(tooltipId).length) {
-                return;
+            var tooltipId = '#' + StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
+
+            if ($(tooltipId).length > 0) {
+                $(toolbarButton).data('_tooltip', tooltipText);
+                $(tooltipId).text(tooltipText);
             }
-            wemjq(toolbarButton).data('_tooltip', tooltipText);
-            wemjq(tooltipId).text(tooltipText);
         }
 
         editor.ui.addButton('PasteModeSwitcher', {
-            label: api.util.i18n('tooltip.editor.pastemode.formatted'),
+            label: i18n('tooltip.editor.pastemode.formatted'),
             toolbar: 'tools,10',
             command: 'switchPasteMode',
             icon: 'pastetext'
@@ -51,7 +56,6 @@ CKEDITOR.plugins.add('pasteModeSwitcher', {
                     evt.editor.disableNotification = true;
                     evt.editor.execCommand('pastetext', evt.data);
                     evt.editor.disableNotification = false;
-                    return;
                 } else {
                     skipNextBeforePasteEvent = false;
                 }

@@ -14,6 +14,7 @@ module.exports = {
         'js/main': './js/main.ts',
         'lib/vendors': './lib/index.js',
         'styles/main': './styles/main.less',
+        'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/lib/vendors': './page-editor/lib/index.js',
         'page-editor/styles/main': './page-editor/styles/main.less',
