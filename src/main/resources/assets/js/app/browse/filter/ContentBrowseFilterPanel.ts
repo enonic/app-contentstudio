@@ -7,6 +7,7 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
+import {ContentIds} from '../../ContentIds';
 import ContentTypeName = api.schema.content.ContentTypeName;
 import ContentSummaryJson = api.content.json.ContentSummaryJson;
 import ContentSummary = api.content.ContentSummary;
@@ -28,6 +29,7 @@ import BrowseFilterResetEvent = api.app.browse.filter.BrowseFilterResetEvent;
 import BrowseFilterRefreshEvent = api.app.browse.filter.BrowseFilterRefreshEvent;
 import BrowseFilterSearchEvent = api.app.browse.filter.BrowseFilterSearchEvent;
 import i18n = api.util.i18n;
+import ContentId = api.content.ContentId;
 
 export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
@@ -67,22 +69,25 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             }
         });
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
 
-            const isDependencyItemUpdated = data.some((item: ContentSummaryAndCompareStatus) => {
-                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
-            });
+            const dependencyItemId: ContentId = this.dependenciesSection.getDependencyId();
+            const isDependencyItemUpdated: boolean = contentIds.contains(dependencyItemId);
 
             if (isDependencyItemUpdated) {
                 this.search();
             }
         };
 
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(data.map((item: ContentSummaryAndCompareStatus) => item.getContentId())));
+        };
+
         handler.onContentUpdated(updatedHandler);
-        handler.onContentPermissionsUpdated(updatedHandler);
+        handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
     }
 
     protected getGroupViews(): api.aggregation.AggregationGroupView[] {
