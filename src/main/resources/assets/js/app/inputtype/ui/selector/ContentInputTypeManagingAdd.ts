@@ -69,7 +69,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     private handleContentUpdatedEvent() {
-        let contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
+        const contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
 
             if (this.getSelectedOptions().length === 0) {
                 return;
@@ -92,13 +92,11 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         handler.onContentMoved(contentUpdatedOrMovedListener);
         handler.onContentRenamed(contentUpdatedOrMovedListener);
         handler.onContentUpdated(contentUpdatedOrMovedListener);
-        handler.onContentPermissionsUpdated(contentUpdatedOrMovedListener);
 
         this.onRemoved(() => {
             handler.unContentUpdated(contentUpdatedOrMovedListener);
             handler.unContentRenamed(contentUpdatedOrMovedListener);
             handler.unContentMoved(contentUpdatedOrMovedListener);
-            handler.unContentPermissionsUpdated(contentUpdatedOrMovedListener);
         });
     }
 

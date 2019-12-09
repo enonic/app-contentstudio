@@ -48,6 +48,7 @@ import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearch
 import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
+import {ContentIds} from '../../ContentIds';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -88,22 +89,25 @@ export class ContentBrowseFilterPanel
             }
         });
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
 
-            const isDependencyItemUpdated = data.some((item: ContentSummaryAndCompareStatus) => {
-                return item.getContentId().equals(this.dependenciesSection.getDependencyId());
-            });
+            const dependencyItemId: ContentId = this.dependenciesSection.getDependencyId();
+            const isDependencyItemUpdated: boolean = contentIds.contains(dependencyItemId);
 
             if (isDependencyItemUpdated) {
                 this.search();
             }
         };
 
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(data.map((item: ContentSummaryAndCompareStatus) => item.getContentId())));
+        };
+
         handler.onContentUpdated(updatedHandler);
-        handler.onContentPermissionsUpdated(updatedHandler);
+        handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
     }
 
     protected getGroupViews(): AggregationGroupView[] {

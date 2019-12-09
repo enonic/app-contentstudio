@@ -33,6 +33,7 @@ import {CompareStatus} from '../../content/CompareStatus';
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {ContentIds} from '../../ContentIds';
 
 export class ContextView
     extends DivEl {
@@ -125,16 +126,15 @@ export class ContextView
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        contentServerEventsHandler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
-            const itemSelected = this.item != null;
-            const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-            const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentIds) => {
+            const itemSelected: boolean = this.item != null;
+            const activeContextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
+            const activeWidgetVisible: boolean = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
-                const selectedItemPermissionsUpdated = data.some((content: ContentSummaryAndCompareStatus) => {
-                    return this.item.getId() === content.getId();
-                });
-                if (selectedItemPermissionsUpdated) {
+                const selectedItemContentId: ContentId = this.item.getContentId();
+                const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
+                if (isSelectedItemPermissionsUpdated) {
                     this.updateActiveWidget();
                 }
             }

@@ -85,6 +85,8 @@ import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ContentIds} from '../../ContentIds';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 
 export interface LiveFormPanelConfig {
 
@@ -149,6 +151,7 @@ export class LiveFormPanel
     private componentPropertyChangedHandler: (event: ComponentPropertyChangedEvent) => void;
     private propertyChangedHandler: (event: PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
 
     private pageViewReadyListeners: { (pageView: PageView): void }[];
 
@@ -181,7 +184,7 @@ export class LiveFormPanel
         ShowSplitEditEvent.on(this.showLoadMaskHandler);
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
-        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentUpdatedHandler);
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
     }
 
     private initEventHandlers() {
@@ -290,6 +293,20 @@ export class LiveFormPanel
                     return true;
                 }
             });
+        };
+
+        this.contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+                .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
+                    contentSummary.getContentSummary()))
+                .catch(api.DefaultErrorHandler.handle);
         };
     }
 

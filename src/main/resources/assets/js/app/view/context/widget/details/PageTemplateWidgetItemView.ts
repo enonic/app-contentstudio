@@ -34,6 +34,8 @@ import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {ContentIds} from '../../../../ContentIds';
+import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -64,6 +66,20 @@ export class PageTemplateWidgetItemView
 
     private initListeners() {
 
+        const onContentPermissionsUpdated = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(this.content.getContentId())
+                .then(this.setContentAndUpdateView.bind(this))
+                .catch(api.DefaultErrorHandler.handle);
+
+        };
+
         const onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
             const thisContentId = this.content.getId();
 
@@ -76,7 +92,6 @@ export class PageTemplateWidgetItemView
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
                 this.loadPageTemplate().then(() => this.layout());
             }
-
         };
 
         const onContentDeleted = (deletedPaths: ContentServerChangeItem[]) => {
@@ -97,7 +112,7 @@ export class PageTemplateWidgetItemView
         const serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
-        serverEvents.onContentPermissionsUpdated(onContentUpdated);
+        serverEvents.onContentPermissionsUpdated(onContentPermissionsUpdated);
         serverEvents.onContentDeleted(onContentDeleted);
     }
 
