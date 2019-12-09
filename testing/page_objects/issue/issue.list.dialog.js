@@ -3,7 +3,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
-    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New task']]`,
+    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Task']]`,
     closedButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Closed')]]",
     openButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Open')]]",
     hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",
@@ -31,7 +31,6 @@ class IssuesListDialog extends Page {
     get typeFilterDropDownHandle() {
         return xpath.container + xpath.typeFilter + lib.DROP_DOWN_HANDLE;
     }
-
 
     get closedButton() {
         return xpath.container + xpath.closedButton;
@@ -130,7 +129,7 @@ class IssuesListDialog extends Page {
             await el[0].waitForEnabled(appConst.TIMEOUT_2);
             //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
             await this.clickOnElement(this.closedButton);
-            return await this.pause(400);
+            return await this.pause(700);
         } catch (err) {
             this.saveScreenshot("err_show_closed_issues_list");
             throw new Error("Issues List dialog - Error when clicking on 'Closed' button  " + err);
@@ -189,7 +188,7 @@ class IssuesListDialog extends Page {
         try {
             let optionXpath = xpath.typeFilterOption(option);
             await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(optionXpath,"class");
+                let text = await this.getAttribute(optionXpath, "class");
                 return text.includes('disabled');
             }, appConst.TIMEOUT_2);
         } catch (err) {
@@ -234,6 +233,14 @@ class IssuesListDialog extends Page {
             throw new Error('error when clicked on issue' + err)
         })
     }
+    async waitForIssueNotPresent(issueName){
+        let issueXpath = xpath.issueByName(issueName);
+        return await this.waitForElementNotDisplayed(issueXpath, appConst.TIMEOUT_2);
+    }
+    async waitForIssuePresent(issueName){
+        let issueXpath = xpath.issueByName(issueName);
+        return await this.waitForElementDisplayed(issueXpath, appConst.TIMEOUT_2);
+    }
 
     async isOpenButtonActive() {
         await this.waitForOpenButtonDisplayed();
@@ -245,6 +252,58 @@ class IssuesListDialog extends Page {
         await this.waitForOpenButtonDisplayed();
         let result = await this.getAttribute(this.closedButton, 'class');
         return result.includes('active');
+    }
+
+    async getNumberInClosedButton() {
+        try {
+            let buttonText = await this.getText(this.closedButton);
+            let startIndex = buttonText.indexOf('(');
+            if (startIndex == -1) {
+                return '0'
+            }
+            let endIndex = buttonText.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Closed button - incorrect text in the label, ')' was not found");
+            }
+            return buttonText.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Closed button: " + err);
+        }
+    }
+
+    async getNumberInOpenButton() {
+        try {
+            let buttonText = await this.getText(this.openButton);
+            let startIndex = buttonText.indexOf('(');
+            if (startIndex == -1) {
+                return '0';
+            }
+            let endIndex = buttonText.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Open button - incorrect text in the label, '}' was not found");
+            }
+            return buttonText.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Open button: " + err);
+        }
+    }
+
+    async getNumberInSelectedOption() {
+        try {
+            let selector = xpath.container + xpath.typeFilter + "//button/span"
+            let textInSelectedOption = await this.getText(selector);
+            let startIndex = textInSelectedOption.indexOf('(');
+            if (startIndex == -1) {
+                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '(' was not found");
+            }
+            let endIndex = textInSelectedOption.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '}' was not found");
+            }
+            return textInSelectedOption.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Selected option: " + err);
+        }
     }
 };
 module.exports = IssuesListDialog;

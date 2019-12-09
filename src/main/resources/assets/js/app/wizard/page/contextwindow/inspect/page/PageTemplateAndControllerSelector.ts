@@ -59,7 +59,7 @@ export class PageTemplateAndControllerSelector
 
     private initServerEventsListeners() {
         const eventsHandler = ContentServerEventsHandler.getInstance();
-        const updatedHandlerDebounced = api.util.AppHelper.debounce((summaries) => {
+        const updatedHandlerDebounced = api.util.AppHelper.debounce((summaries: ContentSummaryAndCompareStatus[]) => {
             const reloadNeeded =
                 summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel));
             if (reloadNeeded) {
@@ -68,7 +68,6 @@ export class PageTemplateAndControllerSelector
         }, 300);
 
         eventsHandler.onContentUpdated(updatedHandlerDebounced);
-        eventsHandler.onContentPermissionsUpdated(updatedHandlerDebounced);
 
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // Remove template from the list, if the corresponding content was deleted

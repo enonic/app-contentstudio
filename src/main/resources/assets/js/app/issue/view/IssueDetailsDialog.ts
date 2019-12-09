@@ -195,7 +195,7 @@ export class IssueDetailsDialog
     }
 
     private static createTabBar(name: string): TabBarItem {
-        const tab = new TabBarItemBuilder().setLabel(i18n(`field.${name}`)).build();
+        const tab = new TabBarItemBuilder().setLabel(i18n(`field.${name}`)).setAddLabelTitleAttribute(false).build();
         tab.addClass(`${name}-tab`);
         return tab;
     }
@@ -374,7 +374,7 @@ export class IssueDetailsDialog
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count));
+        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count), false, false);
     }
 
     private static makeLabelWithCounter(label: string, count: number = 0): string {

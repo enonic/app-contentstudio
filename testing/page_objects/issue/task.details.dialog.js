@@ -5,9 +5,9 @@ const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
-    closeIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Issue']]`,
+    closeTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Task']]`,
     closeRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Close Request')]]`,
-    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
+    reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
@@ -26,12 +26,12 @@ const XPATH = {
 
 class TaskDetailsDialog extends BaseDetailsDialog {
 
-    get closeIssueButton() {
-        return XPATH.container + XPATH.closeIssueButton;
+    get closeTaskButton() {
+        return XPATH.container + XPATH.closeTaskButton;
     }
 
-    get reopenIssueButton() {
-        return XPATH.container + XPATH.reopenIssueButton;
+    get reopenTaskButton() {
+        return XPATH.container + XPATH.reopenTaskButton;
     }
 
     get itemsTabBarItem() {
@@ -47,8 +47,8 @@ class TaskDetailsDialog extends BaseDetailsDialog {
 
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2).catch(err => {
-            this.saveScreenshot('err_close_is_det_dialog');
-            throw new Error('Issue Details Dialog must be closed! ' + err)
+            this.saveScreenshot('err_close_task_det_dialog');
+            throw new Error('Task Details Dialog must be closed! ' + err)
         })
     }
 
@@ -68,36 +68,36 @@ class TaskDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForReopenButtonLoaded() {
-        return this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Issue Details dialog `Reopen button` is not loaded ' + err)
+        return this.waitForElementDisplayed(XPATH.reopenTaskButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Task Details dialog `Reopen button` is not loaded ' + err)
         });
     }
 
     waitForCloseButtonLoaded() {
-        return this.waitForElementDisplayed(XPATH.closeIssueButton, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Issue Details dialog `Close button` is not loaded ' + err)
+        return this.waitForElementDisplayed(XPATH.closeTaskButton, appConst.TIMEOUT_2).catch(err => {
+            throw new Error('Task Details dialog `Close button` is not loaded ' + err)
         });
     }
 
-    async clickOnCloseIssueButton() {
+    async clickOnCloseTaskButton() {
         try {
-            await this.waitForElementDisplayed(this.closeIssueButton, appConst.TIMEOUT_3);
-            await this.clickOnElement(this.closeIssueButton);
+            await this.waitForElementDisplayed(this.closeTaskButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.closeTaskButton);
             //reopen Issue button should appear!
-            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
         } catch (err) {
-            this.saveScreenshot('err_click_close_issue_button');
-            throw  new Error('Error when clicking on the `Close Issue`  ' + err);
+            this.saveScreenshot('err_click_close_task_button');
+            throw  new Error('Error when clicking on the `Close Task`  ' + err);
         }
     }
 
-    async clickOnReopenIssueButton() {
-        await this.clickOnElement(this.reopenIssueButton);
-        await this.pause(400);
+    async clickOnReopenTaskButton() {
+        await this.clickOnElement(this.reopenTaskButton);
+        await this.pause(800);
     }
 
-    isCloseIssueButtonDisplayed() {
-        return this.isElementDisplayed(this.closeIssueButton);
+    isCloseTaskButtonDisplayed() {
+        return this.isElementDisplayed(this.closeTaskButton);
     }
 
     async getIssueTitle() {
@@ -120,7 +120,7 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
             return result.includes('active');
         }).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
+            throw  new Error('Task Details Dialog  ' + err);
         })
     }
 
@@ -129,7 +129,7 @@ class TaskDetailsDialog extends BaseDetailsDialog {
             return this.clickOnElement(this.itemsTabBarItem);
         }).catch(err => {
             this.saveScreenshot('err_click_on_items_tabbar_item');
-            throw new Error('Issue Details Dialog:error when click on Items tab bar item: ' + err)
+            throw new Error('Task Details Dialog: error when clicking on Items tab bar item: ' + err)
         }).then(() => {
             return this.pause(500);
         });

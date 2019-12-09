@@ -113,11 +113,11 @@ class CreateTaskDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
     }
 
     isWarningMessageDisplayed() {

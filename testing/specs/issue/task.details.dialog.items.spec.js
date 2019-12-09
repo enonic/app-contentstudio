@@ -15,7 +15,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 describe('task.details.dialog.items.spec: open task details dialog and check control elements', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-    let issueTitle = appConstant.generateRandomName('task');
+    let TASK_TITLE = appConstant.generateRandomName('task');
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`,
         async () => {
@@ -28,7 +28,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. open 'Create Task' dialog:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
-            await createTaskDialog.typeTitle(issueTitle);
+            await createTaskDialog.typeTitle(TASK_TITLE);
             //3. Click on 'Create Task' button(new task is created):
             await createTaskDialog.clickOnCreateTaskButton();
             //4. Task Details dialog should be loaded:
@@ -37,7 +37,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             assert.equal(result, '1', '1 should be present in the `Items` tab link');
         });
 
-    it(`GIVEN Task Details Dialog is opened WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button and Content Combobox should be displayed`,
+    it(`GIVEN Task Details Dialog is opened WHEN Items-tab has been clicked THEN 'Publish...' button and Content Combobox should be displayed`,
         async () => {
             let taskDetailsDialog = new TaskDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -45,7 +45,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             //1. Open Issue List dialog:
             await studioUtils.openIssuesListDialog();
             //2. Click on the task and open Task Details dialog:
-            await issueListDialog.clickOnIssue(issueTitle);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //3. Click on 'Items' tab bar item:
             await taskDetailsDialog.clickOnItemsTabBarItem();
@@ -65,7 +65,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             //1. Click on the task and open Task Details dialog:
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(issueTitle);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Click on Items tab bar item
             await taskDetailsDialog.clickOnItemsTabBarItem();
@@ -79,14 +79,14 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             assert.equal(numberInShowDepItemsLink, '12', "Expected number should be present in the 'Show Dependent Items'-link")
         });
 
-    it(`GIVEN existing issue (child items were included) WHEN issue details is opened THEN 'Show dependent items' link should be present`,
+    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'Show dependent items' link should be present`,
         async () => {
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             let taskDetailsDialog = new TaskDetailsDialog();
             let issueListDialog = new IssueListDialog();
             //1. Open Task Details dialog:
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(issueTitle);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Click on Items tab
             await taskDetailsDialog.clickOnItemsTabBarItem();
@@ -96,14 +96,14 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             assert.equal(result, '13', 'Expected number of items should be displayed');
         });
 
-    it(`GIVEN existing issue (child items were included) WHEN issue details is opened  AND 'Show Dependent items' link has been clicked THEN 'hide dependent items' link should appear`,
+    it(`GIVEN existing task (child items were included) WHEN task details is opened  AND 'Show Dependent items' link has been clicked THEN 'hide dependent items' link should appear`,
         async () => {
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             let taskDetailsDialog = new TaskDetailsDialog();
             let issueListDialog = new IssueListDialog();
             //1. Open task details dialog(dependent items are included)
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(issueTitle);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Go to 'Items' tab:
             await taskDetailsDialog.clickOnItemsTabBarItem();
@@ -113,14 +113,14 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             await taskDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
         });
 
-    it(`GIVEN existing issue (child items are included) WHEN issue details is opened  AND 'Exclude child items' icon has been clicked THEN number of items to publish should be decreased `,
+    it(`GIVEN existing task (child items are included) WHEN task details is opened  AND 'Exclude child items' icon has been clicked THEN number of items to publish should be decreased `,
         async () => {
             let taskDetailsDialog = new TaskDetailsDialog();
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             let issueListDialog = new IssueListDialog();
             //1. Open Task Details dialog:
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnIssue(issueTitle);
+            await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Go to 'Items' tab:
             await taskDetailsDialog.clickOnItemsTabBarItem();

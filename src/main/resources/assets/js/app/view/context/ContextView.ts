@@ -23,6 +23,8 @@ import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
+import {ContextPanel} from './ContextPanel';
+import {ContentIds} from '../../ContentIds';
 import Widget = api.content.Widget;
 import ApplicationEvent = api.application.ApplicationEvent;
 import ApplicationEventType = api.application.ApplicationEventType;
@@ -30,6 +32,7 @@ import AppHelper = api.util.AppHelper;
 import i18n = api.util.i18n;
 import LoadMask = api.ui.mask.LoadMask;
 import DivEl = api.dom.DivEl;
+import ContentId = api.content.ContentId;
 
 export class ContextView
     extends DivEl {
@@ -122,16 +125,15 @@ export class ContextView
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        contentServerEventsHandler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
-            const itemSelected = this.item != null;
-            const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-            const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentIds) => {
+            const itemSelected: boolean = this.item != null;
+            const activeContextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
+            const activeWidgetVisible: boolean = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
-                const selectedItemPermissionsUpdated = data.some((content: ContentSummaryAndCompareStatus) => {
-                    return this.item.getId() === content.getId();
-                });
-                if (selectedItemPermissionsUpdated) {
+                const selectedItemContentId: ContentId = this.item.getContentId();
+                const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
+                if (isSelectedItemPermissionsUpdated) {
                     this.updateActiveWidget();
                 }
             }

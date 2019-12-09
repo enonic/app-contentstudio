@@ -14,6 +14,8 @@ import {Site} from '../../../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../../../content/ContentQuery';
 import {PageMode} from '../../../../page/PageMode';
+import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentIds} from '../../../../ContentIds';
 import ContentSummary = api.content.ContentSummary;
 import PageDescriptor = api.content.page.PageDescriptor;
 import ContentTypeName = api.schema.content.ContentTypeName;
@@ -55,6 +57,20 @@ export class PageTemplateWidgetItemView
 
     private initListeners() {
 
+        const onContentPermissionsUpdated = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(this.content.getContentId())
+                .then(this.setContentAndUpdateView.bind(this))
+                .catch(api.DefaultErrorHandler.handle);
+
+        };
+
         const onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
             const thisContentId = this.content.getId();
 
@@ -67,7 +83,6 @@ export class PageTemplateWidgetItemView
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
                 this.loadPageTemplate().then(() => this.layout());
             }
-
         };
 
         const onContentDeleted = (deletedPaths: ContentServerChangeItem[]) => {
@@ -88,7 +103,7 @@ export class PageTemplateWidgetItemView
         const serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
-        serverEvents.onContentPermissionsUpdated(onContentUpdated);
+        serverEvents.onContentPermissionsUpdated(onContentPermissionsUpdated);
         serverEvents.onContentDeleted(onContentDeleted);
     }
 
