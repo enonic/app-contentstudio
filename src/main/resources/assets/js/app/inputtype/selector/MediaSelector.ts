@@ -76,19 +76,7 @@ export class MediaSelector
     }
 
     protected createUploader(): Q.Promise<MediaUploaderEl> {
-        let multiSelection = (this.getInput().getOccurrences().getMaximum() !== 1);
-
-        const config: MediaUploaderElConfig = {
-            params: {
-                parent: this.config.content.getContentId().toString()
-            },
-            operation: MediaUploaderElOperation.create,
-            name: 'media-selector-upload-el',
-            showCancel: false,
-            showResult: false,
-            maximumOccurrences: this.getRemainingOccurrences(),
-            allowMultiSelection: multiSelection
-        };
+        const config: MediaUploaderElConfig = this.createUploaderConfig();
 
         if (this.allowedContentTypes.length > 0) {
             return new GetMimeTypesByContentTypeNamesRequest(
@@ -103,12 +91,23 @@ export class MediaSelector
         }
     }
 
+    protected createUploaderConfig(): MediaUploaderElConfig {
+        const isMultiSelection: boolean = (this.getInput().getOccurrences().getMaximum() !== 1);
+
+        return {
+            params: {
+                parent: this.config.content.getContentId().toString()
+            },
+            operation: MediaUploaderElOperation.create,
+            name: 'media-selector-upload-el',
+            showCancel: false,
+            showResult: false,
+            getTotalAllowedToUpload: this.getRemainingOccurrences.bind(this),
+            allowMultiSelection: isMultiSelection
+        };
+    }
+
     protected doInitUploader(uploader: MediaUploaderEl): MediaUploaderEl {
-
-        uploader.onUploadProgress(() => {
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
-        });
-
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const createdContent = event.getUploadItem().getModel();
 
@@ -123,15 +122,9 @@ export class MediaSelector
 
             this.setContentIdProperty(createdContent.getContentId());
             this.validate(false);
-
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
         });
 
         this.initFailedListener(uploader);
-
-        uploader.onClicked(() => {
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
-        });
 
         this.onDragEnter((event: DragEvent) => {
             event.stopPropagation();
@@ -145,7 +138,6 @@ export class MediaSelector
         });
 
         uploader.onDropzoneDrop(() => {
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
             uploader.setDefaultDropzoneVisible(false);
         });
 
@@ -179,8 +171,6 @@ export class MediaSelector
             if (!!selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
-
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
         });
     }
 

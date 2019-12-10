@@ -7,7 +7,6 @@ import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {FileUploader} from './FileUploader';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
-import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
@@ -85,15 +84,14 @@ export class AttachmentUploader
             params: {
                 id: this.getContext().content.getContentId().toString()
             },
-            operation: MediaUploaderElOperation.update,
             name: this.getContext().input.getName(),
             showCancel: false,
             allowMultiSelection: this.getInput().getOccurrences().getMaximum() !== 1,
             hideDefaultDropZone: !!(<any>(this.config.inputConfig)).hideDropZone,
             deferred: true,
-            maximumOccurrences: this.getInput().getOccurrences().getMaximum(),
             attachmentRemoveCallback: this.removeItemCallback.bind(this),
             attachmentAddCallback: this.addItemCallback.bind(this),
+            getTotalAllowedToUpload: this.getTotalAllowedToUpload.bind(this),
             hasUploadButton: false
         });
     }
@@ -123,9 +121,16 @@ export class AttachmentUploader
     }
 
     private updateOccurrences() {
-        this.uploadButton.setVisible(!(<AttachmentUploaderEl>this.uploaderEl).maximumOccurrencesReached());
+        this.uploadButton.setVisible(this.isUploadAllowed());
     }
 
+    private isUploadAllowed(): boolean {
+        return this.getTotalAllowedToUpload() > 0;
+    }
+
+    private getTotalAllowedToUpload(): number {
+        return this.getInput().getOccurrences().getMaximum() - (<AttachmentUploaderEl>this.uploaderEl).getTotalItems();
+    }
 }
 
 InputTypeManager.register(new Class('AttachmentUploader', AttachmentUploader));

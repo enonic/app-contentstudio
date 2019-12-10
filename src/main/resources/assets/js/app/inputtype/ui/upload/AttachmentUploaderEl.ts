@@ -7,6 +7,14 @@ import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
+export interface AttachmentUploaderElConfig
+    extends api.ui.uploader.UploaderElConfig {
+
+    attachmentAddCallback?: (value: string) => void;
+
+    attachmentRemoveCallback?: (value: any) => void;
+}
+
 export class AttachmentUploaderEl
     extends FileUploaderEl<Attachment> {
 
@@ -15,7 +23,7 @@ export class AttachmentUploaderEl
     private removeCallback: (value: string) => void;
     private addCallback: (value: string) => void;
 
-    constructor(config: any) {
+    constructor(config: AttachmentUploaderElConfig) {
 
         if (config.url == null) {
             config.url = UriHelper.getRestUri('content/createAttachment');
@@ -83,10 +91,7 @@ export class AttachmentUploaderEl
         return attachmentItem;
     }
 
-    maximumOccurrencesReached(): boolean {
-        if (this.config.maximumOccurrences) {
-            return this.attachmentItems.length >= this.config.maximumOccurrences;
-        }
-        return false;
+    getTotalItems(): number {
+        return this.attachmentItems.length;
     }
 }

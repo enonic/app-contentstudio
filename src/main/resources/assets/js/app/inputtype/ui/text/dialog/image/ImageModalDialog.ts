@@ -457,7 +457,6 @@ export class ImageModalDialog
             operation: MediaUploaderElOperation.create,
             name: 'image-selector-upload-dialog',
             showResult: false,
-            maximumOccurrences: 1,
             allowMultiSelection: false,
             deferred: true,
             showCancel: false,
