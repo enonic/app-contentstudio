@@ -25,6 +25,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {IssueType} from '../IssueType';
 import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
 import {IssueComment} from '../IssueComment';
+import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import AEl = api.dom.AEl;
 import DialogButton = api.ui.dialog.DialogButton;
 import TaskState = api.task.TaskState;
@@ -832,6 +833,20 @@ export class IssueDetailsDialog
                 message
             }).fire();
 
+            const publishDialog = ContentPublishDialog.get();
+            const closedListener = () => {
+                publishDialog.unProgressComplete(progressCompleteListener);
+                publishDialog.unClosed(closedListener);
+            };
+            const progressCompleteListener = (taskState: TaskState) => {
+                if (taskState === TaskState.FINISHED) {
+                    this.doUpdateIssueAfterPublish(this.issue);
+                }
+            };
+
+            publishDialog.onProgressComplete(progressCompleteListener);
+            publishDialog.onClosed(closedListener);
+
         }
     }
 
@@ -845,18 +860,7 @@ export class IssueDetailsDialog
                 this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
-                        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
-
-                        this.populateSchedule(request).sendAndParse()
-                            .then((updatedIssue: Issue) => {
-                                this.setIssue(updatedIssue);
-                                this.notifyIssueUpdated(updatedIssue);
-                                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
-                                api.notify.showFeedback(i18n(messageKey, updatedIssue.getTitle()));
-                            }).catch(() => {
-                            const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
-                            api.notify.showError(i18n(messageKey, issue.getTitle()));
-                        }).finally(() => {
+                        this.doUpdateIssueAfterPublish(issue).finally(() => {
                             this.unProgressComplete(issuePublishedHandler);
                         });
                     }
@@ -870,6 +874,21 @@ export class IssueDetailsDialog
                     api.notify.showError(reason.message);
                     throw reason.message;
                 }
+            });
+    }
+
+    private doUpdateIssueAfterPublish(issue: Issue): wemQ.Promise<void> {
+        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
+
+        return this.populateSchedule(request).sendAndParse()
+            .then((updatedIssue: Issue) => {
+                this.setIssue(updatedIssue);
+                this.notifyIssueUpdated(updatedIssue);
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
+                api.notify.showFeedback(i18n(messageKey, updatedIssue.getTitle()));
+            }).catch(() => {
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
+                api.notify.showError(i18n(messageKey, issue.getTitle()));
             });
     }
 
