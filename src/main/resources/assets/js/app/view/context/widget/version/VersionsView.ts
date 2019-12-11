@@ -165,7 +165,7 @@ export class VersionsView
             .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
             .addClass('compare icon-compare icon-medium transparent');
 
-        descriptionDiv.appendChild(compareButton);
+        //descriptionDiv.appendChild(compareButton);
 
         return descriptionDiv;
     }
