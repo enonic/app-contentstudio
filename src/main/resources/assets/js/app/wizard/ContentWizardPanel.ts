@@ -1620,7 +1620,7 @@ export class ContentWizardPanel
 
         this.wizardActions.getShowLiveEditAction().setEnabled(editorEnabled);
         this.wizardActions.getShowSplitEditAction().setEnabled(editorEnabled);
-        this.wizardActions.getPreviewAction().setVisible(editorEnabled);
+        this.wizardActions.getPreviewAction().setVisible(editorEnabled && this.liveEditModel.hasControllerOrDefaultTemplate());
 
         this.getCycleViewModeButton().setVisible(editorEnabled);
 
