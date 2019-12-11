@@ -3,8 +3,6 @@ import * as $ from 'jquery';
 import 'promise-polyfill/src/polyfill';
 import 'whatwg-fetch';
 import 'mutation-observer';
-// End of Polyfills
-
 import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -56,9 +54,11 @@ import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {AppWrapper} from './app/AppWrapper';
+import {ContentAppBar} from './app/bar/ContentAppBar';
+// End of Polyfills
 
 declare const CONFIG;
 
@@ -454,8 +454,8 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
 function startContentApplication(application: Application) {
 
     import('./app/ContentAppPanel').then(cdef => {
-
-        const appBar = new AppBar(application);
+        const commonWrapper = new AppWrapper();
+        const appBar = new ContentAppBar(application);
 
         const appPanel = new cdef.ContentAppPanel(application.getPath());
         const buttonWrapper = new DivEl('show-issues-button-wrapper');
@@ -468,8 +468,9 @@ function startContentApplication(application: Application) {
         const clientEventsListener = new ContentEventsListener();
         clientEventsListener.start();
 
-        appBar.onAdded(() => body.appendChild(appPanel));
-        body.appendChild(appBar);
+        commonWrapper.appendToMain(appBar);
+        appBar.onAdded(() => commonWrapper.appendToMain(appPanel));
+        body.appendChild(commonWrapper);
 
         import('./app/create/NewContentDialog').then(def => {
 
