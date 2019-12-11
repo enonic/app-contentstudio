@@ -82,6 +82,13 @@ export class LiveEditModel {
         return hasApplications || hasController || hasDefaultPageTemplate;
     }
 
+    hasControllerOrDefaultTemplate(): boolean {
+        const hasController: boolean = this.pageModel.hasController();
+        const hasDefaultPageTemplate: boolean = this.pageModel.hasDefaultPageTemplate();
+
+        return hasController || hasDefaultPageTemplate;
+    }
+
     isFragmentAllowed(): boolean {
         if (this.content.getType().isFragment()) {
             return false;
