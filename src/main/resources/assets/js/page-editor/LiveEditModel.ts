@@ -75,11 +75,9 @@ export class LiveEditModel {
     }
 
     isRenderableContent(): boolean {
-        const hasController: boolean = this.pageModel.hasController();
-        const hasDefaultPageTemplate: boolean = this.pageModel.hasDefaultPageTemplate();
         const hasApplications: boolean = this.siteModel.getApplicationKeys().length > 0;
 
-        return hasApplications || hasController || hasDefaultPageTemplate;
+        return hasApplications || this.hasControllerOrDefaultTemplate();
     }
 
     hasControllerOrDefaultTemplate(): boolean {
