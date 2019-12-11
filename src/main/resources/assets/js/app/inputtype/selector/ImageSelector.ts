@@ -20,7 +20,6 @@ import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelecto
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {Content} from '../../content/Content';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
@@ -158,19 +157,7 @@ export class ImageSelector
     }
 
     protected createUploader(): Q.Promise<ImageUploaderEl> {
-        let multiSelection = (this.getInput().getOccurrences().getMaximum() !== 1);
-
-        const uploader = new ImageUploaderEl({
-            params: {
-                parent: this.config.content.getContentId().toString()
-            },
-            operation: MediaUploaderElOperation.create,
-            name: 'image-selector-upload-dialog',
-            showCancel: false,
-            showResult: false,
-            maximumOccurrences: this.getRemainingOccurrences(),
-            allowMultiSelection: multiSelection
-        });
+        const uploader: ImageUploaderEl = new ImageUploaderEl(this.createUploaderConfig());
 
         this.doInitUploader(uploader);
 
@@ -210,8 +197,6 @@ export class ImageSelector
             if (!!selectedOption) {
                 this.getSelectedOptionsView().removeSelectedOptions([selectedOption]);
             }
-
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
         });
     }
 

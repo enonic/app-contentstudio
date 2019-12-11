@@ -415,7 +415,6 @@ export class LinkModalDialog
             name: 'media-selector-upload-el',
             showCancel: false,
             showResult: false,
-            maximumOccurrences: 1,
             allowMultiSelection: false
         });
 
