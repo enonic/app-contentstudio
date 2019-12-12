@@ -47,6 +47,10 @@
             background-color: @admin-button-blue2;
           }
         }
+
+        span {
+          display: none;
+        }
       }
 
     }
@@ -193,6 +197,40 @@
           transform: rotate3d(0, 0, 1, -45deg);
         }
       }
+    }
+  }
+
+  @media screen and (max-width: 540px) {
+    .sidebar {
+      width: 320px;
+      padding-top: 0px;
+
+      .app-name-wrapper {
+        padding: 2px 50px;
+
+        .app-name {
+          writing-mode: lr;
+          padding-left: 0px;
+        }
+      }
+
+      .actions-block {
+        button {
+          justify-content: flex-start;
+
+          span {
+            display: block;
+          }
+
+          &:before {
+            padding: 0px 15px;
+          }
+        }
+      }
+    }
+
+    &.sidebar-expanded .main {
+      left: 320px;
     }
   }
 }

@@ -5,7 +5,7 @@ import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Application} from 'lib-admin-ui/app/Application';
 import {AEl} from 'lib-admin-ui/dom/AEl';
-import {i18n} from '../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/util/Messages';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class AppWrapper
     extends DivEl {
@@ -104,13 +104,10 @@ class ActionsBlock
     }
 
     private initElements() {
-        this.contentItem = new ActionItem();
-        this.contentItem
-            .setIconClass('icon-version-modified selected')
-            .setUrl('/admin/tool/com.enonic.app.contentstudio/main')
-            .setTitle(i18n('app.content'));
-        this.settingsItem = new ActionItem();
-        this.settingsItem.setIconClass('icon-cog').setUrl('').setTitle(i18n('app.settings'));
+        this.contentItem = new ActionItem(i18n('app.content'));
+        this.contentItem.setIconClass('icon-version-modified selected').setUrl('/admin/tool/com.enonic.app.contentstudio/main');
+        this.settingsItem = new ActionItem(i18n('app.settings'));
+        this.settingsItem.setIconClass('icon-cog').setUrl('');
     }
 
     doRender(): Q.Promise<boolean> {
@@ -127,10 +124,11 @@ export class ActionItem
 
     private button: Button;
 
-    constructor() {
+    constructor(name: string) {
         super('action-item');
 
-        this.button = new Button();
+        this.button = new Button(name);
+        this.button.setTitle(name);
     }
 
     setIconClass(value: string): ActionItem {
