@@ -91,9 +91,10 @@ class ContentItemPreviewPanel extends Page {
 
     async clickOnIssueMenuButton() {
         try {
-            let selector = xpath.toolbar + xpath.issueMenuButton + "//button";
-            await this.waitForElementDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3);
-            return await this.clickOnElement(xpath.toolbar + xpath.issueMenuButton);
+            let selector = xpath.toolbar + xpath.issueMenuButton;
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            await this.clickOnElement(selector);
+            return await this.pause(400);
         } catch (err) {
             throw new Error('issue menu button was not found!  ' + err);
         }

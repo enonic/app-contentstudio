@@ -26,10 +26,16 @@ module.exports = Object.freeze({
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
     },
+    publishRequestClosedMessage: function (name) {
+        return `Publish request \"${name}\" is closed`;
+    },
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
+    REQUEST_CREATED_MESSAGE:'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
+    PUBLISH_REQUEST_CLOSED_MESSAGE:'The publish request is Closed.',
+    PUBLISH_REQUEST_OPEN_MESSAGE:'The publish request is Open.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,

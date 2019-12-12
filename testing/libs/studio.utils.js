@@ -19,6 +19,7 @@ const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
+const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -129,6 +130,20 @@ module.exports = {
             return await createTaskDialog.waitForDialogLoaded();
         } catch (err) {
             throw new Error("Error when opening Create Task Dialog " + err);
+        }
+    },
+    async createPublishRequest(text) {
+        try {
+            let browsePanel = new BrowsePanel();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.waitForDialogLoaded();
+            await createRequestPublishDialog.pause(300);
+            await createRequestPublishDialog.clickOnNextButton();
+            await createRequestPublishDialog.typeInChangesInput(text);
+            return await createRequestPublishDialog.clickOnCreateRequestButton();
+        } catch (err) {
+            throw new Error("Error when create Publish Request " + err);
         }
     },
     async openPublishMenuAndClickOnCreateTask() {
