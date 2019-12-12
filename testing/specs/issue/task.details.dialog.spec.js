@@ -28,7 +28,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await createTaskDialog.typeTitle(TASK_TITLE);
             await createTaskDialog.clickOnCreateTaskButton();
             let message = await createTaskDialog.waitForNotificationMessage();
-            assert.equal(message, 'New issue created successfully.', 'expected notification message should appear');
+            assert.equal(message, 'New task created successfully.', 'expected notification message should appear');
         });
 
     it(`GIVEN issues list dialog is opened WHEN existing task has been clicked THEN Task Details dialog should be loaded`,

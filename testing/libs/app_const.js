@@ -41,7 +41,7 @@ module.exports = Object.freeze({
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
-    YOUR_COMMENT_ADDED: 'Your comment is added to issue.',
+    YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,

@@ -64,11 +64,10 @@ describe('Wizard toolbar - shortcut spec`', function () {
 
     it(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`, async () => {
         let contentWizard = new ContentWizard();
-        let settingsStepForm = new SettingsStepForm();
         let contentBrowsePanel = new ContentBrowsePanel();
         await studioUtils.selectAndOpenContentInWizard(displayName);
         await contentWizard.hotKeyCloseWizard();
-        let result = await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
+        await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
     });
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Enter' have been pressed THEN the content should be should be saved then closed AND grid is loaded`,
