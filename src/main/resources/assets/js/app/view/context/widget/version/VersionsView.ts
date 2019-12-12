@@ -132,7 +132,9 @@ export class VersionsView
         const dateTimeStamp = item.publishInfo ? item.publishInfo.timestamp : item.modified;
         const userName = item.publishInfo ? item.publishInfo.publisherDisplayName : item.modifierDisplayName;
         const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
-        const tooltipText = i18n('tooltip.state.published', dateAsString, userName);
+        const toolTipKey = item.publishInfo ? 'tooltip.state.published' :
+                                (item.isStateReady() ? 'tooltip.state.markedAsReady' : 'tooltip.state.modified');
+        const tooltipText = i18n(toolTipKey, dateAsString, userName);
 
         return new api.ui.Tooltip(itemEl, tooltipText, 1000);
     }
@@ -184,9 +186,7 @@ export class VersionsView
             publisher
                 .setMainName(item.publishInfo.publisherDisplayName)
                 .setSubName(api.util.DateHelper.getModifiedString(item.publishInfo.timestamp))
-                .setIconClass(item.workflowInfo && WorkflowState.READY === item.workflowInfo.getState()
-                              ? 'icon-state-ready'
-                              : 'icon-state-in-progress');
+                .setIconClass(item.isStateReady() ? 'icon-state-ready' : 'icon-state-in-progress');
 
             versionInfoDiv.appendChild(publisher);
 

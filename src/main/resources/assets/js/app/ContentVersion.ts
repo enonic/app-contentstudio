@@ -1,6 +1,7 @@
 import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import Workflow = api.content.Workflow;
+import WorkflowState = api.content.WorkflowState;
 
 export class ContentVersion {
 
@@ -37,5 +38,9 @@ export class ContentVersion {
         contentVersion.workflowInfo = Workflow.fromJson(contentVersionJson.workflow);
 
         return contentVersion;
+    }
+
+    isStateReady(): boolean {
+        return this.workflowInfo && WorkflowState.READY === this.workflowInfo.getState();
     }
 }
