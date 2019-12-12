@@ -6,9 +6,10 @@ import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 
 export interface AttachmentUploaderElConfig
-    extends api.ui.uploader.UploaderElConfig {
+    extends UploaderElConfig {
 
     attachmentAddCallback?: (value: string) => void;
 
