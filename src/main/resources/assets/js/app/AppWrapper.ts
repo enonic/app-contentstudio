@@ -67,7 +67,7 @@ export class AppWrapper
         const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
         const appName: SpanEl = new SpanEl('app-name');
         appName.setHtml(this.application.getName());
-        appNameWrapper.appendChild(appName)
+        appNameWrapper.appendChild(appName);
 
         return appNameWrapper;
     }
