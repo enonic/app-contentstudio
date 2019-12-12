@@ -21,6 +21,10 @@ Licenses used by Content Studio for Enonic XP (full license texts are provided a
     MIT License
     https://github.com/github/fetch/blob/master/LICENSE
 
+    JMustache
+    Michael Bayne personal license
+    https://github.com/samskivert/jmustache/blob/master/LICENSE
+
 ---------------------------------------------------------------------------
 
 LICENSE TEXTS
