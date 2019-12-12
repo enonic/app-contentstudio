@@ -90,7 +90,6 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.waitForPreviousButtonDisplayed();
         });
 
-
     it(`GIVEN the second page in 'Request Publishing' wizard is opened WHEN 'Previous' button has been pressed THEN first wizard page should be loaded`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();

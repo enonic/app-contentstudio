@@ -69,7 +69,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             });
         });
 
-    it(`GIVEN Task Details dialog is opened WHEN comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
+    it(`GIVEN Task Details dialog is opened WHEN new comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
         () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -109,7 +109,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             assert.isTrue(result, 'Comment with the name should be present ');
         });
 
-    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been changed THEN updated comment should be present in the comments-list`,
+    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened AND the comment has been changed THEN updated comment should be present in the comments-list`,
         () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -127,12 +127,12 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             }).then(() => {
                 return commentsTab.isCommentPresent(newText);
             }).then(result => {
-                studioUtils.saveScreenshot("issue_comment_updated");
+                studioUtils.saveScreenshot("task_comment_updated");
                 assert.isTrue(result, 'Comment with the new text should be present ');
             })
         });
 
-    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened  AND the comment has been deleted THEN the comment should not be present in the comments-list`,
+    it(`GIVEN existing task with a comment WHEN Task Details dialog is opened AND the comment has been deleted THEN the comment should not be present in the comments-list`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -149,7 +149,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await confirmationDialog.clickOnYesButton();
 
             let result = await commentsTab.isCommentPresent(newText);
-            studioUtils.saveScreenshot("issue_comment_deleted");
+            studioUtils.saveScreenshot("task_comment_deleted");
             assert.isFalse(result, 'Comment with the text should be deleted');
         });
 

@@ -1,4 +1,4 @@
-const BaseDetailsDialog= require('./base.details.dialog')
+const BaseDetailsDialog = require('./base.details.dialog')
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
@@ -12,6 +12,8 @@ const xpath = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
+    closeRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Close Request')]]`,
+    reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     selectionItemByDisplayName:
@@ -34,6 +36,14 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     get publishNowButton() {
         return xpath.container + xpath.buttonRow + xpath.publishNowButton;
+    }
+
+    get closeRequestButton() {
+        return xpath.container + xpath.buttonRow + xpath.closeRequestButton;
+    }
+
+    get reopenRequestButton() {
+        return xpath.container + xpath.buttonRow + xpath.reopenRequestButton;
     }
 
     get addScheduleButton() {
@@ -63,7 +73,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
             await this.waitForElementDisplayed(selector, appConst.TIMEOUT_1);
             await this.clickOnElement(selector);
-
             return this.pause(1000);
         } catch (err) {
             this.saveScreenshot('err_click_on_include_children');
@@ -84,20 +93,24 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    isPublishButtonDisplayed() {
+    isPublishNowButtonDisplayed() {
         return this.isElementDisplayed(this.publishNowButton);
     }
 
-    isPublishNowButtonEnabled() {
-        return this.isElementEnabled(this.publishNowButton);
+    waitForPublishNowButtonEnabled() {
+        return this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_3);
     }
 
     waitForPublishNowButtonDisabled() {
         return this.waitForElementDisabled(this.publishNowButton, appConst.TIMEOUT_4);
     }
 
+    waitForCloseRequestButtonDisplayed() {
+        return this.waitForElementDisplayed(this.closeRequestButton, appConst.TIMEOUT_2);
+    }
+
     waitContentOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentOptionsFilterInput,appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.TIMEOUT_2).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
         })
     }
@@ -205,6 +218,47 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
             throw new Error('`Request Publish dialog` Error when clicking Add Schedule button  ' + err);
+        }
+    }
+
+    async clickOnCloseRequestButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeRequestButton, appConst.TIMEOUT_1);
+            await this.clickOnElement(this.closeRequestButton);
+            return this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_click_on_close_request');
+            throw new Error('Error when clicking on Close Request ' + err);
+        }
+    }
+
+    async clickOnReopenRequestButton() {
+        try {
+            await this.waitForElementDisplayed(this.reopenRequestButton, appConst.TIMEOUT_1);
+            await this.clickOnElement(this.reopenRequestButton);
+            return this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_click_on_reopen_request');
+            throw new Error('Error when clicking on Reopen Request ' + err);
+        }
+    }
+
+    async clickOnPublishNowButton() {
+        try {
+            await this.waitForPublishNowButtonEnabled();
+            await this.clickOnElement(this.publishNowButton);
+            return this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_click_on_publish_request_now');
+            throw new Error('Error when clicking on Publish Now (Request) ' + err);
+        }
+    }
+
+    async waitForClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Request Details dialog should be closed: " + err);
         }
     }
 };
