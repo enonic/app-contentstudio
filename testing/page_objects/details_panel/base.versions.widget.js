@@ -7,7 +7,7 @@ class BaseVersionsWidget extends Page {
 
     //click on a version and expand the content-version-item
     clickAndExpandVersion(index) {
-        return this.waitForElementDisplayed(this.versionItems).then(() => {
+        return this.waitForElementDisplayed(this.versionItems,2000).then(() => {
             return this.findElements(this.versionItems);
         }).then(items => {
             return this.getBrowser().elementClick(items[index].elementId);

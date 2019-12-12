@@ -142,7 +142,7 @@ class EditPermissionsDialog extends Page {
         });
     }
 
-    clickOnOverwiteChildPermissionsCheckBox() {
+    clickOnOverwriteChildPermissionsCheckBox() {
         return this.clickOnElement(this.overwriteChildPermissionsCheckbox + '/label').catch(err => {
             this.saveScreenshot('err_click_on_inherit_permis_dialog');
             throw new Error('Error when clicking on Inherit permissions ' + err);
