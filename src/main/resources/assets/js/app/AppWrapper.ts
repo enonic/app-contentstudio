@@ -3,6 +3,9 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {Application} from 'lib-admin-ui/app/Application';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {i18n} from '../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/util/Messages';
 
 export class AppWrapper
     extends DivEl {
@@ -13,8 +16,14 @@ export class AppWrapper
 
     private toggleIcon: Button;
 
-    constructor() {
+    private application: Application;
+
+    private actionsBlock: ActionsBlock;
+
+    constructor(application: Application) {
         super('main-app-wrapper');
+
+        this.application = application;
 
         this.initElements();
         this.initListeners();
@@ -24,6 +33,7 @@ export class AppWrapper
         this.sidebar = new DivEl('sidebar');
         this.mainPanel = new DivEl('main');
         this.toggleIcon = new ToggleIcon();
+        this.actionsBlock = new ActionsBlock();
     }
 
     private initListeners() {
@@ -31,6 +41,7 @@ export class AppWrapper
     }
 
     private toggleState() {
+        this.sidebar.show();
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleIcon.toggleClass('toggled', !isSidebarVisible);
@@ -42,6 +53,9 @@ export class AppWrapper
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.sidebar.hide();
+            this.sidebar.appendChild(this.createAppNameBlock());
+            this.sidebar.appendChildren(this.actionsBlock);
             this.toggleIcon.addClass('launcher-button');
             this.appendChildren(this.toggleIcon, this.sidebar, this.mainPanel);
 
@@ -49,6 +63,14 @@ export class AppWrapper
         });
     }
 
+    private createAppNameBlock(): Element {
+        const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
+        const appName: SpanEl = new SpanEl('app-name');
+        appName.setHtml(this.application.getName());
+        appNameWrapper.appendChild(appName)
+
+        return appNameWrapper;
+    }
 }
 
 class ToggleIcon
@@ -59,9 +81,67 @@ class ToggleIcon
     }
 
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
+        return super.doRender().then((rendered: boolean) => {
             const lines: SpanEl = new SpanEl('lines');
             this.appendChild(lines);
+
+            return rendered;
+        });
+    }
+}
+
+class ActionsBlock
+    extends DivEl {
+
+    private contentItem: ActionItem;
+
+    private settingsItem: ActionItem;
+
+    constructor() {
+        super('actions-block');
+
+        this.initElements();
+    }
+
+    private initElements() {
+        this.contentItem = new ActionItem();
+        this.contentItem
+            .setIconClass('icon-version-modified selected')
+            .setUrl('/admin/tool/com.enonic.app.contentstudio/main')
+            .setTitle(i18n('app.content'));
+        this.settingsItem = new ActionItem();
+        this.settingsItem.setIconClass('icon-cog').setUrl('').setTitle(i18n('app.settings'));
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren(this.contentItem, this.settingsItem);
+
+            return rendered;
+        });
+    }
+}
+
+export class ActionItem
+    extends AEl {
+
+    private button: Button;
+
+    constructor() {
+        super('action-item');
+
+        this.button = new Button();
+    }
+
+    setIconClass(value: string): ActionItem {
+        this.button.addClass(value);
+
+        return this;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChild(this.button);
 
             return rendered;
         });

@@ -1,12 +1,55 @@
 .main-app-wrapper {
 
   .sidebar {
+    padding-top: 44px;
     background-color: black;
     width: 55px;
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
+    color: @admin-white;
+
+    .app-name-wrapper {
+      padding: 20px 0px;
+
+      .app-name {
+        white-space: nowrap;
+        display: inline-block;
+        font-size: 16px;
+        text-transform: uppercase;
+        line-height: 44px;
+        writing-mode: vertical-lr;
+        padding-left: 4px;
+      }
+    }
+
+    .actions-block {
+      a {
+        text-decoration: none;
+      }
+
+      button {
+        font-size: 26px;
+        width: 100%;
+        padding: 15px 0px;
+        display: flex;
+        justify-content: center;
+
+        &:not(:hover) {
+          background-color: @admin-black;
+        }
+
+        &.selected {
+          background-color: @admin-button-blue1;
+
+          &:hover {
+            background-color: @admin-button-blue2;
+          }
+        }
+      }
+
+    }
   }
 
   .main {

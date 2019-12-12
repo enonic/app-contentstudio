@@ -454,7 +454,7 @@ function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDe
 function startContentApplication(application: Application) {
 
     import('./app/ContentAppPanel').then(cdef => {
-        const commonWrapper = new AppWrapper();
+        const commonWrapper = new AppWrapper(application);
         const appBar = new ContentAppBar(application);
 
         const appPanel = new cdef.ContentAppPanel(application.getPath());
