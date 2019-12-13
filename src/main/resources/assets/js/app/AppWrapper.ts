@@ -6,6 +6,8 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Application} from 'lib-admin-ui/app/Application';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 
 export class AppWrapper
     extends DivEl {
@@ -19,6 +21,8 @@ export class AppWrapper
     private application: Application;
 
     private actionsBlock: ActionsBlock;
+
+    private mouseClickListener: (event: MouseEvent) => void;
 
     constructor(application: Application) {
         super('main-app-wrapper');
@@ -38,6 +42,20 @@ export class AppWrapper
 
     private initListeners() {
         this.toggleIcon.onClicked(this.toggleState.bind(this));
+        this.handleClickOutsideSidebar();
+    }
+
+    private handleClickOutsideSidebar() {
+        this.mouseClickListener = (event: MouseEvent) => {
+            if (this.hasClass('sidebar-expanded') && WindowDOM.get().getWidth() <= 540) {
+                for (let element = event.target; element; element = (<any>element).parentNode) {
+                    if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
+                        return;
+                    }
+                }
+                this.toggleState();
+            }
+        };
     }
 
     private toggleState() {
@@ -45,6 +63,11 @@ export class AppWrapper
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleIcon.toggleClass('toggled', !isSidebarVisible);
+        if (!isSidebarVisible) {
+            Body.get().onMouseDown(this.mouseClickListener);
+        } else {
+            Body.get().unMouseDown(this.mouseClickListener);
+        }
     }
 
     appendToMain(element: Element) {
