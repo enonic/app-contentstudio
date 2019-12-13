@@ -53,10 +53,13 @@
         adminUrl: '{{adminUrl}}',
         adminAssetsUri: '{{adminAssetsUri}}',
         launcherUrl: '{{launcherUrl}}',
-        stylesUrl: '{{services.stylesUrl}}',
-        i18nUrl: '{{services.i18nUrl}}',
-        contentServiceUrl: '{{services.contentServiceUrl}}',
+        services: {
+            stylesUrl: '{{services.stylesUrl}}',
+            i18nUrl: '{{services.i18nUrl}}',
+            contentUrl: '{{services.contentServiceUrl}}',
+        },
         allowScriptsInEditor: '{{allowScriptsInEditor}}'
+
     };
 
     if (CKEDITOR) {

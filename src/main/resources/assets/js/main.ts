@@ -542,7 +542,7 @@ function initSearchPanelListener(panel: any) {
 }
 
 (async () => {
-    await i18nInit(CONFIG.i18nUrl);
+    await i18nInit(CONFIG.services.i18nUrl);
 
     preLoadApplication();
 
