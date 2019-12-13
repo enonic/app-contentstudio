@@ -206,7 +206,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForTabLoaded() {
-        return this.waitForElementDisplayed(this.publishNowButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
             throw new Error("Issue Details Dialog , Requests Tab is not loaded! " + err);
         });
     }
@@ -234,7 +234,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async clickOnReopenRequestButton() {
         try {
-            await this.waitForElementDisplayed(this.reopenRequestButton, appConst.TIMEOUT_1);
+            await this.waitForElementDisplayed(this.reopenRequestButton, appConst.TIMEOUT_2);
             await this.clickOnElement(this.reopenRequestButton);
             return this.pause(1000);
         } catch (err) {

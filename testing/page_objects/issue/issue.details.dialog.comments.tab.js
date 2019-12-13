@@ -26,6 +26,7 @@ class IssueDetailsDialogCommentsTab extends Page {
     get commentAndCloseRequestButton() {
         return XPATH.container + XPATH.commentAndCloseRequestButton;
     }
+
     get commentAndCloseTaskButton() {
         return XPATH.container + XPATH.commentAndCloseTaskButton;
     }
@@ -104,9 +105,10 @@ class IssueDetailsDialogCommentsTab extends Page {
 
     waitForCommentAndCloseRequestButtonDisplayed() {
         return this.waitForElementDisplayed(this.commentAndCloseRequestButton).catch(err => {
-            throw  new Error('Comments Tab   ' + err);
+            throw new Error('Comments Tab   ' + err);
         })
     }
+
     waitForCommentAndCloseTaskButtonDisplayed() {
         return this.waitForElementDisplayed(this.commentAndCloseTaskButton).catch(err => {
             throw  new Error('Comments Tab   ' + err);

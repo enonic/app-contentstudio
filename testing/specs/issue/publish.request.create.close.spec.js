@@ -7,17 +7,19 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
+const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
+const IssueDetailsDialogCommentsTab = require('../../page_objects/issue/issue.details.dialog.comments.tab');
 
-describe('publish.request.create.close.spec - request publish dialog - click on Publish Now',
+
+describe('publish.request.create.close.spec - request publish dialog - open and clothe this request',
     function () {
         this.timeout(appConst.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
         let TEST_FOLDER1;
-        let REQ_TITLE= "request 1"
+        let REQ_TITLE = contentBuilder.generateRandomName('req');
         it(`GIVEN new folder(Ready to Publish) is added and selected WHEN new Publish Request has been created THEN 'Request Details Dialog' should appear`,
             async () => {
                 let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
@@ -55,6 +57,47 @@ describe('publish.request.create.close.spec - request publish dialog - click on 
                 //Item "...." is published.
                 await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
                 await browsePanel.waitForExpectedNotificationMessage(expectedMsg2);
+            });
+
+        it(`GIVEN issues list dialog is opened AND navigated to closed issues-tab WHEN existing closed request has been reopened THEN the request gets 'Open' AND 'no items to publish' should appear`,
+            async () => {
+                let browsePanel = new ContentBrowsePanel();
+                let issueListDialog = new IssueListDialog();
+                let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
+                await studioUtils.openIssuesListDialog();
+                //1. Click on the request and open Request Details dialog:
+                await issueListDialog.clickOnClosedButton();
+                await issueListDialog.clickOnIssue(REQ_TITLE);
+                await publishRequestDetailsDialog.waitForTabLoaded();
+                //2. Click on 'Reopen Request' button:
+                await publishRequestDetailsDialog.clickOnReopenRequestButton();
+                let expectedMsg1 = appConst.THIS_PUBLISH_REQUEST_OPEN;
+                await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
+                studioUtils.saveScreenshot("request_reopened");
+                //3. 'Close Request' button should appear in the modal dialog:
+                await publishRequestDetailsDialog.waitForCloseRequestButtonDisplayed();
+                let result = await publishRequestDetailsDialog.isNoActionLabelPresent();
+                //4. `No items to publish' should be displayed:
+                assert.isTrue(result, `No items to publish' should be displayed, because all items are published`);
+            });
+
+        it(`GIVEN existing 'Open' request  WHEN text in comments-area has been typed  THEN 'Comment & Close Request' button gets visible`,
+            async () => {
+
+                let issueListDialog = new IssueListDialog();
+                let issueDetailsDialogCommentsTab = new IssueDetailsDialogCommentsTab();
+                let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
+                await studioUtils.openIssuesListDialog();
+                //1. Click on the request and open 'Request Details' dialog:
+                await issueListDialog.clickOnOpenButton();
+                await issueListDialog.clickOnIssue(REQ_TITLE);
+                await publishRequestDetailsDialog.waitForTabLoaded();
+                //2. Click on 'Comments' tab:
+                await publishRequestDetailsDialog.clickOnCommentsTabBarItem();
+                await issueDetailsDialogCommentsTab.typeComment('my comment');
+                //3. Comment & Close button should appear:
+                studioUtils.saveScreenshot("request_commented");
+                await issueDetailsDialogCommentsTab.waitForCommentAndCloseRequestButtonDisplayed();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
