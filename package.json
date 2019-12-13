@@ -1,6 +1,6 @@
 {
   "name": "app-contentstudio",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Enonix XP - Content Studio App",
   "license": "GPL-3.0",
   "repository": {
@@ -17,6 +17,7 @@
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.12.1",
+    "jsondiffpatch": "^0.3.11",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "mutation-observer": "^1.0.3",
     "promise-polyfill": "8.1.3",
@@ -42,7 +43,6 @@
     "error-logger-webpack-plugin": "^1.1.0",
     "file-loader": "^4.2.0",
     "js-yaml": "^3.11.0",
-    "jsondiffpatch": "^0.3.11",
     "less": "^3.8.1",
     "less-loader": "^5.0.0",
     "mini-css-extract-plugin": "^0.8.0",

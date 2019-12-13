@@ -2,13 +2,11 @@ import * as Q from 'q';
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
-import {Content} from '../content/Content';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsForViewRequest';
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
-import {AttachmentJson} from '../attachment/AttachmentJson';
 import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
@@ -299,9 +297,9 @@ export class CompareContentVersionsDialog
             return Q(cache);
         }
 
-        return new GetContentByIdRequest(this.contentId)
+        return new GetContentVersionRequest(this.contentId)
             .setVersion(version)
-            .sendAndParse().then(content => {
+            .sendRequest().then(content => {
                 const processedContent = this.processContent(content);
                 this.contentCache[version] = processedContent;
                 return processedContent;
@@ -360,23 +358,11 @@ export class CompareContentVersionsDialog
         this.rightLabel.setValue(rightLabel);
     }
 
-    private processContent(content: Content): Object {
-        const attachments: AttachmentJson[] = [];
-        content.getAttachments().forEach(attachment => attachments.push(attachment.toJson()));
-        const allExtraData = content.getAllExtraData().map(extraData => extraData.toJson());
-        return {
-            displayName: content.getDisplayName(),
-            name: content.getName().toString(),
-            path: content.getPath().toString(),
-            type: content.getType().toString(),
-            iconUrl: content.getIconUrl(),
-            valid: content.isValid(),
-            owner: content.getOwner() ? content.getOwner().toString() : undefined,
-            language: content.getLanguage(),
-            data: content.getContentData().toJson(),
-            page: content.getPage() ? content.getPage().toJson() : undefined,
-            extraData: allExtraData,
-            attachments: attachments,
-        };
+    private processContent(contentJson: any): Object {
+        [
+            '_id', 'childOrder', 'creator', 'createdTime', 'hasChildren'
+        ].forEach(e => delete contentJson[e]);
+
+        return contentJson;
     }
 }
