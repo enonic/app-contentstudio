@@ -35,6 +35,7 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             await studioUtils.typeNameInFilterPanel(folder1.displayName);
             await contentBrowsePanel.waitForContentDisplayed(folder1.displayName);
         });
+
     it(`GIVEN two folders are selected WHEN new task has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         async () => {
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -61,7 +62,7 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             assert.equal(status, 'New', "New content-status should be displayed in the dialog");
         });
 
-    it(`GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published`,
+    it(`GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published and the task gets closed`,
         async () => {
             let taskDetailsDialog = new TaskDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -79,17 +80,20 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await taskDetailsDialog.waitForNotificationMessage();
             assert.equal(message, appConstant.TWO_ITEMS_PUBLISHED, '`2 items are published` message should be displayed');
+            let expectedMessage = appConstant.taskClosedMessage(TASK_TITLE);
+            await taskDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
 
-    it(`GIVEN two items are published WHEN both items has been selected THEN issue-menu button should be visible on the toolbar because the issue was not closed `,
+    it(`GIVEN two items are published WHEN both items has been selected THEN issue-menu button should be visible on the toolbar because the issue was not closed`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             //1. Select checkboxes:
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
+            await contentItemPreviewPanel.pause(1000);
             studioUtils.saveScreenshot("issue_menu_should_be_displayed");
-            //2. 'Issue Menu button should be visible, because the task was not closed'
-            await contentItemPreviewPanel.waitForIssueNameInMenuButton(TASK_TITLE);
+            //2. 'Issue Menu button should be visible, because the task is closed'
+            await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
