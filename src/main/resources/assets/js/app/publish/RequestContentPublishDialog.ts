@@ -151,7 +151,7 @@ export class RequestContentPublishDialog
             .setInputType(PrincipalSelector.getName())
             .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
             .setInputTypeConfig({
-                principalTypes: PrincipalType[PrincipalType.USER],
+                principalType: PrincipalType[PrincipalType.USER],
                 skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
             })
             .build();
