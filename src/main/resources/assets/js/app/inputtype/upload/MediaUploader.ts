@@ -237,7 +237,6 @@ export class MediaUploader
             operation: MediaUploaderElOperation.update,
             allowExtensions: allowExtensions,
             name: this.getContext().input.getName(),
-            maximumOccurrences: 1,
             allowMultiSelection: false,
             hideDefaultDropZone: hideDropZone != null ? hideDropZone : true,
             deferred: true,

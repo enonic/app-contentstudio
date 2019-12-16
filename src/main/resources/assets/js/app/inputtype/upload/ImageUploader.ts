@@ -47,7 +47,6 @@ export class ImageUploader
             },
             operation: MediaUploaderElOperation.update,
             name: config.input.getName(),
-            maximumOccurrences: 1,
             hideDefaultDropZone: true,
             selfIsDropzone: false
         });

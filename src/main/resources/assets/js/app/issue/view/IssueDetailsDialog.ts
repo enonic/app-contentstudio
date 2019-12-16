@@ -13,6 +13,7 @@ import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent'
 import {Router} from '../../Router';
 import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
+import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
 import {UpdateIssueRequest} from '../resource/UpdateIssueRequest';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
@@ -825,26 +826,40 @@ export class IssueDetailsDialog
 
         if (isPublishRequest) {
             this.doPublish();
-        } else {
-            const contents = this.getItemList().getItems();
-            const exceptedContentIds = contents.filter(content => {
-                return this.areChildrenIncludedInIssue(content.getContentId());
-            }).map(content => content.getContentId());
-
-            const excludedIds = this.publishProcessor.getExcludedIds();
-
-            const includeChildItems = false;
-            const message = this.issue.getTitle();
-
-            new ContentPublishPromptEvent({
-                model: contents,
-                includeChildItems,
-                exceptedContentIds,
-                excludedIds,
-                message
-            }).fire();
-
+            return;
         }
+
+        const contents = this.getItemList().getItems();
+        const exceptedContentIds = contents.filter(content => {
+            return this.areChildrenIncludedInIssue(content.getContentId());
+        }).map(content => content.getContentId());
+
+        const excludedIds = this.publishProcessor.getExcludedIds();
+
+        const includeChildItems = false;
+        const message = this.issue.getTitle();
+
+        new ContentPublishPromptEvent({
+            model: contents,
+            includeChildItems,
+            exceptedContentIds,
+            excludedIds,
+            message
+        }).fire();
+
+        const publishDialog = ContentPublishDialog.get();
+        const closedListener = () => {
+            publishDialog.unProgressComplete(progressCompleteListener);
+            publishDialog.unClosed(closedListener);
+        };
+        const progressCompleteListener = (taskState: TaskState) => {
+            if (taskState === TaskState.FINISHED) {
+                this.doUpdateIssueAfterPublish(this.issue);
+            }
+        };
+
+        publishDialog.onProgressComplete(progressCompleteListener);
+        publishDialog.onClosed(closedListener);
     }
 
     private doPublish(): Q.Promise<void> {
@@ -857,18 +872,7 @@ export class IssueDetailsDialog
                 this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
-                        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
-
-                        this.populateSchedule(request).sendAndParse()
-                            .then((updatedIssue: Issue) => {
-                                this.setIssue(updatedIssue);
-                                this.notifyIssueUpdated(updatedIssue);
-                                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
-                                showFeedback(i18n(messageKey, updatedIssue.getTitle()));
-                            }).catch(() => {
-                            const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
-                            showError(i18n(messageKey, issue.getTitle()));
-                        }).finally(() => {
+                        this.doUpdateIssueAfterPublish(issue).finally(() => {
                             this.unProgressComplete(issuePublishedHandler);
                         });
                     }
@@ -882,6 +886,21 @@ export class IssueDetailsDialog
                     showError(reason.message);
                     throw reason.message;
                 }
+            });
+    }
+
+    private doUpdateIssueAfterPublish(issue: Issue): Q.Promise<void> {
+        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
+
+        return this.populateSchedule(request).sendAndParse()
+            .then((updatedIssue: Issue) => {
+                this.setIssue(updatedIssue);
+                this.notifyIssueUpdated(updatedIssue);
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
+                showFeedback(i18n(messageKey, updatedIssue.getTitle()));
+            }).catch(() => {
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
+                showError(i18n(messageKey, issue.getTitle()));
             });
     }
 
