@@ -252,7 +252,7 @@ export class CompareContentVersionsDialog
         const leftIndex = this.getSelectedIndex(this.leftDropdown.getValue(), options);
         const rightIndex = this.getSelectedIndex(this.rightDropdown.getValue(), options);
 
-        return leftIndex < rightIndex;
+        return leftIndex <= rightIndex;
     }
 
     private forceSelectLeftVersion() {
@@ -277,6 +277,9 @@ export class CompareContentVersionsDialog
         }
         const readonlyOptions = [];
         this.leftDropdown.getOptions().every((option: Option<ContentVersion>) => {
+            option.readOnly = true;
+            readonlyOptions.push(option);
+
             if (option.value === rightVersion) {
                 if (readonlyOptions.length) {
                     this.leftDropdown.markReadOnly(readonlyOptions);
@@ -284,8 +287,6 @@ export class CompareContentVersionsDialog
                 return false;
             }
 
-            option.readOnly = true;
-            readonlyOptions.push(option);
             return true;
         });
     }
