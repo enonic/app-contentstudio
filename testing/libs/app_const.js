@@ -29,6 +29,9 @@ module.exports = Object.freeze({
     publishRequestClosedMessage: function (name) {
         return `Publish request \"${name}\" is closed`;
     },
+    taskClosedMessage: function (name) {
+        return `Task \"${name}\" is closed`;
+    },
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
