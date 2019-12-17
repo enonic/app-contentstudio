@@ -7,7 +7,6 @@ import {Application} from 'lib-admin-ui/app/Application';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 
 export class AppWrapper
     extends DivEl {
@@ -47,7 +46,7 @@ export class AppWrapper
 
     private handleClickOutsideSidebar() {
         this.mouseClickListener = (event: MouseEvent) => {
-            if (this.hasClass('sidebar-expanded') && WindowDOM.get().getWidth() <= 540) {
+            if (this.hasClass('sidebar-expanded')) {
                 for (let element = event.target; element; element = (<any>element).parentNode) {
                     if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
                         return;
