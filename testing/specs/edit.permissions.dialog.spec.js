@@ -3,8 +3,6 @@
  * verifies : https://github.com/enonic/app-contentstudio/issues/277
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -19,93 +17,71 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
 
     let folder;
     it(`GIVEN existing folder is selected WHEN Edit Permissions dialog has been opened THEN Inherit permissions checkbox should be selected by default`,
-        () => {
+        async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             folder = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(folder).then(() => {
-                return studioUtils.findAndSelectItem(folder.displayName);
-            }).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                return editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
-            }).then(result => {
-                assert.isTrue(result, '`Inherit permissions` checkbox should be selected by default');
-            }).then(() => {
-                return assert.eventually.isFalse(editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected(),
-                    "`Overwrite child permissions` checkbox should be not selected");
-            });
+            //1. Select the folder and open Details Panel:
+            await studioUtils.doAddFolder(folder);
+            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            //2. Click on Edit Permissions link:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            let result = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
+            assert.isTrue(result, '`Inherit permissions` checkbox should be selected by default');
+            //"Overwrite child permissions" checkbox should be not selected
+            let isChecked = editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
         });
+
     //verifies: https://github.com/enonic/app-contentstudio/issues/277  incorrect state of the checkbox, when dialog is closed and reopened again
     it(`GIVEN 'Inherit permissions' checkbox is unselected AND 'Apply' button has been pressed WHEN the modal dialog is reopened THEN checkbox should not be checked`,
-        () => {
+        async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
-            return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                return editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            }).then(() => {
-                return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
-                    "the checkbox is getting unchecked");
-            }).then(() => {
-                studioUtils.saveScreenshot("inherit_perm_is_unchecked");
-                return editPermissionsDialog.clickOnApplyButton();
-            }).then(() => {
-                return editPermissionsDialog.waitForDialogClosed();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                studioUtils.saveScreenshot("dlg_inherit_checkbox_should_be_unchecked");
-                return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
-                    "the checkbox should not be checked");
-            })
+            //1. Select the folder and open Details Panel:
+            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            //2. Open 'Edit Permissions' dialog and uncheck 'Inherit Permissions' checkbox:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            let isChecked = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
+            assert.isFalse(isChecked, "the checkbox gets unchecked");
+
+            studioUtils.saveScreenshot("inherit_perm_is_unchecked");
+            //3. Apply and close the modal dialog:
+            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsDialog.waitForDialogClosed();
+
+            //4. Reopen Edit Permissions dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            studioUtils.saveScreenshot("dlg_inherit_checkbox_should_be_unchecked");
+            isChecked = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
+            assert.isFalse(isChecked, "the checkbox should be unchecked");
         });
 
-    it(`GIVEN existing folder with 'unselected' Inherit permissions checkbox WHEN 'Edit permissions' dialog has been opened THEN 'Inherit permissions' checkbox should be not selected`,
-        () => {
+    it(`GIVEN 'Edit Permissions' dialog is opened WHEN 'Overwrite  Permissions' checkbox has been checked and applied AND the dialog is reopened THEN 'Overwrite  Permissions' should not be selected`,
+        async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
-            return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                return assert.eventually.isFalse(editPermissionsDialog.isInheritPermissionsCheckBoxSelected(),
-                    "the checkbox should be not selected");
-            });
-        });
-
-    it(`GIVEN 'Edit Permissions' dialog is opened in 'Details Panel' WHEN 'Overwrite  Permissions' checkbox has been checked AND 'Apply' button pressed AND the dialog is reopened THEN 'Overwrite  Permissions' should not be selected`,
-        () => {
-            let userAccessWidget = new UserAccessWidget();
-            let editPermissionsDialog = new EditPermissionsDialog();
-            return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-                return studioUtils.openBrowseDetailsPanel();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                return editPermissionsDialog.clickOnOverwiteChildPermissionsCheckBox();
-            }).then(() => {
-                studioUtils.saveScreenshot("overwrite_checkbox_checked");
-                return assert.eventually.isTrue(editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected(),
-                    "the checkbox is getting selected");
-            }).then(() => {
-                return editPermissionsDialog.clickOnApplyButton();
-            }).then(() => {
-                return editPermissionsDialog.waitForDialogClosed();
-            }).then(() => {
-                return userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            }).then(() => {
-                studioUtils.saveScreenshot("edit_perm_dlg_overwrite_checkbox");
-                return assert.eventually.isFalse(editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected(),
-                    "the checkbox should not be selected, when the dialog is reopened");
-            })
+            //1. Select the folder and open Details Panel:
+            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            //2. Open 'Edit Permissions' dialog and click on 'Overwrite Child Permissions' checkbox:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            await editPermissionsDialog.clickOnOverwriteChildPermissionsCheckBox();
+            studioUtils.saveScreenshot("overwrite_checkbox_checked");
+            let isChecked = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
+            assert.isTrue(isChecked, "Overwrite Child Permissions checkbox gets checked");
+            //3. Apply and close the modal dialog:
+            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsDialog.waitForDialogClosed();
+            //4. Reopen Edit Permissions dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            studioUtils.saveScreenshot("edit_perm_dlg_overwrite_checkbox");
+            // "Overwrite Child' checkbox should not be selected, when the dialog is reopened
+            isChecked = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
+            assert.isFalse(isChecked, "Overwrite Child checkbox should be unchecked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

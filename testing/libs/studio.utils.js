@@ -19,6 +19,7 @@ const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
+const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -131,26 +132,36 @@ module.exports = {
             throw new Error("Error when opening Create Task Dialog " + err);
         }
     },
+    async createPublishRequest(text) {
+        try {
+            let browsePanel = new BrowsePanel();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.waitForDialogLoaded();
+            await createRequestPublishDialog.pause(300);
+            await createRequestPublishDialog.clickOnNextButton();
+            await createRequestPublishDialog.typeInChangesInput(text);
+            return await createRequestPublishDialog.clickOnCreateRequestButton();
+        } catch (err) {
+            throw new Error("Error when create Publish Request " + err);
+        }
+    },
     async openPublishMenuAndClickOnCreateTask() {
         let browsePanel = new BrowsePanel();
         let createTaskDialog = new CreateTaskDialog();
         await browsePanel.openPublishMenuAndClickOnCreateTask();
         return await createTaskDialog.waitForDialogLoaded();
     },
-    openBrowseDetailsPanel: function () {
+    async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();
         let browseDetailsPanel = new BrowseDetailsPanel();
-        return browseDetailsPanel.isPanelVisible().then(result => {
-            if (!result) {
-                return browsePanel.clickOnDetailsPanelToggleButton();
-            }
-        }).then(() => {
-            return browseDetailsPanel.waitForDetailsPanelLoaded();
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
-        }).then(() => {
-            return browsePanel.pause(1000);
-        });
+        let result = await browseDetailsPanel.isPanelVisible();
+        if (!result) {
+            await browsePanel.clickOnDetailsPanelToggleButton();
+        }
+        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
+        return await browsePanel.pause(1000);
     },
     async openContentWizard(contentType) {
         let browsePanel = new BrowsePanel();
@@ -399,22 +410,22 @@ module.exports = {
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
-    typeNameInFilterPanel: function (name) {
-        let browsePanel = new BrowsePanel();
-        let filterPanel = new FilterPanel();
-        return filterPanel.isPanelVisible().then((result) => {
+    async typeNameInFilterPanel(name) {
+        try {
+            let browsePanel = new BrowsePanel();
+            let filterPanel = new FilterPanel();
+            let result = await filterPanel.isPanelVisible();
             if (!result) {
-                return browsePanel.clickOnSearchButton().then(() => {
-                    return filterPanel.waitForOpened();
-                })
+                await browsePanel.clickOnSearchButton();
+                await filterPanel.waitForOpened();
             }
-        }).then(() => {
-            return filterPanel.typeSearchText(name);
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-        }).then(() => {
-            return browsePanel.pause(300);
-        })
+            await filterPanel.typeSearchText(name);
+            await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+            return await browsePanel.pause(300);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName('err_spinner'))
+            throw new Error("Filter Panel-  error : " + err);
+        }
     },
 
     navigateToContentStudioApp: function (userName, password) {

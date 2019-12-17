@@ -55,7 +55,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //2. Click on menu item and open 'Request Publishing' dialog:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
 
-            //Close Request Publishing dialog:
+            //Close 'Request Publishing' dialog:
             await createRequestPublishDialog.clickOnCancelButtonTop();
             //3. Workflow should be automatically updated (ready for publishing now)
             let toolbarState = await contentWizard.getToolbarWorkflowState();
