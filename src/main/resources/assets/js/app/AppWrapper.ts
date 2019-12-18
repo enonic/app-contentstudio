@@ -46,6 +46,10 @@ export class AppWrapper
 
     private handleClickOutsideSidebar() {
         this.mouseClickListener = (event: MouseEvent) => {
+            if (screen && screen.width > 540) {
+                // Don't auto-collapse the toolbar under desktop resolutions
+                return;
+            }
             if (this.hasClass('sidebar-expanded')) {
                 for (let element = event.target; element; element = (<any>element).parentNode) {
                     if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
