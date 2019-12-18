@@ -2,8 +2,15 @@ var admin = require('/lib/xp/admin');
 var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
+var authLib = require('/lib/xp/auth');
 
-function handleGet() {
+function handleGet(req) {
+    if (isSettingsPage(req) && !isAllowedToAccessSettingsPage()) {
+        return {
+            status: 403
+        }
+    }
+
     var view = resolve('./main.html');
 
     var context = contextLib.get();
@@ -31,10 +38,20 @@ function handleGet() {
         mainUrl: portal.pageUrl()
     };
 
+    log.info(JSON.stringify(req));
+
     return {
         contentType: 'text/html',
         body: mustache.render(view, params)
     };
+}
+
+function isSettingsPage(req) {
+    return req.url.indexOf('settings') > 0;
+}
+
+function isAllowedToAccessSettingsPage() {
+    return authLib.hasRole('system.admin') || authLib.hasRole('cms.admin');
 }
 
 exports.get = handleGet;
