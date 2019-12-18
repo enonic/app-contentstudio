@@ -27,7 +27,8 @@ function handleGet() {
         launcherUrl: admin.getLauncherUrl(),
         stylesUrl: portal.serviceUrl({service: 'styles'}),
         i18nUrl: portal.serviceUrl({service: 'i18n'}),
-        allowScriptsInEditor: allowScriptsInEditor
+        allowScriptsInEditor: allowScriptsInEditor,
+        mainUrl: portal.pageUrl()
     };
 
     return {

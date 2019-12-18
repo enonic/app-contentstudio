@@ -15,16 +15,12 @@ import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent'
 import {ContentUnpublishPromptEvent} from './app/browse/ContentUnpublishPromptEvent';
 import {ShowNewContentDialogEvent} from './app/browse/ShowNewContentDialogEvent';
 import {ContentWizardPanelParams} from './app/wizard/ContentWizardPanelParams';
-import {ContentEventsListener} from './app/ContentEventsListener';
 import {ContentEventsProcessor} from './app/ContentEventsProcessor';
 import {IssueServerEventsHandler} from './app/issue/event/IssueServerEventsHandler';
 import {CreateIssuePromptEvent} from './app/browse/CreateIssuePromptEvent';
 import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
 import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from './app/browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchPanelWithDependenciesEvent';
 import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
-import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
 import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
 import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
 import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
@@ -51,13 +47,11 @@ import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {FormEditEvent} from 'lib-admin-ui/content/event/FormEditEvent';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {AppWrapper} from './app/AppWrapper';
-import {ContentAppBar} from './app/bar/ContentAppBar';
 // End of Polyfills
 
 declare const CONFIG;
@@ -455,21 +449,6 @@ function startContentApplication(application: Application) {
 
     import('./app/ContentAppPanel').then(cdef => {
         const commonWrapper = new AppWrapper(application);
-        const appBar = new ContentAppBar(application);
-
-        const appPanel = new cdef.ContentAppPanel(application.getPath());
-        const buttonWrapper = new DivEl('show-issues-button-wrapper');
-
-        buttonWrapper.appendChild(new ShowIssuesDialogButton());
-        appBar.appendChild(buttonWrapper);
-
-        initSearchPanelListener(appPanel);
-
-        const clientEventsListener = new ContentEventsListener();
-        clientEventsListener.start();
-
-        commonWrapper.appendToMain(appBar);
-        appBar.onAdded(() => commonWrapper.appendToMain(appPanel));
         body.appendChild(commonWrapper);
 
         import('./app/create/NewContentDialog').then(def => {
@@ -523,22 +502,6 @@ function startContentApplication(application: Application) {
             new def.MoveContentDialog();
         });
 
-    });
-}
-
-function initSearchPanelListener(panel: any) {
-    ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
-        if (!panel.getBrowsePanel().getTreeGrid().isEmpty()) {
-            new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-        } else {
-
-            const handler = () => {
-                new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-                panel.getBrowsePanel().getTreeGrid().unLoaded(handler);
-            };
-
-            panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
-        }
     });
 }
 

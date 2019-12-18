@@ -87,13 +87,19 @@
   }
 
   .appbar {
-    .project {
+    .name-block {
       padding-left: 40px;
       display: flex;
       align-items: center;
       font-size: 16px;
       transition: padding-left 0.5s ease;
+    }
 
+    .home-button {
+      display: none;
+    }
+
+    &.appbar-content .name-block {
       .label {
         color: @admin-shadow-gray;
       }
@@ -104,12 +110,13 @@
       }
     }
 
-    .home-button {
-      display: none;
+    &.appbar-settings .name-block {
+      letter-spacing: 1px;
+      color: @admin-white;
     }
   }
 
-  &.sidebar-expanded .appbar .project {
+  &.sidebar-expanded .appbar .name-block {
     padding-left: 0px;
   }
 

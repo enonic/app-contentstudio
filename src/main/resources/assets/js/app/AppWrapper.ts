@@ -7,13 +7,17 @@ import {Application} from 'lib-admin-ui/app/Application';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {MainAppContainer} from './MainAppContainer';
+import {SettingsAppContainer} from './settings/SettingsAppContainer';
+import {ContentAppContainer} from './ContentAppContainer';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: DivEl;
 
-    private mainPanel: DivEl;
+    private mainPanel: MainAppContainer;
 
     private toggleIcon: Button;
 
@@ -34,9 +38,44 @@ export class AppWrapper
 
     private initElements() {
         this.sidebar = new DivEl('sidebar');
-        this.mainPanel = new DivEl('main');
         this.toggleIcon = new ToggleIcon();
         this.actionsBlock = new ActionsBlock();
+        this.mainPanel = this.createMainContainer();
+    }
+
+    private createMainContainer(): MainAppContainer {
+        if (this.isSettingsPage()) {
+            this.actionsBlock.setSettingsItemActive();
+            this.updateSettingsUrlIfHashMissing();
+            return new SettingsAppContainer(this.application);
+        }
+
+        this.actionsBlock.setContentItemActive();
+        return new ContentAppContainer(this.application);
+    }
+
+    private updateSettingsUrlIfHashMissing() {
+        if (this.isSettingsUrlWithNoHash()) {
+            window.location.href = `${CONFIG.mainUrl}#/settings`;
+        }
+    }
+
+    private isSettingsPage(): boolean {
+        if (this.isSettingsUrlWithNoHash()) {
+            return true;
+        }
+
+        const path: Path = this.application.getPath();
+
+        if (path.getElements().length === 0) {
+            return false;
+        }
+
+        return path.getElement(0) === 'settings';
+    }
+
+    private isSettingsUrlWithNoHash(): boolean {
+        return window.location.href.endsWith(`${CONFIG.mainUrl}/settings`);
     }
 
     private initListeners() {
@@ -71,10 +110,6 @@ export class AppWrapper
         } else {
             Body.get().unMouseDown(this.mouseClickListener);
         }
-    }
-
-    appendToMain(element: Element) {
-        this.mainPanel.appendChild(element);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -131,9 +166,17 @@ class ActionsBlock
 
     private initElements() {
         this.contentItem = new ActionItem(i18n('app.content'));
-        this.contentItem.setIconClass('icon-version-modified selected').setUrl('/admin/tool/com.enonic.app.contentstudio/main');
+        this.contentItem.setIconClass('icon-version-modified').setUrl(CONFIG.mainUrl);
         this.settingsItem = new ActionItem(i18n('app.settings'));
-        this.settingsItem.setIconClass('icon-cog').setUrl('');
+        this.settingsItem.setIconClass('icon-cog').setUrl(`${CONFIG.mainUrl}/settings`);
+    }
+
+    setContentItemActive() {
+        this.contentItem.setIconClass('selected');
+    }
+
+    setSettingsItemActive() {
+        this.settingsItem.setIconClass('selected');
     }
 
     doRender(): Q.Promise<boolean> {
