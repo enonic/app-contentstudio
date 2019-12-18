@@ -38,8 +38,6 @@ function handleGet(req) {
         mainUrl: portal.pageUrl()
     };
 
-    log.info(JSON.stringify(req));
-
     return {
         contentType: 'text/html',
         body: mustache.render(view, params)
