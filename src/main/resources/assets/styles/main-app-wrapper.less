@@ -25,7 +25,8 @@
         text-transform: uppercase;
         line-height: 44px;
         writing-mode: vertical-lr;
-        padding-left: 4px;
+        padding-left: 6px;
+        letter-spacing: 1px;
       }
     }
 
@@ -37,7 +38,7 @@
       button {
         font-size: 26px;
         width: 100%;
-        padding: 15px 0px;
+        padding: 15px 0 15px 3px;
         display: flex;
         justify-content: center;
 
@@ -98,7 +99,6 @@
       }
 
       .name {
-        letter-spacing: 1px;
         padding-left: 10px;
         color: @admin-white;
       }
@@ -118,8 +118,8 @@
     font-size: @admin-font-size;
     position: fixed;
     border: none;
-    left: 5px;
-    top: 5px;
+    left: 11px;
+    top: 4px;
     background-color: transparent;
     cursor: pointer;
     z-index: @z-index-launcher-button;
@@ -144,7 +144,7 @@
     .lines {
       .line;
       position: relative;
-      top: -4px;
+      top: -3px;
 
       &:before, &:after {
         .line;
@@ -178,26 +178,15 @@
     &.toggled {
       -webkit-transform: scale3d(.8, .8, .8);
       transform: scale3d(.8, .8, .8);
-      padding: 8px 7px 8px 14px;
-      top: 5px;
-
-      &:hover {
-        .lines {
-          &:before {
-            top: 0;
-          }
-          &:after {
-            top: 0;
-          }
-        }
-      }
+      padding: 4px 7px 8px 17px;
+      left: 4px;
 
       .lines {
         background: transparent !important;
         &:before, &:after {
           -webkit-transform-origin: 50% 50%;
           transform-origin: 50% 50%;
-          top: 0;
+          top: 2px;
           width: 1.6rem;
           left: -7px;
         }
@@ -222,11 +211,13 @@
       padding-top: 0px;
 
       .app-name-wrapper {
-        padding: 2px 50px;
+        padding: 0 50px;
 
         .app-name {
           writing-mode: lr;
           padding-left: 0px;
+          font-size: 20px;
+          letter-spacing: 0;
         }
       }
 
@@ -236,6 +227,7 @@
 
           span {
             display: block;
+            font-size: 18px;
           }
 
           &:before {
@@ -248,6 +240,11 @@
     &.sidebar-expanded {
       .main {
         left: @sidebar-width-mobile;
+        opacity: 0.5;
+      }
+
+      & ~ .launcher-button {
+        display: none;
       }
 
       .sidebar {
