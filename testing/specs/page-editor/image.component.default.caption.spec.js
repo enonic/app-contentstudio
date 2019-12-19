@@ -2,8 +2,6 @@
  * Created on 21.03.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -64,10 +62,8 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
                 //5. Select the image in the Page Editor:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();
-
                 //Default caption should be loaded in the Caption-Input
                 let result = await imageInspectPanel.getCaptionText();
-
                 studioUtils.saveScreenshot('inspect_image_panel_default_caption');
                 assert.equal(result, EXPECTED_CAPTION, "actual and expected captions should be equal");
             });

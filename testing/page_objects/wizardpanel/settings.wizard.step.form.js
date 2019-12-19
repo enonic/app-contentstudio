@@ -12,7 +12,8 @@ const xpath = {
     applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
     selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
     selectedLocale: `//div[contains(@id,'LocaleSelectedOptionView')]`,
-    removeLanguageButton: "//div[contains(@id,'LocaleSelectedOptionView')]",
+    languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
+    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]"
 };
 
 class SettingsStepForm extends Page {
@@ -21,8 +22,16 @@ class SettingsStepForm extends Page {
         return xpath.container + xpath.localeCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
+    get ownerFilterInput() {
+        return xpath.container + xpath.ownerCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
     get removeLanguageButton() {
-        return xpath.container + xpath.removeLanguageButton + lib.REMOVE_ICON;
+        return xpath.container + xpath.languageSelectedOption + lib.REMOVE_ICON;
+    }
+
+    get removeOwnerButton() {
+        return xpath.container + xpath.ownerSelectedOption + lib.REMOVE_ICON;
     }
 
     filterOptionsAndSelectLanguage(language) {
@@ -39,6 +48,18 @@ class SettingsStepForm extends Page {
         }
     }
 
+    async filterOptionsAndSelectOwner(owner) {
+        try {
+            await this.typeTextInInput(this.ownerFilterInput, owner);
+            let loaderComboBox = new LoaderComboBox()
+            await loaderComboBox.selectOption(owner);
+            return this.pause(400);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName('err_option'));
+            throw new Error('Settings form, language selector :' + err);
+        }
+    }
+
     getSelectedLanguage() {
         let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
         return this.getTextInElements();
@@ -49,13 +70,24 @@ class SettingsStepForm extends Page {
         return this.getText(selector);
     }
 
-    clickOnRemoveLanguage(displayName) {
-        return this.clickOnElement(this.removeLanguageButton).then(() => {
-            return this.pause(500);
-        }).catch(err => {
+    async clickOnRemoveLanguage(displayName) {
+        try {
+            await this.clickOnElement(this.removeLanguageButton);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot("err_click_on_remove_language_icon");
             throw new Error('Error when removing the language! ' + err);
-        });
+        }
+    }
+
+    async clickOnRemoveOwner(displayName) {
+        try {
+            await this.clickOnElement(this.removeOwnerButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot("err_click_on_remove_owner_icon");
+            throw new Error('Error when removing the owner! ' + err);
+        }
     }
 };
 module.exports = SettingsStepForm;
