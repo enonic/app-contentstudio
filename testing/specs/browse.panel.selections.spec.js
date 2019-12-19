@@ -11,7 +11,6 @@ const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 
-
 describe('Browse panel selections spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
