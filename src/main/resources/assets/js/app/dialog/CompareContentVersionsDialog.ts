@@ -23,6 +23,7 @@ import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -62,6 +63,8 @@ export class CompareContentVersionsDialog
     private htmlFormatter: any;
 
     private content: ContentSummary;
+
+    private outsideClickListener: (event: MouseEvent) => void;
 
     protected constructor() {
         super(<ModalDialogConfig>{
@@ -111,14 +114,46 @@ export class CompareContentVersionsDialog
             this.restoreVersion(dropdown.getValue());
         });
         const menu = new Menu([revertAction]);
+        menu.onItemClicked(() => {
+            this.setMenuVisible(false, menu, button);
+        });
         const button = new Button();
         button.addClass('transparent icon-more_vert icon-large');
-        button.onClicked(() => {
-            menu.setVisible(!menu.isVisible());
+        button.onClicked((event: MouseEvent) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            const flag = !menu.isVisible();
+            this.setMenuVisible(flag, menu, button);
         });
         button.appendChild(menu);
 
         return button;
+    }
+
+    private bindOutsideClickListener(enableEdit: boolean, menu: Menu, button: Button) {
+        const body = Body.get();
+        if (!this.outsideClickListener) {
+            this.outsideClickListener = (event: MouseEvent) => {
+                if (!button.getEl().contains(<HTMLElement>event.target)) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    this.setMenuVisible(false, menu, button);
+                }
+            };
+        }
+        if (enableEdit) {
+            body.onClicked(this.outsideClickListener);
+        } else {
+            body.unClicked(this.outsideClickListener);
+        }
+    }
+
+    private setMenuVisible(flag: boolean, menu: Menu, button: Button) {
+        if (menu.isVisible() !== flag) {
+            menu.setVisible(flag);
+        }
+        button.toggleClass('expanded', flag);
+        this.bindOutsideClickListener(flag, menu, button);
     }
 
     protected createHeader(title: string): CompareContentVersionsDialogHeader {

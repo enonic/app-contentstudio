@@ -96,6 +96,16 @@
       padding: 0;
       width: 47px;
 
+      &.expanded:before {
+        transform: rotate(90deg);
+      }
+
+      &:before {
+        display: inline-block;
+        transition-property: transform;
+        transition-duration: 100ms;
+      }
+
       &:before {
         vertical-align: middle;
       }
