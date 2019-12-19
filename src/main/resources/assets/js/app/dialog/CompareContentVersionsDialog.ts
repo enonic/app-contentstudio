@@ -7,9 +7,8 @@ import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsForViewRequest';
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
@@ -20,6 +19,10 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {Menu} from 'lib-admin-ui/ui/menu/Menu';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -50,15 +53,20 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: Button;
 
+    private invertButton: Button;
+
     private contentCache: { [key: string]: Object };
 
     private diffPatcher: DiffPatcher;
 
     private htmlFormatter: any;
 
+    private content: ContentSummary;
+
     protected constructor() {
         super(<ModalDialogConfig>{
             class: 'compare-content-versions-dialog grey-header',
+            title: i18n('dialog.compareVersions.comparingVersions')
         });
 
         this.diffPatcher = new DiffPatcher();
@@ -98,11 +106,23 @@ export class CompareContentVersionsDialog
     }
 
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
-        const button = new Button(i18n('field.version.revert'));
 
-        button.onClicked(event => this.restoreVersion(dropdown.getValue()));
+        const revertAction = new Action(i18n('field.version.revert')).onExecuted(() => {
+            this.restoreVersion(dropdown.getValue());
+        });
+        const menu = new Menu([revertAction]);
+        const button = new Button();
+        button.addClass('transparent icon-more_vert icon-large');
+        button.onClicked(() => {
+            menu.setVisible(!menu.isVisible());
+        });
+        button.appendChild(menu);
 
         return button;
+    }
+
+    protected createHeader(title: string): CompareContentVersionsDialogHeader {
+        return new CompareContentVersionsDialogHeader(title);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -110,14 +130,12 @@ export class CompareContentVersionsDialog
             this.toolbar = new DivEl('toolbar-container');
 
             this.leftDropdown = this.createVersionDropdown('left', this.leftVersion);
-
             this.leftDropdown.onExpanded(() => this.disableLeftVersions());
-
             this.revertLeftButton = this.createVersionRevertButton(this.leftDropdown);
 
             this.leftLabel = new LabelEl(i18n('dialog.compareVersions.olderVersion'));
             const leftContainer = new DivEl('container left');
-            leftContainer.appendChildren<Element>(this.leftLabel, this.leftDropdown, this.revertLeftButton);
+            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown, this.leftLabel);
 
             this.rightLabel = new LabelEl(i18n('dialog.compareVersions.newerVersion'));
             this.rightDropdown = this.createVersionDropdown('right', this.rightVersion);
@@ -134,10 +152,14 @@ export class CompareContentVersionsDialog
                 this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
             });
             bottomContainer.appendChild(changesCheckbox);
+            this.appendChildToFooter(bottomContainer);
+
+            this.invertButton = new Button();
+            this.invertButton.addClass('transparent icon-compare icon-large');
 
             return this.reloadVersions().then(() => {
 
-                this.toolbar.appendChildren(leftContainer, rightContainer, bottomContainer);
+                this.toolbar.appendChildren(leftContainer, this.invertButton, rightContainer);
 
                 this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
@@ -174,13 +196,10 @@ export class CompareContentVersionsDialog
         return this;
     }
 
-    setContentDisplayName(value: string): CompareContentVersionsDialog {
-        this.setTitle(i18n('dialog.compareVersions.comparingVersions', value));
-        return this;
-    }
-
-    setContentId(value: ContentId): CompareContentVersionsDialog {
-        this.contentId = value;
+    setContent(value: ContentSummary): CompareContentVersionsDialog {
+        this.content = value;
+        this.contentId = value ? value.getContentId() : null;
+        (<CompareContentVersionsDialogHeader>this.header).setSubTitle(value ? value.getPath().toString() : null);
         return this;
     }
 
@@ -366,4 +385,29 @@ export class CompareContentVersionsDialog
 
         return contentJson;
     }
+}
+
+class CompareContentVersionsDialogHeader
+    extends DefaultModalDialogHeader
+    implements ModalDialogHeader {
+
+    private readonly subTitleEl: H6El;
+
+    constructor(title: string, subtitle?: string) {
+        super(title);
+        this.subTitleEl = new H6El('sub-title');
+        this.appendChild(this.subTitleEl);
+        if (subtitle) {
+            this.setSubTitle(subtitle);
+        }
+    }
+
+    getSubTitle(): string {
+        return this.subTitleEl.getHtml();
+    }
+
+    setSubTitle(value: string, escapeHtml ?: boolean) {
+        this.subTitleEl.setHtml(value, escapeHtml);
+    }
+
 }

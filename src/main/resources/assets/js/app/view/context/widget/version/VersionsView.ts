@@ -8,7 +8,6 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
@@ -168,8 +167,7 @@ export class VersionsView
             new Action()
                 .onExecuted((action: Action) => {
                     CompareContentVersionsDialog.get()
-                        .setContentId(this.content.getContentId())
-                        .setContentDisplayName(this.content.getDisplayName())
+                        .setContent(this.content.getContentSummary())
                         .setLeftVersion(item.id)
                         .setRightVersion(this.activeVersion.id)
                         .setActiveVersion(this.activeVersion.id)
