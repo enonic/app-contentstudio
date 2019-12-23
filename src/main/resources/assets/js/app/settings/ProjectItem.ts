@@ -1,4 +1,5 @@
 import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
+import {ProjectItemJson} from './resource/json/ProjectItemJson';
 
 export class ProjectItem
     extends SettingsItem {
@@ -15,6 +16,10 @@ export class ProjectItem
         return this.projectName;
     }
 
+    static fromJson(json: ProjectItemJson): ProjectItem {
+        return new ProjectItemBuilder().fromJson(json).build();
+    }
+
 }
 
 export class ProjectItemBuilder
@@ -24,6 +29,12 @@ export class ProjectItemBuilder
 
     setProjectName(value: string): ProjectItemBuilder {
         this.projectName = value;
+        return this;
+    }
+
+    fromJson(json: ProjectItemJson): ProjectItemBuilder {
+        super.fromJson(json);
+        this.projectName = json.projectName;
         return this;
     }
 

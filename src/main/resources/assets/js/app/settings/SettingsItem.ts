@@ -1,5 +1,6 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {SettingsItemJson} from './resource/json/SettingsItemJson';
 
 export abstract class SettingsItem
     implements Equitable {
@@ -68,6 +69,12 @@ export abstract class SettingsItemBuilder {
             this.description = source.getDescription();
             this.iconClass = source.getIconClass();
         }
+    }
+
+    fromJson(json: SettingsItemJson): SettingsItemBuilder {
+        this.displayName = json.displayName;
+        this.description = json.description;
+        return this;
     }
 
     setDisplayName(displayName: string): SettingsItemBuilder {
