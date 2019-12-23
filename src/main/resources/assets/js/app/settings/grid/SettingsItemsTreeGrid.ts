@@ -10,6 +10,7 @@ import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
 import {FolderItemBuilder} from '../FolderItem';
 import {SettingsItem} from '../SettingsItem';
+import {ProjectListRequest} from '../resource/ProjectListRequest';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsItem> {
@@ -52,23 +53,33 @@ export class SettingsItemsTreeGrid
     }
 
     fetchChildren(parentNode?: TreeNode<SettingsItem>): Q.Promise<SettingsItem[]> {
-        parentNode = parentNode || this.getRoot().getCurrentRoot();
-
-        const level: number = parentNode ? parentNode.calcLevel() : 0;
-
-        if (level === 0) {
-            const projectsFolder: SettingsItem = new FolderItemBuilder()
-                .setId('projects')
-                .setDisplayName(i18n('settings.projects'))
-                .setDescription(i18n('settings.projects.description'))
-                .build();
-            return Q([projectsFolder]);
+        if (!parentNode) {
+            return this.fetchRootItems();
+        } else if (this.isProjectsFolder(parentNode.getData())) {
+            return new ProjectListRequest().sendAndParse();
         }
 
         return Q(null);
     }
 
+    private fetchRootItems(): Q.Promise<SettingsItem[]> {
+        const projectsFolder: SettingsItem = new FolderItemBuilder()
+            .setId('projects')
+            .setDisplayName(i18n('settings.projects'))
+            .setDescription(i18n('settings.projects.description'))
+            .build();
+        return Q([projectsFolder]);
+    }
+
     getDataId(item: SettingsItem): string {
         return item.getId();
+    }
+
+    hasChildren(item: SettingsItem): boolean {
+        return this.isProjectsFolder(item);
+    }
+
+    private isProjectsFolder(item: SettingsItem): boolean {
+        return item.getId() === 'projects';
     }
 }

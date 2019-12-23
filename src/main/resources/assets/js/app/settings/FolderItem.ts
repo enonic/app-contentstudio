@@ -24,7 +24,9 @@ export class FolderItemBuilder
     constructor(source?: FolderItem) {
         super(source);
 
-        this.setIconClass('icon-folder');
+        if (!source || !source.getIconClass()) {
+            this.setIconClass('icon-folder');
+        }
     }
 
     setId(value: string): FolderItemBuilder {

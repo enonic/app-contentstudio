@@ -32,6 +32,14 @@ export class ProjectItemBuilder
         return this;
     }
 
+    constructor(source?: ProjectItem) {
+        super(source);
+
+        if (!source || !source.getIconClass()) {
+            this.setIconClass('icon-tree-2');
+        }
+    }
+
     fromJson(json: ProjectItemJson): ProjectItemBuilder {
         super.fromJson(json);
         this.projectName = json.projectName;
@@ -39,7 +47,7 @@ export class ProjectItemBuilder
     }
 
     build(): ProjectItem {
-        return undefined;
+        return new ProjectItem(this);
     }
 
 }

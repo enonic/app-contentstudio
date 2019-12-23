@@ -11,10 +11,14 @@ export class ProjectListRequest
         return Path.fromParent(super.getResourcePath(), 'list');
     }
 
+    getParams(): Object {
+        return {};
+    }
+
     sendAndParse(): Q.Promise<ProjectItem[]> {
 
         return this.send().then((response: JsonResponse<ProjectItemJson[]>) => {
-            return response.getResult().map(ProjectItem.fromJson);
+            return response.getResult()['projects'].map(ProjectItem.fromJson);
         });
     }
 
