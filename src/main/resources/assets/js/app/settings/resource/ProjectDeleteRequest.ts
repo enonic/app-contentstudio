@@ -9,7 +9,7 @@ export class ProjectDeleteRequest
 
     constructor(name: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod('POST');
         this.name = name;
     }
 
