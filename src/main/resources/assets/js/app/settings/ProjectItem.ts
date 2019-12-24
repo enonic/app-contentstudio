@@ -4,16 +4,20 @@ import {ProjectItemJson} from './resource/json/ProjectItemJson';
 export class ProjectItem
     extends SettingsItem {
 
-    private projectName: string;
+    private name: string;
 
     constructor(builder: ProjectItemBuilder) {
         super(builder);
 
-        this.projectName = builder.projectName;
+        this.name = builder.name;
+    }
+
+    getName(): string {
+        return this.name;
     }
 
     getId(): string {
-        return this.projectName;
+        return this.name;
     }
 
     static fromJson(json: ProjectItemJson): ProjectItem {
@@ -25,10 +29,10 @@ export class ProjectItem
 export class ProjectItemBuilder
     extends SettingsItemBuilder {
 
-    projectName: string;
+    name: string;
 
-    setProjectName(value: string): ProjectItemBuilder {
-        this.projectName = value;
+    setName(value: string): ProjectItemBuilder {
+        this.name = value;
         return this;
     }
 
@@ -42,7 +46,7 @@ export class ProjectItemBuilder
 
     fromJson(json: ProjectItemJson): ProjectItemBuilder {
         super.fromJson(json);
-        this.projectName = json.projectName;
+        this.name = json.name;
         return this;
     }
 
