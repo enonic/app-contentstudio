@@ -24,7 +24,7 @@ export class SettingsItemsTreeGrid
             field: 'displayName',
             formatter: SettingsItemsRowFormatter.nameFormatter,
             style: {minWidth: 200}
-        }]).setPartialLoadEnabled(true).setLoadBufferSize(20).prependClasses('user-tree-grid');
+        }]).setPartialLoadEnabled(true).setLoadBufferSize(20).prependClasses('settings-tree-grid');
 
         const columns = builder.getColumns().slice(0);
         const [nameColumn] = columns;
