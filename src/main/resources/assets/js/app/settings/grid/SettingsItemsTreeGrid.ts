@@ -8,14 +8,17 @@ import {SettingsTreeGridActions} from './SettingsTreeGridActions';
 import {SettingsItemsRowFormatter} from './SettingsItemsRowFormatter';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
-import {FolderItemBuilder} from '../FolderItem';
-import {SettingsItem} from '../SettingsItem';
+import {FolderItem, FolderItemBuilder} from '../data/FolderItem';
+import {SettingsItem} from '../data/SettingsItem';
 import {ProjectListRequest} from '../resource/ProjectListRequest';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsItem> {
 
     private treeGridActions: SettingsTreeGridActions;
+
+    private static PROJECTS_FOLDER_ID: string = 'projects';
 
     constructor() {
         const builder = new TreeGridBuilder<SettingsItem>().setColumnConfig([{
@@ -64,7 +67,7 @@ export class SettingsItemsTreeGrid
 
     private fetchRootItems(): Q.Promise<SettingsItem[]> {
         const projectsFolder: SettingsItem = new FolderItemBuilder()
-            .setId('projects')
+            .setId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID)
             .setDisplayName(i18n('settings.projects'))
             .setDescription(i18n('settings.projects.description'))
             .build();
@@ -76,10 +79,10 @@ export class SettingsItemsTreeGrid
     }
 
     hasChildren(item: SettingsItem): boolean {
-        return this.isProjectsFolder(item);
+        return ObjectHelper.iFrameSafeInstanceOf(item, FolderItem);
     }
 
     private isProjectsFolder(item: SettingsItem): boolean {
-        return item.getId() === 'projects';
+        return item.getId() === SettingsItemsTreeGrid.PROJECTS_FOLDER_ID;
     }
 }

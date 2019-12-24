@@ -1,7 +1,7 @@
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {SettingsItem} from '../SettingsItem';
 
-export class SettingsTreeGridItemViewer
+export class SettingsItemViewer
     extends NamesAndIconViewer<SettingsItem> {
 
     resolveDisplayName(item: SettingsItem): string {

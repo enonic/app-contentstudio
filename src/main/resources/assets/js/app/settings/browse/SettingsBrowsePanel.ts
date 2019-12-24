@@ -3,7 +3,7 @@ import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
-import {SettingsItem} from '../SettingsItem';
+import {SettingsItem} from '../data/SettingsItem';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 

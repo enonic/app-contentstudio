@@ -1,6 +1,6 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {SettingsItemJson} from './resource/json/SettingsItemJson';
+import {SettingsItemJson} from '../resource/json/SettingsItemJson';
 
 export abstract class SettingsItem
     implements Equitable {

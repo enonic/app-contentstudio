@@ -2,7 +2,7 @@ import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
 import {SettingsAppBar} from './SettingsAppBar';
 import {ShowBrowsePanelEvent} from 'lib-admin-ui/app/ShowBrowsePanelEvent';
-import {SettingsItem} from './SettingsItem';
+import {SettingsItem} from './data/SettingsItem';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsItem> {

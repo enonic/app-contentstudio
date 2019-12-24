@@ -1,5 +1,5 @@
 import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
-import {ProjectItemJson} from './resource/json/ProjectItemJson';
+import {ProjectItemJson} from '../resource/json/ProjectItemJson';
 
 export class ProjectItem
     extends SettingsItem {

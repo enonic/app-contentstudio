@@ -1,11 +1,11 @@
-import {SettingsTreeGridItemViewer} from './SettingsTreeGridItemViewer';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesView} from 'lib-admin-ui/app/NamesView';
 import {Element} from 'lib-admin-ui/dom/Element';
-import {ProjectItem} from '../ProjectItem';
+import {ProjectItem} from '../data/ProjectItem';
+import {SettingsItemViewer} from '../data/viewer/SettingsItemViewer';
 
 export class ProjectTreeGridItemViewer
-    extends SettingsTreeGridItemViewer {
+    extends SettingsItemViewer {
 
     doLayout(item: ProjectItem) {
         super.doLayout(item);

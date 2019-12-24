@@ -1,4 +1,4 @@
-import {Toolbar} from '../../../../../../../../.xp/dev/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 
 export class SettingsBrowseToolbar

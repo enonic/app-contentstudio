@@ -7,7 +7,7 @@ import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';
 import {NewSettingsItemAction} from '../action/NewSettingsItemAction';
 import {EditSettingsItemAction} from '../action/EditSettingsItemAction';
 import {DeleteSettingsItemAction} from '../action/DeleteSettingsItemAction';
-import {SettingsItem} from '../SettingsItem';
+import {SettingsItem} from '../data/SettingsItem';
 
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsItem> {

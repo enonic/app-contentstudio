@@ -1,6 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {ProjectItemJson} from './json/ProjectItemJson';
-import {ProjectItem} from '../ProjectItem';
+import {ProjectItem} from '../data/ProjectItem';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 

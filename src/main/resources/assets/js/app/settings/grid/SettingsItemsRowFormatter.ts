@@ -1,12 +1,14 @@
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {SettingsTreeGridItemViewer} from './SettingsTreeGridItemViewer';
-import {SettingsItem} from '../SettingsItem';
+import {SettingsItem} from '../data/SettingsItem';
 import {ProjectTreeGridItemViewer} from './ProjectTreeGridItemViewer';
+import {SettingsItemViewer} from '../data/viewer/SettingsItemViewer';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ProjectItem} from '../data/ProjectItem';
 
 export class SettingsItemsRowFormatter {
 
     public static nameFormatter({}: any, {}: any, {}: any, {}: any, dataContext: TreeNode<SettingsItem>) {
-        let viewer = <SettingsTreeGridItemViewer>dataContext.getViewer('displayName');
+        let viewer = <SettingsItemViewer>dataContext.getViewer('displayName');
         if (!viewer) {
             viewer = SettingsItemsRowFormatter.getViewerForSettingsItem(dataContext.getData());
             viewer.setObject(dataContext.getData(), dataContext.calcLevel() > 1);
@@ -15,8 +17,12 @@ export class SettingsItemsRowFormatter {
         return viewer.toString();
     }
 
-    private static getViewerForSettingsItem(item: SettingsItem): SettingsTreeGridItemViewer {
-        return item.getId() === 'projects' ? new SettingsTreeGridItemViewer() : new ProjectTreeGridItemViewer();
+    private static getViewerForSettingsItem(item: SettingsItem): SettingsItemViewer {
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem)) {
+            return new ProjectTreeGridItemViewer();
+        }
+
+        return new SettingsItemViewer();
     }
 
 }
