@@ -12,6 +12,8 @@ import {FolderItem, FolderItemBuilder} from '../data/FolderItem';
 import {SettingsItem} from '../data/SettingsItem';
 import {ProjectListRequest} from '../resource/ProjectListRequest';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
+import {ProjectItem} from '../data/ProjectItem';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsItem> {
@@ -53,6 +55,13 @@ export class SettingsItemsTreeGrid
         this.treeGridActions = new SettingsTreeGridActions(this);
 
         this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
+
+        this.getGrid().subscribeOnDblClick((event, data) => {
+            if (this.isActive()) {
+                const node: TreeNode<SettingsItem> = this.getGrid().getDataView().getItem(data.row);
+                this.editItem(node);
+            }
+        });
     }
 
     fetchChildren(parentNode?: TreeNode<SettingsItem>): Q.Promise<SettingsItem[]> {
@@ -84,5 +93,12 @@ export class SettingsItemsTreeGrid
 
     private isProjectsFolder(item: SettingsItem): boolean {
         return item.getId() === SettingsItemsTreeGrid.PROJECTS_FOLDER_ID;
+    }
+
+    protected editItem(node: TreeNode<SettingsItem>) {
+        const item: SettingsItem = node.getData();
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem)) {
+            new EditSettingsItemEvent([item]).fire();
+        }
     }
 }

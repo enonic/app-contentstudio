@@ -4,9 +4,9 @@ import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';
-import {NewSettingsItemAction} from '../action/NewSettingsItemAction';
-import {EditSettingsItemAction} from '../action/EditSettingsItemAction';
-import {DeleteSettingsItemAction} from '../action/DeleteSettingsItemAction';
+import {NewSettingsItemAction} from '../browse/action/NewSettingsItemAction';
+import {EditSettingsItemAction} from '../browse/action/EditSettingsItemAction';
+import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemAction';
 import {SettingsItem} from '../data/SettingsItem';
 
 export class SettingsTreeGridActions

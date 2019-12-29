@@ -1,10 +1,10 @@
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesView} from 'lib-admin-ui/app/NamesView';
 import {Element} from 'lib-admin-ui/dom/Element';
-import {ProjectItem} from '../data/ProjectItem';
-import {SettingsItemViewer} from '../data/viewer/SettingsItemViewer';
+import {ProjectItem} from '../ProjectItem';
+import {SettingsItemViewer} from './SettingsItemViewer';
 
-export class ProjectTreeGridItemViewer
+export class ProjectItemViewer
     extends SettingsItemViewer {
 
     doLayout(item: ProjectItem) {

@@ -1,7 +1,7 @@
 import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
-import {NewSettingsItemDialog} from '../dialog/NewSettingsItemDialog';
+import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
+import {NewSettingsItemDialog} from '../../dialog/NewSettingsItemDialog';
 
 export class NewSettingsItemAction
     extends Action {

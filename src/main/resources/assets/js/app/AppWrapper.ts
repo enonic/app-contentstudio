@@ -117,7 +117,7 @@ export class AppWrapper
             this.sidebar.hide();
             this.sidebar.appendChild(this.createAppNameBlock());
             this.sidebar.appendChildren(this.actionsBlock);
-            this.toggleIcon.addClass('launcher-button');
+            this.toggleIcon.addClass('sidebar-toggler');
             this.appendChildren(this.toggleIcon, this.sidebar, this.mainPanel);
 
             return rendered;

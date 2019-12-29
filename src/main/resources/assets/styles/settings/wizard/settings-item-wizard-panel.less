@@ -1,0 +1,28 @@
+.settings-item-wizard-panel {
+
+  .wizard-step-form {
+    .input-view {
+      display: flex;
+
+      label {
+        width: 120px;
+      }
+
+      .form-input {
+        margin-left: 0px;
+        flex-grow: 1;
+      }
+    }
+  }
+
+  ._0-240 &,
+  ._240-360 &,
+  ._360-540 &,
+  ._540-720 & {
+    .wizard-step-form {
+      .input-view {
+        flex-direction: column;
+      }
+    }
+  }
+}
