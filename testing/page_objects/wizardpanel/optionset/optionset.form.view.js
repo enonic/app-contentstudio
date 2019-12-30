@@ -5,8 +5,8 @@ const Page = require('../../page');
 const lib = require('../../../libs/elements');
 
 const xpath = {
-    option1Radio: "//span[contains(@id,'api.ui.RadioButton') and child::label[text()='Option 1']]",
-    option2Radio: "//span[contains(@id,'api.ui.RadioButton') and child::label[text()='Option 2']]",
+    option1Radio: "//span[contains(@id,'RadioButton') and child::label[text()='Option 1']]",
+    option2Radio: "//span[contains(@id,'RadioButton') and child::label[text()='Option 2']]",
     titleInput: `//input[contains(@name,'title')]`,
 };
 
@@ -25,6 +25,3 @@ class OptionSetFormView extends Page {
     }
 };
 module.exports = OptionSetFormView;
-
-
-

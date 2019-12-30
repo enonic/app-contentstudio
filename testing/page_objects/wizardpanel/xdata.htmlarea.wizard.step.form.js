@@ -21,7 +21,7 @@ class XDataHtmlArea extends Page {
     }
 
     waitForHtmlAreaVisible() {
-        return this.waitForElementDisplayed(XPATH.container + `//div[contains(@id,'cke_api.ui.text.TextArea')]`);
+        return this.waitForElementDisplayed(XPATH.container + `//div[contains(@id,'cke_TextArea')]`);
     }
 };
 module.exports = XDataHtmlArea;

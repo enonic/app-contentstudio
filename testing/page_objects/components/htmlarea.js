@@ -28,7 +28,7 @@ class HtmlArea extends Page {
     }
 
     getTextFromHtmlArea(container) {
-        return this.waitForElementDisplayed(container + `//div[contains(@id,'cke_api.ui.text.TextArea')]`,
+        return this.waitForElementDisplayed(container + `//div[contains(@id,'cke_TextArea')]`,
             appConst.TIMEOUT_3).then(() => {
             return this.getIdOfHtmlArea(container + lib.TEXT_AREA);
         }).then(id => {

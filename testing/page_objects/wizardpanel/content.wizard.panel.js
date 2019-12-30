@@ -47,7 +47,7 @@ const XPATH = {
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
-    stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
+    stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
