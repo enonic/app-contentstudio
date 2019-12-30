@@ -3,15 +3,12 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../libs/studio.utils.js');
-
 
 describe('browse.panel.sorticon.spec, do sort a folder and check a sort-icon in the grid`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

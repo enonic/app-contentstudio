@@ -8,7 +8,7 @@ const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
 
 const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
-    ckeTextArea: `//div[contains(@id,'cke_api.ui.text.TextArea')]`,
+    ckeTextArea: `//div[contains(@id,'cke_TextArea')]`,
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
     insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
     insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,

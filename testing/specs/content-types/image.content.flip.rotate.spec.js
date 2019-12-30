@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -70,6 +68,8 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await studioUtils.doClickOnEditAndOpenContent(IMAGE_DISPLAY_NAME);
                 // Reset Filter button should be displayed
                 await imageFormPanel.waitForResetFilterDisplayed();
+                //'Save' button should be disabled:
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
