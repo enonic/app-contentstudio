@@ -1,17 +1,22 @@
-import PropertyPath = api.data.PropertyPath;
-import PropertyPathElement = api.data.PropertyPathElement;
-import PropertyArray = api.data.PropertyArray;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
+import * as Q from 'q';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {Class} from 'lib-admin-ui/Class';
+import {PropertyPath, PropertyPathElement} from 'lib-admin-ui/data/PropertyPath';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {ContentTagSuggester, ContentTagSuggesterBuilder} from './ContentTagSuggester';
 import {Tags, TagsBuilder} from '../ui/tag/Tags';
 import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
 import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 
 export class Tag
-    extends api.form.inputtype.support.BaseInputTypeManagingAdd {
+    extends BaseInputTypeManagingAdd {
 
     private context: ContentInputTypeViewContext;
 
@@ -53,9 +58,9 @@ export class Tag
         return null;
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
-            propertyArray.convertValues(ValueTypes.STRING);
+            propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
         super.layout(input, propertyArray);
 
@@ -92,10 +97,10 @@ export class Tag
 
         this.setLayoutInProgress(false);
 
-        return wemQ<void>(null);
+        return Q<void>(null);
     }
 
-    update(propertyArray: api.data.PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         let superPromise = super.update(propertyArray, unchangedOnly);
 
         if (!unchangedOnly || !this.tags.isDirty()) {
@@ -150,4 +155,4 @@ export class Tag
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('Tag', Tag));
+InputTypeManager.register(new Class('Tag', Tag));

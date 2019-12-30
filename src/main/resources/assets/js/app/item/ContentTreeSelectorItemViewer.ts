@@ -1,9 +1,11 @@
-import ContentUnnamed = api.content.ContentUnnamed;
-import ContentPath = api.content.ContentPath;
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export class ContentTreeSelectorItemViewer
-    extends api.ui.NamesAndIconViewer<ContentTreeSelectorItem> {
+    extends NamesAndIconViewer<ContentTreeSelectorItem> {
 
     constructor() {
         super('content-tree-selector-item-viewer');
@@ -41,7 +43,7 @@ export class ContentTreeSelectorItemViewer
 
     resolveIconUrl(object: ContentTreeSelectorItem): string {
         if (object) {
-            return new api.content.util.ContentIconUrlResolver().setContent(object.getContent()).resolve();
+            return new ContentIconUrlResolver().setContent(object.getContent()).resolve();
         }
     }
 }

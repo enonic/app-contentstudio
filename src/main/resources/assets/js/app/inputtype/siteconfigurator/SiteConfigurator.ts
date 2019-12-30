@@ -1,24 +1,31 @@
-import Property = api.data.Property;
-import PropertyArray = api.data.PropertyArray;
-import FormView = api.form.FormView;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import Application = api.application.Application;
-import ApplicationConfig = api.application.ApplicationConfig;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationEvent = api.application.ApplicationEvent;
-import ApplicationEventType = api.application.ApplicationEventType;
-import ApplicationConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
+import * as Q from 'q';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {Property} from 'lib-admin-ui/data/Property';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {Application} from 'lib-admin-ui/application/Application';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentFormContext} from '../../ContentFormContext';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 
 export class SiteConfigurator
-    extends api.form.inputtype.support.BaseInputTypeManagingAdd {
+    extends BaseInputTypeManagingAdd {
 
     private readOnly: boolean;
 
@@ -28,14 +35,14 @@ export class SiteConfigurator
 
     private formContext: ContentFormContext;
 
-    private readOnlyPromise: wemQ.Promise<void>;
+    private readOnlyPromise: Q.Promise<void>;
 
     constructor(config: ContentInputTypeViewContext) {
         super('application-configurator');
         this.formContext = config.formContext;
 
         this.readOnlyPromise =
-            new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 this.readOnly = !loginResult.isContentAdmin();
             });
     }
@@ -48,11 +55,11 @@ export class SiteConfigurator
         return null;
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
 
         super.layout(input, propertyArray);
 
-        let deferred = wemQ.defer<void>();
+        let deferred = Q.defer<void>();
 
         this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
         // ignore changes made to property by siteConfigProvider
@@ -77,7 +84,7 @@ export class SiteConfigurator
         return deferred.promise;
     }
 
-    update(propertyArray: api.data.PropertyArray, unchangedOnly?: boolean): wemQ.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
             const optionsMissing = !!propertyArray && propertyArray.getSize() > 0 && this.comboBox.getOptions().length === 0;
             return optionsMissing ? this.comboBox.getLoader().preLoad() : null;
@@ -97,7 +104,7 @@ export class SiteConfigurator
                 return view.getFormView().update(configSet, unchangedOnly);
             });
 
-            return wemQ.all(updatePromises).then(() => {
+            return Q.all(updatePromises).then(() => {
                 this.ignorePropertyChange = ignorePropertyChange;
                 if (!unchangedOnly || !this.comboBox.isDirty()) {
                     this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
@@ -155,7 +162,7 @@ export class SiteConfigurator
         propertySet.setPropertySetByPath('config', config);
     }
 
-    protected getValueFromPropertyArray(propertyArray: api.data.PropertyArray): string {
+    protected getValueFromPropertyArray(propertyArray: PropertyArray): string {
         return propertyArray.getProperties().map((property) => {
             if (property.hasNonNullValue()) {
                 let siteConfig = ApplicationConfig.create().fromData(property.getPropertySet()).build();
@@ -164,7 +171,7 @@ export class SiteConfigurator
         }).join(';');
     }
 
-    private createComboBox(input: api.form.Input, siteConfigProvider: ApplicationConfigProvider): SiteConfiguratorComboBox {
+    private createComboBox(input: Input, siteConfigProvider: ApplicationConfigProvider): SiteConfiguratorComboBox {
 
         const value = this.getValueFromPropertyArray(this.getPropertyArray());
         const siteConfigFormsToDisplay = value.split(';');
@@ -280,8 +287,8 @@ export class SiteConfigurator
         return this.comboBox.countSelected();
     }
 
-    validate(silent: boolean = true): api.form.inputtype.InputValidationRecording {
-        let recording = new api.form.inputtype.InputValidationRecording();
+    validate(silent: boolean = true): InputValidationRecording {
+        let recording = new InputValidationRecording();
 
         this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
 
@@ -306,4 +313,4 @@ export class SiteConfigurator
 
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('SiteConfigurator', SiteConfigurator));
+InputTypeManager.register(new Class('SiteConfigurator', SiteConfigurator));

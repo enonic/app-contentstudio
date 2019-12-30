@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
 import {ActiveContentVersionJson} from './json/ActiveContentVersionJson';
 import {ContentVersionJson} from './json/ContentVersionJson';
@@ -22,13 +25,13 @@ export class GetActiveContentVersionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getActiveVersions');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'getActiveVersions');
     }
 
-    sendAndParse(): wemQ.Promise<ContentVersion[]> {
+    sendAndParse(): Q.Promise<ContentVersion[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<GetActiveContentVersionsResultsJson>) => {
+        return this.send().then((response: JsonResponse<GetActiveContentVersionsResultsJson>) => {
             return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
         });
     }

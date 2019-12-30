@@ -1,9 +1,14 @@
-import Property = api.data.Property;
-import PropertySet = api.data.PropertySet;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {Property} from 'lib-admin-ui/data/Property';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
@@ -11,13 +16,19 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {Point, Rect} from '../ui/selector/image/ImageEditor';
 import {Content} from '../../content/Content';
+import {BaseInputTypeSingleOccurrence} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
+import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {InputValidityChangedEvent} from 'lib-admin-ui/form/inputtype/InputValidityChangedEvent';
 
 export class ImageUploader
-    extends api.form.inputtype.support.BaseInputTypeSingleOccurrence {
+    extends BaseInputTypeSingleOccurrence {
 
     private imageUploader: ImageUploaderEl;
 
-    private previousValidationRecording: api.form.inputtype.InputValidationRecording;
+    private previousValidationRecording: InputValidationRecording;
 
     private isCropAutoPositioned: boolean;
 
@@ -36,7 +47,6 @@ export class ImageUploader
             },
             operation: MediaUploaderElOperation.update,
             name: config.input.getName(),
-            maximumOccurrences: 1,
             hideDefaultDropZone: true,
             selfIsDropzone: false
         });
@@ -57,9 +67,9 @@ export class ImageUploader
         return ValueTypes.STRING.newNullValue();
     }
 
-    layoutProperty(input: api.form.Input, property: Property): wemQ.Promise<void> {
+    layoutProperty(input: Input, property: Property): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(property.getType()) && !ValueTypes.DATA.equals(property.getType())) {
-            property.convertValueType(ValueTypes.STRING);
+            property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
         this.input = input;
@@ -76,7 +86,7 @@ export class ImageUploader
                 this.readOrientation(content));
 
             this.saveToProperty(value);
-            api.notify.showFeedback(content.getDisplayName() + ' saved');
+            showFeedback(content.getDisplayName() + ' saved');
         });
 
         this.imageUploader.onUploadCompleted(() => this.imageUploader.resetBaseValues());
@@ -125,10 +135,10 @@ export class ImageUploader
             this.writeOrientation(<Content>this.getContext().content, orientation);
         });
 
-        return property.hasNonNullValue() ? this.updateProperty(property) : wemQ<void>(null);
+        return property.hasNonNullValue() ? this.updateProperty(property) : Q<void>(null);
     }
 
-    protected saveToProperty(value: api.data.Value) {
+    protected saveToProperty(value: Value) {
         this.ignorePropertyChange = true;
         let property = this.getProperty();
         switch (property.getType()) {
@@ -154,7 +164,7 @@ export class ImageUploader
         this.ignorePropertyChange = false;
     }
 
-    updateProperty(_property: api.data.Property, unchangedOnly?: boolean): Q.Promise<void> {
+    updateProperty(_property: Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
 
             return new GetContentByIdRequest(this.getContext().content.getContentId())
@@ -169,12 +179,12 @@ export class ImageUploader
                     this.configEditorsProperties(content);
 
                 }).catch((reason: any) => {
-                    api.DefaultErrorHandler.handle(reason);
+                    DefaultErrorHandler.handle(reason);
                 });
         } else if (this.imageUploader.isDirty()) {
             this.imageUploader.forceChangedEvent();
         }
-        return wemQ<void>(null);
+        return Q<void>(null);
     }
 
     reset() {
@@ -239,7 +249,7 @@ export class ImageUploader
             break;
         case ValueTypes.STRING:
             // save in new format always no matter what was the format originally
-            container = new api.data.PropertyTree().getRoot();
+            container = new PropertyTree().getRoot();
             container.setString('attachment', 0, property.getString());
             let propertyParent = property.getParent();
             let propertyName = property.getName();
@@ -318,7 +328,7 @@ export class ImageUploader
 
     private readSizeValue(content: Content, propertyName: string): number {
         let metaData = content.getProperty('metadata');
-        if (metaData && api.data.ValueTypes.DATA.equals(metaData.getType())) {
+        if (metaData && ValueTypes.DATA.equals(metaData.getType())) {
             return parseInt(metaData.getPropertySet().getProperty(propertyName).getString(), 10);
         } else {
             metaData = this.getMetaProperty(content, propertyName);
@@ -364,8 +374,8 @@ export class ImageUploader
         }
     }
 
-    validate(silent: boolean = true): api.form.inputtype.InputValidationRecording {
-        let recording = new api.form.inputtype.InputValidationRecording();
+    validate(silent: boolean = true): InputValidationRecording {
+        let recording = new InputValidationRecording();
         let propertyValue = this.getProperty().getValue();
 
         if (this.imageUploader.isFocalPointEditMode() || this.imageUploader.isCropEditMode()) {
@@ -376,7 +386,7 @@ export class ImageUploader
         }
         if (!silent) {
             if (recording.validityChanged(this.previousValidationRecording)) {
-                this.notifyValidityChanged(new api.form.inputtype.InputValidityChangedEvent(recording, this.input.getName()));
+                this.notifyValidityChanged(new InputValidityChangedEvent(recording, this.input.getName()));
             }
         }
         this.previousValidationRecording = recording;
@@ -401,4 +411,4 @@ export class ImageUploader
 
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('ImageUploader', ImageUploader));
+InputTypeManager.register(new Class('ImageUploader', ImageUploader));

@@ -1,18 +1,20 @@
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {GetContentByIdRequest} from './GetContentByIdRequest';
 import {GetContentSummaryByIds} from './GetContentSummaryByIds';
 import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
 import {Content} from '../content/Content';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export class ContentSummaryFetcher {
 
     static fetchChildren(parentContentId: ContentId, from: number = 0, size: number = -1,
-                         childOrder?: api.content.order.ChildOrder): wemQ.Promise<ContentResponse<ContentSummary>> {
+                         childOrder?: ChildOrder): Q.Promise<ContentResponse<ContentSummary>> {
 
-        let deferred = wemQ.defer<ContentResponse<ContentSummary>>();
+        let deferred = Q.defer<ContentResponse<ContentSummary>>();
 
         new ListContentByIdRequest(parentContentId).setFrom(from).setSize(size).setOrder(childOrder).sendAndParse().then(
             (response: ContentResponse<ContentSummary>) => {
@@ -22,9 +24,9 @@ export class ContentSummaryFetcher {
         return deferred.promise;
     }
 
-    static fetch(contentId: ContentId): wemQ.Promise<Content> {
+    static fetch(contentId: ContentId): Q.Promise<Content> {
 
-        let deferred = wemQ.defer<Content>();
+        let deferred = Q.defer<Content>();
 
         new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
             deferred.resolve(content);
@@ -33,9 +35,9 @@ export class ContentSummaryFetcher {
         return deferred.promise;
     }
 
-    static fetchByIds(ids: ContentId[]): wemQ.Promise<ContentSummary[]> {
+    static fetchByIds(ids: ContentId[]): Q.Promise<ContentSummary[]> {
 
-        let deferred = wemQ.defer<ContentSummary[]>();
+        let deferred = Q.defer<ContentSummary[]>();
 
         if (ids.length > 0) {
             new GetContentSummaryByIds(ids).sendAndParse().then((contentSummaries: ContentSummary[]) => {
@@ -48,7 +50,7 @@ export class ContentSummaryFetcher {
         return deferred.promise;
     }
 
-    static getReadOnly(contents: ContentSummary[]): wemQ.Promise<string[]> {
+    static getReadOnly(contents: ContentSummary[]): Q.Promise<string[]> {
         return new IsContentReadOnlyRequest(contents.map(content => content.getContentId())).sendAndParse();
     }
 }

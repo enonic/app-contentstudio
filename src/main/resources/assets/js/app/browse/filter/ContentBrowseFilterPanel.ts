@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
@@ -7,31 +13,45 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
+import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
+import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
+import {
+    TermsAggregationOrderDirection,
+    TermsAggregationOrderType,
+    TermsAggregationQuery
+} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
+import {DateRangeAggregationQuery} from 'lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
+import {DateRange} from 'lib-admin-ui/query/aggregation/DateRange';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
+import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
+import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
+import {BrowseFilterPanel, ConstraintSection} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
+import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
+import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
+import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {RangeFilter} from 'lib-admin-ui/query/filter/RangeFilter';
+import {DateRangeBucket} from 'lib-admin-ui/aggregation/DateRangeBucket';
+import {BooleanFilter} from 'lib-admin-ui/query/filter/BooleanFilter';
+import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {Expand} from 'lib-admin-ui/rest/Expand';
+import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../ContentIds';
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import AggregationGroupView = api.aggregation.AggregationGroupView;
-import Aggregation = api.aggregation.Aggregation;
-import SearchInputValues = api.query.SearchInputValues;
-import TermsAggregationQuery = api.query.aggregation.TermsAggregationQuery;
-import DateRangeAggregationQuery = api.query.aggregation.DateRangeAggregationQuery;
-import DateRange = api.query.aggregation.DateRange;
-import QueryExpr = api.query.expr.QueryExpr;
-import CompareExpr = api.query.expr.CompareExpr;
-import LogicalExpr = api.query.expr.LogicalExpr;
-import ValueExpr = api.query.expr.ValueExpr;
-import LogicalOperator = api.query.expr.LogicalOperator;
-import FieldExpr = api.query.expr.FieldExpr;
-import QueryField = api.query.QueryField;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import BrowseFilterResetEvent = api.app.browse.filter.BrowseFilterResetEvent;
-import BrowseFilterRefreshEvent = api.app.browse.filter.BrowseFilterRefreshEvent;
-import BrowseFilterSearchEvent = api.app.browse.filter.BrowseFilterSearchEvent;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
 
-export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilterPanel<ContentSummaryAndCompareStatus> {
+export class ContentBrowseFilterPanel
+    extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
@@ -55,12 +75,12 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
     private handleEvents() {
         const handler = ContentServerEventsHandler.getInstance();
 
-        handler.onContentDeleted((data: api.content.event.ContentServerChangeItem[]) => {
+        handler.onContentDeleted((data: ContentServerChangeItem[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
 
-            const isDependencyItemDeleted = data.some((item: api.content.event.ContentServerChangeItem) => {
+            const isDependencyItemDeleted = data.some((item: ContentServerChangeItem) => {
                 return item.getContentId().equals(this.dependenciesSection.getDependencyId());
             });
 
@@ -90,7 +110,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
     }
 
-    protected getGroupViews(): api.aggregation.AggregationGroupView[] {
+    protected getGroupViews(): AggregationGroupView[] {
         this.contentTypeAggregation = new ContentTypeAggregationGroupView(
             ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME,
             ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_DISPLAY_NAME);
@@ -126,17 +146,17 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             return;
         }
 
-        (<api.aggregation.BucketAggregationView>this.contentTypeAggregation.getAggregationViews()[0]).selectBucketViewByKey(key);
+        (<BucketAggregationView>this.contentTypeAggregation.getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
-    doRefresh(): wemQ.Promise<void>  {
+    doRefresh(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
             return this.handleEmptyFilterInput(true);
         }
         return this.refreshDataAndHandleResponse(this.createContentQuery());
     }
 
-    protected doSearch(): wemQ.Promise<void>  {
+    protected doSearch(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
             return this.handleEmptyFilterInput();
         }
@@ -153,11 +173,11 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         return super.isFilteredOrConstrained() || this.dependenciesSection.isActive();
     }
 
-    private handleEmptyFilterInput(isRefresh?: boolean): wemQ.Promise<void>  {
+    private handleEmptyFilterInput(isRefresh?: boolean): Q.Promise<void> {
         if (isRefresh) {
             return this.resetFacets(true, true).then(() => {
                 new BrowseFilterRefreshEvent().fire();
-            }).catch(api.DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle);
         }
         // it's SearchEvent, usual reset with grid reload
         return this.reset();
@@ -172,7 +192,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
             this.appendOutboundReferencesFilter(contentQuery);
         }
 
-        let lastModifiedFilter: api.query.filter.Filter = this.appendLastModifiedQuery(values);
+        let lastModifiedFilter: Filter = this.appendLastModifiedQuery(values);
         if (lastModifiedFilter != null) {
             contentQuery.addQueryFilter(lastModifiedFilter);
         }
@@ -185,9 +205,9 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         return contentQuery;
     }
 
-    private searchDataAndHandleResponse(contentQuery: ContentQuery): wemQ.Promise<void>  {
+    private searchDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
         return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery)
-            .setExpand(api.rest.Expand.SUMMARY)
+            .setExpand(Expand.SUMMARY)
             .sendAndParse()
             .then((contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
                 if (this.dependenciesSection.isActive() && contentQueryResult.getAggregations().length === 0) {
@@ -196,12 +216,12 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                     return this.handleDataSearchResult(contentQuery, contentQueryResult);
                 }
             })
-            .catch(api.DefaultErrorHandler.handle);
+            .catch(DefaultErrorHandler.handle);
     }
 
-    private refreshDataAndHandleResponse(contentQuery: ContentQuery): wemQ.Promise<void>  {
+    private refreshDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
         return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery)
-            .setExpand(api.rest.Expand.SUMMARY)
+            .setExpand(Expand.SUMMARY)
             .sendAndParse()
             .then((contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
                 if (contentQueryResult.getMetadata().getTotalHits() > 0) {
@@ -210,7 +230,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                     this.handleNoSearchResultOnRefresh(contentQuery);
                 }
             })
-            .catch(api.DefaultErrorHandler.handle);
+            .catch(DefaultErrorHandler.handle);
     }
 
     private handleDataSearchResult(contentQuery: ContentQuery,
@@ -223,7 +243,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         });
     }
 
-    private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): wemQ.Promise<void>  {
+    private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): Q.Promise<void> {
         // remove content type facet from search if both content types and date are filtered
         if (this.contentTypesAndRangeFiltersUsed(contentQuery)) {
             return this.refreshDataAndHandleResponse(this.cloneContentQueryNoContentTypes(contentQuery));
@@ -255,16 +275,16 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
     }
 
     private getAggregations(contentQuery: ContentQuery,
-                            contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>): wemQ.Promise<Aggregation[]> {
+                            contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
 
         let clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
 
-        if (api.ObjectHelper.objectEquals(contentQuery, clonedContentQueryNoContentTypes)) {
-            return wemQ(this.combineAggregations(contentQueryResult, contentQueryResult));
+        if (ObjectHelper.objectEquals(contentQuery, clonedContentQueryNoContentTypes)) {
+            return Q(this.combineAggregations(contentQueryResult, contentQueryResult));
         }
 
         return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(clonedContentQueryNoContentTypes).setExpand(
-            api.rest.Expand.SUMMARY).sendAndParse().then(
+            Expand.SUMMARY).sendAndParse().then(
             (contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
                 return this.combineAggregations(contentQueryResult, contentQueryResultNoContentTypesSelected);
             });
@@ -299,11 +319,11 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                     aggregationGroupView.initialize();
                 });
             }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).done();
     }
 
-    protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): wemQ.Promise<void>  {
+    protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
 
         let contentQuery: ContentQuery = this.buildAggregationsQuery();
 
@@ -323,7 +343,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
                 }
             }
         ).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 
@@ -349,10 +369,10 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
 
         if (selectionMode || this.dependenciesSection.isInbound()) {
             query = new QueryExpr(new LogicalExpr(fulltextSearchExpression,
-                                            LogicalOperator.AND,
-                                            selectionMode ?
-                                            this.makeSelectedItemsSearchExpr() : this.makeInboundDependenciesSearchExpr()
-                            ), ContentSummaryRequest.ROOT_ORDER);
+                LogicalOperator.AND,
+                selectionMode ?
+                this.makeSelectedItemsSearchExpr() : this.makeInboundDependenciesSearchExpr()
+            ), ContentSummaryRequest.ROOT_ORDER);
         } else {
             query = new QueryExpr(fulltextSearchExpression, ContentSummaryRequest.ROOT_ORDER);
         }
@@ -360,7 +380,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         contentQuery.setQueryExpr(query);
     }
 
-    private makeSelectedItemsSearchExpr(): api.query.expr.Expression {
+    private makeSelectedItemsSearchExpr(): Expression {
         let selectedItems = this.getSelectionItems();
         let query: QueryExpr;
 
@@ -376,7 +396,7 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         return query;
     }
 
-    private makeInboundDependenciesSearchExpr(): api.query.expr.Expression {
+    private makeInboundDependenciesSearchExpr(): Expression {
         let dependencyId = this.dependenciesSection.getDependencyId().toString();
 
         let query: QueryExpr = new QueryExpr(new LogicalExpr(
@@ -387,17 +407,17 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         return query;
     }
 
-    private makeFulltextSearchExpr(searchInputValues: SearchInputValues): api.query.expr.Expression {
+    private makeFulltextSearchExpr(searchInputValues: SearchInputValues): Expression {
 
         let searchString: string = searchInputValues.getTextSearchFieldValue();
 
-        return new api.query.FulltextSearchExpressionBuilder().setSearchString(
+        return new FulltextSearchExpressionBuilder().setSearchString(
             searchString).addField(new QueryField(QueryField.DISPLAY_NAME, 5)).addField(new QueryField(QueryField.NAME, 3)).addField(
             new QueryField(QueryField.ALL)).build();
     }
 
     private appendContentTypeFilter(searchInputValues: SearchInputValues, contentQuery: ContentQuery): void {
-        let selectedBuckets: api.aggregation.Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
+        let selectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
             ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME);
 
         let contentTypeNames: ContentTypeName[] = this.parseContentTypeNames(selectedBuckets);
@@ -423,9 +443,9 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         contentQuery.setMustBeReferencedById(this.dependenciesSection.getDependencyId());
     }
 
-    private appendLastModifiedQuery(searchInputValues: api.query.SearchInputValues): api.query.filter.Filter {
+    private appendLastModifiedQuery(searchInputValues: SearchInputValues): Filter {
 
-        let lastModifiedSelectedBuckets: api.aggregation.Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
+        let lastModifiedSelectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME);
 
         if (lastModifiedSelectedBuckets == null || lastModifiedSelectedBuckets.length === 0) {
@@ -433,30 +453,30 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         }
 
         if (lastModifiedSelectedBuckets.length === 1) {
-            let dateRangeBucket: api.aggregation.DateRangeBucket = <api.aggregation.DateRangeBucket> lastModifiedSelectedBuckets.pop();
-            return new api.query.filter.RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
+            let dateRangeBucket: DateRangeBucket = <DateRangeBucket> lastModifiedSelectedBuckets.pop();
+            return new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
                 null);
         }
 
-        let booleanFilter: api.query.filter.BooleanFilter = new api.query.filter.BooleanFilter();
+        let booleanFilter: BooleanFilter = new BooleanFilter();
 
-        lastModifiedSelectedBuckets.forEach((selectedBucket: api.aggregation.DateRangeBucket) => {
-            let rangeFilter: api.query.filter.RangeFilter =
-                new api.query.filter.RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
+        lastModifiedSelectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
+            let rangeFilter: RangeFilter =
+                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
                     null);
 
-            booleanFilter.addShould(<api.query.filter.Filter>rangeFilter);
+            booleanFilter.addShould(<Filter>rangeFilter);
         });
 
         return booleanFilter;
     }
 
-    private parseContentTypeNames(buckets: api.aggregation.Bucket[]): ContentTypeName[] {
+    private parseContentTypeNames(buckets: Bucket[]): ContentTypeName[] {
         let contentTypeNames: ContentTypeName[] = [];
 
         if (buckets) {
             for (let i = 0; i < buckets.length; i++) {
-                let bucket: api.aggregation.Bucket = buckets[i];
+                let bucket: Bucket = buckets[i];
                 contentTypeNames.push(new ContentTypeName(bucket.getKey()));
             }
         }
@@ -473,8 +493,8 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
         let termsAggregation = new TermsAggregationQuery(name);
         termsAggregation.setFieldName(fieldName);
         termsAggregation.setSize(size);
-        termsAggregation.setOrderByType(api.query.aggregation.TermsAggregationOrderType.DOC_COUNT);
-        termsAggregation.setOrderByDirection(api.query.aggregation.TermsAggregationOrderDirection.DESC);
+        termsAggregation.setOrderByType(TermsAggregationOrderType.DOC_COUNT);
+        termsAggregation.setOrderByDirection(TermsAggregationOrderDirection.DESC);
         return termsAggregation;
     }
 
@@ -490,16 +510,16 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
     }
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
-        aggregations.forEach((aggregation: api.aggregation.BucketAggregation) => {
-            let aggregationIsEmpty = !aggregation.getBuckets().some((bucket: api.aggregation.Bucket) => {
+        aggregations.forEach((aggregation: BucketAggregation) => {
+            let aggregationIsEmpty = !aggregation.getBuckets().some((bucket: Bucket) => {
                 if (bucket.docCount > 0) {
                     return true;
                 }
             });
 
             let aggregationGroupView = aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME
-                ? this.contentTypeAggregation
-                : this.lastModifiedAggregation;
+                                       ? this.contentTypeAggregation
+                                       : this.lastModifiedAggregation;
 
             if (aggregationIsEmpty) {
                 aggregationGroupView.hide();
@@ -511,7 +531,8 @@ export class ContentBrowseFilterPanel extends api.app.browse.filter.BrowseFilter
 
 }
 
-export class DependenciesSection extends api.app.browse.filter.ConstraintSection<ContentSummaryAndCompareStatus> {
+export class DependenciesSection
+    extends ConstraintSection<ContentSummaryAndCompareStatus> {
     private viewer: ContentSummaryViewer = new ContentSummaryViewer();
 
     private inbound: boolean = true;
@@ -525,7 +546,7 @@ export class DependenciesSection extends api.app.browse.filter.ConstraintSection
         this.appendChild(this.viewer);
     }
 
-    public getDependencyId(): api.content.ContentId {
+    public getDependencyId(): ContentId {
         return this.getDependencyItem().getContentId();
     }
 

@@ -1,3 +1,4 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ComponentName} from './ComponentName';
 
 export class ComponentType {
@@ -20,6 +21,6 @@ export class ComponentType {
     }
 
     getDefaultName(): ComponentName {
-        return new ComponentName(api.util.StringHelper.capitalize(api.util.StringHelper.removeWhitespaces(this.shortName)));
+        return new ComponentName(StringHelper.capitalize(StringHelper.removeWhitespaces(this.shortName)));
     }
 }

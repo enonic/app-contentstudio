@@ -1,5 +1,5 @@
-import ApplicationConfiguratorDialog = api.form.inputtype.appconfig.ApplicationConfiguratorDialog;
-
+import * as Q from 'q';
+import {ApplicationConfiguratorDialog} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
 export class SiteConfiguratorDialog
     extends ApplicationConfiguratorDialog {
 

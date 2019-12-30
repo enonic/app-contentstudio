@@ -1,17 +1,23 @@
-import FormItem = api.ui.form.FormItem;
-import Validators = api.ui.form.Validators;
-import ApplicationKey = api.application.ApplicationKey;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import MacroDescriptor = api.macro.MacroDescriptor;
-import GetMacrosRequest = api.macro.resource.GetMacrosRequest;
-import PropertySet = api.data.PropertySet;
-import MacrosLoader = api.macro.resource.MacrosLoader;
-import MacroComboBox = api.macro.MacroComboBox;
-import ContentSummary = api.content.ContentSummary;
-import i18n = api.util.i18n;
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
+import {GetMacrosRequest} from 'lib-admin-ui/macro/resource/GetMacrosRequest';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {MacrosLoader} from 'lib-admin-ui/macro/resource/MacrosLoader';
+import {MacroComboBox} from 'lib-admin-ui/macro/MacroComboBox';
 import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -39,7 +45,7 @@ export class MacroModalDialog
         super(<MacroModalDialogConfig>{
             editor: config.editor,
             title: i18n('dialog.macro.title'),
-            selectedMacro: !!config.macro.name ? config.macro : null,
+            selectedMacro: config.macro.name ? config.macro : null,
             applicationKeys: applicationKeys,
             class: 'macro-modal-dialog macro-selector',
             content: content,
@@ -60,7 +66,7 @@ export class MacroModalDialog
         this.content = this.config.content;
         this.macroDockedPanel = this.createMacroDockedPanel();
         this.initFieldsValues();
-        this.setSubmitAction(new api.ui.Action(i18n('action.insert')));
+        this.setSubmitAction(new Action(i18n('action.insert')));
     }
 
     protected initListeners() {
@@ -87,7 +93,7 @@ export class MacroModalDialog
     }
 
     private setupResizeListener() {
-        const onResize = api.util.AppHelper.debounce(() => {
+        const onResize = AppHelper.debounce(() => {
             const formView = this.macroDockedPanel.getConfigForm();
 
             if (!formView) {
@@ -95,7 +101,7 @@ export class MacroModalDialog
             }
 
             const dialogHeight = this.getEl().getHeight();
-            if (dialogHeight >= (wemjq('body').height() - 100)) {
+            if (dialogHeight >= ($('body').height() - 100)) {
                 formView.getEl().setHeightPx(0.5 * dialogHeight);
             }
         }, 500, true);
@@ -141,7 +147,7 @@ export class MacroModalDialog
             this.macroFormItem.removeClass('selected-item-preview');
             this.removeClass('shows-preview');
             this.displayValidationErrors(false);
-            api.ui.responsive.ResponsiveManager.fireResizeEvent();
+            ResponsiveManager.fireResizeEvent();
         });
     }
 
@@ -170,16 +176,16 @@ export class MacroModalDialog
         return loader;
     }
 
-    private getSelectedMacroDescriptor(): wemQ.Promise<MacroDescriptor> {
+    private getSelectedMacroDescriptor(): Q.Promise<MacroDescriptor> {
         return this.fetchMacros().then((macros: MacroDescriptor[]) => {
             return macros.filter((macro: MacroDescriptor) => macro.getKey().getName() === this.selectedMacro.name).pop();
         }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
             return null;
         });
     }
 
-    private fetchMacros(): wemQ.Promise<MacroDescriptor[]> {
+    private fetchMacros(): Q.Promise<MacroDescriptor[]> {
         const request: GetMacrosRequest = new GetMacrosRequest();
         request.setApplicationKeys(this.applicationKeys);
 
@@ -209,8 +215,8 @@ export class MacroModalDialog
 
             this.close();
         }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
-            api.notify.showError(i18n('dialog.macro.error'));
+            DefaultErrorHandler.handle(reason);
+            showError(i18n('dialog.macro.error'));
         });
     }
 

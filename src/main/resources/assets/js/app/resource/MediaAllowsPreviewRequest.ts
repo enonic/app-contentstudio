@@ -1,6 +1,7 @@
-import ContentId = api.content.ContentId;
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {JsonResourceRequest} from './JsonResourceRequest';
 
 export class MediaAllowsPreviewRequest
@@ -28,7 +29,7 @@ export class MediaAllowsPreviewRequest
         return Path.fromParent(super.getRestPath(), 'content', 'media', 'isAllowPreview');
     }
 
-    sendAndParse(): wemQ.Promise<boolean> {
+    sendAndParse(): Q.Promise<boolean> {
         return this.send().then((response: JsonResponse<boolean>) => {
             return response.getResult();
         });

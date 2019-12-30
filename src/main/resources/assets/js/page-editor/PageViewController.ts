@@ -1,4 +1,4 @@
-import './../api.ts';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 /**
  * Acts as a controller for PageView state
@@ -11,7 +11,7 @@ export class PageViewController {
     private contextMenuDisabled: boolean;
     private pageLocked: boolean;
     private textEditMode: boolean;
-    private editorToolbar: api.dom.DivEl;
+    private editorToolbar: DivEl;
 
     private textEditModeListeners: { (flag: boolean): void }[] = [];
 
@@ -24,7 +24,7 @@ export class PageViewController {
         return this.INSTANCE;
     }
 
-    setEditorToolbar(value: api.dom.DivEl) {
+    setEditorToolbar(value: DivEl) {
         this.editorToolbar = value;
     }
 

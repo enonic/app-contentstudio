@@ -1,6 +1,9 @@
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
-export class WidgetItemView extends api.dom.DivEl {
+export class WidgetItemView
+    extends DivEl {
 
     public static debug: boolean = false;
 
@@ -10,15 +13,15 @@ export class WidgetItemView extends api.dom.DivEl {
         super('widget-item-view' + (className ? ' ' + className : ''));
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (WidgetItemView.debug) {
             console.debug('WidgetItemView.layout: ', this);
         }
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
-        return wemQ<any>(null);
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+        return Q<any>(null);
     }
 
     private static getFullWidgetUrl(url: string, contentId: string) {
@@ -58,8 +61,8 @@ export class WidgetItemView extends api.dom.DivEl {
         }
     }
 
-    public fetchWidgetContents(url: string, contentId: string): wemQ.Promise<void> {
-        const deferred = wemQ.defer<void>();
+    public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
+        const deferred = Q.defer<void>();
         const fullUrl = WidgetItemView.getFullWidgetUrl(url, contentId);
         fetch(fullUrl)
             .then(response => response.text())

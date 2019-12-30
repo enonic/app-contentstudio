@@ -1,7 +1,11 @@
+import * as Q from 'q';
+import {showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
 
 export class UndoPendingDeleteContentRequest
     extends ContentResourceRequest<UndoPendingDeleteContentResultJson, number> {
@@ -20,21 +24,21 @@ export class UndoPendingDeleteContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'undoPendingDelete');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'undoPendingDelete');
     }
 
-    sendAndParse(): wemQ.Promise<number> {
-        return this.send().then((response: api.rest.JsonResponse<UndoPendingDeleteContentResultJson>) => {
+    sendAndParse(): Q.Promise<number> {
+        return this.send().then((response: JsonResponse<UndoPendingDeleteContentResultJson>) => {
             return response.getResult().success;
         });
     }
 
     static showResponse(result: number) {
         if (result > 0) {
-            api.notify.showSuccess(result === 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
+            showSuccess(result === 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
         } else {
-            api.notify.showWarning(i18n('notify.nothingToUndelete'));
+            showWarning(i18n('notify.nothingToUndelete'));
         }
     }
 }

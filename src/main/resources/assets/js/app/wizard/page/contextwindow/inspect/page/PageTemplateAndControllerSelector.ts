@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageModel, SetController, SetTemplate} from '../../../../../../page-editor/PageModel';
@@ -12,17 +18,15 @@ import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {PageControllerOption} from './PageControllerOption';
 import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
 import {PageMode} from '../../../../../page/PageMode';
-import PropertyChangedEvent = api.PropertyChangedEvent;
-import Option = api.ui.selector.Option;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
-import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import i18n = api.util.i18n;
-import PageDescriptor = api.content.page.PageDescriptor;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import DescriptorKey = api.content.page.DescriptorKey;
-import PropertyTree = api.data.PropertyTree;
+import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -59,7 +63,7 @@ export class PageTemplateAndControllerSelector
 
     private initServerEventsListeners() {
         const eventsHandler = ContentServerEventsHandler.getInstance();
-        const updatedHandlerDebounced = api.util.AppHelper.debounce((summaries: ContentSummaryAndCompareStatus[]) => {
+        const updatedHandlerDebounced = AppHelper.debounce((summaries: ContentSummaryAndCompareStatus[]) => {
             const reloadNeeded =
                 summaries.some(summary => PageTemplateAndControllerSelector.isDescendantTemplate(summary, this.liveEditModel));
             if (reloadNeeded) {
@@ -85,8 +89,8 @@ export class PageTemplateAndControllerSelector
                                                                     event.getPreviousOption().displayValue :
                                                                     null;
 
-            const selectedIsTemplate = api.ObjectHelper.iFrameSafeInstanceOf(selectedOption, PageTemplateOption);
-            const previousIsTemplate = api.ObjectHelper.iFrameSafeInstanceOf(previousOption, PageTemplateOption);
+            const selectedIsTemplate = ObjectHelper.iFrameSafeInstanceOf(selectedOption, PageTemplateOption);
+            const previousIsTemplate = ObjectHelper.iFrameSafeInstanceOf(previousOption, PageTemplateOption);
 
             if (selectedOption.equals(previousOption)) {
                 return;
@@ -118,7 +122,7 @@ export class PageTemplateAndControllerSelector
         selectionHandler: (event: OptionSelectedEvent<PageTemplateAndControllerOption>
         ) => void) {
 
-        return new api.ui.dialog.ConfirmationDialog()
+        return new ConfirmationDialog()
             .setQuestion(message)
             .setNoCallback(() => {
                 this.selectOption(event.getPreviousOption(), true);
@@ -141,7 +145,7 @@ export class PageTemplateAndControllerSelector
                     const setTemplate = new SetTemplate(this).setTemplate(pageTemplate, pageDescriptor);
                     pageModel.setTemplate(setTemplate, true);
                 }).catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
+                DefaultErrorHandler.handle(reason);
             }).done();
         } else if (pageModel.hasDefaultPageTemplate()) {
             pageModel.setAutomaticTemplate(this, true);
@@ -168,7 +172,7 @@ export class PageTemplateAndControllerSelector
     }
 
     private reload() {
-        wemQ.all([
+        Q.all([
             this.loadPageTemplates(),
             this.loadPageControllers()
         ]).spread((templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) => {
@@ -180,12 +184,12 @@ export class PageTemplateAndControllerSelector
             } else {
                 this.selectInitialOption();
             }
-        }).catch(api.DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private loadPageTemplates(): wemQ.Promise<Option<PageTemplateOption>[]> {
+    private loadPageTemplates(): Q.Promise<Option<PageTemplateOption>[]> {
 
-        const deferred = wemQ.defer<Option<PageTemplateOption>[]>();
+        const deferred = Q.defer<Option<PageTemplateOption>[]>();
 
         const loader = new PageTemplateLoader(
             new GetPageTemplatesByCanRenderRequest(this.liveEditModel.getSiteModel().getSiteId(), this.liveEditModel.getContent().getType())
@@ -197,7 +201,7 @@ export class PageTemplateAndControllerSelector
             );
             deferred.resolve(options);
 
-            return wemQ(options);
+            return Q(options);
         });
 
         loader.load();
@@ -205,9 +209,9 @@ export class PageTemplateAndControllerSelector
         return deferred.promise;
     }
 
-    private loadPageControllers(): wemQ.Promise<Option<PageControllerOption>[]> {
+    private loadPageControllers(): Q.Promise<Option<PageControllerOption>[]> {
 
-        const deferred = wemQ.defer<Option<PageControllerOption>[]>();
+        const deferred = Q.defer<Option<PageControllerOption>[]>();
 
         const loader = new PageDescriptorLoader();
         loader.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
@@ -218,7 +222,7 @@ export class PageTemplateAndControllerSelector
             );
             deferred.resolve(options);
 
-            return wemQ(options);
+            return Q(options);
         });
 
         loader.load();

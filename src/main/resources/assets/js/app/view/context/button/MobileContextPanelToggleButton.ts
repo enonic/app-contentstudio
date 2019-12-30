@@ -1,8 +1,8 @@
-import '../../../../api.ts';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {MobileContextPanel} from '../MobileContextPanel';
 
 export class MobileContextPanelToggleButton
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private detailsPanel: MobileContextPanel;
 

@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {ContentView} from './ContentView';
 import {ContentItemType} from './ContentItemType';

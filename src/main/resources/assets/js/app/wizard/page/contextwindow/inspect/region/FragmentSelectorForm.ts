@@ -1,8 +1,11 @@
-import '../../../../../../api.ts';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {FragmentDropdown} from './FragmentDropdown';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 
 export class FragmentSelectorForm
-    extends api.ui.form.Form {
+    extends Form {
 
     private fragmentSelector: FragmentDropdown;
 
@@ -10,11 +13,11 @@ export class FragmentSelectorForm
         super('fragment-dropdown-form');
         this.fragmentSelector = fragmentSelector;
 
-        let fieldSet = new api.ui.form.Fieldset();
-        if (!api.util.StringHelper.isBlank(title)) {
-            fieldSet.add(new api.ui.form.FormItemBuilder(fragmentSelector).setLabel(title).build());
+        let fieldSet = new Fieldset();
+        if (!StringHelper.isBlank(title)) {
+            fieldSet.add(new FormItemBuilder(fragmentSelector).setLabel(title).build());
         } else {
-            fieldSet.add(new api.ui.form.FormItemBuilder(fragmentSelector).build());
+            fieldSet.add(new FormItemBuilder(fragmentSelector).build());
         }
 
         this.add(fieldSet);

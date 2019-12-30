@@ -1,5 +1,6 @@
-import NodeServerEvent = api.event.NodeServerEvent;
-import NodeServerChangeType = api.event.NodeServerChangeType;
+import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class ServerEventAggregator {
 
@@ -14,7 +15,7 @@ export class ServerEventAggregator {
     private debouncedNotification: Function;
 
     constructor() {
-        this.debouncedNotification = api.util.AppHelper.debounce(() => {
+        this.debouncedNotification = AppHelper.debounce(() => {
             this.notifyBatchIsReady();
         }, ServerEventAggregator.AGGREGATION_TIMEOUT, false);
     }

@@ -1,10 +1,11 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
-import FormItemBuilder = api.ui.form.FormItemBuilder;
-import Fieldset = api.ui.form.Fieldset;
-import i18n = api.util.i18n;
+import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {Form} from 'lib-admin-ui/ui/form/Form';
 
 export class PageTemplateAndControllerForm
-    extends api.ui.form.Form {
+    extends Form {
 
     constructor(selector: PageTemplateAndControllerSelector) {
         super('page-template-and-controller-form');

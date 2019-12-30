@@ -1,9 +1,11 @@
-import Form = api.form.Form;
-import FormBuilder = api.form.FormBuilder;
-import OccurrencesBuilder = api.form.OccurrencesBuilder;
-import TextArea = api.form.inputtype.text.TextArea;
-import PropertyTree = api.data.PropertyTree;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
+import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
+import {TextArea} from 'lib-admin-ui/form/inputtype/text/TextArea';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ComponentName} from './ComponentName';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ImageComponentJson} from './ImageComponentJson';
@@ -11,13 +13,14 @@ import {ImageComponentType} from './ImageComponentType';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 import {Content} from '../../content/Content';
 import {ImageHelper} from '../../util/ImageHelper';
+import {InputBuilder} from 'lib-admin-ui/form/Input';
 
 export class ImageComponent
     extends ConfigBasedComponent {
 
     public static PROPERTY_IMAGE: string = 'image';
 
-    private image: api.content.ContentId;
+    private image: ContentId;
 
     private form: Form;
 
@@ -32,17 +35,17 @@ export class ImageComponent
         const formBuilder = new FormBuilder();
 
         formBuilder.addFormItem(
-            new api.form.InputBuilder().setName('caption').setInputType(TextArea.getName()).setLabel(i18n('field.caption')).setOccurrences(
+            new InputBuilder().setName('caption').setInputType(TextArea.getName()).setLabel(i18n('field.caption')).setOccurrences(
                 new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build());
 
         return formBuilder.build();
     }
 
-    getImage(): api.content.ContentId {
+    getImage(): ContentId {
         return this.image;
     }
 
-    getForm(): api.form.Form {
+    getForm(): Form {
         return this.form;
     }
 
@@ -53,7 +56,7 @@ export class ImageComponent
         this.setName(new ComponentName(imageContent.getDisplayName()));
         this.updateConfigImageCaption(ImageHelper.getImageCaption(imageContent));
 
-        if (!api.ObjectHelper.equals(oldValue, this.image)) {
+        if (!ObjectHelper.equals(oldValue, this.image)) {
             this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
         }
     }
@@ -97,15 +100,15 @@ export class ImageComponent
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ImageComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ImageComponent)) {
             return false;
         }
 
         const other = <ImageComponent>o;
 
-        if (!api.ObjectHelper.equals(this.image, other.image)) {
+        if (!ObjectHelper.equals(this.image, other.image)) {
             return false;
         }
 
@@ -120,7 +123,7 @@ export class ImageComponent
 export class ImageComponentBuilder
     extends ConfigBasedComponentBuilder<ImageComponent> {
 
-    image: api.content.ContentId;
+    image: ContentId;
 
     constructor(source?: ImageComponent) {
         super(source);
@@ -132,7 +135,7 @@ export class ImageComponentBuilder
         this.setType(ImageComponentType.get());
     }
 
-    public setImage(value: api.content.ContentId): ImageComponentBuilder {
+    public setImage(value: ContentId): ImageComponentBuilder {
         this.image = value;
         return this;
     }
@@ -141,7 +144,7 @@ export class ImageComponentBuilder
         super.fromJson(json);
 
         if (json.image) {
-            this.setImage(new api.content.ContentId(json.image));
+            this.setImage(new ContentId(json.image));
         }
 
         return this;

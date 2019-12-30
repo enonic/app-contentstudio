@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -11,9 +14,8 @@ import {Site} from '../content/Site';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishStatus} from '../publish/PublishStatus';
 import {ContentType} from '../inputtype/schema/ContentType';
-import ContentId = api.content.ContentId;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import i18n = api.util.i18n;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 
 export class ContentWizardDataLoader {
 
@@ -31,7 +33,7 @@ export class ContentWizardDataLoader {
 
     publishStatus: PublishStatus;
 
-    loadData(params: ContentWizardPanelParams): wemQ.Promise<ContentWizardDataLoader> {
+    loadData(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
         if (!params.contentId) {
             return this.loadDataForNew(params);
         } else {
@@ -39,7 +41,7 @@ export class ContentWizardDataLoader {
         }
     }
 
-    private loadDataForNew(params: ContentWizardPanelParams): wemQ.Promise<ContentWizardDataLoader> {
+    private loadDataForNew(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
 
         return this.loadContentType(params.contentTypeName).then((loadedContentType: ContentType) => {
 
@@ -64,7 +66,7 @@ export class ContentWizardDataLoader {
         });
     }
 
-    private loadDataForEdit(params: ContentWizardPanelParams): wemQ.Promise<ContentWizardDataLoader> {
+    private loadDataForEdit(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
 
         let sitePromise = this.loadSite(params.contentId).then((loadedSite: Site) => {
             this.siteContent = loadedSite;
@@ -74,7 +76,7 @@ export class ContentWizardDataLoader {
             this.content = loadedContent;
         });
 
-        let modelsPromise = wemQ.all([sitePromise, contentPromise]).then(() => {
+        let modelsPromise = Q.all([sitePromise, contentPromise]).then(() => {
             return this.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
                 this.defaultModels = defaultModels;
             });
@@ -85,7 +87,7 @@ export class ContentWizardDataLoader {
             let typePromise = this.loadContentType(this.content.getType());
             let statusPromise = ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
 
-            return wemQ.all([parentPromise, typePromise, statusPromise]).spread((parentContent, contentType, compareStatus) => {
+            return Q.all([parentPromise, typePromise, statusPromise]).spread((parentContent, contentType, compareStatus) => {
                 this.parentContent = parentContent;
                 this.contentType = contentType;
                 if (compareStatus) {
@@ -95,35 +97,35 @@ export class ContentWizardDataLoader {
             });
         });
 
-        return wemQ.all([modelsPromise, otherPromises]).then(() => {
+        return Q.all([modelsPromise, otherPromises]).then(() => {
             return this;
         });
     }
 
-    private loadContent(contentId: ContentId): wemQ.Promise<Content> {
-        /*        if (api.ObjectHelper.iFrameSafeInstanceOf(contentId, Content)) {
-         return wemQ(<Content> contentId);
+    private loadContent(contentId: ContentId): Q.Promise<Content> {
+        /*        if (ObjectHelper.iFrameSafeInstanceOf(contentId, Content)) {
+         return Q(<Content> contentId);
          } else {*/
         return new GetContentByIdRequest(contentId).sendAndParse();
         // }
     }
 
-    private loadContentType(name: ContentTypeName): wemQ.Promise<ContentType> {
-        let deferred = wemQ.defer<ContentType>();
+    private loadContentType(name: ContentTypeName): Q.Promise<ContentType> {
+        let deferred = Q.defer<ContentType>();
         new GetContentTypeByNameRequest(name).sendAndParse().then((contentType) => {
             deferred.resolve(contentType);
         }).catch((reason) => {
             const msg = i18n('notify.wizard.noContentType', name.toString());
-            deferred.reject(new api.Exception(msg, api.ExceptionType.WARNING));
+            deferred.reject(new Exception(msg, ExceptionType.WARNING));
         }).done();
         return deferred.promise;
     }
 
-    public loadSite(contentId: ContentId): wemQ.Promise<Site> {
-        return contentId ? new GetNearestSiteRequest(contentId).sendAndParse() : wemQ<Site>(null);
+    public loadSite(contentId: ContentId): Q.Promise<Site> {
+        return contentId ? new GetNearestSiteRequest(contentId).sendAndParse() : Q<Site>(null);
     }
 
-    public loadDefaultModels(site: Site, contentType: ContentTypeName): wemQ.Promise<DefaultModels> {
+    public loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
 
         if (site) {
             return DefaultModelsFactory.create(<DefaultModelsFactoryConfig>{
@@ -132,21 +134,21 @@ export class ContentWizardDataLoader {
                 applications: site.getApplicationKeys()
             });
         } else if (contentType.isSite()) {
-            return wemQ<DefaultModels>(new DefaultModels(null, null));
+            return Q<DefaultModels>(new DefaultModels(null, null));
         } else {
-            return wemQ<DefaultModels>(null);
+            return Q<DefaultModels>(null);
         }
     }
 
-    private loadParentContent(params: ContentWizardPanelParams, isNew: boolean = true): wemQ.Promise<Content> {
+    private loadParentContent(params: ContentWizardPanelParams, isNew: boolean = true): Q.Promise<Content> {
         /*
-         if (api.ObjectHelper.iFrameSafeInstanceOf(params.parentContentId, Content)) {
-         return wemQ(<Content> params.parentContentId);
+         if (ObjectHelper.iFrameSafeInstanceOf(params.parentContentId, Content)) {
+         return Q(<Content> params.parentContentId);
          }*/
 
         if (!isNew && !this.content.hasParent() ||
             isNew && params.parentContentId == null) {
-            return wemQ<Content>(null);
+            return Q<Content>(null);
 
         } else if (this.content) {
             return new GetContentByPathRequest(this.content.getPath().getParentPath()).sendAndParse();

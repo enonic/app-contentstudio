@@ -1,9 +1,9 @@
 import {MostPopularItem} from './MostPopularItem';
 import {NewContentDialogList} from './NewContentDialogList';
 import {AggregateContentTypesResult, ContentTypeAggregation} from '../resource/AggregateContentTypesResult';
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummaries} from 'lib-admin-ui/schema/content/ContentTypeSummaries';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class MostPopularItemsList extends NewContentDialogList {
 

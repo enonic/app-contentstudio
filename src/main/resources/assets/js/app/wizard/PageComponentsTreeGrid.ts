@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
@@ -15,14 +20,14 @@ import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {GetPartDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetPartDescriptorsByApplicationsRequest';
 import {GetLayoutDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorsByApplicationsRequest';
-import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
-import GridOptionsBuilder = api.ui.grid.GridOptionsBuilder;
-import TreeGrid = api.ui.treegrid.TreeGrid;
-import TreeNode = api.ui.treegrid.TreeNode;
-import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import i18n = api.util.i18n;
-import Descriptor = api.content.page.Descriptor;
-import ApplicationKey = api.application.ApplicationKey;
+import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemView> {
@@ -84,11 +89,11 @@ export class PageComponentsTreeGrid
         this.invalidate();
     }
 
-    queryScrollable(): api.dom.Element {
+    queryScrollable(): Element {
         return this;
     }
 
-    setPageView(pageView: PageView): wemQ.Promise<void> {
+    setPageView(pageView: PageView): Q.Promise<void> {
         this.pageView = pageView;
         return this.reload();
     }
@@ -101,7 +106,7 @@ export class PageComponentsTreeGrid
 
             viewer.setObject(data);
             node.setViewer('name', viewer);
-            if (!(api.ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || api.ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
+            if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
                 viewer.addClass('draggable');
             }
         }
@@ -110,7 +115,7 @@ export class PageComponentsTreeGrid
 
     setInvalid(dataIds: string[]) {
         let root = this.getRoot().getCurrentRoot();
-        let stylesHash: Slick.CellCssStylesHash = {};
+        let stylesHash = {};
 
         dataIds.forEach((dataId) => {
             let node = root.findNode(dataId);
@@ -132,14 +137,14 @@ export class PageComponentsTreeGrid
 
     fetch(node: TreeNode<ItemView>, dataId?: string): Q.Promise<ItemView> {
         let itemViewId = dataId ? new ItemViewId(parseInt(dataId, 10)) : node.getData().getItemId();
-        return wemQ(this.pageView.getItemViewById(itemViewId));
+        return Q(this.pageView.getItemViewById(itemViewId));
     }
 
-    fetchRoot(): wemQ.Promise<ItemView[]> {
+    fetchRoot(): Q.Promise<ItemView[]> {
         if (this.pageView.getFragmentView()) {
-            return wemQ([this.pageView.getFragmentView()]);
+            return Q([this.pageView.getFragmentView()]);
         } else {
-            return wemQ([this.pageView]);
+            return Q([this.pageView]);
         }
     }
 
@@ -149,7 +154,7 @@ export class PageComponentsTreeGrid
         });
     }
 
-    fetchDescriptions(itemViews: ItemView[]): wemQ.Promise<ItemView[]> {
+    fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
 
         const partKeys: ApplicationKey[] = [];
         const layoutKeys: ApplicationKey[] = [];
@@ -185,7 +190,7 @@ export class PageComponentsTreeGrid
         if (layoutKeys.length > 0) {
             requests.push(new GetLayoutDescriptorsByApplicationsRequest(layoutKeys).sendAndParse());
         }
-        return wemQ.all(requests).then((descriptorsArray) => {
+        return Q.all(requests).then((descriptorsArray) => {
             descriptorsArray.forEach((descriptors: Descriptor[]) => {
                 descriptors.forEach(desc => {
                     const comp = componentMap[desc.getKey().toString()];
@@ -223,10 +228,10 @@ export class PageComponentsTreeGrid
     }
 
     public static menuFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
-        let wrapper = new api.dom.SpanEl();
+        let wrapper = new SpanEl();
 
-        let icon = new api.dom.DivEl('menu-icon icon-menu2');
-        wrapper.getEl().setInnerHtml(icon.toString(), false);
+        let icon = new DivEl('menu-icon icon-menu2');
+        wrapper.appendChild(icon);
         return wrapper.toString();
     }
 

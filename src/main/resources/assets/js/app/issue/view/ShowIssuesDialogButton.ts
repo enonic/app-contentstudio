@@ -1,14 +1,17 @@
-import ActionButton = api.ui.button.ActionButton;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class ShowIssuesDialogButton extends ActionButton {
 
-    private countSpan: api.dom.SpanEl;
+    private countSpan: SpanEl;
 
     constructor() {
         super(new ShowIssuesDialogAction());
@@ -37,7 +40,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     private setIssueCount(count: number) {
 
         if (!this.countSpan) {
-            this.countSpan = new api.dom.SpanEl('issue-count');
+            this.countSpan = new SpanEl('issue-count');
             this.appendChild(this.countSpan);
         }
 
@@ -67,21 +70,21 @@ export class ShowIssuesDialogButton extends ActionButton {
                     } else {
                         this.setLabel(i18n('field.noOpenIssues'));
                     }
-                }).catch(api.DefaultErrorHandler.handle);
+                }).catch(DefaultErrorHandler.handle);
             }
 
-        }).catch(api.DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private fetchNumberOfOpenIssuesAssignedToMe(): wemQ.Promise<number> {
+    private fetchNumberOfOpenIssuesAssignedToMe(): Q.Promise<number> {
         return this.fetchIssueList(this.resetIssueRequest().setAssignedToMe(true));
     }
 
-    private fetchIssueList(listIssueRequest: ListIssuesRequest): wemQ.Promise<number> {
+    private fetchIssueList(listIssueRequest: ListIssuesRequest): Q.Promise<number> {
         return listIssueRequest.sendAndParse().then((response: IssueResponse) => response.getMetadata().getTotalHits());
     }
 
-    private fetchNumberOfOpenIssues(): wemQ.Promise<number> {
+    private fetchNumberOfOpenIssues(): Q.Promise<number> {
         return this.fetchIssueList(this.resetIssueRequest());
     }
 

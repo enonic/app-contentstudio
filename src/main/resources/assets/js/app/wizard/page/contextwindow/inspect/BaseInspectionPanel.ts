@@ -1,4 +1,4 @@
-import RequestError = api.rest.RequestError;
+import {RequestError} from 'lib-admin-ui/rest/RequestError';
 import {NamedPanel} from './NamedPanel';
 
 export abstract class BaseInspectionPanel

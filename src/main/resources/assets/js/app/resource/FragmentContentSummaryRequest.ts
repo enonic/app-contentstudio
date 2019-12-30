@@ -1,9 +1,9 @@
-import CompareExpr = api.query.expr.CompareExpr;
-import FieldExpr = api.query.expr.FieldExpr;
-import ValueExpr = api.query.expr.ValueExpr;
-import LogicalExpr = api.query.expr.LogicalExpr;
-import LogicalOperator = api.query.expr.LogicalOperator;
-import ConstraintExpr = api.query.expr.ConstraintExpr;
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
+import {ConstraintExpr} from 'lib-admin-ui/query/expr/ConstraintExpr';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 
 export class FragmentContentSummaryRequest

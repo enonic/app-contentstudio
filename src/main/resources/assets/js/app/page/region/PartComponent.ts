@@ -1,3 +1,5 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {PartComponentJson} from './PartComponentJson';
@@ -22,9 +24,9 @@ export class PartComponent
         return !this.hasDescriptor();
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PartComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, PartComponent)) {
             return false;
         }
 

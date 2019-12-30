@@ -1,8 +1,20 @@
-import i18n = api.util.i18n;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {FileUploaderEl} from './FileUploaderEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+
+export interface AttachmentUploaderElConfig
+    extends UploaderElConfig {
+
+    attachmentAddCallback?: (value: string) => void;
+
+    attachmentRemoveCallback?: (value: any) => void;
+}
 
 export class AttachmentUploaderEl
     extends FileUploaderEl<Attachment> {
@@ -12,10 +24,10 @@ export class AttachmentUploaderEl
     private removeCallback: (value: string) => void;
     private addCallback: (value: string) => void;
 
-    constructor(config: any) {
+    constructor(config: AttachmentUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/createAttachment');
+            config.url = UriHelper.getRestUri('content/createAttachment');
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -33,7 +45,7 @@ export class AttachmentUploaderEl
             this.addCallback = config.attachmentAddCallback;
         }
 
-        const noAttachmentsDescription = new api.dom.DivEl('no-attachments-description');
+        const noAttachmentsDescription = new DivEl('no-attachments-description');
         noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
         noAttachmentsDescription.insertAfterEl(this.getResultContainer());
 
@@ -58,7 +70,7 @@ export class AttachmentUploaderEl
         );
     }
 
-    getExistingItem(value: string): api.dom.Element {
+    getExistingItem(value: string): Element {
         let element = null;
         this.getResultContainer().getChildren().forEach((item) => {
             if ((<AttachmentItem>item).getValue() === value) {
@@ -68,7 +80,7 @@ export class AttachmentUploaderEl
         return element;
     }
 
-    createResultItem(value: string): api.dom.Element {
+    createResultItem(value: string): Element {
 
         let attachmentItem = new AttachmentItem(this.contentId, value, this.removeCallback);
         this.attachmentItems.push(attachmentItem);
@@ -80,10 +92,7 @@ export class AttachmentUploaderEl
         return attachmentItem;
     }
 
-    maximumOccurrencesReached(): boolean {
-        if (this.config.maximumOccurrences) {
-            return this.attachmentItems.length >= this.config.maximumOccurrences;
-        }
-        return false;
+    getTotalItems(): number {
+        return this.attachmentItems.length;
     }
 }

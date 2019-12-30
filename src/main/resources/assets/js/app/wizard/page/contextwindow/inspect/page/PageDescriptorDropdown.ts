@@ -1,11 +1,13 @@
-import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
-import PageDescriptor = api.content.page.PageDescriptor;
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {SetController} from '../../../../../../page-editor/PageModel';
 import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
 import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {DescriptorViewer} from '../DescriptorViewer';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 
 export class PageDescriptorDropdown
     extends DescriptorBasedDropdown<PageDescriptor> {
@@ -45,11 +47,11 @@ export class PageDescriptorDropdown
         this.onOptionSelected(this.handleOptionSelected.bind(this));
 
         // debounce it in case multiple apps were added at once using checkboxes
-        let onApplicationAddedHandler = api.util.AppHelper.debounce(() => {
+        let onApplicationAddedHandler = AppHelper.debounce(() => {
             this.load();
         }, 100);
 
-        let onApplicationRemovedHandler = api.util.AppHelper.debounce((event: ApplicationRemovedEvent) => {
+        let onApplicationRemovedHandler = AppHelper.debounce((event: ApplicationRemovedEvent) => {
 
             let currentController = this.liveEditModel.getPageModel().getController();
             let removedApp = event.getApplicationKey();
@@ -71,7 +73,7 @@ export class PageDescriptorDropdown
         });
     }
 
-    protected handleOptionSelected(event: api.ui.selector.OptionSelectedEvent<api.content.page.PageDescriptor>) {
+    protected handleOptionSelected(event: OptionSelectedEvent<PageDescriptor>) {
         let pageDescriptor = event.getOption().displayValue;
         let setController = new SetController(this).setDescriptor(pageDescriptor);
         this.liveEditModel.getPageModel().setController(setController);

@@ -1,8 +1,11 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {ContentVersion} from '../ContentVersion';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
 
 export class GetContentVersionsRequest
     extends ContentResourceRequest<GetContentVersionsResultsJson, ContentVersion[]> {
@@ -35,13 +38,13 @@ export class GetContentVersionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getVersions');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'getVersions');
     }
 
-    sendAndParse(): wemQ.Promise<ContentVersion[]> {
+    sendAndParse(): Q.Promise<ContentVersion[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<GetContentVersionsResultsJson>) => {
+        return this.send().then((response: JsonResponse<GetContentVersionsResultsJson>) => {
             return this.fromJsonToContentVersions(response.getResult().contentVersions);
         });
     }

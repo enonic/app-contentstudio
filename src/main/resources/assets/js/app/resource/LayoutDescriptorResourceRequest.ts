@@ -1,14 +1,17 @@
-export class LayoutDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-    private resourcePath: api.rest.Path;
+export class LayoutDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+
+    private resourcePath: Path;
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'content', 'page', 'layout', 'descriptor');
+        this.resourcePath = Path.fromParent(super.getRestPath(), 'content', 'page', 'layout', 'descriptor');
     }
 
-    getResourcePath(): api.rest.Path {
+    getResourcePath(): Path {
         return this.resourcePath;
     }
 }

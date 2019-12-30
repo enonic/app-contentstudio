@@ -1,9 +1,10 @@
-import '../../../api.ts';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {UndoPendingDeleteContentRequest} from '../../resource/UndoPendingDeleteContentRequest';
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class UndoPendingDeleteAction extends api.ui.Action {
+export class UndoPendingDeleteAction
+    extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.undoDelete'));

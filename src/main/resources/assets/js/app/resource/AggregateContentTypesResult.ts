@@ -1,4 +1,4 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class AggregateContentTypesResult {
 

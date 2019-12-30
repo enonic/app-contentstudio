@@ -1,8 +1,8 @@
-import ContentPath = api.content.ContentPath;
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import ContentServerChange = api.content.event.ContentServerChange;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentServerChange, ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
@@ -403,7 +403,7 @@ export class ContentServerEventsHandler {
             }, []);
 
             let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
-            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
+            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.contentId,
                 d.contentId)));
 
             this.handleContentDeleted(deletedItems);

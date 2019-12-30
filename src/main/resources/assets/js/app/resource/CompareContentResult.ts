@@ -1,9 +1,11 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {CompareContentResultJson} from './json/CompareContentResultJson';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishStatus} from '../publish/PublishStatus';
 
 export class CompareContentResult
-    implements api.Equitable {
+    implements Equitable {
 
     compareStatus: CompareStatus;
 
@@ -30,15 +32,15 @@ export class CompareContentResult
         return this.publishStatus;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, CompareContentResult)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, CompareContentResult)) {
             return false;
         }
 
         let other = <CompareContentResult>o;
 
-        if (!api.ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
+        if (!ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
             return false;
         }
 

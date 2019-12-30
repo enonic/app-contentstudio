@@ -1,7 +1,8 @@
-import './../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
 export class LiveEditPageInitializationErrorEvent
-    extends api.event.Event {
+    extends Event {
 
     private message: string;
 
@@ -15,10 +16,10 @@ export class LiveEditPageInitializationErrorEvent
     }
 
     static on(handler: (event: LiveEditPageInitializationErrorEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: LiveEditPageInitializationErrorEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

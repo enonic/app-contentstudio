@@ -1,4 +1,3 @@
-import '../../../../../api.ts';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup, DependencyType} from './DependencyGroup';
 import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
@@ -7,21 +6,21 @@ import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyRes
 import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import ActionButton = api.ui.button.ActionButton;
-import Action = api.ui.Action;
-import NamesAndIconView = api.app.NamesAndIconView;
-import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
-import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
-import i18n = api.util.i18n;
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class DependenciesWidgetItemView
     extends WidgetItemView {
 
-    private mainContainer: api.dom.DivEl;
-    private nameAndIcon: api.app.NamesAndIconView;
+    private mainContainer: DivEl;
+    private nameAndIcon: NamesAndIconView;
 
-    private noInboundDependencies: api.dom.DivEl;
-    private noOutboundDependencies: api.dom.DivEl;
+    private noInboundDependencies: DivEl;
+    private noOutboundDependencies: DivEl;
 
     private item: ContentSummaryAndCompareStatus;
     private inboundDependencies: DependencyGroup[];
@@ -68,7 +67,7 @@ export class DependenciesWidgetItemView
         return button;
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (DependenciesWidgetItemView.debug) {
             console.debug('DependenciesWidgetItemView.setItem: ', item);
         }
@@ -85,13 +84,13 @@ export class DependenciesWidgetItemView
     }
 
     private appendMainContainer() {
-        this.mainContainer = new api.dom.DivEl('main-container');
+        this.mainContainer = new DivEl('main-container');
         this.appendChild(this.mainContainer);
     }
 
     private appendContentNamesAndIcon(item: ContentSummaryAndCompareStatus) {
         this.nameAndIcon =
-            new api.app.NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium))
+            new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium))
                 .setIconUrl(item.getIconUrl())
                 .setMainName(item.getDisplayName())
                 .setSubName(item.getPath().toString());
@@ -101,9 +100,9 @@ export class DependenciesWidgetItemView
         this.mainContainer.appendChild(this.nameAndIcon);
     }
 
-    private createDependenciesContainer(type: DependencyType, dependencies: DependencyGroup[]): api.dom.DivEl {
+    private createDependenciesContainer(type: DependencyType, dependencies: DependencyGroup[]): DivEl {
         const typeAsString = DependencyType[type].toLowerCase();
-        const div = new api.dom.DivEl('dependencies-container ' + typeAsString);
+        const div = new DivEl('dependencies-container ' + typeAsString);
 
         if (dependencies.length === 0) {
             this.addClass('no-' + typeAsString);
@@ -138,7 +137,7 @@ export class DependenciesWidgetItemView
         return sum;
     }
 
-    private appendDependencies(container: api.dom.DivEl, dependencies: DependencyGroup[]) {
+    private appendDependencies(container: DivEl, dependencies: DependencyGroup[]) {
         dependencies.forEach((dependencyGroup: DependencyGroup) => {
             container.appendChild(this.createDependencyGroupView(dependencyGroup));
         });
@@ -164,7 +163,7 @@ export class DependenciesWidgetItemView
     /**
      * Perform request to resolve dependency items of given item.
      */
-    private resolveDependencies(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    private resolveDependencies(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
 
         const resolveDependenciesRequest = new ResolveDependenciesRequest([item.getContentId()]);
 

@@ -1,6 +1,9 @@
-import ResourceRequest = api.rest.ResourceRequest;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export interface CustomSelectorResponse {
     total: number;
@@ -54,12 +57,12 @@ export class CustomSelectorRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromString(this.requestPath);
+    getRequestPath(): Path {
+        return Path.fromString(this.requestPath);
     }
 
-    sendAndParse(): wemQ.Promise<CustomSelectorItem[]> {
-        return this.send().then((response: api.rest.JsonResponse<CustomSelectorResponse>) => {
+    sendAndParse(): Q.Promise<CustomSelectorItem[]> {
+        return this.send().then((response: JsonResponse<CustomSelectorResponse>) => {
 
             let result: CustomSelectorResponse = response.getResult();
             if (this.start === 0) {

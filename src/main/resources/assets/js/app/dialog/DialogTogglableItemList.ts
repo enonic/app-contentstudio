@@ -1,14 +1,19 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {DialogItemList} from './DependantItemsDialog';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {ContentIds} from '../ContentIds';
-import BrowseItem = api.app.browse.BrowseItem;
-import Tooltip = api.ui.Tooltip;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
 
 export class DialogTogglableItemList
     extends DialogItemList {
@@ -40,7 +45,7 @@ export class DialogTogglableItemList
         this.onItemsAdded(changeHandler);
         this.onItemsRemoved(changeHandler);
 
-        this.debounceNotifyListChanged = api.util.AppHelper.debounce(() => {
+        this.debounceNotifyListChanged = AppHelper.debounce(() => {
             this.notifyChildrenListChanged();
         }, 100, false);
     }
@@ -83,7 +88,7 @@ export class DialogTogglableItemList
         return itemView;
     }
 
-    protected updateItemView(itemView: api.dom.Element, item: ContentSummaryAndCompareStatus) {
+    protected updateItemView(itemView: Element, item: ContentSummaryAndCompareStatus) {
         const view = <TogglableStatusSelectionItem>itemView;
         view.setObject(item);
     }
@@ -226,7 +231,7 @@ export class TogglableStatusSelectionItem
 
     private toggler: IncludeChildrenToggler;
 
-    constructor(viewer: api.ui.Viewer<ContentSummaryAndCompareStatus>,
+    constructor(viewer: Viewer<ContentSummaryAndCompareStatus>,
                 item: BrowseItem<ContentSummaryAndCompareStatus>,
                 toggleEnabled: boolean) {
         super(viewer, item);
@@ -243,7 +248,7 @@ export class TogglableStatusSelectionItem
         this.id = item.getModel().getContentSummary().getContentId();
     }
 
-    public doRender(): wemQ.Promise<boolean> {
+    public doRender(): Q.Promise<boolean> {
 
         return super.doRender().then((rendered) => {
 
@@ -295,7 +300,7 @@ export class TogglableStatusSelectionItem
 }
 
 class IncludeChildrenToggler
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private stateChangedListeners: { (enabled: boolean): void }[] = [];
 

@@ -1,19 +1,23 @@
-import LayoutDescriptorJson = api.content.page.region.LayoutDescriptorJson;
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {LayoutDescriptorJson} from 'lib-admin-ui/content/page/region/LayoutDescriptorJson';
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {GetLayoutDescriptorsByApplicationRequest} from '../../../../../resource/GetLayoutDescriptorsByApplicationRequest';
 import {LayoutDescriptorResourceRequest} from '../../../../../resource/LayoutDescriptorResourceRequest';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 
 export class GetLayoutDescriptorByKeyRequest
     extends LayoutDescriptorResourceRequest<LayoutDescriptorJson, LayoutDescriptor> {
 
-    private key: api.content.page.DescriptorKey;
+    private key: DescriptorKey;
 
-    constructor(key: api.content.page.DescriptorKey) {
+    constructor(key: DescriptorKey) {
         super();
         this.key = key;
     }
 
-    setKey(key: api.content.page.DescriptorKey) {
+    setKey(key: DescriptorKey) {
         this.key = key;
     }
 
@@ -21,12 +25,12 @@ export class GetLayoutDescriptorByKeyRequest
         throw new Error('Unexpected call');
     }
 
-    getRequestPath(): api.rest.Path {
+    getRequestPath(): Path {
         throw new Error('Unexpected call');
     }
 
-    sendAndParse(): wemQ.Promise<LayoutDescriptor> {
-        let deferred = wemQ.defer<LayoutDescriptor>();
+    sendAndParse(): Q.Promise<LayoutDescriptor> {
+        let deferred = Q.defer<LayoutDescriptor>();
 
         new GetLayoutDescriptorsByApplicationRequest(this.key.getApplicationKey()).sendAndParse()
             .then((descriptors: LayoutDescriptor[]) => {
@@ -36,7 +40,7 @@ export class GetLayoutDescriptorByKeyRequest
                     }
                 });
             }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).done();
 
         return deferred.promise;

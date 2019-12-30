@@ -1,12 +1,13 @@
-import '../../api.ts';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {SortContentTabMenuItem} from './SortContentTabMenuItem';
 import {SortContentTabMenuItems} from './SortContentTabMenuItems';
-import ChildOrder = api.content.order.ChildOrder;
-import DropdownHandle = api.ui.button.DropdownHandle;
-import KeyHelper = api.ui.KeyHelper;
-import AppHelper = api.util.AppHelper;
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 
-export class SortContentTabMenu extends api.ui.tab.TabMenu {
+export class SortContentTabMenu
+    extends TabMenu {
 
     private sortOrderChangedListeners: {():void}[] = [];
 

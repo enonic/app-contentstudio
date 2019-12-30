@@ -1,10 +1,13 @@
-import PrincipalKey = api.security.PrincipalKey;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {AccessControlEntry} from './AccessControlEntry';
 import {AccessControlEntryJson} from './AccessControlEntryJson';
 import {PermissionsJson} from './PermissionsJson';
 
 export class AccessControlList
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     private entries: { [key: string]: AccessControlEntry };
 
@@ -60,14 +63,14 @@ export class AccessControlList
         return '[' + this.getEntries().map((ace) => ace.toString()).join(', ') + ']';
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, AccessControlList)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, AccessControlList)) {
             return false;
         }
 
         let other = <AccessControlList>o;
-        return api.ObjectHelper.arrayEquals(this.getEntries().sort(), other.getEntries().sort());
+        return ObjectHelper.arrayEquals(this.getEntries().sort(), other.getEntries().sort());
     }
 
     clone(): AccessControlList {

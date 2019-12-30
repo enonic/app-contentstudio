@@ -14,9 +14,11 @@
     .icon {
       &.icon-issue,
       &.icon-publish-request {
-        margin-right: 6px;
-        vertical-align: middle;
-        color: #609E24;
+        &::before {
+          margin-right: 6px;
+          vertical-align: middle;
+          color: @admin-green;
+        }
       }
     }
 
@@ -32,6 +34,11 @@
 
       .menu-item {
         padding-right: 40px;
+        color: @admin-font-gray2;
+
+        &:not(.disabled):hover {
+          color: @admin-font-gray3;
+        }
       }
     }
 
@@ -39,13 +46,16 @@
       .icon {
         &.icon-issue,
         &.icon-publish-request {
-          color: #609e24;
+          &::before {
+            color: @admin-green;
+          }
         }
       }
     }
 
     .action-button {
       display: block;
+      font-size: 14px;
       text-align: left;
       z-index: 2;
       margin-left: 0;

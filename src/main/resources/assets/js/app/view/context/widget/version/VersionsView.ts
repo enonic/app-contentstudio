@@ -1,3 +1,21 @@
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
@@ -5,16 +23,11 @@ import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersi
 import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import ContentId = api.content.ContentId;
-import WorkflowState = api.content.WorkflowState;
-import i18n = api.util.i18n;
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
-import ActionButton = api.ui.button.ActionButton;
-import Action = api.ui.Action;
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 
 export class VersionsView
-    extends api.ui.selector.list.ListBox<ContentVersion> {
+    extends ListBox<ContentVersion> {
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
@@ -39,15 +52,15 @@ export class VersionsView
         return this.content ? this.content.getCompareStatus() : null;
     }
 
-    reload(): wemQ.Promise<void> {
+    reload(): Q.Promise<void> {
         return this.loadData().then((contentVersions: ContentVersion[]) => {
             this.updateView(contentVersions);
             this.notifyLoaded();
         });
     }
 
-    createItemView(item: ContentVersion, readOnly: boolean): api.dom.Element {
-        let itemContainer = new api.dom.LiEl('content-version-item');
+    createItemView(item: ContentVersion, readOnly: boolean): Element {
+        let itemContainer = new LiEl('content-version-item');
 
         this.createStatusBlock(item, itemContainer);
         this.createDataBlocks(item, itemContainer);
@@ -76,7 +89,7 @@ export class VersionsView
         });
     }
 
-    private loadData(): wemQ.Promise<ContentVersion[]> {
+    private loadData(): Q.Promise<ContentVersion[]> {
         if (this.getContentId()) {
             return new GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then(
                 (contentVersions: ContentVersions) => {
@@ -107,17 +120,17 @@ export class VersionsView
         });
     }
 
-    private createStatusBlock(contentVersion: ContentVersion, itemEl: api.dom.Element) {
+    private createStatusBlock(contentVersion: ContentVersion, itemEl: Element) {
         if (this.hasWorkspaces(contentVersion)) {
             const isInMaster = this.isInMaster(contentVersion);
             const statusText = isInMaster ?
                                CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
                                CompareStatusFormatter.formatStatusTextFromContent(this.content);
             const statusClass = isInMaster ?
-                               CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
-                               CompareStatusFormatter.formatStatusClassFromContent(this.content);
+                                CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
+                                CompareStatusFormatter.formatStatusClassFromContent(this.content);
 
-            let statusDiv = new api.dom.DivEl('status ' + (isInMaster ? VersionsView.branchMaster : VersionsView.branchDraft));
+            let statusDiv = new DivEl('status ' + (isInMaster ? VersionsView.branchMaster : VersionsView.branchDraft));
             statusDiv.setHtml(statusText);
             itemEl.appendChild(statusDiv);
 
@@ -128,25 +141,25 @@ export class VersionsView
         this.createTooltip(contentVersion, itemEl);
     }
 
-    private createTooltip(item: ContentVersion, itemEl: api.dom.Element) {
+    private createTooltip(item: ContentVersion, itemEl: Element) {
         const dateTimeStamp = item.publishInfo ? item.publishInfo.timestamp : item.modified;
         const userName = item.publishInfo ? item.publishInfo.publisherDisplayName : item.modifierDisplayName;
-        const dateAsString = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
+        const dateAsString = DateTimeFormatter.createHtml(dateTimeStamp);
         const toolTipKey = item.publishInfo ? 'tooltip.state.published' :
                                 (item.isStateReady() ? 'tooltip.state.markedAsReady' : 'tooltip.state.modified');
         const tooltipText = i18n(toolTipKey, dateAsString, userName);
 
-        return new api.ui.Tooltip(itemEl, tooltipText, 1000);
+        return new Tooltip(itemEl, tooltipText, 1000);
     }
 
-    private createDataBlocks(item: ContentVersion, itemEl: api.dom.Element) {
+    private createDataBlocks(item: ContentVersion, itemEl: Element) {
         let descriptionDiv = this.createDescriptionBlock(item);
         let versionInfoDiv = this.createVersionInfoBlock(item);
 
         itemEl.appendChildren(descriptionDiv, versionInfoDiv);
     }
 
-    private createDescriptionBlock(item: ContentVersion): api.dom.Element {
+    private createDescriptionBlock(item: ContentVersion): Element {
         let descriptionDiv = new ContentVersionViewer();
         descriptionDiv.addClass('description');
         descriptionDiv.setObject(item);
@@ -167,25 +180,25 @@ export class VersionsView
             .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
             .addClass('compare icon-compare icon-medium transparent');
 
-        //descriptionDiv.appendChild(compareButton);
+        descriptionDiv.appendChild(compareButton);
 
         return descriptionDiv;
     }
 
-    private createVersionInfoBlock(item: ContentVersion): api.dom.Element {
-        const versionInfoDiv = new api.dom.DivEl('version-info hidden');
+    private createVersionInfoBlock(item: ContentVersion): Element {
+        const versionInfoDiv = new DivEl('version-info hidden');
 
         if (item.publishInfo) {
             if (item.publishInfo.message) {
-                const messageDiv = new api.dom.DivEl('version-info-message');
-                messageDiv.appendChildren(new api.dom.PEl('message').setHtml(item.publishInfo.message));
+                const messageDiv = new DivEl('version-info-message');
+                messageDiv.appendChildren(new PEl('message').setHtml(item.publishInfo.message));
                 versionInfoDiv.appendChild(messageDiv);
             }
 
-            const publisher = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+            const publisher = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
             publisher
                 .setMainName(item.publishInfo.publisherDisplayName)
-                .setSubName(api.util.DateHelper.getModifiedString(item.publishInfo.timestamp))
+                .setSubName(DateHelper.getModifiedString(item.publishInfo.timestamp))
                 .setIconClass(item.isStateReady() ? 'icon-state-ready' : 'icon-state-in-progress');
 
             versionInfoDiv.appendChild(publisher);
@@ -194,15 +207,15 @@ export class VersionsView
 
         const isActive = item.id === this.activeVersion.id;
         const revertButton = new ActionButton(
-            new api.ui.Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
-                .onExecuted((action: api.ui.Action) => {
+            new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
+                .onExecuted((action: Action) => {
                     if (!isActive) {
                         new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
                             (contentVersionId: string) => {
                                 if (contentVersionId === this.activeVersion.id) {
-                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                                 } else {
-                                    api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
+                                    NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
                                     new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
                                 }
                             });
@@ -229,7 +242,7 @@ export class VersionsView
         return versionInfoDiv;
     }
 
-    private addOnClickHandler(itemContainer: api.dom.Element) {
+    private addOnClickHandler(itemContainer: Element) {
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
 
@@ -239,7 +252,7 @@ export class VersionsView
         });
     }
 
-    private collapseAllContentVersionItemViewsExcept(itemContainer: api.dom.Element) {
-        wemjq(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
+        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
     }
 }

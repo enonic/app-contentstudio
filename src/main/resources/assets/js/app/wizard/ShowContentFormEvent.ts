@@ -1,12 +1,14 @@
-import '../../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
-export class ShowContentFormEvent extends api.event.Event {
+export class ShowContentFormEvent
+    extends Event {
 
     static on(handler: (event: ShowContentFormEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ShowContentFormEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

@@ -1,3 +1,9 @@
+import * as Q from 'q';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
@@ -5,30 +11,29 @@ import {ContentIds} from '../ContentIds';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ContentPath = api.content.ContentPath;
-import ContentSummary = api.content.ContentSummary;
-import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
-import TreeNode = api.ui.treegrid.TreeNode;
-import ProgressBarManager = api.ui.dialog.ProgressBarManager;
-import TaskId = api.task.TaskId;
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import SpanEl = api.dom.SpanEl;
-import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
+import {ModalDialogWithConfirmation} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {H6El} from 'lib-admin-ui/dom/H6El';
 
 export class MoveContentDialog
-    extends api.ui.dialog.ModalDialog
+    extends ModalDialogWithConfirmation
     implements ManagedActionExecutor {
 
     private destinationSearchInput: ContentMoveComboBox;
 
-    private movedContentSummaries: api.content.ContentSummary[] = [];
+    private movedContentSummaries: ContentSummary[] = [];
 
-    private contentPathSubHeader: api.dom.H6El;
+    private contentPathSubHeader: H6El;
 
     private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
 
-    private descriptionHeader: api.dom.H6El;
+    private descriptionHeader: H6El;
 
     private moveConfirmationDialog: ConfirmationDialog;
 
@@ -37,14 +42,17 @@ export class MoveContentDialog
     private moveAction: Action;
 
     constructor() {
-        super({class: 'move-content-dialog'});
+        super({
+            class: 'move-content-dialog',
+            confirmation: {}
+        });
     }
 
     protected initElements() {
         super.initElements();
 
-        this.contentPathSubHeader = new api.dom.H6El().addClass('content-path');
-        this.descriptionHeader = new api.dom.H6El().addClass('desc-message');
+        this.contentPathSubHeader = new H6El().addClass('content-path');
+        this.descriptionHeader = new H6El().addClass('desc-message');
         this.initMoveConfirmationDialog();
         this.initProgressManager();
         this.destinationSearchInput = new ContentMoveComboBox();
@@ -73,7 +81,7 @@ export class MoveContentDialog
                     this.doMove();
                 }
             }).catch((reason) => {
-                api.DefaultErrorHandler.handle(reason);
+                DefaultErrorHandler.handle(reason);
             }).done();
 
         });
@@ -147,18 +155,18 @@ export class MoveContentDialog
         this.moveConfirmationDialog.open();
     }
 
-    private checkContentWillMoveOutOfSite(): wemQ.Promise<boolean> {
+    private checkContentWillMoveOutOfSite(): Q.Promise<boolean> {
         const targetContent: ContentTreeSelectorItem = this.getParentContentItem();
 
         return this.getTargetContentSite(targetContent).then((targetContentSite) => {
-            const contentParentSitePromises: wemQ.Promise<ContentSummary>[] = [];
+            const contentParentSitePromises: Q.Promise<ContentSummary>[] = [];
             const targetContentSiteId: string = !!targetContentSite ? targetContentSite.getId() : null;
 
             for (let i = 0; i < this.movedContentSummaries.length; i++) {
                 contentParentSitePromises.push(this.getContentParentSite(this.movedContentSummaries[i]));
             }
 
-            return wemQ.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {
+            return Q.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {
                 return parentSites.filter((parentSite: ContentSummary) => !!parentSite).some((parentSite: ContentSummary) => {
                     return !targetContent || (parentSite.getId() !== targetContentSiteId);
                 });
@@ -166,27 +174,27 @@ export class MoveContentDialog
         });
     }
 
-    private getTargetContentSite(targetContent: ContentTreeSelectorItem): wemQ.Promise<ContentSummary> {
+    private getTargetContentSite(targetContent: ContentTreeSelectorItem): Q.Promise<ContentSummary> {
         if (!targetContent) {
-            return wemQ(null);
+            return Q(null);
         }
 
         if (targetContent.isSite()) {
-            return wemQ(targetContent.getContent());
+            return Q(targetContent.getContent());
         }
 
         return this.getParentSite(targetContent.getContent());
     }
 
-    private getContentParentSite(content: ContentSummary): wemQ.Promise<ContentSummary> {
+    private getContentParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
         if (content.isSite()) {
-            return wemQ(null);
+            return Q(null);
         }
 
         return this.getParentSite(content);
     }
 
-    private getParentSite(content: ContentSummary): wemQ.Promise<ContentSummary> {
+    private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
         const node = this.rootNode.findNode(content.getId());
         if (!node) {
             return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
@@ -195,12 +203,12 @@ export class MoveContentDialog
         let nodeParent = node.getParent();
         while (nodeParent) {
             if (nodeParent.getData() && nodeParent.getData().getContentSummary().isSite()) {
-                return wemQ(nodeParent.getData().getContentSummary());
+                return Q(nodeParent.getData().getContentSummary());
             }
             nodeParent = nodeParent.getParent();
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 
     private doMove() {
@@ -212,12 +220,12 @@ export class MoveContentDialog
 
         new MoveContentRequest(contentIds, parentRoot)
             .sendAndParse()
-            .then((taskId: api.task.TaskId) => {
+            .then((taskId: TaskId) => {
                 this.pollTask(taskId);
             }).catch((reason) => {
             this.close();
             if (reason && reason.message) {
-                api.notify.showError(reason.message);
+                showError(reason.message);
             }
         });
     }
@@ -226,7 +234,7 @@ export class MoveContentDialog
         return this.destinationSearchInput.getSelectedDisplayValues()[0];
     }
 
-    private getParentPath(): api.content.ContentPath {
+    private getParentPath(): ContentPath {
         const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
         return parentContent ? parentContent.getPath() : ContentPath.ROOT;
     }

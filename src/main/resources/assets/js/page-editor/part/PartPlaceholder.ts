@@ -1,24 +1,26 @@
-import './../../api.ts';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {PartComponentView} from './PartComponentView';
 import {SiteModel} from '../../app/site/SiteModel';
 import {PartDescriptorComboBox} from './PartDescriptorComboBox';
-import Descriptor = api.content.page.Descriptor;
-import PartDescriptor = api.content.page.region.PartDescriptor;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {H2El} from 'lib-admin-ui/dom/H2El';
+import {H3El} from 'lib-admin-ui/dom/H3El';
 
 export class PartPlaceholder
     extends ItemViewPlaceholder {
 
     private comboBox: PartDescriptorComboBox;
 
-    private displayName: api.dom.H2El;
+    private displayName: H2El;
 
     private partComponentView: PartComponentView;
 
     constructor(partView: PartComponentView) {
         super();
-        this.addClassEx('part-placeholder').addClass(api.StyleHelper.getCommonIconCls('part'));
+        this.addClassEx('part-placeholder').addClass(StyleHelper.getCommonIconCls('part'));
 
         this.partComponentView = partView;
 
@@ -49,7 +51,7 @@ export class PartPlaceholder
             siteModel.unSiteModelUpdated(listener);
         });
 
-        this.displayName = new api.dom.H3El('display-name');
+        this.displayName = new H3El('display-name');
         this.appendChild(this.displayName);
         if (partComponent && partComponent.getName()) {
             this.setDisplayName(partComponent.getName().toString());

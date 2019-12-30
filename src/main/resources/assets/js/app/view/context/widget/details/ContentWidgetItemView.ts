@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
@@ -18,11 +19,11 @@ export class ContentWidgetItemView
         this.appendChild(this.viewer);
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (item) {
             this.viewer.setObject(item);
         }
 
-        return wemQ(item);
+        return Q(item);
     }
 }

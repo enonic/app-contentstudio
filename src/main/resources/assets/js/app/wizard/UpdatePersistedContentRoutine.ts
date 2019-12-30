@@ -1,3 +1,5 @@
+import * as Q from 'q';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
@@ -5,8 +7,9 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
-import Workflow = api.content.Workflow;
-import ObjectHelper = api.ObjectHelper;
+import {Site} from '../content/Site';
+import {Workflow} from 'lib-admin-ui/content/Workflow';
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -17,7 +20,7 @@ export class UpdatePersistedContentRoutine
 
     private requireValid: boolean;
 
-    private workflowState: api.content.WorkflowState;
+    private workflowState: WorkflowState;
 
     constructor(thisOfProducer: any, persistedContent: Content, viewedContent: Content) {
         super(thisOfProducer);
@@ -25,14 +28,14 @@ export class UpdatePersistedContentRoutine
         this.viewedContent = viewedContent;
     }
 
-    public execute(): wemQ.Promise<RoutineContext> {
+    public execute(): Q.Promise<RoutineContext> {
 
         let context = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: RoutineContext): wemQ.Promise<RoutineContext> {
+    doExecuteNext(context: RoutineContext): Q.Promise<RoutineContext> {
 
         let promise;
         const isContentChanged = this.hasContentChanged();
@@ -40,7 +43,7 @@ export class UpdatePersistedContentRoutine
         if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
-            promise = wemQ(null);
+            promise = Q(null);
         }
 
         if (this.hasPageChanged()) {
@@ -52,7 +55,7 @@ export class UpdatePersistedContentRoutine
         });
     }
 
-    private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): wemQ.Promise<void> {
+    private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): Q.Promise<void> {
 
         return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
@@ -68,7 +71,7 @@ export class UpdatePersistedContentRoutine
             });
     }
 
-    private doHandlePage(context: RoutineContext): wemQ.Promise<void> {
+    private doHandlePage(context: RoutineContext): Q.Promise<void> {
 
         const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
@@ -81,7 +84,7 @@ export class UpdatePersistedContentRoutine
 
                 });
         } else {
-            return wemQ(null);
+            return Q(null);
         }
     }
 
@@ -168,7 +171,7 @@ export class UpdatePersistedContentRoutine
         return this;
     }
 
-    setWorkflowState(state: api.content.WorkflowState): UpdatePersistedContentRoutine {
+    setWorkflowState(state: WorkflowState): UpdatePersistedContentRoutine {
         this.workflowState = state;
         return this;
     }

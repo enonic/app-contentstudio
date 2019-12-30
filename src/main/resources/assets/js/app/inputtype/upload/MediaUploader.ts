@@ -1,11 +1,23 @@
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import Property = api.data.Property;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
+import * as Q from 'q';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {Property} from 'lib-admin-ui/data/Property';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
+import {BaseInputTypeSingleOccurrence} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {ImageUrlResolver} from '../../util/ImageUrlResolver';
@@ -17,11 +29,11 @@ export interface MediaUploaderConfigAllowType {
 }
 
 export class MediaUploader
-    extends api.form.inputtype.support.BaseInputTypeSingleOccurrence {
+    extends BaseInputTypeSingleOccurrence {
     private config: ContentInputTypeViewContext;
     private mediaUploaderEl: MediaUploaderEl;
-    private uploaderWrapper: api.dom.DivEl;
-    private svgImage: api.dom.ImgEl;
+    private uploaderWrapper: DivEl;
+    private svgImage: ImgEl;
 
     constructor(config: ContentInputTypeViewContext) {
         super(config, 'media-uploader');
@@ -40,9 +52,9 @@ export class MediaUploader
         return ValueTypes.STRING.newNullValue();
     }
 
-    layoutProperty(_input: api.form.Input, property: Property): wemQ.Promise<void> {
+    layoutProperty(_input: Input, property: Property): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(property.getType()) && !ValueTypes.DATA.equals(property.getType())) {
-            property.convertValueType(ValueTypes.STRING);
+            property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
         this.mediaUploaderEl = this.createUploader(property);
 
@@ -72,7 +84,7 @@ export class MediaUploader
                 break;
             }
 
-            api.notify.showFeedback(`"${fileName}" uploaded`);
+            showFeedback(`"${fileName}" uploaded`);
 
             const isVectorMedia = content.getType().isVectorMedia();
             if (isVectorMedia) {
@@ -104,14 +116,14 @@ export class MediaUploader
             this.createVectorMediaWrapper();
         }
 
-        return wemQ<void>(null);
+        return Q<void>(null);
     }
 
-    validate(): api.form.inputtype.InputValidationRecording {
-        return new api.form.inputtype.InputValidationRecording();
+    validate(): InputValidationRecording {
+        return new InputValidationRecording();
     }
 
-    updateProperty(property: Property, unchangedOnly?: boolean): wemQ.Promise<void> {
+    updateProperty(property: Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.mediaUploaderEl.isDirty()) && this.getContext().content.getContentId()) {
 
             this.mediaUploaderEl.setValue(this.getContext().content.getContentId().toString());
@@ -122,7 +134,7 @@ export class MediaUploader
         } else if (this.mediaUploaderEl.isDirty()) {
             this.mediaUploaderEl.forceChangedEvent();
         }
-        return wemQ<void>(null);
+        return Q<void>(null);
     }
 
     reset() {
@@ -148,7 +160,7 @@ export class MediaUploader
     private propertyAlreadyHasAttachment(property: Property): boolean {
         return (property.getValue() != null &&
                 property.getType() === ValueTypes.DATA &&
-                !api.util.StringHelper.isEmpty(property.getPropertySet().getString('attachment')));
+                !StringHelper.isEmpty(property.getPropertySet().getString('attachment')));
     }
 
     private getAllowTypeFromFileName(fileName: string): MediaUploaderConfigAllowType[] {
@@ -170,21 +182,21 @@ export class MediaUploader
     }
 
     private createVectorMediaWrapper() {
-        this.svgImage = new api.dom.ImgEl();
+        this.svgImage = new ImgEl();
         this.addClass('with-svg-image');
 
         this.setVectorMediaUrl(this.config.formContext.getPersistedContent());
 
-        this.appendChild(new api.dom.DivEl('svg-image-wrapper').appendChild(this.svgImage));
+        this.appendChild(new DivEl('svg-image-wrapper').appendChild(this.svgImage));
 
         // need to call it manually as svg images are uploaded too quickly
         this.svgImage.onLoaded(() => this.mediaUploaderEl.setResultVisible(true));
     }
 
-    private createUploaderWrapper(property: Property): api.dom.DivEl {
-        let wrapper = new api.dom.DivEl('uploader-wrapper');
+    private createUploaderWrapper(property: Property): DivEl {
+        let wrapper = new DivEl('uploader-wrapper');
 
-        let uploadButton = new api.ui.button.Button();
+        let uploadButton = new Button();
         uploadButton.addClass('upload-button');
 
         uploadButton.onClicked(() => {
@@ -225,7 +237,6 @@ export class MediaUploader
             operation: MediaUploaderElOperation.update,
             allowExtensions: allowExtensions,
             name: this.getContext().input.getName(),
-            maximumOccurrences: 1,
             allowMultiSelection: false,
             hideDefaultDropZone: hideDropZone != null ? hideDropZone : true,
             deferred: true,
@@ -250,4 +261,4 @@ export class MediaUploader
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('MediaUploader', MediaUploader));
+InputTypeManager.register(new Class('MediaUploader', MediaUploader));

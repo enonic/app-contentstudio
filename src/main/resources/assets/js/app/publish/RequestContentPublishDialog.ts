@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {showError, showSuccess} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {Issue} from '../issue/Issue';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
@@ -7,13 +12,19 @@ import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
 import {PublishRequest} from '../issue/PublishRequest';
 import {PublishRequestItem} from '../issue/PublishRequestItem';
 import {IssueType} from '../issue/IssueType';
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import PropertyEvent = api.data.PropertyEvent;
-import TextLine = api.form.inputtype.text.TextLine;
-import PrincipalSelector = api.form.inputtype.principal.PrincipalSelector;
-import ArrayHelper = api.util.ArrayHelper;
-import PrincipalType = api.security.PrincipalType;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {PropertyEvent} from 'lib-admin-ui/data/PropertyEvent';
+import {TextLine} from 'lib-admin-ui/form/inputtype/text/TextLine';
+import {PrincipalSelector} from 'lib-admin-ui/form/inputtype/principal/PrincipalSelector';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
+import {InputBuilder} from 'lib-admin-ui/form/Input';
+import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -28,17 +39,17 @@ export class RequestContentPublishDialog
 
     private requestPublishAction: Action;
 
-    private requestDetailsPropertySet: api.data.PropertySet;
+    private requestDetailsPropertySet: PropertySet;
 
-    private requestDetailsStep: api.dom.DivEl;
+    private requestDetailsStep: DivEl;
 
-    private publishItemsStep: api.dom.DivEl;
+    private publishItemsStep: DivEl;
 
-    private prevAction: api.ui.Action;
+    private prevAction: Action;
 
-    private nextAction: api.ui.Action;
+    private nextAction: Action;
 
-    private detailsFormView: api.form.FormView;
+    private detailsFormView: FormView;
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
@@ -64,9 +75,9 @@ export class RequestContentPublishDialog
     protected initActions() {
         super.initActions();
 
-        this.requestPublishAction = new api.ui.Action(i18n('action.createRequest')).onExecuted(() => this.doRequestPublish());
-        this.prevAction = new api.ui.Action(i18n('action.previous')).onExecuted(() => this.goToStep(0));
-        this.nextAction = new api.ui.Action(i18n('action.next')).onExecuted(() => this.goToStep(1));
+        this.requestPublishAction = new Action(i18n('action.createRequest')).onExecuted(() => this.doRequestPublish());
+        this.prevAction = new Action(i18n('action.previous')).onExecuted(() => this.goToStep(0));
+        this.nextAction = new Action(i18n('action.next')).onExecuted(() => this.goToStep(1));
     }
 
     protected initElements() {
@@ -76,16 +87,16 @@ export class RequestContentPublishDialog
 
         this.actionButton = this.addAction(this.requestPublishAction);
 
-        this.requestDetailsPropertySet = new api.data.PropertySet();
+        this.requestDetailsPropertySet = new PropertySet();
 
         this.publishScheduleForm.layout(false);
 
         const detailsForm = this.createDetailsForm();
 
-        this.publishItemsStep = new api.dom.DivEl('publish-items-step');
-        this.requestDetailsStep = new api.dom.DivEl('request-details-step');
+        this.publishItemsStep = new DivEl('publish-items-step');
+        this.requestDetailsStep = new DivEl('request-details-step');
 
-        this.detailsFormView = new api.form.FormView(api.form.FormContext.create().build(), detailsForm, this.requestDetailsPropertySet);
+        this.detailsFormView = new FormView(FormContext.create().build(), detailsForm, this.requestDetailsPropertySet);
         this.detailsFormView.displayValidationErrors(false);
         this.detailsFormView.layout(false);
 
@@ -107,7 +118,7 @@ export class RequestContentPublishDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const issueIcon = new api.dom.DivEl('icon-publish-request opened');
+            const issueIcon = new DivEl('icon-publish-request opened');
             this.prependChildToHeader(issueIcon);
 
             this.appendChildToContentPanel(this.publishIssuesStateBar);
@@ -115,7 +126,7 @@ export class RequestContentPublishDialog
             this.publishItemsStep.appendChildren(this.getItemList(), this.getDependantsContainer());
             this.appendChildToContentPanel(this.publishItemsStep);
 
-            this.requestDetailsStep.appendChildren<api.dom.Element>(this.publishScheduleForm, this.detailsFormView);
+            this.requestDetailsStep.appendChildren<Element>(this.publishScheduleForm, this.detailsFormView);
             this.appendChildToContentPanel(this.requestDetailsStep);
 
             this.addAction(this.prevAction).addClass('force-enabled prev');
@@ -125,27 +136,27 @@ export class RequestContentPublishDialog
         });
     }
 
-    private createDetailsForm(): api.form.Form {
-        const changes = new api.form.InputBuilder()
+    private createDetailsForm(): Form {
+        const changes = new InputBuilder()
             .setName('changes')
             .setLabel(i18n('dialog.requestPublish.changes'))
             .setInputType(TextLine.getName())
-            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
             .setMaximizeUIInputWidth(true)
             .build();
 
-        const assignees = new api.form.InputBuilder()
+        const assignees = new InputBuilder()
             .setName('assignees')
             .setLabel(i18n('dialog.requestPublish.assignees'))
             .setInputType(PrincipalSelector.getName())
-            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
+            .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
             .setInputTypeConfig({
-                principalTypes: PrincipalType[PrincipalType.USER],
-                skipPrincipals: [api.security.PrincipalKey.ofAnonymous(), api.security.PrincipalKey.ofSU()]
+                principalType: PrincipalType[PrincipalType.USER],
+                skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
             })
             .build();
 
-        return new api.form.FormBuilder().addFormItem(changes).addFormItem(assignees).build();
+        return new FormBuilder().addFormItem(changes).addFormItem(assignees).build();
     }
 
     private goToStep(num: number) {
@@ -198,18 +209,18 @@ export class RequestContentPublishDialog
             .setTitle(changes)
             .setType(IssueType.PUBLISH_REQUEST)
             .setApprovers(assignees ? assignees.map((prop) => {
-                return api.security.PrincipalKey.fromString(prop.getReference().getNodeId());
+                return PrincipalKey.fromString(prop.getReference().getNodeId());
             }) : undefined)
             .setPublishRequest(publishRequest);
 
         createIssueRequest.sendAndParse().then((issue: Issue) => {
-            api.notify.showSuccess(i18n('notify.publishRequest.created'));
+            showSuccess(i18n('notify.publishRequest.created'));
             this.notifyIssueCreated(issue);
         }).catch((reason) => {
             this.unlockControls();
             this.close();
             if (reason && reason.message) {
-                api.notify.showError(reason.message);
+                showError(reason.message);
             }
         });
     }

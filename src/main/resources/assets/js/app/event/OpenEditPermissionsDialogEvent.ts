@@ -1,10 +1,12 @@
-import ContentId = api.content.ContentId;
-import ContentPath = api.content.ContentPath;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 
 export class OpenEditPermissionsDialogEvent
-    extends api.event.Event {
+    extends Event {
 
     private contentId: ContentId;
 
@@ -57,11 +59,11 @@ export class OpenEditPermissionsDialogEvent
     }
 
     static on(handler: (event: OpenEditPermissionsDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: OpenEditPermissionsDialogEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
 

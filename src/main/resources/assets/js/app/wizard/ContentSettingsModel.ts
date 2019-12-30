@@ -1,10 +1,15 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {Content, ContentBuilder} from '../content/Content';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
-export class ContentSettingsModel implements api.Equitable {
+export class ContentSettingsModel
+    implements Equitable {
 
-    private propertyChangedListeners: {(event: api.PropertyChangedEvent):void}[] = [];
+    private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
 
-    private owner: api.security.PrincipalKey;
+    private owner: PrincipalKey;
     private language: string;
 
     public static PROPERTY_OWNER: string = 'owner';
@@ -15,13 +20,13 @@ export class ContentSettingsModel implements api.Equitable {
         this.owner = content.getOwner();
     }
 
-    getOwner(): api.security.PrincipalKey {
+    getOwner(): PrincipalKey {
         return this.owner;
     }
 
-    setOwner(owner: api.security.PrincipalKey, silent?: boolean): ContentSettingsModel {
+    setOwner(owner: PrincipalKey, silent?: boolean): ContentSettingsModel {
         if (!silent) {
-            let event = new api.PropertyChangedEvent(ContentSettingsModel.PROPERTY_OWNER, this.owner, owner);
+            let event = new PropertyChangedEvent(ContentSettingsModel.PROPERTY_OWNER, this.owner, owner);
             this.notifyPropertyChanged(event);
         }
         this.owner = owner;
@@ -34,28 +39,28 @@ export class ContentSettingsModel implements api.Equitable {
 
     setLanguage(lang: string, silent?: boolean): ContentSettingsModel {
         if (!silent) {
-            let event = new api.PropertyChangedEvent(ContentSettingsModel.PROPERTY_LANG, this.language, lang);
+            let event = new PropertyChangedEvent(ContentSettingsModel.PROPERTY_LANG, this.language, lang);
             this.notifyPropertyChanged(event);
         }
         this.language = lang;
         return this;
     }
 
-    onPropertyChanged(listener: {(event: api.PropertyChangedEvent): void;}) {
+    onPropertyChanged(listener: { (event: PropertyChangedEvent): void; }) {
         this.propertyChangedListeners.push(listener);
     }
 
-    unPropertyChanged(listener: {(event: api.PropertyChangedEvent): void;}) {
+    unPropertyChanged(listener: { (event: PropertyChangedEvent): void; }) {
         this.propertyChangedListeners =
             this.propertyChangedListeners.filter((curr) => (curr !== listener));
     }
 
-    private notifyPropertyChanged(event: api.PropertyChangedEvent) {
+    private notifyPropertyChanged(event: PropertyChangedEvent) {
         this.propertyChangedListeners.forEach((listener) => listener(event));
     }
 
-    equals(other: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(other, ContentSettingsModel)) {
+    equals(other: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(other, ContentSettingsModel)) {
             return false;
         } else {
             let otherModel = <ContentSettingsModel> other;

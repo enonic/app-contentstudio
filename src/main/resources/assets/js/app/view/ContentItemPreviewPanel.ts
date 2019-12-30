@@ -1,3 +1,9 @@
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
@@ -8,12 +14,11 @@ import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {RepositoryId} from '../repository/RepositoryId';
 import {EmulatedEvent} from '../event/EmulatedEvent';
-import ViewItem = api.app.view.ViewItem;
-import UriHelper = api.util.UriHelper;
-import i18n = api.util.i18n;
-import DivEl = api.dom.DivEl;
-import SpanEl = api.dom.SpanEl;
-import AppHelper = api.util.AppHelper;
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -26,9 +31,9 @@ enum PREVIEW_TYPE {
 }
 
 export class ContentItemPreviewPanel
-    extends api.app.view.ItemPreviewPanel<ContentSummaryAndCompareStatus> {
+    extends ItemPreviewPanel<ContentSummaryAndCompareStatus> {
 
-    private image: api.dom.ImgEl;
+    private image: ImgEl;
     private item: ViewItem<ContentSummaryAndCompareStatus>;
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
@@ -56,7 +61,7 @@ export class ContentItemPreviewPanel
     }
 
     private initElements() {
-        this.image = new api.dom.ImgEl();
+        this.image = new ImgEl();
 
         const selectorText = new SpanEl();
         selectorText.setHtml(i18n('panel.noselection'));
@@ -278,7 +283,7 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private isMediaForPreview(content: api.content.ContentSummary) {
+    private isMediaForPreview(content: ContentSummary) {
         if (!content) {
             return false;
         }
@@ -308,7 +313,7 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    this.frame.setSrc(UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -347,7 +352,7 @@ export class ContentItemPreviewPanel
             this.setPreviewType(PREVIEW_TYPE.PAGE);
             const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
             // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
-            wemjq.ajax({
+            $.ajax({
                 type: 'HEAD',
                 async: true,
                 url: src

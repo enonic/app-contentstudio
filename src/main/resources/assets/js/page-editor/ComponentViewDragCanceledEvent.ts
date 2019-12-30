@@ -1,7 +1,8 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
 import {Component} from '../app/page/region/Component';
-import Event = api.event.Event;
 
 export class ComponentViewDragCanceledEvent
     extends Event {
@@ -18,10 +19,10 @@ export class ComponentViewDragCanceledEvent
     }
 
     static on(handler: (event: ComponentViewDragStoppedEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: ComponentViewDragStoppedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,9 +1,14 @@
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ImageErrorEvent} from './ImageErrorEvent';
 import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
 import {ImageEditor, Point, Rect} from './ImageEditor';
 import {ImageUrlResolver} from '../../../../util/ImageUrlResolver';
+import {MaskContentWizardPanelEvent} from 'lib-admin-ui/app/wizard/MaskContentWizardPanelEvent';
 
 export class ImageUploaderEl
     extends MediaUploaderEl {
@@ -88,7 +93,7 @@ export class ImageUploaderEl
             });
         });
 
-        api.dom.Body.get().onClicked((event: MouseEvent) => {
+        Body.get().onClicked((event: MouseEvent) => {
             this.imageEditors.forEach((imageEditor: ImageEditor) => {
                 if (imageEditor.hasClass(ImageUploaderEl.SELECTED_CLASS) && imageEditor.getImage().getHTMLElement() !== event.target) {
                     imageEditor.removeClass(ImageUploaderEl.SELECTED_CLASS);
@@ -143,7 +148,7 @@ export class ImageUploaderEl
                     .resolveForPreview();
     }
 
-    private subscribeImageEditorOnEvents(imageEditor: ImageEditor, contentId: api.content.ContentId) {
+    private subscribeImageEditorOnEvents(imageEditor: ImageEditor, contentId: ContentId) {
         let focusAutoPositionedChangedHandler = (auto: boolean) => this.notifyFocusAutoPositionedChanged(auto);
         let cropAutoPositionedChangedHandler = (auto: boolean) => this.notifyCropAutoPositionedChanged(auto);
         let editModeChangedHandler = (edit: boolean, position: Rect, zoom: Rect, focus: Point) => {
@@ -151,7 +156,7 @@ export class ImageUploaderEl
             this.togglePlaceholder(edit);
 
             if (edit) {
-                api.dom.Body.get().appendChild(imageEditor.addClass(ImageUploaderEl.STANDOUT_CLASS));
+                Body.get().appendChild(imageEditor.addClass(ImageUploaderEl.STANDOUT_CLASS));
                 this.positionImageEditor(imageEditor);
             } else {
                 this.resetImageEditorPosition(imageEditor);
@@ -165,7 +170,7 @@ export class ImageUploaderEl
             this.toggleSelected(imageEditor);
         };
         let shaderVisibilityChangedHandler = (visible: boolean) => {
-            new api.app.wizard.MaskContentWizardPanelEvent(contentId, visible).fire();
+            new MaskContentWizardPanelEvent(contentId, visible).fire();
         };
 
         let imageErrorHandler = () => {
@@ -173,7 +178,7 @@ export class ImageUploaderEl
             this.imageEditors = this.imageEditors.filter((curr) => {
                 return curr !== imageEditor;
             });
-            api.notify.showError('Failed to upload an image ' + contentId.toString());
+            showError('Failed to upload an image ' + contentId.toString());
         };
 
         const orientationHandler = (orientation: number) => {
@@ -232,13 +237,13 @@ export class ImageUploaderEl
         imageEditor.getEl().setTop('').setLeft('');
     }
 
-    protected getExistingItem(value: string): api.dom.Element {
+    protected getExistingItem(value: string): Element {
         return this.imageEditors.filter(elem => {
             return !!elem.getSrc() && elem.getSrc().indexOf(value) > -1;
         })[0];
     }
 
-    protected refreshExistingItem(existingItem: api.dom.Element, value: string) {
+    protected refreshExistingItem(existingItem: Element, value: string) {
         const contentId = new ContentId(value);
         for (let i = 0; i < this.imageEditors.length; i++) {
             let editor = this.imageEditors[i];
@@ -250,7 +255,7 @@ export class ImageUploaderEl
         }
     }
 
-    createResultItem(value: string): api.dom.DivEl {
+    createResultItem(value: string): DivEl {
 
         if (!this.initialWidth) {
             this.initialWidth = this.getParentElement().getEl().getWidth();

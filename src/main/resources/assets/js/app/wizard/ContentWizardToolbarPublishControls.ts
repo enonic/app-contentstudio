@@ -1,11 +1,11 @@
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
-import ActionButton = api.ui.button.ActionButton;
-import DivEl = api.dom.DivEl;
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class ContentWizardToolbarPublishControls
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private publishButton: ContentWizardPublishMenuButton;
 

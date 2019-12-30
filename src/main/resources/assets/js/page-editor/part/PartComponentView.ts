@@ -1,3 +1,4 @@
+import {Element} from 'lib-admin-ui/dom/Element';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
 import {ContentView, ContentViewBuilder} from '../ContentView';
@@ -87,16 +88,19 @@ export class PartComponentView
         return array;
     }
 
-    private parseContentViews(parentElement?: api.dom.Element) {
+    private parseContentViews(parentElement?: Element) {
 
         let children = parentElement ? parentElement.getChildren() : this.getChildren();
 
-        children.forEach((childElement: api.dom.Element) => {
+        children.forEach((childElement: Element) => {
             let itemType = ItemType.fromElement(childElement);
             if (itemType) {
                 if (ContentItemType.get().equals(itemType)) {
-                    let contentView = new ContentView(new ContentViewBuilder().setParentPartComponentView(this).setParentElement(
-                        parentElement ? parentElement : this).setElement(childElement));
+                    const builder = new ContentViewBuilder()
+                        .setParentPartComponentView(this)
+                        .setParentElement(parentElement ? parentElement : this)
+                        .setElement(childElement);
+                    const contentView = new ContentView(builder);
                     this.addContent(contentView);
                 } else {
                     this.parseContentViews(childElement);

@@ -1,20 +1,22 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {Region} from '../../../../../page/region/Region';
-import i18n = api.util.i18n;
 
 export class RegionInspectionPanel
     extends BaseInspectionPanel {
 
     private region: Region;
 
-    private namesAndIcon: api.app.NamesAndIconView;
+    private namesAndIcon: NamesAndIconView;
 
     constructor() {
         super();
 
         this.namesAndIcon =
-            new api.app.NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.medium)).setIconClass(
+            new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium)).setIconClass(
                 ItemViewIconClassResolver.resolveByType('region'));
 
         this.appendChild(this.namesAndIcon);

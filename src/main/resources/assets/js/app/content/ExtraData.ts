@@ -1,9 +1,12 @@
-import PropertyTree = api.data.PropertyTree;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {XDataName} from './XDataName';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 
 export class ExtraData
-    implements api.Cloneable, api.Equitable {
+    implements Cloneable, Equitable {
 
     private name: XDataName;
 
@@ -26,18 +29,18 @@ export class ExtraData
         return new ExtraData(this.name, this.data.copy());
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ExtraData)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ExtraData)) {
             return false;
         }
 
         let other = <ExtraData>o;
 
-        if (!api.ObjectHelper.equals(this.name, other.name)) {
+        if (!ObjectHelper.equals(this.name, other.name)) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.data, other.data)) {
+        if (!ObjectHelper.equals(this.data, other.data)) {
             return false;
         }
 

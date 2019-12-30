@@ -1,14 +1,15 @@
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
-import Option = api.ui.selector.Option;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import i18n = api.util.i18n;
-import Element = api.dom.Element;
-import DivEl = api.dom.DivEl;
-import SpanEl = api.dom.SpanEl;
-import DefaultOptionDisplayValueViewer = api.ui.selector.DefaultOptionDisplayValueViewer;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import OptionFilterInputValueChangedEvent = api.ui.selector.OptionFilterInputValueChangedEvent;
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {DefaultOptionDisplayValueViewer} from 'lib-admin-ui/ui/selector/DefaultOptionDisplayValueViewer';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {OptionFilterInputValueChangedEvent} from 'lib-admin-ui/ui/selector/OptionFilterInputValueChangedEvent';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class RowSelector
     extends DivEl {
@@ -49,7 +50,7 @@ export class RowSelector
         });
     }
 
-    private static comboBoxFilter(item: api.ui.selector.Option<string>, args: any) {
+    private static comboBoxFilter(item: Option<string>, args: any) {
         // Do not change to one-liner `return !(...);`. Bugs expected with UglifyJs + SlickGrid filter compilation.
         const isEmptyInput = args == null || args.searchString == null;
         return isEmptyInput || item.displayValue.toUpperCase().indexOf(args.searchString.toUpperCase()) !== -1;
@@ -99,11 +100,11 @@ export class RowSelector
         };
 
         this.comboBox.onRemoved(() => {
-            api.dom.Body.get().unMouseDown(mouseClickListener);
+            Body.get().unMouseDown(mouseClickListener);
         });
 
         this.comboBox.onAdded(() => {
-            api.dom.Body.get().onMouseDown(mouseClickListener);
+            Body.get().onMouseDown(mouseClickListener);
         });
     }
 

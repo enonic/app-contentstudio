@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {ContentVersion} from '../ContentVersion';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
@@ -8,19 +9,19 @@ import {GetContentVersionsForViewRequest} from '../resource/GetContentVersionsFo
 import {ContentVersions} from '../ContentVersions';
 import {RevertVersionRequest} from '../resource/RevertVersionRequest';
 import {AttachmentJson} from '../attachment/AttachmentJson';
-import NotifyManager = api.notify.NotifyManager;
-import Button = api.ui.button.Button;
-import ModalDialog = api.ui.dialog.ModalDialog;
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import i18n = api.util.i18n;
-import Element = api.dom.Element;
-import DivEl = api.dom.DivEl;
-import LabelEl = api.dom.LabelEl;
-import ContentId = api.content.ContentId;
-import Option = api.ui.selector.Option;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import CheckboxBuilder = api.ui.CheckboxBuilder;
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -106,7 +107,7 @@ export class CompareContentVersionsDialog
         return button;
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
             this.toolbar = new DivEl('toolbar-container');
 
@@ -116,11 +117,11 @@ export class CompareContentVersionsDialog
 
             this.revertLeftButton = this.createVersionRevertButton(this.leftDropdown);
 
-            this.leftLabel = new api.dom.LabelEl(i18n('dialog.compareVersions.olderVersion'));
+            this.leftLabel = new LabelEl(i18n('dialog.compareVersions.olderVersion'));
             const leftContainer = new DivEl('container left');
             leftContainer.appendChildren<Element>(this.leftLabel, this.leftDropdown, this.revertLeftButton);
 
-            this.rightLabel = new api.dom.LabelEl(i18n('dialog.compareVersions.newerVersion'));
+            this.rightLabel = new LabelEl(i18n('dialog.compareVersions.newerVersion'));
             this.rightDropdown = this.createVersionDropdown('right', this.rightVersion);
             this.revertRightButton = this.createVersionRevertButton(this.rightDropdown);
 
@@ -197,7 +198,7 @@ export class CompareContentVersionsDialog
         this.reloadVersions();
     }
 
-    private reloadVersions(): wemQ.Promise<void> {
+    private reloadVersions(): Q.Promise<void> {
         if (!this.contentId) {
             return;
         }
@@ -291,7 +292,7 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private fetchVersionPromise(version: string): wemQ.Promise<Object> {
+    private fetchVersionPromise(version: string): Q.Promise<Object> {
         const cache = this.contentCache[version];
 
         if (cache) {
@@ -307,7 +308,7 @@ export class CompareContentVersionsDialog
             });
     }
 
-    private displayDiff(leftVersion: string, rightVersion: string): wemQ.Promise<void> {
+    private displayDiff(leftVersion: string, rightVersion: string): Q.Promise<void> {
         const promises = [
             this.fetchVersionPromise(leftVersion)
         ];
@@ -316,7 +317,7 @@ export class CompareContentVersionsDialog
         }
         this.comparisonContainer.addClass('loading');
 
-        return wemQ.all(promises).spread((leftJson: Object, rightJson: Object) => {
+        return Q.all(promises).spread((leftJson: Object, rightJson: Object) => {
             const delta: Delta = this.diffPatcher.diff(leftJson, rightJson || leftJson);
             let text;
             let isEmpty = false;
@@ -331,7 +332,7 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private restoreVersion(version: string): wemQ.Promise<void> {
+    private restoreVersion(version: string): Q.Promise<void> {
         return new RevertVersionRequest(version, this.contentId.toString()).sendAndParse()
             .then((contentKey: string) => {
                 if (contentKey === this.activeVersion) {

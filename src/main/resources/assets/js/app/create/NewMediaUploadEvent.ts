@@ -1,7 +1,10 @@
-import UploadItem = api.ui.uploader.UploadItem;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {Content} from '../content/Content';
 
-export class NewMediaUploadEvent extends api.event.Event {
+export class NewMediaUploadEvent
+    extends Event {
 
     private uploadItems: UploadItem<Content>[];
 
@@ -22,10 +25,10 @@ export class NewMediaUploadEvent extends api.event.Event {
     }
 
     static on(handler: (event: NewMediaUploadEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: NewMediaUploadEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

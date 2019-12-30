@@ -1,5 +1,8 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+
 export class AttachmentName
-    implements api.Equitable {
+    implements Equitable {
 
     private fileName: string;
 
@@ -7,14 +10,14 @@ export class AttachmentName
         this.fileName = fileName;
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, AttachmentName)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, AttachmentName)) {
             return false;
         }
 
         let other = <AttachmentName>o;
 
-        if (!api.ObjectHelper.stringEquals(this.fileName, other.fileName)) {
+        if (!ObjectHelper.stringEquals(this.fileName, other.fileName)) {
             return false;
         }
 

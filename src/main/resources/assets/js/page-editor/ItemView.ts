@@ -1,3 +1,11 @@
+import * as $ from 'jquery';
+import {Element, ElementBuilder, ElementFromElementBuilder, NewElementBuilder} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemType} from './ItemType';
 import {LiveEditModel} from './LiveEditModel';
@@ -39,9 +47,12 @@ import {PartComponentBuilder} from '../app/page/region/PartComponent';
 import {TextComponentType} from '../app/page/region/TextComponentType';
 import {TextComponentBuilder} from '../app/page/region/TextComponent';
 import {PageView} from './PageView';
-import PropertyTree = api.data.PropertyTree;
-import i18n = api.util.i18n;
-import ObjectHelper = api.ObjectHelper;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export interface ElementDimensions {
     top: number;
@@ -60,19 +71,19 @@ export class ItemViewBuilder {
 
     type: ItemType;
 
-    element: api.dom.Element;
+    element: Element;
 
-    parentElement: api.dom.Element;
+    parentElement: Element;
 
     parentView: ItemView;
 
-    contextMenuActions: api.ui.Action[];
+    contextMenuActions: Action[];
 
     contextMenuTitle: ItemViewContextMenuTitle;
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: api.ui.Viewer<any>;
+    viewer: Viewer<any>;
 
     setLiveEditModel(value: LiveEditModel): ItemViewBuilder {
         this.liveEditModel = value;
@@ -94,7 +105,7 @@ export class ItemViewBuilder {
         return this;
     }
 
-    setElement(value: api.dom.Element): ItemViewBuilder {
+    setElement(value: Element): ItemViewBuilder {
         this.element = value;
         return this;
     }
@@ -104,7 +115,7 @@ export class ItemViewBuilder {
         return this;
     }
 
-    setViewer(value: api.ui.Viewer<any>): ItemViewBuilder {
+    setViewer(value: Viewer<any>): ItemViewBuilder {
         this.viewer = value;
         return this;
     }
@@ -114,12 +125,12 @@ export class ItemViewBuilder {
         return this;
     }
 
-    setParentElement(value: api.dom.Element): ItemViewBuilder {
+    setParentElement(value: Element): ItemViewBuilder {
         this.parentElement = value;
         return this;
     }
 
-    setContextMenuActions(actions: api.ui.Action[]): ItemViewBuilder {
+    setContextMenuActions(actions: Action[]): ItemViewBuilder {
         this.contextMenuActions = actions;
         return this;
     }
@@ -131,7 +142,7 @@ export class ItemViewBuilder {
 }
 
 export class ItemView
-    extends api.dom.Element {
+    extends Element {
 
     protected liveEditModel: LiveEditModel;
 
@@ -145,15 +156,15 @@ export class ItemView
 
     private parentItemView: ItemView;
 
-    private loadMask: api.ui.mask.LoadMask;
+    private loadMask: LoadMask;
 
     private contextMenu: ItemViewContextMenu;
 
     private contextMenuTitle: ItemViewContextMenuTitle;
 
-    private contextMenuActions: api.ui.Action[];
+    private contextMenuActions: Action[];
 
-    private viewer: api.ui.Viewer<any>;
+    private viewer: Viewer<any>;
 
     private mouseOver: boolean;
 
@@ -174,17 +185,17 @@ export class ItemView
     public static debug: boolean;
 
     constructor(builder: ItemViewBuilder) {
-        api.util.assertNotNull(builder.type, 'type cannot be null');
+        assertNotNull(builder.type, 'type cannot be null');
 
-        let props: api.dom.ElementBuilder = null;
+        let props: ElementBuilder = null;
         if (builder.element) {
-            let elementFromElementBuilder = new api.dom.ElementFromElementBuilder();
+            let elementFromElementBuilder = new ElementFromElementBuilder();
             elementFromElementBuilder.setElement(builder.element);
             elementFromElementBuilder.setParentElement(builder.parentElement);
             elementFromElementBuilder.setGenerateId(false);
             props = elementFromElementBuilder;
         } else {
-            let newElementBuilder = new api.dom.NewElementBuilder();
+            let newElementBuilder = new NewElementBuilder();
             newElementBuilder.setTagName('div');
             newElementBuilder.setParentElement(builder.parentElement);
             newElementBuilder.setGenerateId(false);
@@ -221,7 +232,7 @@ export class ItemView
         // remove old placeholder in case of parsing already parsed page again
         for (let i = 0; i < this.getChildren().length; i++) {
             let child = this.getChildren()[i];
-            if (api.ObjectHelper.iFrameSafeInstanceOf(child, ItemViewPlaceholder)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(child, ItemViewPlaceholder)) {
                 this.removeChild(child);
                 // there can be only one placeholder
                 break;
@@ -237,11 +248,11 @@ export class ItemView
         this.bindMouseListeners();
     }
 
-    protected addContextMenuActions(actions: api.ui.Action[]) {
+    protected addContextMenuActions(actions: Action[]) {
         this.contextMenuActions = this.contextMenuActions.concat(actions);
     }
 
-    protected removeContextMenuAction(action: api.ui.Action) {
+    protected removeContextMenuAction(action: Action) {
         if (this.contextMenuActions.indexOf(action) === -1) {
             return;
         }
@@ -254,7 +265,7 @@ export class ItemView
     }
 
     protected disableLinks() {
-        wemjq(this.getHTMLElement()).find('a').on('click', e => e.preventDefault());
+        $(this.getHTMLElement()).find('a').on('click', e => e.preventDefault());
     }
 
     public setContextMenuTitle(title: ItemViewContextMenuTitle) {
@@ -275,7 +286,7 @@ export class ItemView
         this.contextMenuListener = (event: MouseEvent) => this.handleClick(event);
         this.onContextMenu(this.contextMenuListener);
 
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: api.ui.responsive.ResponsiveItem) => {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             if (this.mouseOver) {
                 this.highlight();
             }
@@ -349,7 +360,7 @@ export class ItemView
         this.unTouchStart(this.mouseClickedListener);
         this.unContextMenu(this.contextMenuListener);
 
-        api.ui.responsive.ResponsiveManager.unAvailableSizeChanged(this);
+        ResponsiveManager.unAvailableSizeChanged(this);
         Shader.get().unClicked(this.shaderClickedListener);
         this.unMouseOverView(this.mouseOverViewListener);
         this.unMouseLeaveView(this.mouseLeaveViewListener);
@@ -435,7 +446,7 @@ export class ItemView
     scrollComponentIntoView(): void {
         let distance = this.calcDistanceToViewport();
         if (distance !== 0) {
-            wemjq('html,body').animate({scrollTop: (distance > 0 ? '+=' : '-=') + Math.abs(distance)}, 200);
+            $('html,body').animate({scrollTop: (distance > 0 ? '+=' : '-=') + Math.abs(distance)}, 200);
         }
     }
 
@@ -719,7 +730,7 @@ export class ItemView
 
     static parseItemId(element: HTMLElement): ItemViewId {
         let attribute = element.getAttribute('data-' + ItemViewId.DATA_ATTRIBUTE);
-        if (api.util.StringHelper.isEmpty(attribute)) {
+        if (StringHelper.isEmpty(attribute)) {
             return null;
         }
         return ItemViewId.fromString(attribute);
@@ -829,7 +840,7 @@ export class ItemView
     }
 
     getIconUrl(content: Content): string {
-        return new api.content.util.ContentIconUrlResolver().setContent(content).resolve();
+        return new ContentIconUrlResolver().setContent(content).resolve();
     }
 
     getIconClass() {
@@ -838,7 +849,7 @@ export class ItemView
 
     showLoadingSpinner() {
         if (!this.loadMask) {
-            this.loadMask = new api.ui.mask.LoadMask(this);
+            this.loadMask = new LoadMask(this);
             this.appendChild(this.loadMask);
         }
         this.loadMask.show();
@@ -850,7 +861,7 @@ export class ItemView
         }
     }
 
-    getContextMenuActions(): api.ui.Action[] {
+    getContextMenuActions(): Action[] {
         return this.contextMenuActions;
     }
 
@@ -867,7 +878,7 @@ export class ItemView
         return this.liveEditModel;
     }
 
-    getViewer(): api.ui.Viewer<any> {
+    getViewer(): Viewer<any> {
         return this.viewer;
     }
 
@@ -966,7 +977,7 @@ export class ItemView
 
         let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
             let descriptorBuilder = <DescriptorBasedComponentBuilder<DescriptorBasedComponent>>builder;
             descriptorBuilder.setConfig(new PropertyTree());
         }
@@ -990,7 +1001,7 @@ export class ItemView
         }
     }
 
-    private getInsertActions(liveEditModel: LiveEditModel): api.ui.Action[] {
+    private getInsertActions(liveEditModel: LiveEditModel): Action[] {
         let isFragmentContent = liveEditModel.getContent().getType().isFragment();
 
         let actions = [this.createInsertSubAction('image', ImageItemType.get()),
@@ -1023,12 +1034,12 @@ export class ItemView
         return <PageView>itemView;
     }
 
-    protected createInsertAction(): api.ui.Action {
-        return new api.ui.Action(i18n('live.view.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+    protected createInsertAction(): Action {
+        return new Action(i18n('live.view.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
     }
 
-    protected createSelectParentAction(): api.ui.Action {
-        const action = new api.ui.Action(i18n('live.view.selectparent'));
+    protected createSelectParentAction(): Action {
+        const action = new Action(i18n('live.view.selectparent'));
 
         action.setSortOrder(0);
         action.onExecuted(() => {
@@ -1047,13 +1058,13 @@ export class ItemView
         itemView.scrollComponentIntoView();
     }
 
-    private createInsertSubAction(label: string, componentItemType: ItemType): api.ui.Action {
-        let action = new api.ui.Action(i18n('live.view.insert.' + label)).onExecuted(() => {
+    private createInsertSubAction(label: string, componentItemType: ItemType): Action {
+        let action = new Action(i18n('live.view.insert.' + label)).onExecuted(() => {
             let componentView = this.createView(componentItemType);
             this.addComponentView(componentView, this.getNewItemIndex(), true);
         });
 
-        action.setVisible(false).setIconClass(api.StyleHelper.getCommonIconCls(label));
+        action.setVisible(false).setIconClass(StyleHelper.getCommonIconCls(label));
 
         return action;
     }

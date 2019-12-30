@@ -1,7 +1,6 @@
-import '../../../api.ts';
 import {ToggleSearchPanelEvent} from '../ToggleSearchPanelEvent';
 
-import Action = api.ui.Action;
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class ToggleSearchPanelAction extends Action {
 

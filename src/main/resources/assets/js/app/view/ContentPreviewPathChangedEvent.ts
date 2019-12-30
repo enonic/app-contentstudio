@@ -1,6 +1,8 @@
-import '../../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
-export class ContentPreviewPathChangedEvent extends api.event.Event {
+export class ContentPreviewPathChangedEvent
+    extends Event {
 
     private previewPath: string;
 
@@ -14,10 +16,10 @@ export class ContentPreviewPathChangedEvent extends api.event.Event {
     }
 
     static on(handler: (event: ContentPreviewPathChangedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ContentPreviewPathChangedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

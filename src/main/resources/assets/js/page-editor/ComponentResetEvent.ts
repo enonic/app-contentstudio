@@ -1,9 +1,10 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
-import Event = api.event.Event;
 
 export class ComponentResetEvent
-    extends api.event.Event {
+    extends Event {
 
     private newComponentView: ComponentView<Component>;
     private oldComponentView: ComponentView<Component>;
@@ -23,10 +24,10 @@ export class ComponentResetEvent
     }
 
     static on(handler: (event: ComponentResetEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ComponentResetEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

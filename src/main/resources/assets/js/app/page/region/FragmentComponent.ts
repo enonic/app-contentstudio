@@ -1,3 +1,6 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {FragmentComponentJson} from './FragmentComponentJson';
 import {ComponentName} from './ComponentName';
@@ -9,7 +12,7 @@ export class FragmentComponent
 
     public static PROPERTY_FRAGMENT: string = 'fragment';
 
-    private fragment: api.content.ContentId;
+    private fragment: ContentId;
 
     constructor(builder: FragmentComponentBuilder) {
         super(builder);
@@ -17,17 +20,17 @@ export class FragmentComponent
         this.fragment = builder.fragment;
     }
 
-    getFragment(): api.content.ContentId {
+    getFragment(): ContentId {
         return this.fragment;
     }
 
-    setFragment(contentId: api.content.ContentId, name: string) {
+    setFragment(contentId: ContentId, name: string) {
         let oldValue = this.fragment;
         this.fragment = contentId;
 
         this.setName(name ? new ComponentName(name) : this.getType().getDefaultName());
 
-        if (!api.ObjectHelper.equals(oldValue, contentId)) {
+        if (!ObjectHelper.equals(oldValue, contentId)) {
             this.notifyPropertyChanged(FragmentComponent.PROPERTY_FRAGMENT);
         }
     }
@@ -55,15 +58,15 @@ export class FragmentComponent
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, FragmentComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, FragmentComponent)) {
             return false;
         }
 
         const other = <FragmentComponent>o;
 
-        if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
+        if (!ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;
         }
 
@@ -78,7 +81,7 @@ export class FragmentComponent
 export class FragmentComponentBuilder
     extends ConfigBasedComponentBuilder<FragmentComponent> {
 
-    fragment: api.content.ContentId;
+    fragment: ContentId;
 
     constructor(source?: FragmentComponent) {
         super(source);
@@ -90,7 +93,7 @@ export class FragmentComponentBuilder
         this.setType(FragmentComponentType.get());
     }
 
-    public setFragment(value: api.content.ContentId): FragmentComponentBuilder {
+    public setFragment(value: ContentId): FragmentComponentBuilder {
         this.fragment = value;
         return this;
     }
@@ -99,7 +102,7 @@ export class FragmentComponentBuilder
         super.fromJson(json);
 
         if (json.fragment) {
-            this.setFragment(new api.content.ContentId(json.fragment));
+            this.setFragment(new ContentId(json.fragment));
         }
 
         return this;

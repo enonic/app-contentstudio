@@ -1,7 +1,9 @@
+import * as Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {PublishStatus} from '../../../../publish/PublishStatus';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class StatusWidgetItemView extends WidgetItemView {
 
@@ -13,7 +15,7 @@ export class StatusWidgetItemView extends WidgetItemView {
         super('status-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         let compareStatus = item.getCompareStatus();
         let publishStatus = item.getPublishStatus();
         if (StatusWidgetItemView.debug) {
@@ -29,7 +31,7 @@ export class StatusWidgetItemView extends WidgetItemView {
             this.content = item;
             return this.layout();
         }
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
     private getCompareStatus() : CompareStatus {
@@ -40,14 +42,14 @@ export class StatusWidgetItemView extends WidgetItemView {
         return this.content ? this.content.getPublishStatus() : null;
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (StatusWidgetItemView.debug) {
             console.debug('StatusWidgetItemView.layout');
         }
 
         return super.layout().then(() => {
             if (this.getCompareStatus() != null) {
-                let statusEl = new api.dom.SpanEl();
+                let statusEl = new SpanEl();
 
                 statusEl.setHtml(this.content.getStatusText().toLocaleUpperCase());
                 statusEl.addClass(this.content.getStatusClass());

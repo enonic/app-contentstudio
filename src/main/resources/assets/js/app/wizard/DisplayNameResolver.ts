@@ -1,14 +1,21 @@
-import '../../api.ts';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Input} from 'lib-admin-ui/form/Input';
+import {DisplayNameGenerator} from 'lib-admin-ui/app/wizard/DisplayNameGenerator';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
-export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator {
+export class DisplayNameResolver
+    implements DisplayNameGenerator {
 
-    private formView: api.form.FormView;
+    private formView: FormView;
 
     private expression: string;
 
     readonly excludedInputTypes: string[] = ['htmlarea'];
 
-    setFormView(value: api.form.FormView): DisplayNameResolver {
+    setFormView(value: FormView): DisplayNameResolver {
         this.formView = value;
         return this;
     }
@@ -19,12 +26,12 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
     }
 
     hasExpression(): boolean {
-        return !api.util.StringHelper.isBlank(this.expression);
+        return !StringHelper.isBlank(this.expression);
     }
 
     execute(): string {
-        api.util.assertNotNull(this.formView, 'formView not set');
-        api.util.assertNotNull(this.expression, 'expression not set');
+        assertNotNull(this.formView, 'formView not set');
+        assertNotNull(this.expression, 'expression not set');
 
         return this.safeEval();
     }
@@ -37,14 +44,13 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         return result;
     }
 
-    private isExcludedInputType(inputType: api.form.InputTypeName) {
+    private isExcludedInputType(inputType: InputTypeName) {
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
-    private getFormInputs(): api.form.Input[] {
-        return this.formView.getForm().getFormItems()
-            .filter(formItem => api.ObjectHelper.iFrameSafeInstanceOf(formItem, api.form.Input))
-            .map(formItem => <api.form.Input>formItem);
+    private getFormInputs(): Input[] {
+        return <Input[]>this.formView.getForm().getFormItems()
+            .filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
     }
 
     private getNamesOfAllowedFields(): string[] {

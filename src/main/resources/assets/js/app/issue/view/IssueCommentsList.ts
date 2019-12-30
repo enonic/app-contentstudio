@@ -1,12 +1,13 @@
-import ListBox = api.ui.selector.list.ListBox;
-import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
-import H6El = api.dom.H6El;
-import Principal = api.security.Principal;
-import i18n = api.util.i18n;
-import ContextMenu = api.ui.menu.ContextMenu;
-import Action = api.ui.Action;
-import ElementHelper = api.dom.ElementHelper;
-import ConfirmationDialog = api.ui.dialog.ConfirmationDialog;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {ContextMenu} from 'lib-admin-ui/ui/menu/ContextMenu';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {IssueComment} from '../IssueComment';
 import {DeleteIssueCommentRequest} from '../resource/DeleteIssueCommentRequest';
 import {Issue} from '../Issue';
@@ -14,6 +15,9 @@ import {ListIssueCommentsRequest} from '../resource/ListIssueCommentsRequest';
 import {UpdateIssueCommentRequest} from '../resource/UpdateIssueCommentRequest';
 import {InPlaceTextArea} from './InPlaceTextArea';
 import {IssueType} from '../IssueType';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {
@@ -54,7 +58,7 @@ export class IssueCommentsList
         return !!this.parentIssue && this.parentIssue.getType() === IssueType.PUBLISH_REQUEST;
     }
 
-    protected createItemView(item: IssueComment, readOnly: boolean): api.dom.Element {
+    protected createItemView(item: IssueComment, readOnly: boolean): Element {
         const listItem = new IssueCommentsListItem(item, this.isPublishRequest());
         listItem.onContextMenuClicked((x: number, y: number, comment: IssueComment) => {
             this.activeItem = comment;
@@ -79,7 +83,7 @@ export class IssueCommentsList
                                 const messageKey = this.isPublishRequest() ?
                                                    'notify.publishRequest.commentDeleted' :
                                                    'notify.issue.commentDeleted';
-                                api.notify.showFeedback(i18n(messageKey));
+                                showFeedback(i18n(messageKey));
                             }
                         });
                     }).open();
@@ -115,7 +119,7 @@ export class IssueCommentsList
 }
 
 class IssueCommentsListItem
-    extends api.ui.Viewer<IssueComment> {
+    extends Viewer<IssueComment> {
 
     private header: H6El;
 
@@ -158,7 +162,7 @@ class IssueCommentsListItem
                         const messageKey = this.publishRequestComment ?
                                            'notify.publishRequest.commentUpdated' :
                                            'notify.issue.commentUpdated';
-                        api.notify.showFeedback(i18n(messageKey));
+                        showFeedback(i18n(messageKey));
                     });
                 }
             });
@@ -179,7 +183,7 @@ class IssueCommentsListItem
     }
 
     private resolveDisplayName(comment: IssueComment): string {
-        const time = api.util.DateHelper.getModifiedString(comment.getCreatedTime());
+        const time = DateHelper.getModifiedString(comment.getCreatedTime());
         return `<i class="icon icon-small icon-menu2"/>${comment.getCreatorDisplayName()}<span class="created-time">${time}</span>`;
     }
 

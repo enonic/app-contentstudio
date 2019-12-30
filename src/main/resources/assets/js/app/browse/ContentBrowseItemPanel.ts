@@ -1,8 +1,9 @@
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
 
 export class ContentBrowseItemPanel
-    extends api.app.browse.BrowseItemPanel<ContentSummaryAndCompareStatus> {
+    extends BrowseItemPanel<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super();

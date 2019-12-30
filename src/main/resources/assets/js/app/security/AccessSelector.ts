@@ -1,13 +1,16 @@
-import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
-import AppHelper = api.util.AppHelper;
-import KeyHelper = api.ui.KeyHelper;
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 import {Access, ACCESS_OPTIONS, AccessOption} from './Access';
+import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
+import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
 
 export class AccessSelector
-    extends api.ui.tab.TabMenu {
+    extends TabMenu {
 
     private value: Access;
-    private valueChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
 
     constructor() {
         super('access-selector');
@@ -22,8 +25,8 @@ export class AccessSelector
     }
 
     initEventHandlers() {
-        this.onNavigationItemSelected((event: api.ui.NavigatorEvent) => {
-            let item: api.ui.tab.TabMenuItem = <api.ui.tab.TabMenuItem> event.getItem();
+        this.onNavigationItemSelected((event: NavigatorEvent) => {
+            let item: TabMenuItem = <TabMenuItem> event.getItem();
             this.setValue(ACCESS_OPTIONS[item.getIndex()].value);
         });
 
@@ -67,7 +70,7 @@ export class AccessSelector
         if (option) {
             this.selectNavigationItem(ACCESS_OPTIONS.indexOf(option));
             if (!silent) {
-                this.notifyValueChanged(new api.ValueChangedEvent(Access[this.value], Access[value]));
+                this.notifyValueChanged(new ValueChangedEvent(Access[this.value], Access[value]));
             }
             this.value = value;
         }
@@ -105,17 +108,17 @@ export class AccessSelector
         this.focus();
     }
 
-    onValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyValueChanged(event: api.ValueChangedEvent) {
+    private notifyValueChanged(event: ValueChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });

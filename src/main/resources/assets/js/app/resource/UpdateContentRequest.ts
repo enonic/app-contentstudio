@@ -1,10 +1,15 @@
-import ContentName = api.content.ContentName;
-import Workflow = api.content.Workflow;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
+import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
 import {AccessControlList} from '../access/AccessControlList';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class UpdateContentRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -13,7 +18,7 @@ export class UpdateContentRequest
 
     private name: ContentName;
 
-    private data: api.data.PropertyTree;
+    private data: PropertyTree;
 
     private meta: ExtraData[];
 
@@ -23,7 +28,7 @@ export class UpdateContentRequest
 
     private language: string;
 
-    private owner: api.security.PrincipalKey;
+    private owner: PrincipalKey;
 
     private publishFrom: Date;
 
@@ -54,7 +59,7 @@ export class UpdateContentRequest
         return this;
     }
 
-    setData(contentData: api.data.PropertyTree): UpdateContentRequest {
+    setData(contentData: PropertyTree): UpdateContentRequest {
         this.data = contentData;
         return this;
     }
@@ -79,7 +84,7 @@ export class UpdateContentRequest
         return this;
     }
 
-    setOwner(owner: api.security.PrincipalKey): UpdateContentRequest {
+    setOwner(owner: PrincipalKey): UpdateContentRequest {
         this.owner = owner;
         return this;
     }
@@ -133,13 +138,13 @@ export class UpdateContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'update');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'update');
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
+    sendAndParse(): Q.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return this.fromJsonToContent(response.getResult());
         });
     }

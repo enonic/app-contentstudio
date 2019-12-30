@@ -1,4 +1,4 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentDependencyJson} from './json/ContentDependencyJson';
 
 export interface ResolveDependencyResultJson {

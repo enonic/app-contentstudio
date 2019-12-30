@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {IssueStatus} from '../issue/IssueStatus';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
@@ -6,9 +10,8 @@ import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import {IssueType} from '../issue/IssueType';
-import MenuButton = api.ui.button.MenuButton;
-import ContentId = api.content.ContentId;
-import Action = api.ui.Action;
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -31,7 +34,7 @@ export class ContentItemPreviewToolbar
         this.issueButton = new MenuButton(this.mainAction);
         this.issueButton.addClass('transparent');
 
-        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 100);
+        this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 100);
 
         const reloadList = () => {
             const item = this.getItem();
@@ -46,7 +49,7 @@ export class ContentItemPreviewToolbar
         handler.onIssueUpdated(reloadList);
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
             this.addElement(this.issueButton);
             return rendered;
@@ -93,19 +96,21 @@ export class ContentItemPreviewToolbar
             const latestAction = this.issueActionsList.shift();
             if (latestAction) {
                 this.mainAction.setLabel(latestAction.getLabel());
+                this.mainAction.setIconClass(latestAction.getIconClass());
                 this.mainIssue = issues[0];
 
                 if (this.issueActionsList.length > 0) {
                     this.issueButton.addMenuActions(this.issueActionsList);
                 }
             }
-        }).catch(api.DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private createIssueAction(issue: Issue) {
+    private createIssueAction(issue: Issue): Action {
         const type = issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
-        const action = new Action(`<span class="icon icon-${type} opened"></span><i>${issue.getTitle()}</i>`);
-        action.onExecuted((a) => {
+        const action = new Action(issue.getTitle());
+        action.setIconClass(`icon icon-${type} opened`);
+        action.onExecuted(() => {
             IssueDialogsManager.get().openDetailsDialog(issue);
         });
         return action;

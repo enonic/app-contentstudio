@@ -1,6 +1,6 @@
-import TogglerButton = api.ui.button.TogglerButton;
-import Tooltip = api.ui.Tooltip;
-import i18n = api.util.i18n;
+import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ModeTogglerButton
     extends TogglerButton {

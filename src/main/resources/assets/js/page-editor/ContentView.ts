@@ -1,4 +1,4 @@
-import './../api.ts';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {PartComponentView} from './part/PartComponentView';
 import {ContentItemType} from './ContentItemType';
@@ -8,28 +8,27 @@ export class ContentViewBuilder {
 
     parentPartComponentView: PartComponentView;
 
-    parentElement: api.dom.Element;
+    parentElement: Element;
 
-    element: api.dom.Element;
+    element: Element;
 
     setParentPartComponentView(value: PartComponentView): ContentViewBuilder {
         this.parentPartComponentView = value;
         return this;
     }
 
-    setParentElement(value: api.dom.Element): ContentViewBuilder {
+    setParentElement(value: Element): ContentViewBuilder {
         this.parentElement = value;
         return this;
     }
 
-    setElement(value: api.dom.Element): ContentViewBuilder {
+    setElement(value: Element): ContentViewBuilder {
         this.element = value;
         return this;
     }
 
 }
 
-// TODO:
 export class ContentView
     extends ItemView {
 

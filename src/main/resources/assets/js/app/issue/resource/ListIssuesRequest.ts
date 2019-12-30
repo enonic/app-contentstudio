@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResponse} from './IssueResponse';
 import {ListIssuesResult} from './ListIssuesResult';
 import {IssueMetadata} from '../IssueMetadata';
@@ -68,12 +71,12 @@ export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, Is
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'list');
     }
 
-    sendAndParse(): wemQ.Promise<IssueResponse> {
-        return this.send().then((response: api.rest.JsonResponse<ListIssuesResult>) => {
+    sendAndParse(): Q.Promise<IssueResponse> {
+        return this.send().then((response: JsonResponse<ListIssuesResult>) => {
             const issuesWithAssignees: IssueWithAssignees[] = response.getResult().issues.map(
                 (issueWithAssigneesJson: IssueWithAssigneesJson) => {
                     return IssueWithAssignees.fromJson(issueWithAssigneesJson);

@@ -1,8 +1,9 @@
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {ImageStyleOption} from './ImageStyleOptions';
 import {ImageStyleNameView} from './ImageStyleNameView';
 
 export class ImageStyleOptionViewer
-    extends api.ui.Viewer<ImageStyleOption> {
+    extends Viewer<ImageStyleOption> {
 
     private nameView: ImageStyleNameView;
 

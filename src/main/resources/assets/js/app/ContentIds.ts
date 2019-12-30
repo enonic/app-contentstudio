@@ -1,8 +1,10 @@
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 
 export class ContentIds
-    implements api.Equitable {
+    implements Equitable {
 
     private array: ContentId[];
 
@@ -58,13 +60,13 @@ export class ContentIds
         return builder.build();
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentIds)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentIds)) {
             return false;
         }
 
         let other = <ContentIds>o;
-        return api.ObjectHelper.arrayEquals(this.array, other.array);
+        return ObjectHelper.arrayEquals(this.array, other.array);
     }
 
     static create(): ContentIdsBuilder {

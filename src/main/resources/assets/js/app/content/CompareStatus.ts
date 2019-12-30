@@ -1,5 +1,5 @@
-import i18n = api.util.i18n;
-import ContentSummary = api.content.ContentSummary;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 
 export enum CompareStatus {

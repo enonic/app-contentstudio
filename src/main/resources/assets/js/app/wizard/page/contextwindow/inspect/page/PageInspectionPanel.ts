@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
@@ -6,14 +9,13 @@ import {PageMode} from '../../../../../page/PageMode';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import {ContentFormContext} from '../../../../../ContentFormContext';
-import PropertyChangedEvent = api.PropertyChangedEvent;
-import PropertyTree = api.data.PropertyTree;
-import FormContextBuilder = api.form.FormContextBuilder;
-import FormView = api.form.FormView;
-import PageDescriptor = api.content.page.PageDescriptor;
-import ActionButton = api.ui.button.ActionButton;
-import i18n = api.util.i18n;
-import PropertySet = api.data.PropertySet;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {FormContextBuilder} from 'lib-admin-ui/form/FormContext';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -149,7 +151,7 @@ class BaseInspectionHandler {
         this.pageInspectionPanel.appendChild(this.configForm);
         this.liveEditModel.getPageModel().setIgnorePropertyChanges(true);
         this.configForm.layout().catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).finally(() => {
             this.liveEditModel.getPageModel().setIgnorePropertyChanges(false);
         }).done();

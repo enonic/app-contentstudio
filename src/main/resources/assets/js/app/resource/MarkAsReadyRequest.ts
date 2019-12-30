@@ -1,5 +1,7 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
 
 export class MarkAsReadyRequest
     extends ContentResourceRequest<void, void> {
@@ -18,11 +20,11 @@ export class MarkAsReadyRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'markAsReady');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'markAsReady');
     }
 
-    sendAndParse(): wemQ.Promise<void> {
+    sendAndParse(): Q.Promise<void> {
         return this.send().then(() => {
             return;
         });

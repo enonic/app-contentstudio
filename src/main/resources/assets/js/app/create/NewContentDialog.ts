@@ -1,3 +1,11 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {MostPopularItemsBlock} from './MostPopularItemsBlock';
 import {RecentItemsBlock} from './RecentItemsBlock';
 import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
@@ -12,23 +20,31 @@ import {Content} from '../content/Content';
 import {Site} from '../content/Site';
 import {GetAllContentTypesRequest} from '../resource/GetAllContentTypesRequest';
 import {NewContentUploader} from './NewContentUploader';
-import ContentPath = api.content.ContentPath;
-import IsAuthenticatedRequest = api.security.auth.IsAuthenticatedRequest;
-import LoginResult = api.security.auth.LoginResult;
-import UploadItem = api.ui.uploader.UploadItem;
-import KeyHelper = api.ui.KeyHelper;
-import i18n = api.util.i18n;
-import ContentTypeSummaries = api.schema.content.ContentTypeSummaries;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {ContentTypeSummaries} from 'lib-admin-ui/schema/content/ContentTypeSummaries';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {UploadStartedEvent} from 'lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {DropzoneContainer} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
+import {AsideEl} from 'lib-admin-ui/dom/AsideEl';
+import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
+import {FormEl} from 'lib-admin-ui/dom/FormEl';
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {PEl} from 'lib-admin-ui/dom/PEl';
 
-export class NewContentDialog extends api.ui.dialog.ModalDialog {
+export class NewContentDialog
+    extends ModalDialog {
 
     private parentContent: Content;
 
     private fileInput: FileInput;
 
-    private dropzoneContainer: api.ui.uploader.DropzoneContainer;
+    private dropzoneContainer: DropzoneContainer;
 
     private newContentUploader: NewContentUploader;
 
@@ -43,7 +59,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     protected header: NewContentDialogHeader;
 
     constructor() {
-        super(<api.ui.dialog.ModalDialogConfig>{
+        super(<ModalDialogConfig>{
             title: i18n('dialog.new'),
             class: 'new-content-dialog'
         });
@@ -60,17 +76,17 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.fileInput.hide();
-            const mainSection = new api.dom.SectionEl().setClass('column');
+            const mainSection = new SectionEl().setClass('column');
             this.appendChildToContentPanel(mainSection);
 
             this.mostPopularContentTypes.hide();
 
-            const contentTypesListDiv = new api.dom.DivEl('content-types-content');
+            const contentTypesListDiv = new DivEl('content-types-content');
             contentTypesListDiv.appendChild(this.allContentTypes);
 
-            mainSection.appendChildren(<api.dom.Element>this.fileInput, <api.dom.Element>contentTypesListDiv);
+            mainSection.appendChildren(<Element>this.fileInput, <Element>contentTypesListDiv);
 
-            const sideBlock: api.dom.AsideEl = new api.dom.AsideEl();
+            const sideBlock: AsideEl = new AsideEl();
             sideBlock.appendChild(this.mostPopularContentTypes);
             sideBlock.appendChild(this.recentContentTypes);
             this.appendChildToContentPanel(sideBlock);
@@ -114,7 +130,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private initFileUploader() {
-        this.dropzoneContainer = new api.ui.uploader.DropzoneContainer(true);
+        this.dropzoneContainer = new DropzoneContainer(true);
         this.dropzoneContainer.hide();
 
         this.newContentUploader = new NewContentUploader()
@@ -132,7 +148,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         });
 
         this.fileInput.onValueChanged(() => {
-            if (api.util.StringHelper.isEmpty(this.fileInput.getValue())) {
+            if (StringHelper.isEmpty(this.fileInput.getValue())) {
                 this.mostPopularContentTypes.showIfNotEmpty();
             } else {
                 this.mostPopularContentTypes.hide();
@@ -150,7 +166,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
                 this.fileInput.show();
                 this.fileInput.focus();
                 this.addClass('filter-visible');
-                api.dom.Body.get().unKeyDown(this.keyDownHandler);
+                Body.get().unKeyDown(this.keyDownHandler);
             }
         };
     }
@@ -176,7 +192,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private closeAndFireEventFromMediaUpload(event: UploadStartedEvent<Content>) {
-        const handler = (e: api.dom.ElementHiddenEvent) => {
+        const handler = (e: ElementHiddenEvent) => {
             new NewMediaUploadEvent(event.getUploadItems(), this.parentContent).fire();
             this.unHidden(handler);
         };
@@ -186,7 +202,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     }
 
     private closeAndFireEventFromContentType(event: NewContentDialogItemSelectedEvent) {
-        const handler = (e: api.dom.ElementHiddenEvent) => {
+        const handler = (e: ElementHiddenEvent) => {
             new NewContentEvent(event.getItem().getContentType(), this.parentContent).fire();
             this.unHidden(handler);
         };
@@ -200,7 +216,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.allContentTypes.setParentContent(parent);
 
         const params: { [key: string]: any } = {
-            parent: parent ? parent.getPath().toString() : api.content.ContentPath.ROOT.toString()
+            parent: parent ? parent.getPath().toString() : ContentPath.ROOT.toString()
         };
 
         this.newContentUploader.setUploaderParams(params);
@@ -209,16 +225,16 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     open() {
         super.open();
         const keyBindings = [
-            new api.ui.KeyBinding('up', () => {
-                api.dom.FormEl.moveFocusToPrevFocusable(api.dom.Element.fromHtmlElement(<HTMLElement>document.activeElement),
+            new KeyBinding('up', () => {
+                FormEl.moveFocusToPrevFocusable(Element.fromHtmlElement(<HTMLElement>document.activeElement),
                     'input,li');
             }).setGlobal(true),
-            new api.ui.KeyBinding('down', () => {
-                api.dom.FormEl.moveFocusToNextFocusable(api.dom.Element.fromHtmlElement(<HTMLElement>document.activeElement),
+            new KeyBinding('down', () => {
+                FormEl.moveFocusToNextFocusable(Element.fromHtmlElement(<HTMLElement>document.activeElement),
                     'input,li');
             }).setGlobal(true)];
 
-        api.ui.KeyBindings.get().bindKeys(keyBindings);
+        KeyBindings.get().bindKeys(keyBindings);
     }
 
     show() {
@@ -228,7 +244,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         super.show();
 
         if (!this.fileInput.isVisible()) {
-            api.dom.Body.get().onKeyDown(this.keyDownHandler);
+            Body.get().onKeyDown(this.keyDownHandler);
         }
 
         // CMS-3711: reload content types each time when dialog is show.
@@ -241,7 +257,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         this.fileInput.hide();
         this.removeClass('filter-visible');
         this.clearAllItems();
-        api.dom.Body.get().unKeyDown(this.keyDownHandler);
+        Body.get().unKeyDown(this.keyDownHandler);
 
         super.hide();
     }
@@ -258,7 +274,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
     private loadContentTypes() {
         this.showLoadMask();
 
-        wemQ.all(this.sendRequestsToFetchContentData())
+        Q.all(this.sendRequestsToFetchContentData())
             .spread((contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult,
                      parentSite: Site) => {
 
@@ -273,7 +289,7 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 
             }).catch((reason: any) => {
 
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
 
         }).finally(() => {
             this.fileInput.enable();
@@ -284,8 +300,8 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
         }).done();
     }
 
-    private sendRequestsToFetchContentData(): wemQ.Promise<any>[] {
-        const requests: wemQ.Promise<any>[] = [];
+    private sendRequestsToFetchContentData(): Q.Promise<any>[] {
+        const requests: Q.Promise<any>[] = [];
         requests.push(new GetAllContentTypesRequest().sendAndParse().then((contentTypes: ContentTypeSummary[]) => {
             return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 return this.filterContentTypes(ContentTypeSummaries.from(contentTypes), loginResult);
@@ -344,20 +360,20 @@ export class NewContentDialog extends api.ui.dialog.ModalDialog {
 }
 
 export class NewContentDialogHeader
-    extends api.ui.dialog.DefaultModalDialogHeader {
+    extends DefaultModalDialogHeader {
 
-    private pathEl: api.dom.PEl;
+    private pathEl: PEl;
 
     constructor(title: string, path: string) {
         super(title);
 
-        this.pathEl = new api.dom.PEl('path');
+        this.pathEl = new PEl('path');
         this.pathEl.getEl().setAttribute('data-desc', `${i18n('dialog.newContent.pathDescription')}:`);
         this.pathEl.setHtml(path);
         this.appendChild(this.pathEl);
     }
 
     setPath(path: string) {
-        this.pathEl.setHtml(path).setVisible(!api.util.StringHelper.isBlank(path));
+        this.pathEl.setHtml(path).setVisible(!StringHelper.isBlank(path));
     }
 }

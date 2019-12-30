@@ -1,8 +1,12 @@
-import '../../api.ts';
 import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
-export class NewContentDialogList extends api.ui.selector.list.ListBox<NewContentDialogListItem> {
+export class NewContentDialogList
+    extends ListBox<NewContentDialogListItem> {
 
     private selectedListeners: {(event: NewContentDialogItemSelectedEvent):void}[] = [];
 
@@ -26,15 +30,15 @@ export class NewContentDialogList extends api.ui.selector.list.ListBox<NewConten
         });
     }
 
-    createItemView(item: NewContentDialogListItem): api.dom.LiEl {
-        const namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+    createItemView(item: NewContentDialogListItem): LiEl {
+        const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         namesAndIconView
             .setIconUrl(item.getIconUrl())
             .setMainName(item.getDisplayName())
             .setSubName(item.getDescription())
             .setDisplayIconLabel(item.isSite());
 
-        const itemEl = new api.dom.LiEl('content-types-list-item' + (item.isSite() ? ' site' : ''));
+        const itemEl = new LiEl('content-types-list-item' + (item.isSite() ? ' site' : ''));
         itemEl.getEl().setTabIndex(0);
         itemEl.appendChild(namesAndIconView);
         itemEl.getEl().setTitle(item.getName());

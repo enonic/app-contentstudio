@@ -1,4 +1,10 @@
-import './../api.ts';
+import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/sortable';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ComponentView} from './ComponentView';
 import {ItemType} from './ItemType';
 import {RegionView} from './RegionView';
@@ -16,8 +22,8 @@ import {ItemView} from './ItemView';
 import {PageView} from './PageView';
 import {LayoutItemType} from './layout/LayoutItemType';
 import {Component} from '../app/page/region/Component';
-import DragHelper = api.ui.DragHelper;
-import i18n = api.util.i18n;
+import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
+import {assertState} from 'lib-admin-ui/util/Assert';
 
 export class DragAndDrop {
 
@@ -79,13 +85,13 @@ export class DragAndDrop {
     }
 
     createSortableLayout(component: ItemView) {
-        wemjq(component.getHTMLElement()).find(this.REGION_SELECTOR).each((index, element) => {
-            this.createSortable(wemjq(element));
+        $(component.getHTMLElement()).find(this.REGION_SELECTOR).each((index, element) => {
+            this.createSortable($(element));
         });
     }
 
     refreshSortable(): void {
-        wemjq(this.REGION_SELECTOR).sortable('refresh');
+        $(this.REGION_SELECTOR).sortable('refresh');
     }
 
     private processMouseOverRegionView(regionView: RegionView) {
@@ -109,10 +115,10 @@ export class DragAndDrop {
 
     createSortable(selector: any): void {
 
-        wemjq(selector).sortable({
+        $(selector).sortable({
             // append helper to pageView so it doesn't jump when sortable jumps
             // because of adding/removing placeholder (appended to sortable by default)
-            // Don't use api.dom.Body.get() because it may return the parent's body if it had been called there earlier
+            // Don't use Body.get() because it may return the parent's body if it had been called there earlier
             appendTo: document.body,
             revert: false,
             cancel: this.ITEM_NOT_DRAGGABLE_SELECTOR,
@@ -278,7 +284,7 @@ export class DragAndDrop {
 
             this.cancelDrag(<HTMLElement> event.target);
         } else {
-            let componentIndex = wemjq('>.drag-helper, >.' + api.StyleHelper.getCls('item-view'),
+            let componentIndex = $('>.drag-helper, >.' + StyleHelper.getCls('item-view'),
                 regionView.getHTMLElement()).index(ui.item);
 
             if (this.isDraggingFromContextWindow()) {
@@ -330,33 +336,33 @@ export class DragAndDrop {
     /*
      * This event is triggered when using connected lists, every connected list on drag start receives it.
      */
-    handleActivate(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleActivate(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleActivate');
             console.log('Event', event, '\nUI', ui);
             console.groupEnd();
         }
 
-        this.getRegionView(wemjq(event.target)).addClass(this.DRAGGING_ACTIVE_CLASS);
+        this.getRegionView($(<HTMLElement>event.target)).addClass(this.DRAGGING_ACTIVE_CLASS);
     }
 
     /*
      * This event is triggered when sorting was stopped, is propagated to all possible connected lists.
      */
-    handleDeactivate(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleDeactivate(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleDeactivate');
             console.log('Event', event, '\nUI', ui);
             console.groupEnd();
         }
 
-        this.getRegionView(wemjq(event.target)).removeClass(this.DRAGGING_ACTIVE_CLASS);
+        this.getRegionView($(<HTMLElement>event.target)).removeClass(this.DRAGGING_ACTIVE_CLASS);
     }
 
     /*
      *  This event is triggered when a sortable item is moved into a sortable list.
      */
-    handleDragOver(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleDragOver(event: Event, ui: JQueryUI.SortableUIParams): void {
 
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleDragOver');
@@ -374,7 +380,7 @@ export class DragAndDrop {
     /*
      *  This event is triggered when a sortable item is moved away from a sortable list.
      */
-    handleDragOut(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleDragOut(event: Event, ui: JQueryUI.SortableUIParams): void {
 
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleDragOut');
@@ -401,7 +407,7 @@ export class DragAndDrop {
     /*
      *  This event is triggered during sorting, but only when the DOM position has changed.
      */
-    handleSortChange(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleSortChange(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleSortChange');
             console.log('Event', event, '\nUI', ui);
@@ -413,7 +419,7 @@ export class DragAndDrop {
     /*
      *  This event is triggered when the user stopped sorting and the DOM position has changed.
      */
-    handleSortUpdate(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleSortUpdate(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleSortUpdate');
             console.log('Event', event, '\nUI', ui);
@@ -425,33 +431,33 @@ export class DragAndDrop {
     /*
      * This event is triggered when a sortable item from the list has been dropped into another. The former is the event target.
      */
-    handleRemove(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleRemove(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleRemove');
             console.log('Event', event, '\nUI', ui);
             console.groupEnd();
         }
 
-        let fromRegionView = this.getRegionView(wemjq(event.target));
+        let fromRegionView = this.getRegionView($(<HTMLElement>event.target));
         fromRegionView.refreshEmptyState();
     }
 
     // This event is triggered when an item from a connected sortable list has been dropped into another list.
     // The latter is the event target.
-    handleReceive(event: JQueryEventObject, ui: JQueryUI.SortableUIParams): void {
+    handleReceive(event: Event, ui: JQueryUI.SortableUIParams): void {
         if (DragAndDrop.debug) {
             console.groupCollapsed((DragAndDrop.messageCounter++) + ' DragDropSort.handleReceive');
             console.log('Event', event, '\nUI', ui);
             console.groupEnd();
         }
 
-        let toRegionView = this.getRegionView(wemjq(event.target));
+        let toRegionView = this.getRegionView($(<HTMLElement>event.target));
         toRegionView.refreshEmptyState();
     }
 
     private cancelDrag(sortable: HTMLElement) {
 
-        wemjq(sortable).sortable('cancel');
+        $(sortable).sortable('cancel');
 
         this.notifyCanceled(this.draggedComponentView);
     }
@@ -553,7 +559,7 @@ export class DragAndDrop {
         let helper = DragHelper.get();
         let placeholder = DragPlaceholder.get().setRegionView(enter ? regionView : null);
 
-        helper.setItemName(this.draggedComponentView ? this.draggedComponentView.getName() : api.util.StringHelper.capitalize(
+        helper.setItemName(this.draggedComponentView ? this.draggedComponentView.getName() : StringHelper.capitalize(
             i18n('field.' + this.getItemType().getShortName())));
 
         if (!enter) {
@@ -601,13 +607,13 @@ export class DragAndDrop {
 
     private getComponentView(jq: JQuery): ComponentView<Component> {
         let comp = this.pageView.getComponentViewByElement(jq.get(0));
-        api.util.assertState(!!comp, i18n('live.view.drag.error.compviewisnull'));
+        assertState(!!comp, i18n('live.view.drag.error.compviewisnull'));
         return comp;
     }
 
     private getRegionView(jq: JQuery): RegionView {
         let region = this.pageView.getRegionViewByElement(jq.get(0));
-        api.util.assertState(!!region, i18n('live.view.drag.error.regionviewisnull'));
+        assertState(!!region, i18n('live.view.drag.error.regionviewisnull'));
         return region;
     }
 
@@ -623,13 +629,13 @@ export class DragAndDrop {
 
     private updateScrollSensitivity(selector: any): void {
         let scrollSensitivity = this.calculateScrollSensitivity();
-        wemjq(selector).sortable('option', 'scrollSensitivity', scrollSensitivity);
+        $(selector).sortable('option', 'scrollSensitivity', scrollSensitivity);
     }
 
     private calculateScrollSensitivity(): number {
         // use getViewPortSize() instead of document.body.clientHeight
         // which returned the height of the whole rendered page,not just of the part visible in LiveEdit
-        let height = wemjq(window).height();
+        let height = $(window).height();
         let scrollSensitivity = Math.round(height / 8);
         scrollSensitivity = Math.max(20, Math.min(scrollSensitivity, 100));
         return scrollSensitivity;

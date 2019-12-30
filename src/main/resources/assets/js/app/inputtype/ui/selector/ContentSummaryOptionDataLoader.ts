@@ -1,10 +1,10 @@
-import OptionDataLoader = api.ui.selector.OptionDataLoader;
-import TreeNode = api.ui.treegrid.TreeNode;
-import OptionDataLoaderData = api.ui.selector.OptionDataLoaderData;
-import Option = api.ui.selector.Option;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
@@ -79,7 +79,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.treeFilterValue = value;
     }
 
-    private sendAndParseFlatRequest(silent: boolean = false, postLoad?: boolean): wemQ.Promise<DATA[]> {
+    private sendAndParseFlatRequest(silent: boolean = false, postLoad?: boolean): Q.Promise<DATA[]> {
         return this.flatRequest.sendAndParse().then((contents) => {
             const result = contents.map(
                 content => new ContentTreeSelectorItem(content));
@@ -96,12 +96,12 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
                 });
             } else {
                 this.notifyLoadedData(<DATA[]>result, postLoad);
-                return wemQ(<DATA[]>result);
+                return Q(<DATA[]>result);
             }
         });
     }
 
-    search(value: string): wemQ.Promise<DATA[]> {
+    search(value: string): Q.Promise<DATA[]> {
 
         this.notifyLoadingData();
 
@@ -113,7 +113,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         return this.sendAndParseFlatRequest();
     }
 
-    load(postLoad: boolean = false): wemQ.Promise<DATA[]> {
+    load(postLoad: boolean = false): Q.Promise<DATA[]> {
         if (this.isTreeLoadMode) {
 
             this.treeRequest.setParentContent(null);
@@ -128,13 +128,13 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         }
     }
 
-    fetch(node: TreeNode<Option<DATA>>): wemQ.Promise<DATA> {
+    fetch(node: TreeNode<Option<DATA>>): Q.Promise<DATA> {
         this.treeRequest.setParentContent(node.getDataId() ? node.getData().displayValue.getContent() : null);
         return this.loadItems().then(items => items[0]);
     }
 
     fetchChildren(parentNode: TreeNode<Option<DATA>>, from: number = 0,
-                  size: number = -1): wemQ.Promise<OptionDataLoaderData<DATA>> {
+                  size: number = -1): Q.Promise<OptionDataLoaderData<DATA>> {
 
         const postLoad: boolean = from > 0;
 
@@ -164,17 +164,17 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         return new OptionDataLoaderData<DATA>(data, hits, totalHits);
     }
 
-    checkReadonly(items: DATA[]): wemQ.Promise<string[]> {
+    checkReadonly(items: DATA[]): Q.Promise<string[]> {
         return ContentSummaryFetcher.getReadOnly(items.map(item => item.getContent()));
     }
 
-    private loadItems(): wemQ.Promise<DATA[]> {
+    private loadItems(): Q.Promise<DATA[]> {
         return this.request.sendAndParse().then(items => {
             if (this.loadStatus) {
                 return this.loadStatuses(items);
             }
 
-            const deferred = wemQ.defer<DATA[]>();
+            const deferred = Q.defer<DATA[]>();
 
             deferred.resolve(items.map((item: DATA) => {
                 return <any>new ContentTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
@@ -184,7 +184,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         });
     }
 
-    private loadStatuses(contents: DATA[]): wemQ.Promise<DATA[]> {
+    private loadStatuses(contents: DATA[]): Q.Promise<DATA[]> {
         return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent())).sendAndParse().then(
             (compareResults: CompareContentResults) => {
 

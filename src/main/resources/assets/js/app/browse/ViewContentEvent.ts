@@ -1,12 +1,14 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 
 export class ViewContentEvent extends BaseContentModelEvent {
 
     static on(handler: (event: ViewContentEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ViewContentEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

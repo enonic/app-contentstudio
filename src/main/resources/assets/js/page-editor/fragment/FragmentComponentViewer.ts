@@ -1,8 +1,9 @@
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class FragmentComponentViewer
-    extends api.ui.NamesAndIconViewer<FragmentComponent> {
+    extends NamesAndIconViewer<FragmentComponent> {
 
     constructor() {
         super();

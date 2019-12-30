@@ -1,3 +1,6 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {Component} from './Component';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
@@ -9,9 +12,11 @@ import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
+import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {assertState} from 'lib-admin-ui/util/Assert';
 
 export class Region
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     public static debug: boolean = false;
 
@@ -118,9 +123,9 @@ export class Region
             let message = `The rendered page is not consistent with the page components structure. Expected component with index ` +
                           `${index} was not found in region '${this.getName()}'.`;
             console.error(message);
-            throw new api.Exception(message, api.ExceptionType.ERROR);
+            throw new Exception(message, ExceptionType.ERROR);
         }
-        api.util.assertState(component.getIndex() === index,
+        assertState(component.getIndex() === index,
             'Index of Component is not as expected. Expected [' + index + '], was: ' + component.getIndex());
         return component;
     }
@@ -143,19 +148,19 @@ export class Region
         return 'Region[' + this.getPath().toString() + ']';
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Region)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Region)) {
             return false;
         }
 
         let other = <Region>o;
 
-        if (!api.ObjectHelper.stringEquals(this.name, other.name)) {
+        if (!ObjectHelper.stringEquals(this.name, other.name)) {
             return false;
         }
 
-        if (!api.ObjectHelper.arrayEquals(this.components, other.components)) {
+        if (!ObjectHelper.arrayEquals(this.components, other.components)) {
             return false;
         }
 

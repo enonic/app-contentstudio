@@ -1,7 +1,9 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
-import Property = api.data.Property;
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Property} from 'lib-admin-ui/data/Property';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
 import {PageMode} from '../page/PageMode';
@@ -10,7 +12,7 @@ import {Regions} from '../page/region/Regions';
 
 export class PageTemplate
     extends Content
-    implements api.Equitable {
+    implements Equitable {
 
     private canRender: ContentTypeName[];
 
@@ -85,9 +87,9 @@ export class PageTemplate
         return this.getPage().getConfig();
     }
 
-    equals(o: api.Equitable, ignoreEmptyValues: boolean = false): boolean {
+    equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PageTemplate)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, PageTemplate)) {
             return false;
         }
 

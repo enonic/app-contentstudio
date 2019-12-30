@@ -1,9 +1,10 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
-import PrincipalKey = api.security.PrincipalKey;
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class CreateIssueCommentRequest
     extends IssueResourceRequest<IssueCommentJson, IssueComment> {
@@ -47,7 +48,7 @@ export class CreateIssueCommentRequest
         return Path.fromParent(super.getResourcePath(), 'comment');
     }
 
-    sendAndParse(): wemQ.Promise<IssueComment> {
+    sendAndParse(): Q.Promise<IssueComment> {
         return this.send().then((response: JsonResponse<IssueCommentJson>) => {
             return IssueComment.fromJson(response.getResult());
         });

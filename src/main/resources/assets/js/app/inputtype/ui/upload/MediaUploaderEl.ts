@@ -1,9 +1,15 @@
-import ValueTypes = api.data.ValueTypes;
-import UploadItem = api.ui.uploader.UploadItem;
-import UploaderEl = api.ui.uploader.UploaderEl;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
 import {ContentJson} from '../../../content/ContentJson';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {Value} from 'lib-admin-ui/data/Value';
 
 export enum MediaUploaderElOperation {
     create,
@@ -11,7 +17,7 @@ export enum MediaUploaderElOperation {
 }
 
 export interface MediaUploaderElConfig
-    extends api.ui.uploader.UploaderElConfig {
+    extends UploaderElConfig {
 
     operation: MediaUploaderElOperation;
 }
@@ -21,12 +27,12 @@ export class MediaUploaderEl
 
     private fileName: string;
 
-    private link: api.dom.AEl;
+    private link: AEl;
 
     constructor(config: MediaUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/' + MediaUploaderElOperation[config.operation] + 'Media');
+            config.url = UriHelper.getRestUri('content/' + MediaUploaderElOperation[config.operation] + 'Media');
         }
 
         super(config);
@@ -102,7 +108,7 @@ export class MediaUploaderEl
                 uploadItem.setModel(<any>content);
                 this.notifyFileUploaded(uploadItem);
             }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).done();
     }
 
@@ -114,7 +120,7 @@ export class MediaUploaderEl
         const dateParts: number[] =
             [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()];
 
-        return 'image-' + dateParts.map(api.util.DateHelper.padNumber).join('') + '.' + type;
+        return 'image-' + dateParts.map(DateHelper.padNumber).join('') + '.' + type;
     }
 
     createModel(serverResponse: ContentJson): Content {
@@ -129,7 +135,7 @@ export class MediaUploaderEl
         return item.getId();
     }
 
-    getMediaValue(item: Content): api.data.Value {
+    getMediaValue(item: Content): Value {
         let mediaProperty = item.getContentData().getProperty('media');
         let mediaValue;
         switch (mediaProperty.getType()) {
@@ -150,8 +156,8 @@ export class MediaUploaderEl
         }
     }
 
-    createResultItem(value: string): api.dom.Element {
-        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + value), '_blank');
+    createResultItem(value: string): Element {
+        this.link = new AEl().setUrl(UriHelper.getRestUri('content/media/' + value), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;

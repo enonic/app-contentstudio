@@ -1,19 +1,28 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import AggregationQueryTypeWrapperJson = api.query.aggregation.AggregationQueryTypeWrapperJson;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {AggregationQueryTypeWrapperJson} from 'lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {ContentJson} from '../content/ContentJson';
 import {ContentQuery} from '../content/ContentQuery';
+import {Expand} from 'lib-admin-ui/rest/Expand';
+import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
+import {AggregationQuery} from 'lib-admin-ui/query/aggregation/AggregationQuery';
+import {FilterTypeWrapperJson} from 'lib-admin-ui/query/filter/FilterTypeWrapperJson';
+import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {
 
     private contentQuery: ContentQuery;
 
-    private expand: api.rest.Expand = api.rest.Expand.SUMMARY;
+    private expand: Expand = Expand.SUMMARY;
 
     private allLoaded: boolean = false;
 
@@ -29,7 +38,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         return this.contentQuery;
     }
 
-    setExpand(expand: api.rest.Expand): ContentQueryRequest<CONTENT_JSON, CONTENT> {
+    setExpand(expand: Expand): ContentQueryRequest<CONTENT_JSON, CONTENT> {
         this.expand = expand;
         return this;
     }
@@ -59,19 +68,19 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         };
     }
 
-    sendAndParse(): wemQ.Promise<ContentQueryResult<CONTENT, CONTENT_JSON>> {
+    sendAndParse(): Q.Promise<ContentQueryResult<CONTENT, CONTENT_JSON>> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
+        return this.send().then((response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
 
             let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
-            let aggregations = api.aggregation.Aggregation.fromJsonArray(responseResult.aggregations);
+            let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
             let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
             let metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
             let contents: CONTENT[];
 
-            if (this.expand === api.rest.Expand.NONE) {
+            if (this.expand === Expand.NONE) {
                 contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
-            } else if (this.expand === api.rest.Expand.SUMMARY) {
+            } else if (this.expand === Expand.SUMMARY) {
                 contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
             } else {
                 contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
@@ -102,29 +111,29 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         return null;
     }
 
-    private aggregationQueriesToJson(aggregationQueries: api.query.aggregation.AggregationQuery[]): AggregationQueryTypeWrapperJson[] {
+    private aggregationQueriesToJson(aggregationQueries: AggregationQuery[]): AggregationQueryTypeWrapperJson[] {
         let aggregationQueryJsons: AggregationQueryTypeWrapperJson[] = [];
 
         if (aggregationQueries == null) {
             return aggregationQueryJsons;
         }
 
-        aggregationQueries.forEach((aggregationQuery: api.query.aggregation.AggregationQuery) => {
+        aggregationQueries.forEach((aggregationQuery: AggregationQuery) => {
             aggregationQueryJsons.push(aggregationQuery.toJson());
         });
 
         return aggregationQueryJsons;
     }
 
-    private queryFiltersToJson(queryFilters: api.query.filter.Filter[]): api.query.filter.FilterTypeWrapperJson[] {
+    private queryFiltersToJson(queryFilters: Filter[]): FilterTypeWrapperJson[] {
 
-        let queryFilterJsons: api.query.filter.FilterTypeWrapperJson[] = [];
+        let queryFilterJsons: FilterTypeWrapperJson[] = [];
 
         if (queryFilters == null || queryFilters.length === 0) {
             return queryFilterJsons;
         }
 
-        queryFilters.forEach((queryFilter: api.query.filter.Filter) => {
+        queryFilters.forEach((queryFilter: Filter) => {
 
             queryFilterJsons.push(queryFilter.toJson());
 
@@ -135,29 +144,29 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     private expandAsString(): string {
         switch (this.expand) {
-        case api.rest.Expand.FULL:
+        case Expand.FULL:
             return 'full';
-        case api.rest.Expand.SUMMARY:
+        case Expand.SUMMARY:
             return 'summary';
-        case api.rest.Expand.NONE:
+        case Expand.NONE:
             return 'none';
         default:
             return 'summary';
         }
     }
 
-    contentTypeNamesAsString(names: api.schema.content.ContentTypeName[]): string[] {
+    contentTypeNamesAsString(names: ContentTypeName[]): string[] {
         let result: string[] = [];
 
-        names.forEach((name: api.schema.content.ContentTypeName) => {
+        names.forEach((name: ContentTypeName) => {
             result.push(name.toString());
         });
 
         return result;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'query');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'query');
     }
 
     fromJsonToContentIdBaseItem(json: ContentSummaryJson): ContentSummary {

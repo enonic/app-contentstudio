@@ -1,8 +1,10 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {Attachment, AttachmentBuilder} from './Attachment';
 import {AttachmentJson} from './AttachmentJson';
 
 export class Attachments
-    implements api.Equitable {
+    implements Equitable {
 
     private attachmentByName: { [s: string]: Attachment; } = {};
 
@@ -46,14 +48,14 @@ export class Attachments
         return this.size;
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Attachments)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Attachments)) {
             return false;
         }
 
         let other: Attachments = <Attachments>o;
 
-        return api.ObjectHelper.arrayEquals(this.attachments, other.attachments);
+        return ObjectHelper.arrayEquals(this.attachments, other.attachments);
     }
 
     public static create(): AttachmentsBuilder {

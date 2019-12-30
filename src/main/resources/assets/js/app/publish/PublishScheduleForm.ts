@@ -1,18 +1,28 @@
-import PropertySet = api.data.PropertySet;
-import FormItem = api.form.FormItem;
-import DateTimeRange = api.form.inputtype.time.DateTimeRange;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {DateTimeRange} from 'lib-admin-ui/form/inputtype/time/DateTimeRange';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormBuilder} from 'lib-admin-ui/form/Form';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {InputBuilder} from 'lib-admin-ui/form/Input';
+import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
 
 export class PublishScheduleForm
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private scheduleFormView: api.form.FormView;
-    private scheduleFormWrapper: api.dom.DivEl;
+    private scheduleFormView: FormView;
+    private scheduleFormWrapper: DivEl;
     private formVisibilityListeners: { (flag: boolean): void }[] = [];
-    private externalToggles: api.dom.ButtonEl[] = [];
+    private externalToggles: ButtonEl[] = [];
 
-    createExternalToggle(): api.dom.ButtonEl {
-        const b = new api.dom.ButtonEl();
+    createExternalToggle(): ButtonEl {
+        const b = new ButtonEl();
         b.setClass('icon icon-calendar');
         b.onClicked(() => {
             const isVis = this.isFormVisible();
@@ -31,27 +41,27 @@ export class PublishScheduleForm
             this.toggleClass('invalid', !record.isValid());
         });
 
-        const scheduleForm = new api.form.FormBuilder().addFormItem(this.createRangeFormItem()).build();
-        this.scheduleFormView = new api.form.FormView(api.form.FormContext.create().build(), scheduleForm, propertySet);
+        const scheduleForm = new FormBuilder().addFormItem(this.createRangeFormItem()).build();
+        this.scheduleFormView = new FormView(FormContext.create().build(), scheduleForm, propertySet);
 
-        const removeButton = new api.dom.AEl('remove-button');
+        const removeButton = new AEl('remove-button');
         removeButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.setFormVisible(false);
         });
 
-        this.scheduleFormWrapper = new api.dom.DivEl('form-wrapper');
-        this.scheduleFormWrapper.appendChildren<api.dom.Element>(this.scheduleFormView, removeButton);
+        this.scheduleFormWrapper = new DivEl('form-wrapper');
+        this.scheduleFormWrapper.appendChildren<Element>(this.scheduleFormView, removeButton);
     }
 
     private createRangeFormItem(): FormItem {
-        return new api.form.InputBuilder()
+        return new InputBuilder()
             .setName('publish')
             .setLabel(i18n('field.scheduledPublishing'))
             .setHelpText(i18n('field.scheduledPublishing.helptext'))
             .setInputType(DateTimeRange.getName())
-            .setOccurrences(new api.form.OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
+            .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
             .setInputTypeConfig({
                 labelStart: i18n('field.onlineFrom'),
                 labelEnd: i18n('field.onlineTo')
@@ -67,7 +77,7 @@ export class PublishScheduleForm
         this.appendChild(this.scheduleFormWrapper);
     }
 
-    public update(propertySet: PropertySet): wemQ.Promise<void> {
+    public update(propertySet: PropertySet): Q.Promise<void> {
         return this.scheduleFormView.update(propertySet);
     }
 

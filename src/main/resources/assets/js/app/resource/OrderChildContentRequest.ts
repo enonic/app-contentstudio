@@ -1,7 +1,10 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {OrderChildMovements} from './order/OrderChildMovements';
 import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export class OrderChildContentRequest
     extends ContentResourceRequest<any, any> {
@@ -12,7 +15,7 @@ export class OrderChildContentRequest
 
     private contentId: ContentId;
 
-    private childOrder: api.content.order.ChildOrder;
+    private childOrder: ChildOrder;
 
     private contentMovements: OrderChildMovements;
 
@@ -36,7 +39,7 @@ export class OrderChildContentRequest
         return this;
     }
 
-    setChildOrder(value: api.content.order.ChildOrder): OrderChildContentRequest {
+    setChildOrder(value: ChildOrder): OrderChildContentRequest {
         this.childOrder = value;
         return this;
     }
@@ -56,11 +59,11 @@ export class OrderChildContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'reorderChildren');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'reorderChildren');
     }
 
-    sendAndParse(): wemQ.Promise<any> {
+    sendAndParse(): Q.Promise<any> {
 
         return this.send();
     }

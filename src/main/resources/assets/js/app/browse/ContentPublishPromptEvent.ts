@@ -1,6 +1,8 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ContentId = api.content.ContentId;
 
 export interface ContentPublishPromptEventConfig {
     model: ContentSummaryAndCompareStatus[];
@@ -46,10 +48,10 @@ export class ContentPublishPromptEvent
     }
 
     static on(handler: (event: ContentPublishPromptEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentPublishPromptEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

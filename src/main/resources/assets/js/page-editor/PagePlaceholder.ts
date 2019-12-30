@@ -1,16 +1,19 @@
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PagePlaceholderInfoBlock} from './PagePlaceholderInfoBlock';
 import {PageView} from './PageView';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {PageDescriptorDropdown} from '../app/wizard/page/contextwindow/inspect/page/PageDescriptorDropdown';
 import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameRequest';
 import {ContentType} from '../app/inputtype/schema/ContentType';
-import PageDescriptor = api.content.page.PageDescriptor;
-import LoadedDataEvent = api.util.loader.event.LoadedDataEvent;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
 
-    private pageDescriptorPlaceholder: api.dom.DivEl;
+    private pageDescriptorPlaceholder: DivEl;
 
     private infoBlock: PagePlaceholderInfoBlock;
 
@@ -27,7 +30,7 @@ export class PagePlaceholder
         this.infoBlock = new PagePlaceholderInfoBlock();
         this.createControllerDropdown();
 
-        this.pageDescriptorPlaceholder = new api.dom.DivEl('page-descriptor-placeholder', api.StyleHelper.getCurrentPrefix());
+        this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
         this.pageDescriptorPlaceholder.appendChild(this.infoBlock);
         this.pageDescriptorPlaceholder.appendChild(this.controllerDropdown);
 
@@ -55,7 +58,7 @@ export class PagePlaceholder
                     this.infoBlock.setTextForContent(contentType.getDisplayName());
                 }).catch((reason) => {
                     this.infoBlock.setTextForContent(content.getType().toString());
-                    api.DefaultErrorHandler.handle(reason);
+                    DefaultErrorHandler.handle(reason);
                 }).done();
             } else {
                 this.infoBlock.toggleHeader(true);
