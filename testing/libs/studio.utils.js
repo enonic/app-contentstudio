@@ -567,5 +567,17 @@ module.exports = {
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
+    },
+    sendRequestGetHeaders(){
+        return webDriverHelper.browser.executeAsync(
+            "var callback = arguments[arguments.length - 1];" +
+            "var xhr = new XMLHttpRequest();" +
+            "xhr.open('GET', '', true);" +
+            "xhr.onreadystatechange = function() {" +
+            "  if (xhr.readyState == 4) {" +
+            "    callback(xhr.getAllResponseHeaders());" +
+            "  }" +
+            "};" +
+            "xhr.send();");
     }
 };
