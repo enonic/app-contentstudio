@@ -25,7 +25,7 @@ class FreeFormOptionSet1 extends Page {
     async clickOnImageRadioButton() {
         try {
             await this.waitForElementDisplayed(this.imageRadioButton, appConst.TIMEOUT_2);
-            await this.clickOnElement(this.imageRadioButton);
+            return await this.clickOnElement(this.imageRadioButton);
         } catch (err) {
             this.saveScreenshot("err_free_form_image_radio");
             throw new Error("Free Form Wizard - Error when clicking on Image radio button" + err);
@@ -35,7 +35,7 @@ class FreeFormOptionSet1 extends Page {
     async clickOnTextRadioButton() {
         try {
             await this.waitForElementDisplayed(this.textRadioButton, appConst.TIMEOUT_2);
-            await this.clickOnElement(this.textRadioButton);
+            return await this.clickOnElement(this.textRadioButton);
         } catch (err) {
             this.saveScreenshot("err_free_form_text_radio");
             throw new Error("Free Form Wizard - Error when clicking on Text radio button");

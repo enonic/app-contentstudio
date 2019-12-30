@@ -23,7 +23,7 @@ describe('Browse panel selections spec`', function () {
             assert.equal(result, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
             studioUtils.saveScreenshot('row_clicked');
-            assert.equal(number, 1, 'One row should be highlighted');
+            assert.equal(number, 1, "One row should be highlighted");
             //3. But there are no any checked rows:
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, "the number of checked rows is 0");
