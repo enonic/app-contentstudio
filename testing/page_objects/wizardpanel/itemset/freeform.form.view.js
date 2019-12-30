@@ -5,29 +5,29 @@ const Page = require('../../page');
 
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
-    elementType_Input: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Input']]",
-    elementType_Button: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Button']]",
-    elementType_Select: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Select']]",
+    elementTypeInput: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Input']]",
+    elementTypeButton: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Button']]",
+    elementTypeSelect: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Select']]",
 };
 
 class FreeFormView extends Page {
 
     //element type 'input' - radio button
-    get elementType_Input() {
-        return xpath.itemSet + xpath.elementType_Input;
+    get elementTypeInput() {
+        return xpath.itemSet + xpath.elementTypeInput;
     }
 
     //element type 'Button' - radio button
-    get elementType_Button() {
-        return xpath.itemSet + xpath.elementType_Button;
+    get elementTypeButton() {
+        return xpath.itemSet + xpath.elementTypeButton;
     }
 
-    clickOnElementType_Input() {
-        return this.clickOnElement(this.elementType_Input);
+    clickOnElementTypeInput() {
+        return this.clickOnElement(this.elementTypeInput);
     }
 
-    clickOnElementType_Button() {
-        return this.clickOnElement(this.elementType_Button);
+    clickOnElementTypeButton() {
+        return this.clickOnElement(this.elementTypeButton);
     }
 };
 module.exports = FreeFormView;

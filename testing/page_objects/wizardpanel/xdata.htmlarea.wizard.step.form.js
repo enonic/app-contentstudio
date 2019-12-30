@@ -5,7 +5,7 @@ const Page = require('../page');
 const HtmlArea = require('../../page_objects/components/htmlarea');
 
 const XPATH = {
-    container: `//div[contains(@id,'XDataWizardStepForm')]`,
+    container: "//div[contains(@id,'XDataWizardStepForm')]",
 };
 
 class XDataHtmlArea extends Page {
@@ -21,7 +21,7 @@ class XDataHtmlArea extends Page {
     }
 
     waitForHtmlAreaVisible() {
-        return this.waitForElementDisplayed(XPATH.container + `//div[contains(@id,'cke_TextArea')]`);
+        return this.waitForElementDisplayed(XPATH.container + "//div[contains(@id,'cke_TextArea')]");
     }
 };
 module.exports = XDataHtmlArea;

@@ -4,8 +4,8 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const XPATH = {
-    longInput: `//div[contains(@id,'Long') and contains(@class,'input-type-view')]`,
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    longInput: "//div[contains(@id,'Long') and contains(@class,'input-type-view')]",
+    validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
 };
 
 class LongForm extends Page {
