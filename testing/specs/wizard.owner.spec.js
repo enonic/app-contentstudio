@@ -12,7 +12,7 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
-describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
