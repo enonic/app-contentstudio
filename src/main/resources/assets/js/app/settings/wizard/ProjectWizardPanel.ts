@@ -6,9 +6,13 @@ import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import * as Q from 'q';
 import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
+
+    protected wizardStepForm: ProjectItemNameWizardStepForm;
 
     protected createWizardStepForm(): ProjectItemNameWizardStepForm {
         return new ProjectItemNameWizardStepForm();
@@ -16,6 +20,21 @@ export class ProjectWizardPanel
 
     protected getIconClass(): string {
         return 'icon-tree-2';
+    }
+
+    protected isNewItemChanged(): boolean {
+        return super.isNewItemChanged() ||
+               !StringHelper.isBlank(this.wizardStepForm.getProjectName());
+    }
+
+    protected isPersistedItemChanged(): boolean {
+        const item: ProjectItem = this.getPersistedItem();
+
+        if (!ObjectHelper.stringEquals(item.getName(), this.wizardStepForm.getProjectName())) {
+            return true;
+        }
+
+        return super.isPersistedItemChanged();
     }
 }
 
@@ -26,6 +45,13 @@ class ProjectItemNameWizardStepForm
 
     getProjectName(): string {
         return this.projectNameInput.getValue();
+    }
+
+    protected initListeners() {
+        super.initListeners();
+        this.projectNameInput.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
     }
 
     doRender(): Q.Promise<boolean> {

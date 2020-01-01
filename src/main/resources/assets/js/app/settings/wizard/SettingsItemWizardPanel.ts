@@ -14,13 +14,17 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     extends WizardPanel<T> {
 
+    protected wizardHeader: WizardHeaderWithDisplayNameAndName;
+
     protected wizardActions: SettingsItemWizardActions;
 
-    private wizardStepForm: SettingItemWizardStepForm;
+    protected wizardStepForm: SettingItemWizardStepForm;
 
     constructor(params: WizardPanelParams<T>) {
         super(params);
@@ -61,7 +65,7 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
         }
     }
 
-    private createSteps(): WizardStep[] {
+    protected createSteps(): WizardStep[] {
         const steps: WizardStep[] = [];
 
         this.wizardStepForm = this.createWizardStepForm();
@@ -81,16 +85,52 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
             this.wizardStepForm.layout(persistedItem);
         }
 
+        this.wizardStepForm.onDataChanged(() => {
+            this.handleDataChanged();
+        });
+
         return Q<void>(null);
     }
 
+    private handleDataChanged() {
+        this.wizardActions.getSaveAction().setEnabled(this.hasUnsavedChanges());
+    }
+
+    hasUnsavedChanges(): boolean {
+        if (this.getPersistedItem()) {
+            return this.isPersistedItemChanged();
+        }
+
+        return this.isNewItemChanged();
+    }
+
+    protected isPersistedItemChanged(): boolean {
+        const item: SettingsItem = this.getPersistedItem();
+
+        if (!ObjectHelper.stringEquals(item.getDescription(), this.wizardStepForm.getDescription())) {
+            return true;
+        }
+
+        if (!ObjectHelper.stringEquals(item.getDisplayName(), this.wizardHeader.getDisplayName())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected isNewItemChanged(): boolean {
+        return !StringHelper.isBlank(this.wizardHeader.getName()) ||
+               !StringHelper.isBlank(this.wizardHeader.getDisplayName()) ||
+               !StringHelper.isBlank(this.wizardStepForm.getDescription());
+    }
+
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        let wizardHeader = new WizardHeaderWithDisplayNameAndNameBuilder().build();
+        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder().build();
 
-        const existing = this.getPersistedItem();
-        const name = this.getWizardNameValue();
+        const existing: SettingsItem = this.getPersistedItem();
+        const name: string = this.getWizardNameValue();
 
-        let displayName = '';
+        let displayName: string = '';
 
         if (existing) {
             displayName = existing.getDisplayName();
@@ -101,6 +141,10 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
         wizardHeader.setPath('');
         wizardHeader.initNames(displayName, name, false);
+
+        wizardHeader.onPropertyChanged(() => {
+            this.handleDataChanged();
+        });
 
         return wizardHeader;
     }

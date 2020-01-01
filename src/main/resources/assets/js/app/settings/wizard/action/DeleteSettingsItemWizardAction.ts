@@ -7,7 +7,7 @@ export class DeleteSettingsItemWizardAction
         super(i18n('action.delete'), 'mod+del', true);
 
         this.onExecuted(() => {
-
+            //
         });
     }
 }

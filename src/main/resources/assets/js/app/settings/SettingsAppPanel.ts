@@ -58,13 +58,13 @@ export class SettingsAppPanel
             this.selectPanel(tabMenuItem);
         } else {
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
-            const tabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
+            const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project')))
                 .setTabId(wizard.getTabId())
                 .setCloseAction(wizard.getCloseAction())
                 .build();
 
-            this.addWizardPanel(tabMenuItem, wizard);
+            this.addWizardPanel(newTabMenuItem, wizard);
         }
     }
 
@@ -77,13 +77,13 @@ export class SettingsAppPanel
                 this.selectPanel(tabMenuItem);
             } else {
                 const wizard: SettingsItemWizardPanel<SettingsItem> = this.getWizardPanelFor(item, tabId);
-                const tabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
+                const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                     .setLabel(item.getDisplayName())
                     .setTabId(wizard.getTabId())
                     .setCloseAction(wizard.getCloseAction())
                     .build();
 
-                this.addWizardPanel(tabMenuItem, wizard);
+                this.addWizardPanel(newTabMenuItem, wizard);
             }
         });
     }

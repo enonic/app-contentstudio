@@ -15,6 +15,8 @@ export abstract class SettingItemWizardStepForm
 
     private form: Form;
 
+    private dataChangedListeners: { (): void }[] = [];
+
     constructor() {
         super();
 
@@ -22,6 +24,7 @@ export abstract class SettingItemWizardStepForm
         this.form = new Form(FormView.VALIDATION_CLASS);
 
         this.addFormItems();
+        this.initListeners();
     }
 
     private addFormItems() {
@@ -37,6 +40,12 @@ export abstract class SettingItemWizardStepForm
 
     protected abstract getFormItems(): FormItem[];
 
+    protected initListeners() {
+        this.descriptionInput.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
+    }
+
     getDescription(): string {
         return this.descriptionInput.getValue();
     }
@@ -51,6 +60,22 @@ export abstract class SettingItemWizardStepForm
             this.addClass('settings-item-wizard-step-form');
 
             return rendered;
+        });
+    }
+
+    protected notifyDataChanged() {
+        this.dataChangedListeners.forEach((listener: () => void) => {
+            listener();
+        });
+    }
+
+    onDataChanged(listener: () => void) {
+        this.dataChangedListeners.push(listener);
+    }
+
+    unDataChanged(listener: () => void) {
+        this.dataChangedListeners.filter((currentListener: () => void) => {
+            return listener === currentListener;
         });
     }
 }
