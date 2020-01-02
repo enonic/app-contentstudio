@@ -8,6 +8,9 @@ import * as Q from 'q';
 import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
@@ -23,8 +26,8 @@ export class ProjectWizardPanel
     }
 
     protected isNewItemChanged(): boolean {
-        return super.isNewItemChanged() ||
-               !StringHelper.isBlank(this.wizardStepForm.getProjectName());
+        return !StringHelper.isBlank(this.wizardStepForm.getProjectName())
+               || super.isNewItemChanged();
     }
 
     protected isPersistedItemChanged(): boolean {
@@ -35,6 +38,40 @@ export class ProjectWizardPanel
         }
 
         return super.isPersistedItemChanged();
+    }
+
+    persistNewItem(): Q.Promise<ProjectItem> {
+        return this.produceCreateItemRequest().sendAndParse().then((projectItem: ProjectItem) => {
+            showFeedback(i18n('notify.settings.project.created', projectItem.getName()));
+
+            return projectItem;
+        });
+    }
+
+    updatePersistedItem(): Q.Promise<ProjectItem> {
+        return this.produceUpdateItemRequest().sendAndParse().then((projectItem: ProjectItem) => {
+            showFeedback(i18n('notify.settings.project.modified', projectItem.getName()));
+
+            return projectItem;
+        });
+    }
+
+    private produceCreateItemRequest(): ProjectCreateRequest {
+        const displayName: string = this.wizardHeader.getDisplayName();
+
+        return new ProjectCreateRequest()
+            .setDescription(this.wizardStepForm.getDescription())
+            .setName(this.wizardStepForm.getProjectName())
+            .setDisplayName(displayName);
+    }
+
+    private produceUpdateItemRequest(): ProjectUpdateRequest {
+        const displayName: string = this.wizardHeader.getDisplayName();
+
+        return new ProjectUpdateRequest()
+            .setDescription(this.wizardStepForm.getDescription())
+            .setName(this.wizardStepForm.getProjectName())
+            .setDisplayName(displayName);
     }
 }
 
