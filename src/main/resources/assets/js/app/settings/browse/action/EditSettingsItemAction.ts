@@ -9,7 +9,6 @@ export class EditSettingsItemAction
 
     constructor(grid: SettingsItemsTreeGrid) {
         super(i18n('action.edit'), 'mod+alt+n');
-        // this.setEnabled(false);
         this.onExecuted(() => {
             const items: SettingsItem[] = grid.getSelectedDataList();
             new EditSettingsItemEvent(items).fire();

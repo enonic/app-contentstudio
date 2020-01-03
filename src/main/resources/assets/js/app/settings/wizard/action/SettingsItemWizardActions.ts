@@ -1,24 +1,24 @@
 import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
 import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
 import {SettingsItem} from '../../data/SettingsItem';
 import {DeleteSettingsItemWizardAction} from './DeleteSettingsItemWizardAction';
 import {SettingsItemWizardPanel} from '../SettingsItemWizardPanel';
+import {SaveSettingsItemWizardAction} from './SaveSettingsItemWizardAction';
 
 export class SettingsItemWizardActions
     extends WizardActions<SettingsItem> {
 
-    private save: Action;
+    private save: SaveSettingsItemWizardAction;
 
     private close: Action;
 
-    private delete: Action;
+    private delete: DeleteSettingsItemWizardAction;
 
     constructor(wizardPanel: SettingsItemWizardPanel<SettingsItem>) {
         super();
 
-        this.save = new SaveAction(wizardPanel);
+        this.save = new SaveSettingsItemWizardAction();
         this.delete = new DeleteSettingsItemWizardAction();
         this.close = new CloseAction(wizardPanel);
 
@@ -35,11 +35,11 @@ export class SettingsItemWizardActions
         this.delete.setEnabled(true);
     }
 
-    getDeleteAction(): Action {
+    getDeleteAction(): DeleteSettingsItemWizardAction {
         return this.delete;
     }
 
-    getSaveAction(): Action {
+    getSaveAction(): SaveSettingsItemWizardAction {
         return this.save;
     }
 

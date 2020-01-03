@@ -11,6 +11,7 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
+import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
@@ -56,7 +57,15 @@ export class ProjectWizardPanel
         });
     }
 
-    private produceCreateItemRequest(): ProjectCreateRequest {
+    protected createDeleteRequest(): ProjectDeleteRequest {
+        return new ProjectDeleteRequest(this.getPersistedItem().getName());
+    }
+
+    protected getSuccessfulDeleteMessage(): string {
+        return i18n('notify.settings.project.deleted', this.getPersistedItem().getName());
+    }
+
+    protected produceCreateItemRequest(): ProjectCreateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
 
         return new ProjectCreateRequest()
@@ -65,13 +74,21 @@ export class ProjectWizardPanel
             .setDisplayName(displayName);
     }
 
-    private produceUpdateItemRequest(): ProjectUpdateRequest {
+    protected getSuccessfulCreateMessage(item: ProjectItem): string {
+        return i18n('notify.settings.project.created', item.getName());
+    }
+
+    protected produceUpdateItemRequest(): ProjectUpdateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
 
         return new ProjectUpdateRequest()
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName);
+    }
+
+    protected getSuccessfulUpdateMessage(item: ProjectItem): string {
+        return i18n('notify.settings.project.modified', item.getName());
     }
 }
 

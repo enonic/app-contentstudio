@@ -16,6 +16,11 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {SettingsItemJson} from '../resource/json/SettingsItemJson';
 
 export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     extends WizardPanel<T> {
@@ -26,15 +31,90 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
     protected wizardStepForm: SettingItemWizardStepForm;
 
+    private deleteConfirmationDialog: ConfirmationDialog;
+
     constructor(params: WizardPanelParams<T>) {
         super(params);
 
         this.loadData();
+        this.initElements();
+        this.listenEvents();
         ResponsiveManager.onAvailableSizeChanged(this);
     }
 
     protected createWizardActions(): SettingsItemWizardActions {
         return new SettingsItemWizardActions(this);
+    }
+
+    private initElements() {
+        this.deleteConfirmationDialog = new ConfirmationDialog()
+            .setQuestion(i18n('settings.dialog.delete.question'))
+            .setNoCallback(null)
+            .setYesCallback(this.deletePersistedItem.bind(this));
+    }
+
+    private deletePersistedItem() {
+        this.createDeleteRequest().sendAndParse().then(() => {
+            showFeedback(this.getSuccessfulDeleteMessage());
+            this.close();
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    protected createDeleteRequest(): ResourceRequest<boolean, boolean> {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    protected getSuccessfulDeleteMessage(): string {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    persistNewItem(): Q.Promise<T> {
+        return this.produceCreateItemRequest().sendAndParse().then((item: T) => {
+            showFeedback(this.getSuccessfulCreateMessage(item));
+
+            return item;
+        });
+    }
+
+    protected produceCreateItemRequest(): ResourceRequest<SettingsItemJson, SettingsItem> {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    protected getSuccessfulCreateMessage(item: T): string {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    updatePersistedItem(): Q.Promise<T> {
+        return this.produceUpdateItemRequest().sendAndParse().then((item: T) => {
+            showFeedback(this.getSuccessfulUpdateMessage(item));
+
+            return item;
+        });
+    }
+
+    protected produceUpdateItemRequest(): ResourceRequest<SettingsItemJson, SettingsItem> {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    protected getSuccessfulUpdateMessage(item: T): string {
+        throw new Error('Must be overriden by inheritor');
+    }
+
+    private listenEvents() {
+        this.wizardActions.getDeleteAction().onExecuted(() => {
+            if (!this.getPersistedItem()) {
+                return;
+            }
+
+            this.deleteConfirmationDialog.open();
+        });
+
+        this.wizardActions.getSaveAction().onExecuted(() => {
+            this.saveChanges().catch((reason: any) => {
+                this.wizardActions.getSaveAction().setEnabled(true);
+                DefaultErrorHandler.handle(reason);
+            });
+        });
     }
 
     protected createMainToolbar(): Toolbar {
@@ -162,6 +242,6 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     }
 
     getCloseAction(): Action {
-        return (<SettingsItemWizardActions>this.wizardActions).getCloseAction();
+        return this.wizardActions.getCloseAction();
     }
 }

@@ -5,9 +5,5 @@ export class DeleteSettingsItemWizardAction
     extends Action {
     constructor() {
         super(i18n('action.delete'), 'mod+del', true);
-
-        this.onExecuted(() => {
-            //
-        });
     }
 }
