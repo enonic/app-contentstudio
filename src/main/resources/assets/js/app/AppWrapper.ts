@@ -6,7 +6,6 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Application} from 'lib-admin-ui/app/Application';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {Body} from 'lib-admin-ui/dom/Body';
 
 export class AppWrapper
     extends DivEl {
@@ -21,7 +20,7 @@ export class AppWrapper
 
     private actionsBlock: ActionsBlock;
 
-    private mouseClickListener: (event: MouseEvent) => void;
+    private touchListener: (event: MouseEvent) => void;
 
     constructor(application: Application) {
         super('main-app-wrapper');
@@ -41,23 +40,24 @@ export class AppWrapper
 
     private initListeners() {
         this.toggleIcon.onClicked(this.toggleState.bind(this));
-        this.handleClickOutsideSidebar();
+        this.handleTouchOutsideSidebar();
     }
 
-    private handleClickOutsideSidebar() {
-        this.mouseClickListener = (event: MouseEvent) => {
-            if (screen && screen.width > 540) {
-                // Don't auto-collapse the toolbar under desktop resolutions
+    private handleTouchOutsideSidebar() {
+        this.touchListener = (event: MouseEvent) => {
+            if (!this.hasClass('sidebar-expanded')) {
                 return;
             }
-            if (this.hasClass('sidebar-expanded')) {
-                for (let element = event.target; element; element = (<any>element).parentNode) {
-                    if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
-                        return;
-                    }
+            for (let element = event.target; element; element = (<any>element).parentNode) {
+                if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
+                    return;
                 }
-                this.toggleState();
             }
+
+            this.toggleState();
+
+            event.stopPropagation();
+            event.preventDefault();
         };
     }
 
@@ -67,9 +67,9 @@ export class AppWrapper
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleIcon.toggleClass('toggled', !isSidebarVisible);
         if (!isSidebarVisible) {
-            Body.get().onMouseDown(this.mouseClickListener);
+            this.mainPanel.onTouchStart(this.touchListener, false);
         } else {
-            Body.get().unMouseDown(this.mouseClickListener);
+            this.mainPanel.unTouchStart(this.touchListener);
         }
     }
 
