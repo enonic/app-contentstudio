@@ -11,6 +11,7 @@ import {Path} from 'lib-admin-ui/rest/Path';
 import {MainAppContainer} from './MainAppContainer';
 import {SettingsAppContainer} from './settings/SettingsAppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
+import {SettingsServerEventsListener} from './settings/event/SettingsServerEventsListener';
 
 export class AppWrapper
     extends DivEl {
@@ -81,6 +82,11 @@ export class AppWrapper
     private initListeners() {
         this.toggleIcon.onClicked(this.toggleState.bind(this));
         this.handleClickOutsideSidebar();
+
+        if (this.isSettingsPage()) {
+            const settingsServerEventsListener = new SettingsServerEventsListener([this.application]);
+            settingsServerEventsListener.start();
+        }
     }
 
     private handleClickOutsideSidebar() {

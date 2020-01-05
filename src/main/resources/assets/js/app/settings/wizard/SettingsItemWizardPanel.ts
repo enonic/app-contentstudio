@@ -33,6 +33,8 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
     private deleteConfirmationDialog: ConfirmationDialog;
 
+    private newItemSavedListeners: { (item: T): void }[] = [];
+
     constructor(params: WizardPanelParams<T>) {
         super(params);
 
@@ -76,6 +78,14 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
         });
     }
 
+    postPersistNewItem(item: T): Q.Promise<T> {
+        return super.postPersistNewItem(item).then(() => {
+            this.notifyNewItemSaved(item);
+
+            return item;
+        });
+    }
+
     protected produceCreateItemRequest(): ResourceRequest<SettingsItemJson, SettingsItem> {
         throw new Error('Must be overriden by inheritor');
     }
@@ -111,7 +121,6 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
         this.wizardActions.getSaveAction().onExecuted(() => {
             this.saveChanges().catch((reason: any) => {
-                this.wizardActions.getSaveAction().setEnabled(true);
                 DefaultErrorHandler.handle(reason);
             });
         });
@@ -243,5 +252,35 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
     getCloseAction(): Action {
         return this.wizardActions.getCloseAction();
+    }
+
+    hasPersistedItemWithId(id: string): boolean {
+        return this.getPersistedItem() && this.getPersistedItem().getId() === id;
+    }
+
+    updatePersistedSettingsItem(item: T) {
+        if (item.equals(this.getPersistedItem())) {
+            return;
+        }
+        this.setPersistedItem(item);
+        this.wizardHeader.initNames(item.getDisplayName(), item.getId(), false);
+        this.wizardStepForm.layout(item);
+    }
+
+    private notifyNewItemSaved(item: T) {
+        this.newItemSavedListeners.forEach((listener: (item: T) => void) => {
+            listener(item);
+        });
+    }
+
+    onNewItemSaved(listener: (item: T) => void) {
+        this.newItemSavedListeners.push(listener);
+    }
+
+    unNewItemSaved(listener: (item: T) => void) {
+        this.newItemSavedListeners =
+            this.newItemSavedListeners.filter((curr: (item: T) => void) => {
+                return listener !== curr;
+            });
     }
 }

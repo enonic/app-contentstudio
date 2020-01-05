@@ -10,9 +10,7 @@ import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 export class SettingsBrowsePanel
     extends BrowsePanel<SettingsItem> {
 
-    constructor() {
-        super();
-    }
+    protected treeGrid: SettingsItemsTreeGrid;
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
         return new SettingsItemsTreeGrid();
@@ -45,6 +43,22 @@ export class SettingsBrowsePanel
             }
         });
         return browseItems;
+    }
+
+    hasItemWithId(id: string) {
+        return this.treeGrid.hasItemWithId(id);
+    }
+
+    addSettingsItem(item: SettingsItem) {
+        this.treeGrid.appendSettingsItemNode(item);
+    }
+
+    updateSettingsItem(item: SettingsItem) {
+        this.treeGrid.updateSettingsItemNode(item);
+    }
+
+    deleteSettingsItem(id: string) {
+        this.treeGrid.deleteSettingsItemNode(id);
     }
 
 }

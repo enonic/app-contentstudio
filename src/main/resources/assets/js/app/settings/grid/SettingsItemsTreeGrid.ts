@@ -101,4 +101,50 @@ export class SettingsItemsTreeGrid
             new EditSettingsItemEvent([item]).fire();
         }
     }
+
+    hasItemWithId(id: string) {
+        return !!this.getRoot().getCurrentRoot().findNode(id);
+    }
+
+    appendSettingsItemNode(item: SettingsItem) {
+        if (this.hasItemWithId(item.getId())) {
+            return;
+        }
+
+        const parentNode: TreeNode<SettingsItem> = this.getSettingsItemParenNode(item);
+        if (!parentNode) {
+            return;
+        }
+
+        this.appendNodeToParent(parentNode, item);
+
+    }
+
+    private getSettingsItemParenNode(item: SettingsItem): TreeNode<SettingsItem> {
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem)) {
+            const projectsNode: TreeNode<SettingsItem> = this.getRoot().getCurrentRoot().findNode(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
+            return projectsNode;
+        }
+
+        return null;
+    }
+
+    updateSettingsItemNode(item: SettingsItem) {
+        if (!this.hasItemWithId(item.getId())) {
+            return;
+        }
+
+        const treeNodeToUpdate: TreeNode<SettingsItem> = this.getRoot().getCurrentRoot().findNode(item.getId());
+        treeNodeToUpdate.setData(item);
+        treeNodeToUpdate.clearViewers();
+        this.invalidateNodes([treeNodeToUpdate]);
+    }
+
+    deleteSettingsItemNode(id: string) {
+        if (!this.hasItemWithId(id)) {
+            return;
+        }
+        const treeNodeToDelete: TreeNode<SettingsItem> = this.getRoot().getCurrentRoot().findNode(id);
+        this.deleteNode(treeNodeToDelete.getData());
+    }
 }

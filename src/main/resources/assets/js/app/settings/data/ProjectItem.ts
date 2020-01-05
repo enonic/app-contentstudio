@@ -1,5 +1,7 @@
 import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
 import {ProjectItemJson} from '../resource/json/ProjectItemJson';
+import {Equitable} from '../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/Equitable';
+import {ObjectHelper} from '../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/ObjectHelper';
 
 export class ProjectItem
     extends SettingsItem {
@@ -22,6 +24,20 @@ export class ProjectItem
 
     static fromJson(json: ProjectItemJson): ProjectItem {
         return new ProjectItemBuilder().fromJson(json).build();
+    }
+
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ProjectItem)) {
+            return false;
+        }
+
+        const other: ProjectItem = <ProjectItem> o;
+
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return ObjectHelper.objectEquals(this.name, other.name);
     }
 
 }

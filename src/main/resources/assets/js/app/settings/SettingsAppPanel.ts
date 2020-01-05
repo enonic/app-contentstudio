@@ -14,9 +14,15 @@ import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
 import {SettingsItemWizardPanel} from './wizard/SettingsItemWizardPanel';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {SettingsServerEvent} from './event/SettingsServerEvent';
+import {ProjectGetRequest} from './resource/ProjectGetRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsItem> {
+
+    protected browsePanel: SettingsBrowsePanel;
 
     constructor(appBar: SettingsAppBar) {
         super(appBar);
@@ -42,6 +48,23 @@ export class SettingsAppPanel
         EditSettingsItemEvent.on((event: EditSettingsItemEvent) => {
             this.handleItemEdit(event.getItems());
         });
+
+        SettingsServerEvent.on((event: SettingsServerEvent) => {
+            if (event.isCreateEvent()) {
+                this.handleItemsCreated(event.getItemsIds());
+                return;
+            }
+
+            if (event.isUpdateEvent()) {
+                this.handleItemsUpdated(event.getItemsIds());
+                return;
+            }
+
+            if (event.isDeleteEvent()) {
+                this.handleItemsDeleted(event.getItemsIds());
+                return;
+            }
+        });
     }
 
     protected handleBrowse() {
@@ -65,6 +88,11 @@ export class SettingsAppPanel
                 .build();
 
             this.addWizardPanel(newTabMenuItem, wizard);
+
+            wizard.onNewItemSaved((item: SettingsItem) => {
+                newTabMenuItem.setTabId(AppBarTabId.forEdit(item.getId()));
+                newTabMenuItem.setLabel(item.getDisplayName());
+            });
         }
     }
 
@@ -95,4 +123,88 @@ export class SettingsAppPanel
 
         return null;
     }
+
+    private handleItemsCreated(itemsIds: string[]) {
+        itemsIds.forEach(this.handleItemCreated.bind(this));
+    }
+
+    private handleItemCreated(itemId: string) {
+        new ProjectGetRequest(itemId).sendAndParse()
+            .then((item: ProjectItem) => {
+                this.browsePanel.addSettingsItem(item);
+            })
+            .catch(DefaultErrorHandler.handle);
+    }
+
+    private handleItemsUpdated(itemsIds: string[]) {
+        itemsIds.forEach(this.handleItemUpdated.bind(this));
+    }
+
+    private handleItemUpdated(itemId: string) {
+        const isBrowsePanelItemUpdated: boolean = this.browsePanel.hasItemWithId(itemId);
+        const isAnyWizardPanelUpdated: boolean = this.isAnyWizardPanelUpdated(itemId);
+
+        if (!isBrowsePanelItemUpdated && !isAnyWizardPanelUpdated) {
+            return;
+        }
+
+        new ProjectGetRequest(itemId).sendAndParse()
+            .then((item: ProjectItem) => {
+                if (isAnyWizardPanelUpdated) {
+                    this.updateTabLabel(AppBarTabId.forEdit(itemId), item.getDisplayName());
+                    this.getPanels()
+                        .filter(this.isSettingsItemWizardPanel)
+                        .filter((panel: SettingsItemWizardPanel<SettingsItem>) => {
+                            return panel.hasPersistedItemWithId(itemId);
+                        })
+                        .forEach((panel: SettingsItemWizardPanel<SettingsItem>) => {
+                            panel.updatePersistedSettingsItem(item);
+                        });
+                }
+
+                if (isBrowsePanelItemUpdated) {
+                    this.browsePanel.updateSettingsItem(item);
+                }
+
+            })
+            .catch(DefaultErrorHandler.handle);
+
+    }
+
+    private isSettingsItemWizardPanel(panel: Panel): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsItemWizardPanel);
+    }
+
+    private isAnyWizardPanelUpdated(id: string): boolean {
+        return this.getPanels().filter(this.isSettingsItemWizardPanel).some((panel: SettingsItemWizardPanel<SettingsItem>) => {
+            return panel.hasPersistedItemWithId(id);
+        });
+    }
+
+    private updateTabLabel(tabId: AppBarTabId, label: string) {
+        const tabMenuItem: TabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
+        if (!tabMenuItem) {
+            return;
+        }
+
+        tabMenuItem.setLabel(label);
+    }
+
+    private handleItemsDeleted(itemsIds: string[]) {
+        itemsIds.forEach(this.handleItemDeleted.bind(this));
+    }
+
+    private handleItemDeleted(itemId: string) {
+        this.browsePanel.deleteSettingsItem(itemId);
+
+        this.getPanels()
+            .filter(this.isSettingsItemWizardPanel)
+            .filter((panel: SettingsItemWizardPanel<SettingsItem>) => {
+                return panel.hasPersistedItemWithId(itemId);
+            })
+            .forEach((panel: SettingsItemWizardPanel<SettingsItem>) => {
+                return panel.close();
+            });
+    }
+
 }

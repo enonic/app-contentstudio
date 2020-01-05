@@ -9,7 +9,6 @@ import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
 
@@ -41,19 +40,11 @@ export class ProjectWizardPanel
         return super.isPersistedItemChanged();
     }
 
-    persistNewItem(): Q.Promise<ProjectItem> {
-        return this.produceCreateItemRequest().sendAndParse().then((projectItem: ProjectItem) => {
-            showFeedback(i18n('notify.settings.project.created', projectItem.getName()));
+    postPersistNewItem(item: ProjectItem): Q.Promise<ProjectItem> {
+        return super.postPersistNewItem(item).then(() => {
+            this.wizardStepForm.disableProjectNameInput();
 
-            return projectItem;
-        });
-    }
-
-    updatePersistedItem(): Q.Promise<ProjectItem> {
-        return this.produceUpdateItemRequest().sendAndParse().then((projectItem: ProjectItem) => {
-            showFeedback(i18n('notify.settings.project.modified', projectItem.getName()));
-
-            return projectItem;
+            return Q(item);
         });
     }
 
@@ -101,6 +92,10 @@ class ProjectItemNameWizardStepForm
         return this.projectNameInput.getValue();
     }
 
+    disableProjectNameInput() {
+        this.projectNameInput.getEl().setDisabled(true);
+    }
+
     protected initListeners() {
         super.initListeners();
         this.projectNameInput.onValueChanged(() => {
@@ -120,6 +115,7 @@ class ProjectItemNameWizardStepForm
         super.layout(item);
 
         this.projectNameInput.setValue(item.getName());
+        this.disableProjectNameInput();
     }
 
     protected getFormItems(): FormItem[] {
