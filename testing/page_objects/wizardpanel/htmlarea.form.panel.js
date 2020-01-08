@@ -38,7 +38,7 @@ const XPATH = {
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
-        return `CKEDITOR.instances['${id}'].setData('${text}')`
+        return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
     getText: function (id) {
         return `return CKEDITOR.instances['${id}'].getData()`

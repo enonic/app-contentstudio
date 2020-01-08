@@ -6,11 +6,12 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const component = {
+
     typeText: function (id, text) {
-        return "CKEDITOR.instances['${id}'].setData('${text}')";
+        return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
     getText: function (id) {
-        return "return CKEDITOR.instances['${id}'].getData()";
+        return `return CKEDITOR.instances['${id}'].getData()`;
     }
 };
 
