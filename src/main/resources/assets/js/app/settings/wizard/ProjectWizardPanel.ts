@@ -3,7 +3,6 @@ import {SettingsItemWizardPanel} from './SettingsItemWizardPanel';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import * as Q from 'q';
 import {SettingItemWizardStepForm} from './SettingItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
@@ -11,6 +10,9 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
 import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
+import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
+import {Name} from 'lib-admin-ui/Name';
+import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
@@ -23,6 +25,19 @@ export class ProjectWizardPanel
 
     protected getIconClass(): string {
         return 'icon-tree-2';
+    }
+
+    protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
+        const header: WizardHeaderWithDisplayNameAndName = super.createWizardHeader();
+        header.onPropertyChanged(() => {
+            if (this.getPersistedItem()) {
+                return;
+            }
+
+            this.wizardStepForm.setProjectName(header.getDisplayName().trim().toLowerCase().replace(Name.FORBIDDEN_CHARS, ''));
+        });
+
+        return header;
     }
 
     protected isNewItemChanged(): boolean {
@@ -86,10 +101,17 @@ export class ProjectWizardPanel
 class ProjectItemNameWizardStepForm
     extends SettingItemWizardStepForm {
 
+    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9\\-])([a-z0-9_\\-])*$/;
+
     private projectNameInput: TextInput;
+    private projectNameFormItem: FormItem;
 
     getProjectName(): string {
         return this.projectNameInput.getValue();
+    }
+
+    setProjectName(value: string) {
+        this.projectNameInput.setValue(value);
     }
 
     disableProjectNameInput() {
@@ -99,6 +121,7 @@ class ProjectItemNameWizardStepForm
     protected initListeners() {
         super.initListeners();
         this.projectNameInput.onValueChanged(() => {
+            this.projectNameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
         });
     }
@@ -111,6 +134,10 @@ class ProjectItemNameWizardStepForm
         });
     }
 
+    public isValid(): boolean {
+        return this.isProjectNameValid();
+    }
+
     layout(item: ProjectItem) {
         super.layout(item);
 
@@ -120,8 +147,21 @@ class ProjectItemNameWizardStepForm
 
     protected getFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
+        this.projectNameFormItem = new FormItemBuilder(this.projectNameInput)
+            .setValidator(this.validateProjectName.bind(this))
+            .setLabel(i18n('settings.field.project.name'))
+            .build();
+        this.projectNameFormItem.getLabel().addClass('required');
 
-        return [new FormItemBuilder(this.projectNameInput).setValidator(Validators.required).setLabel(
-            i18n('settings.field.project.name')).build()];
+        return [this.projectNameFormItem];
+    }
+
+    private validateProjectName(): string {
+        return !this.isProjectNameValid() ? i18n('field.value.invalid') : undefined;
+    }
+
+    private isProjectNameValid(): boolean {
+        const projectNameRegExp: RegExp = ProjectItemNameWizardStepForm.PROJECT_NAME_CHARS;
+        return projectNameRegExp.test(this.projectNameInput.getValue());
     }
 }
