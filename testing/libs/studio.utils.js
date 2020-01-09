@@ -311,7 +311,7 @@ module.exports = {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         //1. Click on Unpublish menu item:
-        await contentWizardPanel.clickOnUnpublishmenuItem();
+        await contentWizardPanel.clickOnUnpublishMenuItem();
         await contentUnpublishDialog.waitForDialogOpened();
         //2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
