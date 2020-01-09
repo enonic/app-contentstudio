@@ -88,6 +88,18 @@
         width: 230px;
       }
 
+      .@{_COMMON_PREFIX}dropdown {
+        .viewer.divider {
+          height: 50%;
+          border-bottom: 1px solid @admin-dark-gray-border;
+          pointer-events: none;
+
+          .names-and-icon-view {
+            display: none;
+          }
+        }
+      }
+
     }
 
     .@{_COMMON_PREFIX}button {
