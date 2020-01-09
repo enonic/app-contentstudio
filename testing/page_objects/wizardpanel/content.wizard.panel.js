@@ -617,13 +617,13 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    clickOnUnpublishmenuItem() {
+    clickOnUnpublishMenuItem() {
         return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
         }).catch(err => {
-            throw new Error("Error when unpublishing the contentS! " + err);
+            throw new Error("Error when unpublishing the content! " + err);
         });
     }
 
@@ -722,6 +722,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
+            await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
