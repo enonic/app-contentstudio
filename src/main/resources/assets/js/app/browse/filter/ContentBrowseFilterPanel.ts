@@ -132,7 +132,7 @@ export class ContentBrowseFilterPanel
         this.dependenciesSection.reset();
         this.resetConstraints();
         this.search();
-        Router.back();
+        Router.get().back();
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string) {

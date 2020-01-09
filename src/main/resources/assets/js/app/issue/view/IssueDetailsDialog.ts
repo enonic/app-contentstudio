@@ -531,7 +531,7 @@ export class IssueDetailsDialog
         this.toggleClass('with-schedule-form', this.publishScheduleForm.isFormVisible());
         this.isUpdatePending = false;
 
-        Router.setHash('issue/' + this.issue.getId());
+        Router.get().setHash('issue/' + this.issue.getId());
     }
 
     public reloadItemList() {
@@ -1053,7 +1053,7 @@ export class IssueDetailsDialog
         this.updateItemsCountAndButtonLabels();
         this.resetCommentsTabButtons();
 
-        Router.back();
+        Router.get().back();
     }
 
     resetCommentsTabButtons() {

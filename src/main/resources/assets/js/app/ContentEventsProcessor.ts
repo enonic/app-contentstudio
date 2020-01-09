@@ -11,6 +11,7 @@ import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {ProjectContext} from './project/ProjectContext';
 
 export class ContentEventsProcessor {
 
@@ -101,7 +102,8 @@ export class ContentEventsProcessor {
         const mode: string = event.isInbound() ? 'inbound' : 'outbound';
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
-        const url = !!type ? `main#/${mode}/${id}/${type}` : `main#/${mode}/${id}`;
+        const project: string = ProjectContext.get().getProject();
+        const url = `main#/${project}/${mode}/${id}/${type}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }

@@ -43,9 +43,9 @@ export class ContentAppPanel
     }
 
     private route(path?: Path) {
-        const action = path ? path.getElement(0) : null;
-        const id = path ? path.getElement(1) : null;
-        const type = path ? path.getElement(2) : null;
+        const action = path ? path.getElement(1) : null;
+        const id = path ? path.getElement(2) : null;
+        const type = path ? path.getElement(3) : null;
 
         switch (action) {
         case 'edit':
@@ -153,7 +153,7 @@ export class ContentAppPanel
                 const mode: string = inbound ? 'inbound' : 'outbound';
                 const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
-                Router.setHash(hash);
+                Router.get().setHash(hash);
             });
     }
 }

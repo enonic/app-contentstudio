@@ -38,7 +38,6 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {Application} from 'lib-admin-ui/app/Application';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
@@ -52,6 +51,8 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {AppWrapper} from './app/AppWrapper';
+import {ContentAppHelper} from './app/wizard/ContentAppHelper';
+import {ProjectContext} from './app/project/ProjectContext';
 // End of Polyfills
 
 declare const CONFIG;
@@ -72,7 +73,7 @@ function getApplication(): Application {
         CONFIG.appIconUrl,
         `${i18n('app.name')} v${CONFIG.appVersion}`
     );
-    application.setPath(Path.fromString(Router.getPath()));
+    application.setPath(Router.getPath());
     application.setWindow(window);
 
     return application;
@@ -263,10 +264,10 @@ const refreshTab = function (content: Content) {
 };
 
 function preLoadApplication() {
-    let application: Application = getApplication();
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
+    const application: Application = getApplication();
+    if (ContentAppHelper.isContentWizard(application)) {
         clearFavicon();
+        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromApp(application);
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
@@ -297,12 +298,10 @@ function startApplication() {
     serverEventsListener.start();
 
     initApplicationEventListener();
+    initProjectContext(application);
 
-    const connectionDetector = startLostConnectionDetector();
-
-    const wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
-        startContentWizard(wizardParams, connectionDetector);
+    if (ContentAppHelper.isContentWizard(application)) {
+        startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
     } else {
         startContentApplication(application);
     }
@@ -386,7 +385,8 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
+function startContentWizard(wizardParams: ContentWizardPanelParams) {
+    const connectionDetector = startLostConnectionDetector();
 
     import('./app/wizard/ContentWizardPanel').then(def => {
 
@@ -503,6 +503,10 @@ function startContentApplication(application: Application) {
         });
 
     });
+}
+
+function initProjectContext(application: Application) {
+    ProjectContext.get().setProject(application.getPath().getElement(0));
 }
 
 (async () => {

@@ -75,7 +75,7 @@ export class ContentItemViewPanel
 
         this.onShown((event: ElementShownEvent) => {
             if (this.getItem()) {
-                Router.setHash('view/' + this.getItem().getModel().getId());
+                Router.get().setHash('view/' + this.getItem().getModel().getId());
             }
         });
     }
