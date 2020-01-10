@@ -7,8 +7,16 @@ import {SettingsItemViewer} from './SettingsItemViewer';
 export class ProjectItemViewer
     extends SettingsItemViewer {
 
+    constructor(className?: string) {
+        super('project-viewer ' + (className || ''));
+    }
+
     doLayout(item: ProjectItem) {
         super.doLayout(item);
+
+        if (!item) {
+            return;
+        }
 
         const namesView: NamesView = this.namesAndIconView.getNamesView();
         namesView.getFirstChild().setHtml('');
@@ -16,5 +24,6 @@ export class ProjectItemViewer
         const nameEl: Element = new SpanEl('name').setHtml(`(${item.getName()})`);
         namesView.getFirstChild().appendChildren(displayNameEl, nameEl);
     }
+
 }
 

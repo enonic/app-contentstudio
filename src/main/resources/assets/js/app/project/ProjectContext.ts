@@ -1,3 +1,5 @@
+import {ProjectChangedEvent} from './ProjectChangedEvent';
+
 export class ProjectContext {
 
     private static INSTANCE: ProjectContext;
@@ -24,5 +26,6 @@ export class ProjectContext {
 
     setProject(project: string) {
         this.project = project;
+        new ProjectChangedEvent().fire();
     }
 }

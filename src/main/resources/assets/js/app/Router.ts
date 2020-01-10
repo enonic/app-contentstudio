@@ -47,7 +47,7 @@ export class Router {
     }
 
     static getPath(): Path {
-        const pathAsString = window.location.hash ? window.location.hash.substr(1) : '/';
+        const pathAsString = window.location.hash ? window.location.hash.substr(1) : `/${ProjectContext.DEFAULT_PROJECT}`;
         const path: Path = Path.fromString(pathAsString);
 
         if (Router.containsProject(path)) {
