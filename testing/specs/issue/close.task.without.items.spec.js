@@ -31,7 +31,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             assert.isTrue(result, `No items to publish' should be displayed, because items were not selected`);
         });
 
-    it(`GIVEN existing 'open' task is clicked and Task Details dialog is opened WHEN 'Close Task' button has been pressed THEN the issue is getting closed`,
+    it(`GIVEN existing 'open' task is clicked and Task Details dialog is opened WHEN 'Close Task' button has been pressed THEN the task gets 'Closed'`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -46,7 +46,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_CLOSED_MESSAGE);
         });
 
-    it(`GIVEN 'closed' task is clicked and Task Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the issue is getting 'open'`,
+    it(`GIVEN 'closed' task is clicked and Task Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the tsk gets 'Open'`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();

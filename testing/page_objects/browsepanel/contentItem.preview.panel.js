@@ -11,9 +11,9 @@ const xpath = {
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     issueMenuItemByName:
-        name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem')]/i[contains(.,'${name}')]`,
+        name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
     issueMenuButtonByName:
-        name => `//div[contains(@id,'MenuButton') and descendant::i[contains(.,'${name}')]]`,
+        name => `//div[contains(@id,'MenuButton') and descendant::span[contains(.,'${name}')]]`,
 };
 
 class ContentItemPreviewPanel extends Page {
@@ -69,7 +69,7 @@ class ContentItemPreviewPanel extends Page {
 
     async clickOnIssueMenuItem(issueName) {
         try {
-            let selector = xpath.issueMenuItemByName(issueName);
+            let selector = xpath.toolbar + xpath.issueMenuItemByName(issueName);
             await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
             return await this.clickOnElement(selector);
         } catch (err) {
@@ -91,9 +91,10 @@ class ContentItemPreviewPanel extends Page {
 
     async clickOnIssueMenuButton() {
         try {
-            let selector = xpath.toolbar + xpath.issueMenuButton + "//button";
-            await this.waitForElementDisplayed(xpath.toolbar + xpath.issueMenuButton, appConst.TIMEOUT_3);
-            return await this.clickOnElement(xpath.toolbar + xpath.issueMenuButton);
+            let selector = xpath.toolbar + xpath.issueMenuButton;
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            await this.clickOnElement(selector);
+            return await this.pause(400);
         } catch (err) {
             throw new Error('issue menu button was not found!  ' + err);
         }
@@ -109,9 +110,10 @@ class ContentItemPreviewPanel extends Page {
         return await result[0].getText();
     }
 
-    getIssueNameInMenuButton() {
-        let selector = xpath.toolbar + xpath.issueMenuButton + '//span/i';
-        return this.getText(selector);
+    async getIssueNameInMenuButton() {
+        let selector = xpath.toolbar + xpath.issueMenuButton + '//button/span';
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
+        return await this.getText(selector);
     }
 
     waitForIssueNameInMenuButton(issueName) {

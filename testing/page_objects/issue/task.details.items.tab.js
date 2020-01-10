@@ -199,5 +199,12 @@ class TaskDetailsDialogItemsTab extends Page {
             throw  new Error('Error when clicking on the `Close Task`  ' + err);
         }
     }
+    async waitForReopenTaskButtonDisplayed(){
+        try {
+            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
+        }catch(err){
+            throw new Error("Reopen Task button is not displayed: "+ err)
+        }
+    }
 };
 module.exports = TaskDetailsDialogItemsTab;

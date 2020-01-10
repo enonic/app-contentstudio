@@ -60,7 +60,8 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             let message = await taskDetailsDialog.waitForNotificationMessage();
             let expected = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
             assert.equal(message, expected, 'expected message should be displayed');
-            await taskDetailsDialogItemsTab.clickOnCloseTaskButton();
+            //5. 'Reopen Task' button should appear in the bottom of the dialog:
+            await taskDetailsDialogItemsTab.waitForReopenTaskButtonDisplayed();
         });
 
     //verifies: Issue List Dialog - closed issues are not displayed until you create a new issue (app-contentstudio/issues/246)

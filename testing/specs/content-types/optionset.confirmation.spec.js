@@ -12,7 +12,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionset.form.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 
 

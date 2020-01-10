@@ -47,13 +47,13 @@ const XPATH = {
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
-    stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
+    stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
-        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[child::a[text()='${name}']]`,
+        name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
-        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
+        name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
@@ -617,13 +617,13 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    clickOnUnpublishmenuItem() {
+    clickOnUnpublishMenuItem() {
         return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
         }).catch(err => {
-            throw new Error("Error when unpublishing the contentS! " + err);
+            throw new Error("Error when unpublishing the content! " + err);
         });
     }
 
@@ -722,6 +722,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
+            await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);

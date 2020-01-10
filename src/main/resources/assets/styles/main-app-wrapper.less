@@ -1,0 +1,258 @@
+.main-app-wrapper {
+
+  @sidebar-width: 55px;
+  @sidebar-width-mobile: 260px;
+
+  .sidebar {
+    z-index: 2;
+    padding-top: 44px;
+    background-color: #2A292A;
+    width: @sidebar-width;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    color: @admin-white;
+    left: -@sidebar-width;
+    transition: left 0.5s ease;
+
+    .app-name-wrapper {
+      padding: 20px 0px;
+
+      .app-name {
+        white-space: nowrap;
+        display: inline-block;
+        font-size: 16px;
+        text-transform: uppercase;
+        line-height: 44px;
+        writing-mode: vertical-lr;
+        padding-left: 6px;
+        letter-spacing: 1px;
+      }
+    }
+
+    .actions-block {
+      a {
+        text-decoration: none;
+      }
+
+      button {
+        font-size: 22px;
+        width: 100%;
+        padding: 15px 0 15px 3px;
+        display: flex;
+        justify-content: center;
+
+        &:not(:hover) {
+          background-color: transparent;
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        &.selected {
+          background-color: @admin-blue;
+
+          &:hover {
+            background-color: @admin-button-blue2;
+          }
+        }
+
+        span {
+          display: none;
+        }
+      }
+
+    }
+  }
+
+  .main {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    right: 0;
+    bottom: 0;
+
+    transition: left 0.5s ease;
+  }
+
+  &.sidebar-expanded {
+    .main {
+      left: @sidebar-width;
+
+      .appbar .project {
+        padding-left: 0px;
+      }
+    }
+
+    .sidebar {
+      left: 0px;
+    }
+  }
+
+  .appbar {
+    .project {
+      padding-left: 40px;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      transition: padding-left 0.5s ease;
+
+      .label {
+        color: @admin-shadow-gray;
+      }
+
+      .name {
+        padding-left: 10px;
+        color: @admin-white;
+      }
+    }
+
+    .home-button {
+      display: none;
+    }
+  }
+
+  > .launcher-button {
+    font-family: @admin-font-family;
+    font-size: @admin-font-size;
+    position: fixed;
+    border: none;
+    left: 11px;
+    top: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    z-index: @z-index-launcher-button;
+    line-height: 17px;
+    padding: 6px 5px 3px;
+    outline-width: 2px;
+    outline-offset: -2px;
+    -moz-outline-radius: 3px;
+
+    &::-moz-focus-inner {
+      border: 0;
+    }
+
+    .line {
+      display: inline-block;
+      width: 20px;
+      height: 3px;
+      background: @admin-white;
+      cursor: pointer;
+    }
+
+    .lines {
+      .line;
+      position: relative;
+      top: -3px;
+
+      &:before, &:after {
+        .line;
+        transition: top 0.3s;
+        position: absolute;
+        left: 0;
+        content: '';
+        -webkit-transform-origin: 2rem/14 center;
+        transform-origin: 2rem/14 center;
+      }
+      &:before {
+        top: 6px;
+      }
+      &:after {
+        top: -6px;
+      }
+    }
+
+    &:hover {
+      background: none;
+      .lines {
+        &:before {
+          top: 8px;
+        }
+        &:after {
+          top: -8px;
+        }
+      }
+    }
+
+    &.toggled {
+      -webkit-transform: scale3d(.8, .8, .8);
+      transform: scale3d(.8, .8, .8);
+      padding: 4px 4px 8px 17px;
+      left: 6px;
+
+      .lines {
+        background: transparent !important;
+        &:before, &:after {
+          -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+          top: 2px;
+          width: 1.3rem;
+          left: -7px;
+        }
+        &:before {
+          background-color: @admin-shadow-gray;
+          -webkit-transform: rotate3d(0, 0, 1, 45deg);
+          transform: rotate3d(0, 0, 1, 45deg);
+        }
+        &:after {
+          background-color: @admin-shadow-gray;
+          -webkit-transform: rotate3d(0, 0, 1, -45deg);
+          transform: rotate3d(0, 0, 1, -45deg);
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 720px) {
+    .sidebar {
+      width: @sidebar-width-mobile;
+      left: -@sidebar-width-mobile;
+      padding-top: 0;
+
+      .app-name-wrapper {
+        padding: 0 50px;
+
+        .app-name {
+          writing-mode: lr;
+          padding-left: 0px;
+          font-size: 18px;
+          letter-spacing: 0;
+        }
+      }
+
+      .actions-block {
+        button {
+          justify-content: flex-start;
+          padding: 8px 0 8px 3px;
+
+          span {
+            display: block;
+            font-size: 18px;
+          }
+
+          &:before {
+            font-size: 18px;
+            padding: 3px 15px;
+          }
+        }
+      }
+    }
+
+    &.sidebar-expanded {
+
+      .sidebar {
+        left: 0;
+      }
+
+      .main {
+        left: 0;
+
+        .appbar .project {
+          padding-left: 40px;
+        }
+      }
+    }
+  }
+}

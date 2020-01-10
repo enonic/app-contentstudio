@@ -26,10 +26,19 @@ module.exports = Object.freeze({
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
     },
+    publishRequestClosedMessage: function (name) {
+        return `Publish request \"${name}\" is closed`;
+    },
+    taskClosedMessage: function (name) {
+        return `Task \"${name}\" is closed`;
+    },
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
+    THIS_PUBLISH_REQUEST_OPEN:'The publish request is Open.',
+    REQUEST_CREATED_MESSAGE:'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
+    PUBLISH_REQUEST_CLOSED_MESSAGE:'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
@@ -41,7 +50,7 @@ module.exports = Object.freeze({
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
-    YOUR_COMMENT_ADDED: 'Your comment is added to issue.',
+    YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,

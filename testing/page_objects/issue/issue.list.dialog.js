@@ -53,7 +53,7 @@ class IssuesListDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(xpath.typeFilter, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot("err_load_tasks_list_dlg");
             throw new Error("Issues list dialog is not loaded in " + appConst.TIMEOUT_3)
         })
