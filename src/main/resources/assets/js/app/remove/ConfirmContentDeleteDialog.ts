@@ -10,6 +10,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {H6El} from 'lib-admin-ui/dom/H6El';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export interface ConfirmContentDeleteDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -84,8 +85,12 @@ export class ConfirmContentDeleteDialog
         return super.doRender().then((rendered: boolean) => {
             this.appendChildToHeader(new H6El('confirm-delete-subtitle').setHtml(i18n('dialog.confirmDelete.subname')));
 
-            const confirmationText = new PEl('confirm-delete-text')
-                .setHtml(i18n('dialog.confirmDelete.enterAmount', this.config.totalItemsToDelete), false);
+            const confirmationText = new PEl('confirm-delete-text');
+            confirmationText.appendChildren<any>(
+                SpanEl.fromText(i18n('dialog.confirmDelete.enterAmount')),
+                SpanEl.fromText(`${this.config.totalItemsToDelete}`).addClass('confirm-delete-number'),
+                SpanEl.fromText(i18n('dialog.confirmDelete.enterAmount.ending'))
+            );
             const confirmationDiv = new DivEl('confirm-delete-block').appendChildren(confirmationText, this.input);
             this.appendChildToContentPanel(confirmationDiv);
 
