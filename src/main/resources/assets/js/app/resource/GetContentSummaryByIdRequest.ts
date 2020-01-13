@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
@@ -27,14 +25,7 @@ export class GetContentSummaryByIdRequest
         };
     }
 
-    getRequestPath(): Path {
-        return super.getResourcePath();
-    }
-
-    sendAndParse(): Q.Promise<ContentSummary> {
-
-        return this.send().then((response: JsonResponse<ContentSummaryJson>) => {
-            return this.fromJsonToContentSummary(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentSummaryJson>): ContentSummary {
+        return this.fromJsonToContentSummary(response.getResult());
     }
 }

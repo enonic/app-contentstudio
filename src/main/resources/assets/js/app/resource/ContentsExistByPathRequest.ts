@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
@@ -14,6 +12,7 @@ export class ContentsExistByPathRequest
         super();
         super.setMethod('POST');
         this.contentPaths = contentPaths;
+        this.addRequestPathElements('contentsExistByPath');
     }
 
     getParams(): Object {
@@ -22,14 +21,7 @@ export class ContentsExistByPathRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'contentsExistByPath');
-    }
-
-    sendAndParse(): Q.Promise<ContentsExistByPathResult> {
-
-        return this.send().then((response: JsonResponse<ContentsExistByPathJson>) => {
-            return new ContentsExistByPathResult(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentsExistByPathJson>): ContentsExistByPathResult {
+        return new ContentsExistByPathResult(response.getResult());
     }
 }

@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from './PageCUDRequest';
@@ -32,6 +30,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         super();
         super.setMethod('POST');
         this.contentId = contentId;
+        this.addRequestPathElements('update');
     }
 
     setController(controller: DescriptorKey): UpdatePageRequest {
@@ -76,14 +75,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'update');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

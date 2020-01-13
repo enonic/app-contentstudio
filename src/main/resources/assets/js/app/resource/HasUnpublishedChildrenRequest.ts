@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
@@ -15,6 +13,7 @@ export class HasUnpublishedChildrenRequest
         super();
         super.setMethod('POST');
         this.ids = ids;
+        this.addRequestPathElements('hasUnpublishedChildren');
     }
 
     getParams(): Object {
@@ -23,14 +22,7 @@ export class HasUnpublishedChildrenRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'hasUnpublishedChildren');
-    }
-
-    sendAndParse(): Q.Promise<HasUnpublishedChildrenResult> {
-
-        return this.send().then((response: JsonResponse<HasUnpublishedChildrenListJson>) => {
-            return HasUnpublishedChildrenResult.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<HasUnpublishedChildrenListJson>): HasUnpublishedChildrenResult {
+        return HasUnpublishedChildrenResult.fromJson(response.getResult());
     }
 }

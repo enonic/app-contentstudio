@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
@@ -20,6 +18,7 @@ export class MoveContentRequest
         super.setMethod('POST');
         this.ids = ids;
         this.parentPath = parentPath;
+        this.addRequestPathElements('move');
     }
 
     getParams(): Object {
@@ -29,13 +28,7 @@ export class MoveContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'move');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

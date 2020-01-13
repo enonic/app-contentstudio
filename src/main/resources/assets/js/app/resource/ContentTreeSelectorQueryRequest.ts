@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
@@ -51,6 +49,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         super.setMethod('POST');
 
         this.setQueryExpr();
+        this.addRequestPathElements('treeSelectorQuery');
     }
 
     setInputName(name: string) {
@@ -135,10 +134,6 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         return this.queryExpr;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'treeSelectorQuery');
-    }
-
     isPartiallyLoaded(): boolean {
         return this.results.length > 0 && !this.loaded;
     }
@@ -174,16 +169,14 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         return this.metadata;
     }
 
-    sendAndParse(): Q.Promise<DATA[]> {
-        return this.send().then((response: JsonResponse<ContentTreeSelectorListJson>) => {
-            if (response.getResult() && response.getResult().items.length > 0) {
-                this.metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
-                return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
-            } else {
-                this.metadata = new ContentMetadata(0, 0);
-                return [];
-            }
-        });
+    protected processResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
+        if (response.getResult() && response.getResult().items.length > 0) {
+            this.metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
+            return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
+        } else {
+            this.metadata = new ContentMetadata(0, 0);
+            return [];
+        }
     }
 
     private expandAsString(): string {

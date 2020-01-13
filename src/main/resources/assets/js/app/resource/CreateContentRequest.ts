@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
@@ -39,6 +37,7 @@ export class CreateContentRequest
         this.valid = false;
         this.requireValid = false;
         super.setMethod('POST');
+        this.addRequestPathElements('create');
     }
 
     setValid(value: boolean): CreateContentRequest {
@@ -104,17 +103,8 @@ export class CreateContentRequest
         return this.meta ? this.meta.map((extraData: ExtraData) => extraData.toJson()) : null;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-
-            return this.fromJsonToContent(response.getResult());
-
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

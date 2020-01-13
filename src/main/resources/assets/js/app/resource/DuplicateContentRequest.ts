@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
@@ -21,6 +19,7 @@ export class DuplicateContentRequest
         this.setHeavyOperation(true);
         super.setMethod('POST');
         this.contents = contents;
+        this.addRequestPathElements('duplicate');
     }
 
     getParams(): Object {
@@ -31,13 +30,7 @@ export class DuplicateContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'duplicate');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

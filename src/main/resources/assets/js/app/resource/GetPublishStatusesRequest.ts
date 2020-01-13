@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetPublishStatusesResult} from './GetPublishStatusesResult';
 import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
@@ -14,6 +12,7 @@ export class GetPublishStatusesRequest
         super();
         super.setMethod('POST');
         this.ids = ids;
+        this.addRequestPathElements('getPublishStatuses');
     }
 
     getParams(): Object {
@@ -22,14 +21,8 @@ export class GetPublishStatusesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getPublishStatuses');
-    }
-
-    sendAndParse(): Q.Promise<GetPublishStatusesResult> {
-        return this.send().then((response: JsonResponse<GetPublishStatusesResultJson>) => {
-            return this.fromJsonToGetPublishStatusesResult(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<GetPublishStatusesResultJson>): GetPublishStatusesResult {
+        return this.fromJsonToGetPublishStatusesResult(response.getResult());
     }
 
     fromJsonToGetPublishStatusesResult(json: GetPublishStatusesResultJson): GetPublishStatusesResult {

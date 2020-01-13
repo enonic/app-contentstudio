@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
@@ -27,6 +25,7 @@ export class PublishContentRequest
         if (contentId) {
             this.addId(contentId);
         }
+        this.addRequestPathElements('publish');
     }
 
     setIds(contentIds: ContentId[]): PublishContentRequest {
@@ -83,13 +82,7 @@ export class PublishContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'publish');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

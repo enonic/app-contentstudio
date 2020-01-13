@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
@@ -17,6 +15,7 @@ export class GetContentVersionsForViewRequest
         super();
         super.setMethod('POST');
         this.contentId = contentId;
+        this.addRequestPathElements('getVersionsForView');
     }
 
     setFrom(from: number): GetContentVersionsForViewRequest {
@@ -37,14 +36,7 @@ export class GetContentVersionsForViewRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getVersionsForView');
-    }
-
-    sendAndParse(): Q.Promise<ContentVersions> {
-
-        return this.send().then((response: JsonResponse<GetContentVersionsForViewResultsJson>) => {
-            return ContentVersions.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
+        return ContentVersions.fromJson(response.getResult());
     }
 }

@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
@@ -18,6 +16,7 @@ export class GetContentVersionsRequest
         super();
         super.setMethod('POST');
         this.contentId = contentId;
+        this.addRequestPathElements('getVersions');
     }
 
     setFrom(from: number): GetContentVersionsRequest {
@@ -38,15 +37,8 @@ export class GetContentVersionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getVersions');
-    }
-
-    sendAndParse(): Q.Promise<ContentVersion[]> {
-
-        return this.send().then((response: JsonResponse<GetContentVersionsResultsJson>) => {
-            return this.fromJsonToContentVersions(response.getResult().contentVersions);
-        });
+    protected processResponse(response: JsonResponse<GetContentVersionsResultsJson>): ContentVersion[] {
+        return this.fromJsonToContentVersions(response.getResult().contentVersions);
     }
 
     private fromJsonToContentVersions(json: ContentVersionJson[]): ContentVersion[] {

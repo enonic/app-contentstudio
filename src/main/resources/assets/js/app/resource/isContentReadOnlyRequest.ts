@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -13,6 +11,7 @@ export class IsContentReadOnlyRequest
         super();
         super.setMethod('POST');
         this.ids = ids;
+        this.addRequestPathElements('isReadOnlyContent');
     }
 
     getParams(): Object {
@@ -21,13 +20,7 @@ export class IsContentReadOnlyRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'isReadOnlyContent');
-    }
-
-    sendAndParse(): Q.Promise<string[]> {
-        return this.send().then((response: JsonResponse<string[]>) => {
-            return response.getResult();
-        });
+    protected processResponse(response: JsonResponse<string[]>): string[] {
+        return response.getResult();
     }
 }

@@ -1,7 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {ProjectItemJson} from './json/ProjectItemJson';
 import {ProjectItem} from '../data/ProjectItem';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class ProjectUpdateRequest
@@ -16,6 +15,7 @@ export class ProjectUpdateRequest
     constructor() {
         super();
         this.setMethod('POST');
+        this.addRequestPathElements('modify');
     }
 
     setName(value: string): ProjectUpdateRequest {
@@ -33,10 +33,6 @@ export class ProjectUpdateRequest
         return this;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'modify');
-    }
-
     getParams(): Object {
         return {
             name: this.name,
@@ -45,9 +41,7 @@ export class ProjectUpdateRequest
         };
     }
 
-    sendAndParse(): Q.Promise<ProjectItem> {
-        return this.send().then((response: JsonResponse<ProjectItemJson>) => {
-            return ProjectItem.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {
+        return ProjectItem.fromJson(response.getResult());
     }
 }

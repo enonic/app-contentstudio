@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -15,6 +13,7 @@ export class GetNearestSiteRequest
         super();
         super.setMethod('POST');
         this.contentId = contentId;
+        this.addRequestPathElements('nearestSite');
     }
 
     getParams(): Object {
@@ -23,14 +22,8 @@ export class GetNearestSiteRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'nearestSite');
+    protected processResponse(response: JsonResponse<ContentJson>): Site {
+        return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
     }
 
-    sendAndParse(): Q.Promise<Site> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
-        });
-    }
 }

@@ -49,6 +49,7 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -311,6 +312,10 @@ export class ContentBrowsePanel
                     this.updateContextPanelOnItemChange(fullSelection);
                 });
             }
+        });
+
+        ProjectChangedEvent.on(() => {
+            this.treeGrid.reload();
         });
     }
 

@@ -7,6 +7,7 @@ import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {ProjectContext} from '../../../project/ProjectContext';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -27,7 +28,7 @@ export class AttachmentUploaderEl
     constructor(config: AttachmentUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = UriHelper.getRestUri('content/createAttachment');
+            config.url = UriHelper.getRestUri('createAttachment');
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -50,6 +51,10 @@ export class AttachmentUploaderEl
         noAttachmentsDescription.insertAfterEl(this.getResultContainer());
 
         this.addClass('attachment-uploader-el');
+    }
+
+    protected beforeSubmit() {
+        this.uploader.setEndpoint(UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/${this.config.url}`));
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {

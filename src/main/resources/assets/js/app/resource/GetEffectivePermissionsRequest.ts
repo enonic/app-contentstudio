@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -15,6 +13,7 @@ export class GetEffectivePermissionsRequest
         super();
         super.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('effectivePermissions');
     }
 
     getParams(): Object {
@@ -23,19 +22,12 @@ export class GetEffectivePermissionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'effectivePermissions');
-    }
-
-    sendAndParse(): Q.Promise<EffectivePermission[]> {
-
-        return this.send().then((response: JsonResponse<EffectivePermissionJson[]>) => {
-            if (response.getJson()) {
-                return response.getJson().map((json) => {
-                    return EffectivePermission.fromJson(json);
-                });
-            }
-            return null;
-        });
+    protected processResponse(response: JsonResponse<EffectivePermissionJson[]>): EffectivePermission[] {
+        if (response.getJson()) {
+            return response.getJson().map((json) => {
+                return EffectivePermission.fromJson(json);
+            });
+        }
+        return null;
     }
 }

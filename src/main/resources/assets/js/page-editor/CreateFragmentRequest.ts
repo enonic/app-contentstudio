@@ -1,4 +1,3 @@
-import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
@@ -6,7 +5,6 @@ import {ContentJson} from '../app/content/ContentJson';
 import {Component} from '../app/page/region/Component';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class CreateFragmentRequest
@@ -24,6 +22,7 @@ export class CreateFragmentRequest
         super();
         super.setMethod('POST');
         this.contentId = contentId;
+        this.addRequestPathElements('create');
     }
 
     setConfig(config: PropertyTree): CreateFragmentRequest {
@@ -50,14 +49,7 @@ export class CreateFragmentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
@@ -17,6 +15,7 @@ export class CreateMediaFromUrlRequest
     constructor() {
         super();
         super.setMethod('POST');
+        this.addRequestPathElements('createMediaFromUrl');
     }
 
     setUrl(url: string): CreateMediaFromUrlRequest {
@@ -42,17 +41,8 @@ export class CreateMediaFromUrlRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'createMediaFromUrl');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-
-            return this.fromJsonToContent(response.getResult());
-
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

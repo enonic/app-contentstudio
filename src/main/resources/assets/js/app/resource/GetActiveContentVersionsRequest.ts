@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
@@ -17,6 +15,7 @@ export class GetActiveContentVersionsRequest
         super();
         super.setMethod('GET');
         this.id = id;
+        this.addRequestPathElements('getActiveVersions');
     }
 
     getParams(): Object {
@@ -25,15 +24,8 @@ export class GetActiveContentVersionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getActiveVersions');
-    }
-
-    sendAndParse(): Q.Promise<ContentVersion[]> {
-
-        return this.send().then((response: JsonResponse<GetActiveContentVersionsResultsJson>) => {
-            return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
-        });
+    protected processResponse(response: JsonResponse<GetActiveContentVersionsResultsJson>): ContentVersion[] {
+        return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
     }
 
     private fromJsonToContentVersions(json: ActiveContentVersionJson[]): ContentVersion[] {

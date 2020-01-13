@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {PermissionsJson} from '../access/PermissionsJson';
@@ -11,20 +9,14 @@ export class GetContentRootPermissionsRequest
     constructor() {
         super();
         super.setMethod('GET');
+        this.addRequestPathElements('rootPermissions');
     }
 
     getParams(): Object {
         return {};
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'rootPermissions');
-    }
-
-    sendAndParse(): Q.Promise<AccessControlList> {
-
-        return this.send().then((response: JsonResponse<PermissionsJson>) => {
-            return AccessControlList.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<PermissionsJson>): AccessControlList {
+        return AccessControlList.fromJson(response.getResult());
     }
 }

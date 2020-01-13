@@ -1,11 +1,9 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {JsonResourceRequest} from './JsonResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class MediaAllowsPreviewRequest
-    extends JsonResourceRequest<boolean, boolean> {
+    extends ContentResourceRequest<boolean, boolean> {
 
     private contentId: ContentId;
 
@@ -16,6 +14,7 @@ export class MediaAllowsPreviewRequest
         super.setMethod('GET');
         this.contentId = contentId;
         this.identifier = identifier;
+        this.addRequestPathElements('media', 'isAllowPreview');
     }
 
     getParams(): Object {
@@ -25,13 +24,7 @@ export class MediaAllowsPreviewRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getRestPath(), 'content', 'media', 'isAllowPreview');
-    }
-
-    sendAndParse(): Q.Promise<boolean> {
-        return this.send().then((response: JsonResponse<boolean>) => {
-            return response.getResult();
-        });
+    protected processResponse(response: JsonResponse<boolean>): boolean {
+        return response.getResult();
     }
 }

@@ -1,19 +1,13 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class XDataResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-    private resourceUrl: Path;
+export abstract class XDataResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ContentResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourceUrl = Path.fromParent(super.getRestPath(), 'schema/xdata');
-    }
-
-    getResourcePath(): Path {
-        return this.resourceUrl;
+        this.addRequestPathElements('schema', 'xdata');
     }
 
     fromJsonToXData(json: XDataJson) {

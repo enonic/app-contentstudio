@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
 import {PageTemplate} from '../content/PageTemplate';
@@ -28,14 +26,7 @@ export class GetPageTemplateByKeyRequest
         };
     }
 
-    getRequestPath(): Path {
-        return super.getResourcePath();
-    }
-
-    sendAndParse(): Q.Promise<PageTemplate> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): PageTemplate {
+        return this.fromJsonToContent(response.getResult());
     }
 }

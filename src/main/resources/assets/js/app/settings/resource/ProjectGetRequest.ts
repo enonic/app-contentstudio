@@ -1,7 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {ProjectItemJson} from './json/ProjectItemJson';
 import {ProjectItem} from '../data/ProjectItem';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class ProjectGetRequest
@@ -13,10 +12,7 @@ export class ProjectGetRequest
         super();
 
         this.name = name;
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'get');
+        this.addRequestPathElements('get');
     }
 
     getParams(): Object {
@@ -25,9 +21,7 @@ export class ProjectGetRequest
         };
     }
 
-    sendAndParse(): Q.Promise<ProjectItem> {
-        return this.send().then((response: JsonResponse<ProjectItemJson>) => {
-            return ProjectItem.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {
+        return ProjectItem.fromJson(response.getResult());
     }
 }

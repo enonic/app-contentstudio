@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentVersionJson} from './json/ContentVersionJson';
@@ -16,6 +14,7 @@ export class RevertVersionRequest
         super.setMethod('POST');
         this.versionId = versionId;
         this.contentKey = contentKey;
+        this.addRequestPathElements('revert');
     }
 
     getParams(): Object {
@@ -25,13 +24,7 @@ export class RevertVersionRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'revert');
-    }
-
-    sendAndParse(): Q.Promise<string> {
-        return this.send().then((response: JsonResponse<ContentVersionJson>) => {
-            return response.getResult().id;
-        });
+    protected processResponse(response: JsonResponse<ContentVersionJson>): string {
+        return response.getResult().id;
     }
 }

@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
@@ -32,6 +30,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         super();
         super.setMethod('POST');
         this.contentQuery = contentQuery;
+        this.addRequestPathElements('query');
     }
 
     getContentQuery(): ContentQuery {
@@ -68,28 +67,24 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         };
     }
 
-    sendAndParse(): Q.Promise<ContentQueryResult<CONTENT, CONTENT_JSON>> {
+    protected processResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): ContentQueryResult<CONTENT, CONTENT_JSON> {
+        let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
+        let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
+        let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
+        let metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
+        let contents: CONTENT[];
 
-        return this.send().then((response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
+        if (this.expand === Expand.NONE) {
+            contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
+        } else if (this.expand === Expand.SUMMARY) {
+            contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
+        } else {
+            contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+        }
 
-            let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
-            let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
-            let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
-            let metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
-            let contents: CONTENT[];
+        this.updateStateAfterLoad(contents, metadata);
 
-            if (this.expand === Expand.NONE) {
-                contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
-            } else if (this.expand === Expand.SUMMARY) {
-                contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
-            } else {
-                contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
-            }
-
-            this.updateStateAfterLoad(contents, metadata);
-
-            return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
-        });
+        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
     }
 
     private updateStateAfterLoad(contents: CONTENT[], metadata: ContentMetadata) {
@@ -163,10 +158,6 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         });
 
         return result;
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'query');
     }
 
     fromJsonToContentIdBaseItem(json: ContentSummaryJson): ContentSummary {

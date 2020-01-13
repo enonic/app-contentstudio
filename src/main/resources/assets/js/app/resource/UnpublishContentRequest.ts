@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
@@ -20,6 +18,7 @@ export class UnpublishContentRequest
         if (contentId) {
             this.addId(contentId);
         }
+        this.addRequestPathElements('unpublish');
     }
 
     setIds(contentIds: ContentId[]): UnpublishContentRequest {
@@ -46,13 +45,7 @@ export class UnpublishContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'unpublish');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

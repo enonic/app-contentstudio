@@ -1,5 +1,4 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class ProjectDeleteRequest
@@ -10,11 +9,8 @@ export class ProjectDeleteRequest
     constructor(name: string) {
         super();
         this.setMethod('POST');
+        this.addRequestPathElements('delete');
         this.name = name;
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'delete');
     }
 
     getParams(): Object {
@@ -23,10 +19,8 @@ export class ProjectDeleteRequest
         };
     }
 
-    sendAndParse(): Q.Promise<boolean> {
-        return this.send().then((response: JsonResponse<boolean>) => {
-            return !!response.getResult();
-        });
+    protected processResponse(response: JsonResponse<boolean>): boolean {
+        return !!response.getResult();
     }
 
 }

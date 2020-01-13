@@ -19,6 +19,7 @@ import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
 import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {
@@ -47,6 +48,10 @@ export class AggregateContentTypesByPathRequest
 
             return aggregations;
         });
+    }
+
+    protected processResponse(response: JsonResponse<ContentQueryResult<ContentSummary, ContentSummaryJson>>): AggregateContentTypesResult {
+        return; // not used
     }
 
     private buildAggregationsQuery(parentPath: ContentPath): ContentQuery {

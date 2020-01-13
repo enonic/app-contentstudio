@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
@@ -22,6 +20,7 @@ export class GetDescendantsOfContentsRequest
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('getDescendantsOfContents');
     }
 
     setContentPaths(contentPaths: ContentPath[]): GetDescendantsOfContentsRequest {
@@ -49,14 +48,7 @@ export class GetDescendantsOfContentsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getDescendantsOfContents');
-    }
-
-    sendAndParse(): Q.Promise<ContentId[]> {
-
-        return this.send().then((response: JsonResponse<ContentIdBaseItemJson[]>) => {
-            return response.getResult().map((item => new ContentId(item.id)));
-        });
+    protected processResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+        return response.getResult().map((item => new ContentId(item.id)));
     }
 }
