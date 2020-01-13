@@ -74,7 +74,9 @@ export class PageComponentsTreeGrid
                 .setMultiSelect(false)
                 .setRowHeight(45)
                 .setDragAndDrop(true).build()
-        ).setShowToolbar(false).setAutoLoad(true).setExpandAll(true).prependClasses('components-grid'));
+        ).setShowToolbar(false).setAutoLoad(true).setExpandFn((item: ItemView) => {
+            return !item.getType().equals(LayoutItemType.get());
+        }).prependClasses('components-grid'));
 
         this.content = content;
         this.pageView = pageView;
