@@ -328,7 +328,7 @@ export class IssueListItem
         const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
             .setMainName(this.issue.getTitleWithId())
             .setIconClass(`icon-${typeClass} ${statusClass}`)
-            .setSubNameElements([new SpanEl().setHtml(this.makeSubName(), false)]);
+            .setSubNameElements([SpanEl.fromText(this.makeSubName())]);
 
         if (this.issue.getDescription().length) {
             new Tooltip(namesAndIconView, this.issue.getDescription(), 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
