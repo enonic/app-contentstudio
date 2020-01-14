@@ -39,7 +39,7 @@ const XPATH = {
     hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
-    liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
+    liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,

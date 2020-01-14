@@ -176,8 +176,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
             //Insert Table button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnTableButton();
             studioUtils.saveScreenshot('table_drop_down_menu_cke');
-            //'drop down menu with table should appears'
-            await htmlAreaForm.isTableDropDownMenuVisible();
+            //drop down menu with table should appears:
+            await htmlAreaForm.isTableMenuItemVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
