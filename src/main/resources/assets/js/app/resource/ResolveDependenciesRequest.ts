@@ -2,6 +2,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolveDependenciesRequest
     extends ContentResourceRequest<ResolveDependenciesResultJson, ResolveDependenciesResult> {
@@ -10,7 +11,7 @@ export class ResolveDependenciesRequest
 
     constructor(contentIds: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = contentIds;
         this.addRequestPathElements('getDependencies');
     }

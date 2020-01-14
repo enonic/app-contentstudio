@@ -12,7 +12,6 @@ export class GetContentXDataRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
         this.addRequestPathElements('getContentXData');
     }

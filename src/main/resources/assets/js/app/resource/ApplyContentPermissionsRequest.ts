@@ -4,6 +4,7 @@ import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {AccessControlList} from '../access/AccessControlList';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ApplyContentPermissionsRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
@@ -20,7 +21,7 @@ export class ApplyContentPermissionsRequest
         super();
         this.inheritPermissions = true;
         this.overwriteChildPermissions = false;
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('applyPermissions');
     }
 

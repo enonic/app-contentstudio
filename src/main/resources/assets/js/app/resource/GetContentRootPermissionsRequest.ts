@@ -8,7 +8,6 @@ export class GetContentRootPermissionsRequest
 
     constructor() {
         super();
-        super.setMethod('GET');
         this.addRequestPathElements('rootPermissions');
     }
 

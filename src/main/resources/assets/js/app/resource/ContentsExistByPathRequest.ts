@@ -2,6 +2,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
 import {ContentsExistByPathResult} from './ContentsExistByPathResult';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentsExistByPathRequest
     extends ContentResourceRequest<ContentsExistByPathJson, ContentsExistByPathResult> {
@@ -10,7 +11,7 @@ export class ContentsExistByPathRequest
 
     constructor(contentPaths: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentPaths = contentPaths;
         this.addRequestPathElements('contentsExistByPath');
     }

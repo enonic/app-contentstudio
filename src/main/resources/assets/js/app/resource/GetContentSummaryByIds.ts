@@ -5,6 +5,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ListContentResult} from './ListContentResult';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentSummaryByIds
     extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentSummary[]> {
@@ -13,7 +14,7 @@ export class GetContentSummaryByIds
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
         this.addRequestPathElements('resolveByIds');
     }
@@ -26,14 +27,12 @@ export class GetContentSummaryByIds
 
     sendAndParse(): Q.Promise<ContentSummary[]> {
         if (this.ids && this.ids.length > 0) {
-            return this.send().then((response: JsonResponse<ListContentResult<ContentSummaryJson>>) => {
-                return this.processResponse(response);
-            });
-        } else {
-            let deferred = Q.defer<ContentSummary[]>();
-            deferred.resolve([]);
-            return deferred.promise;
+            return super.sendAndParse();
         }
+
+        const deferred: Q.Deferred<ContentSummary[]> = Q.defer<ContentSummary[]>();
+        deferred.resolve([]);
+        return deferred.promise;
     }
 
     protected processResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentSummary[] {

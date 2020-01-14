@@ -1,18 +1,11 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ResourceRequestAdvanced} from '../../wizard/ResourceRequestAdvanced';
 
-export class IssueResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: Path;
+export abstract class IssueResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'issue');
-    }
-
-    getResourcePath(): Path {
-        return this.resourcePath;
+        this.addRequestPathElements('issue');
     }
 
 }

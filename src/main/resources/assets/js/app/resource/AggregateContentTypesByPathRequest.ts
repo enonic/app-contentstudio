@@ -28,7 +28,6 @@ export class AggregateContentTypesByPathRequest
 
     constructor(parentPath: ContentPath) {
         super();
-        super.setMethod('GET');
         this.request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.buildAggregationsQuery(parentPath));
 
     }

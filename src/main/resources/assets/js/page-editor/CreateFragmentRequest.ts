@@ -6,6 +6,7 @@ import {Component} from '../app/page/region/Component';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<ContentJson, Content> {
@@ -20,7 +21,7 @@ export class CreateFragmentRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
         this.addRequestPathElements('create');
     }

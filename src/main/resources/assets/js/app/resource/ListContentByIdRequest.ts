@@ -24,7 +24,6 @@ export class ListContentByIdRequest
 
     constructor(parentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.parentId = parentId;
         this.addRequestPathElements('list');
     }

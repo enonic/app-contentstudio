@@ -5,6 +5,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class OrderContentRequest extends ContentResourceRequest<ContentJson, Content> {
 
@@ -16,7 +17,7 @@ export class OrderContentRequest extends ContentResourceRequest<ContentJson, Con
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('setChildOrder');
     }
 

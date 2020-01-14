@@ -11,7 +11,6 @@ export class GetContentByPathRequest
 
     constructor(path: ContentPath) {
         super();
-        super.setMethod('GET');
         this.contentPath = path;
         this.addRequestPathElements('bypath');
     }

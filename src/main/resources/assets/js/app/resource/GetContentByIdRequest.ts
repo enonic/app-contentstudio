@@ -15,7 +15,6 @@ export class GetContentByIdRequest
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
     }
 

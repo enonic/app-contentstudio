@@ -10,6 +10,7 @@ import {ExtraDataJson} from './json/ExtraDataJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateContentRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -36,7 +37,7 @@ export class CreateContentRequest
         super();
         this.valid = false;
         this.requireValid = false;
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('create');
     }
 

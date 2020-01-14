@@ -9,6 +9,7 @@ import {ContentJson} from '../content/ContentJson';
 import {Regions} from '../page/region/Regions';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<ContentJson, Content>
@@ -30,7 +31,7 @@ export class CreatePageTemplateRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('create');
     }
 

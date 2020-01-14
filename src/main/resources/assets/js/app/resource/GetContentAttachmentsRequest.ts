@@ -11,7 +11,6 @@ export class GetContentAttachmentsRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
         this.addRequestPathElements('getAttachments');
     }

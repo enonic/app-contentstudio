@@ -14,6 +14,7 @@ import {AggregationQuery} from 'lib-admin-ui/query/aggregation/AggregationQuery'
 import {FilterTypeWrapperJson} from 'lib-admin-ui/query/filter/FilterTypeWrapperJson';
 import {Filter} from 'lib-admin-ui/query/filter/Filter';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -28,7 +29,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     constructor(contentQuery: ContentQuery) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentQuery = contentQuery;
         this.addRequestPathElements('query');
     }

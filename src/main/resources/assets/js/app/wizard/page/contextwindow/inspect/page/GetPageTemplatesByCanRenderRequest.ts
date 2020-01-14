@@ -15,7 +15,6 @@ export class GetPageTemplatesByCanRenderRequest
 
     constructor(site: ContentId, contentTypeName: ContentTypeName) {
         super();
-        this.setMethod('GET');
         this.site = site;
         this.contentTypeName = contentTypeName;
         this.addRequestPathElements('listByCanRender');

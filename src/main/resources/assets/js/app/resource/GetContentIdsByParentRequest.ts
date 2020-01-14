@@ -13,7 +13,6 @@ export class GetContentIdsByParentRequest
 
     constructor() {
         super();
-        super.setMethod('GET');
         this.addRequestPathElements('listIds');
     }
 

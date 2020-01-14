@@ -1,20 +1,13 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
+import {ResourceRequestAdvanced} from '../wizard/ResourceRequestAdvanced';
 
-export class WidgetDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: Path;
+export abstract class WidgetDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'widget');
-    }
-
-    getResourcePath(): Path {
-        return this.resourcePath;
+        this.addRequestPathElements('widget');
     }
 
     static fromJson(json: WidgetDescriptorJson[]): Widget[] {

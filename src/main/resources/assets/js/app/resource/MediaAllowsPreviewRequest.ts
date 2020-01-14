@@ -11,7 +11,6 @@ export class MediaAllowsPreviewRequest
 
     constructor(contentId: ContentId, identifier?: string) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
         this.identifier = identifier;
         this.addRequestPathElements('media', 'isAllowPreview');

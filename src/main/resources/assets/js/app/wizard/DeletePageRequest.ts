@@ -13,7 +13,6 @@ export class DeletePageRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
         this.addRequestPathElements('delete');
     }

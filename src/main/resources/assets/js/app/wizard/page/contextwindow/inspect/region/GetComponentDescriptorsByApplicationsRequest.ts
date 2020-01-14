@@ -1,13 +1,13 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ResourceRequestAdvanced} from '../../../../ResourceRequestAdvanced';
 
 export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIPTOR extends Descriptor>
-    extends ResourceRequest<JSON, DESCRIPTOR[]> {
+    extends ResourceRequestAdvanced<JSON, DESCRIPTOR[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -15,13 +15,10 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
 
     constructor(applicationKey?: ApplicationKey[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.applicationKeys = applicationKey;
         this.cache = this.registerCache();
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getRestPath(), 'content', 'page', this.getComponentPathName(), 'descriptor', 'list',
+        this.addRequestPathElements('content', 'page', this.getComponentPathName(), 'descriptor', 'list',
             'by_applications');
     }
 
@@ -36,20 +33,20 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
     }
 
     sendAndParse(): Q.Promise<DESCRIPTOR[]> {
-
-        let cached = this.cache.getByApplications(this.applicationKeys);
+        const cached: DESCRIPTOR[] = this.cache.getByApplications(this.applicationKeys);
         if (cached) {
             return Q(cached);
-        } else {
-            return this.send().then((response: JsonResponse<JSON>) => {
-                // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
-                this.cache.putApplicationKeys(this.applicationKeys);
-                return this.parseResponse(response).map((descriptor: DESCRIPTOR) => {
-                    this.cache.put(descriptor);
-                    return descriptor;
-                });
-            });
         }
+
+        return super.sendAndParse();
+    }
+
+    protected processResponse(response: JsonResponse<JSON>): DESCRIPTOR[] {
+        this.cache.putApplicationKeys(this.applicationKeys);
+        return this.parseResponse(response).map((descriptor: DESCRIPTOR) => {
+            this.cache.put(descriptor);
+            return descriptor;
+        });
     }
 
     protected abstract registerCache(): ApplicationBasedCache<DESCRIPTOR>;

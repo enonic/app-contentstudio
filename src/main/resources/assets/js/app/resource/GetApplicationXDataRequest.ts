@@ -15,7 +15,6 @@ export class GetApplicationXDataRequest
 
     constructor(contentTypeName: ContentTypeName, applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.contentTypeName = contentTypeName;
         this.applicationKey = applicationKey;
         this.addRequestPathElements('getApplicationXDataForContentType');

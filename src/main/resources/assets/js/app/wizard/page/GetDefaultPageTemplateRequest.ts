@@ -14,7 +14,6 @@ export class GetDefaultPageTemplateRequest
 
     constructor(site: ContentId, contentName: ContentTypeName) {
         super();
-        this.setMethod('GET');
         this.site = site;
         this.contentTypeName = contentName;
         this.addRequestPathElements('default');

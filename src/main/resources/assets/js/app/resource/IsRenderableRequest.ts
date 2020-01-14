@@ -9,7 +9,6 @@ export class IsRenderableRequest
 
     constructor(contentId: ContentId) {
         super();
-        this.setMethod('GET');
         this.contentId = contentId;
         this.addRequestPathElements('isRenderable');
     }

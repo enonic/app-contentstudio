@@ -1,6 +1,7 @@
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class MarkAsReadyRequest
     extends ContentResourceRequest<void, void> {
@@ -9,7 +10,7 @@ export class MarkAsReadyRequest
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
         this.addRequestPathElements('markAsReady');
     }

@@ -2,6 +2,7 @@ import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {ProjectItemJson} from './json/ProjectItemJson';
 import {ProjectItem} from '../data/ProjectItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ProjectUpdateRequest
     extends ProjectResourceRequest<ProjectItemJson, ProjectItem> {
@@ -14,7 +15,8 @@ export class ProjectUpdateRequest
 
     constructor() {
         super();
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.setIsFormRequest(true);
         this.addRequestPathElements('modify');
     }
 

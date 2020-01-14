@@ -12,7 +12,6 @@ export class GetPageTemplateByKeyRequest
 
     constructor(pageTemplateKey: PageTemplateKey) {
         super();
-        super.setMethod('GET');
         this.pageTemplateKey = pageTemplateKey;
     }
 

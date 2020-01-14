@@ -8,6 +8,7 @@ import {ExtraData} from '../content/ExtraData';
 import {AccessControlList} from '../access/AccessControlList';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateContentRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -44,7 +45,7 @@ export class UpdateContentRequest
         super();
         this.id = id;
         this.requireValid = false;
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('update');
     }
 

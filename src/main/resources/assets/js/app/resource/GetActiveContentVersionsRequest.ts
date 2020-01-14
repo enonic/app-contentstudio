@@ -13,7 +13,6 @@ export class GetActiveContentVersionsRequest
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
         this.addRequestPathElements('getActiveVersions');
     }

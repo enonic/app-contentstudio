@@ -4,6 +4,7 @@ import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJso
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {ContentVersion} from '../ContentVersion';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsRequest
     extends ContentResourceRequest<GetContentVersionsResultsJson, ContentVersion[]> {
@@ -14,7 +15,7 @@ export class GetContentVersionsRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
         this.addRequestPathElements('getVersions');
     }

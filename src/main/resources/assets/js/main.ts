@@ -26,7 +26,6 @@ import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
 import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
 import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
 import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
-import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
@@ -291,11 +290,7 @@ function preLoadApplication() {
 }
 
 function startApplication() {
-
     const application: Application = getApplication();
-
-    const serverEventsListener = new AggregatedServerEventsListener([application]);
-    serverEventsListener.start();
 
     initApplicationEventListener();
     initProjectContext(application);

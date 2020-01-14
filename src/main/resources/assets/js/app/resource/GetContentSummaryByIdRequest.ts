@@ -13,7 +13,6 @@ export class GetContentSummaryByIdRequest
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
         this.expand = ContentResourceRequest.EXPAND_SUMMARY;
     }

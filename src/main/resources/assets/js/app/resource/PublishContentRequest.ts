@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class PublishContentRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
@@ -21,7 +22,7 @@ export class PublishContentRequest
 
     constructor(contentId?: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentId) {
             this.addId(contentId);
         }

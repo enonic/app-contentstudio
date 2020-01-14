@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Site} from '../content/Site';
 import {ContentJson} from '../content/ContentJson';
+import {HttpMethod} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/rest/HttpMethod';
 
 export class GetNearestSiteRequest
     extends ContentResourceRequest<ContentJson, Site> {
@@ -11,7 +12,7 @@ export class GetNearestSiteRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
         this.addRequestPathElements('nearestSite');
     }

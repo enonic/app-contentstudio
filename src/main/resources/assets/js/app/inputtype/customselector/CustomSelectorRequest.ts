@@ -1,9 +1,8 @@
-import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ResourceRequestAdvanced} from '../../wizard/ResourceRequestAdvanced';
 
 export interface CustomSelectorResponse {
     total: number;
@@ -12,7 +11,7 @@ export interface CustomSelectorResponse {
 }
 
 export class CustomSelectorRequest
-    extends ResourceRequest<CustomSelectorResponse, CustomSelectorItem[]> {
+    extends ResourceRequestAdvanced<CustomSelectorResponse, CustomSelectorItem[]> {
 
     public static DEFAULT_SIZE: number = 10;
 
@@ -24,11 +23,6 @@ export class CustomSelectorRequest
 
     private results: CustomSelectorItem[];
     private loaded: boolean = false;
-
-    constructor() {
-        super();
-        this.setMethod('GET');
-    }
 
     setRequestPath(requestPath: string) {
         this.requestPath = requestPath;
@@ -59,29 +53,6 @@ export class CustomSelectorRequest
 
     getRequestPath(): Path {
         return Path.fromString(this.requestPath);
-    }
-
-    sendAndParse(): Q.Promise<CustomSelectorItem[]> {
-        return this.send().then((response: JsonResponse<CustomSelectorResponse>) => {
-
-            let result: CustomSelectorResponse = response.getResult();
-            if (this.start === 0) {
-                this.results = [];
-            }
-
-            this.validateResponse(result);
-
-            this.start += result.count;
-            this.loaded = this.start >= result.total;
-
-            let items = result.hits.map((hit) => {
-                return new CustomSelectorItem(hit);
-            });
-
-            this.results = this.results.concat(items);
-
-            return this.results;
-        });
     }
 
     private validateResponse(result: CustomSelectorResponse) {
@@ -120,5 +91,25 @@ export class CustomSelectorRequest
     setQuery(query: string): CustomSelectorRequest {
         this.query = query;
         return this;
+    }
+
+    protected processResponse(response: JsonResponse<CustomSelectorResponse>): CustomSelectorItem[] {
+        const result: CustomSelectorResponse = response.getResult();
+        if (this.start === 0) {
+            this.results = [];
+        }
+
+        this.validateResponse(result);
+
+        this.start += result.count;
+        this.loaded = this.start >= result.total;
+
+        let items = result.hits.map((hit) => {
+            return new CustomSelectorItem(hit);
+        });
+
+        this.results = this.results.concat(items);
+
+        return this.results;
     }
 }

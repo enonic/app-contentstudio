@@ -12,6 +12,7 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentResourceRequest<any, DATA[]> {
@@ -46,7 +47,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
 
         this.setQueryExpr();
         this.addRequestPathElements('treeSelectorQuery');

@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 import {ContentVersions} from '../ContentVersions';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsForViewRequest
     extends ContentResourceRequest<GetContentVersionsForViewResultsJson, ContentVersions> {
@@ -13,7 +14,7 @@ export class GetContentVersionsForViewRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
         this.addRequestPathElements('getVersionsForView');
     }

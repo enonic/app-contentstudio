@@ -4,6 +4,7 @@ import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class OrderChildContentRequest
     extends ContentResourceRequest<any, any> {
@@ -20,7 +21,7 @@ export class OrderChildContentRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('reorderChildren');
     }
 

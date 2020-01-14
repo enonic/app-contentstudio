@@ -14,6 +14,7 @@ import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentJson} from '../content/ContentJson';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, CONTENT[]> {
@@ -52,7 +53,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
 
         this.setSearchString();
         this.addRequestPathElements('selectorQuery');

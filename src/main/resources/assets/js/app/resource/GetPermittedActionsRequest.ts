@@ -2,6 +2,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Permission} from '../access/Permission';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPermittedActionsRequest
     extends ContentResourceRequest<string[], Permission[]> {
@@ -17,7 +18,7 @@ export class GetPermittedActionsRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements('allowedActions');
     }
 

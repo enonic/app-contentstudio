@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
 import {HasUnpublishedChildrenResult} from './HasUnpublishedChildrenResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class HasUnpublishedChildrenRequest
     extends ContentResourceRequest<HasUnpublishedChildrenListJson, HasUnpublishedChildrenResult> {
@@ -11,7 +12,7 @@ export class HasUnpublishedChildrenRequest
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
         this.addRequestPathElements('hasUnpublishedChildren');
     }

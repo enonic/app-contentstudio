@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {CompareContentResultsJson} from './json/CompareContentResultsJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CompareContentRequest
     extends ContentResourceRequest<CompareContentResultsJson, CompareContentResults> {
@@ -11,7 +12,7 @@ export class CompareContentRequest
 
     constructor(ids: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
         this.addRequestPathElements('compare');
     }

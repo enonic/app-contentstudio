@@ -4,6 +4,7 @@ import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentIds} from '../ContentIds';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class MoveContentRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
@@ -15,7 +16,7 @@ export class MoveContentRequest
     constructor(ids: ContentIds, parentPath: ContentPath) {
         super();
         this.setHeavyOperation(true);
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
         this.parentPath = parentPath;
         this.addRequestPathElements('move');

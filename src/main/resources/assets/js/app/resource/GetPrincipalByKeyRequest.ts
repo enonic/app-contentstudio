@@ -14,7 +14,6 @@ export class GetPrincipalByKeyRequest extends SecurityResourceRequest<PrincipalJ
 
     constructor(principalKey: PrincipalKey) {
         super();
-        super.setMethod('GET');
         this.principalKey = principalKey;
         this.includeMemberships = false;
     }

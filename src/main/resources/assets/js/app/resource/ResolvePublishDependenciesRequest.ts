@@ -3,6 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ResolvePublishDependenciesResult} from './ResolvePublishDependenciesResult';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
+import {HttpMethod} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/rest/HttpMethod';
 
 export class ResolvePublishDependenciesRequest
     extends ContentResourceRequest<ResolvePublishContentResultJson, ResolvePublishDependenciesResult> {
@@ -15,7 +16,7 @@ export class ResolvePublishDependenciesRequest
 
     constructor(builder: ResolvePublishDependenciesRequestBuilder) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = builder.ids;
         this.excludedIds = builder.excludedIds;
         this.excludeChildrenIds = builder.excludeChildrenIds;
