@@ -74,11 +74,11 @@ export abstract class DependantItemsDialog
         this.dependantIds = [];
         this.loading = false;
         this.loadingRequested = false;
-        this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName, false);
+        this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
 
         this.itemList = this.createItemList();
         this.dependantsHeaderText = this.config.dependantsName || this.getDependantsHeader(this.config.showDependantList);
-        this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
+        this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
         this.dependantContainerBody = new DivEl('dependants-body');
         this.dependantList = this.createDependantList();
 
@@ -143,7 +143,7 @@ export abstract class DependantItemsDialog
             this.appendChildToContentPanel(this.itemList);
 
             if (this.config.dependantsDescription) {
-                const desc = new PEl('dependants-desc').setHtml(this.config.dependantsDescription, false);
+                const desc = new PEl('dependants-desc').setHtml(this.config.dependantsDescription);
                 this.dependantContainerBody.appendChild(desc);
             }
 
@@ -167,7 +167,7 @@ export abstract class DependantItemsDialog
 
     protected updateDependantsHeader(header?: string) {
         const count = this.countDependantItems();
-        this.dependantContainerHeader.setHtml((header || this.dependantsHeaderText) + ` (${count})`, false);
+        this.dependantContainerHeader.setHtml(`${header || this.dependantsHeaderText} (${count})`);
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -243,8 +243,13 @@ export abstract class DependantItemsDialog
         this.dependantList.clearItems();
     }
 
-    setSubTitle(text: string, escapeHtml?: boolean) {
-        this.subTitle.setHtml(text, escapeHtml);
+    setSubTitle(text: string) {
+        this.subTitle.setHtml(text);
+    }
+
+    setSubTitleChildren(children: Element[]) {
+        this.subTitle.removeChildren();
+        this.subTitle.appendChildren(...children);
     }
 
     setSubTitleEl(el: DivEl) {
