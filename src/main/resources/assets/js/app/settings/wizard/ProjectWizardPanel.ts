@@ -13,6 +13,7 @@ import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {Name} from 'lib-admin-ui/Name';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {HelpTextContainer} from 'lib-admin-ui/form/HelpTextContainer';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
@@ -34,7 +35,11 @@ export class ProjectWizardPanel
                 return;
             }
 
-            this.wizardStepForm.setProjectName(header.getDisplayName().trim().toLowerCase().replace(Name.FORBIDDEN_CHARS, ''));
+            this.wizardStepForm.setProjectName(header.getDisplayName()
+                .trim()
+                .replace(/\s+/g, '-')
+                .toLowerCase()
+                .replace(Name.FORBIDDEN_CHARS, ''));
         });
 
         return header;
@@ -58,6 +63,7 @@ export class ProjectWizardPanel
     postPersistNewItem(item: ProjectItem): Q.Promise<ProjectItem> {
         return super.postPersistNewItem(item).then(() => {
             this.wizardStepForm.disableProjectNameInput();
+            this.wizardStepForm.disableHelpText();
 
             return Q(item);
         });
@@ -105,6 +111,14 @@ class ProjectItemNameWizardStepForm
 
     private projectNameInput: TextInput;
     private projectNameFormItem: FormItem;
+    private helpText: HelpTextContainer;
+
+    constructor() {
+        super();
+
+        this.helpText = new HelpTextContainer(i18n('settings.projects.name.helptext'));
+        this.helpText.toggleHelpText(true);
+    }
 
     getProjectName(): string {
         return this.projectNameInput.getValue();
@@ -118,6 +132,10 @@ class ProjectItemNameWizardStepForm
         this.projectNameInput.getEl().setDisabled(true);
     }
 
+    disableHelpText() {
+        this.helpText.toggleHelpText(false);
+    }
+
     protected initListeners() {
         super.initListeners();
         this.projectNameInput.onValueChanged(() => {
@@ -129,6 +147,7 @@ class ProjectItemNameWizardStepForm
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-item-wizard-step-form');
+            this.projectNameFormItem.getParentElement().insertChild(this.helpText.getHelpText(), 1);
 
             return rendered;
         });
@@ -142,6 +161,7 @@ class ProjectItemNameWizardStepForm
         super.layout(item);
 
         this.projectNameInput.setValue(item.getName());
+        this.disableHelpText();
         this.disableProjectNameInput();
     }
 

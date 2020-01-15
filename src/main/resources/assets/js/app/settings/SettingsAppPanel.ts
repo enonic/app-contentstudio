@@ -80,14 +80,19 @@ export class SettingsAppPanel
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
+            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
-                .setLabel(ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project')))
+                .setLabel(unnamedTabMenuText)
                 .setTabId(wizard.getTabId())
                 .setCloseAction(wizard.getCloseAction())
                 .build();
 
             this.addWizardPanel(newTabMenuItem, wizard);
+
+            wizard.onWizardHeaderNameUpdated((name: string) => {
+                newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
+            });
 
             wizard.onNewItemSaved((item: SettingsItem) => {
                 newTabMenuItem.setTabId(AppBarTabId.forEdit(item.getId()));
@@ -104,6 +109,7 @@ export class SettingsAppPanel
             if (tabMenuItem != null) {
                 this.selectPanel(tabMenuItem);
             } else {
+                const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
                 const wizard: SettingsItemWizardPanel<SettingsItem> = this.getWizardPanelFor(item, tabId);
                 const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                     .setLabel(item.getDisplayName())
@@ -112,6 +118,10 @@ export class SettingsAppPanel
                     .build();
 
                 this.addWizardPanel(newTabMenuItem, wizard);
+
+                wizard.onWizardHeaderNameUpdated((name: string) => {
+                    newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
+                });
             }
         });
     }

@@ -52,6 +52,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {AppWrapper} from './app/AppWrapper';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
+import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 // End of Polyfills
 
 declare const CONFIG;
@@ -291,6 +292,9 @@ function preLoadApplication() {
 
 function startApplication() {
     const application: Application = getApplication();
+
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+    serverEventsListener.start();
 
     initApplicationEventListener();
     initProjectContext(application);

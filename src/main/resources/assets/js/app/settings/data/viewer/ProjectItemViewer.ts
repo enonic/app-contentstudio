@@ -23,6 +23,7 @@ export class ProjectItemViewer
         const displayNameEl: Element = new SpanEl('display-name').setHtml(item.getDisplayName());
         const nameEl: Element = new SpanEl('name').setHtml(`(${item.getName()})`);
         namesView.getFirstChild().appendChildren(displayNameEl, nameEl);
+        namesView.toggleClass('no-description', !item.getDescription());
     }
 
 }

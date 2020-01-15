@@ -35,6 +35,8 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
     private newItemSavedListeners: { (item: T): void }[] = [];
 
+    private wizardHeaderNameUpdatedListeners: { (name: string): void }[] = [];
+
     constructor(params: WizardPanelParams<T>) {
         super(params);
 
@@ -233,6 +235,7 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
         wizardHeader.onPropertyChanged(() => {
             this.handleDataChanged();
+            this.notifyWizardHeaderNameUpdated();
         });
 
         return wizardHeader;
@@ -280,6 +283,23 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     unNewItemSaved(listener: (item: T) => void) {
         this.newItemSavedListeners =
             this.newItemSavedListeners.filter((curr: (item: T) => void) => {
+                return listener !== curr;
+            });
+    }
+
+    private notifyWizardHeaderNameUpdated() {
+        this.wizardHeaderNameUpdatedListeners.forEach((listener: (name: string) => void) => {
+            listener(this.wizardHeader.getDisplayName());
+        });
+    }
+
+    onWizardHeaderNameUpdated(listener: (name: string) => void) {
+        this.wizardHeaderNameUpdatedListeners.push(listener);
+    }
+
+    unWizardHeaderNameUpdated(listener: (name: string) => void) {
+        this.wizardHeaderNameUpdatedListeners =
+            this.wizardHeaderNameUpdatedListeners.filter((curr: (name: string) => void) => {
                 return listener !== curr;
             });
     }

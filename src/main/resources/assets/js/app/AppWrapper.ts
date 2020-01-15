@@ -12,7 +12,7 @@ import {MainAppContainer} from './MainAppContainer';
 import {SettingsAppContainer} from './settings/SettingsAppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
 import {SettingsServerEventsListener} from './settings/event/SettingsServerEventsListener';
-import {AggregatedServerEventsListener} from './event/AggregatedServerEventsListener';
+import {ContentEventsListener} from './ContentEventsListener';
 
 export class AppWrapper
     extends DivEl {
@@ -88,8 +88,8 @@ export class AppWrapper
             const settingsServerEventsListener = new SettingsServerEventsListener([this.application]);
             settingsServerEventsListener.start();
         } else {
-            const serverEventsListener = new AggregatedServerEventsListener([this.application]);
-            serverEventsListener.start();
+            const clientEventsListener = new ContentEventsListener();
+            clientEventsListener.start();
         }
     }
 

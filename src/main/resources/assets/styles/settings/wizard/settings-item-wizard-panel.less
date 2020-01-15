@@ -1,8 +1,19 @@
 .settings-item-wizard-panel {
 
+  .wizard-header {
+    input:first-child {
+      height: 64px;
+    }
+
+    input:last-child {
+      display: none;
+    }
+  }
+
   .wizard-step-form {
     .input-view {
       display: flex;
+      align-items: center;
 
       label {
         width: 120px;
@@ -11,9 +22,23 @@
       .form-input {
         margin-left: 0px;
         flex-grow: 1;
+      }
+    }
 
-        &:disabled {
-          opacity: 0.5;
+    .form-view {
+      .help-text {
+        position: relative;
+        bottom: 14px;
+        padding: 5px 0px 5px 110px;
+      }
+    }
+
+    &.project-item-wizard-step-form {
+      .input-view {
+        .form-input {
+          &:disabled {
+            border: none;
+          }
         }
       }
     }
