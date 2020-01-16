@@ -12,7 +12,8 @@ const xpath = {
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
-    assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
+    assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
+    invalidIcon: "//div[contains(@class,'state-icon invalid')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
@@ -24,6 +25,10 @@ const xpath = {
 //Modal Dialog for creating of new publish request
 //Select a content then expand Publish menu and click on 'Request Publishing...' menu item
 class CreateRequestPublishDialog extends Page {
+
+    get invalidIcon() {
+        return xpath.container + xpath.invalidIcon;
+    }
 
     get nextButton() {
         return xpath.container + xpath.nextButton;
@@ -87,6 +92,23 @@ class CreateRequestPublishDialog extends Page {
         return this.waitForElementEnabled(this.nextButton, appConst.TIMEOUT_3).catch(err => {
             throw new Error("Request Publishing dialog:  'Next' button should be enabled :" + err);
         })
+    }
+
+    async waitForInvalidIconDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
+        }
+    }
+    async waitForInvalidIconNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
+        }
     }
 
     waitForPreviousButtonDisplayed() {
