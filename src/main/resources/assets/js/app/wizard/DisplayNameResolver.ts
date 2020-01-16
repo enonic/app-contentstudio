@@ -1,4 +1,5 @@
 import '../../api.ts';
+import * as _ from 'lodash';
 
 export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator {
 
@@ -41,10 +42,25 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
+    private getFormItems(container: any): api.form.FormItem[] {
+        let formItems = [];
+        if (api.ObjectHelper.iFrameSafeInstanceOf(container, api.form.Form) ||
+            api.ObjectHelper.iFrameSafeInstanceOf(container, api.form.FieldSet) ||
+            api.ObjectHelper.iFrameSafeInstanceOf(container, api.form.FormItemSet) ||
+            api.ObjectHelper.iFrameSafeInstanceOf(container, api.form.FormOptionSet) ||
+            api.ObjectHelper.iFrameSafeInstanceOf(container, api.form.FormOptionSetOption)) {
+            formItems = container.getFormItems();
+            formItems.forEach(formItem => {
+                formItems = formItems.concat(this.getFormItems(formItem));
+            });
+        }
+
+        return formItems;
+    }
+
     private getFormInputs(): api.form.Input[] {
-        return this.formView.getForm().getFormItems()
-            .filter(formItem => api.ObjectHelper.iFrameSafeInstanceOf(formItem, api.form.Input))
-            .map(formItem => <api.form.Input>formItem);
+        const formItems = this.getFormItems(this.formView.getForm());
+        return <api.form.Input[]>formItems.filter(formItem => api.ObjectHelper.iFrameSafeInstanceOf(formItem, api.form.Input));
     }
 
     private getNamesOfAllowedFields(): string[] {
@@ -55,18 +71,24 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
 
     private getFormValues(): string {
         const allowedFields = this.getNamesOfAllowedFields();
-        return this.formView.getData().getStringValues()
-            .map(formValue => {
-                    const isAllowedField = allowedFields.indexOf(formValue.name) > -1;
-                    return `var ${formValue.name} = '${isAllowedField ? this.sanitizeFieldValue(formValue.value): ''}'; `;
-                }
-            ).join('');
+
+        const fieldDefinitions: string = allowedFields.map((fieldName: string) => {
+            return `var ${_.camelCase(fieldName)} = ''; `;
+        }).join('');
+
+        const fieldAssignments: string =
+            this.formView.getData().getValuesAsString()
+                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(formValue.name) > -1)
+                .map(formValue => `${_.camelCase(formValue.name)} = '${this.sanitizeFieldValue(formValue.value)}'; `)
+                .join('');
+
+        return fieldDefinitions + fieldAssignments;
     }
 
     private safeEval(): string {
         const script = '"use strict";' +
-                       this.getFormValues() +
-                       '`' + this.expression + '`.replace(/\\s+/g, \' \')';
+            this.getFormValues() +
+            '`' + this.expression + '`.trim().replace(/\\s+/g, \' \')';
 
         let result = '';
 
