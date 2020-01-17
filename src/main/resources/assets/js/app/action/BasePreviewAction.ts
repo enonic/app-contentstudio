@@ -4,8 +4,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
-import {Branch} from '../versioning/Branch';
-import {RepositoryId} from '../repository/RepositoryId';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 
@@ -57,8 +55,7 @@ export class BasePreviewAction extends Action {
     }
 
     protected updateLocation(targetWindow: Window, content: ContentSummary, focus: boolean = true) {
-        targetWindow.location.href = UriHelper.getPortalUri(content.getPath().toString(),
-            RenderingMode.PREVIEW, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
+        targetWindow.location.href = UriHelper.getPortalUri(content.getPath().toString(), RenderingMode.PREVIEW);
         if (focus) {
             targetWindow.focus(); // behavior depends on user settings for firefox
         }

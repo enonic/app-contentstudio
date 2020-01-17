@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ViewContentEvent} from './browse/ViewContentEvent';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {NewContentEvent} from './create/NewContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
@@ -23,6 +22,7 @@ import {AppPanel} from 'lib-admin-ui/app/AppPanel';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentAppMode} from './ContentAppMode';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 
 export class ContentAppPanel
@@ -44,11 +44,12 @@ export class ContentAppPanel
 
     private route(path?: Path) {
         const action = path ? path.getElement(1) : null;
+        const actionAsTabMode: ContentAppMode = !!action ? ContentAppMode[action.toUpperCase()] : null;
         const id = path ? path.getElement(2) : null;
         const type = path ? path.getElement(3) : null;
 
-        switch (action) {
-        case 'edit':
+        switch (actionAsTabMode) {
+        case ContentAppMode.EDIT:
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
@@ -56,15 +57,7 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'view' :
-            if (id) {
-                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
-                    (content: ContentSummaryAndCompareStatus) => {
-                        new ViewContentEvent([content]).fire();
-                    });
-            }
-            break;
-        case 'issue' :
+        case ContentAppMode.ISSUE:
             new ShowBrowsePanelEvent().fire();
             if (id) {
                 new GetIssueRequest(id).sendAndParse().then(
@@ -73,10 +66,10 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'inbound' :
+        case ContentAppMode.INBOUND:
             this.handleDependencies(id, true, type);
             break;
-        case 'outbound' :
+        case ContentAppMode.OUTBOUND:
             this.handleDependencies(id, false, type);
             break;
         default:
@@ -150,7 +143,7 @@ export class ContentAppPanel
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
-                const mode: string = inbound ? 'inbound' : 'outbound';
+                const mode: string = inbound ? ContentAppMode.INBOUND : ContentAppMode.OUTBOUND;
                 const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
                 Router.get().setHash(hash);

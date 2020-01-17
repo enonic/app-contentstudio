@@ -24,10 +24,8 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {Branch} from '../versioning/Branch';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
@@ -50,6 +48,7 @@ import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
+import {ContentAppMode} from '../ContentAppMode';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -65,7 +64,7 @@ export class ContentBrowsePanel
         super();
 
         this.onShown(() => {
-            Router.get().setHash('browse');
+            Router.get().setHash(ContentAppMode.BROWSE);
         });
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
@@ -327,8 +326,7 @@ export class ContentBrowsePanel
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
-        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID,
-            Branch.DRAFT);
+        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE);
     }
 
     private subscribeOnContentEvents() {

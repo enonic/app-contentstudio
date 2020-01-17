@@ -8,7 +8,6 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
@@ -25,6 +24,7 @@ import {CompareStatus, CompareStatusFormatter} from '../../../../content/Compare
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
+import {Branch} from '../../../../versioning/Branch';
 
 export class VersionsView
     extends ListBox<ContentVersion> {
@@ -32,9 +32,6 @@ export class VersionsView
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
     private activeVersion: ContentVersion;
-
-    private static readonly branchMaster: string = 'master';
-    private static readonly branchDraft: string = 'draft';
 
     constructor() {
         super('all-content-versions');
@@ -116,7 +113,7 @@ export class VersionsView
 
     private isInMaster(contentVersion: ContentVersion): boolean {
         return contentVersion.workspaces.some((workspace) => {
-            return workspace === VersionsView.branchMaster;
+            return workspace === Branch.MASTER;
         });
     }
 
@@ -130,7 +127,7 @@ export class VersionsView
                                 CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
                                 CompareStatusFormatter.formatStatusClassFromContent(this.content);
 
-            let statusDiv = new DivEl('status ' + (isInMaster ? VersionsView.branchMaster : VersionsView.branchDraft));
+            let statusDiv = new DivEl('status ' + (isInMaster ? Branch.MASTER : Branch.DRAFT));
             statusDiv.setHtml(statusText);
             itemEl.appendChild(statusDiv);
 

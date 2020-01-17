@@ -1,5 +1,6 @@
 import {NodeEventJson, NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChange, NodeServerChangeItem, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {RepositoryId} from '../../repository/RepositoryId';
 
 export class SettingsServerChange
     extends NodeServerChange<string> {
@@ -41,7 +42,7 @@ export class SettingsServerChangeItem
 
     constructor(path: string, branch: string, id: string) {
         super(path, branch);
-        this.id = !!id ? id.replace('com.enonic.cms.', '') : id;
+        this.id = !!id ? id.replace(RepositoryId.CONTENT_REPO_PREFIX, '') : id;
     }
 
     static fromJson(node: NodeEventNodeJson): SettingsServerChangeItem {

@@ -41,10 +41,8 @@ import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaD
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
-import {RepositoryId} from '../../repository/RepositoryId';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
@@ -332,7 +330,7 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
 
         if (BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();

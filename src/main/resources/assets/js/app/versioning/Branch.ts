@@ -1,4 +1,4 @@
 export enum Branch {
-    DRAFT,
-    MASTER
+    DRAFT = 'draft',
+    MASTER = 'master'
 }

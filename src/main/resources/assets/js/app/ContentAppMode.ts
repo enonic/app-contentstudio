@@ -4,5 +4,6 @@ export enum ContentAppMode {
     EDIT = 'edit',
     ISSUE = 'issue',
     OUTBOUND = 'outbound',
-    INBOUND = 'inbound'
+    INBOUND = 'inbound',
+    CUSTOM = 'custom'
 }
