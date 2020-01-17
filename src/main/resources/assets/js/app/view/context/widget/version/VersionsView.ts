@@ -169,7 +169,6 @@ export class VersionsView
                     CompareContentVersionsDialog.get()
                         .setContent(this.content.getContentSummary())
                         .setLeftVersion(item.id)
-                        .setRightVersion(this.activeVersion.id)
                         .setActiveVersion(this.activeVersion.id)
                         .open();
                 }), false);

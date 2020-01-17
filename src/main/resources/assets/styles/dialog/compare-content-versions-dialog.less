@@ -102,7 +102,11 @@
 
     }
 
-    .@{_COMMON_PREFIX}button {
+    .icon-compare {
+      line-height: 46px;
+    }
+
+    .@{_COMMON_PREFIX}button, .icon-compare {
       text-align: center;
       position: relative;
       padding: 0;
@@ -196,7 +200,7 @@ body {
         .toolbar-container {
           flex-direction: column;
 
-          button.icon-compare {
+          span.icon-compare {
             display: none;
           }
 
@@ -209,11 +213,12 @@ body {
 
             &.left {
               z-index: 2;
+              flex-direction: row-reverse;
             }
 
             &.right {
               position: relative;
-              flex-direction: row-reverse;
+              flex-direction: row;
               justify-content: flex-end;
               margin-top: -1px;
 

@@ -24,7 +24,8 @@ import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ContentVersionAndAliasViewer} from './ContentVersionAndAliasViewer';
-import {ContentVersionAndAlias} from './ContentVersionAndAlias';
+import {AliasType, ContentVersionAndAlias} from './ContentVersionAndAlias';
+import {SpanEl} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/dom/SpanEl';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -55,7 +56,7 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: Button;
 
-    private invertButton: Button;
+    private diffIcon: SpanEl;
 
     private contentCache: { [key: string]: Object };
 
@@ -99,36 +100,22 @@ export class CompareContentVersionsDialog
 
     private handleVersionChanged(isLeft?: boolean) {
         this.leftVersion = this.leftDropdown.getSelectedOption().value;
-        if (this.isAlias(this.leftVersion)) {
-            this.leftVersion = this.selectOptionByAlias(this.leftVersion, this.leftDropdown).value;
-        }
 
         this.rightVersion = this.rightDropdown.getSelectedOption().value;
-        if (this.isAlias(this.rightVersion)) {
-            this.rightVersion = this.selectOptionByAlias(this.rightVersion, this.rightDropdown).value;
-        }
 
         if (!this.leftVersion || !this.rightVersion) {
             return;
         }
 
         if (!isLeft && this.leftVersionRequiresForcedSelection()) {
-            this.leftVersion = this.rightVersion;
-            this.forceSelectLeftVersion(this.leftVersion);
+            this.leftVersion = this.normalizeVersion(this.rightVersion);
+            this.forceSelectVersion(this.leftDropdown, this.leftVersion, true);
         }
 
         this.updateButtonsState();
-        this.updateAliases(!isLeft);
-        this.displayDiff(this.leftVersion, this.rightVersion);
-    }
-
-    private selectOptionByAlias(alias: string, dropdown: Dropdown<ContentVersionAndAlias>): Option<ContentVersionAndAlias> {
-        const option = dropdown.getOptionByValue(this.aliasToVersionId(alias));
-        if (option) {
-            dropdown.resetActiveSelection();
-            dropdown.setValue(option.value, true);
+        if (this.updateAliases(!isLeft) !== false) {
+            this.displayDiff(this.leftVersion, this.rightVersion);
         }
-        return option;
     }
 
     private isAlias(value: string): boolean {
@@ -227,17 +214,11 @@ export class CompareContentVersionsDialog
             bottomContainer.appendChild(changesCheckbox);
             this.appendChildToFooter(bottomContainer);
 
-            this.invertButton = new Button();
-            this.invertButton.addClass('transparent icon-compare icon-large');
-            this.invertButton.onClicked((event) => {
-                this.leftDropdown.setValue(this.rightVersion, true);
-                this.rightDropdown.setValue(this.leftVersion);
-                this.handleVersionChanged(true);
-            });
+            this.diffIcon = new SpanEl('icon-compare icon-large');
 
             return this.reloadVersions().then(() => {
 
-                this.toolbar.appendChildren(leftContainer, this.invertButton, rightContainer);
+                this.toolbar.appendChildren<any>(leftContainer, this.diffIcon, rightContainer);
 
                 this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
@@ -316,6 +297,16 @@ export class CompareContentVersionsDialog
                     options.push(this.createOption(version));
                 }
 
+                if (!this.leftVersion || !this.rightVersion) {
+                    const latestOption = this.getDefaultOption(options);
+                    if (!this.leftVersion) {
+                        this.leftVersion = latestOption.value;
+                    }
+                    if (!this.rightVersion) {
+                        this.rightVersion = latestOption.value;
+                    }
+                }
+
                 const leftAliases = this.createAliases(options, true);
                 const rightAliases = this.createAliases(options, false);
 
@@ -324,8 +315,8 @@ export class CompareContentVersionsDialog
                 this.rightDropdown.setOptions(rightAliases.concat(options));
                 this.rightDropdown.sort(this.optionSorter.bind(this));
 
-                this.leftDropdown.setValue(this.leftVersion, true);
-                this.rightDropdown.setValue(this.rightVersion);
+                this.forceSelectVersion(this.leftDropdown, this.leftVersion, true);
+                this.forceSelectVersion(this.rightDropdown, this.rightVersion);
             });
     }
 
@@ -338,18 +329,63 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private updateAliases(isLeft: boolean) {
+    private updateAliases(isLeft: boolean): boolean {
         const dd = isLeft ? this.leftDropdown : this.rightDropdown;
+        let selectedType: AliasType;
+        const selectedOption = dd.getSelectedOption();
+        if (selectedOption) {
+            selectedType = selectedOption.displayValue.type;
+        }
+
         let nextOption: Option<ContentVersionAndAlias> = dd.getOptionByRow(0);
         while (this.isAlias(nextOption.value) || this.isDivider(nextOption.value)) {
             dd.removeOption(nextOption);
             nextOption = dd.getOptionByRow(0);
         }
 
+        let aliasFound;
         this.createAliases(dd.getOptions(), isLeft).forEach(alias => {
             dd.addOption(alias);
+            if (selectedType !== undefined && alias.displayValue.type === selectedType) {
+                aliasFound = true;
+                dd.selectOption(alias, true);
+                // update version with new alias id
+                if (isLeft) {
+                    this.leftVersion = alias.value;
+                } else {
+                    this.rightVersion = alias.value;
+                }
+            }
         });
+        // sort first to ensure correct order
         dd.sort(this.optionSorter.bind(this));
+
+        if (selectedType !== undefined) {
+            // alias has been removed so select default option
+            if (!aliasFound) {
+                // set same value as in the other dropdown
+                this.forceSelectVersion(dd, isLeft ? this.rightVersion : this.leftVersion);
+                return false;
+            }
+        }
+    }
+
+    private getDefaultOption(opts: Option<ContentVersionAndAlias>[]): Option<ContentVersionAndAlias> {
+        let newest = opts.find(opt => {
+            if (opt.displayValue.type === AliasType.NEWEST) {
+                return true;
+            }
+        });
+        if (!newest) {
+            opts.forEach(opt => {
+                if (!this.isDivider(opt.value) &&
+                    (!newest || opt.displayValue.contentVersion.modified > newest.displayValue.contentVersion.modified)) {
+                    newest = opt;
+                }
+            });
+        }
+
+        return newest;
     }
 
     private createAliases(options: Option<ContentVersionAndAlias>[], isLeft: boolean): Option<ContentVersionAndAlias>[] {
@@ -358,16 +394,16 @@ export class CompareContentVersionsDialog
         let nextVersion: ContentVersion;
         let newestVersion: ContentVersion;
 
-        const leftVersion = this.findOptionByValue(options, this.leftVersion);
-        const leftModTime = leftVersion ? leftVersion.displayValue.contentVersion.modified.getTime() : Date.now();
-        const rightVersion = this.findOptionByValue(options, this.rightVersion);
-        const rightModTime = rightVersion ? rightVersion.displayValue.contentVersion.modified.getTime() : 0;
+        const leftOpt = this.findOptionByValue(options, this.normalizeVersion(this.leftVersion));
+        const leftModTime = leftOpt ? leftOpt.displayValue.contentVersion.modified.getTime() : Date.now();
+        const rightOpt = this.findOptionByValue(options, this.normalizeVersion(this.rightVersion));
+        const rightModTime = rightOpt ? rightOpt.displayValue.contentVersion.modified.getTime() : 0;
 
         options.forEach(option => {
             const version = option.displayValue.contentVersion;
             const modTime = version.modified.getTime();
-            if (version.publishInfo) {
-                if (!latestPublished || (version.publishInfo.timestamp.getTime() - latestPublished.publishInfo.timestamp.getTime() > 0)) {
+            if (version.publishInfo && (!isLeft || modTime <= rightModTime)) {
+                if (!latestPublished || (version.publishInfo.timestamp.getTime() - latestPublished.publishInfo.timestamp.getTime() < 0)) {
                     latestPublished = version;
                 }
             }
@@ -379,31 +415,31 @@ export class CompareContentVersionsDialog
                 if ((!nextVersion || (modTime - nextVersion.modified.getTime() < 0)) && (modTime - leftModTime > 0)) {
                     nextVersion = version;
                 }
-            }
-            if (!newestVersion || (modTime - newestVersion.modified.getTime() > 0)) {
-                newestVersion = version;
+                if (!newestVersion || (modTime - newestVersion.modified.getTime() > 0)) {
+                    newestVersion = version;
+                }
             }
         });
 
         const aliases: Option<ContentVersionAndAlias>[] = [];
         if (latestPublished) {
-            aliases.push(this.createOption(latestPublished, i18n('dialog.compareVersions.publishedVersion')));
+            aliases.push(this.createOption(latestPublished, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED));
         }
         if (prevVersion) {
-            aliases.push(this.createOption(prevVersion, i18n('dialog.compareVersions.previousVersion')));
+            aliases.push(this.createOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
         }
         if (nextVersion) {
-            aliases.push(this.createOption(nextVersion, i18n('dialog.compareVersions.nextVersion')));
+            aliases.push(this.createOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
         }
         if (newestVersion) {
-            aliases.push(this.createOption(newestVersion, i18n('dialog.compareVersions.newestVersion')));
+            aliases.push(this.createOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
         }
         aliases.push(this.createDivider());
 
         return aliases;
     }
 
-    private createOption(version: ContentVersion, alias?: string): Option<ContentVersionAndAlias> {
+    private createOption(version: ContentVersion, alias?: string, type?: AliasType): Option<ContentVersionAndAlias> {
         let value = version.id;
         if (alias) {
             let counter = this.versionIdCounters[version.id] || 0;
@@ -414,6 +450,7 @@ export class CompareContentVersionsDialog
             value: value,
             displayValue: {
                 alias: alias,
+                type: type,
                 contentVersion: version
             }
         };
@@ -440,6 +477,9 @@ export class CompareContentVersionsDialog
             return 1;
         } else if (aVal.alias != null && bVal.alias == null) {
             return -1;
+        } else if (aVal.type !== undefined && bVal.type !== undefined) {
+            // Bubble AliasType.Newest to the top
+            return aVal.type - bVal.type;
         } else if (this.isDivider(a.value) && !this.isDivider(b.value)) {
             return -1;
         } else if (!this.isDivider(a.value) && this.isDivider(b.value)) {
@@ -455,15 +495,22 @@ export class CompareContentVersionsDialog
         return leftTime.getTime() > rightTime.getTime();
     }
 
-    private forceSelectLeftVersion(leftVersion: string) {
-        this.leftDropdown.resetActiveSelection();
-        this.leftDropdown.setValue(leftVersion, true);
+    private forceSelectVersion(dropdown: Dropdown<ContentVersionAndAlias>, version: string, silent?: boolean) {
+        dropdown.resetActiveSelection();
+        dropdown.setValue(version, silent);
     }
 
     private disableLeftVersions() {
         const readOnlyOptions: Option<ContentVersionAndAlias>[] = [];
-        let readOnlyOptionIds: string[] = [];
+        const normalizedRight = this.normalizeVersion(this.rightVersion);
         let markReadOnly = false;
+
+        const rightOption = this.rightDropdown.getSelectedOption();
+        let isNextSelectedInRightDropdown;
+        if (rightOption) {
+            isNextSelectedInRightDropdown = rightOption.displayValue.type === AliasType.NEXT;
+        }
+
         this.leftDropdown.getOptions().slice().reverse().forEach((option: Option<ContentVersionAndAlias>) => {
             // slice first to create new array and prevent modification of original options
             // doing reverse to be sure to go through regular versions before aliases
@@ -472,21 +519,21 @@ export class CompareContentVersionsDialog
             if (this.isDivider(option.value)) {
                 readOnlyOptions.push(option);
             } else if (this.isAlias(option.value)) {
-                const id = this.aliasToVersionId(option.value);
-                const readOnly = readOnlyOptionIds.indexOf(id) >= 0 || id === this.leftVersion;
-                option.readOnly = readOnly;
-                if (readOnly) {
+                if (isNextSelectedInRightDropdown && option.displayValue.type === AliasType.PREV) {
+                    option.readOnly = true;
                     readOnlyOptions.push(option);
+                } else {
+                    // don't disable aliases
+                    return;
                 }
             } else {
                 option.readOnly = markReadOnly;
                 if (markReadOnly) {
                     readOnlyOptions.push(option);
-                    readOnlyOptionIds.push(option.value);
                 }
             }
 
-            if (option.value === this.rightVersion) {
+            if (option.value === normalizedRight) {
                 // marking readOnly all versions after rightVersion
                 markReadOnly = true;
             }
@@ -500,14 +547,22 @@ export class CompareContentVersionsDialog
 
     private disableRightVersions() {
         const readOnlyOptions = [];
+        const leftOption = this.leftDropdown.getSelectedOption();
+        let isPrevSelectedInLeftDropdown;
+        if (leftOption) {
+            isPrevSelectedInLeftDropdown = leftOption.displayValue.type === AliasType.PREV;
+        }
+
         this.rightDropdown.getOptions().forEach(option => {
             if (this.isDivider(option.value)) {
                 readOnlyOptions.push(option);
             } else if (this.isAlias(option.value)) {
-                const id = this.aliasToVersionId(option.value);
-                if (id === this.rightVersion) {
+                if (isPrevSelectedInLeftDropdown && option.displayValue.type === AliasType.NEXT) {
                     option.readOnly = true;
                     readOnlyOptions.push(option);
+                } else {
+                    // dont' disable aliases
+                    return;
                 }
             }
         });
@@ -533,12 +588,22 @@ export class CompareContentVersionsDialog
             });
     }
 
+    private normalizeVersion(versionOrAlias: string): string {
+        if (this.isAlias(versionOrAlias)) {
+            return this.aliasToVersionId(versionOrAlias);
+        }
+        return versionOrAlias;
+    }
+
     private displayDiff(leftVersion: string, rightVersion: string): Q.Promise<void> {
+        const normalizedLeftVersion = this.normalizeVersion(leftVersion);
         const promises = [
-            this.fetchVersionPromise(leftVersion)
+            this.fetchVersionPromise(normalizedLeftVersion)
         ];
-        if (leftVersion !== rightVersion) {
-            promises.push(this.fetchVersionPromise(rightVersion));
+
+        const normalizedRightVersion = this.normalizeVersion(rightVersion);
+        if (normalizedLeftVersion !== normalizedRightVersion) {
+            promises.push(this.fetchVersionPromise(normalizedRightVersion));
         }
         this.comparisonContainer.addClass('loading');
 
@@ -572,8 +637,8 @@ export class CompareContentVersionsDialog
     }
 
     private updateButtonsState() {
-        const isCurrentVersionLeft = this.leftDropdown.getValue() === this.activeVersion;
-        const isCurrentVersionRight = this.rightDropdown.getValue() === this.activeVersion;
+        const isCurrentVersionLeft = this.normalizeVersion(this.leftDropdown.getValue()) === this.activeVersion;
+        const isCurrentVersionRight = this.normalizeVersion(this.rightDropdown.getValue()) === this.activeVersion;
 
         const leftLabel = i18n(isCurrentVersionLeft ? 'dialog.compareVersions.current' : 'dialog.compareVersions.olderVersion');
         const rightLabel = i18n(isCurrentVersionRight ? 'dialog.compareVersions.current' : 'dialog.compareVersions.newerVersion');
