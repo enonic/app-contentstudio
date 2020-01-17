@@ -19,6 +19,7 @@
     "jquery-ui": "^1.12.1",
     "jsondiffpatch": "^0.3.11",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
+    "lodash": "^4.17.15",
     "mutation-observer": "^1.0.3",
     "promise-polyfill": "8.1.3",
     "q": "^1.5.1",

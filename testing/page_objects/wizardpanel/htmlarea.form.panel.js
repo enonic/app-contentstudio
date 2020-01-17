@@ -186,7 +186,7 @@ class HtmlAreaForm extends Page {
         })
     }
 
-    async isTableDropDownMenuVisible() {
+    async isTableMenuItemVisible() {
         let table = "//table";
         await this.switchToFrame("//iframe[@class='cke_panel_frame']");
         return await this.waitForElementDisplayed(table, appConst.TIMEOUT_2);

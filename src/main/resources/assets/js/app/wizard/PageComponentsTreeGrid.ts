@@ -36,45 +36,52 @@ export class PageComponentsTreeGrid
     private content: Content;
 
     constructor(content: Content, pageView: PageView) {
-        super(new TreeGridBuilder<ItemView>().setColumns([
-            new GridColumnBuilder<TreeNode<ItemView>>()
-                .setName(i18n('field.name'))
-                .setId('displayName')
-                .setField('displayName')
-                .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
-                .setMinWidth(250)
-                .setBehavior('selectAndMove')
-                .setResizable(true)
-                .build(),
-            new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
-                .setName(i18n('field.menu'))
-                .setId('menu')
-                .setMinWidth(30)
-                .setMaxWidth(45)
-                .setField('menu')
-                .setCssClass('menu-cell')
-                .setResizable(false)
-                .setFormatter(PageComponentsTreeGrid.menuFormatter).build()
-        ]).setOptions(
-            new GridOptionsBuilder<TreeNode<ItemView>>()
-                .setAutoHeight(true)
-                .setShowHeaderRow(false)
-                .setHideColumnHeaders(true)
-                .setForceFitColumns(true)
-                .setFullWidthRows(true)
-                .setHeight('initial')
-                .setWidth('340')
-                // It is necessary to turn off the library key handling. It may cause
-                // the conflicts with Mousetrap, which leads to skipping the key events
-                // Do not set to true, if you are not fully aware of the result
-                .setEnableCellNavigation(false)
-                .setSelectedCellCssClass('selected cell')
-                .setCheckableRows(false)
-                .disableMultipleSelection(true)
-                .setMultiSelect(false)
-                .setRowHeight(45)
-                .setDragAndDrop(true).build()
-        ).setShowToolbar(false).setAutoLoad(true).setExpandAll(true).prependClasses('components-grid'));
+        super(new TreeGridBuilder<ItemView>()
+            .setColumns([
+                new GridColumnBuilder<TreeNode<ItemView>>()
+                    .setName(i18n('field.name'))
+                    .setId('displayName')
+                    .setField('displayName')
+                    .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
+                    .setMinWidth(250)
+                    .setBehavior('selectAndMove')
+                    .setResizable(true)
+                    .build(),
+                new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
+                    .setName(i18n('field.menu'))
+                    .setId('menu')
+                    .setMinWidth(30)
+                    .setMaxWidth(45)
+                    .setField('menu')
+                    .setCssClass('menu-cell')
+                    .setResizable(false)
+                    .setFormatter(PageComponentsTreeGrid.menuFormatter).build()
+            ])
+            .setOptions(
+                new GridOptionsBuilder<TreeNode<ItemView>>()
+                    .setAutoHeight(true)
+                    .setShowHeaderRow(false)
+                    .setHideColumnHeaders(true)
+                    .setForceFitColumns(true)
+                    .setFullWidthRows(true)
+                    .setHeight('initial')
+                    .setWidth('340')
+                    // It is necessary to turn off the library key handling. It may cause
+                    // the conflicts with Mousetrap, which leads to skipping the key events
+                    // Do not set to true, if you are not fully aware of the result
+                    .setEnableCellNavigation(false)
+                    .setSelectedCellCssClass('selected cell')
+                    .setCheckableRows(false)
+                    .disableMultipleSelection(true)
+                    .setMultiSelect(false)
+                    .setRowHeight(45)
+                    .setDragAndDrop(true).build()
+            )
+            .setShowToolbar(false)
+            .setAutoLoad(true)
+            .setExpandFn((item: ItemView) => !item.getType().equals(LayoutItemType.get()))
+            .prependClasses('components-grid')
+        );
 
         this.content = content;
         this.pageView = pageView;

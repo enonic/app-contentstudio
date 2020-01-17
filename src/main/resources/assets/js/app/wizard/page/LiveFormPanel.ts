@@ -88,6 +88,8 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {BrEl} from 'lib-admin-ui/dom/BrEl';
 
 export interface LiveFormPanelConfig {
 
@@ -427,7 +429,11 @@ export class LiveFormPanel
             this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
                 this.liveEditPageProxy.getPlaceholderIFrame(), this.liveEditPageProxy.getDragMask());
 
-            let noPreviewMessageEl = new PEl('no-preview-message').setHtml(i18n('field.preview.failed'), false);
+            const noPreviewMessageEl = new PEl('no-preview-message').appendChildren<any>(
+                SpanEl.fromText(i18n('field.preview.failed')),
+                new BrEl(),
+                SpanEl.fromText(i18n('field.preview.failed.description'))
+            );
 
             // append mask here in order for the context window to be above
             this.appendChildren<Element>(this.frameContainer, noPreviewMessageEl);
