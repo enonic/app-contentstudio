@@ -5,6 +5,7 @@ import {Class} from 'lib-admin-ui/Class';
 import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
 import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {FileUploader} from './FileUploader';
 import {FileUploaderEl} from '../ui/upload/FileUploaderEl';
 import {AttachmentUploaderEl} from '../ui/upload/AttachmentUploaderEl';
@@ -13,8 +14,9 @@ import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {Attachment} from '../../attachment/Attachment';
 import {DeleteAttachmentRequest} from '../../resource/DeleteAttachmentRequest';
 import {Content} from '../../content/Content';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {showError, showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class AttachmentUploader
     extends FileUploader {
@@ -44,7 +46,7 @@ export class AttachmentUploader
             this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
                 const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
                 this.setFileNameProperty(attachment.getName().toString());
-                showFeedback(`"${attachment.getName().toString()}" uploaded`);
+                showFeedback(i18n('notify.upload.success', attachment.getName().toString()));
             });
 
             this.uploaderEl.onUploadCompleted(() => {
@@ -53,9 +55,11 @@ export class AttachmentUploader
                 new ContentRequiresSaveEvent(this.getContext().content.getContentId()).fire();
             });
 
-            this.uploaderEl.onUploadFailed(() => {
+            this.uploaderEl.onUploadFailed((event: UploadFailedEvent<Attachment>) => {
                 this.uploaderEl.setProgressVisible(false);
                 this.uploaderWrapper.addClass('empty');
+                this.uploadButton.getEl().setDisabled(false);
+                showError(i18n('notify.upload.failure', event.getUploadItem().getFileName()));
             });
 
             this.appendChild(this.uploaderWrapper);
