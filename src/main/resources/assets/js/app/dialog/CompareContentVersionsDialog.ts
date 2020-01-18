@@ -25,7 +25,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ContentVersionAndAliasViewer} from './ContentVersionAndAliasViewer';
 import {AliasType, ContentVersionAndAlias} from './ContentVersionAndAlias';
-import {SpanEl} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/dom/SpanEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {

@@ -4,7 +4,7 @@ import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {ContentVersionAndAlias} from './ContentVersionAndAlias';
-import {i18n} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/util/Messages';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentVersionAndAliasViewer
     extends Viewer<ContentVersionAndAlias> {
