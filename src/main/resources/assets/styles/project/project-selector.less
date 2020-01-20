@@ -47,7 +47,7 @@
       .names-and-icon-view {
         cursor: pointer;
 
-        .xp-admin-common-main-name {
+        .@{_COMMON_PREFIX}main-name {
           color: @admin-white;
           cursor: pointer;
 
@@ -56,9 +56,20 @@
           }
         }
 
-        .xp-admin-common-sub-name {
+        .@{_COMMON_PREFIX}sub-name {
           color: @admin-font-gray1;
           cursor: pointer;
+        }
+
+        .@{_COMMON_PREFIX}names-view.no-description {
+          .@{_COMMON_PREFIX}main-name {
+            height: 32px;
+            line-height: 32px;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            display: none;
+          }
         }
 
         .icon-tree-2 {
