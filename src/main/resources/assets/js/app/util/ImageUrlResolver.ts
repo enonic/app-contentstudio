@@ -75,7 +75,7 @@ export class ImageUrlResolver
     }
 
     private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
-        const url = `cms/${ProjectContext.get().getProject()}/${urlPrefix}${this.contentId.toString()}`;
+        const url = `${urlPrefix}${this.contentId.toString()}`;
 
         return isAbsoluteUrl ? UriHelper.getRestUri(url) : url;
     }
@@ -89,8 +89,7 @@ export class ImageUrlResolver
     }
 
     resolveForPreview(): string {
-
-        let url = this.getBaseUrl(ImageUrlResolver.URL_PREFIX_PREVIEW, true);
+        let url = this.getBaseUrl(`cms/${ProjectContext.get().getProject()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
