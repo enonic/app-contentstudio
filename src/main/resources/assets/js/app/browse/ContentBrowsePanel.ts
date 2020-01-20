@@ -314,6 +314,7 @@ export class ContentBrowsePanel
         });
 
         ProjectChangedEvent.on(() => {
+            this.treeGrid.deselectAll();
             this.treeGrid.reload();
         });
     }
