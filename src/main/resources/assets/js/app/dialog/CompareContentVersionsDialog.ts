@@ -297,6 +297,7 @@ export class CompareContentVersionsDialog
                     options.push(this.createOption(version));
                 }
 
+                // init latest versions by default if nothing is set
                 if (!this.leftVersion || !this.rightVersion) {
                     const latestOption = this.getDefaultOption(options);
                     if (!this.leftVersion) {
@@ -314,6 +315,12 @@ export class CompareContentVersionsDialog
                 this.leftDropdown.sort(this.optionSorter.bind(this));
                 this.rightDropdown.setOptions(rightAliases.concat(options));
                 this.rightDropdown.sort(this.optionSorter.bind(this));
+
+                // now after aliases are added we can select newest alias for the right dropdown
+                const latestAlias = this.getDefaultOption(this.rightDropdown.getOptions());
+                if (latestAlias.value !== this.rightVersion) {
+                    this.rightVersion = latestAlias.value;
+                }
 
                 this.forceSelectVersion(this.leftDropdown, this.leftVersion, true);
                 this.forceSelectVersion(this.rightDropdown, this.rightVersion);
@@ -434,7 +441,9 @@ export class CompareContentVersionsDialog
         if (newestVersion) {
             aliases.push(this.createOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
         }
-        aliases.push(this.createDivider());
+        if (aliases.length > 0) {
+            aliases.push(this.createDivider());
+        }
 
         return aliases;
     }
