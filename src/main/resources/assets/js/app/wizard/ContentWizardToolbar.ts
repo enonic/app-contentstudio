@@ -11,6 +11,7 @@ import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
 import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
 import {Application} from 'lib-admin-ui/app/Application';
 import {AppIcon} from 'lib-admin-ui/app/bar/AppBar';
+import {ProjectContext} from '../project/ProjectContext';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -95,7 +96,7 @@ export class ContentWizardToolbar
                 // add tab id for browsers that can focus tabs by id
                 tabId = application.getId();
             }
-            window.open('#/browse', tabId);     // add browse to prevent tab reload because of url mismatch
+            window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);     // add browse to prevent tab reload because of url mismatch
             return Q(null);
         });
 
