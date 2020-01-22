@@ -33,7 +33,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             studioUtils.saveScreenshot('site_metadata1');
             //3. red icon should be displayed because required input(meta-data) was not filled:
             let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            assert.isTrue(result, "`Red icon` should be displayed near the content, because the required input for metadata is empty");
+            assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
         });
 
     it(`WHEN existing site with application-metadata is opened THEN red icon should be displayed in the wizard`,
