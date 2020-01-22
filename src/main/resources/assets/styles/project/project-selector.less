@@ -3,18 +3,42 @@
   overflow: visible;
 
   .project-selector {
-    flex-grow: 1;
-    max-width: 360px;
-    height: 100%;
-    margin: auto;
-    position: relative;
-    z-index: @z-index-mask + 1;
+    position: absolute;
+    z-index: 2;
+
+    &.open {
+      box-shadow: 0px 1px 7px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    &:not(.single-repo) {
+      .project-viewer {
+        cursor: pointer;
+
+        .names-and-icon-view {
+          cursor: pointer;
+
+          .@{_COMMON_PREFIX}main-name {
+            cursor: pointer;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            cursor: pointer;
+          }
+        }
+      }
+    }
 
     .selected-project-view {
-      height: 100%;
+      height: 44px;
+      padding-left: 20px;
       display: flex;
-      justify-content: center;
-      cursor: pointer;
+      align-items: center;
+
+      .label {
+        font-size: 16px;
+        padding-right: 10px;
+        color: @admin-shadow-gray;
+      }
 
       .project-viewer {
         height: 100%;
@@ -26,14 +50,22 @@
           display: flex;
           align-items: center;
 
-          .xp-admin-common-names-view {
+          .@{_COMMON_PREFIX}wrapper {
+            display: none;
+          }
+
+          .@{_COMMON_PREFIX}names-view {
             margin-left: 0px;
 
-            .xp-admin-common-main-name {
-              height: 18px;
+            .@{_COMMON_PREFIX}main-name {
+              font-size: 16px;
+
+              .name {
+                display: none;
+              }
             }
 
-            .xp-admin-common-sub-name {
+            .@{_COMMON_PREFIX}sub-name {
               display: none;
             }
           }
@@ -45,20 +77,17 @@
       cursor: pointer;
 
       .names-and-icon-view {
-        cursor: pointer;
-
         .@{_COMMON_PREFIX}main-name {
           color: @admin-white;
-          cursor: pointer;
 
           .name {
             padding-left: 5px;
+            color: @admin-shadow-gray;
           }
         }
 
         .@{_COMMON_PREFIX}sub-name {
           color: @admin-font-gray1;
-          cursor: pointer;
         }
 
         .@{_COMMON_PREFIX}names-view.no-description {
@@ -87,11 +116,9 @@
     }
 
     .projects-list-items {
-      position: absolute;
-      z-index: 2;
-      width: 100%;
       background-color: @admin-bg-dark-gray;
-      padding-bottom: 15px;
+      padding-bottom: 5px;
+      min-width: 100%;
 
       .list-header {
         padding: 10px 10px 10px 25px;
@@ -111,11 +138,11 @@
           display: none;
         }
 
-        padding: 5px 10px 5px 0px;
+        padding: 5px 20px 5px 5px;
         cursor: pointer;
 
         .project-viewer {
-          padding: 5px 10px;
+          padding: 5px 15px;
         }
 
         &:hover {

@@ -96,7 +96,7 @@ export class ContentWizardToolbar
                 // add tab id for browsers that can focus tabs by id
                 tabId = application.getId();
             }
-            window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);     // add browse to prevent tab reload because of url mismatch
+            window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);
             return Q(null);
         });
 

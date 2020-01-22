@@ -9,8 +9,9 @@ import {ProjectChangedEvent} from './ProjectChangedEvent';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {BodyMask} from 'lib-admin-ui/ui/mask/BodyMask';
 import {ProjectsList, ProjectsListItem} from './ProjectsList';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ProjectSelector
     extends DivEl {
@@ -72,6 +73,9 @@ export class ProjectSelector
         this.projectsList.onSelectionChanged((project: ProjectItem) => {
             this.handleSelectedProjectChanged(project);
         });
+
+        this.dropdownHandle.setVisible(projects.length > 1);
+        this.toggleClass('single-repo', projects.length < 2);
     }
 
     private initListeners() {
@@ -97,6 +101,10 @@ export class ProjectSelector
     }
 
     private toggleProjectsListShown() {
+        if (this.projectsList.getItemCount() < 2) {
+            return;
+        }
+
         if (this.isProjectsListShown) {
             this.hideProjectsList();
         } else {
@@ -184,6 +192,7 @@ export class ProjectSelector
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const header: DivEl = new DivEl('selected-project-view');
+            header.appendChild(new SpanEl('label').setHtml(i18n('settings.items.type.project')));
             header.appendChild(this.headerProjectViewer);
             header.appendChild(this.dropdownHandle);
             this.appendChildren(
@@ -202,7 +211,6 @@ export class ProjectSelector
         this.addClass('open');
         KeyBindings.get().shelveBindings();
         Body.get().onMouseDown(this.clickOutsideListener);
-        BodyMask.get().show();
         this.isProjectsListShown = true;
         this.dropdownHandle.down();
         this.projectsList.show();
@@ -217,7 +225,6 @@ export class ProjectSelector
         this.removeClass('open');
         KeyBindings.get().unshelveBindings();
         Body.get().unMouseDown(this.clickOutsideListener);
-        BodyMask.get().hide();
         this.isProjectsListShown = false;
         this.dropdownHandle.up();
         this.projectsList.hide();

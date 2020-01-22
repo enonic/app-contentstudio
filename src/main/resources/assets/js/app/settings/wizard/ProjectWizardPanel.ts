@@ -79,11 +79,13 @@ export class ProjectWizardPanel
 
     protected produceCreateItemRequest(): ProjectCreateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
+        const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectCreateRequest()
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
-            .setDisplayName(displayName);
+            .setDisplayName(displayName)
+            .setThumbnail(thumbnail);
     }
 
     protected getSuccessfulCreateMessage(item: ProjectItem): string {
@@ -92,11 +94,13 @@ export class ProjectWizardPanel
 
     protected produceUpdateItemRequest(): ProjectUpdateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
+        const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectUpdateRequest()
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
-            .setDisplayName(displayName);
+            .setDisplayName(displayName)
+            .setThumbnail(thumbnail);
     }
 
     protected getSuccessfulUpdateMessage(item: ProjectItem): string {

@@ -1,8 +1,8 @@
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesView} from 'lib-admin-ui/app/NamesView';
 import {Element} from 'lib-admin-ui/dom/Element';
-import {ProjectItem} from '../ProjectItem';
 import {SettingsItemViewer} from './SettingsItemViewer';
+import {SettingsItem} from '../SettingsItem';
 
 export class ProjectItemViewer
     extends SettingsItemViewer {
@@ -11,7 +11,7 @@ export class ProjectItemViewer
         super('project-viewer ' + (className || ''));
     }
 
-    doLayout(item: ProjectItem) {
+    doLayout(item: SettingsItem) {
         super.doLayout(item);
 
         if (!item) {
@@ -21,7 +21,7 @@ export class ProjectItemViewer
         const namesView: NamesView = this.namesAndIconView.getNamesView();
         namesView.getFirstChild().setHtml('');
         const displayNameEl: Element = new SpanEl('display-name').setHtml(item.getDisplayName());
-        const nameEl: Element = new SpanEl('name').setHtml(`(${item.getName()})`);
+        const nameEl: Element = new SpanEl('name').setHtml(`(${item.getId()})`);
         namesView.getFirstChild().appendChildren(displayNameEl, nameEl);
         namesView.toggleClass('no-description', !item.getDescription());
     }

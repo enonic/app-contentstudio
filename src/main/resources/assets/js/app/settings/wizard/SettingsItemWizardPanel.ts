@@ -21,6 +21,7 @@ import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {SettingsItemJson} from '../resource/json/SettingsItemJson';
+import {SettingsItemFormIcon} from './SettingsItemFormIcon';
 
 export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     extends WizardPanel<T> {
@@ -48,6 +49,10 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
 
     protected createWizardActions(): SettingsItemWizardActions {
         return new SettingsItemWizardActions(this);
+    }
+
+    public getFormIcon(): SettingsItemFormIcon {
+        return <SettingsItemFormIcon>this.formIcon;
     }
 
     private initElements() {
@@ -138,12 +143,18 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
     }
 
     protected createFormIcon(): FormIcon {
-        const iconUrl: string = ImgEl.PLACEHOLDER;
-        const formIcon: FormIcon = new FormIcon(iconUrl, 'icon');
-        formIcon.addClass('icon icon-xlarge');
-        formIcon.addClass(this.getIconClass());
+        const icon: SettingsItemFormIcon = new SettingsItemFormIcon(ImgEl.PLACEHOLDER);
+        icon.addClass(`icon icon-xlarge ${this.getIconClass()}`);
 
-        return formIcon;
+        icon.onIconChanged(() => {
+            if (this.isItemPersisted()) {
+                this.saveChanges().catch((reason: any) => {
+                    DefaultErrorHandler.handle(reason);
+                });
+            }
+        });
+
+        return icon;
     }
 
     protected abstract getIconClass(): string;

@@ -13,6 +13,8 @@ export class ProjectCreateRequest
 
     private description: string;
 
+    private thumbnail: File;
+
     constructor() {
         super();
         this.setMethod(HttpMethod.POST);
@@ -35,12 +37,23 @@ export class ProjectCreateRequest
         return this;
     }
 
+    setThumbnail(value: File): ProjectCreateRequest {
+        this.thumbnail = value;
+        return this;
+    }
+
     getParams(): Object {
-        return {
+        const params: any = {
             name: this.name,
             displayName: this.displayName,
             description: this.description
         };
+
+        if (this.thumbnail) {
+            params.icon = this.thumbnail;
+        }
+
+        return params;
     }
 
     protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {

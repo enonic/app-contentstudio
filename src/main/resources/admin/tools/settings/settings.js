@@ -2,9 +2,16 @@ var admin = require('/lib/xp/admin');
 var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
+var authLib = require('/lib/xp/auth');
 
 function handleGet(req) {
-    var view = resolve('./main.html');
+    if (!isAllowedToAccessSettingsPage()) {
+        return {
+            status: 403
+        }
+    }
+
+    var view = resolve('./../main/main.html');
 
     var context = contextLib.get();
     var repository = context.repository;
@@ -14,27 +21,35 @@ function handleGet(req) {
     var params = {
         adminUrl: admin.getBaseUri(),
         adminAssetsUri: admin.getAssetsUri(),
-        assetsUri: portal.assetUrl({
+        assetsUri: replaceSettingsInPath(portal.assetUrl({
             path: ''
-        }),
+        })),
         appName: 'Content Studio',
         appId: app.name,
         appVersion: app.version,
         branch: branch,
         repository: repository,
         locale: admin.getLocale(),
-        launcherPath: admin.getLauncherPath(),
+        launcherPath: replaceSettingsInPath(admin.getLauncherPath()),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: portal.serviceUrl({service: 'styles'}),
-        i18nUrl: portal.serviceUrl({service: 'i18n'}),
+        stylesUrl: replaceSettingsInPath(portal.serviceUrl({service: 'styles'})),
+        i18nUrl: replaceSettingsInPath(portal.serviceUrl({service: 'i18n'})),
         allowScriptsInEditor: allowScriptsInEditor,
-        mainUrl: portal.pageUrl()
+        mainUrl: portal.pageUrl().replace('/settings', '')
     };
 
     return {
         contentType: 'text/html',
         body: mustache.render(view, params)
     };
+}
+
+function isAllowedToAccessSettingsPage() {
+    return authLib.hasRole('system.admin') || authLib.hasRole('cms.admin');
+}
+
+function replaceSettingsInPath(url) {
+    return url.replace('/settings/', '/main/');
 }
 
 exports.get = handleGet;
