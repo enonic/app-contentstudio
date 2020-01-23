@@ -39,4 +39,6 @@ export abstract class MainAppContainer
         });
     }
 
+    protected abstract browse();
 }
+

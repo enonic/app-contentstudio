@@ -48,7 +48,7 @@ import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
-import {ContentAppMode} from '../ContentAppMode';
+import {UrlAction} from '../UrlAction';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -64,7 +64,7 @@ export class ContentBrowsePanel
         super();
 
         this.onShown(() => {
-            Router.get().setHash(ContentAppMode.BROWSE);
+            Router.get().setHash(UrlAction.BROWSE);
         });
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {

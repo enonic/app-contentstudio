@@ -1,4 +1,4 @@
-export enum ContentAppMode {
+export enum UrlAction {
     BROWSE = 'browse',
     NEW = 'new',
     EDIT = 'edit',

@@ -4,6 +4,7 @@ import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppPanel} from './ContentAppPanel';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
+import {ContentEventsListener} from './ContentEventsListener';
 
 export class ContentAppContainer
     extends MainAppContainer {
@@ -12,6 +13,7 @@ export class ContentAppContainer
         super(application);
 
         this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
+        new ContentEventsListener().start();
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -36,6 +38,10 @@ export class ContentAppContainer
                 panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
             }
         });
+    }
+
+    browse() {
+        (<ContentAppPanel>this.appPanel).handleBrowse();
     }
 
 }

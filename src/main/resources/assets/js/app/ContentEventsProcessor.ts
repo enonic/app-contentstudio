@@ -12,15 +12,16 @@ import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from './project/ProjectContext';
 import {ContentAppBarTabId} from './ContentAppBarTabId';
-import {ContentAppMode} from './ContentAppMode';
+import {UrlAction} from './UrlAction';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {AppMode} from './AppMode';
 
 export class ContentEventsProcessor {
 
     static openWizardTab(params: ContentWizardPanelParams): Window {
-        const wizardUrl: string = `main#/${ContentEventsProcessor.generateURL(params)}`;
+        const wizardUrl: string = `${AppMode.MAIN}#/${ContentEventsProcessor.generateURL(params)}`;
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -28,7 +29,7 @@ export class ContentEventsProcessor {
         const isNew: boolean = !params.contentId;
 
         if (isNew) {
-            return null;
+            return undefined;
         }
 
         return params.tabId.toString();
@@ -98,11 +99,11 @@ export class ContentEventsProcessor {
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent) {
-        const mode: string = event.isInbound() ? ContentAppMode.INBOUND : ContentAppMode.OUTBOUND;
+        const mode: string = event.isInbound() ? UrlAction.INBOUND : UrlAction.OUTBOUND;
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const project: string = ProjectContext.get().getProject();
-        const url = `main#/${project}/${mode}/${id}/${type}` + (!!type ? `/${type}` : '');
+        const url = `${AppMode.MAIN}#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }
@@ -111,18 +112,18 @@ export class ContentEventsProcessor {
         const project: string = ProjectContext.get().getProject();
 
         if (params.tabId && params.tabId.isBrowseMode()) {
-            return `${project}/${ContentAppMode.BROWSE}/${params.tabId.getId()}`;
+            return `${project}/${UrlAction.BROWSE}/${params.tabId.getId()}`;
         }
 
         if (!!params.contentId) {
-            return `${project}/${ContentAppMode.EDIT}/${params.contentId.toString()}`;
+            return `${project}/${UrlAction.EDIT}/${params.contentId.toString()}`;
         }
 
         if (params.parentContentId) {
-            return `${project}/${ContentAppMode.NEW}/${params.contentTypeName.toString()}/${params.parentContentId.toString()}`;
+            return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}/${params.parentContentId.toString()}`;
         }
 
-        return `${project}/${ContentAppMode.NEW}/${params.contentTypeName.toString()}`;
+        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}`;
 
     }
 }

@@ -2,7 +2,7 @@ import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ContentAppMode} from './ContentAppMode';
+import {UrlAction} from './UrlAction';
 
 export class Router {
 
@@ -66,12 +66,12 @@ export class Router {
     private static containsProject(path: Path): boolean {
         const firstPathEl: string = path.getElement(0);
 
-        if (firstPathEl === ContentAppMode.BROWSE ||
-            firstPathEl === ContentAppMode.EDIT ||
-            firstPathEl === ContentAppMode.NEW ||
-            firstPathEl === ContentAppMode.INBOUND ||
-            firstPathEl === ContentAppMode.OUTBOUND ||
-            firstPathEl === ContentAppMode.ISSUE) {
+        if (firstPathEl === UrlAction.BROWSE ||
+            firstPathEl === UrlAction.EDIT ||
+            firstPathEl === UrlAction.NEW ||
+            firstPathEl === UrlAction.INBOUND ||
+            firstPathEl === UrlAction.OUTBOUND ||
+            firstPathEl === UrlAction.ISSUE) {
             return false;
         }
 

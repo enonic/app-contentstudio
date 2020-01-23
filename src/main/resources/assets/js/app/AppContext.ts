@@ -18,10 +18,6 @@ export class AppContext {
         return AppContext.INSTANCE;
     }
 
-    getMode(): AppMode {
-        return this.appMode;
-    }
-
     setMode(value: AppMode) {
         this.appMode = value;
     }

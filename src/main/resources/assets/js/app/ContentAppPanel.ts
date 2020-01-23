@@ -17,39 +17,44 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import {ShowBrowsePanelEvent} from 'lib-admin-ui/app/ShowBrowsePanelEvent';
 import {AppPanel} from 'lib-admin-ui/app/AppPanel';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {ContentAppMode} from './ContentAppMode';
+import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {AppContext} from './AppContext';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
 
-    private path: Path;
-
     constructor(path?: Path) {
         super();
-        this.path = path;
+
+        if (AppContext.get().isMainMode()) {
+            this.route(path);
+        }
+    }
+
+    handleBrowse() {
+        super.handleBrowse();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.route(this.path);
+
             return rendered;
         });
     }
 
     private route(path?: Path) {
         const action = path ? path.getElement(1) : null;
-        const actionAsTabMode: ContentAppMode = !!action ? ContentAppMode[action.toUpperCase()] : null;
+        const actionAsTabMode: UrlAction = !!action ? UrlAction[action.toUpperCase()] : null;
         const id = path ? path.getElement(2) : null;
         const type = path ? path.getElement(3) : null;
 
         switch (actionAsTabMode) {
-        case ContentAppMode.EDIT:
+        case UrlAction.EDIT:
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
@@ -57,8 +62,7 @@ export class ContentAppPanel
                     });
             }
             break;
-        case ContentAppMode.ISSUE:
-            new ShowBrowsePanelEvent().fire();
+        case UrlAction.ISSUE:
             if (id) {
                 new GetIssueRequest(id).sendAndParse().then(
                     (issue: Issue) => {
@@ -66,14 +70,11 @@ export class ContentAppPanel
                     });
             }
             break;
-        case ContentAppMode.INBOUND:
+        case UrlAction.INBOUND:
             this.handleDependencies(id, true, type);
             break;
-        case ContentAppMode.OUTBOUND:
+        case UrlAction.OUTBOUND:
             this.handleDependencies(id, false, type);
-            break;
-        default:
-            new ShowBrowsePanelEvent().fire();
             break;
         }
     }
@@ -116,8 +117,6 @@ export class ContentAppPanel
         };
 
         ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
-
-        new ShowBrowsePanelEvent().fire();
     }
 
     private doHandleDependencies(id: string, inbound: boolean, type?: string) {
@@ -143,7 +142,7 @@ export class ContentAppPanel
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
-                const mode: string = inbound ? ContentAppMode.INBOUND : ContentAppMode.OUTBOUND;
+                const mode: string = inbound ? UrlAction.INBOUND : UrlAction.OUTBOUND;
                 const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
                 Router.get().setHash(hash);

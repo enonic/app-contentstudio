@@ -70,10 +70,6 @@ export class ProjectSelector
         this.projectsList.setItems(projects);
         this.projectsList.preSelectProject(currentProject);
 
-        this.projectsList.onSelectionChanged((project: ProjectItem) => {
-            this.handleSelectedProjectChanged(project);
-        });
-
         this.dropdownHandle.setVisible(projects.length > 1);
         this.toggleClass('single-repo', projects.length < 2);
     }
@@ -97,6 +93,10 @@ export class ProjectSelector
 
         this.projectsList.onFocusChanged((listItem: ProjectsListItem) => {
             this.focusedElement = listItem;
+        });
+
+        this.projectsList.onSelectionChanged((project: ProjectItem) => {
+            this.handleSelectedProjectChanged(project);
         });
     }
 

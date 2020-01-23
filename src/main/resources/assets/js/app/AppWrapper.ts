@@ -6,27 +6,23 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Application} from 'lib-admin-ui/app/Application';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {MainAppContainer} from './MainAppContainer';
 import {SettingsAppContainer} from './settings/SettingsAppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
-import {SettingsServerEventsListener} from './settings/event/SettingsServerEventsListener';
-import {ContentEventsListener} from './ContentEventsListener';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
-import {ContentAppMode} from './ContentAppMode';
+import {UrlAction} from './UrlAction';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: DivEl;
 
-    private mainPanel: MainAppContainer;
+    private contentAppContainer: ContentAppContainer;
 
-    private settingsPanel: SettingsAppContainer;
+    private settingsAppContainer: SettingsAppContainer;
 
-    private toggleIcon: Button;
+    private toggleSidebarButton: Button;
 
     private application: Application;
 
@@ -50,61 +46,53 @@ export class AppWrapper
 
     private initElements() {
         this.sidebar = new DivEl('sidebar');
-        this.toggleIcon = new ToggleIcon();
+        this.toggleSidebarButton = new ToggleIcon();
         this.actionsBlock = new ActionsBlock();
-        this.mainPanel = new ContentAppContainer(this.application);
-        this.settingsPanel = new SettingsAppContainer(this.application);
+        this.contentAppContainer = new ContentAppContainer(this.application);
+        this.settingsAppContainer = new SettingsAppContainer(this.application);
+
+        if (AppContext.get().isMainMode()) {
+            this.contentAppContainer.browse();
+        } else {
+            this.settingsAppContainer.browse();
+        }
     }
 
     private isSettingsPage(): boolean {
-        if (this.isSettingsUrlWithNoHash()) {
-            return true;
-        }
-
-        const path: Path = this.application.getPath();
-
-        if (path.getElements().length === 0) {
-            return false;
-        }
-
-        return path.getElement(0) === AppMode.SETTINGS;
-    }
-
-    private isSettingsUrlWithNoHash(): boolean {
-        return window.location.href.endsWith(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`);
+        return window.location.href.indexOf(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`) > -1;
     }
 
     private initListeners() {
-        this.toggleIcon.onClicked(this.toggleState.bind(this));
+        this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleClickOutsideSidebar();
 
-        const settingsServerEventsListener = new SettingsServerEventsListener([this.application]);
-        settingsServerEventsListener.start();
-
-        const clientEventsListener = new ContentEventsListener();
-        clientEventsListener.start();
-
         this.actionsBlock.onContentItemPressed(() => {
-            if (AppContext.get().isMainMode()) {
-                return;
+            if (AppContext.get().isSettingsMode()) {
+                this.switchToContentApp();
             }
-
-            history.pushState(null, null, `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${ContentAppMode.BROWSE}`);
-            AppContext.get().setMode(AppMode.MAIN);
-            this.settingsPanel.hide();
-            this.mainPanel.show();
         });
 
         this.actionsBlock.onSettingsItemPressed(() => {
-            if (AppContext.get().isSettingsMode()) {
-                return;
+            if (AppContext.get().isMainMode()) {
+                this.switchToSettingsApp();
             }
-
-            history.pushState(null, null, AppMode.SETTINGS);
-            AppContext.get().setMode(AppMode.SETTINGS);
-            this.mainPanel.hide();
-            this.settingsPanel.show();
         });
+    }
+
+    private switchToContentApp() {
+        history.pushState(null, null, `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`);
+        AppContext.get().setMode(AppMode.MAIN);
+        this.contentAppContainer.browse();
+        this.settingsAppContainer.hide();
+        this.contentAppContainer.show();
+    }
+
+    private switchToSettingsApp() {
+        history.pushState(null, null, AppMode.SETTINGS);
+        AppContext.get().setMode(AppMode.SETTINGS);
+        this.settingsAppContainer.browse();
+        this.contentAppContainer.hide();
+        this.settingsAppContainer.show();
     }
 
     private handleClickOutsideSidebar() {
@@ -115,20 +103,20 @@ export class AppWrapper
             }
             if (this.hasClass('sidebar-expanded')) {
                 for (let element = event.target; element; element = (<any>element).parentNode) {
-                    if (element === this.sidebar.getHTMLElement() || element === this.toggleIcon.getHTMLElement()) {
+                    if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
                         return;
                     }
                 }
-                this.toggleState();
+                this.toggleSidebar();
             }
         };
     }
 
-    private toggleState() {
+    private toggleSidebar() {
         this.sidebar.show();
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
-        this.toggleIcon.toggleClass('toggled', !isSidebarVisible);
+        this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
         if (!isSidebarVisible) {
             Body.get().onMouseDown(this.mouseClickListener);
         } else {
@@ -141,13 +129,13 @@ export class AppWrapper
             this.sidebar.hide();
             this.sidebar.appendChild(this.createAppNameBlock());
             this.sidebar.appendChildren(this.actionsBlock);
-            this.toggleIcon.addClass('sidebar-toggler');
+            this.toggleSidebarButton.addClass('sidebar-toggler');
             if (AppContext.get().isMainMode()) {
-                this.settingsPanel.hide();
+                this.settingsAppContainer.hide();
             } else {
-                this.mainPanel.hide();
+                this.contentAppContainer.hide();
             }
-            this.appendChildren(this.toggleIcon, this.sidebar, this.mainPanel, this.settingsPanel);
+            this.appendChildren(this.toggleSidebarButton, this.sidebar, this.contentAppContainer, this.settingsAppContainer);
 
             return rendered;
         });
@@ -195,16 +183,25 @@ class ActionsBlock
     }
 
     private initElements() {
-        this.contentItem = new Button(i18n('app.content'));
-        this.contentItem.addClass('icon-version-modified');
-        this.settingsItem = new Button(i18n('app.settings'));
-        this.settingsItem.addClass('icon-cog');
+        this.createContentButton();
+        this.createSettingsButton();
+    }
 
-        if (AppContext.get().isMainMode()) {
-            this.contentItem.addClass('selected');
-        } else {
-            this.settingsItem.addClass('selected');
-        }
+    private createContentButton() {
+        const contentButtonName: string = i18n('app.content');
+        this.contentItem = new Button(contentButtonName);
+        this.contentItem.setTitle(contentButtonName);
+        this.contentItem.addClass('icon-version-modified');
+        this.contentItem.toggleClass('selected', AppContext.get().isMainMode());
+
+    }
+
+    private createSettingsButton() {
+        const settingsButtonName: string = i18n('app.settings');
+        this.settingsItem = new Button(settingsButtonName);
+        this.settingsItem.setTitle(settingsButtonName);
+        this.settingsItem.addClass('icon-cog');
+        this.settingsItem.toggleClass('selected', AppContext.get().isSettingsMode());
     }
 
     private initActions() {

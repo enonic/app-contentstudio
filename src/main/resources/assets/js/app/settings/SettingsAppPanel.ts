@@ -1,7 +1,6 @@
 import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
 import {SettingsAppBar} from './SettingsAppBar';
-import {ShowBrowsePanelEvent} from 'lib-admin-ui/app/ShowBrowsePanelEvent';
 import {SettingsItem} from './data/SettingsItem';
 import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
@@ -26,12 +25,6 @@ export class SettingsAppPanel
 
     constructor(appBar: SettingsAppBar) {
         super(appBar);
-
-        this.route();
-    }
-
-    private route() {
-        new ShowBrowsePanelEvent().fire();
     }
 
     protected createBrowsePanel(): SettingsBrowsePanel {
@@ -67,9 +60,8 @@ export class SettingsAppPanel
         });
     }
 
-    protected handleBrowse() {
+    handleBrowse() {
         super.handleBrowse();
-
         this.getAppBarTabMenu().deselectNavigationItem();
     }
 

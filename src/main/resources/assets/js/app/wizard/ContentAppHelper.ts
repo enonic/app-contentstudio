@@ -4,7 +4,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
-import {ContentAppMode} from '../ContentAppMode';
+import {UrlAction} from '../UrlAction';
 
 
 export class ContentAppHelper {
@@ -13,14 +13,14 @@ export class ContentAppHelper {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        return action === ContentAppMode.NEW || action === ContentAppMode.EDIT;
+        return action === UrlAction.NEW || action === UrlAction.EDIT;
     }
 
     static createWizardParamsFromApp(app: Application): ContentWizardPanelParams {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        if (action === ContentAppMode.NEW) {
+        if (action === UrlAction.NEW) {
             return ContentAppHelper.createWizardParamsForNew(app);
         }
 
