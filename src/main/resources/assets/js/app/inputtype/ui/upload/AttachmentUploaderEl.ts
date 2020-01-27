@@ -28,7 +28,7 @@ export class AttachmentUploaderEl
     constructor(config: AttachmentUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = UriHelper.getRestUri('content/createAttachment');
+            config.url = 'content/createAttachment';
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
