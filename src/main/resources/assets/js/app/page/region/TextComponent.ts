@@ -43,7 +43,7 @@ export class TextComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: TextComponentJson = <TextComponentJson>super.toComponentJson();
+        let json: TextComponentJson = <TextComponentJson>{};
         json.text = this.text != null ? this.text : null;
 
         return <ComponentTypeWrapperJson> {

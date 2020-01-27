@@ -49,7 +49,7 @@ export class FragmentComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: FragmentComponentJson = <FragmentComponentJson>super.toComponentJson();
+        let json: FragmentComponentJson = <FragmentComponentJson>{};
         json.fragment = this.fragment != null ? this.fragment.toString() : null;
         json.config = this.config != null ? this.config.toJson() : null;
 

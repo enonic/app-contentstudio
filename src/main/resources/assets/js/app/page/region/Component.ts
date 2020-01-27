@@ -131,13 +131,6 @@ export abstract class Component
         return 'Component[' + (this.name ? this.name.toString() : '') + ']';
     }
 
-    toComponentJson(): ComponentJson {
-
-        return {
-            name: this.name ? this.name.toString() : null
-        };
-    }
-
     equals(o: Equitable): boolean {
 
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Component)) {
