@@ -39,6 +39,15 @@ export abstract class MainAppContainer
         });
     }
 
-    protected abstract browse();
+    hide() {
+        super.hide();
+        this.appPanel.unbindKeys();
+    }
+
+    show() {
+        super.show();
+        this.appPanel.handleBrowse();
+        this.appPanel.bindKeys();
+    }
 }
 

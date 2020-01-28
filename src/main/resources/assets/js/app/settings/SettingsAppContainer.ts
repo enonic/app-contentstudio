@@ -21,8 +21,4 @@ export class SettingsAppContainer
         return new SettingsAppPanel(<SettingsAppBar>this.appBar);
     }
 
-    browse() {
-        (<SettingsAppPanel>this.appPanel).handleBrowse();
-    }
-
 }

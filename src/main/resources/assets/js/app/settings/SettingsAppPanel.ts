@@ -101,7 +101,7 @@ export class SettingsAppPanel
             if (tabMenuItem != null) {
                 this.selectPanel(tabMenuItem);
             } else {
-                const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
+                const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed();
                 const wizard: SettingsItemWizardPanel<SettingsItem> = this.getWizardPanelFor(item, tabId);
                 const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                     .setLabel(item.getDisplayName())

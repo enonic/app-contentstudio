@@ -40,8 +40,4 @@ export class ContentAppContainer
         });
     }
 
-    browse() {
-        (<ContentAppPanel>this.appPanel).handleBrowse();
-    }
-
 }

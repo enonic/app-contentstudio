@@ -41,7 +41,15 @@ export class AppWrapper
     }
 
     private initAppMode() {
-        AppContext.get().setMode(this.isSettingsPage() ? AppMode.SETTINGS : AppMode.MAIN);
+        AppContext.get().setMode(this.getAppMode());
+    }
+
+    private getAppMode(): AppMode {
+        if (this.isSettingsPage()) {
+            return AppMode.SETTINGS;
+        }
+
+        return AppMode.MAIN;
     }
 
     private initElements() {
@@ -52,9 +60,9 @@ export class AppWrapper
         this.settingsAppContainer = new SettingsAppContainer(this.application);
 
         if (AppContext.get().isMainMode()) {
-            this.contentAppContainer.browse();
+            this.contentAppContainer.show();
         } else {
-            this.settingsAppContainer.browse();
+            this.settingsAppContainer.show();
         }
     }
 
@@ -67,13 +75,13 @@ export class AppWrapper
         this.handleClickOutsideSidebar();
 
         this.actionsBlock.onContentItemPressed(() => {
-            if (AppContext.get().isSettingsMode()) {
+            if (!AppContext.get().isMainMode()) {
                 this.switchToContentApp();
             }
         });
 
         this.actionsBlock.onSettingsItemPressed(() => {
-            if (AppContext.get().isMainMode()) {
+            if (!AppContext.get().isSettingsMode()) {
                 this.switchToSettingsApp();
             }
         });
@@ -82,7 +90,6 @@ export class AppWrapper
     private switchToContentApp() {
         history.pushState(null, null, `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`);
         AppContext.get().setMode(AppMode.MAIN);
-        this.contentAppContainer.browse();
         this.settingsAppContainer.hide();
         this.contentAppContainer.show();
     }
@@ -90,7 +97,6 @@ export class AppWrapper
     private switchToSettingsApp() {
         history.pushState(null, null, AppMode.SETTINGS);
         AppContext.get().setMode(AppMode.SETTINGS);
-        this.settingsAppContainer.browse();
         this.contentAppContainer.hide();
         this.settingsAppContainer.show();
     }
@@ -205,15 +211,17 @@ class ActionsBlock
     }
 
     private initActions() {
-        this.contentItem.onClicked(() => {
-            this.contentItem.addClass('selected');
-            this.settingsItem.removeClass('selected');
+        this.getButtons().forEach((button: Button) => {
+            button.onClicked(() => {
+                this.getButtons().forEach((b: Button) => {
+                    b.toggleClass('selected', b === button);
+                })
+            });
         });
+    }
 
-        this.settingsItem.onClicked(() => {
-            this.settingsItem.addClass('selected');
-            this.contentItem.removeClass('selected');
-        });
+    private getButtons(): Button[] {
+        return [this.contentItem, this.settingsItem];
     }
 
     onContentItemPressed(handler: () => void) {

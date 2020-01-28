@@ -17,7 +17,7 @@ export class DeleteSettingsItemAction
     private deleteConfirmationDialog: ConfirmationDialog;
 
     constructor(grid: SettingsItemsTreeGrid) {
-        super(i18n('action.delete'), 'mod+alt+n');
+        super(i18n('action.delete'), 'mod+del');
         this.setEnabled(false);
 
         this.grid = grid;

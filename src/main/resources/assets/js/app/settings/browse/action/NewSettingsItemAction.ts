@@ -9,7 +9,7 @@ export class NewSettingsItemAction
     private newSettingsItemDialog: NewSettingsItemDialog;
 
     constructor(grid: SettingsItemsTreeGrid) {
-        super(i18n('action.new'), 'mod+alt+n');
+        super(i18n('action.new'), 'alt+n');
         this.newSettingsItemDialog = new NewSettingsItemDialog();
         this.onExecuted(() => {
             this.newSettingsItemDialog.open();
