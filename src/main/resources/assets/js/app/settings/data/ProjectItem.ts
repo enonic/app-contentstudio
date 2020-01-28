@@ -1,7 +1,7 @@
 import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
 import {ProjectItemJson} from '../resource/json/ProjectItemJson';
-import {Equitable} from '../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/Equitable';
-import {ObjectHelper} from '../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class ProjectItem
     extends SettingsItem {
