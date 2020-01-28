@@ -5,6 +5,7 @@ import {SettingsItem} from '../../data/SettingsItem';
 import {DeleteSettingsItemWizardAction} from './DeleteSettingsItemWizardAction';
 import {SettingsItemWizardPanel} from '../SettingsItemWizardPanel';
 import {SaveSettingsItemWizardAction} from './SaveSettingsItemWizardAction';
+import {ProjectItem} from '../../data/ProjectItem';
 
 export class SettingsItemWizardActions
     extends WizardActions<SettingsItem> {
@@ -32,7 +33,7 @@ export class SettingsItemWizardActions
 
     enableActionsForExisting(item: SettingsItem) {
         this.save.setEnabled(false);
-        this.delete.setEnabled(true);
+        this.delete.setEnabled(item.getId() !== ProjectItem.DEFAULT);
     }
 
     getDeleteAction(): DeleteSettingsItemWizardAction {

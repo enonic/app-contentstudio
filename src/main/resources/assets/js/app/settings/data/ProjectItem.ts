@@ -6,6 +6,8 @@ import {ObjectHelper} from '../../../../../../../../../lib-admin-ui/src/main/res
 export class ProjectItem
     extends SettingsItem {
 
+    public static DEFAULT: string = 'default';
+
     private name: string;
 
     constructor(builder: ProjectItemBuilder) {

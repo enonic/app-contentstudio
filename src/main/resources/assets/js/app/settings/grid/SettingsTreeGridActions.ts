@@ -10,6 +10,7 @@ import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemActio
 import {SettingsItem} from '../data/SettingsItem';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {FolderItem} from '../data/FolderItem';
+import {ProjectItem} from '../data/ProjectItem';
 
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsItem> {
@@ -50,7 +51,7 @@ export class SettingsTreeGridActions
 
     isNonEditableItemSelected(items: SettingsItem[]): boolean {
         return items.some((item: SettingsItem) => {
-            return ObjectHelper.iFrameSafeInstanceOf(item, FolderItem);
+            return item.getId() === ProjectItem.DEFAULT || ObjectHelper.iFrameSafeInstanceOf(item, FolderItem);
         });
 
     }
