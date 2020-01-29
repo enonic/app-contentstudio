@@ -90,14 +90,16 @@ export class HtmlArea
 
         const textAreaWrapper = new api.dom.DivEl();
 
-        this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
-
         textAreaEl.onRendered(() => {
             if (this.authRequest.isFulfilled()) {
-                this.initEditor(editorId, property, textAreaWrapper);
+                this.initEditor(editorId, property, textAreaWrapper).then(() => {
+                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
+                });
             } else {
                 this.authRequest.then(() => {
-                    this.initEditor(editorId, property, textAreaWrapper);
+                    this.initEditor(editorId, property, textAreaWrapper).then(() => {
+                        this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
+                    });
                 });
             }
         });
