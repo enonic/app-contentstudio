@@ -85,7 +85,7 @@ export class AppWrapper
         this.sidebar.addSettingsButton();
 
         if (this.isRendered()) {
-            this.appendChild(settingsAppContainer)
+            this.appendChild(settingsAppContainer);
         } else {
             this.onRendered(() => {
                 this.appendChild(settingsAppContainer);
@@ -234,7 +234,7 @@ class AppModeSwitcher
         this.listenButtonClicked(settingsButton);
 
         if (this.isRendered()) {
-            this.appendChild(settingsButton)
+            this.appendChild(settingsButton);
         } else {
             this.onRendered(() => {
                 this.insertChild(settingsButton, 1);
@@ -256,7 +256,7 @@ class AppModeButton
 
     private mode: AppMode;
 
-    private static SELECTED_CLASS = 'selected';
+    private static SELECTED_CLASS: string = 'selected';
 
     constructor(name: string, iconClass: string, mode: AppMode) {
         super(name);
