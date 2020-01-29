@@ -8,6 +8,8 @@ export class ProjectItem
 
     public static DEFAULT: string = 'default';
 
+    public static DEFAULT_ICON_CLASS: string = 'icon-tree-2';
+
     private name: string;
 
     constructor(builder: ProjectItemBuilder) {
@@ -58,7 +60,7 @@ export class ProjectItemBuilder
         super(source);
 
         if (!source || !source.getIconClass()) {
-            this.setIconClass('icon-tree-2');
+            this.setIconClass(ProjectItem.DEFAULT_ICON_CLASS);
         }
     }
 

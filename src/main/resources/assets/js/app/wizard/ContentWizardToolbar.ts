@@ -1,7 +1,5 @@
-import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
@@ -10,8 +8,12 @@ import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIco
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
 import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
 import {Application} from 'lib-admin-ui/app/Application';
-import {AppIcon} from 'lib-admin-ui/app/bar/AppBar';
 import {ProjectContext} from '../project/ProjectContext';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {ProjectItem, ProjectItemBuilder} from '../settings/data/ProjectItem';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -32,29 +34,28 @@ export class ContentWizardToolbar
 
     private stateIcon: DivEl;
 
-    private workflowStateIconsManager: WorkflowStateIconsManager;
+    private config: ContentWizardToolbarConfig;
 
     constructor(config: ContentWizardToolbarConfig) {
         super('content-wizard-toolbar');
 
-        this.initElements(config);
+        this.config = config;
+        this.initElements();
         this.initListeners();
     }
 
-    protected initElements(config: ContentWizardToolbarConfig) {
-        this.workflowStateIconsManager = config.workflowStateIconsManager;
-
-        this.addHomeButton(config.application);
-        this.addActionButtons(config.actions);
-        this.addPublishMenuButton(config.actions);
+    protected initElements() {
+        this.addHomeButton();
+        this.addActionButtons();
+        this.addPublishMenuButton();
         this.addMobileItemStatisticsButton();
-        this.addTogglerButtons(config.actions);
+        this.addTogglerButtons();
 
         this.addStateIcon();
     }
 
     protected initListeners() {
-        this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
+        this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
             if (status.ready) {
                 this.stateIcon.getEl().setTitle(i18n('tooltip.state.ready'));
             } else if (status.inProgress) {
@@ -88,22 +89,41 @@ export class ContentWizardToolbar
         this.contentWizardToolbarPublishControls.setContent(item);
     }
 
-    private addHomeButton(application: Application) {
-        const homeAction: Action = new Action(application.getName());
-        homeAction.onExecuted(() => {
-            let tabId;
-            if (navigator.userAgent.search('Chrome') > -1) {
-                // add tab id for browsers that can focus tabs by id
-                tabId = application.getId();
-            }
-            window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);
-            return Q(null);
+    private addHomeButton() {
+        new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
+            this.addProjectButton(projects);
+        }).catch((reason: any) => {
+            this.addProjectButton([new ProjectItemBuilder().setName(ProjectContext.get().getProject()).build()]);
+            DefaultErrorHandler.handle(reason);
         });
-
-        super.addElement(new AppIcon(application, homeAction));
     }
 
-    private addActionButtons(actions: ContentWizardActions) {
+    private addProjectButton(projects: ProjectItem[]) {
+        const currentProjectName: string = ProjectContext.get().getProject();
+        const project: ProjectItem = projects.filter((p: ProjectItem) => p.getName() === currentProjectName)[0];
+        const projectBlock: NamesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
+            .setMainName(project.getDisplayName())
+            .setIconClass(project.getIconClass());
+        projectBlock.addClass('project-info');
+        projectBlock.toggleClass('single-repo', projects.length < 2);
+        projectBlock.getFirstChild().onClicked(() => this.handleHomeIconClicked());
+
+        this.prependChild(projectBlock);
+    }
+
+    private handleHomeIconClicked() {
+        const application: Application = this.config.application;
+        let tabId: string;
+        if (navigator.userAgent.search('Chrome') > -1) {
+            // add tab id for browsers that can focus tabs by id
+            tabId = application.getId();
+        }
+        window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);
+    }
+
+    private addActionButtons() {
+        const actions: ContentWizardActions = this.config.actions;
+
         super.addActions([
             actions.getSaveAction(),
             actions.getDeleteAction(),
@@ -119,16 +139,17 @@ export class ContentWizardToolbar
         super.addElement(this.stateIcon);
     }
 
-    private addPublishMenuButton(actions: ContentWizardActions) {
+    private addPublishMenuButton() {
         this.status.hide();
         this.author.hide();
 
-        this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(actions);
+        this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         this.contentWizardToolbarPublishControls.getPublishButton().hide();
         super.addElement(this.contentWizardToolbarPublishControls);
     }
 
-    private addTogglerButtons(actions: ContentWizardActions) {
+    private addTogglerButtons() {
+        const actions: ContentWizardActions = this.config.actions;
         this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
 
