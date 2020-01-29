@@ -35,16 +35,8 @@ export class PageComponentsItemViewer
             return viewer.resolveDisplayName(textComponent, textView);
         } else if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
             let fragmentView = <FragmentComponentView> object;
-            let fragmentComponent = fragmentView.getFragmentRootComponent();
-            if (fragmentComponent && ObjectHelper.iFrameSafeInstanceOf(fragmentComponent, TextComponent)) {
-                return this.extractTextFromTextComponent(<TextComponent>fragmentComponent) || fragmentComponent.getName().toString();
-            }
             if (fragmentView.isLoaded()) {
                 return fragmentView.getFragmentDisplayName();
-            } else {
-                fragmentView.onFragmentContentLoaded(() => {
-                    return fragmentView.getFragmentDisplayName();
-                });
             }
         }
 
@@ -101,11 +93,5 @@ export class PageComponentsItemViewer
 
     resolveIconClass(object: ItemView): string {
         return object.getIconClass();
-    }
-
-    private extractTextFromTextComponent(textComponent: TextComponent): string {
-        let tmp = document.createElement('DIV');
-        tmp.innerHTML = textComponent.getText() || '';
-        return (tmp.textContent || tmp.innerText || '').trim();
     }
 }
