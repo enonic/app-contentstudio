@@ -5,12 +5,15 @@ import {ContentAppPanel} from './ContentAppPanel';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
 import {ContentEventsListener} from './ContentEventsListener';
+import {AppMode} from './AppMode';
+import {ProjectContext} from './project/ProjectContext';
+import {UrlAction} from './UrlAction';
 
 export class ContentAppContainer
     extends MainAppContainer {
 
     constructor(application: Application) {
-        super(application);
+        super(application, AppMode.MAIN);
 
         this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
         new ContentEventsListener().start();
@@ -38,6 +41,10 @@ export class ContentAppContainer
                 panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
             }
         });
+    }
+
+    generateAppUrl(): string {
+        return `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`;
     }
 
 }

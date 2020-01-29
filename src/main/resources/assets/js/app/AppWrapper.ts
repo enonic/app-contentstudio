@@ -10,23 +10,21 @@ import {SettingsAppContainer} from './settings/SettingsAppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
-import {ProjectContext} from './project/ProjectContext';
-import {UrlAction} from './UrlAction';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {MainAppContainer} from './MainAppContainer';
 
 export class AppWrapper
     extends DivEl {
 
-    private sidebar: DivEl;
+    private sidebar: Sidebar;
 
-    private contentAppContainer: ContentAppContainer;
-
-    private settingsAppContainer: SettingsAppContainer;
+    private appContainers: MainAppContainer[] = [];
 
     private toggleSidebarButton: Button;
 
     private application: Application;
-
-    private actionsBlock: ActionsBlock;
 
     private mouseClickListener: (event: MouseEvent) => void;
 
@@ -52,53 +50,67 @@ export class AppWrapper
         return AppMode.MAIN;
     }
 
-    private initElements() {
-        this.sidebar = new DivEl('sidebar');
-        this.toggleSidebarButton = new ToggleIcon();
-        this.actionsBlock = new ActionsBlock();
-        this.contentAppContainer = new ContentAppContainer(this.application);
-        this.settingsAppContainer = new SettingsAppContainer(this.application);
+    private isSettingsPage(): boolean {
+        return window.location.href.indexOf(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`) > -1;
+    }
 
-        if (AppContext.get().isMainMode()) {
-            this.contentAppContainer.show();
+    private initElements() {
+        this.sidebar = new Sidebar(this.application);
+        this.toggleSidebarButton = new ToggleIcon();
+        this.initAppContainers();
+    }
+
+    private initAppContainers() {
+        const contentAppContainer: MainAppContainer = new ContentAppContainer(this.application);
+        contentAppContainer.hide();
+        this.appContainers.push(contentAppContainer);
+
+        if (AppContext.get().isSettingsMode()) {
+            const settingsAppContainer: MainAppContainer = this.addSettings();
+            settingsAppContainer.show();
         } else {
-            this.settingsAppContainer.show();
+            contentAppContainer.show();
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                if (loginResult.isContentAdmin()) {
+                    this.addSettings();
+                }
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 
-    private isSettingsPage(): boolean {
-        return window.location.href.indexOf(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`) > -1;
+    private addSettings(): MainAppContainer {
+        const settingsAppContainer: MainAppContainer = new SettingsAppContainer(this.application);
+        settingsAppContainer.hide();
+        this.appContainers.push(settingsAppContainer);
+        this.sidebar.addSettingsButton();
+
+        if (this.isRendered()) {
+            this.appendChild(settingsAppContainer)
+        } else {
+            this.onRendered(() => {
+                this.appendChild(settingsAppContainer);
+            });
+        }
+
+        return settingsAppContainer;
     }
 
     private initListeners() {
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleClickOutsideSidebar();
 
-        this.actionsBlock.onContentItemPressed(() => {
-            if (!AppContext.get().isMainMode()) {
-                this.switchToContentApp();
-            }
-        });
-
-        this.actionsBlock.onSettingsItemPressed(() => {
-            if (!AppContext.get().isSettingsMode()) {
-                this.switchToSettingsApp();
-            }
+        this.sidebar.onAppModeSelected((mode: AppMode) => {
+            const containerToHide: MainAppContainer = this.getAppContainerByMode(AppContext.get().getMode());
+            const containerToShow: MainAppContainer = this.getAppContainerByMode(mode);
+            history.pushState(null, null, containerToShow.generateAppUrl());
+            AppContext.get().setMode(mode);
+            containerToHide.hide();
+            containerToShow.show();
         });
     }
 
-    private switchToContentApp() {
-        history.pushState(null, null, `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`);
-        AppContext.get().setMode(AppMode.MAIN);
-        this.settingsAppContainer.hide();
-        this.contentAppContainer.show();
-    }
-
-    private switchToSettingsApp() {
-        history.pushState(null, null, AppMode.SETTINGS);
-        AppContext.get().setMode(AppMode.SETTINGS);
-        this.contentAppContainer.hide();
-        this.settingsAppContainer.show();
+    private getAppContainerByMode(mode: AppMode): MainAppContainer {
+        return this.appContainers.filter((appContainer: MainAppContainer) => appContainer.getMode() === mode)[0];
     }
 
     private handleClickOutsideSidebar() {
@@ -132,29 +144,12 @@ export class AppWrapper
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.sidebar.hide();
-            this.sidebar.appendChild(this.createAppNameBlock());
-            this.sidebar.appendChildren(this.actionsBlock);
-            this.toggleSidebarButton.addClass('sidebar-toggler');
-            if (AppContext.get().isMainMode()) {
-                this.settingsAppContainer.hide();
-            } else {
-                this.contentAppContainer.hide();
-            }
-            this.appendChildren(this.toggleSidebarButton, this.sidebar, this.contentAppContainer, this.settingsAppContainer);
+            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar, ...this.appContainers);
 
             return rendered;
         });
     }
 
-    private createAppNameBlock(): Element {
-        const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
-        const appName: SpanEl = new SpanEl('app-name');
-        appName.setHtml(this.application.getName());
-        appNameWrapper.appendChild(appName);
-
-        return appNameWrapper;
-    }
 }
 
 class ToggleIcon
@@ -166,6 +161,7 @@ class ToggleIcon
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.addClass('sidebar-toggler');
             const lines: SpanEl = new SpanEl('lines');
             this.appendChild(lines);
 
@@ -174,69 +170,150 @@ class ToggleIcon
     }
 }
 
-class ActionsBlock
+class AppModeSwitcher
     extends DivEl {
 
-    private contentItem: Button;
+    private buttons: AppModeButton[] = [];
 
-    private settingsItem: Button;
+    private appModeSelectedListeners: { (mode: AppMode): void } [] = [];
 
     constructor() {
         super('actions-block');
 
         this.initElements();
-        this.initActions();
+        this.initListeners();
     }
 
     private initElements() {
         this.createContentButton();
-        this.createSettingsButton();
+    }
+
+    private initListeners() {
+        this.buttons.forEach(this.listenButtonClicked.bind(this));
     }
 
     private createContentButton() {
-        const contentButtonName: string = i18n('app.content');
-        this.contentItem = new Button(contentButtonName);
-        this.contentItem.setTitle(contentButtonName);
-        this.contentItem.addClass('icon-version-modified');
-        this.contentItem.toggleClass('selected', AppContext.get().isMainMode());
-
+        const name: string = i18n('app.content');
+        const contentButton: AppModeButton = new AppModeButton(name, 'icon-version-modified', AppMode.MAIN);
+        this.buttons.push(contentButton);
     }
 
-    private createSettingsButton() {
-        const settingsButtonName: string = i18n('app.settings');
-        this.settingsItem = new Button(settingsButtonName);
-        this.settingsItem.setTitle(settingsButtonName);
-        this.settingsItem.addClass('icon-cog');
-        this.settingsItem.toggleClass('selected', AppContext.get().isSettingsMode());
+    private createSettingsButton(): AppModeButton {
+        const name: string = i18n('app.settings');
+        const settingsButton: AppModeButton = new AppModeButton(name, 'icon-cog', AppMode.SETTINGS);
+        this.buttons.push(settingsButton);
+
+        return settingsButton;
     }
 
-    private initActions() {
-        this.getButtons().forEach((button: Button) => {
-            button.onClicked(() => {
-                this.getButtons().forEach((b: Button) => {
-                    b.toggleClass('selected', b === button);
-                })
+    private listenButtonClicked(button: AppModeButton) {
+        button.onClicked(() => {
+            this.buttons.forEach((b: AppModeButton) => {
+                b.toggleSelected(b === button);
             });
+
+            if (button.getMode() !== AppContext.get().getMode()) {
+                this.notifyAppModeSelected(button.getMode());
+            }
         });
     }
 
-    private getButtons(): Button[] {
-        return [this.contentItem, this.settingsItem];
+    private notifyAppModeSelected(mode: AppMode) {
+        this.appModeSelectedListeners.forEach((listener: (mode: AppMode) => void) => {
+            listener(mode);
+        });
     }
 
-    onContentItemPressed(handler: () => void) {
-        this.contentItem.onClicked(handler);
+    onAppModeSelected(handler: (mode: AppMode) => void) {
+        this.appModeSelectedListeners.push(handler);
     }
 
-    onSettingsItemPressed(handler: () => void) {
-        this.settingsItem.onClicked(handler);
+    addSettingsButton() {
+        const settingsButton: AppModeButton = this.createSettingsButton();
+
+        this.listenButtonClicked(settingsButton);
+
+        if (this.isRendered()) {
+            this.appendChild(settingsButton)
+        } else {
+            this.onRendered(() => {
+                this.insertChild(settingsButton, 1);
+            });
+        }
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.contentItem, this.settingsItem);
+            this.appendChildren(...this.buttons);
 
             return rendered;
         });
+    }
+}
+
+class AppModeButton
+    extends Button {
+
+    private mode: AppMode;
+
+    private static SELECTED_CLASS = 'selected';
+
+    constructor(name: string, iconClass: string, mode: AppMode) {
+        super(name);
+
+        this.mode = mode;
+        this.setTitle(name);
+        this.addClass(iconClass);
+        this.toggleClass(AppModeButton.SELECTED_CLASS, mode === AppContext.get().getMode());
+    }
+
+    getMode(): AppMode {
+        return this.mode;
+    }
+
+    toggleSelected(condition: boolean) {
+        this.toggleClass(AppModeButton.SELECTED_CLASS, condition);
+    }
+}
+
+class Sidebar
+    extends DivEl {
+
+    private application: Application;
+
+    private appModeSwitcher: AppModeSwitcher;
+
+    constructor(application: Application) {
+        super('sidebar');
+
+        this.application = application;
+        this.appModeSwitcher = new AppModeSwitcher();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.hide();
+            this.appendChild(this.createAppNameBlock());
+            this.appendChildren(this.appModeSwitcher);
+
+            return rendered;
+        });
+    }
+
+    addSettingsButton() {
+        this.appModeSwitcher.addSettingsButton();
+    }
+
+    onAppModeSelected(handler: (mode: AppMode) => void) {
+        this.appModeSwitcher.onAppModeSelected(handler);
+    }
+
+    private createAppNameBlock(): Element {
+        const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
+        const appName: SpanEl = new SpanEl('app-name');
+        appName.setHtml(this.application.getName());
+        appNameWrapper.appendChild(appName);
+
+        return appNameWrapper;
     }
 }

@@ -22,6 +22,10 @@ export class AppContext {
         this.appMode = value;
     }
 
+    getMode(): AppMode {
+        return this.appMode;
+    }
+
     isMainMode(): boolean {
         return this.appMode === AppMode.MAIN;
     }
