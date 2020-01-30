@@ -53,6 +53,9 @@ import {AppWrapper} from './app/AppWrapper';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
+import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
+import {ProjectItem} from './app/settings/data/ProjectItem';
+import * as Q from 'q';
 // End of Polyfills
 
 declare const CONFIG;
@@ -297,13 +300,18 @@ function startApplication() {
     serverEventsListener.start();
 
     initApplicationEventListener();
-    initProjectContext(application);
-
-    if (ContentAppHelper.isContentWizard(application)) {
-        startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
-    } else {
-        startContentApplication(application);
-    }
+    initProjectContext(application)
+        .catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
+        })
+        .finally(() => {
+            if (ContentAppHelper.isContentWizard(application)) {
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+            } else {
+                startContentApplication(application);
+            }
+        });
 
     initToolTip();
 
@@ -456,7 +464,7 @@ function startContentApplication(application: Application) {
             ShowNewContentDialogEvent.on((event) => {
 
                 let parentContent: ContentSummary = event.getParentContent()
-                                                                ? event.getParentContent().getContentSummary() : null;
+                                                    ? event.getParentContent().getContentSummary() : null;
 
                 if (parentContent != null) {
                     new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -504,8 +512,21 @@ function startContentApplication(application: Application) {
     });
 }
 
-function initProjectContext(application: Application) {
-    ProjectContext.get().setProject(application.getPath().getElement(0));
+function initProjectContext(application: Application): Q.Promise<void> {
+    const projectName: string = application.getPath().getElement(0);
+    if (projectName === ProjectContext.DEFAULT_PROJECT) {
+        return Q(null);
+    }
+
+    return new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
+        const isProjectExisting: boolean = projects.some((project: ProjectItem) => project.getName() === projectName);
+        ProjectContext.get().setProject(isProjectExisting ? projectName : ProjectContext.DEFAULT_PROJECT);
+        if (!isProjectExisting) {
+            NotifyManager.get().showWarning(i18n('notify.settings.project.notExists', projectName));
+        }
+
+        return Q(null);
+    });
 }
 
 (async () => {
