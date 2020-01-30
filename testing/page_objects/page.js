@@ -31,7 +31,7 @@ class Page {
     async getDisplayedElements(selector) {
         let elements = await this.findElements(selector);
         let pr = elements.map(el => el.isDisplayed());
-        return Promise.all(pr).then(result => {
+        return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
         });
     }
