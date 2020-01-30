@@ -90,16 +90,12 @@ export class HtmlArea
 
         const textAreaWrapper = new api.dom.DivEl();
 
-        this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
-
         textAreaEl.onRendered(() => {
-            if (this.authRequest.isFulfilled()) {
-                this.initEditor(editorId, property, textAreaWrapper);
-            } else {
-                this.authRequest.then(() => {
-                    this.initEditor(editorId, property, textAreaWrapper);
+            this.authRequest.then(() => {
+                this.initEditor(editorId, property, textAreaWrapper).then(() => {
+                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
                 });
-            }
+            });
         });
 
         textAreaWrapper.appendChild(textAreaEl);
@@ -239,7 +235,7 @@ export class HtmlArea
 
     private getAllowedHeadingsConfig(): string {
         const allowHeadingsConfig = this.inputConfig['allowHeadings'];
-        if (!allowHeadingsConfig || !(allowHeadingsConfig  instanceof Array)) {
+        if (!allowHeadingsConfig || !(allowHeadingsConfig instanceof Array)) {
             return null;
         }
 
@@ -370,7 +366,7 @@ export class HtmlArea
 
     private setEditorContent(editorId: string, property: Property): void {
         const content: string = property.hasNonNullValue() ?
-                                    HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
+                                HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
         if (HtmlEditor.exists(editorId)) {
             HtmlEditor.setData(editorId, content);
