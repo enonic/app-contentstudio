@@ -3,8 +3,6 @@
  * Verifies: xp-apps#747 Issues with the moving of fragments(Confirmation dialog does not appear, when a fragment is filtered)
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -17,7 +15,7 @@ const MoveContentDialog = require('../../page_objects/browsepanel/move.content.d
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');
 
-describe('Move Fragment` specification', function () {
+describe('Move Fragment specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -31,59 +29,47 @@ describe('Move Fragment` specification', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
-        () => {
+    it(`WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponent = new TextComponent();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponent.typeTextInCkeEditor('text_component_1')
-            }).then(() => {
-                return contentWizard.switchToMainFrame();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return contentWizard.pause(1500);
-            }).then(() => {
-                // wait for (1500) page is rendered and open the menu
-                return pageComponentView.openMenu("text_component_1");
-            }).then(() => {
-                return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            }).then(() => {
-                studioUtils.saveScreenshot('text_saved_as_fragment2')
-            })
+            //1. Open existing site and insert new text component with the text:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponent.typeTextInCkeEditor('text_component_1')
+            await contentWizard.switchToMainFrame();
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(1500);
+            //2. wait for (1500) page is rendered and open the menu
+            await pageComponentView.openMenu("text_component_1");
+            //3. Click on Save as Fragment menu item:
+            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            studioUtils.saveScreenshot('text_saved_as_fragment2')
         });
+
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
     it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let moveContentDialog = new MoveContentDialog();
             let confirmationDialog = new ConfirmationDialog();
-            return studioUtils.findAndSelectContentByDisplayName('text_component_1').then(() => {
-                return contentBrowsePanel.clickOnMoveButton();
-            }).then(() => {
-                return moveContentDialog.waitForOpened();
-            }).then(() => {
-                return moveContentDialog.clickOnMoveButton();
-            }).then(() => {
-                return confirmationDialog.waitForDialogOpened();
-            }).then(result => {
-                return assert.isTrue(result, 'confirmation dialog should be loaded!');
-            }).then(() => {
-                return confirmationDialog.clickOnYesButton();
-                //You are about to move content out of its site which might make it unreachable. Are you sure?
-            }).then(() => {
-                studioUtils.saveScreenshot('fragment_is_moved');
-                return contentBrowsePanel.waitForNotificationMessage();
-            }).then(result => {
-                assert.equal(result, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
-            })
+            //1. Select the fragment and click on Move button:
+            await studioUtils.findAndSelectContentByDisplayName('text_component_1');
+            await contentBrowsePanel.clickOnMoveButton();
+           //2. Verify -  modal dialog is loaded and click on Move button:
+            await moveContentDialog.waitForOpened();
+            await moveContentDialog.clickOnMoveButton();
+            //3. Verify - Confirmation dialog should be loaded!
+            await confirmationDialog.waitForDialogOpened();
+            //4. Click on 'Yes' button:
+            await confirmationDialog.clickOnYesButton();
+            //5. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
+            studioUtils.saveScreenshot('fragment_is_moved');
+            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
+            assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

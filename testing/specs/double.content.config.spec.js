@@ -2,8 +2,6 @@
  * Created on 25.12.2017.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -24,94 +22,73 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN number from the allowed range has been typed THEN validation message should not be present`,
-        () => {
+        async () => {
             let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX).then(()=> {
-                return doubleForm.typeDouble('1.1');
-            }).then(()=>{
-                return doubleForm.pause(1000);
-            }).then(()=> {
-                return doubleForm.isValidationRecordingVisible();
-            }).then(result=> {
-                studioUtils.saveScreenshot('double_min_max_1');
-                assert.isFalse(result, 'Validation recording should not be displayed');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX);
+            await doubleForm.typeDouble('1.1');
+            //1. Number in the allowed range has been typed
+            await doubleForm.pause(1000);
+            //2. Verify the validation recording:
+            let isVisible = await doubleForm.isValidationRecordingVisible();
+            studioUtils.saveScreenshot('double_min_max_1');
+            assert.isFalse(isVisible, 'Validation recording should not be displayed');
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN value less than 'min' has been typed THEN validation record should be visible`,
-        () => {
+        async () => {
             let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX).then(()=> {
-                return doubleForm.typeDouble('-1.1');
-            }).then(()=> {
-                return doubleForm.waitForValidationRecording();
-            }).then(result=> {
-                studioUtils.saveScreenshot('double_min_max_2');
-                assert.isTrue(result, 'Validation recording should appear');
-            });
-        });
-
-    it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN less than min has been typed THEN correct validation recording should be displayed`,
-        () => {
-            let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX).then(()=> {
-                return doubleForm.typeDouble('-1.1');
-            }).then(()=>{
-                return doubleForm.pause(1000);
-            }).then(()=> {
-                return doubleForm.getValidationRecord();
-            }).then(text=> {
-                studioUtils.saveScreenshot('double_min_max_2');
-                assert.isTrue(text == 'The value cannot be less than 0', 'correct validation recording should appear');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX);
+            //1. value less than 'min' has been typed:
+            await doubleForm.typeDouble('-1.1');
+            //2. Verify the validation recording:
+            let isVisible = await doubleForm.waitForValidationRecording();
+            studioUtils.saveScreenshot('double_min_max_2');
+            assert.isTrue(isVisible, 'Validation recording should appear');
+            let actualMessage = await doubleForm.getValidationRecord();
+            assert.equal(actualMessage, 'The value cannot be less than 0', 'expected validation recording should appear');
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN value more than max has been typed THEN validation record should appear`,
-        () => {
+        async () => {
             let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX).then(()=> {
-                return doubleForm.typeDouble('3.5');
-            }).then(()=> {
-                return doubleForm.waitForValidationRecording();
-            }).then(result=> {
-                studioUtils.saveScreenshot('double_min_max_3');
-                assert.isTrue(result, 'Validation recording should appear');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX);
+            //1. Value more than max has been typed
+            await doubleForm.typeDouble('3.5');
+            //2. Verify the validation recording:
+            let isVisible = await doubleForm.waitForValidationRecording();
+            studioUtils.saveScreenshot('double_min_max_3');
+            assert.isTrue(isVisible, 'Validation recording should appear');
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,
-        () => {
+        async () => {
             let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double_max').then(() => {
-                return doubleForm.typeDouble('3.14159');
-            }).then(()=>{
-                return doubleForm.pause(1000);
-            }).then(()=> {
-                return doubleForm.isValidationRecordingVisible();
-            }).then((result)=> {
-                studioUtils.saveScreenshot('double_min_max_4');
-                assert.isFalse(result, 'Validation recording should not be displayed');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double_max');
+            //1. Max value has been typed:
+            await doubleForm.typeDouble('3.14159');
+            await doubleForm.pause(1000);
+            //2. Verify the validation recording:
+            let isVisible = await doubleForm.isValidationRecordingVisible();
+            studioUtils.saveScreenshot('double_min_max_4');
+            assert.isFalse(isVisible, 'Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN min value has been typed THEN validation record should not be visible`,
-        () => {
+    it(`GIVEN wizard for new 'Double(min 0,max 3.14159)' is opened WHEN min value has been typed THEN validation record should not be visible`,
+        async () => {
             let doubleForm = new DoubleForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX).then(()=> {
-                return doubleForm.typeDouble('0');
-            }).then(()=>{
-                return doubleForm.pause(1000);
-            }).then(()=> {
-                return doubleForm.isValidationRecordingVisible();
-            }).then(result=> {
-                studioUtils.saveScreenshot('double_min_max_5');
-                assert.isFalse(result, 'Validation recording should not be displayed');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_MIN_MAX);
+            //1. Min value has been typed:
+            await doubleForm.typeDouble('0');
+            await doubleForm.pause(1000);
+            //2. Verify the validation recording:
+            let isVisible = await doubleForm.isValidationRecordingVisible();
+            studioUtils.saveScreenshot('double_min_max_5');
+            assert.isFalse(isVisible, 'Validation recording should not be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(()=> {
+    before(() => {
         return console.log('specification is starting: ' + this.title);
     });
 });

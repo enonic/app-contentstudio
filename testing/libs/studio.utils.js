@@ -175,16 +175,13 @@ module.exports = {
         await this.doSwitchToNewWizard();
         return await contentWizardPanel.waitForOpened();
     },
-    selectAndOpenContentInWizard: function (contentName) {
+    async selectAndOpenContentInWizard(contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
-        return this.findAndSelectItem(contentName).then(() => {
-            return browsePanel.clickOnEditButton();
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        })
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnEditButton();
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
 
     async doAddShortcut(shortcut) {

@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -95,32 +93,25 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
         //verifies https://github.com/enonic/app-contentstudio/issues/335
         //Site Wizard Context panel - versions widget closes after rollback a version
         it(`GIVEN existing site is opened AND Versions widget is opened WHEN rollback a version THEN Versions widget should not be closed`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let wizardVersionsWidget = new WizardVersionsWidget();
                 let wizardDetailsPanel = new WizardDetailsPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openVersionHistory();
-                }).then(() => {
-                    return wizardVersionsWidget.waitForVersionsLoaded();
-                }).then(() => {
-                    //expand the version item
-                    return wizardVersionsWidget.clickAndExpandVersion(1);
-                }).then(() => {
-                    // click on 'Revert' button
-                    return wizardVersionsWidget.clickOnRevertButton();
-                }).then(() => {
-                    //wait for the notification message
-                    return contentWizard.waitForNotificationMessage();
-                }).then(message => {
-                    assert.include(message, "Version was changed to", "Expected notification message should appear");
-                }).then(() => {
-                    return wizardVersionsWidget.isWidgetVisible();
-                }).then(result => {
-                    assert.isTrue(result, "Versions widget should be present in Details Panel")
-                })
+                //1. Open existing site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.openDetailsPanel();
+                //2. Open Versions widget:
+                await wizardDetailsPanel.openVersionHistory();
+                await wizardVersionsWidget.waitForVersionsLoaded();
+                //3. Expand the version item and click on Revert:
+                await wizardVersionsWidget.clickAndExpandVersion(1);
+                await wizardVersionsWidget.clickOnRevertButton();
+                //4. Verify  the notification message:
+                let actualMessage = await contentWizard.waitForNotificationMessage();
+                assert.include(actualMessage, "Version was changed to", "Expected notification message should appear");
+                //5. Verify that widget is displayed :
+                let isDisplayed = await wizardVersionsWidget.isWidgetVisible();
+                assert.isTrue(isDisplayed, "Versions widget should be present in Details Panel")
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
