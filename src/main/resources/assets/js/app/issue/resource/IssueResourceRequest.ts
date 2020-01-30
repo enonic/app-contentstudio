@@ -1,7 +1,7 @@
-import {ResourceRequestAdvanced} from '../../wizard/ResourceRequestAdvanced';
+import {ProjectBasedResourceRequest} from '../../wizard/ProjectBasedResourceRequest';
 
 export abstract class IssueResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
+    extends ProjectBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();

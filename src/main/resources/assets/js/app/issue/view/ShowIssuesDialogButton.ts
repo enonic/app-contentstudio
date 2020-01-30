@@ -8,6 +8,7 @@ import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class ShowIssuesDialogButton extends ActionButton {
 
@@ -28,13 +29,11 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private initEventsListeners() {
-        IssueServerEventsHandler.getInstance().onIssueCreated(() => {
-            this.fetchIssuesAndCreateLink();
-        });
+        const updateFunc: () => void = () => this.fetchIssuesAndCreateLink();
 
-        IssueServerEventsHandler.getInstance().onIssueUpdated(() => {
-            this.fetchIssuesAndCreateLink();
-        });
+        IssueServerEventsHandler.getInstance().onIssueCreated(updateFunc);
+        IssueServerEventsHandler.getInstance().onIssueUpdated(updateFunc);
+        ProjectChangedEvent.on(updateFunc);
     }
 
     private setIssueCount(count: number) {
