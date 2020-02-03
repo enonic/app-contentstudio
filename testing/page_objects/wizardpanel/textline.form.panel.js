@@ -5,7 +5,7 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    textLine: `//div[contains(@id,'inputtype.text.TextLine')]`,
+    textLine: `//div[contains(@id,'TextLine')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 

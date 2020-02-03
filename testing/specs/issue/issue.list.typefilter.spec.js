@@ -110,7 +110,8 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             //3. Close the task:
             await taskDetailsDialog.clickOnCloseTaskButton();
             await taskDetailsDialog.clickOnBackButton();
-            await issueListDialog.pause(500);
+    await
+    issueListDialog.pause(4000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
 
             //4. Number of closed and Open issues should be updated:
@@ -118,11 +119,11 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let openNumber = await issueListDialog.getNumberInOpenButton();
             let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
             //Number in 'All()' should be reduced, because 'Open' button is active:
-            assert.isTrue(filterInputNumberBeforeClose - filterInputNumber === 1, "");
+    assert.equal(filterInputNumberBeforeClose - filterInputNumber, 1, "Number in TypeFilter should be reduced by 1");
             //Number of Open issues should be reduced:
-            assert.isTrue(openNumberBeforeClose - openNumber === 1, "");
+    assert.equal(openNumberBeforeClose - openNumber, 1, "Number in 'Open' button should be reduced by 1");
             //Number of closed issues should be increased:
-            assert.isTrue(closedNumber - closedNumberBeforeClose === 1, "");
+    assert.equal(closedNumber - closedNumberBeforeClose, 1, "Number of closed issues should be increased by 1");
         });
 
     //verifies https://github.com/enonic/app-contentstudio/issues/1233
@@ -143,7 +144,8 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await taskDetailsDialog.clickOnReopenTaskButton();
             //4. Go to Issue List  dialog:
             await taskDetailsDialog.clickOnBackButton();
-            await issueListDialog.pause(3000);
+    await
+    issueListDialog.pause(5000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
             //4. 'Closed()' button should be active:
             await issueListDialog.isClosedButtonActive();
@@ -153,9 +155,9 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             //Number in 'All()' should be reduced, because 'Closed' button is active:
             assert.equal((filterInputNumberBeforeReopen - filterInputNumber), 1, "number in 'All' should be reduced");
             //Number of Open issues should be increased:
-            assert.isTrue(openNumber - openNumberBeforeReopen === 1, "Number of open-issues should be increased - 'Open()' button)");
+    assert.equal(openNumber - openNumberBeforeReopen, 1, "Number of open-issues should be increased - 'Open()' button)");
             //Number of closed issues should be reduced:
-            assert.isTrue(closedNumberBeforeReopen - closedNumber === 1, "Number of closed issues should be reduced- 'Closed()' button");
+    assert.equal(closedNumberBeforeReopen - closedNumber, 1, "Number of closed issues should be reduced- 'Closed()' button");
         });
 
     it(`GIVEN Issue List dialog is opened WHEN 'Tasks' option item has been selected THEN publish requests should not be displayed in the dialog`,

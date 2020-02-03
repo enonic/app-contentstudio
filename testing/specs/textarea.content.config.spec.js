@@ -9,7 +9,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const TextAreaForm = require('../page_objects/wizardpanel/textarea.form.panel');
 
-describe('textarea.content.config.spec:  verifies `max-length value config for TextArea`', function () {
+describe('textarea.content.config.spec:  verifies max-length value for TextArea', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
@@ -48,19 +48,19 @@ describe('textarea.content.config.spec:  verifies `max-length value config for T
             assert.isTrue(result, 'Validation recording should appear');
         });
 
-    it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN correct validation recording should be displayed`,
-        () => {
+    it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN expected validation recording should appear`,
+        async() = > {
             let textAreaForm = new TextAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf').then(() => {
-                return textAreaForm.typeText(string42);
-            }).then(() => {
-                return textAreaForm.pause(1000);
-            }).then(() => {
-                return textAreaForm.getValidationRecord();
-            }).then(text => {
-                studioUtils.saveScreenshot('textarea_max_length_3');
-                assert.isTrue(text == 'Text cannot be more than 41 characters long', 'correct validation recording should appear');
-            });
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf');
+    await
+    textAreaForm.typeText(string42);
+    await
+    textAreaForm.pause(1000);
+    let text = await
+    textAreaForm.getValidationRecord();
+    studioUtils.saveScreenshot('textarea_max_length_3');
+    assert.equal(text, 'Text cannot be more than 41 characters long', 'expected validation recording should appear');
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 41 chars has been typed THEN validation record should not be visible`,

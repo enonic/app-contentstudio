@@ -13,7 +13,7 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
-    changeLogInput:"//input[contains(@id,'api.ui.text.AutosizeTextInput')]",
+        changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:

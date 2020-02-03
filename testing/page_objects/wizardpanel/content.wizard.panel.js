@@ -39,7 +39,7 @@ const XPATH = {
     hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
-    liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
+        liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
@@ -47,13 +47,15 @@ const XPATH = {
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
-    stepNavigatorToolbar: `//ul[contains(@id,'wizard.WizardStepNavigator')]`,
+        stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
-        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[child::a[text()='${name}']]`,
+        name = > `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
-        name => `//ul[contains(@id,'wizard.WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
+name =
+>
+`//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
@@ -215,7 +217,7 @@ class ContentWizardPanel extends Page {
 
     waitForWizardStepByTitleNotVisible(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_1).catch(err => {
+        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err = > {
             console.log("Wizard step is not visible: " + title);
             return false;
         })
@@ -500,7 +502,7 @@ class ContentWizardPanel extends Page {
             })
         }, 2000).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon2');
-            throw new Error("Validation Error: Red icon is displayed in the wizard after 2 seconds" + err);
+        throw new Error("Validation Error: Red icon is still displayed in the wizard after 2 seconds" + err);
         });
     }
 
@@ -617,13 +619,13 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    clickOnUnpublishmenuItem() {
+    clickOnUnpublishMenuItem() {
         return this.clickOnPublishMenuDropdownHandle().then(() => {
             return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
         }).catch(err => {
-            throw new Error("Error when unpublishing the contentS! " + err);
+            throw new Error("Error when unpublishing the content! " + err);
         });
     }
 
@@ -722,6 +724,8 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
+            await
+            this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);

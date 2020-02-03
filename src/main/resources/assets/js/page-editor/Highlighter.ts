@@ -27,11 +27,11 @@ export class Highlighter
         // CSS pointer-events only works for SVG in IE
         let svgCls = StyleHelper.getCls('highlighter');
         let html = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="${svgCls}" style="top:-5000px;left:-5000px">
-                           <rect width="150" height="150"/>
-                           <path d=""/>
-                       </svg>`;
+                        <rect width="150" height="150"/>
+                        <path d=""/>
+                    </svg>`;
 
-        super(new ElementFromHelperBuilder().setHelper(Element.fromString(html).getEl()).setLoadExistingChildren(true));
+        super(ElementFromHelperBuilder.fromString(html));
 
         this.setMode(type || HighlighterMode.RECTANGLE);
 

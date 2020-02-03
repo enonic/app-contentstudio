@@ -6,7 +6,7 @@ const appConst = require('../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterButton: "//a[contains(@id,'ClearFilterButton']",
-    searchInput: "//input[contains(@id,'browse.filter.TextSearchField')]",
+    searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
 };
 
@@ -20,8 +20,15 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
+    async
+
     typeSearchText(text) {
-        return this.typeTextInInput(this.searchTextInput, text);
+        try {
+            return await
+            this.typeTextInInput(this.searchTextInput, text);
+        } catch (err) {
+            throw new Error("Error when type text in Search Input " + err);
+        }
     }
 
     waitForOpened() {

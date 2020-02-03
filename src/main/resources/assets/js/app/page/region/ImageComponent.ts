@@ -91,7 +91,7 @@ export class ImageComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: ImageComponentJson = <ImageComponentJson>super.toComponentJson();
+        let json: ImageComponentJson = <ImageComponentJson>{};
         json.image = this.image != null ? this.image.toString() : null;
         json.config = this.config != null ? this.config.toJson() : null;
 

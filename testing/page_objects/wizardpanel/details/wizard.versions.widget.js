@@ -3,6 +3,7 @@
  */
 const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const appConst = require('../../../libs/app_const');
+const lib = require('../../../libs/elements');
 
 const xpath = {
     widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionsWidgetItemView')]`,
@@ -17,8 +18,12 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         return xpath.widget;
     }
 
+    get compareWithCurrentVersionButton() {
+        return xpath.widget + lib.COMPARE_WITH_CURRENT_VERSION;
+    }
+
     get versionItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionItem;
+        return xpath.widget + xpath.versionsList + xpath.versionItem;
     }
 
     isWidgetVisible() {
@@ -47,6 +52,24 @@ class WizardVersionsWidget extends BaseVersionsWidget {
             return await this.pause(2000);
         } catch (err) {
             throw new Error("Version Widget - error when clicking on 'Restore' button " + err);
+        }
+    }
+
+    async
+
+    clickOnCompareWithCurrentVersionButton(index) {
+        try {
+            //wait for the list of versions is loaded:
+            await
+            this.waitForElementDisplayed(xpath.widget + xpath.versionsList);
+            let elements = await
+            this.findElements(this.compareWithCurrentVersionButton);
+            await
+            elements[index].click();
+            return await
+            this.pause(400);
+        } catch (err) {
+            throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
         }
     }
 };

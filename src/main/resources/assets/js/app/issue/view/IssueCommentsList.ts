@@ -4,6 +4,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {H6El} from 'lib-admin-ui/dom/H6El';
+import {IEl} from 'lib-admin-ui/dom/IEl';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {ContextMenu} from 'lib-admin-ui/ui/menu/ContextMenu';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -18,6 +19,7 @@ import {IssueType} from '../IssueType';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {
@@ -155,7 +157,7 @@ class IssueCommentsListItem
 
         if (!this.header) {
             this.header = new H6El('header');
-            this.header.setHtml(this.resolveDisplayName(comment), false);
+            this.header.appendChildren(...this.resolveDisplayName(comment));
             this.text.onEditModeChanged((editMode, newVal, oldVal) => {
                 if (!editMode && newVal !== oldVal) {
                     new UpdateIssueCommentRequest(comment.getId()).setText(newVal).sendAndParse().done(() => {
@@ -182,9 +184,13 @@ class IssueCommentsListItem
         this.setObject(comment);
     }
 
-    private resolveDisplayName(comment: IssueComment): string {
+    private resolveDisplayName(comment: IssueComment): Element[] {
         const time = DateHelper.getModifiedString(comment.getCreatedTime());
-        return `<i class="icon icon-small icon-menu2"/>${comment.getCreatorDisplayName()}<span class="created-time">${time}</span>`;
+        return [
+            new IEl('icon icon-small icon-menu2'),
+            SpanEl.fromText(comment.getCreatorDisplayName()),
+            SpanEl.fromText(time).addClass('created-time')
+        ];
     }
 
     private resolveSubName(comment: IssueComment): string {

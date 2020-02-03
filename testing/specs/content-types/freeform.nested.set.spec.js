@@ -2,8 +2,6 @@
  * Created on 12.04.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -13,13 +11,12 @@ const FreeFormNestedSet = require('../../page_objects/wizardpanel/itemset/freefo
 const FreeFormOptionSet1 = require('../../page_objects/wizardpanel/itemset/freeform.optionset1.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button on the wizard-toolbar', function () {
+describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button in the wizard-toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let siteDisplayName;
     let SITE;
     let contentDisplayName;
-
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -28,55 +25,56 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button should appear on the wizard-toolbar`,
-        () => {
+    it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button gets enabled in the wizard-toolbar`,
+        async() = > {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             let freeFormOptionSet1 = new FreeFormOptionSet1();
             contentDisplayName = contentBuilder.generateRandomName('freeform');
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform').then(() => {
-                return contentWizard.typeDisplayName(contentDisplayName);
-            }).then(() => {
-                //save only the name
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                //click on the radio and expand the first form (set)
-                return freeFormNestedSet.clickOnElementType_Input();
-            }).then(() => {
-                // save the content again
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                // click on the radio in the first form(set)
-                return freeFormOptionSet1.clickOnImageRadioButton();
-            }).then(() => {
-                studioUtils.saveScreenshot('set_in_set_save_issue');
-                return contentWizard.waitForSaveButtonEnabled();
-            }).then(result => {
-                assert.isTrue(result, "Save button should be enabled, because radio button has been clicked in the form");
-            })
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
+    await
+    contentWizard.typeDisplayName(contentDisplayName);
+    //save just the name:
+    await
+    contentWizard.waitAndClickOnSave();
+    //click on the radio and expand the first form (set)
+    await
+    freeFormNestedSet.clickOnElementTypeInput();
+    // save the content again
+    await
+    contentWizard.waitAndClickOnSave();
+    // Click on the radio in the first form(set)
+    await
+    freeFormOptionSet1.clickOnImageRadioButton();
+    studioUtils.saveScreenshot('set_in_set_save_issue');
+    //"Save" button gets enabled, because radio button has been checked"
+    return contentWizard.waitForSaveButtonEnabled();
         });
 
-    it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked sequentially THEN Save button should appear on the wizard-toolbar`,
-        () => {
+    it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked sequentially THEN Save button gets enabled in the wizard-toolbar`,
+        async() = > {
             let contentWizard = new ContentWizard();
             let freeFormOptionSet1 = new FreeFormOptionSet1();
-            return studioUtils.selectAndOpenContentInWizard(contentDisplayName).then(() => {
-                return freeFormOptionSet1.clickOnTextRadioButton();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
-              return contentWizard.pause(1500);
-            }).then(() => {
-                return freeFormOptionSet1.clickOnImageRadioButton();
-            }).then(() => {
-                return contentWizard.waitForSaveButtonEnabled();
-            }).then(result => {
-                assert.isTrue(result, "Save button should be enabled, because radio button has been clicked in the form");
-            }).then(() => {
-                return contentWizard.isContentInvalid();
-            }).then(result => {
-                assert.isFalse(result, "Red icon should not be displayed, because required inputs are filled");
-            })
+    //1. Open existing content with options set:
+    await
+    studioUtils.selectAndOpenContentInWizard(contentDisplayName);
+    //2. Click text-radio button:
+    await
+    freeFormOptionSet1.clickOnTextRadioButton();
+    await
+    contentWizard.waitAndClickOnSave();
+    await
+    contentWizard.pause(1500);
+    //Click on required radio-button:
+    await
+    freeFormOptionSet1.clickOnImageRadioButton();
+    //"Save" button gets enabled, because required radio button has been checked
+    await
+    contentWizard.waitForSaveButtonEnabled();
+    let result = await
+    contentWizard.isContentInvalid();
+    assert.isFalse(result, "Red icon should not be displayed, because required input is filled");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
