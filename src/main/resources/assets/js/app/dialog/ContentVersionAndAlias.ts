@@ -8,4 +8,5 @@ export interface ContentVersionAndAlias {
     contentVersion: ContentVersion;
     alias?: string;
     type?: AliasType;
+    divider?: boolean;
 }

@@ -25,32 +25,36 @@ export class ContentVersionAndAliasViewer
 
         const version = versionAndAlias.contentVersion;
         const alias = versionAndAlias.alias;
-        let dateTime;
-        if (version) {
-            dateTime = `${DateHelper.formatDate(version.modified)} ${DateHelper.getFormattedTimeFromDate(version.modified, false)}`;
-            if (versionAndAlias.alias) {
-                this.namesAndIconView
-                    .setMainName(alias)
-                    .setSubName(i18n('dialog.compareVersions.aliasSubName', dateTime, version.modifierDisplayName))
-                    .setIconClass(version.publishInfo
-                                  ? 'icon-version-published'
-                                  : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
-                                    ? 'icon-state-ready'
-                                    : 'icon-version-modified');
-            } else {
-                this.namesAndIconView
-                    .setMainName(dateTime)
-                    .setSubName(i18n('dialog.compareVersions.nonAliasSubName', version.modifierDisplayName))
-                    .setIconClass(version.publishInfo
-                                  ? 'icon-version-published'
-                                  : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
-                                    ? 'icon-state-ready'
-                                    : 'icon-version-modified');
+        const dateTime = `${DateHelper.formatDate(version.modified)} ${DateHelper.getFormattedTimeFromDate(version.modified, false)}`;
+
+        this.removeClass('divider');
+        if (versionAndAlias.alias) {
+            this.namesAndIconView
+                .setMainName(alias)
+                .setSubName(i18n('dialog.compareVersions.aliasSubName', dateTime, version.modifierDisplayName))
+                .setIconClass(version.publishInfo
+                              ? 'icon-version-published'
+                              : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
+                                ? 'icon-state-ready'
+                                : 'icon-version-modified');
+
+            if (versionAndAlias.divider) {
+                this.addClass('divider');
             }
+        } else {
+            this.namesAndIconView
+                .setMainName(dateTime)
+                .setSubName(i18n('dialog.compareVersions.nonAliasSubName', version.modifierDisplayName))
+                .setIconClass(version.publishInfo
+                              ? 'icon-version-published'
+                              : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
+                                ? 'icon-state-ready'
+                                : 'icon-version-modified');
         }
 
+
         // consider it a divider
-        this.toggleClass('divider', !version);
+        //this.toggleClass('divider', !version);
         return super.setObject(versionAndAlias);
     }
 }

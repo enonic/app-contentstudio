@@ -442,7 +442,7 @@ export class CompareContentVersionsDialog
             aliases.push(this.createOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
         }
         if (aliases.length > 0) {
-            aliases.push(this.createDivider());
+            aliases[aliases.length - 1].displayValue.divider = true;
         }
 
         return aliases;
@@ -461,20 +461,6 @@ export class CompareContentVersionsDialog
                 alias: alias,
                 type: type,
                 contentVersion: version
-            }
-        };
-    }
-
-    private createDivider(): Option<ContentVersionAndAlias> {
-        const id = 'divider';
-        let counter = this.versionIdCounters[id] || 0;
-        const value = `${id}|${++counter}`;
-        this.versionIdCounters[id] = counter;
-        return {
-            value: value,
-            readOnly: true,
-            displayValue: {
-                contentVersion: null
             }
         };
     }
