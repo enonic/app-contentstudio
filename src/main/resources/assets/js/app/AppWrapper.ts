@@ -26,7 +26,7 @@ export class AppWrapper
 
     private application: Application;
 
-    private mouseClickListener: (event: MouseEvent) => void;
+    private touchListener: (event: MouseEvent) => void;
 
     constructor(application: Application) {
         super('main-app-wrapper');
@@ -97,7 +97,7 @@ export class AppWrapper
 
     private initListeners() {
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
-        this.handleClickOutsideSidebar();
+        this.handleTouchOutsideSidebar();
 
         this.sidebar.onAppModeSelected((mode: AppMode) => {
             const containerToHide: MainAppContainer = this.getAppContainerByMode(AppContext.get().getMode());
@@ -113,20 +113,20 @@ export class AppWrapper
         return this.appContainers.filter((appContainer: MainAppContainer) => appContainer.getMode() === mode)[0];
     }
 
-    private handleClickOutsideSidebar() {
-        this.mouseClickListener = (event: MouseEvent) => {
-            if (screen && screen.width > 540) {
-                // Don't auto-collapse the toolbar under desktop resolutions
+    private handleTouchOutsideSidebar() {
+        this.touchListener = (event: MouseEvent) => {
+            if (!this.hasClass('sidebar-expanded')) {
                 return;
             }
-            if (this.hasClass('sidebar-expanded')) {
-                for (let element = event.target; element; element = (<any>element).parentNode) {
-                    if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
-                        return;
-                    }
+            for (let element = event.target; element; element = (<any>element).parentNode) {
+                if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
+                    return;
                 }
-                this.toggleSidebar();
             }
+            this.toggleSidebar();
+
+            event.stopPropagation();
+            event.preventDefault();
         };
     }
 
@@ -136,9 +136,11 @@ export class AppWrapper
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
         if (!isSidebarVisible) {
-            Body.get().onMouseDown(this.mouseClickListener);
+            Body.get().onTouchStart(this.touchListener, false);
+            Body.get().onMouseDown(this.touchListener);
         } else {
-            Body.get().unMouseDown(this.mouseClickListener);
+            Body.get().unTouchStart(this.touchListener);
+            Body.get().unMouseDown(this.touchListener);
         }
     }
 

@@ -1,11 +1,12 @@
 .main-app-wrapper {
 
   @sidebar-width: 55px;
-  @sidebar-width-mobile: 320px;
+  @sidebar-width-mobile: 260px;
 
   .sidebar {
+    z-index: 2;
     padding-top: 44px;
-    background-color: black;
+    background-color: #2A292A;
     width: @sidebar-width;
     position: absolute;
     top: 0;
@@ -37,14 +38,14 @@
       }
 
       button {
-        font-size: 26px;
+        font-size: 22px;
         width: 100%;
         padding: 15px 0 15px 3px;
         display: flex;
         justify-content: center;
 
         &:not(:hover) {
-          background-color: @admin-black;
+          background-color: transparent;
         }
 
         &:hover {
@@ -80,6 +81,10 @@
   &.sidebar-expanded {
     .main {
       left: @sidebar-width;
+
+      .appbar .project {
+        padding-left: 0px;
+      }
     }
 
     .sidebar {
@@ -120,7 +125,7 @@
     top: 4px;
     background-color: transparent;
     cursor: pointer;
-    z-index: 1;
+    z-index: 3;
     line-height: 17px;
     padding: 6px 5px 3px;
     outline-width: 2px;
@@ -176,8 +181,8 @@
     &.toggled {
       -webkit-transform: scale3d(.8, .8, .8);
       transform: scale3d(.8, .8, .8);
-      padding: 4px 7px 8px 17px;
-      left: 4px;
+      padding: 4px 4px 8px 17px;
+      left: 6px;
 
       .lines {
         background: transparent !important;
@@ -185,16 +190,16 @@
           -webkit-transform-origin: 50% 50%;
           transform-origin: 50% 50%;
           top: 2px;
-          width: 1.6rem;
+          width: 1.3rem;
           left: -7px;
         }
         &:before {
-          background-color: #fff;
+          background-color: @admin-shadow-gray;
           -webkit-transform: rotate3d(0, 0, 1, 45deg);
           transform: rotate3d(0, 0, 1, 45deg);
         }
         &:after {
-          background-color: #fff;
+          background-color: @admin-shadow-gray;
           -webkit-transform: rotate3d(0, 0, 1, -45deg);
           transform: rotate3d(0, 0, 1, -45deg);
         }
@@ -202,11 +207,11 @@
     }
   }
 
-  @media screen and (max-width: 540px) {
+  @media screen and (max-width: 720px) {
     .sidebar {
       width: @sidebar-width-mobile;
       left: -@sidebar-width-mobile;
-      padding-top: 0px;
+      padding-top: 0;
 
       .app-name-wrapper {
         padding: 0 50px;
@@ -214,7 +219,7 @@
         .app-name {
           writing-mode: lr;
           padding-left: 0px;
-          font-size: 20px;
+          font-size: 18px;
           letter-spacing: 0;
         }
       }
@@ -222,6 +227,7 @@
       .actions-block {
         button {
           justify-content: flex-start;
+          padding: 8px 0 8px 3px;
 
           span {
             display: block;
@@ -229,24 +235,25 @@
           }
 
           &:before {
-            padding: 0px 15px;
+            font-size: 18px;
+            padding: 3px 15px;
           }
         }
       }
     }
 
     &.sidebar-expanded {
-      .main {
-        left: @sidebar-width-mobile;
-        opacity: 0.5;
-      }
-
-      & ~ .launcher-button {
-        display: none;
-      }
 
       .sidebar {
-        left: 0px;
+        left: 0;
+      }
+
+      .main {
+        left: 0;
+
+        .appbar .project {
+          padding-left: 40px;
+        }
       }
     }
   }

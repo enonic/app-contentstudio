@@ -18,6 +18,7 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ProjectContext} from '../project/ProjectContext';
+import {BrEl} from 'lib-admin-ui/dom/BrEl';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -261,11 +262,11 @@ export class ContentItemPreviewPanel
                 break;
             }
             case PREVIEW_TYPE.EMPTY: {
-                this.showPreviewMessage(i18n('field.preview.notAvailable'));
+                this.showPreviewMessages([i18n('field.preview.notAvailable')]);
                 break;
             }
             case PREVIEW_TYPE.FAILED: {
-                this.showPreviewMessage(i18n('field.preview.failed'));
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.description')]);
                 break;
             }
             case PREVIEW_TYPE.BLANK: {
@@ -294,13 +295,17 @@ export class ContentItemPreviewPanel
                type.isVideoMedia();
     }
 
-    private showPreviewMessage(message: string) {
+    private showPreviewMessages(messages: string[]) {
         this.getEl().addClass('no-preview');
-
-        const textEl = new SpanEl();
-        textEl.setHtml(message, false);
         this.previewMessage.removeChildren();
-        this.previewMessage.appendChild(textEl);
+
+        messages.forEach((message: string, index: number) => {
+            this.previewMessage.appendChild(SpanEl.fromText(message));
+            const isLastMessage = index === messages.length - 1;
+            if (!isLastMessage) {
+                this.previewMessage.appendChild<any>(new BrEl());
+            }
+        });
 
         this.frame.setSrc('about:blank');
     }

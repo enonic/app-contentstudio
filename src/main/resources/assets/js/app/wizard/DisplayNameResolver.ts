@@ -2,9 +2,16 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {Input} from 'lib-admin-ui/form/Input';
 import {DisplayNameGenerator} from 'lib-admin-ui/app/wizard/DisplayNameGenerator';
 import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {Form} from 'lib-admin-ui/form/Form';
+import {FieldSet} from 'lib-admin-ui/form/set/fieldset/FieldSet';
+import {FormItemSet} from 'lib-admin-ui/form/set/itemset/FormItemSet';
+import {FormOptionSet} from 'lib-admin-ui/form/set/optionset/FormOptionSet';
+import {FormOptionSetOption} from 'lib-admin-ui/form/set/optionset/FormOptionSetOption';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import * as _ from 'lodash';
 
 export class DisplayNameResolver
     implements DisplayNameGenerator {
@@ -48,9 +55,25 @@ export class DisplayNameResolver
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
+    private getFormItems(container: any): FormItem[] {
+        let formItems = [];
+        if (ObjectHelper.iFrameSafeInstanceOf(container, Form) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FieldSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormItemSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormOptionSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormOptionSetOption)) {
+            formItems = container.getFormItems();
+            formItems.forEach(formItem => {
+                formItems = formItems.concat(this.getFormItems(formItem));
+            });
+        }
+
+        return formItems;
+    }
+
     private getFormInputs(): Input[] {
-        return <Input[]>this.formView.getForm().getFormItems()
-            .filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
+        const formItems = this.getFormItems(this.formView.getForm());
+        return <Input[]>formItems.filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
     }
 
     private getNamesOfAllowedFields(): string[] {
@@ -61,18 +84,24 @@ export class DisplayNameResolver
 
     private getFormValues(): string {
         const allowedFields = this.getNamesOfAllowedFields();
-        return this.formView.getData().getStringValues()
-            .map(formValue => {
-                    const isAllowedField = allowedFields.indexOf(formValue.name) > -1;
-                    return `var ${formValue.name} = '${isAllowedField ? this.sanitizeFieldValue(formValue.value): ''}'; `;
-                }
-            ).join('');
+
+        const fieldDefinitions: string = allowedFields.map((fieldName: string) => {
+            return `var ${_.camelCase(fieldName)} = ''; `;
+        }).join('');
+
+        const fieldAssignments: string =
+            this.formView.getData().getValuesAsString()
+                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(formValue.name) > -1)
+                .map(formValue => `${_.camelCase(formValue.name)} = '${this.sanitizeFieldValue(formValue.value)}'; `)
+                .join('');
+
+        return fieldDefinitions + fieldAssignments;
     }
 
     private safeEval(): string {
         const script = '"use strict";' +
                        this.getFormValues() +
-                       '`' + this.expression + '`.replace(/\\s+/g, \' \')';
+                       '`' + this.expression + '`.trim().replace(/\\s+/g, \' \')';
 
         let result = '';
 

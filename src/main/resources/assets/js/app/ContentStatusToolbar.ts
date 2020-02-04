@@ -76,8 +76,7 @@ export class ContentStatusToolbar
             new GetPrincipalByKeyRequest(PrincipalKey.fromString(name)).sendAndParse()
                 .then((user: Principal) => {
                     this.author.setHtml(i18n('field.preview.toolbar.status', user.getDisplayName()));
-                })
-                .catch(reason => {
+                }).catch(() => {
                     this.author.setHtml(name);
                 });
         } else {

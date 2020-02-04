@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
@@ -146,34 +145,14 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private setSelectorValue(descriptor: Descriptor) {
         this.selector.setDescriptor(descriptor);
-        this.setupComponentForm(this.component, descriptor);
+        this.setupComponentForm(descriptor);
     }
 
     setDescriptorBasedComponent(component: COMPONENT) {
-        if (this.componentEqualTo(component)) {
-            return;
-        }
-
         this.unregisterComponentListeners();
         this.setComponent(component);
         this.updateSelectorValue();
         this.registerComponentListeners();
-    }
-
-    private componentEqualTo(component: COMPONENT): boolean {
-        if (!this.formView && component.hasDescriptor()) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(component, this.component)) {
-            return false;
-        }
-
-        if (this.component && component && !ObjectHelper.equals(this.component.getPath(), component.getPath())) {
-            return false;
-        }
-
-        return true;
     }
 
     private updateSelectorValue() {
@@ -202,27 +181,27 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const descriptor: Descriptor = event.getOption().displayValue;
             this.component.setDescriptor(descriptor);
-            this.setupComponentForm(this.component, descriptor);
+            this.setupComponentForm(descriptor);
         });
     }
 
-    private setupComponentForm(component: DescriptorBasedComponent, descriptor: Descriptor) {
+    private setupComponentForm(descriptor: Descriptor) {
         this.cleanFormView();
 
-        if (!component || !descriptor) {
+        if (!this.component || !descriptor) {
             return;
         }
 
         const form: Form = descriptor.getConfig();
-        const config: PropertyTree = component.getConfig();
+        const config: PropertyTree = this.component.getConfig();
         this.formView = new FormView(this.formContext, form, config.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
-        component.setDisableEventForwarding(true);
+        this.component.setDisableEventForwarding(true);
         this.formView.layout().catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
         }).finally(() => {
-            component.setDisableEventForwarding(false);
+            this.component.setDisableEventForwarding(false);
         }).done();
     }
 

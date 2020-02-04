@@ -9,6 +9,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CompareStatus} from '../content/CompareStatus';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {BEl} from 'lib-admin-ui/dom/BEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
@@ -26,6 +28,8 @@ export class ContentUnpublishDialog
                 },
             }
         );
+        // Sub title uses html decorated text, that can't be passed into the super config
+        this.useDefaultSubTitle();
     }
 
     protected initElements() {
@@ -43,13 +47,22 @@ export class ContentUnpublishDialog
 
         this.actionButton.getAction().onExecuted(this.doUnpublish.bind(this));
 
-        this.getItemList().onItemsRemoved((items: ContentSummaryAndCompareStatus[]) => {
+        this.getItemList().onItemsRemoved(() => {
             if (!this.isIgnoreItemsChanged()) {
                 this.reloadUnpublishDependencies().done();
             }
         });
 
-        this.onProgressComplete(() => this.setSubTitle(i18n('dialog.unpublish.subname'), false));
+        this.onProgressComplete(() => {
+            this.useDefaultSubTitle();
+        });
+    }
+
+    private useDefaultSubTitle() {
+        this.setSubTitleChildren([
+            BEl.fromText(i18n('dialog.unpublish.subname')),
+            SpanEl.fromText(i18n('dialog.unpublish.subname.description'))
+        ]);
     }
 
     doRender(): Q.Promise<boolean> {

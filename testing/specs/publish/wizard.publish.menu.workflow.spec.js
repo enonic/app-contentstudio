@@ -2,8 +2,6 @@
  * Created on 29.07.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
@@ -19,7 +17,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
     let NEW_DISPLAY_NAME = "new display name 1";
-
 
     it(`GIVEN 'Marked as Ready' folder is opened WHEN 'Publish...' button has been pressed AND the folder has been published THEN 'UNPUBLISH' button gets visible on the toolbar`,
         async () => {
@@ -39,14 +36,12 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items2");
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
-
 
     it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
         async () => {
@@ -87,7 +82,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //'MARK AS READY' button should be present on the toolbar
             //So need to open the publish-menu and select 'Unpublish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
-
             //open 'Unpublish Content' Dialog:
             let contentUnpublishDialog = new ContentUnpublishDialog();
             await contentUnpublishDialog.waitForDialogOpened();
@@ -96,14 +90,12 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
-
-            //Schedule form gets not visible
+    //Schedule form gets not visible:
             await scheduleForm.waitForNotDisplayed();
 
             let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
-
 
     //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for 'Deleted' content
     it(`GIVEN folder was modified and 'unpublished' then it has been published again WHEN 'Delete' button has been pressed and deleting confirmed THEN 'Deleted' status gets visible in the wizard`,
@@ -118,7 +110,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.doMarkAsDeleted();
             //THEN: Schedule form should be visible:
             await scheduleForm.waitForDisplayed();
-
             //Workflow state should not be displayed for the Deleted content
             await contentWizard.waitForStateIconNotDisplayed();
 
@@ -126,7 +117,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.DELETED);
             //AND: 'Publish...' button should be present on the toolbar:
             await contentWizard.waitForPublishButtonVisible();
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

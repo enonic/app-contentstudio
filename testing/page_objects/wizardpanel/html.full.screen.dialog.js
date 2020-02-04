@@ -24,8 +24,15 @@ class HtmlFullScreenDialog extends Page {
         });
     }
 
+    async
+
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        try {
+            return await
+            this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Full Screen dialog should be closed!: " + err);
+        }
     }
 
     typeTextInHtmlArea(strings) {

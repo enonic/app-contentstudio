@@ -26,7 +26,8 @@ class ConfirmationDialog extends Page {
     async clickOnYesButton() {
         await this.waitForElementDisplayed(this.yesButton, appConst.TIMEOUT_2);
         await this.clickOnElement(this.yesButton);
-        await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2)
+        return await
+        this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2)
     }
 
     waitForDialogOpened() {

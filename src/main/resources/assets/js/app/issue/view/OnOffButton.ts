@@ -74,9 +74,9 @@ export class OnOffButton
 
     private refreshCurrentLabel() {
         if (this.off) {
-            this.setLabel(this.offLabel, true);
+            this.setLabel(this.offLabel);
         } else {
-            this.setLabel(this.onLabel, true);
+            this.setLabel(this.onLabel);
         }
     }
 

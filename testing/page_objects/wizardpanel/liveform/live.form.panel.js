@@ -14,7 +14,6 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     imageComponentByDisplayName:
         displayName => `//figure[contains(@id,'ImageComponentView')]//img[contains(@src,'${displayName}')]`,
-
 };
 
 class LiveFormPanel extends Page {

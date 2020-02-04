@@ -246,8 +246,8 @@ export class ContentPublishDialog
         this.scheduleAction.setEnabled(true);
     }
 
-    setSubTitle(text: string, escapeHtml?: boolean) {
-        this.publishSubTitle.setMessage(text.trim(), escapeHtml);
+    setSubTitle(text: string) {
+        this.publishSubTitle.setMessage(text.trim());
     }
 
     setSubTitleMessage(message: string) {
@@ -299,8 +299,8 @@ export class ContentPublishDialogSubTitle
         this.input.resetBaseValues();
     }
 
-    setMessage(text: string, escapeHtml?: boolean) {
-        this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
+    setMessage(text: string) {
+        this.message.setHtml(text || i18n('dialog.publish.messageHint'));
         this.toggleClass('custom-message', !!text);
     }
 
