@@ -67,7 +67,7 @@ export class LiveEditPage {
             console.debug('LiveEditPage: starting live edit initialization');
         }
 
-        i18nInit(CONFIG.i18nUrl).then(() => {
+        i18nInit(CONFIG.services.i18nUrl).then(() => {
 
             const liveEditModel = event.getLiveEditModel();
             const modifyPermissions = event.hasModifyPermissions();
