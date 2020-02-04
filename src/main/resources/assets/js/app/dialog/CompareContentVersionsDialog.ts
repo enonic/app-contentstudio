@@ -127,11 +127,6 @@ export class CompareContentVersionsDialog
         return alias.split('|')[1];
     }
 
-    private isDivider(value: string): boolean {
-        // divider id have following format: divider|<counter>
-        return value && value.startsWith('divider');
-    }
-
     createVersionRevertButton(dropdown: Dropdown<ContentVersionAndAlias>): Button {
 
         const revertAction = new Action(i18n('field.version.revert')).onExecuted(() => {
@@ -291,10 +286,16 @@ export class CompareContentVersionsDialog
                 }
 
                 const options: Option<ContentVersionAndAlias>[] = [];
-                const versions = contentVersions.getContentVersions();
+                const versions = contentVersions.getContentVersions().sort((v1: ContentVersion, v2: ContentVersion) => {
+                    return v2.modified.getTime() - v1.modified.getTime();
+                });
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
-                    options.push(this.createOption(version));
+                    const option = this.createOption(version);
+                    if (i === 0) {
+                        option.displayValue.divider = true; // Mark newest version as a divider to separate versions from aliases
+                    }
+                    options.push(option);
                 }
 
                 // init latest versions by default if nothing is set
@@ -345,7 +346,7 @@ export class CompareContentVersionsDialog
         }
 
         let nextOption: Option<ContentVersionAndAlias> = dd.getOptionByRow(0);
-        while (this.isAlias(nextOption.value) || this.isDivider(nextOption.value)) {
+        while (this.isAlias(nextOption.value)) {
             dd.removeOption(nextOption);
             nextOption = dd.getOptionByRow(0);
         }
@@ -385,8 +386,7 @@ export class CompareContentVersionsDialog
         });
         if (!newest) {
             opts.forEach(opt => {
-                if (!this.isDivider(opt.value) &&
-                    (!newest || opt.displayValue.contentVersion.modified > newest.displayValue.contentVersion.modified)) {
+                if (!newest || opt.displayValue.contentVersion.modified > newest.displayValue.contentVersion.modified) {
                     newest = opt;
                 }
             });
@@ -441,9 +441,6 @@ export class CompareContentVersionsDialog
         if (newestVersion) {
             aliases.push(this.createOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
         }
-        if (aliases.length > 0) {
-            aliases[aliases.length - 1].displayValue.divider = true;
-        }
 
         return aliases;
     }
@@ -472,13 +469,9 @@ export class CompareContentVersionsDialog
             return 1;
         } else if (aVal.alias != null && bVal.alias == null) {
             return -1;
-        } else if (aVal.type !== undefined && bVal.type !== undefined) {
+        } else if (!isNaN(aVal.type) && !isNaN(bVal.type)) {
             // Bubble AliasType.Newest to the top
             return aVal.type - bVal.type;
-        } else if (this.isDivider(a.value) && !this.isDivider(b.value)) {
-            return -1;
-        } else if (!this.isDivider(a.value) && this.isDivider(b.value)) {
-            return 1;
         }
         return bVal.contentVersion.modified.getTime() - aVal.contentVersion.modified.getTime();
     }
@@ -511,9 +504,7 @@ export class CompareContentVersionsDialog
             // doing reverse to be sure to go through regular versions before aliases
             // and make everything in one go
 
-            if (this.isDivider(option.value)) {
-                readOnlyOptions.push(option);
-            } else if (this.isAlias(option.value)) {
+            if (this.isAlias(option.value)) {
                 if (isNextSelectedInRightDropdown && option.displayValue.type === AliasType.PREV) {
                     option.readOnly = true;
                     readOnlyOptions.push(option);
@@ -549,9 +540,7 @@ export class CompareContentVersionsDialog
         }
 
         this.rightDropdown.getOptions().forEach(option => {
-            if (this.isDivider(option.value)) {
-                readOnlyOptions.push(option);
-            } else if (this.isAlias(option.value)) {
+            if (this.isAlias(option.value)) {
                 if (isPrevSelectedInLeftDropdown && option.displayValue.type === AliasType.NEXT) {
                     option.readOnly = true;
                     readOnlyOptions.push(option);

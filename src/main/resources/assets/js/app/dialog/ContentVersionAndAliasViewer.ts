@@ -38,9 +38,6 @@ export class ContentVersionAndAliasViewer
                                 ? 'icon-state-ready'
                                 : 'icon-version-modified');
 
-            if (versionAndAlias.divider) {
-                this.addClass('divider');
-            }
         } else {
             this.namesAndIconView
                 .setMainName(dateTime)
@@ -50,11 +47,13 @@ export class ContentVersionAndAliasViewer
                               : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
                                 ? 'icon-state-ready'
                                 : 'icon-version-modified');
+
+            if (versionAndAlias.divider) {
+                this.addClass('divider');
+            }
         }
 
 
-        // consider it a divider
-        //this.toggleClass('divider', !version);
         return super.setObject(versionAndAlias);
     }
 }
