@@ -51,10 +51,31 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
             //4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
-            //5. Right 'Revert' button should be disabled:
-            await compareContentVersionsDialog.waitForRightRevertButtonDisabled();
-            //6. Left 'Revert' button should be enabled:
-            await compareContentVersionsDialog.waitForLeftRevertButtonEnabled();
+            //5. Right 'Revert' menu-button should be disabled:
+            await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled();
+            //6. Left 'Revert' menu-button should be enabled:
+            await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
+        });
+
+    it(`GIVEN Comparing Versions Dialog is opened in wizard WHEN left revert menu button has been clicked THEN 'Revert' menu item gets visible in the expanded menu`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            //1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            //2. Open Version History panel:
+            await wizardDetailsPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            //3. Open Compare Versions dialog(click in previous version):
+            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            //4. Click on left 'Revert' menu-button and expand the menu:
+            await compareContentVersionsDialog.clickOnLeftRevertMenuButton();
+            //5. 'Revert' menu-item should be present in the expanded menu:
+            await compareContentVersionsDialog.waitForLeftRevertMenuItemDisplayed();
         });
 
     it(`GIVEN Comparing Versions Dialog is loaded WHEN Esc key has been pressed THEN the modal dialog closes`,
