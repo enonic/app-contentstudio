@@ -37,12 +37,10 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) should b
                 await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_TASK);
                 await createTaskDialog.typeTitle("issue1");
                 await createTaskDialog.clickOnCreateTaskButton();
-
                 //Close Issue Details dialog and Issue List dialog:
                 await taskDetailsDialog.clickOnCancelTopButton();
                 await taskDetailsDialog.waitForDialogClosed();
                 await issueListDialog.waitForDialogClosed();
-
                 //New menu item should appear in the Wizard Publish Menu:
                 await contentWizard.openPublishMenuSelectItem("issue1");
                 //Issue details dialog should be loaded after clicking on the menu item:

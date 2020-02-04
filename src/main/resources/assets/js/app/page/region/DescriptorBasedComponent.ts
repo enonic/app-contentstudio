@@ -84,7 +84,6 @@ export abstract class DescriptorBasedComponent
     toComponentJson(): DescriptorBasedComponentJson {
 
         return <DescriptorBasedComponentJson>{
-            name: this.getName() ? this.getName().toString() : null,
             descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
             config: this.config != null ? this.config.toJson() : null
         };

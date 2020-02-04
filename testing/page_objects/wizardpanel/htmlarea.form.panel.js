@@ -58,10 +58,9 @@ class HtmlAreaForm extends Page {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
-    type(data) {
-        return this.typeTextInHtmlArea(data.texts).then(() => {
-            return this.pause(300);
-        })
+    async type(data) {
+        await this.typeTextInHtmlArea(data.texts);
+        return await this.pause(300);
     }
 
     typeTextInHtmlArea(texts) {
@@ -133,21 +132,17 @@ class HtmlAreaForm extends Page {
     }
 
 //double clicks on the html-area
-    doubleClickOnHtmlArea() {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-            return this.doDoubleClick(XPATH.ckeTextArea);
-        }).then(() => {
-            return this.pause(1000);
-        })
+    async doubleClickOnHtmlArea() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3);
+        await this.doDoubleClick(XPATH.ckeTextArea);
+        return await this.pause(1000);
     }
 
     //clicks on Format's dropdown handle and expands options
-    showToolbarAndClickOnFormatDropDownHandle() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.formatDropDownHandle);
-        })
+    async showToolbarAndClickOnFormatDropDownHandle() {
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.TIMEOUT_3);
+        return await this.clickOnElement(XPATH.formatDropDownHandle);
     }
 
     async getFormatOptions() {
@@ -174,16 +169,12 @@ class HtmlAreaForm extends Page {
         return this.pause(300);
     }
 
-    showToolbarAndClickOnTableButton() {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3).then(() => {
-            return this.clickOnElement(XPATH.ckeTextArea);
-        }).then(() => {
-            return this.waitForElementDisplayed(XPATH.tableButton, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.tableButton);
-        }).then(() => {
-            this.pause(400);
-        })
+    async showToolbarAndClickOnTableButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.tableButton, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.tableButton);
+        return await this.pause(400);
     }
 
     async isTableMenuItemVisible() {
@@ -192,21 +183,17 @@ class HtmlAreaForm extends Page {
         return await this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
     }
 
-    showToolbarAndClickOnInsertSpecialCharactersButton() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`,
-                appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`)
-        })
+    async showToolbarAndClickOnInsertSpecialCharactersButton() {
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`, appConst.TIMEOUT_3);
+        await this.clickOnElement(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`);
+        return await this.pause(300);
     }
 
-    showToolbarAndClickOnInsertMacroButton() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.insertMacroButton);
-        })
+    async showToolbarAndClickOnInsertMacroButton() {
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.TIMEOUT_3);
+        return await this.clickOnElement(XPATH.insertMacroButton);
     }
 
     showToolbarAndClickOnInsertLinkButton() {
@@ -229,20 +216,16 @@ class HtmlAreaForm extends Page {
         })
     }
 
-    clickOnSourceButton() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(XPATH.sourceButton, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(XPATH.sourceButton);
-        })
+    async clickOnSourceButton() {
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.sourceButton, appConst.TIMEOUT_3);
+        return await this.clickOnElement(XPATH.sourceButton);
     }
 
-    clickOnFullScreenButton() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitForElementDisplayed(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
-        }).then(result => {
-            return this.clickOnElement(this.fullScreenButton);
-        })
+    async clickOnFullScreenButton() {
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(this.fullScreenButton, appConst.TIMEOUT_3, appConst.TIMEOUT_3);
+        return await this.clickOnElement(this.fullScreenButton);
     }
 
     isBoldButtonDisplayed() {
@@ -358,13 +341,14 @@ class HtmlAreaForm extends Page {
         return this.isElementDisplayed(this.validationRecord);
     }
 
-    getValidationRecord() {
-        return this.waitForValidationRecording().then(() => {
-            return this.getText(this.validationRecord);
-        }).catch(err => {
+    async getValidationRecord() {
+        try {
+            await this.waitForValidationRecording();
+            return await this.getText(this.validationRecord);
+        } catch (err) {
             this.saveScreenshot('err_textarea_validation_record');
             throw new Error('getting Validation text: ' + err);
-        })
+        }
     }
 };
 module.exports = HtmlAreaForm;

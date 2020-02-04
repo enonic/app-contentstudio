@@ -40,7 +40,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //2. click on 'Include children items':
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_2_DISPLAY_NAME);
-            studioUtils.saveScreenshot("request_publish_include_children2");
+            studioUtils.saveScreenshot("request_publish_include_children4");
             //3. Invalid icon gets visible, because on of the children is not valid:
             await createRequestPublishDialog.waitForInvalidIconDisplayed();
         });
@@ -55,7 +55,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //3. Do include not valid child:
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_2_DISPLAY_NAME);
-            studioUtils.saveScreenshot("request_publish_include_children2");
+            studioUtils.saveScreenshot("request_publish_include_children3");
             //Validation messages should appear:
             await createRequestPublishDialog.waitForInvalidIconDisplayed();
 

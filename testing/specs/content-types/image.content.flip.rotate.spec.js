@@ -1,6 +1,5 @@
 /**
  * Created on 05.06.2019.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -27,7 +26,6 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await imageFormPanel.waitForResetFilterDisplayed();
                 studioUtils.saveScreenshot("image_rotate_reset_filter_pressed2");
                 await imageFormPanel.pause(1000);
-
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
                 await imageFormPanel.clickOnResetButton();
@@ -45,7 +43,6 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await imageFormPanel.clickOnFlipButton();
                 await imageFormPanel.waitForResetFilterDisplayed();
                 studioUtils.saveScreenshot("image_flip_reset_filter_pressed2");
-
                 let isEnabled = await contentWizard.waitForSaveButtonEnabled();
                 assert.isTrue(isEnabled, "Save button gets enabled");
 
@@ -63,7 +60,6 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await imageFormPanel.clickOnRotateButton();
                 await contentWizard.waitAndClickOnSave();
                 await studioUtils.doCloseWizardAndSwitchToGrid();
-
                 //clicks on Edit button and open this selected content:
                 await studioUtils.doClickOnEditAndOpenContent(IMAGE_DISPLAY_NAME);
                 // Reset Filter button should be displayed

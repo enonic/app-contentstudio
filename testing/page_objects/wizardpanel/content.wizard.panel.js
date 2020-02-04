@@ -215,7 +215,7 @@ class ContentWizardPanel extends Page {
 
     waitForWizardStepByTitleNotVisible(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_1).catch(err => {
+        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err => {
             console.log("Wizard step is not visible: " + title);
             return false;
         })
@@ -500,7 +500,7 @@ class ContentWizardPanel extends Page {
             })
         }, 2000).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon2');
-            throw new Error("Validation Error: Red icon is displayed in the wizard after 2 seconds" + err);
+            throw new Error("Validation Error: Red icon is still displayed in the wizard after 2 seconds" + err);
         });
     }
 
