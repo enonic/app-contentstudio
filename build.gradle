@@ -42,9 +42,6 @@ repositories {
     mavenLocal()
     jcenter()
     xp.enonicRepo()
-    maven {
-    	  url 'https://plugins.gradle.org/m2/'
-    }
 }
 
 node {
