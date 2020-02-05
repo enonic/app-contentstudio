@@ -28,6 +28,10 @@ class Page {
         return this.browser.getTitle();
     }
 
+    getSource() {
+        return this.browser.getSource();
+    }
+
     async getDisplayedElements(selector) {
         let elements = await this.findElements(selector);
         let pr = elements.map(el => el.isDisplayed());

@@ -44,7 +44,6 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
                 // insert the image:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
-                await contentWizard.pause(500);
                 studioUtils.saveScreenshot("image_fragment_step1");
                 await contentWizard.switchToMainFrame();
                 //Open Page Component View:

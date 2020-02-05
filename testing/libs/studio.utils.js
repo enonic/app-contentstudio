@@ -44,6 +44,9 @@ module.exports = {
         let el = await webDriverHelper.browser.$(selector);
         return await el.isDisplayed();
     },
+    getPageSource() {
+        return webDriverHelper.browser.getPageSource();
+    },
 
     async switchToFrameBySrc(src) {
         try {
