@@ -1,31 +1,37 @@
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {FileUploaderEl} from './FileUploaderEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import * as Q from 'q';
+
+export interface AttachmentItems {
+    existingItems: Element[];
+
+    newItems: Element[];
+}
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
 
-    attachmentAddCallback?: (value: string) => void;
+    contentId: string;
 
-    attachmentRemoveCallback?: (value: any) => void;
+    attachmentRemoveCallback: (value: any) => void;
 }
 
 export class AttachmentUploaderEl
-    extends FileUploaderEl<Attachment> {
+    extends UploaderEl<Attachment> {
 
-    private attachmentItems: AttachmentItem[];
+    static FILE_NAME_DELIMITER: string = '/';
+
+    private contentId: string;
 
     private removeCallback: (value: string) => void;
-    private addCallback: (value: string) => void;
 
     constructor(config: AttachmentUploaderElConfig) {
-
         if (config.url == null) {
             config.url = UriHelper.getRestUri('content/createAttachment');
         }
@@ -35,21 +41,77 @@ export class AttachmentUploaderEl
 
         super(config);
 
-        this.attachmentItems = [];
-
         if (config.attachmentRemoveCallback) {
             this.removeCallback = config.attachmentRemoveCallback;
         }
 
-        if (config.attachmentAddCallback) {
-            this.addCallback = config.attachmentAddCallback;
+        this.contentId = config.contentId;
+    }
+
+    doSetValue(value: string): AttachmentUploaderEl {
+        const items: AttachmentItems = this.getAttachmentItemsFromString(value);
+        this.appendNewItems(items.newItems);
+        this.refreshVisibility();
+
+        return this;
+    }
+
+    setValues(values: string[]) {
+        const items: AttachmentItems = this.getAttachmentItems(values);
+        this.removeAllChildrenExceptGiven(items.existingItems);
+        this.appendNewItems(items.newItems);
+        this.refreshVisibility();
+    }
+
+    protected initHandler() {
+        if (!this.config.disabled) {
+            if (!this.uploader && this.config.url) {
+                this.uploader = this.initUploader();
+            }
         }
+    }
 
-        const noAttachmentsDescription = new DivEl('no-attachments-description');
-        noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
-        noAttachmentsDescription.insertAfterEl(this.getResultContainer());
+    private refreshVisibility() {
+        if (this.config.showResult) {
+            this.setResultVisible();
+            this.getDefaultDropzoneContainer().setVisible(false);
+            this.getDropzone().setVisible(false);
+        } else {
+            this.setDefaultDropzoneVisible();
+        }
+    }
 
-        this.addClass('attachment-uploader-el');
+    private getAttachmentItemsFromString(valuesAsString: string): AttachmentItems {
+        const newItems: Element[] = [];
+        const existingItems: Element[] = [];
+
+        this.parseValues(valuesAsString).forEach((parsedValue: string) => {
+            if (parsedValue) {
+                const newValues: string[] = parsedValue.split(AttachmentUploaderEl.FILE_NAME_DELIMITER);
+                const items: AttachmentItems = this.getAttachmentItems(newValues);
+                newItems.push(...items.newItems);
+                existingItems.push(...items.existingItems);
+            }
+        });
+
+        return {existingItems, newItems};
+    }
+
+    private getAttachmentItems(values: string[]): AttachmentItems {
+        const newItems: Element[] = [];
+        const existingItems: Element[] = [];
+
+        values.forEach((value: string) => {
+            const existingItem: AttachmentItem = this.getExistingItem(value);
+            if (!existingItem) {
+                newItems.push(this.createResultItem(value));
+            } else {
+                existingItems.push(existingItem);
+            }
+        });
+
+
+        return {existingItems, newItems};
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {
@@ -64,35 +126,37 @@ export class AttachmentUploaderEl
         return item.getName().toString();
     }
 
-    removeAttachmentItem(value: string) {
-        this.attachmentItems = this.attachmentItems.filter(
-            item => !(item.getValue() === value)
-        );
-    }
-
-    getExistingItem(value: string): Element {
-        let element = null;
-        this.getResultContainer().getChildren().forEach((item) => {
-            if ((<AttachmentItem>item).getValue() === value) {
+    getExistingItem(value: string): AttachmentItem {
+        let element: AttachmentItem = null;
+        this.getResultContainer().getChildren().forEach((item: AttachmentItem) => {
+            if (item.getValue() === value) {
                 element = item;
             }
         });
+
         return element;
     }
 
-    createResultItem(value: string): Element {
-
-        let attachmentItem = new AttachmentItem(this.contentId, value, this.removeCallback);
-        this.attachmentItems.push(attachmentItem);
-
-        if (this.addCallback) {
-            this.addCallback(attachmentItem.getValue());
-        }
+    createResultItem(value: string): AttachmentItem {
+        const attachmentItem: AttachmentItem = new AttachmentItem(this.contentId, value);
+        attachmentItem.onRemoveClicked(this.removeCallback);
 
         return attachmentItem;
     }
 
     getTotalItems(): number {
-        return this.attachmentItems.length;
+        return this.getResultContainer().getChildren().length;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('attachment-uploader-el');
+
+            const noAttachmentsDescription = new DivEl('no-attachments-description');
+            noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
+            noAttachmentsDescription.insertAfterEl(this.getResultContainer());
+
+            return rendered;
+        });
     }
 }
