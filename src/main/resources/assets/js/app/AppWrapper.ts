@@ -137,10 +137,8 @@ export class AppWrapper
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
         if (!isSidebarVisible) {
             Body.get().onTouchStart(this.touchListener, false);
-            Body.get().onMouseDown(this.touchListener);
         } else {
             Body.get().unTouchStart(this.touchListener);
-            Body.get().unMouseDown(this.touchListener);
         }
     }
 

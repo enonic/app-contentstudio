@@ -192,7 +192,7 @@ export class ProjectSelector
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const header: DivEl = new DivEl('selected-project-view');
-            header.appendChild(new SpanEl('label').setHtml(i18n('settings.items.type.project')));
+            this.headerProjectViewer.insertChild(new SpanEl('label').setHtml(i18n('app.context')), 0);
             header.appendChild(this.headerProjectViewer);
             header.appendChild(this.dropdownHandle);
             this.appendChildren(
