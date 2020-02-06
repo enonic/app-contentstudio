@@ -72,6 +72,17 @@ describe('Move Fragment specification', function () {
             assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
         });
 
+    //Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting child fragment:
+    it(`WHEN existing text-fragment is deleted AND its parent site has been opened THEN wizard page should be loaded`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Select the fragment and delete it:
+            await studioUtils.doDeleteContentByDisplayName('text_component_1');
+            //2. Open fragment's parent site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.waitForOpened();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

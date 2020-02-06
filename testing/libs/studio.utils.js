@@ -358,6 +358,17 @@ module.exports = {
         await deleteContentDialog.clickOnDeleteNowButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
+    async doDeleteContentByDisplayName(displayName) {
+        let browsePanel = new BrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
+        await this.findAndSelectContentByDisplayName(displayName);
+        //Open modal dialog:
+        await browsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        //Click on 'Delete Now' button in the modal dialog:
+        await deleteContentDialog.clickOnDeleteNowButton();
+        return await deleteContentDialog.waitForDialogClosed();
+    },
     async selectContentAndOpenWizard(name) {
         let browsePanel = new BrowsePanel();
         let contentWizardPanel = new ContentWizardPanel();
