@@ -2,7 +2,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {ProjectContext} from '../project/ProjectContext';
+import {UrlHelper} from './UrlHelper';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -89,7 +89,7 @@ export class ImageUrlResolver
     }
 
     resolveForPreview(): string {
-        let url = this.getBaseUrl(`cms/${ProjectContext.get().getProject()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
+        let url = this.getBaseUrl(`${UrlHelper.getCMSPath()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);

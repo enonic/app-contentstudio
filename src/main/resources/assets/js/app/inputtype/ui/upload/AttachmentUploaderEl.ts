@@ -7,7 +7,7 @@ import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
-import {ProjectContext} from '../../../project/ProjectContext';
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -54,7 +54,7 @@ export class AttachmentUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/${this.config.url}`));
+        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {

@@ -14,7 +14,7 @@ import {UlEl} from 'lib-admin-ui/dom/UlEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {ProjectContext} from '../../../../project/ProjectContext';
+import {UrlHelper} from '../../../../util/UrlHelper';
 
 export class AttachmentsWidgetItemView extends WidgetItemView {
 
@@ -92,9 +92,9 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     }
 
     private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): AEl {
-        let name = encodeURIComponent(attachmentName.toString());
-        let url = `cms/${ProjectContext.get().getProject()}/content/media/${contentId.toString()}/${name}`;
-        let link = new AEl().setUrl(UriHelper.getRestUri(url), '_blank');
+        const name: string = encodeURIComponent(attachmentName.toString());
+        const url: string = `${UrlHelper.getCMSPath()}/content/media/${contentId.toString()}/${name}`;
+        const link: AEl = new AEl().setUrl(UriHelper.getRestUri(url), '_blank');
         link.setHtml(attachmentName.toString());
         return link;
     }

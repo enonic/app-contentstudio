@@ -5,7 +5,7 @@ import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl'
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {ProjectContext} from '../project/ProjectContext';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class ThumbnailUploaderEl
     extends UploaderEl<Content> {
@@ -15,7 +15,7 @@ export class ThumbnailUploaderEl
     constructor(config?: UploaderElConfig) {
 
         if (config.url == null) {
-            config.url = UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/content/updateThumbnail`);
+            config.url = UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/updateThumbnail`);
         }
 
         if (config.showCancel == null) {

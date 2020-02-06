@@ -17,8 +17,8 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {ProjectContext} from '../project/ProjectContext';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
+import {UrlHelper} from '../util/UrlHelper';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -318,7 +318,7 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
                     this.frame.setSrc(UriHelper.getRestUri(
-                        `cms/${ProjectContext.get().getProject()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+                        `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
