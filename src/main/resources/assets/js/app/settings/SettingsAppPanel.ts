@@ -43,6 +43,10 @@ export class SettingsAppPanel
         });
 
         SettingsServerEvent.on((event: SettingsServerEvent) => {
+            if (!this.browsePanel) {
+                return;
+            }
+
             if (event.isCreateEvent()) {
                 this.handleItemsCreated(event.getItemsIds());
                 return;

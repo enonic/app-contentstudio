@@ -8,6 +8,7 @@ import {ContentEventsListener} from './ContentEventsListener';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
+import {SettingsServerEvent} from './settings/event/SettingsServerEvent';
 
 export class ContentAppContainer
     extends MainAppContainer {
@@ -15,8 +16,8 @@ export class ContentAppContainer
     constructor(application: Application) {
         super(application, AppMode.MAIN);
 
-        this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
         new ContentEventsListener().start();
+        this.initListeners();
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -27,12 +28,42 @@ export class ContentAppContainer
         return new ContentAppPanel(this.application.getPath());
     }
 
+    private initListeners() {
+        this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
+
+        SettingsServerEvent.on((event: SettingsServerEvent) => {
+            this.handleSettingsServerEvent(event);
+        });
+    }
+
+    private handleSettingsServerEvent(event: SettingsServerEvent) {
+        if (event.isUpdateEvent() || event.isCreateEvent()) {
+            this.handleProjectUpdatedEvent();
+        } else if (event.isDeleteEvent()) {
+            this.handleProjectDeletedEvent(event);
+        }
+    }
+
+    private handleProjectUpdatedEvent() {
+        (<ContentAppBar>this.appBar).updateSelectorValues();
+    }
+
+    private handleProjectDeletedEvent(event: SettingsServerEvent) {
+        const currentProject: string = ProjectContext.get().getProject();
+        const isCurrentProjectDeleted: boolean = event.getItemsIds().some((id: string) => id === currentProject);
+
+        if (isCurrentProjectDeleted) {
+            ProjectContext.get().setProject(ProjectContext.DEFAULT_PROJECT);
+        }
+
+        (<ContentAppBar>this.appBar).updateSelectorValues();
+    }
+
     private initSearchPanelListener(panel: ContentAppPanel) {
         ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
             if (!panel.getBrowsePanel().getTreeGrid().isEmpty()) {
                 new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
             } else {
-
                 const handler = () => {
                     new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
                     panel.getBrowsePanel().getTreeGrid().unLoaded(handler);
