@@ -1,6 +1,7 @@
 import {NodeEventJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChange, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {SettingsServerChange, SettingsServerChangeItem} from './SettingsServerChange';
+import {RepositoryId} from '../../repository/RepositoryId';
 
 export class SettingsServerEvent
     extends NodeServerEvent {
@@ -10,7 +11,7 @@ export class SettingsServerEvent
     }
 
     static is(eventJson: NodeEventJson): boolean {
-        return eventJson.data.nodes.some(node => node.path.indexOf('/repository') === 0);
+        return eventJson.data.nodes.some(node => node.path.indexOf(`/repository/${RepositoryId.CONTENT_REPO_PREFIX}`) === 0);
     }
 
     static fromJson(nodeEventJson: NodeEventJson): SettingsServerEvent {
