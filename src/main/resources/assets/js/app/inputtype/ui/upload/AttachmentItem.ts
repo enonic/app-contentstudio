@@ -2,7 +2,7 @@ import * as Q from 'q';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {ProjectContext} from '../../../project/ProjectContext';
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export class AttachmentItem
     extends DivEl {
@@ -19,7 +19,7 @@ export class AttachmentItem
         this.value = value;
 
         this.link = new AEl().setUrl(
-            UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/content/media/${contentId}/${encodeURIComponent(value)}`));
+            UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
         this.link.setHtml(value);
 
         this.initRemoveButton(removeCallback);

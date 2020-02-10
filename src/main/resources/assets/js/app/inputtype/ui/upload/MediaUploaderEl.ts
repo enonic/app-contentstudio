@@ -10,7 +10,7 @@ import {ContentJson} from '../../../content/ContentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {Value} from 'lib-admin-ui/data/Value';
-import {ProjectContext} from '../../../project/ProjectContext';
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export enum MediaUploaderElOperation {
     create,
@@ -44,7 +44,7 @@ export class MediaUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/${this.config.url}`));
+        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
     }
 
     private initImageDropHandler() {
@@ -162,7 +162,7 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        this.link = new AEl().setUrl(UriHelper.getRestUri(`cms/${ProjectContext.get().getProject()}/content/media/${value}`), '_blank');
+        this.link = new AEl().setUrl(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/media/${value}`), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;
