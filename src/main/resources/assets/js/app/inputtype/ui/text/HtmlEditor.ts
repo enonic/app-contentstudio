@@ -68,6 +68,10 @@ export class HtmlEditor {
         const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
 
+            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                data.align = 'center';
+            }
+
             if (result && result.name === 'img') { // standalone image
                 return null;
             }
