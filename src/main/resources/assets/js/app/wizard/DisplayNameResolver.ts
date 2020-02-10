@@ -85,10 +85,20 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
         return fieldDefinitions + fieldAssignments;
     }
 
+    private parseExpression(): string {
+        let parsedExpression = this.expression;
+        this.expression.match(/[^{}]+(?=\})/g).forEach(
+            (variable: string) => parsedExpression = parsedExpression.replace(variable, _.camelCase(variable))
+        );
+
+        return parsedExpression;
+    }
+
+
     private safeEval(): string {
         const script = '"use strict";' +
-            this.getFormValues() +
-            '`' + this.expression + '`.trim().replace(/\\s+/g, \' \')';
+                       this.getFormValues() +
+                       '`' + this.parseExpression() + '`.trim().replace(/\\s+/g, \' \')';
 
         let result = '';
 
