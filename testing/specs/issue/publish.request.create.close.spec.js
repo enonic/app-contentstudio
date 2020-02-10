@@ -45,6 +45,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
                 assert.equal(result[0], TEST_FOLDER1.displayName, "Expected item to publish should be present in the dialog");
             });
 
+        //Verifies - Request Content Publish Dialog - roles should be filtered in Assignees -options #1312
         it(`GIVEN existing folder(Ready to Publish) AND Publish Request dialog is opened WHEN assignees-options have been expanded THEN roles should not be present in the assignees options`,
             async () => {
                 let browsePanel = new ContentBrowsePanel();

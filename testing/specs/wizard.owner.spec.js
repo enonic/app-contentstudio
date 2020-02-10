@@ -10,7 +10,6 @@ const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,7 +22,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
-
+    //Verifies https://github.com/enonic/app-contentstudio/issues/1201 owner is not refreshed after reverting a version.
     it(`GIVEN existing folder is opened ADN owner is updated WHEN the previous version has been reverted THEN initial owner should be restored`,
         async () => {
             let contentWizard = new ContentWizard();
