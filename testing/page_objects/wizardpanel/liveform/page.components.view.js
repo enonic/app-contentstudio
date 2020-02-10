@@ -127,5 +127,15 @@ class PageComponentView extends Page {
         //await this.waitForElementDisplayed(selector,appConst.TIMEOUT_4);
         return await this.getText(selector);
     }
+
+    async isItemWithDefaultIcon(partDisplayName, index) {
+        let selector = xpath.componentByName(partDisplayName) +
+                       "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'xp-admin-common-wrapper')]"+ "//div[contains(@class,'font-icon-default')]";
+        let items = await this.findElements(selector);
+        if (!items.length) {
+            throw new Error("Component-item with an icon was not found! " + partDisplayName);
+        }
+        return await items[index].isDisplayed();
+    }
 };
 module.exports = PageComponentView;

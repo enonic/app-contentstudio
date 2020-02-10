@@ -57,7 +57,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             //'Show outbound' button should be present in the widget, because the x-data contains an image:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.isTrue(isVisible, "'Show Inbound' button should not be present");
+            assert.isFalse(isVisible, "'Show Inbound' button should not be present");
         });
 
     //verifies https://github.com/enonic/app-contentstudio/issues/287
