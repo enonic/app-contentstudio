@@ -128,7 +128,7 @@ export class HtmlArea
         const textArea = <TextArea> occurrence;
         const id = textArea.getId();
 
-        this.setEditorContent(id, property);
+        this.setEditorContent(id, property, true);
     }
 
     resetInputOccurrenceElement(occurrence: Element) {
@@ -383,12 +383,12 @@ export class HtmlArea
         return HtmlEditor.getData(editor.id);
     }
 
-    private setEditorContent(editorId: string, property: Property): void {
+    private setEditorContent(editorId: string, property: Property, internal: boolean = false): void {
         const content: string = property.hasNonNullValue() ?
                                     HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
         if (HtmlEditor.exists(editorId)) {
-            HtmlEditor.setData(editorId, content);
+            HtmlEditor.setData(editorId, content, internal);
         } else {
             console.log(`Editor with id '${editorId}' not found`);
         }

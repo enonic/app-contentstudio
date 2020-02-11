@@ -21,6 +21,12 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
 
+export interface HtmlEditorCursorPosition {
+    selectionIndexes: number[];
+    indexOfSelectedElement: number;
+    startOffset: number;
+}
+
 /**
  * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
  * in xp/styles.css, thus don't forget to update inline styles when styles.css modified
@@ -586,16 +592,10 @@ export class HtmlEditor {
                     return;
                 }
 
-                const selection: CKEDITOR.dom.selection = editor.getSelection();
-                const range: CKEDITOR.dom.range = selection.getRanges()[0];
-                const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
-
                 const config: any = {
                     editor: editor,
                     editorParams: this.editorParams,
-                    selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
-                    indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
-                    cursorPosition: isCursorSetOnText ? range.startOffset : null
+                    cursorPosition: this.getCursorPosition(editor)
                 };
 
                 this.notifyFullscreenDialog(config);
@@ -637,6 +637,18 @@ export class HtmlEditor {
                 break;
             }
         });
+    }
+
+    private getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
+        const selection: CKEDITOR.dom.selection = editor.getSelection();
+        const range: CKEDITOR.dom.range = selection.getRanges()[0];
+        const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
+
+        return {
+            selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
+            indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
+            startOffset: isCursorSetOnText ? range.startOffset : null
+        };
     }
 
     private setupKeyboardShortcuts() {
@@ -794,8 +806,8 @@ export class HtmlEditor {
         return CKEDITOR.instances[id].getData();
     }
 
-    public static setData(id: string, data: string) {
-        CKEDITOR.instances[id].setData(data);
+    public static setData(id: string, data: string, internal: boolean = false) {
+        CKEDITOR.instances[id].setData(data, {internal: internal});
     }
 
     public static focus(id: string) {
@@ -857,19 +869,19 @@ export class HtmlEditor {
         this.editor.on(eventName, handler);
     }
 
-    public setSelectionByCursorPosition(selectionIndexes: number[], indexOfSelectedElement: number, cursorPosition: number) {
+    public setSelectionByCursorPosition(cursorPositon: HtmlEditorCursorPosition) {
         let elementContainer: CKEDITOR.dom.element = this.editor.document.getBody();
-        selectionIndexes.forEach((index: number) => {
+        cursorPositon.selectionIndexes.forEach((index: number) => {
             elementContainer = <CKEDITOR.dom.element>elementContainer.getChild(index);
         });
 
         elementContainer.scrollIntoView();
 
         const selectedElement: CKEDITOR.dom.node =
-            indexOfSelectedElement > -1 ? elementContainer.getChild(indexOfSelectedElement) : elementContainer;
+            cursorPositon.indexOfSelectedElement > -1 ? elementContainer.getChild(cursorPositon.indexOfSelectedElement) : elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
-        range.setStart(selectedElement, cursorPosition || 0);
+        range.setStart(selectedElement, cursorPositon.startOffset || 0);
         range.select();
     }
 }
