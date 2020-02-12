@@ -2,6 +2,7 @@ import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
 import {ProjectItemJson} from '../resource/json/ProjectItemJson';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ProjectItemPermissions} from './ProjectItemPermissions';
 
 export class ProjectItem
     extends SettingsItem {
@@ -12,14 +13,21 @@ export class ProjectItem
 
     private name: string;
 
+    private permissions: ProjectItemPermissions;
+
     constructor(builder: ProjectItemBuilder) {
         super(builder);
 
         this.name = builder.name;
+        this.permissions = builder.permissions;
     }
 
     getName(): string {
         return this.name;
+    }
+
+    getPermissions(): ProjectItemPermissions {
+        return this.permissions;
     }
 
     getId(): string {
@@ -51,8 +59,15 @@ export class ProjectItemBuilder
 
     name: string;
 
+    permissions: ProjectItemPermissions;
+
     setName(value: string): ProjectItemBuilder {
         this.name = value;
+        return this;
+    }
+
+    setPermissions(value: ProjectItemPermissions): ProjectItemBuilder {
+        this.permissions = value;
         return this;
     }
 
@@ -67,6 +82,7 @@ export class ProjectItemBuilder
     fromJson(json: ProjectItemJson): ProjectItemBuilder {
         super.fromJson(json);
         this.name = json.name;
+        this.permissions = ProjectItemPermissions.fromJson(json.permissions);
         return this;
     }
 
