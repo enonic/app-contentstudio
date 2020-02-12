@@ -10,9 +10,6 @@ import {SettingsAppContainer} from './settings/SettingsAppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {MainAppContainer} from './MainAppContainer';
 
 export class AppWrapper
@@ -62,37 +59,18 @@ export class AppWrapper
 
     private initAppContainers() {
         const contentAppContainer: MainAppContainer = new ContentAppContainer(this.application);
-        contentAppContainer.hide();
+        const settingsAppContainer: MainAppContainer = new SettingsAppContainer(this.application);
+
         this.appContainers.push(contentAppContainer);
+        this.appContainers.push(settingsAppContainer);
 
         if (AppContext.get().isSettingsMode()) {
-            const settingsAppContainer: MainAppContainer = this.addSettings();
+            contentAppContainer.hide();
             settingsAppContainer.show();
         } else {
+            settingsAppContainer.hide();
             contentAppContainer.show();
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                if (loginResult.isContentAdmin()) {
-                    this.addSettings();
-                }
-            }).catch(DefaultErrorHandler.handle);
         }
-    }
-
-    private addSettings(): MainAppContainer {
-        const settingsAppContainer: MainAppContainer = new SettingsAppContainer(this.application);
-        settingsAppContainer.hide();
-        this.appContainers.push(settingsAppContainer);
-        this.sidebar.addSettingsButton();
-
-        if (this.isRendered()) {
-            this.appendChild(settingsAppContainer);
-        } else {
-            this.onRendered(() => {
-                this.appendChild(settingsAppContainer);
-            });
-        }
-
-        return settingsAppContainer;
     }
 
     private initListeners() {
@@ -186,6 +164,7 @@ class AppModeSwitcher
 
     private initElements() {
         this.createContentButton();
+        this.createSettingsButton();
     }
 
     private initListeners() {
@@ -226,20 +205,6 @@ class AppModeSwitcher
 
     onAppModeSelected(handler: (mode: AppMode) => void) {
         this.appModeSelectedListeners.push(handler);
-    }
-
-    addSettingsButton() {
-        const settingsButton: AppModeButton = this.createSettingsButton();
-
-        this.listenButtonClicked(settingsButton);
-
-        if (this.isRendered()) {
-            this.appendChild(settingsButton);
-        } else {
-            this.onRendered(() => {
-                this.insertChild(settingsButton, 1);
-            });
-        }
     }
 
     doRender(): Q.Promise<boolean> {
@@ -298,10 +263,6 @@ class Sidebar
 
             return rendered;
         });
-    }
-
-    addSettingsButton() {
-        this.appModeSwitcher.addSettingsButton();
     }
 
     onAppModeSelected(handler: (mode: AppMode) => void) {

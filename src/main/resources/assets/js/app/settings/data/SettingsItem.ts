@@ -1,6 +1,7 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {SettingsItemJson} from '../resource/json/SettingsItemJson';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 export abstract class SettingsItem
     implements Equitable {
@@ -53,6 +54,9 @@ export abstract class SettingsItem
 
     abstract getId(): string;
 
+    abstract isEditAllowed(loginResult: LoginResult): boolean;
+
+    abstract isDeleteAllowed(loginResult: LoginResult): boolean;
 }
 
 export abstract class SettingsItemBuilder {
