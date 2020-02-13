@@ -3,8 +3,6 @@
  * verifies:https://github.com/enonic/app-contentstudio/issues/127  (shortcut for Publish button does not work)
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -19,53 +17,50 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 describe('Wizard toolbar - shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
+    let DISPLAY_NAME;
 
-    let displayName;
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, () => {
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {
         let contentWizard = new ContentWizard();
-        displayName = contentBuilder.generateRandomName('folder');
-        return studioUtils.openContentWizard(appConstant.contentTypes.FOLDER).then(() => {
-            return contentWizard.typeDisplayName(displayName);
-        }).then(() => {
-            return contentWizard.pause(1000);
-        }).then(() => {
-            return contentWizard.hotKeySave();
-        }).then(result => {
-            return contentWizard.waitForExpectedNotificationMessage(appConstant.itemSavedNotificationMessage(displayName));
-        })
+        DISPLAY_NAME = contentBuilder.generateRandomName('folder');
+        //1. Open new wizard:
+        await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+        await contentWizard.typeDisplayName(DISPLAY_NAME);
+        await contentWizard.pause(1000);
+        //2. Press 'Ctrl+S'
+        await contentWizard.hotKeySave();
+        //3. Verify the notification message:
+        await contentWizard.waitForExpectedNotificationMessage(appConstant.itemSavedNotificationMessage(DISPLAY_NAME));
     });
 
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, () => {
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
         let deleteContentDialog = new DeleteContentDialog();
-        return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
-            let contentWizard = new ContentWizard();
-            return contentWizard.hotKeyDelete();
-        }).then(() => {
-            return deleteContentDialog.waitForDialogOpened();
-        }).then(result => {
-            studioUtils.saveScreenshot('wizard_shortcut_delete');
-            assert.isTrue(result, 'Delete Dialog should be present');
-        })
+        //1. Open existing folder:
+        await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+        let contentWizard = new ContentWizard();
+        //2. Press 'Ctrl+Delete'
+        await contentWizard.hotKeyDelete();
+        //3. Verify that Delete Content dialog loaded:
+        studioUtils.saveScreenshot('wizard_shortcut_delete');
+        await deleteContentDialog.waitForDialogOpened();
     });
 
     //verifies:https://github.com/enonic/app-contentstudio/issues/127
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, () => {
+    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`, async () => {
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
-        return studioUtils.selectAndOpenContentInWizard(displayName).then(() => {
-            return contentWizard.hotKeyPublish();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogOpened();
-        }).then(result => {
-            studioUtils.saveScreenshot('wizard_shortcut_publish');
-            assert.isTrue(result, 'Publish Dialog should be present');
-        })
+        //1. Open existing folder:
+        await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+        //2. Press 'Ctrl+Alt+p'
+        await contentWizard.hotKeyPublish();
+        //3. Verify that Publish Content dialog loaded:
+        await contentPublishDialog.waitForDialogOpened();
     });
 
     it(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`, async () => {
         let contentWizard = new ContentWizard();
         let contentBrowsePanel = new ContentBrowsePanel();
-        await studioUtils.selectAndOpenContentInWizard(displayName);
+        //1. Open existing folder:
+        await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
         await contentWizard.hotKeyCloseWizard();
         await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
     });
@@ -75,10 +70,13 @@ describe('Wizard toolbar - shortcut spec`', function () {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.selectAndOpenContentInWizard(displayName);
+            //1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            //2. Select a language:
             await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
+            //3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
-            let result = await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
+            await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
