@@ -1,10 +1,7 @@
 /**
  * Created on 31.07.2018.
- *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -20,41 +17,36 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
     webDriverHelper.setupBrowser();
 
     it(`GIVEN folder-wizard is opened WHEN 'Version history' menu item in Details panel has been selected THEN 'Version history' widget should be loaded`,
-        () => {
-        let wizardDetailsPanel = new WizardDetailsPanel();
-        let wizardVersionsWidget = new WizardVersionsWidget();
+        async () => {
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
-            return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
-            }).then(() => {
-                return contentWizard.openDetailsPanel();
-            }).then(() => {
-                //Version history widget should not be displayed by default!
-                return assert.eventually.isFalse(wizardVersionsWidget.isWidgetLoaded(), "`Versions Widget` should not be visible");
-            }).then(() => {
-                return wizardDetailsPanel.openVersionHistory();
-            }).then(() => {
-                studioUtils.saveScreenshot("wizard_versions_widget");
-                return assert.eventually.isTrue(wizardVersionsWidget.waitForVersionsLoaded(), "`Versions Widget` should be loaded");
-            });
+            //1. Open new wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openDetailsPanel();
+            //2. Version history widget should not be displayed by default!
+            let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
+            assert.isFalse(isLoaded, "VersionsWidget should not be displayed");
+            //3. Click on dropdown handle and open Versions widget:
+            await wizardDetailsPanel.openVersionHistory();
+            studioUtils.saveScreenshot("wizard_versions_widget");
+            //4. Verify that "Versions Widget" should be loaded:
+            await wizardVersionsWidget.waitForVersionsLoaded();
         });
 
     it(`GIVEN folder-wizard is opened WHEN 'Dependencies' menu item in Details panel has been selected THEN 'Dependencies' widget should be loaded`,
-        () => {
+        async () => {
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            return studioUtils.openContentWizard(appConst.contentTypes.FOLDER).then(() => {
-            }).then(() => {
-                return contentWizard.openDetailsPanel();
-            }).then(() => {
-                //Version history widget should not be displayed by default!
-                return assert.eventually.isFalse(wizardDependenciesWidget.isWidgetLoaded(), "`Versions Widget` should not be visible");
-            }).then(() => {
-                return wizardDetailsPanel.openDependencies();
-            }).then(() => {
-                studioUtils.saveScreenshot("wizard_dependencies_widget");
-                return assert.eventually.isTrue(wizardDependenciesWidget.waitForWidgetLoaded(), "`Dependencies Widget` should be loaded");
-            });
+            //1. Open new wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.openDetailsPanel();
+            //2. Click on dropdown handle and select Dependencies menu item:
+            await wizardDetailsPanel.openDependencies();
+            studioUtils.saveScreenshot("wizard_dependencies_widget");
+            //3. Verify that "Dependencies Widget" should be loaded:
+            await wizardDependenciesWidget.waitForWidgetLoaded();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
