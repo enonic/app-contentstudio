@@ -64,7 +64,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
                 await rollbackVersion();
                 await studioUtils.doSwitchToNextTab();
                 //Verify that one image should be present in the grid:
-                let displayNames = contentBrowsePanel.getDisplayNamesInGrid();
+                let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
                 studioUtils.saveScreenshot("outbound_should_be_updated");
                 assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
             });

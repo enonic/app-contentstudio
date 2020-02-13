@@ -78,13 +78,14 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.selectMenuItem(["Duplicate"]);
             //3. Verify that the default icon should be replaced with a custom icon:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
+            studioUtils.saveScreenshot("verify_custom_icon");
             assert.isFalse(isDefaultIcon, "The initial part should be displayed with the custom icon");
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
             assert.isFalse(isDefaultIcon, "The duplicated part should be displayed with the custom icon");
         });
 
     //Verifies(Case 2) : https://github.com/enonic/app-contentstudio/issues/1487 Custom icon is overwritten with the default icon
-    it(`WHEN existing content with 2 parts(custom icon) is opened THEN the both parts should displayed with custom icon`,
+    it(`WHEN existing content with 2 parts(custom icon) is opened THEN both parts should displayed with custom icon`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
