@@ -35,21 +35,21 @@ export class SettingsTreeGridActions
     updateActionsEnabledState(browseItems: BrowseItem<SettingsItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const selectedItems: SettingsItem[] = browseItems.map((browseItem: BrowseItem<SettingsItem>) => browseItem.getModel());
-            this.EDIT.setEnabled(this.isEditToBeEnabled(selectedItems, loginResult));
-            this.DELETE.setEnabled(this.isDeleteToBeEnabled(selectedItems, loginResult));
-            this.NEW.setEnabled(this.isNewToBeEnabled(selectedItems, loginResult));
+            this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
+            this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
+            this.NEW.setEnabled(this.isNewAllowed(selectedItems, loginResult));
         });
     }
 
-    isEditToBeEnabled(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+    isEditAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
         return selectedItems.every((item: SettingsItem) => item.isEditAllowed(loginResult));
     }
 
-    isDeleteToBeEnabled(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+    isDeleteAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
         return selectedItems.every((item: SettingsItem) => item.isDeleteAllowed(loginResult));
     }
 
-    isNewToBeEnabled(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+    isNewAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
     }
 }
