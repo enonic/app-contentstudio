@@ -15,6 +15,7 @@ export class ProjectAccessControlComboBox
     extends RichComboBox<ProjectAccessControlEntry> {
 
     constructor() {
+
         const builder: RichComboBoxBuilder<ProjectAccessControlEntry> = new RichComboBoxBuilder<ProjectAccessControlEntry>()
             .setMaximumOccurrences(0)
             .setComboBoxName('principalSelector')

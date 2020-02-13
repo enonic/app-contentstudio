@@ -354,8 +354,7 @@ class ProjectAccessControlEntryView
             this.ace.setAccess(ProjectAccess[ProjectAccess.CONTRIBUTOR]);
         }
 
-        this.setIdProviderAccessControlEntry(this.ace);
-
+        this.setProjectAccessControlEntry(this.ace);
     }
 
     getValueChangedListeners(): { (item: ProjectAccessControlEntry): void }[] {
@@ -387,7 +386,7 @@ class ProjectAccessControlEntryView
         });
     }
 
-    public setIdProviderAccessControlEntry(ace: ProjectAccessControlEntry) {
+    public setProjectAccessControlEntry(ace: ProjectAccessControlEntry) {
         this.ace = ace;
 
         let principal: Principal = <Principal>Principal.create().setKey(ace.getPrincipal().getKey()).setModifiedTime(
@@ -398,7 +397,7 @@ class ProjectAccessControlEntryView
         this.doLayout(principal);
     }
 
-    public getIdProviderAccessControlEntry(): ProjectAccessControlEntry {
+    public getProjectAccessControlEntry(): ProjectAccessControlEntry {
         return new ProjectAccessControlEntry(this.ace.getPrincipal(), this.ace.getAccess());
     }
 
@@ -412,7 +411,7 @@ class ProjectAccessControlEntryView
             this.accessSelector.setEnabled(this.isEditable());
             this.accessSelector.onValueChanged((event: ValueChangedEvent) => {
                 this.ace.setAccess(event.getNewValue());
-                this.notifyValueChanged(this.getIdProviderAccessControlEntry());
+                this.notifyValueChanged(this.getProjectAccessControlEntry());
             });
             this.appendChild(this.accessSelector);
         }
@@ -435,7 +434,7 @@ class ProjectACESelectedOptionView
 
     setOption(option: Option<ProjectAccessControlEntry>) {
         this.option = option;
-        this.setIdProviderAccessControlEntry(option.displayValue);
+        this.setProjectAccessControlEntry(option.displayValue);
     }
 
     getOption(): Option<ProjectAccessControlEntry> {
