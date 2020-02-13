@@ -194,7 +194,7 @@ export abstract class SettingsItemWizardPanel<T extends SettingsItem>
         return Q<void>(null);
     }
 
-    private handleDataChanged() {
+    protected handleDataChanged() {
         this.wizardActions.getSaveAction().setEnabled(this.isValid() && this.hasUnsavedChanges());
     }
 

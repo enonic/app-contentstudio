@@ -14,18 +14,55 @@ import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {Name} from 'lib-admin-ui/Name';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {HelpTextContainer} from 'lib-admin-ui/form/HelpTextContainer';
+import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
+import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {ProjectAccessControlComboBox} from './ProjectAccessControlComboBox';
+import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
+import {ProjectItemPermissions, ProjectItemPermissionsBuilder} from '../data/ProjectItemPermissions';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {ProjectAccess} from '../access/ProjectAccess';
+import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectWizardPanel
     extends SettingsItemWizardPanel<ProjectItem> {
 
     protected wizardStepForm: ProjectItemNameWizardStepForm;
 
+    private accessStepForm: ProjectAccessWizardStepForm;
+
     protected createWizardStepForm(): ProjectItemNameWizardStepForm {
         return new ProjectItemNameWizardStepForm();
     }
 
+    protected createSteps(): WizardStep[] {
+        const steps: WizardStep[] = super.createSteps();
+
+        this.accessStepForm = new ProjectAccessWizardStepForm();
+        steps.push(new WizardStep(i18n('field.access'), this.accessStepForm));
+
+        return steps;
+    }
+
     protected getIconClass(): string {
         return 'icon-tree-2';
+    }
+
+    doLayout(project: ProjectItem): Q.Promise<void> {
+        return super.doLayout(project).then(() => {
+            if (!!project) {
+                this.accessStepForm.layout(project);
+            }
+
+            this.accessStepForm.onSelectedAccessItemsChanged(() => {
+                this.handleDataChanged();
+            });
+
+            return Q<void>(null);
+        });
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -46,7 +83,7 @@ export class ProjectWizardPanel
     }
 
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.wizardStepForm.getProjectName())
+        return !StringHelper.isBlank(this.wizardStepForm.getProjectName()) || !this.accessStepForm.getPermissions().isEmpty()
                || super.isNewItemChanged();
     }
 
@@ -54,6 +91,10 @@ export class ProjectWizardPanel
         const item: ProjectItem = this.getPersistedItem();
 
         if (!ObjectHelper.stringEquals(item.getName(), this.wizardStepForm.getProjectName())) {
+            return true;
+        }
+
+        if (!item.getPermissions().equals(this.accessStepForm.getPermissions())) {
             return true;
         }
 
@@ -85,6 +126,7 @@ export class ProjectWizardPanel
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName)
+            .setPermissions(this.accessStepForm.getPermissions())
             .setThumbnail(thumbnail);
     }
 
@@ -100,6 +142,7 @@ export class ProjectWizardPanel
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName)
+            .setPermissions(this.accessStepForm.getPermissions())
             .setThumbnail(thumbnail);
     }
 
@@ -187,5 +230,101 @@ class ProjectItemNameWizardStepForm
     private isProjectNameValid(): boolean {
         const projectNameRegExp: RegExp = ProjectItemNameWizardStepForm.PROJECT_NAME_CHARS;
         return projectNameRegExp.test(this.projectNameInput.getValue());
+    }
+}
+
+class ProjectAccessWizardStepForm
+    extends WizardStepForm {
+
+    private form: Form;
+
+    private accessCombobox: ProjectAccessControlComboBox;
+
+    constructor() {
+        super('project-access-wizard-step-form');
+
+        this.form = new Form();
+        this.addFormItems();
+    }
+
+    private addFormItems() {
+        this.accessCombobox = new ProjectAccessControlComboBox();
+
+        const accessComboBoxFormItem: FormItem = new FormItemBuilder(this.accessCombobox)
+            .setLabel(i18n('field.permissions'))
+            .build();
+        const fieldSet: Fieldset = new Fieldset();
+        fieldSet.add(accessComboBoxFormItem);
+
+        this.form.add(fieldSet);
+    }
+
+    layout(item: ProjectItem) {
+        this.accessCombobox.clearSelection();
+        this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+            const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
+            itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
+                this.accessCombobox.select(selectedItem);
+            });
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private getPrincipalsFromPermissions(permissions: ProjectItemPermissions): Q.Promise<Principal[]> {
+        const principalKeys: PrincipalKey[] = [...permissions.getContributors(), ...permissions.getExperts(), ...permissions.getOwners()];
+        return new GetPrincipalsByKeysRequest(principalKeys).sendAndParse();
+    }
+
+    private createItemsToSelect(permissions: ProjectItemPermissions, principals: Principal[]): ProjectAccessControlEntry[] {
+        const itemsToSelect: ProjectAccessControlEntry[] = [];
+
+        permissions.getOwners().forEach((key: PrincipalKey) => {
+            const owners: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
+            if (owners.length > 0) {
+                itemsToSelect.push(new ProjectAccessControlEntry(owners[0], ProjectAccess.OWNER));
+            }
+        });
+        permissions.getExperts().forEach((key: PrincipalKey) => {
+            const experts: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
+            if (experts.length > 0) {
+                itemsToSelect.push(new ProjectAccessControlEntry(experts[0], ProjectAccess.EXPERT));
+            }
+        });
+        permissions.getContributors().forEach((key: PrincipalKey) => {
+            const contributors: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
+            if (contributors.length > 0) {
+                itemsToSelect.push(new ProjectAccessControlEntry(contributors[0], ProjectAccess.CONTRIBUTOR));
+            }
+        });
+
+        return itemsToSelect;
+    }
+
+    getPermissions(): ProjectItemPermissions {
+        const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
+
+        const owners: PrincipalKey[] = selectedAccessEntries
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
+            .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipalKey());
+        const experts: PrincipalKey[] = selectedAccessEntries
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EXPERT)
+            .map((expertEntry: ProjectAccessControlEntry) => expertEntry.getPrincipalKey());
+        const contributors: PrincipalKey[] = selectedAccessEntries
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)
+            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
+
+        return new ProjectItemPermissionsBuilder().setOwners(owners).setExperts(experts).setContributors(contributors).build();
+    }
+
+    onSelectedAccessItemsChanged(handler: () => void) {
+        this.accessCombobox.onValueChanged(handler);
+        this.accessCombobox.onSelectedItemValueChanged(handler);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.form);
+
+            return rendered;
+        });
     }
 }
