@@ -8,9 +8,8 @@ import {NewSettingsItemAction} from '../browse/action/NewSettingsItemAction';
 import {EditSettingsItemAction} from '../browse/action/EditSettingsItemAction';
 import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemAction';
 import {SettingsItem} from '../data/SettingsItem';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {FolderItem} from '../data/FolderItem';
-import {ProjectItem} from '../data/ProjectItem';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsItem> {
@@ -34,26 +33,23 @@ export class SettingsTreeGridActions
     }
 
     updateActionsEnabledState(browseItems: BrowseItem<SettingsItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
-        return Q(true).then(() => {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const selectedItems: SettingsItem[] = browseItems.map((browseItem: BrowseItem<SettingsItem>) => browseItem.getModel());
-            this.EDIT.setEnabled(this.isEditToBeEnabled(selectedItems));
-            this.DELETE.setEnabled(this.isDeleteToBeEnabled(selectedItems));
+            this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
+            this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
+            this.NEW.setEnabled(this.isNewAllowed(selectedItems, loginResult));
         });
     }
 
-    isEditToBeEnabled(selectedItems: SettingsItem[]): boolean {
-        return selectedItems.length > 0 && !this.isNonEditableItemSelected(selectedItems);
+    isEditAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+        return selectedItems.every((item: SettingsItem) => item.isEditAllowed(loginResult));
     }
 
-    isDeleteToBeEnabled(selectedItems: SettingsItem[]): boolean {
-        return selectedItems.length > 0 && !this.isNonEditableItemSelected(selectedItems);
+    isDeleteAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+        return selectedItems.every((item: SettingsItem) => item.isDeleteAllowed(loginResult));
     }
 
-    isNonEditableItemSelected(items: SettingsItem[]): boolean {
-        return items.some((item: SettingsItem) => {
-            return item.getId() === ProjectItem.DEFAULT || ObjectHelper.iFrameSafeInstanceOf(item, FolderItem);
-        });
-
+    isNewAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+        return loginResult.isContentAdmin();
     }
-
 }
