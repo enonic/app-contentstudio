@@ -3,6 +3,7 @@ import {ProjectItemJson} from '../resource/json/ProjectItemJson';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectItemPermissions} from './ProjectItemPermissions';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 export class ProjectItem
     extends SettingsItem {
@@ -34,6 +35,24 @@ export class ProjectItem
         return this.name;
     }
 
+    isEditAllowed(loginResult: LoginResult): boolean {
+        if (loginResult.isContentAdmin()) {
+            return true;
+        }
+
+        if (!this.permissions || ProjectItem.DEFAULT === this.name) {
+            return false;
+        }
+
+        return loginResult.getPrincipals().some(key => this.permissions.isOwner(key));
+    }
+
+    isDeleteAllowed(loginResult: LoginResult): boolean {
+        if (loginResult.isContentAdmin()) {
+            return true;
+        }
+    }
+
     static fromJson(json: ProjectItemJson): ProjectItem {
         return new ProjectItemBuilder().fromJson(json).build();
     }
@@ -43,7 +62,7 @@ export class ProjectItem
             return false;
         }
 
-        const other: ProjectItem = <ProjectItem> o;
+        const other: ProjectItem = <ProjectItem>o;
 
         if (!super.equals(o)) {
             return false;

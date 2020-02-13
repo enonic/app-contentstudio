@@ -1,4 +1,6 @@
 import {SettingsItem, SettingsItemBuilder} from './SettingsItem';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+
 
 export class FolderItem
     extends SettingsItem {
@@ -13,6 +15,14 @@ export class FolderItem
 
     getId(): string {
         return this.id;
+    }
+
+    isEditAllowed(loginResult: LoginResult): boolean {
+        return false;
+    }
+
+    isDeleteAllowed(loginResult: LoginResult): boolean {
+        return false;
     }
 }
 

@@ -5,12 +5,6 @@ var contextLib = require('/lib/xp/context');
 var authLib = require('/lib/xp/auth');
 
 function handleGet(req) {
-    if (!isAllowedToAccessSettingsPage()) {
-        return {
-            status: 403
-        }
-    }
-
     var view = resolve('./../main/main.html');
 
     var context = contextLib.get();
@@ -42,10 +36,6 @@ function handleGet(req) {
         contentType: 'text/html',
         body: mustache.render(view, params)
     };
-}
-
-function isAllowedToAccessSettingsPage() {
-    return authLib.hasRole('system.admin') || authLib.hasRole('cms.admin');
 }
 
 function replaceSettingsInPath(url) {

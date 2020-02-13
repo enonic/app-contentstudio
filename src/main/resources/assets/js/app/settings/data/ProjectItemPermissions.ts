@@ -71,6 +71,18 @@ export class ProjectItemPermissions
         return true;
     }
 
+    isOwner(principalKey: PrincipalKey) {
+        return this.owners.some(key => key.equals(principalKey));
+    }
+
+    isExpert(principalKey: PrincipalKey) {
+        return this.experts.some(key => key.equals(principalKey));
+    }
+
+    isContributor(principalKey: PrincipalKey) {
+        return this.contributors.some(key => key.equals(principalKey));
+    }
+
     static fromJson(json: ProjectPermissionsJson): ProjectItemPermissions {
         if (json) {
             return new ProjectItemPermissionsBuilder()
