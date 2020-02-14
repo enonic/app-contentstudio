@@ -514,14 +514,16 @@ function startContentApplication(application: Application) {
 
 function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
-    if (projectName === ProjectContext.DEFAULT_PROJECT) {
-        return Q(null);
-    }
 
     return new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
         const isProjectExisting: boolean = projects.some((project: ProjectItem) => project.getName() === projectName);
-        ProjectContext.get().setProject(isProjectExisting ? projectName : ProjectContext.DEFAULT_PROJECT);
-        if (!isProjectExisting) {
+        if (isProjectExisting) {
+            ProjectContext.get().setProject(projectName);
+            return Q(null);
+        }
+
+        if (projects.length > 0) {
+            ProjectContext.get().setProject(projects[0].getId());
             NotifyManager.get().showWarning(i18n('notify.settings.project.notExists', projectName));
         }
 
