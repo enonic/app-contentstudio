@@ -42,11 +42,11 @@ export class SettingsTreeGridActions
     }
 
     isEditAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
-        return selectedItems.every((item: SettingsItem) => item.isEditAllowed(loginResult));
+        return selectedItems.length > 0 ? selectedItems.every((item: SettingsItem) => item.isEditAllowed(loginResult)) : false;
     }
 
     isDeleteAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
-        return selectedItems.every((item: SettingsItem) => item.isDeleteAllowed(loginResult));
+        return selectedItems.length > 0 ? selectedItems.every((item: SettingsItem) => item.isDeleteAllowed(loginResult)) : false;
     }
 
     isNewAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
