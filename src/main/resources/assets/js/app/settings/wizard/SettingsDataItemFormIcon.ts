@@ -4,7 +4,7 @@ import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
-export class SettingsItemFormIcon
+export class SettingsDataItemFormIcon
     extends FormIcon {
 
     private thumbnailSelector: SettingsIconThumbnailSelector;
@@ -14,16 +14,6 @@ export class SettingsItemFormIcon
 
         this.thumbnailSelector = new SettingsIconThumbnailSelector();
         this.initListeners();
-    }
-
-    private initListeners() {
-        this.thumbnailSelector.getLabel().onClicked((event: MouseEvent) => {
-            event.stopPropagation();
-        });
-
-        this.onClicked(() => {
-            this.thumbnailSelector.getInput().getHTMLElement().click();
-        });
     }
 
     getThumbnailFile(): File {
@@ -38,6 +28,16 @@ export class SettingsItemFormIcon
 
     onIconChanged(handler: () => void) {
         this.thumbnailSelector.getInput().onValueChanged(handler);
+    }
+
+    private initListeners() {
+        this.thumbnailSelector.getLabel().onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+        });
+
+        this.onClicked(() => {
+            this.thumbnailSelector.getInput().getHTMLElement().click();
+        });
     }
 
 }
@@ -55,12 +55,6 @@ class SettingsIconThumbnailSelector
         this.initElements();
     }
 
-    private initElements() {
-        this.fileInput = new InputEl('flag-uploader-input', 'file');
-        this.fileInput.getEl().setAttribute('accept', '.jpg, .jpeg, .gif, .png, .svg');
-        this.label = new LabelEl(i18n('action.edit'), this.fileInput);
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.fileInput.hide();
@@ -76,5 +70,11 @@ class SettingsIconThumbnailSelector
 
     getLabel(): LabelEl {
         return this.label;
+    }
+
+    private initElements() {
+        this.fileInput = new InputEl('flag-uploader-input', 'file');
+        this.fileInput.getEl().setAttribute('accept', '.jpg, .jpeg, .gif, .png, .svg');
+        this.label = new LabelEl(i18n('action.edit'), this.fileInput);
     }
 }

@@ -1,11 +1,11 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {ProjectItemJson} from './json/ProjectItemJson';
-import {ProjectItem} from '../data/ProjectItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ProjectJson} from './json/ProjectJson';
+import {Project} from '../data/project/Project';
 
 export class ProjectUpdateRequest
-    extends ProjectResourceRequest<ProjectItemJson, ProjectItem> {
+    extends ProjectResourceRequest<ProjectJson, Project> {
 
     private name: string;
 
@@ -56,7 +56,7 @@ export class ProjectUpdateRequest
         return params;
     }
 
-    protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {
-        return ProjectItem.fromJson(response.getResult());
+    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+        return Project.fromJson(response.getResult());
     }
 }

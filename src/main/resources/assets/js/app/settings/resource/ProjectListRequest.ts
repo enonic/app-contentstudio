@@ -1,10 +1,10 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {ProjectItem} from '../data/ProjectItem';
-import {ProjectItemJson} from './json/ProjectItemJson';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Project} from '../data/project/Project';
+import {ProjectJson} from './json/ProjectJson';
 
 export class ProjectListRequest
-    extends ProjectResourceRequest<ProjectItemJson[], ProjectItem[]> {
+    extends ProjectResourceRequest<ProjectJson[], Project[]> {
 
     constructor() {
         super();
@@ -15,7 +15,7 @@ export class ProjectListRequest
         return {};
     }
 
-    protected processResponse(response: JsonResponse<ProjectItemJson[]>): ProjectItem[] {
-        return response.getResult()['projects'].map(ProjectItem.fromJson);
+    protected processResponse(response: JsonResponse<ProjectJson[]>): Project[] {
+        return response.getResult()['projects'].map(Project.fromJson);
     }
 }

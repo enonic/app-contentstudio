@@ -10,10 +10,10 @@ import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
-import {ProjectItem, ProjectItemBuilder} from '../settings/data/ProjectItem';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {Project} from '../settings/data/project/Project';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -90,20 +90,30 @@ export class ContentWizardToolbar
     }
 
     private addHomeButton() {
-        new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+
             this.addProjectButton(projects);
+
         }).catch((reason: any) => {
-            this.addProjectButton([new ProjectItemBuilder().setName(ProjectContext.get().getProject()).build()]);
+
+            this.addProjectButton([Project.create()
+                .setName(ProjectContext.get().getProject())
+                .build()
+            ]);
             DefaultErrorHandler.handle(reason);
         });
     }
 
-    private addProjectButton(projects: ProjectItem[]) {
+    private addProjectButton(projects: Project[]) {
         const currentProjectName: string = ProjectContext.get().getProject();
-        const project: ProjectItem = projects.filter((p: ProjectItem) => p.getName() === currentProjectName)[0];
-        const projectBlock: NamesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
+        const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
+
+        const projectBlock: NamesAndIconView = new NamesAndIconViewBuilder()
+            .setSize(NamesAndIconViewSize.small)
+            .build()
             .setMainName(project.getDisplayName())
-            .setIconClass(project.getIconClass());
+            .setIconClass(project.getIcon());
+
         projectBlock.addClass('project-info');
         projectBlock.toggleClass('single-repo', projects.length < 2);
         projectBlock.getFirstChild().onClicked(() => this.handleHomeIconClicked());

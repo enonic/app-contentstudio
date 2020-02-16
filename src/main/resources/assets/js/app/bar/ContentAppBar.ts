@@ -2,10 +2,10 @@ import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ProjectSelector} from '../project/ProjectSelector';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
-import {ProjectItem} from '../settings/data/ProjectItem';
-import {DefaultErrorHandler} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/DefaultErrorHandler';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Project} from '../settings/data/project/Project';
 
 export class ContentAppBar
     extends AppBar {
@@ -25,7 +25,7 @@ export class ContentAppBar
     }
 
     updateSelectorValues() {
-        new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.projectSelector.setProjects(projects);
             this.projectSelector.show();
         }).catch(DefaultErrorHandler.handle);
