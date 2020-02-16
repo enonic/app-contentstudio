@@ -12,6 +12,7 @@ import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
+import {ProjectWizardActions} from './action/ProjectWizardActions';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -41,6 +42,10 @@ export class ProjectWizardPanel
         });
 
         return header;
+    }
+
+    protected createWizardActions(): ProjectWizardActions {
+        return new ProjectWizardActions(this);
     }
 
     protected isNewItemChanged(): boolean {
@@ -91,6 +96,10 @@ export class ProjectWizardPanel
         }
 
         return super.isPersistedItemChanged();
+    }
+
+    protected handleDataChanged() {
+        this.updateToolbarActions();
     }
 
     protected getSuccessfulCreateMessage(item: ProjectViewItem): string {
