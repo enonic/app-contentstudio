@@ -1,14 +1,15 @@
 import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
-import {SettingsItem} from '../../data/SettingsItem';
 import {DeleteSettingsItemWizardAction} from './DeleteSettingsItemWizardAction';
-import {SettingsItemWizardPanel} from '../SettingsItemWizardPanel';
 import {SaveSettingsItemWizardAction} from './SaveSettingsItemWizardAction';
-import {ProjectItem} from '../../data/ProjectItem';
+import {Project} from '../../data/project/Project';
+import {SettingsDataItemWizardPanel} from '../SettingsDataItemWizardPanel';
+import {SettingsViewItem} from '../../view/SettingsViewItem';
+import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 
-export class SettingsItemWizardActions
-    extends WizardActions<SettingsItem> {
+export class SettingsDataItemWizardActions<ITEM extends SettingsDataViewItem<any>>
+    extends WizardActions<ITEM> {
 
     private save: SaveSettingsItemWizardAction;
 
@@ -16,7 +17,7 @@ export class SettingsItemWizardActions
 
     private delete: DeleteSettingsItemWizardAction;
 
-    constructor(wizardPanel: SettingsItemWizardPanel<SettingsItem>) {
+    constructor(wizardPanel: SettingsDataItemWizardPanel<ITEM>) {
         super();
 
         this.save = new SaveSettingsItemWizardAction();
@@ -31,9 +32,9 @@ export class SettingsItemWizardActions
         this.delete.setEnabled(false);
     }
 
-    enableActionsForExisting(item: SettingsItem) {
+    enableActionsForExisting(item: SettingsViewItem) {
         this.save.setEnabled(false);
-        this.delete.setEnabled(item.getId() !== ProjectItem.DEFAULT);
+        this.delete.setEnabled(item.getId() !== Project.DEFAULT_PROJECT_NAME);
     }
 
     getDeleteAction(): DeleteSettingsItemWizardAction {

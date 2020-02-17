@@ -1,17 +1,15 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {SettingsItem} from '../data/SettingsItem';
-import {ProjectItem, ProjectItemBuilder} from '../data/ProjectItem';
-import {SettingsItemViewer} from '../data/viewer/SettingsItemViewer';
 import {NewProjectEvent} from '../event/NewProjectEvent';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {SettingsTypeListBox} from './SettingsTypeListBox';
+import {SettingsType} from './SettingsType';
+import {SettingsTypes} from './SettingsTypes';
 
 export class NewSettingsItemDialog
     extends ModalDialog {
 
-    private itemsList: SettingsItemsTypesListBox;
+    private itemsList: SettingsTypeListBox;
 
     constructor() {
         super(<ModalDialogConfig>{
@@ -23,15 +21,15 @@ export class NewSettingsItemDialog
     protected initElements() {
         super.initElements();
 
-        this.itemsList = new SettingsItemsTypesListBox();
+        this.itemsList = new SettingsTypeListBox();
     }
 
     protected initListeners() {
         super.initListeners();
 
-        this.itemsList.onItemClicked((item: SettingsItem) => {
+        this.itemsList.onItemClicked((item: SettingsType) => {
             this.close();
-            if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem)) {
+            if (SettingsTypes.PROJECT.equals(item)) {
                 new NewProjectEvent().fire();
             }
         });
@@ -40,9 +38,7 @@ export class NewSettingsItemDialog
     protected postInitElements() {
         super.postInitElements();
 
-        const projectItemType: SettingsItem =
-            new ProjectItemBuilder().setName('').setDisplayName(i18n('settings.items.type.project')).build();
-        this.itemsList.addItem(projectItemType);
+        this.itemsList.addItem(SettingsTypes.PROJECT);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -65,39 +61,3 @@ export class NewSettingsItemDialog
     }
 }
 
-class SettingsItemsTypesListBox
-    extends ListBox<SettingsItem> {
-
-    private itemClickedListeners: { (item: SettingsItem): void }[] = [];
-
-    createItemView(item: SettingsItem): SettingsItemViewer {
-        const itemView: SettingsItemViewer = new SettingsItemViewer();
-        itemView.onClicked(() => {
-            this.notifyItemClicked(item);
-        });
-        itemView.setObject(item);
-
-        return itemView;
-    }
-
-    getItemId(item: SettingsItem): string {
-        return item.getId();
-    }
-
-    onItemClicked(listener: (item: SettingsItem) => void) {
-        this.itemClickedListeners.push(listener);
-    }
-
-    unItemClicked(listener: (item: SettingsItem) => void) {
-        this.itemClickedListeners = this.itemClickedListeners.filter((currentListener: (item: SettingsItem) => void) => {
-            return listener !== currentListener;
-        });
-    }
-
-    private notifyItemClicked(item: SettingsItem) {
-        this.itemClickedListeners.forEach((listener: (item: SettingsItem) => void) => {
-            listener(item);
-        });
-    }
-
-}

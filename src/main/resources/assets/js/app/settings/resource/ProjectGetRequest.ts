@@ -1,10 +1,10 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {ProjectItemJson} from './json/ProjectItemJson';
-import {ProjectItem} from '../data/ProjectItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Project} from '../data/project/Project';
+import {ProjectJson} from './json/ProjectJson';
 
 export class ProjectGetRequest
-    extends ProjectResourceRequest<ProjectItemJson, ProjectItem> {
+    extends ProjectResourceRequest<ProjectJson, Project> {
 
     private name: string;
 
@@ -21,7 +21,7 @@ export class ProjectGetRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {
-        return ProjectItem.fromJson(response.getResult());
+    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+        return Project.fromJson(response.getResult());
     }
 }

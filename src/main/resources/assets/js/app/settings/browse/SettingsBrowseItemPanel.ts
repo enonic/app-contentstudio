@@ -1,12 +1,12 @@
 import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
-import {SettingsItem} from '../data/SettingsItem';
 import {SettingsItemStatisticsPanel} from './SettingsItemStatisticsPanel';
+import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class SettingsBrowseItemPanel
-    extends BrowseItemPanel<SettingsItem> {
+    extends BrowseItemPanel<SettingsViewItem> {
 
-    createItemStatisticsPanel(): ItemStatisticsPanel<SettingsItem> {
+    createItemStatisticsPanel(): ItemStatisticsPanel<SettingsViewItem> {
         return new SettingsItemStatisticsPanel();
     }
 

@@ -1,11 +1,11 @@
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
-import {SettingsItem} from '../data/SettingsItem';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class SettingsItemStatisticsPanel
-    extends ItemStatisticsPanel<SettingsItem> {
+    extends ItemStatisticsPanel<SettingsViewItem> {
 
     private descriptionBlock: DescriptionBlock;
 
@@ -15,7 +15,7 @@ export class SettingsItemStatisticsPanel
         this.descriptionBlock = new DescriptionBlock();
     }
 
-    setItem(item: ViewItem<SettingsItem>) {
+    setItem(item: ViewItem<SettingsViewItem>) {
         item.setPath(item.getModel().getId());
         this.descriptionBlock.setText(item.getModel().getDescription());
 

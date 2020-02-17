@@ -1,7 +1,7 @@
-import {ProjectPermissionsJson} from '../resource/json/ProjectPermissionsJson';
+import {ProjectPermissionsJson} from '../../resource/json/ProjectPermissionsJson';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
-export class ProjectItemPermissions {
+export class ProjectPermissions {
 
     private owners: PrincipalKey[];
 
@@ -13,6 +13,14 @@ export class ProjectItemPermissions {
         this.owners = owners.map(PrincipalKey.fromString);
         this.contributors = contributors.map(PrincipalKey.fromString);
         this.experts = experts.map(PrincipalKey.fromString);
+    }
+
+    static fromJson(json: ProjectPermissionsJson): ProjectPermissions {
+        if (json) {
+            return new ProjectPermissions(json.owner, json.contributor, json.expert);
+        }
+
+        return new ProjectPermissions([], [], []);
     }
 
     getOwners(): PrincipalKey[] {
@@ -37,13 +45,5 @@ export class ProjectItemPermissions {
 
     isContributor(principalKey: PrincipalKey) {
         return this.contributors.some(key => key.equals(principalKey));
-    }
-
-    static fromJson(json: ProjectPermissionsJson): ProjectItemPermissions {
-        if (json) {
-            return new ProjectItemPermissions(json.owner, json.contributor, json.expert);
-        }
-
-        return new ProjectItemPermissions([], [], []);
     }
 }

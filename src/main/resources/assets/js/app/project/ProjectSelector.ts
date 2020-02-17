@@ -1,24 +1,25 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
 import {KeyBinding, KeyBindingAction} from 'lib-admin-ui/ui/KeyBinding';
-import {ProjectItemViewer} from '../settings/data/viewer/ProjectItemViewer';
 import {Element} from 'lib-admin-ui/dom/Element';
-import {ProjectItem} from '../settings/data/ProjectItem';
 import {ProjectContext} from './ProjectContext';
 import {ProjectChangedEvent} from './ProjectChangedEvent';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {ProjectsList, ProjectsListItem} from './ProjectsList';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {Project} from '../settings/data/project/Project';
+import {SelectableProjectList} from './list/SelectableProjectList';
+import {ProjectListItem} from './list/ProjectListItem';
+import {ProjectListItemViewer} from './list/ProjectListItemViewer';
 
 export class ProjectSelector
     extends DivEl {
 
-    private headerProjectViewer: ProjectItemViewer;
+    private headerProjectViewer: ProjectListItemViewer;
 
-    private projectsList: SelectableProjectsList;
+    private projectList: SelectableProjectList;
 
     private dropdownHandle: DropdownHandle;
 
@@ -38,11 +39,17 @@ export class ProjectSelector
         this.initKeyBindings();
     }
 
-    private initElements() {
-        this.headerProjectViewer = new ProjectItemViewer();
-        this.dropdownHandle = this.focusedElement = new DropdownHandle();
-        this.projectsList = new SelectableProjectsList();
-        this.clickOutsideListener = this.createClickOutsideListener();
+    setProjects(projects: Project[]) {
+        const currentProjectName: string = ProjectContext.get().getProject();
+        const currentProject: Project = projects.filter((project: Project) => project.getName() === currentProjectName)[0];
+
+        this.headerProjectViewer.setObject(currentProject);
+
+        this.projectList.setItems(projects);
+        this.projectList.preSelectProject(currentProject);
+
+        this.dropdownHandle.setVisible(projects.length > 1);
+        this.toggleClass('single-repo', projects.length < 2);
     }
 
     private createClickOutsideListener() {
@@ -62,16 +69,29 @@ export class ProjectSelector
         };
     }
 
-    setProjects(projects: ProjectItem[]) {
-        const currentProjectName: string = ProjectContext.get().getProject();
-        const currentProject: ProjectItem = projects.filter((project: ProjectItem) => project.getName() === currentProjectName)[0];
-        this.headerProjectViewer.setObject(currentProject);
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            const header: DivEl = new DivEl('selected-project-view');
+            this.headerProjectViewer.insertChild(new SpanEl('label').setHtml(i18n('app.context')), 0);
+            header.appendChild(this.headerProjectViewer);
+            header.appendChild(this.dropdownHandle);
+            this.appendChildren(
+                header,
+                this.projectList
+            );
 
-        this.projectsList.setItems(projects);
-        this.projectsList.preSelectProject(currentProject);
+            this.dropdownHandle.up();
+            this.projectList.hide();
 
-        this.dropdownHandle.setVisible(projects.length > 1);
-        this.toggleClass('single-repo', projects.length < 2);
+            return rendered;
+        });
+    }
+
+    private initElements() {
+        this.headerProjectViewer = new ProjectListItemViewer();
+        this.dropdownHandle = this.focusedElement = new DropdownHandle();
+        this.projectList = new SelectableProjectList();
+        this.clickOutsideListener = this.createClickOutsideListener();
     }
 
     private initListeners() {
@@ -84,32 +104,20 @@ export class ProjectSelector
         });
 
         ProjectChangedEvent.on(() => {
-            this.headerProjectViewer.setObject(this.projectsList.getItem(ProjectContext.get().getProject()));
+            this.headerProjectViewer.setObject(this.projectList.getItem(ProjectContext.get().getProject()));
         });
 
         this.dropdownHandle.onFocus(() => {
             this.focusedElement = this.dropdownHandle;
         });
 
-        this.projectsList.onFocusChanged((listItem: ProjectsListItem) => {
+        this.projectList.onFocusChanged((listItem: ProjectListItem) => {
             this.focusedElement = listItem;
         });
 
-        this.projectsList.onSelectionChanged((project: ProjectItem) => {
+        this.projectList.onSelectionChanged((project: ProjectListItem) => {
             this.handleSelectedProjectChanged(project);
         });
-    }
-
-    private toggleProjectsListShown() {
-        if (this.projectsList.getItemCount() < 2) {
-            return;
-        }
-
-        if (this.isProjectsListShown) {
-            this.hideProjectsList();
-        } else {
-            this.showProjectsList();
-        }
     }
 
     private initKeyBindings() {
@@ -136,9 +144,21 @@ export class ProjectSelector
         ];
     }
 
+    private toggleProjectsListShown() {
+        if (this.projectList.getItemCount() < 2) {
+            return;
+        }
+
+        if (this.isProjectsListShown) {
+            this.hideProjectsList();
+        } else {
+            this.showProjectsList();
+        }
+    }
+
     private focusNextItem() {
         if (this.focusedElement === this.dropdownHandle) {
-            this.projectsList.getFirstChild().giveFocus();
+            this.projectList.getFirstChild().giveFocus();
         } else {
             const nextElement: Element = this.focusedElement.getNextElement();
             if (nextElement) {
@@ -151,7 +171,7 @@ export class ProjectSelector
 
     private focusPreviousItem() {
         if (this.focusedElement === this.dropdownHandle) {
-            this.projectsList.getLastChild().giveFocus();
+            this.projectList.getLastChild().giveFocus();
         } else {
             const previousElement: Element = this.focusedElement.getPreviousElement();
             if (previousElement) {
@@ -162,49 +182,31 @@ export class ProjectSelector
         }
     }
 
-    private handleTabPressed() {
-        if (this.focusedElement === this.projectsList.getLastChild()) {
-            this.hideProjectsList();
-        }
-    }
-
     private handleShiftTabPressed() {
         if (this.focusedElement === this.dropdownHandle) {
             this.hideProjectsList();
         }
     }
 
-    private handleEnterPressed() {
-        if (ObjectHelper.iFrameSafeInstanceOf(this.focusedElement, ProjectsListItem)) {
-            this.projectsList.selectListItem(<ProjectsListItem>this.focusedElement);
+    private handleTabPressed() {
+        if (this.focusedElement === this.projectList.getLastChild()) {
+            this.hideProjectsList();
         }
     }
 
-    private handleSelectedProjectChanged(project: ProjectItem) {
-        if (project.getName() !== ProjectContext.get().getProject()) {
-            ProjectContext.get().setProject(project.getName());
+    private handleEnterPressed() {
+        if (ObjectHelper.iFrameSafeInstanceOf(this.focusedElement, ProjectListItem)) {
+            this.projectList.selectListItem(<ProjectListItem>this.focusedElement);
+        }
+    }
+
+    private handleSelectedProjectChanged(item: ProjectListItem) {
+        if (item.getProject().getName() !== ProjectContext.get().getProject()) {
+            ProjectContext.get().setProject(item.getProject().getName());
         }
 
         this.hideProjectsList();
         this.dropdownHandle.giveFocus();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            const header: DivEl = new DivEl('selected-project-view');
-            this.headerProjectViewer.insertChild(new SpanEl('label').setHtml(i18n('app.context')), 0);
-            header.appendChild(this.headerProjectViewer);
-            header.appendChild(this.dropdownHandle);
-            this.appendChildren(
-                header,
-                this.projectsList
-            );
-
-            this.dropdownHandle.up();
-            this.projectsList.hide();
-
-            return rendered;
-        });
     }
 
     private showProjectsList() {
@@ -213,7 +215,7 @@ export class ProjectSelector
         Body.get().onMouseDown(this.clickOutsideListener);
         this.isProjectsListShown = true;
         this.dropdownHandle.down();
-        this.projectsList.show();
+        this.projectList.show();
         this.bindKeys();
     }
 
@@ -227,82 +229,11 @@ export class ProjectSelector
         Body.get().unMouseDown(this.clickOutsideListener);
         this.isProjectsListShown = false;
         this.dropdownHandle.up();
-        this.projectsList.hide();
+        this.projectList.hide();
         this.unBindKeys();
     }
 
     private unBindKeys() {
         KeyBindings.get().unbindKeys(this.keyBindings);
     }
-}
-
-class SelectableProjectsList
-    extends ProjectsList {
-
-    private selectedListItem: ProjectsListItem;
-
-    private selectionChangedListeners: { (project: ProjectItem): void } [] = [];
-
-    private focusChangedListeners: { (listItem: ProjectsListItem): void } [] = [];
-
-    protected createItemView(item: ProjectItem, readOnly: boolean): ProjectsListItem {
-        const projectsListItem: ProjectsListItem = super.createItemView(item, readOnly);
-
-        projectsListItem.onClicked(() => {
-            this.selectListItem(projectsListItem);
-        });
-
-        projectsListItem.onFocus(() => {
-            this.notifyFocusChanged(projectsListItem);
-        });
-
-        projectsListItem.getEl().setTabIndex(0);
-
-        return projectsListItem;
-    }
-
-    selectListItem(projectsListItem: ProjectsListItem) {
-        if (projectsListItem === this.selectedListItem) {
-            return;
-        }
-
-        this.selectedListItem.removeClass('selected');
-        projectsListItem.addClass('selected');
-        this.selectedListItem = projectsListItem;
-
-        this.notifySelectionChanged();
-    }
-
-    preSelectProject(project: ProjectItem) {
-        this.getItemViews().some((view: ProjectsListItem) => {
-            if (view.getProject().equals(project)) {
-                view.addClass('selected');
-                this.selectedListItem = view;
-                return true;
-            }
-
-            return false;
-        });
-    }
-
-    onSelectionChanged(listener: (project: ProjectItem) => void) {
-        this.selectionChangedListeners.push(listener);
-    }
-
-    private notifySelectionChanged() {
-        this.selectionChangedListeners.forEach((listener) => {
-            listener(this.selectedListItem.getProject());
-        });
-    }
-
-    onFocusChanged(listener: (listItem: ProjectsListItem) => void) {
-        this.focusChangedListeners.push(listener);
-    }
-
-    private notifyFocusChanged(listItem: ProjectsListItem) {
-        this.focusChangedListeners.forEach((listener) => {
-            listener(listItem);
-        });
-    }
-
 }
