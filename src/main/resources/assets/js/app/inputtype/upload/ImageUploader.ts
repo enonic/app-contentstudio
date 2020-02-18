@@ -369,9 +369,8 @@ export class ImageUploader
 
         const orientation = this.readOrientation(content);
         const originalOrientation = this.readOriginalOrientation(content);
-        if (orientation !== 1 || orientation !== originalOrientation) {
-            this.imageUploader.setOrientation(orientation, originalOrientation);
-        }
+
+        this.imageUploader.setOrientation(orientation, originalOrientation);
     }
 
     validate(silent: boolean = true): InputValidationRecording {
