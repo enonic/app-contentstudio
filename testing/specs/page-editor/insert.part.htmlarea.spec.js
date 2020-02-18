@@ -18,6 +18,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let CONTENT_NAME;
+    let PART_DESCRIPTION = "Html Area Example";
 
     let TEST_TEXT = "Test text";
 
@@ -97,6 +98,22 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             assert.isFalse(isDefaultIcon, "The first part should be displayed with the custom icon");
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
             assert.isFalse(isDefaultIcon, "The second part should be displayed with the custom icon");
+        });
+
+    //https://github.com/enonic/app-contentstudio/issues/1474  Part description is not shown when the part is included more than once
+    it(`GIVEN existing content with 2 same parts is opened WHEN Page Component View has been opened THEN description should be in both items in the dialog`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            //1. Open the content:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+            //2. Open Page Component View:
+            await contentWizard.clickOnShowComponentViewToggler();
+            //3. Verify that descriptions should be in both items in the dialog:
+            let description1 = await pageComponentView.getComponentDescription("Html Area Example", 0);
+            assert.equal(description1, PART_DESCRIPTION, "Expected description should be present in the first item");
+            let description2 = await pageComponentView.getComponentDescription("Html Area Example", 1);
+            assert.equal(description2, PART_DESCRIPTION, "Expected description should be present in the second item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
