@@ -37,6 +37,20 @@ class LiveFormPanel extends Page {
         }
     }
 
+    async selectLayoutByDisplayName(displayName) {
+        try {
+            let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;
+            let contentWizard = new ContentWizard();
+            let loaderComboBox = new LoaderComboBox();
+            await contentWizard.switchToLiveEditFrame();
+            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_select_layout_' + displayName);
+            throw new Error(`Error when selecting the layout:  ${displayName} in Live Edit - ` + err);
+        }
+    }
+
     async selectPartByDisplayName(displayName) {
         try {
             let parentForComboBox = `//div[contains(@id,'PartPlaceholder')]`;
