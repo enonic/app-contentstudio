@@ -101,7 +101,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         });
 
     //https://github.com/enonic/app-contentstudio/issues/1474  Part description is not shown when the part is included more than once
-    it(`GIVEN existing content with 2 same parts is opened WHEN Page Component View has been opened THEN description should be in both items in the dialog`,
+    it(`GIVEN existing content with duplicated part WHEN Page Component View has been opened THEN description should be in both items in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();

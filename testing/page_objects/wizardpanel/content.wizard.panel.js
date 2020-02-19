@@ -38,7 +38,6 @@ const XPATH = {
     componentViewToggler: "//button[contains(@id, 'TogglerButton')  and contains(@class,'icon-clipboard')]",
     hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
-    controllerOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
@@ -108,7 +107,7 @@ class ContentWizardPanel extends Page {
     }
 
     get controllerOptionFilterInput() {
-        return lib.DROPDOWN_OPTION_FILTER_INPUT;
+        return "//div[contains(@id,'PagePlaceholder')]" + lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
 
     //opens the ContextWindow with tabs:
@@ -416,7 +415,7 @@ class ContentWizardPanel extends Page {
         await this.clickOnDelete(this.deleteButton);
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnDeleteNowButton();
-        return contentDeleteDialog.waitForDialogClosed();
+        return await contentDeleteDialog.waitForDialogClosed();
     }
 
     async doMarkAsDeleted() {
@@ -424,7 +423,7 @@ class ContentWizardPanel extends Page {
         await this.clickOnDelete(this.deleteButton);
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return contentDeleteDialog.waitForDialogClosed();
+        return await contentDeleteDialog.waitForDialogClosed();
     }
 
     async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
@@ -536,33 +535,27 @@ class ContentWizardPanel extends Page {
         return await this.pause(700);
     }
 
-    doFilterControllersAndClickOnOption(pageControllerDisplayName) {
-        let optionSelector = lib.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`,
-            pageControllerDisplayName);
-        return this.waitForElementDisplayed(XPATH.controllerOptionFilterInput, appConst.TIMEOUT_5).then(() => {
-            return this.typeTextInInput(XPATH.controllerOptionFilterInput, pageControllerDisplayName);
-        }).then(() => {
-            return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
-        }).then(() => {
-            return this.clickOnElement(optionSelector);
-        }).catch(err => {
-            this.saveScreenshot('err_select_controller');
+    async doFilterControllersAndClickOnOption(pageControllerDisplayName) {
+        try {
+            let optionSelector = lib.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`, pageControllerDisplayName);
+            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
+            await this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
+            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.clickOnElement(optionSelector);
+            return this.pause(700);
+        } catch (err) {
+            this.saveScreenshot('err_select_controller_in_wizard');
             throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
-        })
+        }
     }
 
-    selectPageDescriptor(pageControllerDisplayName) {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-        }).then(() => {
-            return this.pause(1000);
-        }).then(() => {
-            return this.switchToParentFrame();
-        }).then(() => {
-            let screenshotName = contentBuilder.generateRandomName("controller");
-            this.saveScreenshot(screenshotName);
-            return this.waitForContextWindowVisible();
-        })
+    //Select a page descriptor and wait for Context Window is loaded
+    async selectPageDescriptor(pageControllerDisplayName) {
+        await this.switchToLiveEditFrame();
+        await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
+        await this.switchToParentFrame();
+        this.saveScreenshot(contentBuilder.generateRandomName("controller"));
+        return await this.waitForContextWindowVisible();
     }
 
     switchToMainFrame() {
@@ -710,7 +703,6 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.publishDropDownHandle);
             await this.pause(700);
             let selector = XPATH.publishMenuItemByName(menuItem);
-            //return await this.waitForElementDisplayed(selector,appConst.TIMEOUT_2)
             let result = await this.findElements(selector);
             return result.length > 0;
         } catch (err) {
@@ -734,16 +726,16 @@ class ContentWizardPanel extends Page {
     }
 
     //Clicks on publish-menu dropdown handler then click on Publish... menu item
-    openPublishMenuAndPublish() {
+    async openPublishMenuAndPublish() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        return contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH).then(() => {
-            return contentPublishDialog.waitForDialogOpened();
-        }).then(() => {
-            return contentPublishDialog.clickOnPublishNowButton();
-        }).then(() => {
-            return contentPublishDialog.waitForDialogClosed();
-        })
+        //1. Click on Publish... menu item
+        await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        //2. Wait for modal dialog opened
+        await contentPublishDialog.waitForDialogOpened();
+        //3. Click on Publish Now button
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
     }
 
     async openPublishMenuAndCreateRequestPublish(changes, assignees) {
