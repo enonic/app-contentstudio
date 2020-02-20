@@ -1,4 +1,4 @@
-import {ProjectPermissionsJson} from '../resource/json/ProjectPermissionsJson';
+import {ProjectPermissionsJson} from '../../resource/json/ProjectPermissionsJson';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';

@@ -2,12 +2,12 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {SettingsItem} from '../../data/SettingsItem';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectItem} from '../../data/ProjectItem';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {SettingsViewItem} from '../../view/SettingsViewItem';
+import {ProjectViewItem} from '../../view/ProjectViewItem';
 
 export class DeleteSettingsItemAction
     extends Action {
@@ -33,13 +33,13 @@ export class DeleteSettingsItemAction
     }
 
     private deleteSelectedItems() {
-        const selectedItems: SettingsItem[] = this.grid.getSelectedDataList();
+        const selectedItems: SettingsViewItem[] = this.grid.getSelectedDataList();
 
-        const projectItems: ProjectItem[] = <ProjectItem[]>selectedItems.filter((item: SettingsItem) => {
-            return ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem);
+        const projectItems: ProjectViewItem[] = <ProjectViewItem[]>selectedItems.filter((item: SettingsViewItem) => {
+            return ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
         });
 
-        projectItems.forEach((item: ProjectItem) => {
+        projectItems.forEach((item: ProjectViewItem) => {
             new ProjectDeleteRequest(item.getName()).sendAndParse().then(() => {
                 showFeedback(i18n('notify.settings.project.deleted', item.getName()));
             }).catch(DefaultErrorHandler.handle);

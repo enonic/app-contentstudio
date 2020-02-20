@@ -54,8 +54,8 @@ import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
-import {ProjectItem} from './app/settings/data/ProjectItem';
 import * as Q from 'q';
+import {Project} from './app/settings/data/project/Project';
 // End of Polyfills
 
 declare const CONFIG;
@@ -87,9 +87,9 @@ function startLostConnectionDetector(): ConnectionDetector {
 
     const connectionDetector =
         ConnectionDetector.get()
-        .setAuthenticated(true)
-        .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
-        .setNotificationMessage(i18n('notify.connection.loss'));
+            .setAuthenticated(true)
+            .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
+            .setNotificationMessage(i18n('notify.connection.loss'));
 
     connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
@@ -515,8 +515,8 @@ function startContentApplication(application: Application) {
 function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
 
-    return new ProjectListRequest().sendAndParse().then((projects: ProjectItem[]) => {
-        const isProjectExisting: boolean = projects.some((project: ProjectItem) => project.getName() === projectName);
+    return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
         if (isProjectExisting) {
             ProjectContext.get().setProject(projectName);
             return Q(null);

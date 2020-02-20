@@ -6,9 +6,9 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import * as Q from 'q';
-import {SettingsItem} from '../data/SettingsItem';
+import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
 
-export abstract class SettingItemWizardStepForm
+export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
 
     private descriptionInput: TextInput;
@@ -27,30 +27,11 @@ export abstract class SettingItemWizardStepForm
         this.initListeners();
     }
 
-    private addFormItems() {
-        const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
-        const fieldSet: Fieldset = new Fieldset();
-        this.getFormItems().forEach((formItem: FormItem) => {
-            fieldSet.add(formItem);
-        });
-        fieldSet.add(descriptionFormItem);
-
-        this.form.add(fieldSet);
-    }
-
-    protected abstract getFormItems(): FormItem[];
-
-    protected initListeners() {
-        this.descriptionInput.onValueChanged(() => {
-            this.notifyDataChanged();
-        });
-    }
-
     getDescription(): string {
         return this.descriptionInput.getValue();
     }
 
-    layout(item: SettingsItem) {
+    layout(item: ITEM) {
         this.descriptionInput.setValue(item.getDescription());
     }
 
@@ -63,12 +44,6 @@ export abstract class SettingItemWizardStepForm
         });
     }
 
-    protected notifyDataChanged() {
-        this.dataChangedListeners.forEach((listener: () => void) => {
-            listener();
-        });
-    }
-
     onDataChanged(listener: () => void) {
         this.dataChangedListeners.push(listener);
     }
@@ -77,5 +52,30 @@ export abstract class SettingItemWizardStepForm
         this.dataChangedListeners.filter((currentListener: () => void) => {
             return listener === currentListener;
         });
+    }
+
+    protected abstract getFormItems(): FormItem[];
+
+    protected initListeners() {
+        this.descriptionInput.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
+    }
+
+    protected notifyDataChanged() {
+        this.dataChangedListeners.forEach((listener: () => void) => {
+            listener();
+        });
+    }
+
+    private addFormItems() {
+        const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
+        const fieldSet: Fieldset = new Fieldset();
+        this.getFormItems().forEach((formItem: FormItem) => {
+            fieldSet.add(formItem);
+        });
+        fieldSet.add(descriptionFormItem);
+
+        this.form.add(fieldSet);
     }
 }

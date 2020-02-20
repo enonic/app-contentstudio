@@ -1,10 +1,10 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {ProjectItem} from '../data/ProjectItem';
-import {ProjectItemJson} from './json/ProjectItemJson';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Project} from '../data/project/Project';
+import {ProjectJson} from './json/ProjectJson';
 
 export class ProjectListRequest
-    extends ProjectResourceRequest<ProjectItemJson[], ProjectItem[]> {
+    extends ProjectResourceRequest<ProjectJson[], Project[]> {
 
     constructor() {
         super();
@@ -15,16 +15,16 @@ export class ProjectListRequest
         return {};
     }
 
-    protected processResponse(response: JsonResponse<ProjectItemJson[]>): ProjectItem[] {
-        return response.getResult()['projects'].map(ProjectItem.fromJson).sort(this.sortProjects);
+    protected processResponse(response: JsonResponse<ProjectJson[]>): Project[] {
+        return response.getResult()['projects'].map(Project.fromJson).sort(this.sortProjects);
     }
 
-    private sortProjects(item1: ProjectItem, item2: ProjectItem): number {
-        if (item1.getId() === ProjectItem.DEFAULT) {
+    private sortProjects(item1: Project, item2: Project): number {
+        if (item1.getId() === Project.DEFAULT) {
             return -1;
         }
 
-        if (item2.getId() === ProjectItem.DEFAULT) {
+        if (item2.getId() === Project.DEFAULT) {
             return 1;
         }
 

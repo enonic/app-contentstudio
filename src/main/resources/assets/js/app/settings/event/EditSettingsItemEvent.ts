@@ -1,19 +1,19 @@
 import {Event} from 'lib-admin-ui/event/Event';
-import {SettingsItem} from '../data/SettingsItem';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class EditSettingsItemEvent
     extends Event {
 
-    private items: SettingsItem[];
+    private items: SettingsViewItem[];
 
-    constructor(items: SettingsItem[]) {
+    constructor(items: SettingsViewItem[]) {
         super();
 
         this.items = items;
     }
 
-    getItems(): SettingsItem[] {
+    getItems(): SettingsViewItem[] {
         return this.items;
     }
 

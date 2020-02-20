@@ -7,12 +7,12 @@ import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';
 import {NewSettingsItemAction} from '../browse/action/NewSettingsItemAction';
 import {EditSettingsItemAction} from '../browse/action/EditSettingsItemAction';
 import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemAction';
-import {SettingsItem} from '../data/SettingsItem';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class SettingsTreeGridActions
-    implements TreeGridActions<SettingsItem> {
+    implements TreeGridActions<SettingsViewItem> {
 
     private NEW: Action;
     private EDIT: Action;
@@ -32,24 +32,25 @@ export class SettingsTreeGridActions
         return this.actions;
     }
 
-    updateActionsEnabledState(browseItems: BrowseItem<SettingsItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
+    updateActionsEnabledState(browseItems: BrowseItem<SettingsViewItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            const selectedItems: SettingsItem[] = browseItems.map((browseItem: BrowseItem<SettingsItem>) => browseItem.getModel());
+            const selectedItems: SettingsViewItem[] = browseItems.map((browseItem: BrowseItem<SettingsViewItem>) => browseItem.getModel());
+
             this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
             this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
             this.NEW.setEnabled(this.isNewAllowed(selectedItems, loginResult));
         });
     }
 
-    isEditAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
-        return selectedItems.every((item: SettingsItem) => item.isEditAllowed(loginResult));
+    isEditAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+        return selectedItems.length > 0 ? selectedItems.every((item: SettingsViewItem) => item.isEditAllowed(loginResult)) : false;
     }
 
-    isDeleteAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
-        return selectedItems.every((item: SettingsItem) => item.isDeleteAllowed(loginResult));
+    isDeleteAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+        return selectedItems.length > 0 ? selectedItems.every((item: SettingsViewItem) => item.isDeleteAllowed(loginResult)) : false;
     }
 
-    isNewAllowed(selectedItems: SettingsItem[], loginResult: LoginResult): boolean {
+    isNewAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
     }
 }

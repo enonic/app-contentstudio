@@ -1,25 +1,27 @@
 import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
 import {SettingsAppBar} from './SettingsAppBar';
-import {SettingsItem} from './data/SettingsItem';
 import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
 import {ProjectWizardPanel} from './wizard/ProjectWizardPanel';
 import {ContentUnnamed} from 'lib-admin-ui//content/ContentUnnamed';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ProjectItem} from './data/ProjectItem';
 import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
-import {SettingsItemWizardPanel} from './wizard/SettingsItemWizardPanel';
+import {SettingsDataItemWizardPanel} from './wizard/SettingsDataItemWizardPanel';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {SettingsServerEvent} from './event/SettingsServerEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {Project} from './data/project/Project';
+import {SettingsViewItem} from './view/SettingsViewItem';
+import {SettingsDataViewItem} from './view/SettingsDataViewItem';
+import {ProjectViewItem} from './view/ProjectViewItem';
 
 export class SettingsAppPanel
-    extends NavigatedAppPanel<SettingsItem> {
+    extends NavigatedAppPanel<SettingsViewItem> {
 
     protected browsePanel: SettingsBrowsePanel;
 
@@ -69,6 +71,14 @@ export class SettingsAppPanel
         this.getAppBarTabMenu().deselectNavigationItem();
     }
 
+    getWizardPanelFor(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<any>> {
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
+            return new ProjectWizardPanel({tabId, persistedItem: <ProjectViewItem>item});
+        }
+
+        return null;
+    }
+
     private handleNewProject() {
         const tabId: AppBarTabId = AppBarTabId.forNew('project');
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
@@ -90,15 +100,15 @@ export class SettingsAppPanel
                 newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
             });
 
-            wizard.onNewItemSaved((item: SettingsItem) => {
+            wizard.onNewItemSaved((item: SettingsViewItem) => {
                 newTabMenuItem.setTabId(AppBarTabId.forEdit(item.getId()));
                 newTabMenuItem.setLabel(item.getDisplayName());
             });
         }
     }
 
-    private handleItemEdit(items: SettingsItem[]) {
-        items.forEach((item: SettingsItem) => {
+    private handleItemEdit(items: SettingsViewItem[]) {
+        items.forEach((item: SettingsViewItem) => {
             const tabId: AppBarTabId = AppBarTabId.forEdit(item.getId());
             const tabMenuItem: TabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
@@ -106,7 +116,7 @@ export class SettingsAppPanel
                 this.selectPanel(tabMenuItem);
             } else {
                 const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed();
-                const wizard: SettingsItemWizardPanel<SettingsItem> = this.getWizardPanelFor(item, tabId);
+                const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<any>> = this.getWizardPanelFor(item, tabId);
                 const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                     .setLabel(item.getDisplayName())
                     .setTabId(wizard.getTabId())
@@ -122,22 +132,16 @@ export class SettingsAppPanel
         });
     }
 
-    getWizardPanelFor(item: SettingsItem, tabId: AppBarTabId): SettingsItemWizardPanel<SettingsItem> {
-        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectItem)) {
-            return new ProjectWizardPanel({tabId, persistedItem: <ProjectItem>item});
-        }
-
-        return null;
-    }
-
     private handleItemsCreated(itemsIds: string[]) {
         itemsIds.forEach(this.handleItemCreated.bind(this));
     }
 
     private handleItemCreated(itemId: string) {
         new ProjectGetRequest(itemId).sendAndParse()
-            .then((item: ProjectItem) => {
-                this.browsePanel.addSettingsItem(item);
+            .then((project: Project) => {
+                this.browsePanel.addSettingsItem(ProjectViewItem.create()
+                    .setData(project)
+                    .build());
             })
             .catch(DefaultErrorHandler.handle);
     }
@@ -155,16 +159,21 @@ export class SettingsAppPanel
         }
 
         new ProjectGetRequest(itemId).sendAndParse()
-            .then((item: ProjectItem) => {
+            .then((project: Project) => {
+
+                const item: ProjectViewItem = ProjectViewItem.create()
+                    .setData(project)
+                    .build();
+
                 if (isAnyWizardPanelUpdated) {
                     this.updateTabLabel(AppBarTabId.forEdit(itemId), item.getDisplayName());
                     this.getPanels()
                         .filter(this.isSettingsItemWizardPanel)
-                        .filter((panel: SettingsItemWizardPanel<SettingsItem>) => {
+                        .filter((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
                             return panel.hasPersistedItemWithId(itemId);
                         })
-                        .forEach((panel: SettingsItemWizardPanel<SettingsItem>) => {
-                            panel.updatePersistedSettingsItem(item);
+                        .forEach((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
+                            panel.updatePersistedSettingsDataItem(item);
                         });
                 }
 
@@ -178,13 +187,14 @@ export class SettingsAppPanel
     }
 
     private isSettingsItemWizardPanel(panel: Panel): boolean {
-        return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsItemWizardPanel);
+        return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsDataItemWizardPanel);
     }
 
     private isAnyWizardPanelUpdated(id: string): boolean {
-        return this.getPanels().filter(this.isSettingsItemWizardPanel).some((panel: SettingsItemWizardPanel<SettingsItem>) => {
-            return panel.hasPersistedItemWithId(id);
-        });
+        return this.getPanels().filter(this.isSettingsItemWizardPanel).some(
+            (panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
+                return panel.hasPersistedItemWithId(id);
+            });
     }
 
     private updateTabLabel(tabId: AppBarTabId, label: string) {
@@ -205,10 +215,10 @@ export class SettingsAppPanel
 
         this.getPanels()
             .filter(this.isSettingsItemWizardPanel)
-            .filter((panel: SettingsItemWizardPanel<SettingsItem>) => {
+            .filter((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
                 return panel.hasPersistedItemWithId(itemId);
             })
-            .forEach((panel: SettingsItemWizardPanel<SettingsItem>) => {
+            .forEach((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
                 return panel.close();
             });
     }
