@@ -1,12 +1,12 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {ProjectItemJson} from './json/ProjectItemJson';
-import {ProjectItem} from '../data/ProjectItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ProjectItemPermissions} from '../data/ProjectItemPermissions';
+import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {ProjectJson} from './json/ProjectJson';
+import {Project} from '../data/project/Project';
 
 export abstract class ProjectCreateUpdateRequest
-    extends ProjectResourceRequest<ProjectItemJson, ProjectItem> {
+    extends ProjectResourceRequest<ProjectJson, Project> {
 
     protected name: string;
 
@@ -16,7 +16,7 @@ export abstract class ProjectCreateUpdateRequest
 
     protected thumbnail: File;
 
-    protected permissions: ProjectItemPermissions;
+    protected permissions: ProjectPermissions;
 
     constructor() {
         super();
@@ -44,7 +44,7 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
-    setPermissions(value: ProjectItemPermissions): ProjectCreateUpdateRequest {
+    setPermissions(value: ProjectPermissions): ProjectCreateUpdateRequest {
         this.permissions = value;
         return this;
     }
@@ -64,7 +64,7 @@ export abstract class ProjectCreateUpdateRequest
         return params;
     }
 
-    protected processResponse(response: JsonResponse<ProjectItemJson>): ProjectItem {
-        return ProjectItem.fromJson(response.getResult());
+    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+        return Project.fromJson(response.getResult());
     }
 }

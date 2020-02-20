@@ -283,7 +283,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
     }
 
-    private handleDataChanged() {
+    protected handleDataChanged() {
         this.wizardActions.getSaveAction().setEnabled(this.isValid() && this.hasUnsavedChanges());
     }
 

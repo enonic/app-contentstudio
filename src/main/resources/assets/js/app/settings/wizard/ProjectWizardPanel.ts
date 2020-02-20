@@ -12,20 +12,19 @@ import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
-import {HelpTextContainer} from 'lib-admin-ui/form/HelpTextContainer';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {ProjectAccessControlComboBox} from './ProjectAccessControlComboBox';
 import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
-import {ProjectItemPermissions, ProjectItemPermissionsBuilder} from '../data/ProjectItemPermissions';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../data/project/ProjectPermissions';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -195,7 +194,7 @@ class ProjectAccessWizardStepForm
         this.form.add(fieldSet);
     }
 
-    layout(item: Project) {
+    layout(item: ProjectViewItem) {
         this.accessCombobox.clearSelection();
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
@@ -205,12 +204,12 @@ class ProjectAccessWizardStepForm
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private getPrincipalsFromPermissions(permissions: ProjectItemPermissions): Q.Promise<Principal[]> {
+    private getPrincipalsFromPermissions(permissions: ProjectPermissions): Q.Promise<Principal[]> {
         const principalKeys: PrincipalKey[] = [...permissions.getContributors(), ...permissions.getExperts(), ...permissions.getOwners()];
         return new GetPrincipalsByKeysRequest(principalKeys).sendAndParse();
     }
 
-    private createItemsToSelect(permissions: ProjectItemPermissions, principals: Principal[]): ProjectAccessControlEntry[] {
+    private createItemsToSelect(permissions: ProjectPermissions, principals: Principal[]): ProjectAccessControlEntry[] {
         const itemsToSelect: ProjectAccessControlEntry[] = [];
 
         permissions.getOwners().forEach((key: PrincipalKey) => {
@@ -235,7 +234,7 @@ class ProjectAccessWizardStepForm
         return itemsToSelect;
     }
 
-    getPermissions(): ProjectItemPermissions {
+    getPermissions(): ProjectPermissions {
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
 
         const owners: PrincipalKey[] = selectedAccessEntries

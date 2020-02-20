@@ -3,7 +3,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
-export class ProjectItemPermissions
+export class ProjectPermissions
     implements Equitable {
 
     private owners: PrincipalKey[] = [];
@@ -44,11 +44,11 @@ export class ProjectItemPermissions
 
     equals(o: Equitable): boolean {
 
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, ProjectItemPermissions)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ProjectPermissions)) {
             return false;
         }
 
-        const other = <ProjectItemPermissions>o;
+        const other = <ProjectPermissions>o;
 
         const thisOwners: string[] = this.getOwners().map((owner: PrincipalKey) => owner.toString()).sort();
         const otherOwners: string[] = other.getOwners().map((owner: PrincipalKey) => owner.toString()).sort();
@@ -83,7 +83,7 @@ export class ProjectItemPermissions
         return this.contributors.some(key => key.equals(principalKey));
     }
 
-    static fromJson(json: ProjectPermissionsJson): ProjectItemPermissions {
+    static fromJson(json: ProjectPermissionsJson): ProjectPermissions {
         if (json) {
             return new ProjectItemPermissionsBuilder()
                 .setContributors(json.contributor.map(PrincipalKey.fromString))
@@ -119,7 +119,7 @@ export class ProjectItemPermissionsBuilder {
         return this;
     }
 
-    build(): ProjectItemPermissions {
-        return new ProjectItemPermissions(this);
+    build(): ProjectPermissions {
+        return new ProjectPermissions(this);
     }
 }

@@ -20,14 +20,14 @@ export class ProjectListRequest
     }
 
     private sortProjects(item1: Project, item2: Project): number {
-        if (item1.getId() === Project.DEFAULT) {
+        if (item1.getName() === Project.DEFAULT_PROJECT_NAME) {
             return -1;
         }
 
-        if (item2.getId() === Project.DEFAULT) {
+        if (item2.getName() === Project.DEFAULT_PROJECT_NAME) {
             return 1;
         }
 
-        return item1.getId().localeCompare(item2.getId());
+        return item1.getName().localeCompare(item2.getName());
     }
 }
