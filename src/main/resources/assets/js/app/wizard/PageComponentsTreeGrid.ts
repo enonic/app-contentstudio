@@ -165,7 +165,7 @@ export class PageComponentsTreeGrid
 
         const partKeys: ApplicationKey[] = [];
         const layoutKeys: ApplicationKey[] = [];
-        const componentMap: { [descKey: string]: DescriptorBasedComponent } = {};
+        const componentMap: { [descKey: string]: DescriptorBasedComponent[] } = {};
 
         itemViews.forEach((itemView) => {
             const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
@@ -180,7 +180,11 @@ export class PageComponentsTreeGrid
             }
 
             const descKey = component.getDescriptorKey();
-            componentMap[descKey.toString()] = component;
+            if (componentMap[descKey.toString()]) {
+                componentMap[descKey.toString()].push(component);
+            } else {
+                componentMap[descKey.toString()] = [component];
+            }
 
             const appKey = descKey.getApplicationKey();
             if (isLayoutItemType) {
@@ -200,10 +204,12 @@ export class PageComponentsTreeGrid
         return Q.all(requests).then((descriptorsArray) => {
             descriptorsArray.forEach((descriptors: Descriptor[]) => {
                 descriptors.forEach(desc => {
-                    const comp = componentMap[desc.getKey().toString()];
-                    if (comp) {
-                        comp.setDescription(desc.getDescription());
-                        comp.setIcon(desc.getIcon());
+                    const components = componentMap[desc.getKey().toString()];
+                    if (components) {
+                        components.forEach(component => {
+                            component.setDescription(desc.getDescription());
+                            component.setIcon(desc.getIcon());
+                        });
                     }
                 });
             });
