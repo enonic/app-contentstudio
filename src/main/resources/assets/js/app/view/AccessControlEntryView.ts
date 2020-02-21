@@ -6,6 +6,7 @@ import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import {AccessChangedEvent} from '../security/AccessChangedEvent';
 
 export class AccessControlEntryView
     extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
@@ -49,14 +50,14 @@ export class AccessControlEntryView
                 this.notifyValueChanged(this.getItem());
             });
 
-            this.accessSelector.onValueChanged((event: ValueChangedEvent) => {
-                if (Access[event.getNewValue()] === Access.CUSTOM) {
+            this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
+                if (event.getNewValue() === Access.CUSTOM) {
                     this.permissionSelector.show();
                 } else {
-                    if (Access[event.getOldValue()] === Access.CUSTOM) {
+                    if (event.getOldValue() === Access.CUSTOM) {
                         this.permissionSelector.hide();
                     }
-                    this.permissionSelector.setValue(this.getPermissionsValueFromAccess(Access[event.getNewValue()]));
+                    this.permissionSelector.setValue(this.getPermissionsValueFromAccess(event.getNewValue()));
                 }
             });
 

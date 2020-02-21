@@ -524,7 +524,6 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
         if (projects.length > 0) {
             ProjectContext.get().setProject(projects[0].getName());
-            NotifyManager.get().showWarning(i18n('notify.settings.project.notExists', projectName));
         }
 
         return Q(null);
