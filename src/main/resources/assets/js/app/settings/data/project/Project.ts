@@ -1,7 +1,7 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectPermissions} from './ProjectPermissions';
 import {ProjectJson} from '../../resource/json/ProjectJson';
+import {ProjectPermissions} from './ProjectPermissions';
 
 export class Project
     implements Equitable {

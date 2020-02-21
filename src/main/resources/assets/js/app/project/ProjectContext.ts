@@ -8,6 +8,8 @@ export class ProjectContext {
 
     private project: string;
 
+    private state: State = State.NOT_INITIALIZED;
+
     private constructor() {
         this.project = ProjectContext.DEFAULT_PROJECT;
     }
@@ -26,6 +28,15 @@ export class ProjectContext {
 
     setProject(project: string) {
         this.project = project;
+        this.state = State.INITIALIZED;
         new ProjectChangedEvent().fire();
     }
+
+    isInitialized(): boolean {
+        return this.state === State.INITIALIZED;
+    }
+}
+
+enum State {
+    INITIALIZED, NOT_INITIALIZED
 }
