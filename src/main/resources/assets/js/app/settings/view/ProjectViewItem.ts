@@ -51,7 +51,7 @@ export class ProjectViewItem
             return true;
         }
 
-        if (!this.getPermissions() || Project.DEFAULT_PROJECT_NAME === this.getName()) {
+        if (!this.getPermissions()) {
             return false;
         }
 
@@ -59,9 +59,7 @@ export class ProjectViewItem
     }
 
     isDeleteAllowed(loginResult: LoginResult): boolean {
-        if (loginResult.isContentAdmin()) {
-            return true;
-        }
+        return loginResult.isContentAdmin() && Project.DEFAULT_PROJECT_NAME !== this.getName();
     }
 
     equals(o: Equitable): boolean {

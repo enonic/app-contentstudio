@@ -12,6 +12,7 @@ import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
+import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
 import {Form} from 'lib-admin-ui/ui/form/Form';
@@ -81,6 +82,10 @@ export class ProjectWizardPanel
         return header;
     }
 
+    protected createWizardActions(): ProjectWizardActions {
+        return new ProjectWizardActions(this);
+    }
+
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.wizardStepForm.getProjectName()) || !this.accessStepForm.getPermissions().isEmpty()
                || super.isNewItemChanged();
@@ -133,6 +138,10 @@ export class ProjectWizardPanel
             showFeedback(this.getSuccessfulUpdateMessage(item));
             return item;
         });
+    }
+
+    protected handleDataChanged() {
+        this.updateToolbarActions();
     }
 
     protected getSuccessfulCreateMessage(item: ProjectViewItem): string {

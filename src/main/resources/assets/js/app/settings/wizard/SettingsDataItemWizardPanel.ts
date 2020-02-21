@@ -137,25 +137,17 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
             });
     }
 
-    protected createWizardActions(): SettingsDataItemWizardActions<ITEM> {
-        return new SettingsDataItemWizardActions<ITEM>(this);
-    }
+    protected abstract createWizardActions(): SettingsDataItemWizardActions<ITEM>;
 
-    protected createDeleteRequest(): ResourceRequest<boolean, boolean> {
-        throw new Error('Must be overriden by inheritor');
-    }
+    protected abstract createDeleteRequest(): ResourceRequest<boolean, boolean> ;
 
-    protected getSuccessfulDeleteMessage(): string {
-        throw new Error('Must be overriden by inheritor');
-    }
+    protected abstract getSuccessfulDeleteMessage(): string;
 
-    protected getSuccessfulCreateMessage(item: ITEM): string {
-        throw new Error('Must be overriden by inheritor');
-    }
+    protected abstract getSuccessfulCreateMessage(item: ITEM): string;
 
-    protected getSuccessfulUpdateMessage(item: ITEM): string {
-        throw new Error('Must be overriden by inheritor');
-    }
+    protected abstract getSuccessfulUpdateMessage(item: ITEM): string;
+
+    protected abstract handleDataChanged();
 
     protected createMainToolbar(): Toolbar {
         const toolbar: Toolbar = new Toolbar();
@@ -281,10 +273,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
                 DefaultErrorHandler.handle(reason);
             });
         });
-    }
-
-    protected handleDataChanged() {
-        this.wizardActions.getSaveAction().setEnabled(this.isValid() && this.hasUnsavedChanges());
     }
 
     private notifyNewItemSaved(item: ITEM) {
