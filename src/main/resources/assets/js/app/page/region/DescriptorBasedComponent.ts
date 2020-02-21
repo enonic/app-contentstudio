@@ -22,6 +22,8 @@ export abstract class DescriptorBasedComponent
         super(builder);
 
         this.descriptorKey = builder.descriptor;
+        this.description = builder.description;
+        this.icon = builder.icon;
     }
 
     hasDescriptor(): boolean {
@@ -114,10 +116,16 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     descriptor: DescriptorKey;
 
+    description: string;
+
+    icon: string;
+
     constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
             this.descriptor = source.getDescriptorKey();
+            this.description = source.getDescription();
+            this.icon = source.getIcon();
         }
     }
 
@@ -133,6 +141,16 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     public setDescriptor(value: DescriptorKey): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
         this.descriptor = value;
+        return this;
+    }
+
+    public setDescription(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+        this.description = value;
+        return this;
+    }
+
+    public setIcon(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+        this.icon = value;
         return this;
     }
 }
