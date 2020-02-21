@@ -56,7 +56,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.openMenu("Text");
             //Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await pageComponentView.pause(2000);
+            await pageComponentView.pause(3000);
             //Open text-component's context menu:
             await pageComponentView.openMenu("Text");
             studioUtils.saveScreenshot('text_saved_as_fragment');

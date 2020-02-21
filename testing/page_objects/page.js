@@ -89,7 +89,6 @@ class Page {
         let inputElement = await this.findElement(selector);
         //await inputElement.clearValue();
         await inputElement.setValue(text);
-        //await this.getBrowser().keys(text);
         let value = await inputElement.getValue();
         //workaround for issue in WebdriverIO
         if (value == "") {
