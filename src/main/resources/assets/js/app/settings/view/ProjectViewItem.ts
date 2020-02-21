@@ -51,7 +51,7 @@ export class ProjectViewItem
             return true;
         }
 
-        if (!this.getPermissions() || Project.DEFAULT_PROJECT_NAME === this.getName()) {
+        if (!this.getPermissions()) {
             return false;
         }
 
