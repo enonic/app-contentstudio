@@ -14,18 +14,14 @@ import {PartDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/
 import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class PartDescriptorComboBox
     extends RichComboBox<PartDescriptor> {
 
     constructor() {
-        super(new RichComboBoxBuilder<PartDescriptor>()
-            .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new DescriptorViewer<PartDescriptor>())
-            .setSelectedOptionsView(new PartDescriptorSelectedOptionsView())
-            .setLoader(new PartDescriptorLoader())
-            .setMaximumOccurrences(1).setNextInputFocusWhenMaxReached(false)
-            .setNoOptionsText('No parts available'));
+        super(new PartDescriptorComboBoxBuilder());
     }
 
     setApplicationKeys(applicationKeys: ApplicationKey[]) {
@@ -99,4 +95,22 @@ export class PartDescriptorSelectedOptionView
 
         return Q(true);
     }
+}
+
+export class PartDescriptorComboBoxBuilder
+    extends RichComboBoxBuilder<PartDescriptor> {
+
+    loader: PartDescriptorLoader = new PartDescriptorLoader();
+
+    maximumOccurrences: number = 1;
+
+    identifierMethod: string = 'getKey';
+
+    optionDisplayValueViewer: Viewer<PartDescriptor> = new DescriptorViewer<PartDescriptor>();
+
+    selectedOptionsView: SelectedOptionsView<PartDescriptor> = new PartDescriptorSelectedOptionsView();
+
+    noOptionsText: string = 'No parts available';
+
+    nextInputFocusWhenMaxReached: boolean = true;
 }

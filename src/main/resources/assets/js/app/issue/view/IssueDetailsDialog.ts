@@ -45,7 +45,7 @@ import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {PrincipalComboBox, PrincipalComboBoxBuilder} from 'lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
@@ -194,7 +194,7 @@ export class IssueDetailsDialog
     protected initTabs() {
         const userLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
             [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        this.assigneesCombobox = new PrincipalComboBoxBuilder().setLoader(userLoader).build();
+        this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(userLoader).build();
         this.commentsList = new IssueCommentsList();
 
         this.assigneesTab = IssueDetailsDialog.createTabBar('assignees');

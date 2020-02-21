@@ -1,48 +1,27 @@
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectAccess} from './ProjectAccess';
+import {PrincipalContainer} from 'lib-admin-ui/ui/security/PrincipalContainer';
 
 export class ProjectAccessControlEntry
+    extends PrincipalContainer
     implements Equitable {
-
-    private principal: Principal;
 
     private access: ProjectAccess;
 
-    constructor(principal: Principal, access?: ProjectAccess) {
-        this.principal = principal;
+    constructor(principal: Principal, access: ProjectAccess = ProjectAccess.CONTRIBUTOR) {
+        super(principal);
         this.access = access;
-    }
-
-    getPrincipal(): Principal {
-        return this.principal;
     }
 
     getAccess(): ProjectAccess {
         return this.access;
     }
 
-    getPrincipalKey(): PrincipalKey {
-        return this.principal.getKey();
-    }
-
-    getPrincipalDisplayName(): string {
-        return this.principal.getDisplayName();
-    }
-
-    getPrincipalTypeName(): string {
-        return this.principal.getTypeName();
-    }
-
     setAccess(value: string): ProjectAccessControlEntry {
         this.access = ProjectAccess[value];
         return this;
-    }
-
-    getId(): string {
-        return this.principal.getKey().toString();
     }
 
     equals(o: Equitable): boolean {
