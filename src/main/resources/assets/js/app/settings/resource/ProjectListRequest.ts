@@ -16,6 +16,18 @@ export class ProjectListRequest
     }
 
     protected processResponse(response: JsonResponse<ProjectJson[]>): Project[] {
-        return response.getResult()['projects'].map(Project.fromJson);
+        return response.getResult()['projects'].map(Project.fromJson).sort(this.sortProjects);
+    }
+
+    private sortProjects(item1: Project, item2: Project): number {
+        if (item1.getName() === Project.DEFAULT_PROJECT_NAME) {
+            return -1;
+        }
+
+        if (item2.getName() === Project.DEFAULT_PROJECT_NAME) {
+            return 1;
+        }
+
+        return item1.getName().localeCompare(item2.getName());
     }
 }
