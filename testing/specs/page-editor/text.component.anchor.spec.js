@@ -32,18 +32,18 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertAnchorDialog = new InsertAnchorDialog();
-            //1. Open existing site and open Page Component View:
+            //1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new ext-component:
+            //2. Insert new text-component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.switchToLiveEditFrame();
-            //3. Open Insert Anchor dialog and type the text:
+            //3. Open 'Insert Anchor' dialog and type the text:
             await textComponentCke.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput('test_anchor');
             studioUtils.saveScreenshot('anchor_text_typed');
-            //4. Click on Insert button and close the dialog:
+            //4. Click on 'Insert' button and close the dialog:
             await insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
             await contentWizard.switchToLiveEditFrame();
             //5. Verify the text in CKE:

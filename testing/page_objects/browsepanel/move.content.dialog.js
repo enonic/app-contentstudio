@@ -4,12 +4,15 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const LoaderComboBox = require('../components/loader.combobox');
+
 const XPATH = {
     container: `//div[contains(@id,'MoveContentDialog')]`,
     header: `//div[contains(@class,'modal-dialog-header')]/h2`,
     path: `//div[contains(@class,'modal-dialog-header')]/h6`,
     moveButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Move')]]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Cancel')]]`,
+    contentMoveComboBox:"//div[contains(@id,'ContentMoveComboBox')]"
 };
 
 class MoveContentDialog extends Page {
@@ -58,6 +61,15 @@ class MoveContentDialog extends Page {
     async clickOnMoveButton(contentTypeName) {
         await this.clickOnElement(this.moveButton)
         await this.pause(700);
+    }
+
+    async typeTextAndClickOnOption(displayName){
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
+        } catch (err) {
+            throw new Error("Move Content Dialog  " + err);
+        }
     }
 };
 module.exports = MoveContentDialog;
