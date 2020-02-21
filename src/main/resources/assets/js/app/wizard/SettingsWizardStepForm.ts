@@ -50,13 +50,13 @@ export class SettingsWizardStepForm
     layout(content: Content) {
         this.content = content;
 
-        this.localeCombo = new LocaleComboBox(1, content.getLanguage());
+        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).setValue(content.getLanguage()).build();
         let localeFormItem = new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
 
         let loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
 
-        this.ownerCombo = PrincipalComboBox.create().setLoader(loader).setMaxOccurences(1).setValue(
-            content.getOwner() ? content.getOwner().toString() : undefined).setDisplayMissing(true).build();
+        this.ownerCombo = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).setMaximumOccurrences(1).setValue(
+            content.getOwner() ? content.getOwner().toString() : undefined).setDisplayMissingSelectedOptions(true).build();
 
         let ownerFormItem = new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
 

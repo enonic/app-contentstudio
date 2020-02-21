@@ -13,19 +13,14 @@ import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspec
 import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class LayoutDescriptorComboBox
     extends RichComboBox<LayoutDescriptor> {
 
     constructor() {
-        super(new RichComboBoxBuilder<LayoutDescriptor>()
-            .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new DescriptorViewer<LayoutDescriptor>())
-            .setSelectedOptionsView(new LayoutDescriptorSelectedOptionsView())
-            .setLoader(new LayoutDescriptorLoader())
-            .setMaximumOccurrences(1)
-            .setNextInputFocusWhenMaxReached(false)
-            .setNoOptionsText('No layouts available'));
+        super(new LayoutDescriptorComboBoxBuilder());
     }
 
     setApplicationKeys(applicationKeys: ApplicationKey[]) {
@@ -98,4 +93,22 @@ export class LayoutDescriptorSelectedOptionView
         return Q(true);
     }
 
+}
+
+export class LayoutDescriptorComboBoxBuilder
+    extends RichComboBoxBuilder<LayoutDescriptor> {
+
+    loader: LayoutDescriptorLoader = new LayoutDescriptorLoader();
+
+    maximumOccurrences: number = 1;
+
+    identifierMethod: string = 'getKey';
+
+    optionDisplayValueViewer: Viewer<LayoutDescriptor> = new DescriptorViewer<LayoutDescriptor>();
+
+    selectedOptionsView: SelectedOptionsView<LayoutDescriptor> = new LayoutDescriptorSelectedOptionsView();
+
+    noOptionsText: string = 'No layouts available';
+
+    nextInputFocusWhenMaxReached: boolean = true;
 }

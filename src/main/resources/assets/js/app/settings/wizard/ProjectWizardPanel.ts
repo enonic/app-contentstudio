@@ -252,7 +252,7 @@ class ProjectAccessWizardStepForm
 
     onSelectedAccessItemsChanged(handler: () => void) {
         this.accessCombobox.onValueChanged(handler);
-        this.accessCombobox.onSelectedItemValueChanged(handler);
+        this.accessCombobox.onOptionValueChanged(handler);
     }
 
     doRender(): Q.Promise<boolean> {
