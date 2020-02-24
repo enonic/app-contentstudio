@@ -25,40 +25,52 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
         });
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN click on dropdown handle in styles selector THEN expected options should be present`,
-        async () => {
+        async() = > {
             let insertImageDialog = new InsertImageDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open wizard with html-area:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Open 'Insert Image' dialog:
-            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
-            await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Click on dropdown handle and expand the style-options:
-            let actualOptions = await insertImageDialog.getStyleSelectorOptions();
-            studioUtils.saveScreenshot('image_dialog_style_options');
-            assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
-            assert.equal(actualOptions[1], appConstant.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
+    //1. Open wizard with html-area:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+    //2. Open 'Insert Image' dialog:
+    await
+    htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+    await
+    insertImageDialog.waitForDialogVisible();
+    //3. Select the image:
+    await
+    insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+    //4. Click on dropdown handle and expand the style-options:
+    let actualOptions = await
+    insertImageDialog.getStyleSelectorOptions();
+    studioUtils.saveScreenshot('image_dialog_style_options');
+    assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
+    assert.equal(actualOptions[1], appConstant.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN 'Original' option has been selected THEN 'Custom Width' checkbox is getting disabled`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open wizard with html-area:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Open 'Insert Image' dialog:
-            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
-            await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Type the text in 'filter input' and click on the option
-            await insertImageDialog.doFilterStyleAndClickOnOption("Original");
-            //5. Verify that 'Custom Width' checkbox gets disabled:
-            await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
-            //6. 'Custom Width' checkbox should be unchecked:
-            let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
+    //1. Open wizard with html-area:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+    //2. Open 'Insert Image' dialog:
+    await
+    htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+    await
+    insertImageDialog.waitForDialogVisible();
+    //3. Select the image:
+    await
+    insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+    //4. Type the text in 'filter input' and click on the option
+    await
+    insertImageDialog.doFilterStyleAndClickOnOption("Original");
+    //5. Verify that 'Custom Width' checkbox gets disabled:
+    await
+    insertImageDialog.waitForCustomWidthCheckBoxDisabled();
+    //6. 'Custom Width' checkbox should be unchecked:
+    let isChecked = await
+    insertImageDialog.isCustomWidthCheckBoxSelected();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

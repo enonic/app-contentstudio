@@ -12,7 +12,7 @@ const XPATH = {
     path: `//div[contains(@class,'modal-dialog-header')]/h6`,
     moveButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Move')]]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Cancel')]]`,
-    contentMoveComboBox:"//div[contains(@id,'ContentMoveComboBox')]"
+    contentMoveComboBox: "//div[contains(@id,'ContentMoveComboBox')]"
 };
 
 class MoveContentDialog extends Page {
@@ -63,10 +63,13 @@ class MoveContentDialog extends Page {
         await this.pause(700);
     }
 
-    async typeTextAndClickOnOption(displayName){
+    async
+
+    typeTextAndClickOnOption(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
+            return await
+            loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
         } catch (err) {
             throw new Error("Move Content Dialog  " + err);
         }

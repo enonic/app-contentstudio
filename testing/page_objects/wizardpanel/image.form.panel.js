@@ -47,7 +47,8 @@ class ImageFormPanel extends Page {
     async clickOnFlipButton() {
         try {
             await this.waitForElementDisplayed(this.buttonFlip);
-            await this.pause(500);
+            await
+            this.pause(500);
             await this.clickOnElement(this.buttonFlip);
             await this.pause(700);
         } catch (err) {
@@ -59,7 +60,8 @@ class ImageFormPanel extends Page {
     async clickOnRotateButton() {
         try {
             await this.waitForElementDisplayed(this.buttonRotate);
-            await this.pause(700);
+            await
+            this.pause(700);
             await this.clickOnElement(this.buttonRotate);
             await this.pause(700);
         } catch (err) {
@@ -69,7 +71,7 @@ class ImageFormPanel extends Page {
     }
 
     clickOnResetButton() {
-        return this.clickOnElement(this.buttonResetFilters).then(() => {
+        return this.clickOnElement(this.buttonResetFilters).then(() = > {
             return this.pause(500);
         }).catch(err => {
             this.saveScreenshot('err_click_on_reset_button');
@@ -78,7 +80,7 @@ class ImageFormPanel extends Page {
     }
 
     waitForResetFilterDisplayed() {
-        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2).catch(err = > {
             throw new Error("Image Wizard - Reset Filter button, " + err);
         });
     }
@@ -106,17 +108,23 @@ class ImageFormPanel extends Page {
         })
     }
 
-    async waitForResetFiltersDisplayed() {
+    async
+
+    waitForResetFiltersDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+            await
+            this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Button 'Reset filters' is not displayed in 2 seconds " + err);
         }
     }
 
-    async waitForResetFiltersNotDisplayed() {
+    async
+
+    waitForResetFiltersNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+            await
+            this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
         }

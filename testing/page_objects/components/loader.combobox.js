@@ -18,7 +18,7 @@ class LoaderComboBox extends Page {
 
     selectOption(optionDisplayName) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
-        return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_5).catch(err => {
+        return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_5).catch(err = > {
             throw new Error('option was not found! ' + optionDisplayName + ' ' + err);
         }).then(() => {
             return this.clickOnElement(optionSelector).catch(err => {

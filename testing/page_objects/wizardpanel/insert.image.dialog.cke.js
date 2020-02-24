@@ -139,10 +139,14 @@ class InsertImageDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
     }
 
-    async waitForImageRangeValue() {
+    async
+
+    waitForImageRangeValue() {
         try {
-            await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.TIMEOUT_2);
-            return await this.getText(XPATH.imageRangeValue);
+            await
+            this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.TIMEOUT_2);
+            return await
+            this.getText(XPATH.imageRangeValue);
         } catch (err) {
             throw new Error("Error when getting text in element with image range " + err);
         }

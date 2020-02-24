@@ -19,18 +19,23 @@ describe('site.wizard.no.regions.controller.spec: checks Ssave button after sele
 //verifies https://github.com/enonic/app-contentstudio/issues/210
 //"Save" button doesn't get disabled after save when assigning a template with no regions to a site
     it(`GIVEN new site wizard is opened AND name has been typed WHEN template with 'no regions' has been selected THEN Save button gets disabled`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
-            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
-            await contentWizard.typeDisplayName(SITE.displayName);
-            await siteFormPanel.addApplications([appConstant.SIMPLE_SITE_APP]);
-            //site should be automatically saved after selecting a controller
-            await contentWizard.selectPageDescriptor("no regions");
-            // Save button gets disabled after selecting 'no regions':
-            await contentWizard.waitForSaveButtonDisabled();
+    await
+    studioUtils.openContentWizard(appConst.contentTypes.SITE);
+    await
+    contentWizard.typeDisplayName(SITE.displayName);
+    await
+    siteFormPanel.addApplications([appConstant.SIMPLE_SITE_APP]);
+    //site should be automatically saved after selecting a controller
+    await
+    contentWizard.selectPageDescriptor("no regions");
+    // Save button gets disabled after selecting 'no regions':
+    await
+    contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

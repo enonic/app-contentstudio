@@ -25,48 +25,63 @@ describe('Check Outbound dependencies after rollback a version of content with i
         let SITE;
 
         it(`Precondition: new site should be added`,
-            async () => {
+            async() = > {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-                await studioUtils.doAddSite(SITE);
-                await studioUtils.findAndSelectItem(SITE.displayName);
-                await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+        await
+        studioUtils.doAddSite(SITE);
+        await
+        studioUtils.findAndSelectItem(SITE.displayName);
+        await
+        contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             });
 
         it(`Preconditions: content with image-selector with 2 different versions should be added`,
-            async () => {
+            async() = > {
                 let contentWizard = new ContentWizard();
                 let imageSelectorForm = new ImageSelectorForm();
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
-                await contentWizard.typeDisplayName(CONTENT_NAME);
-                //select the first image
-                await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
-                // first version is saved(one image is selected)
-                await contentWizard.waitAndClickOnSave();
-                //select the second image
-                await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME2);
-                // the second version is saved(2 images are selected)
-                await contentWizard.waitAndClickOnSave();
+        await
+        studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+        await
+        contentWizard.typeDisplayName(CONTENT_NAME);
+        //select the first image
+        await
+        imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
+        // first version is saved(one image is selected)
+        await
+        contentWizard.waitAndClickOnSave();
+        //select the second image
+        await
+        imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME2);
+        // the second version is saved(2 images are selected)
+        await
+        contentWizard.waitAndClickOnSave();
             });
 
         it(`GIVEN outbound dependencies is opened in the new tab WHEN the previous version(one selected image) has been reverted THEN tab with outbound dependencies should be updated`,
-            async () => {
+            async() = > {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
-                //1. Open existing content
-                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-                //2. Open Dependency Widget
-                await openWizardDependencyWidget();
-                //3. Click on Show Outbound button:
-                await wizardDependenciesWidget.clickOnShowOutboundButton();
-                //4. Revert the version with one selected image:
-                await rollbackVersion();
-                await studioUtils.doSwitchToNextTab();
-                //Verify that one image should be present in the grid:
-                let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
-                studioUtils.saveScreenshot("outbound_should_be_updated");
-                assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
+        //1. Open existing content
+        await
+        studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+        //2. Open Dependency Widget
+        await
+        openWizardDependencyWidget();
+        //3. Click on Show Outbound button:
+        await
+        wizardDependenciesWidget.clickOnShowOutboundButton();
+        //4. Revert the version with one selected image:
+        await
+        rollbackVersion();
+        await
+        studioUtils.doSwitchToNextTab();
+        //Verify that one image should be present in the grid:
+        let displayNames = await
+        contentBrowsePanel.getDisplayNamesInGrid();
+        studioUtils.saveScreenshot("outbound_should_be_updated");
+        assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

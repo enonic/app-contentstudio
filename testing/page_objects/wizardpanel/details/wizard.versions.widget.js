@@ -55,13 +55,19 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         }
     }
 
-    async clickOnCompareWithCurrentVersionButton(index) {
+    async
+
+    clickOnCompareWithCurrentVersionButton(index) {
         try {
             //wait for the list of versions is loaded:
-            await this.waitForElementDisplayed(xpath.widget + xpath.versionsList);
-            let elements = await this.findElements(this.compareWithCurrentVersionButton);
-            await elements[index].click();
-            return await this.pause(400);
+            await
+            this.waitForElementDisplayed(xpath.widget + xpath.versionsList);
+            let elements = await
+            this.findElements(this.compareWithCurrentVersionButton);
+            await
+            elements[index].click();
+            return await
+            this.pause(400);
         } catch (err) {
             throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
         }

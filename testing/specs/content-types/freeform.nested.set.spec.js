@@ -26,42 +26,55 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
         });
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked consequentially THEN Save button gets enabled in the wizard-toolbar`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             let freeFormOptionSet1 = new FreeFormOptionSet1();
             contentDisplayName = contentBuilder.generateRandomName('freeform');
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
-            await contentWizard.typeDisplayName(contentDisplayName);
-            //save just the name:
-            await contentWizard.waitAndClickOnSave();
-            //click on the radio and expand the first form (set)
-            await freeFormNestedSet.clickOnElementTypeInput();
-            // save the content again
-            await contentWizard.waitAndClickOnSave();
-            // Click on the radio in the first form(set)
-            await freeFormOptionSet1.clickOnImageRadioButton();
-            studioUtils.saveScreenshot('set_in_set_save_issue');
-            //"Save" button gets enabled, because radio button has been checked"
-            return contentWizard.waitForSaveButtonEnabled();
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
+    await
+    contentWizard.typeDisplayName(contentDisplayName);
+    //save just the name:
+    await
+    contentWizard.waitAndClickOnSave();
+    //click on the radio and expand the first form (set)
+    await
+    freeFormNestedSet.clickOnElementTypeInput();
+    // save the content again
+    await
+    contentWizard.waitAndClickOnSave();
+    // Click on the radio in the first form(set)
+    await
+    freeFormOptionSet1.clickOnImageRadioButton();
+    studioUtils.saveScreenshot('set_in_set_save_issue');
+    //"Save" button gets enabled, because radio button has been checked"
+    return contentWizard.waitForSaveButtonEnabled();
         });
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked sequentially THEN Save button gets enabled in the wizard-toolbar`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
             let freeFormOptionSet1 = new FreeFormOptionSet1();
-            //1. Open existing content with options set:
-            await studioUtils.selectAndOpenContentInWizard(contentDisplayName);
-            //2. Click text-radio button:
-            await freeFormOptionSet1.clickOnTextRadioButton();
-            await contentWizard.waitAndClickOnSave();
-            await contentWizard.pause(1500);
-            //Click on required radio-button:
-            await freeFormOptionSet1.clickOnImageRadioButton();
-            //"Save" button gets enabled, because required radio button has been checked
-            await contentWizard.waitForSaveButtonEnabled();
-            let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "Red icon should not be displayed, because required input is filled");
+    //1. Open existing content with options set:
+    await
+    studioUtils.selectAndOpenContentInWizard(contentDisplayName);
+    //2. Click text-radio button:
+    await
+    freeFormOptionSet1.clickOnTextRadioButton();
+    await
+    contentWizard.waitAndClickOnSave();
+    await
+    contentWizard.pause(1500);
+    //Click on required radio-button:
+    await
+    freeFormOptionSet1.clickOnImageRadioButton();
+    //"Save" button gets enabled, because required radio button has been checked
+    await
+    contentWizard.waitForSaveButtonEnabled();
+    let result = await
+    contentWizard.isContentInvalid();
+    assert.isFalse(result, "Red icon should not be displayed, because required input is filled");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
