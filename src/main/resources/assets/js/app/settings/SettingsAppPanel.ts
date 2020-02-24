@@ -19,6 +19,7 @@ import {Project} from './data/project/Project';
 import {SettingsViewItem} from './view/SettingsViewItem';
 import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
+import {ProjectListRequest} from './resource/ProjectListRequest';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsViewItem> {
@@ -132,18 +133,18 @@ export class SettingsAppPanel
         });
     }
 
-    private handleItemsCreated(itemsIds: string[]) {
-        itemsIds.forEach(this.handleItemCreated.bind(this));
+    private handleItemsCreated(itemIds: string[]) {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            this.doHandleItemsCreated(itemIds, projects);
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleItemCreated(itemId: string) {
-        new ProjectGetRequest(itemId).sendAndParse()
-            .then((project: Project) => {
-                this.browsePanel.addSettingsItem(ProjectViewItem.create()
-                    .setData(project)
-                    .build());
-            })
-            .catch(DefaultErrorHandler.handle);
+    private doHandleItemsCreated(createdItemIds: string[], allProjects: Project[]) {
+        allProjects
+            .filter((project: Project) => createdItemIds.some((createdItemId: string) => createdItemId === project.getName()))
+            .forEach((createdProject: Project) => {
+                this.browsePanel.addSettingsItem(ProjectViewItem.create().setData(createdProject).build());
+            });
     }
 
     private handleItemsUpdated(itemsIds: string[]) {
@@ -183,7 +184,6 @@ export class SettingsAppPanel
 
             })
             .catch(DefaultErrorHandler.handle);
-
     }
 
     private isSettingsItemWizardPanel(panel: Panel): boolean {
