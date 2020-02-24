@@ -19,6 +19,9 @@ const xpath = {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]` +
                lib.P_SUB_NAME;
     },
+    componentByDescription: function (description) {
+        return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
+    },
 };
 
 //Modal Dialog:
@@ -38,6 +41,18 @@ class PageComponentView extends Page {
     async openMenu(componentName) {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
+            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(menuButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_component_view');
+            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
+        }
+    }
+
+    async openMenuByDescription(description) {
+        try {
+            let menuButton = xpath.componentByDescription(description) + "/../..//div[contains(@class,'menu-icon')]";
             await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
