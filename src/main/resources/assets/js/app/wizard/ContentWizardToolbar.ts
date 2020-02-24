@@ -91,11 +91,8 @@ export class ContentWizardToolbar
 
     private addHomeButton() {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-
             this.addProjectButton(projects);
-
         }).catch((reason: any) => {
-
             this.addProjectButton([Project.create()
                 .setName(ProjectContext.get().getProject())
                 .build()
@@ -112,7 +109,7 @@ export class ContentWizardToolbar
             .setSize(NamesAndIconViewSize.small)
             .build()
             .setMainName(project.getDisplayName())
-            .setIconClass(project.getIcon());
+            .setIconClass(project.getIcon() || 'icon-tree-2');
 
         projectBlock.addClass('project-info');
         projectBlock.toggleClass('single-repo', projects.length < 2);
