@@ -23,12 +23,9 @@ class XDataImageSelector extends Page {
         });
     }
 
-    async
-
-    waitForImageSelected() {
+    async waitForImageSelected() {
         let selector = XPATH.container + "//div[contains (@id,'ImageSelectorSelectedOptionView')]";
-        return await
-        this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
     }
 
     waitForImageOptionsFilterInputVisible() {

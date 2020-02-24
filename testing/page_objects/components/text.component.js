@@ -59,31 +59,19 @@ class TextComponent extends Page {
         return this.switchToFrame("//iframe[contains(@class,'live-edit-frame shown')]");
     }
 
-    async
-
-    switchToCKETableFrameAndInsertTable() {
-        await
-        this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
-        await
-        this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
-        await
-        this.clickOnElement("//div[contains(@class,'cke_panel_block')]");
-        await
-        this.getBrowser().switchToParentFrame();
+    async switchToCKETableFrameAndInsertTable() {
+        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]",appConst.TIMEOUT_2);
+        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+        await this.clickOnElement("//div[contains(@class,'cke_panel_block')]");
+        await this.getBrowser().switchToParentFrame();
     }
 
-    async
-
-    waitForTableDisplayedInCke() {
-        await
-        this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
-        await
-        this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+    async waitForTableDisplayedInCke() {
+        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]",appConst.TIMEOUT_2);
+        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
         let table = "//table";
-        let result = await
-        this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
-        await
-        this.getBrowser().switchToParentFrame();
+        let result =  await this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
+        await this.getBrowser().switchToParentFrame();
         return result;
     }
 

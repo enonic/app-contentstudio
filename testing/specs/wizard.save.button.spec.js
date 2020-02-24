@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -29,7 +27,6 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName('test999');
-
             //`Save` button gets enabled', because the name has been typed:
             await contentWizard.waitForSaveButtonEnabled();
         });
@@ -38,14 +35,14 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
     it(`WHEN folder-wizard is opened AND a name is typed WHEN the name has been cleared again THEN Save button should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
+            //1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName('test999');
-
             await contentWizard.pause(2000);
-            //Display name input has been cleared:
+            //2. Display name input has been cleared:
             await contentWizard.clearDisplayNameInput();
             studioUtils.saveScreenshot('save_button_clear_name');
-            //Save button gets disabled again
+            //Save button gets disabled again:
             await contentWizard.waitForSaveButtonVisible();
             await contentWizard.waitForSaveButtonDisabled();
         });

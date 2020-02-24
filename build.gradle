@@ -28,7 +28,7 @@ dependencies {
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-auth:${xpVersion}"
+    include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
     testCompile 'junit:junit:4.12'
@@ -105,10 +105,17 @@ jar {
         exclude 'assets/**/*.map'
     }
 
+    outputs.dir "${buildDir}/resources/main"
+
     dependsOn += webpack
 }
 
-jar.outputs.dir "${buildDir}/resources/main"
+project.afterEvaluate {
+    jar {
+        bnd ('Private-Package': '!dev.*, *;-split-package:=merge-first')
+    }
+}
+
 processResources.dependsOn += unpackDevResources
 
 if ( hasProperty( 'env' ) )
@@ -163,7 +170,7 @@ asciidoctor {
     requires project.file('verbose-mode.rb')
     attributes 'source-highlighter': 'coderay',
                 idseparator: '-'
-    
+
     resources {
         from(sourceDir) {
             include '**/images/**'

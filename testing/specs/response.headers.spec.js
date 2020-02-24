@@ -13,25 +13,19 @@ describe('response.headers.spec - Send a request and verify headers in response'
     webDriverHelper.setupBrowser();
 
     it(`GIVEN navigated to Content Studio WHEN GET request has been sent THEN expected headers should be present in the response`,
-        async() = > {
-        let reqHeaders = await studioUtils.sendRequestGetHeaders();
-    let headers = reqHeaders.toLowerCase();
+        async () => {
+            let reqHeaders = await studioUtils.sendRequestGetHeaders();
+            let headers = reqHeaders.toLowerCase();
 
-    assert.isTrue(headers.includes('X-Frame-Options: SAMEORIGIN'.toLowerCase()),
-        "'X-Frame-Options: SAMEORIGIN' header should be present in the response");
-    assert.isTrue(headers.includes('X-Content-Type-Options: nosniff'.toLowerCase()),
-        "'X-Content-Type-Options: nosniff' header should be present in the response")
-})
-    ;
+            assert.isTrue(headers.includes('X-Frame-Options: SAMEORIGIN'.toLowerCase()),
+                "'X-Frame-Options: SAMEORIGIN' header should be present in the response");
+            assert.isTrue(headers.includes('X-Content-Type-Options: nosniff'.toLowerCase()),
+                "'X-Content-Type-Options: nosniff' header should be present in the response")
+        });
 
-    beforeEach(() = > studioUtils.navigateToContentStudioApp()
-)
-    ;
-    afterEach(() = > studioUtils.doCloseAllWindowTabsAndSwitchToHome()
-)
-    ;
-    before(() = > {
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
         return console.log('specification is starting: ' + this.title);
-})
-    ;
+    });
 });

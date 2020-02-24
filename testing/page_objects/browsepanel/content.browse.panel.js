@@ -346,7 +346,7 @@ class ContentBrowsePanel extends Page {
     //gets list of content display names
     getDisplayNamesInGrid() {
         return this.getTextInElements(this.displayNames).catch(err => {
-            this.saveScreenshot('err_click_on_details_panel_toggle');
+            this.saveScreenshot('err_get_display_name_grid');
             throw new Error(`Error when getting display names in grid` + err);
         });
     }

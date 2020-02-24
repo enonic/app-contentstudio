@@ -80,43 +80,35 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     //verifies the https://github.com/enonic/lib-admin-ui/issues/778 (x-data should be disabled after the version rollback)
     it(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let detailsPanel = new WizardDetailsPanel();
             let versionsWidget = new WizardVersionsWidget();
-    //1. Open existing site, then open details panel:
-    await
-    studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    await
-    contentWizard.openDetailsPanel();
-    //2. Open versions widget
-    await
-    detailsPanel.openVersionHistory();
-    await
-    versionsWidget.waitForVersionsLoaded();
-    //3. Revert the version with disabled x-data:
-    await
-    versionsWidget.clickAndExpandVersion(2);
-    await
-    versionsWidget.clickOnRevertButton();
-    await
-    versionsWidget.pause(2000);
-    //4. Verify that x-data step gets not visible:
-    studioUtils.saveScreenshot("site_x_data_rollback_test");
-    let isNotVisible = await
-    contentWizard.waitForWizardStepByTitleNotVisible(X_DATA_STEP_WIZARD);
-    assert.isTrue(isNotVisible, 'x-data step should be not visible in the navigation bar, because x-data was disabled');
+            //1. Open existing site, then open details panel:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.openDetailsPanel();
+            //2. Open versions widget
+            await detailsPanel.openVersionHistory();
+            await versionsWidget.waitForVersionsLoaded();
+            //3. Revert the version with disabled x-data:
+            await versionsWidget.clickAndExpandVersion(2);
+            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.pause(2000);
+            //4. Verify that x-data step gets not visible:
+            studioUtils.saveScreenshot("site_x_data_rollback_test");
+            let isNotVisible = await contentWizard.waitForWizardStepByTitleNotVisible(X_DATA_STEP_WIZARD);
+            assert.isTrue(isNotVisible, 'x-data step should be not visible in the navigation bar, because x-data was disabled');
         });
     //verifies Incorrect order of x-data in Content Wizard(xp/issues/6728)
     //x-data forms in the Content Wizard - should follow the same order in which they are included in the XML schema
     it(`WHEN content with optional two x-data is opened THEN expected order of x-data forms should be present in the wizard`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
-    //1. Content with optional two x-data is opened
+            //1. Content with optional two x-data is opened
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
             await contentWizard.typeDisplayName(contentName);
             await contentWizard.waitForXdataTogglerVisible();
-    //2. Verify the order of titles:
+            //2. Verify the order of titles:
             let result = await contentWizard.getXdataTitles();
             assert.equal(result[0], 'Text Area x-data');
             assert.equal(result[1], 'X-data (image selector)');
@@ -124,50 +116,37 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         });
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
-    //1. Open the wizard and type a name:
-    await
-    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
-    await
-    contentWizard.typeDisplayName(contentName);
-    //2. Do enable the x-data:
-    await
-    contentWizard.waitForXdataTogglerVisible();
-    await
-    contentWizard.clickOnXdataToggler();
-    //3. Save the content:
-    await
-    contentWizard.waitAndClickOnSave();
-    studioUtils.saveScreenshot('xdata_enabled_textarea');
-    //4. 'x-data form' should appear and text area gets visible
-    await
-    xDataTextArea.waitForTextAreaVisible();
-    //5. Verify: 'Red icon gets visible in the wizard, because text-area is required input in x-data'
-    await
-    contentWizard.waitUntilInvalidIconAppears();
-})
-    ;
+            //1. Open the wizard and type a name:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
+            await contentWizard.typeDisplayName(contentName);
+            //2. Do enable the x-data:
+            await contentWizard.waitForXdataTogglerVisible();
+            await contentWizard.clickOnXdataToggler();
+            //3. Save the content:
+            await contentWizard.waitAndClickOnSave();
+            studioUtils.saveScreenshot('xdata_enabled_textarea');
+            //4. 'x-data form' should appear and text area gets visible
+            await xDataTextArea.waitForTextAreaVisible();
+            //5. Verify: 'Red icon gets visible in the wizard, because text-area is required input in x-data'
+            await contentWizard.waitUntilInvalidIconAppears();
+        });
 
     it(`GIVEN existing content with enabled x-data is opened WHEN x-data toggler has been clicked THEN x-data form gets hidden and content gets valid`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
-    //1. Open existing content with enabled x-data:
-    await
-    studioUtils.selectContentAndOpenWizard(contentName);
-    //2. Disable the x-data and save the content:
-    await
-    contentWizard.clickOnXdataToggler();
-    await
-    contentWizard.waitAndClickOnSave();
-    //3. 'text area' gets hidden
-    await
-    xDataTextArea.waitForTextAreaNotVisible();
-    //4. Verify that 'red icon' should not be displayed in the wizard, because x-data is disabled now and the content is valid:
-    await
-    contentWizard.waitUntilInvalidIconDisappears();
+            //1. Open existing content with enabled x-data:
+            await studioUtils.selectContentAndOpenWizard(contentName);
+            //2. Disable the x-data and save the content:
+            await contentWizard.clickOnXdataToggler();
+            await contentWizard.waitAndClickOnSave();
+            //3. 'text area' gets hidden
+            await xDataTextArea.waitForTextAreaNotVisible();
+            //4. Verify that 'red icon' should not be displayed in the wizard, because x-data is disabled now and the content is valid:
+            await contentWizard.waitUntilInvalidIconDisappears();
         });
 
     it(`GIVEN existing content with enabled x-data is opened WHEN text typed in x-data form THEN content is getting valid`,
@@ -204,21 +183,21 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     //verifies the https://github.com/enonic/lib-admin-ui/issues/778
     it(`GIVEN existing content with x-data(required text area) is opened WHEN version of the content with a text in x-data has been reverted THEN expected text should appear in the area`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let versionsWidget = new WizardVersionsWidget();
             let xDataTextArea = new XDataTextArea();
             let detailsPanel = new WizardDetailsPanel();
             await studioUtils.selectContentAndOpenWizard(contentName);
-    //1. Open details panel:
+            //1. Open details panel:
             await contentWizard.openDetailsPanel();
-    //2. Open versions widget:
+            //2. Open versions widget:
             await detailsPanel.openVersionHistory();
             await versionsWidget.clickAndExpandVersion(1);
-    //3. Revert the previous version:
+            //3. Revert the previous version:
             await versionsWidget.clickOnRevertButton();
             await versionsWidget.pause(2000);
-    //4. Verify the reverted text:
+            //4. Verify the reverted text:
             studioUtils.saveScreenshot('xdata_text_in_textarea_restored');
             let result = await xDataTextArea.getTextInTextArea();
             assert.equal(result, TEST_TEXT, 'Required text should appear in the textarea in x-data');

@@ -44,6 +44,9 @@ module.exports = {
         let el = await webDriverHelper.browser.$(selector);
         return await el.isDisplayed();
     },
+    getPageSource() {
+        return webDriverHelper.browser.getPageSource();
+    },
 
     async switchToFrameBySrc(src) {
         try {
@@ -160,8 +163,7 @@ module.exports = {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
         await browseDetailsPanel.waitForDetailsPanelLoaded();
-    await
-    browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+        await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await browsePanel.pause(1000);
     },
     async openContentWizard(contentType) {
@@ -176,19 +178,13 @@ module.exports = {
         await this.doSwitchToNewWizard();
         return await contentWizardPanel.waitForOpened();
     },
-async
-selectAndOpenContentInWizard(contentName)
-{
+    async selectAndOpenContentInWizard(contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
-    await
-    this.findAndSelectItem(contentName);
-    await
-    browsePanel.clickOnEditButton();
-    await
-    this.doSwitchToNewWizard();
-    return await
-    contentWizardPanel.waitForOpened();
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnEditButton();
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
 
     async doAddShortcut(shortcut) {
@@ -315,8 +311,7 @@ selectAndOpenContentInWizard(contentName)
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         //1. Click on Unpublish menu item:
-    await
-    contentWizardPanel.clickOnUnpublishMenuItem();
+        await contentWizardPanel.clickOnUnpublishMenuItem();
         await contentUnpublishDialog.waitForDialogOpened();
         //2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
@@ -356,6 +351,17 @@ selectAndOpenContentInWizard(contentName)
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItem(name);
+        //Open modal dialog:
+        await browsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        //Click on 'Delete Now' button in the modal dialog:
+        await deleteContentDialog.clickOnDeleteNowButton();
+        return await deleteContentDialog.waitForDialogClosed();
+    },
+    async doDeleteContentByDisplayName(displayName) {
+        let browsePanel = new BrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
+        await this.findAndSelectContentByDisplayName(displayName);
         //Open modal dialog:
         await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
@@ -425,8 +431,7 @@ selectAndOpenContentInWizard(contentName)
                 await filterPanel.waitForOpened();
             }
             await filterPanel.typeSearchText(name);
-            await
-            browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+            await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             return await browsePanel.pause(300);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_spinner'))
@@ -452,17 +457,12 @@ selectAndOpenContentInWizard(contentName)
             throw new Error('error when navigate to Content Studio app ' + err);
         });
     },
-async
-doLoginAndClickOnContentStudio(userName, password)
-{
+    async doLoginAndClickOnContentStudio(userName, password) {
         let loginPage = new LoginPage();
-    await
-    loginPage.doLogin(userName, password);
-    let launcherPanel = new LauncherPanel();
-    await
-    launcherPanel.clickOnContentStudioLink();
-    return await
-    loginPage.pause(700);
+        await loginPage.doLogin(userName, password);
+        let launcherPanel = new LauncherPanel();
+        await launcherPanel.clickOnContentStudioLink();
+        return await loginPage.pause(700);
     },
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Browse panel...');
@@ -576,19 +576,17 @@ doLoginAndClickOnContentStudio(userName, password)
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
-}
-,
-sendRequestGetHeaders()
-{
-    return webDriverHelper.browser.executeAsync(
-        "var callback = arguments[arguments.length - 1];" +
-        "var xhr = new XMLHttpRequest();" +
-        "xhr.open('GET', '', true);" +
-        "xhr.onreadystatechange = function() {" +
-        "  if (xhr.readyState == 4) {" +
-        "    callback(xhr.getAllResponseHeaders());" +
-        "  }" +
-        "};" +
-        "xhr.send();");
-}
+    },
+    sendRequestGetHeaders() {
+        return webDriverHelper.browser.executeAsync(
+            "var callback = arguments[arguments.length - 1];" +
+            "var xhr = new XMLHttpRequest();" +
+            "xhr.open('GET', '', true);" +
+            "xhr.onreadystatechange = function() {" +
+            "  if (xhr.readyState == 4) {" +
+            "    callback(xhr.getAllResponseHeaders());" +
+            "  }" +
+            "};" +
+            "xhr.send();");
+    }
 };

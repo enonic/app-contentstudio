@@ -2,8 +2,6 @@
  * Created on 16.05.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -30,50 +28,42 @@ describe('Text Component with CKE - insert content-link  specification', functio
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'content-link' has been inserted THEN correct data should be present in the CKE`,
-        () => {
+    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'content-link' has been inserted THEN expected data should be present in the CKE`,
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                return textComponentCke.clickOnInsertLinkButton();
-            }).then(() => {
-                return studioUtils.insertContentLinkInCke("test", SITE.displayName);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                studioUtils.saveScreenshot('content_link_inserted');
-                return textComponentCke.getTextFromEditor();
-            }).then(result => {
-                assert.isTrue(result.includes(EXPECTED_SRC), 'correct data should be in CKE');
-            }).then(() => {
-                return textComponentCke.switchToParentFrame();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            })
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert text-component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            //3. Open Insert Link dialog
+            await textComponentCke.clickOnInsertLinkButton();
+            //4. Insert content-link:
+            await studioUtils.insertContentLinkInCke("test", SITE.displayName);
+            await textComponentCke.switchToLiveEditFrame();
+            //5. Verify the text in CKE html area:
+            studioUtils.saveScreenshot('content_link_inserted');
+            let actualText = await textComponentCke.getTextFromEditor();
+            assert.include(actualText, EXPECTED_SRC, 'expected data should be present in CKE');
+            await textComponentCke.switchToParentFrame();
+            await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present on the page`,
-        () => {
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present in the page`,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.clickOnPreviewButton();
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName)
-            }).then(() => {
-                return studioUtils.isElementDisplayed(`a=test`);
-            }).then(result => {
-                studioUtils.saveScreenshot('content_link_present');
-                assert.isTrue(result, 'download link should be present on the page');
-            })
+            //1. Select the site and click on Preview button:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPreviewButton();
+            await studioUtils.switchToContentTabWindow(SITE.displayName)
+            //2. Verify the link in the page:
+            let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
+            studioUtils.saveScreenshot('content_link_present');
+            assert.isTrue(isDisplayed, 'download link should be present on the page');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

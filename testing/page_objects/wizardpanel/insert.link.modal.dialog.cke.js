@@ -58,7 +58,7 @@ class InsertLinkDialog extends Page {
         return this.clickOnElement(selector).then(() => {
             return this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
         }).then(() => {
-            return loaderComboBox.typeTextAndSelectOption(targetDisplayName);
+            return loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.container);
         })
     }
 

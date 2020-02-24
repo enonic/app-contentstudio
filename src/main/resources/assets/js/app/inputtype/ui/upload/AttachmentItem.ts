@@ -13,7 +13,7 @@ export class AttachmentItem
 
     private value: string;
 
-    constructor(contentId: string, value: string, removeCallback?: (value: any) => void) {
+    constructor(contentId: string, value: string) {
         super('attachment-item');
 
         this.value = value;
@@ -22,17 +22,20 @@ export class AttachmentItem
             UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
         this.link.setHtml(value);
 
-        this.initRemoveButton(removeCallback);
+        this.initRemoveButton();
     }
 
-    private initRemoveButton(callback?: (value: any) => void) {
+    private initRemoveButton() {
         this.removeEl = new DivEl('icon remove');
 
         this.removeEl.onClicked(() => {
-            if (callback) {
-                callback(this.value);
-                this.remove();
-            }
+            this.remove();
+        });
+    }
+
+    onRemoveClicked(callback: (value: any) => void) {
+        this.removeEl.onClicked(() => {
+            callback(this.value);
         });
     }
 

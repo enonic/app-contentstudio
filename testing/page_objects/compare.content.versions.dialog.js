@@ -7,20 +7,20 @@ const appConst = require('../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'CompareContentVersionsDialog')]`,
     containerLeft: `//div[contains(@class,'container left')]`,
-
     containerRight: `//div[contains(@class,'container right')]`,
     containerBottom: `//div[@class='container bottom']`,
-    revertButton: "//button[contains(@id,'Button') and child::span[text()='Revert']]",
+    revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
+    revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']"
 };
 
 class CompareContentVersionsDialog extends Page {
 
-    get leftRevertButton() {
-        return XPATH.container + XPATH.containerLeft + XPATH.revertButton;
+    get leftRevertMenuButton() {
+        return XPATH.container + XPATH.containerLeft + XPATH.revertMenuButton;
     }
 
-    get rightRevertButton() {
-        return XPATH.container + XPATH.containerRight + XPATH.revertButton;
+    get rightRevertMenuButton() {
+        return XPATH.container + XPATH.containerRight + XPATH.revertMenuButton;
     }
 
     get olderVersionDropdownHandle() {
@@ -39,81 +39,58 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    async
-
-    clickOnLeftRevertButton() {
-        await
-        this.waitForLeftRevertButtonDisplayed();
-        return await
-        this.clickOnElement(this.leftRevertButton);
+    async clickOnLeftRevertMenuButton() {
+        await this.waitForLeftRevertButtonDisplayed();
+        await this.clickOnElement(this.leftRevertMenuButton);
+        return await this.pause(300);
     }
 
-    async
-
-    waitForLeftRevertButtonDisplayed() {
-        return await
-        this.waitForElementDisplayed(this.leftRevertButton, appConst.TIMEOUT_2);
+    async waitForLeftRevertMenuItemDisplayed() {
+        let selector = XPATH.container + XPATH.containerRight + XPATH.revertMenuItem;
     }
 
-    async
-
-    waitForRightRevertButtonDisplayed() {
-        return await
-        this.waitForElementDisplayed(this.leftRevertButton, appConst.TIMEOUT_2);
+    async waitForLeftRevertButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    waitForRightRevertButtonDisabled() {
-        return await
-        this.waitForElementDisabled(this.rightRevertButton, appConst.TIMEOUT_2);
+    async waitForRightRevertMenuButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    waitForLeftRevertButtonEnabled() {
-        return await
-        this.waitForElementEnabled(this.leftRevertButton, appConst.TIMEOUT_2);
+    async waitForRightRevertMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-
-    async
-
-    clickOnRightRevertButton() {
-        await
-        this.waitForElementDisplayed(this.leftRevertButton, appConst.TIMEOUT_2);
-        return await
-        this.clickOnElement(this.leftRevertButton);
+    async waitForLeftRevertMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
+    async clickOnRightRevertButton() {
+        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.clickOnElement(this.leftRevertMenuButton);
+    }
 
-    clickOnCancelTopButton() {
+    async clickOnCancelTopButton() {
 
-        return await
-        this.clickOnElement(this.leftRevertButton);
+        return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err = > {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             throw new Error("CompareContentVersions Dialog is not loaded " + err);
-    })
+        })
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err = > {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             throw new Error("CompareContentVersions Dialog must be closed " + err);
-    })
+        })
     }
 
-    async
-
-    clickOnCancelButtonTop() {
-        await
-        this.clickOnElement(this.cancelButtonTop);
-        return await
-        this.waitForDialogClosed();
+    async clickOnCancelButtonTop() {
+        await this.clickOnElement(this.cancelButtonTop);
+        return await this.waitForDialogClosed();
     }
 };
 module.exports = CompareContentVersionsDialog;

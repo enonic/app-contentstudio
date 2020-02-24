@@ -165,10 +165,8 @@ export class VersionsView
             new Action()
                 .onExecuted((action: Action) => {
                     CompareContentVersionsDialog.get()
-                        .setContentId(this.content.getContentId())
-                        .setContentDisplayName(this.content.getDisplayName())
+                        .setContent(this.content.getContentSummary())
                         .setLeftVersion(item.id)
-                        .setRightVersion(this.activeVersion.id)
                         .setActiveVersion(this.activeVersion.id)
                         .open();
                 }), false);

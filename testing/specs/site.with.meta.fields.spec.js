@@ -25,55 +25,49 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
-    //1. New site is added:
+            //1. New site is added:
             await studioUtils.doAddSite(SITE);
-    //2. Type the name in the filter-panel:
+            //2. Type the name in the filter-panel:
             await studioUtils.typeNameInFilterPanel(displayName);
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             studioUtils.saveScreenshot('site_metadata1');
-    //3. red icon should be displayed because required input(meta-data) was not filled:
+            //3. red icon should be displayed because required input(meta-data) was not filled:
             let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-    assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
+            assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
         });
 
     it(`WHEN existing site with application-metadata is opened THEN red icon should be displayed in the wizard`,
-        async() = > {
-        let metadataStepForm = new MetadataStepForm();
-    let contentWizard = new ContentWizard();
-    await
-    studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    let isDisplayed = await
-    metadataStepForm.isOverrideDescriptionTextAreaVisible();
-    assert.isTrue(isDisplayed, "'Override Description' text area should be displayed");
-    isDisplayed = await
-    metadataStepForm.isOverrideTitleInputVisible();
-    assert.isTrue(isDisplayed, "`Override Title` input should be displayed");
-    isDisplayed = await
-    metadataStepForm.isValidationRecordingVisible();
-    assert.isTrue(isDisplayed, "'This field is required' should appear, because the required input for metadata is empty");
+        async () => {
+            let metadataStepForm = new MetadataStepForm();
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            let isDisplayed = await metadataStepForm.isOverrideDescriptionTextAreaVisible();
+            assert.isTrue(isDisplayed, "'Override Description' text area should be displayed");
+            isDisplayed = await metadataStepForm.isOverrideTitleInputVisible();
+            assert.isTrue(isDisplayed, "`Override Title` input should be displayed");
+            isDisplayed = await metadataStepForm.isValidationRecordingVisible();
+            assert.isTrue(isDisplayed, "'This field is required' should appear, because the required input for metadata is empty");
 
-    let isRedIconPresent = await
-    contentWizard.isContentInvalid();
+            let isRedIconPresent = await contentWizard.isContentInvalid();
             studioUtils.saveScreenshot('site_metadata_wizard');
-    assert.isTrue(isRedIconPresent, 'red icon should be displayed in the wizard!');
-})
-    ;
+            assert.isTrue(isRedIconPresent, 'red icon should be displayed in the wizard!');
+        });
 
     it(`GIVEN site with application-metadata is opened WHEN the required description has been filled THEN the site gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
             let metadataStepForm = new MetadataStepForm();
-    //1. Open the site:
+            //1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    //2. Fill the required input:
+            //2. Fill the required input:
             await metadataStepForm.typeDescription('test description');
-    //3. Site gets valid:
+            //3. Site gets valid:
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
     //Verifies the https://github.com/enonic/xp-apps/issues/533
     it(`GIVEN creating of a new site with application-metadata AND data is saved WHEN description in metadata has been typed THEN 'Saved' label should be changed to 'Save'`,
-        async() = > {
+        async () => {
             let metadataStepForm = new MetadataStepForm();
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
@@ -87,7 +81,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             await contentWizard.waitAndClickOnSave();
             //Description has been typed:
             await metadataStepForm.typeDescription('test description');
-    //'Save' button gets visible and enabled, because description is updated
+            //'Save' button gets visible and enabled, because description is updated
             await contentWizard.waitForSaveButtonEnabled();
         });
 

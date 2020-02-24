@@ -531,7 +531,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
 }
 
 (async () => {
-    await i18nInit(CONFIG.i18nUrl);
+    await i18nInit(CONFIG.services.i18nUrl);
 
     preLoadApplication();
 

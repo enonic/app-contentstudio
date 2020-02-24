@@ -20,12 +20,9 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-    async
-
-    typeSearchText(text) {
+    async typeSearchText(text) {
         try {
-            return await
-            this.typeTextInInput(this.searchTextInput, text);
+            return await this.typeTextInInput(this.searchTextInput, text);
         } catch (err) {
             throw new Error("Error when type text in Search Input " + err);
         }

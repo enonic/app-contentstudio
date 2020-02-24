@@ -28,11 +28,14 @@ class Page {
         return this.browser.getTitle();
     }
 
+    getSource() {
+        return this.browser.getSource();
+    }
+
     async getDisplayedElements(selector) {
         let elements = await this.findElements(selector);
         let pr = elements.map(el => el.isDisplayed());
-        return await
-        Promise.all(pr).then(result = > {
+        return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
         });
     }
@@ -86,7 +89,6 @@ class Page {
         let inputElement = await this.findElement(selector);
         //await inputElement.clearValue();
         await inputElement.setValue(text);
-        //await this.getBrowser().keys(text);
         let value = await inputElement.getValue();
         //workaround for issue in WebdriverIO
         if (value == "") {
@@ -233,8 +235,7 @@ class Page {
     async removeNotificationMessage() {
         let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
         await this.clickOnElement(selector);
-        return await
-        this.pause(300);
+        return await this.pause(300);
     }
 
     async waitForNotificationMessage() {
@@ -252,7 +253,7 @@ class Page {
 
     //returns array of messages
     waitForNotificationMessages() {
-        return this.waitForElementDisplayed(`//div[@class='notification-content']`, appConst.TIMEOUT_3).catch(err = > {
+        return this.waitForElementDisplayed(`//div[@class='notification-content']`, appConst.TIMEOUT_3).catch(err => {
             throw new Error('Error when wait for notification message: ' + err);
         }).then(() => {
             return this.getTextInDisplayedElements(`//div[@class='notification-content']`);

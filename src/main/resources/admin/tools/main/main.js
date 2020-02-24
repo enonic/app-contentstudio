@@ -3,7 +3,7 @@ var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
 
-function handleGet(req) {
+function handleGet() {
     var view = resolve('./main.html');
 
     var context = contextLib.get();
@@ -25,8 +25,11 @@ function handleGet(req) {
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: portal.serviceUrl({service: 'styles'}),
-        i18nUrl: portal.serviceUrl({service: 'i18n'}),
+        services: {
+            stylesUrl: portal.serviceUrl({service: 'styles'}),
+            i18nUrl: portal.serviceUrl({service: 'i18n'}),
+            contentServiceUrl: portal.serviceUrl({service: 'content'})
+        },
         allowScriptsInEditor: allowScriptsInEditor,
         mainUrl: portal.pageUrl()
     };

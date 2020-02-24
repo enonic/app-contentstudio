@@ -55,8 +55,6 @@ export class ContentBrowseFilterPanel
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
-    static CONTENT_TYPE_AGGREGATION_DISPLAY_NAME: string = i18n('field.contentTypes');
-    static LAST_MODIFIED_AGGREGATION_DISPLAY_NAME: string = i18n('field.lastModified');
 
     private contentTypeAggregation: ContentTypeAggregationGroupView;
     private lastModifiedAggregation: AggregationGroupView;
@@ -113,11 +111,11 @@ export class ContentBrowseFilterPanel
     protected getGroupViews(): AggregationGroupView[] {
         this.contentTypeAggregation = new ContentTypeAggregationGroupView(
             ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME,
-            ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_DISPLAY_NAME);
+            i18n('field.contentTypes'));
 
         this.lastModifiedAggregation = new AggregationGroupView(
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME,
-            ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_DISPLAY_NAME);
+            i18n('field.lastModified'));
 
         return [this.contentTypeAggregation, this.lastModifiedAggregation];
     }

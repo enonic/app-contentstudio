@@ -70,7 +70,7 @@ export class LiveEditPage {
 
         ProjectContext.get().setProject(event.getProject());
 
-        i18nInit(CONFIG.i18nUrl).then(() => {
+        i18nInit(CONFIG.services.i18nUrl).then(() => {
 
             const liveEditModel = event.getLiveEditModel();
             const modifyPermissions = event.hasModifyPermissions();
