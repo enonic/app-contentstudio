@@ -21,6 +21,10 @@ export class AccessControlComboBox
 class ACESelectedOptionsView
     extends PrincipalContainerSelectedOptionsView<AccessControlEntry> {
 
+    constructor() {
+        super('access-control-list');
+    }
+
     protected createSelectedEntryView(option: Option<AccessControlEntry>): AccessControlEntryView {
         const ace: AccessControlEntry = option.displayValue;
         if (ace.getAllowedPermissions().length === 0 && ace.getDeniedPermissions().length === 0) {
