@@ -2,8 +2,6 @@
  * Created on 23.08.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -39,38 +37,29 @@ describe('Swap two Text Component - specification', function () {
         });
 
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.typeTextInCkeEditor("component1");
-            }).then(() => {
-                return contentWizard.switchToMainFrame();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.typeTextInCkeEditor("component2");
-            }).then(() => {
-                return contentWizard.switchToMainFrame();
-            }).then(() => {
-                return contentWizard.hotKeySave();
-            }).then(() => {
-                return contentWizard.pause(1200);
-            }).then(() => {
-                studioUtils.saveScreenshot('text_components_swapped1');
-                return pageComponentView.swapComponents("component1", "component2");
-            }).then(() => {
-                studioUtils.saveScreenshot('text_components_swapped2');
-            })
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert the first text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("component1");
+            await contentWizard.switchToMainFrame();
+            //3. Insert the second text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("component2");
+            await contentWizard.switchToMainFrame();
+            await contentWizard.hotKeySave();
+            await contentWizard.pause(1200);
+            //4. Swap components:
+            studioUtils.saveScreenshot('text_components_swapped1');
+            await pageComponentView.swapComponents("component1", "component2");
+            studioUtils.saveScreenshot('text_components_swapped2');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

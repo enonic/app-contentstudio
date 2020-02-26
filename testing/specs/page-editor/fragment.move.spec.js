@@ -21,6 +21,7 @@ describe('Move Fragment specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
+    let FRAGMENT_TEXT_DESCRIPTION = "text";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -29,6 +30,7 @@ describe('Move Fragment specification', function () {
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verifies - Incorrect description in fragment item after a component has been saved as fragment. https://github.com/enonic/app-contentstudio/issues/1534
     it(`WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -47,7 +49,12 @@ describe('Move Fragment specification', function () {
             await pageComponentView.openMenu("text_component_1");
             //3. Click on Save as Fragment menu item:
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            studioUtils.saveScreenshot('text_saved_as_fragment2')
+            studioUtils.saveScreenshot('text_saved_as_fragment2');
+            //4. Wait for the description is refreshing:
+            await contentWizard.pause(5500);
+            //5. Go to the site-wizard and verify description of the new created fragment
+            let actualDescription = await pageComponentView.getComponentDescription("text_component_1");
+            assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, "Expected description should be in the text-fragment");
         });
 
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
@@ -59,7 +66,7 @@ describe('Move Fragment specification', function () {
             //1. Select the fragment and click on Move button:
             await studioUtils.findAndSelectContentByDisplayName('text_component_1');
             await contentBrowsePanel.clickOnMoveButton();
-           //2. Verify -  modal dialog is loaded and click on Move button:
+            //2. Verify -  modal dialog is loaded then click on 'Move' button:
             await moveContentDialog.waitForOpened();
             await moveContentDialog.clickOnMoveButton();
             //3. Verify - Confirmation dialog should be loaded!

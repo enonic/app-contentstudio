@@ -19,7 +19,11 @@ describe('fragment.inspect.panel.update.path.spec - Select a site with not valid
     webDriverHelper.setupBrowser();
 
     let SITE;
-    //Verifies "Descriptor dropdowns in the Inspection panel is not updated after content path has changed #1095"
+    let FRAGMENT_LAYOUT_DESCRIPTION = "layout";
+
+    //Verifies:
+    // 1)"Descriptor dropdowns in the Inspection panel is not updated after content path has changed #1095"
+    // 2) Page Component View - incorrect description of a fragment. https://github.com/enonic/app-contentstudio/issues/1534
     it("GIVEN layout saved as fragment in new site WHEN site's name has been updated THEN path should be updated in selected option in Fragment Inspect Panel",
         async () => {
             let pageComponentView = new PageComponentView();
@@ -40,13 +44,18 @@ describe('fragment.inspect.panel.update.path.spec - Select a site with not valid
             await pageComponentView.openMenu('3-col');
             //3. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await contentWizardPanel.pause(2000);
+            await contentWizardPanel.pause(3000);
             //4. Type new site's name and save:
             await contentWizardPanel.typeDisplayName(displayName);
             await contentWizardPanel.waitAndClickOnSave();
+            // wait for the description is refreshing:
+            await contentWizardPanel.pause(1000);
             //5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, displayName, "Path should be updated in Fragment Inspection Panel");
+            //6. Verify that expected description should be in the fragment 'component item'
+            let actualDescription = await pageComponentView.getComponentDescription("3-col");
+            assert.equal(actualDescription, FRAGMENT_LAYOUT_DESCRIPTION, "Expected description should be present in 'component item'")
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
