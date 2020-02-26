@@ -41,12 +41,18 @@ import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 
+export enum State {
+    ENABLED, DISABLED
+}
+
 export class ContentTreeGrid
     extends TreeGrid<ContentSummaryAndCompareStatus> {
 
     static MAX_FETCH_SIZE: number = 10;
 
     private filterQuery: ContentQuery;
+
+    private state: State;
 
     constructor() {
         const builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
@@ -91,6 +97,7 @@ export class ContentTreeGrid
 
         super(builder);
 
+        this.state = State.ENABLED;
         this.setContextMenu(new TreeGridContextMenu(new ContentTreeGridActions(this)));
 
         this.initEventHandlers();
@@ -210,6 +217,24 @@ export class ContentTreeGrid
         }
         const element: Element = Element.fromHtmlElement(clickedEl);
         return element.hasClass('content-item-preview-panel');
+    }
+
+    setState(state: State) {
+        this.state = state;
+
+        if (this.state === State.ENABLED) {
+            this.getToolbar().enable();
+        } else {
+            this.getToolbar().disable();
+        }
+    }
+
+    reload(parentNodeData?: ContentSummaryAndCompareStatus, _idPropertyName?: string, rememberExpanded: boolean = true): Q.Promise<void> {
+        if (this.state === State.DISABLED) {
+            return Q(null);
+        }
+
+        return super.reload(parentNodeData, _idPropertyName, rememberExpanded);
     }
 
     isEmptyNode(node: TreeNode<ContentSummaryAndCompareStatus>): boolean {

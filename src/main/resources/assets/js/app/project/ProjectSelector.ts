@@ -7,17 +7,16 @@ import {ProjectChangedEvent} from './ProjectChangedEvent';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
 import {Project} from '../settings/data/project/Project';
 import {SelectableProjectList} from './list/SelectableProjectList';
 import {ProjectListItem} from './list/ProjectListItem';
-import {ProjectListItemViewer} from './list/ProjectListItemViewer';
+import {SelectedProjectListItemViewer} from './list/SelectedProjectListItemViewer';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ProjectSelector
     extends DivEl {
 
-    private headerProjectViewer: ProjectListItemViewer;
+    private headerProjectViewer: SelectedProjectListItemViewer;
 
     private projectList: SelectableProjectList;
 
@@ -52,6 +51,10 @@ export class ProjectSelector
         this.toggleClass('single-repo', projects.length < 2);
     }
 
+    setHeaderPrefix(value: string) {
+        this.headerProjectViewer.setPrefix(value);
+    }
+
     private createClickOutsideListener() {
         return (event: MouseEvent) => {
             if (this.isVisible()) {
@@ -72,7 +75,6 @@ export class ProjectSelector
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const header: DivEl = new DivEl('selected-project-view');
-            this.headerProjectViewer.insertChild(new SpanEl('label').setHtml(i18n('app.context')), 0);
             header.appendChild(this.headerProjectViewer);
             header.appendChild(this.dropdownHandle);
             this.appendChildren(
@@ -88,7 +90,8 @@ export class ProjectSelector
     }
 
     private initElements() {
-        this.headerProjectViewer = new ProjectListItemViewer();
+        this.headerProjectViewer = new SelectedProjectListItemViewer();
+        this.headerProjectViewer.setPrefix(i18n('app.context'));
         this.dropdownHandle = this.focusedElement = new DropdownHandle();
         this.projectList = new SelectableProjectList();
         this.clickOutsideListener = this.createClickOutsideListener();

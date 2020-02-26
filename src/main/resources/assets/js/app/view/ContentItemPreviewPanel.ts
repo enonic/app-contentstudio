@@ -19,6 +19,8 @@ import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
 import {UrlHelper} from '../util/UrlHelper';
+import {ProjectContext} from '../project/ProjectContext';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -47,8 +49,22 @@ export class ContentItemPreviewPanel
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();
-
         this.setupListeners();
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.noSelectionMessage.getFirstChild().setHtml(i18n('settings.projects.nopermissions'));
+
+        const projectSetHandler = () => {
+            this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {

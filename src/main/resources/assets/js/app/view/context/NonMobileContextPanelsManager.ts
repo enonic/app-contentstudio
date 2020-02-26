@@ -9,7 +9,7 @@ import {LiveFormPanel} from '../../wizard/page/LiveFormPanel';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class NonMobileContextPanelsManager {
 
@@ -21,7 +21,7 @@ export class NonMobileContextPanelsManager {
 
     private resizeEventMonitorLocked: boolean = false;
 
-    private toggleButton: ButtonEl = new NonMobileContextPanelToggleButton();
+    private toggleButton: Button = new NonMobileContextPanelToggleButton();
 
     private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 300, false);
 
@@ -204,7 +204,7 @@ export class NonMobileContextPanelsManager {
         this.splitPanelWithGridAndContext.foldSecondPanel();
     }
 
-    getToggleButton(): ButtonEl {
+    getToggleButton(): Button {
         return this.toggleButton;
     }
 
