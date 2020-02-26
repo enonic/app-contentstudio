@@ -11,19 +11,36 @@ import {UrlAction} from './UrlAction';
 import {SettingsServerEvent} from './settings/event/SettingsServerEvent';
 import {NotificationDialog} from 'lib-admin-ui/ui/dialog/NotificationDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 
 export class ContentAppContainer
     extends MainAppContainer {
+
+    protected appBar: ContentAppBar;
 
     constructor(application: Application) {
         super(application, AppMode.MAIN);
 
         if (!ProjectContext.get().isInitialized()) {
-            new NotificationDialog(i18n('notify.settings.project.notInitialized')).open();
+            this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
             this.initListeners();
         }
+    }
+
+    private handleProjectNotSet() {
+        new NotificationDialog(i18n('notify.settings.project.notInitialized')).open();
+        this.appBar.disable();
+
+        const projectSetHandler = () => {
+            this.appBar.enable();
+            new ContentEventsListener().start();
+            this.initListeners();
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {

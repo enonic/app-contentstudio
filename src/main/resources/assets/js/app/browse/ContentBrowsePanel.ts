@@ -5,7 +5,7 @@ import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {ContentTreeGrid} from './ContentTreeGrid';
+import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
@@ -49,6 +49,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -63,20 +64,38 @@ export class ContentBrowsePanel
 
         super();
 
-        this.onShown(() => {
-            Router.get().setHash(UrlAction.BROWSE);
-        });
-
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
-        });
-
-        // Required for "enable/disable" actions correctly
-        this.getBrowseActions().updateActionsEnabledState([]);
-
+        this.initElements();
+        this.handleElementsEvents();
         this.handleGlobalEvents();
+    }
+
+    protected initElements() {
+        super.initElements();
 
         this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        } else {
+            this.getBrowseActions().updateActionsEnabledState([]);
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.getBrowseActions().setState(State.DISABLED);
+        this.toggleFilterPanelAction.setEnabled(false);
+        this.contextSplitPanel.disableToggleButton();
+        this.treeGrid.setState(State.DISABLED);
+
+        const projectSetHandler = () => {
+            this.getBrowseActions().setState(State.ENABLED);
+            this.toggleFilterPanelAction.setEnabled(true);
+            this.contextSplitPanel.enableToggleButton();
+            this.treeGrid.setState(State.ENABLED);
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
     }
 
     protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
@@ -278,7 +297,16 @@ export class ContentBrowsePanel
         return browseItems;
     }
 
+    private handleElementsEvents() {
+        this.onShown(() => {
+            Router.get().setHash(UrlAction.BROWSE);
+        });
+    }
+
     private handleGlobalEvents() {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+        });
 
         ToggleSearchPanelEvent.on(() => {
             this.toggleFilterPanel();
@@ -331,7 +359,7 @@ export class ContentBrowsePanel
     }
 
     private subscribeOnContentEvents() {
-        let handler = ContentServerEventsHandler.getInstance();
+        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         handler.onContentCreated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
