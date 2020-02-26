@@ -1,3 +1,20 @@
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
@@ -7,16 +24,6 @@ import {CompareStatus, CompareStatusFormatter} from '../../../../content/Compare
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
-import ActionButton = api.ui.button.ActionButton;
-import Action = api.ui.Action;
-import DivEl = api.dom.DivEl;
-import PEl = api.dom.PEl;
-import NamesAndIconViewBuilder = api.app.NamesAndIconViewBuilder;
-import NamesAndIconViewSize = api.app.NamesAndIconViewSize;
-import LiEl = api.dom.LiEl;
-import NamesAndIconView = api.app.NamesAndIconView;
 
 export class VersionsView
     extends api.ui.selector.list.ListBox<ContentVersionListItem> {
@@ -41,7 +48,7 @@ export class VersionsView
         return this.content ? this.content.getCompareStatus() : null;
     }
 
-    reload(): wemQ.Promise<void> {
+    reload(): Q.Promise<void> {
         return this.loadData().then((contentVersions: ContentVersion[]) => {
             this.updateView(contentVersions);
             this.notifyLoaded();
@@ -78,7 +85,7 @@ export class VersionsView
         });
     }
 
-    private loadData(): wemQ.Promise<ContentVersion[]> {
+    private loadData(): Q.Promise<ContentVersion[]> {
         if (!this.getContentId()) {
             throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
         }
@@ -149,7 +156,7 @@ export class VersionsView
         const dateAsString: string = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
         const tooltipText: string = i18n('tooltip.state.published', dateAsString, userName);
 
-        return new api.ui.Tooltip(itemEl, tooltipText, 1000);
+        return new Tooltip(itemEl, tooltipText, 1000);
     }
 
     private createDataBlocks(item: ContentVersionListItem, itemEl: api.dom.Element) {
@@ -253,7 +260,7 @@ export class VersionsView
             }).catch(api.DefaultErrorHandler.handle);
     }
 
-    private addOnClickHandler(itemContainer: api.dom.Element) {
+    private addOnClickHandler(itemContainer: Element) {
         itemContainer.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(itemContainer);
 
@@ -263,8 +270,8 @@ export class VersionsView
         });
     }
 
-    private collapseAllContentVersionItemViewsExcept(itemContainer: api.dom.Element) {
-        wemjq(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
+        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
     }
 }
 

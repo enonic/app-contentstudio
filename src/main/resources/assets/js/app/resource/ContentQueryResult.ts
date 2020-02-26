@@ -1,17 +1,18 @@
 import {ContentMetadata} from '../content/ContentMetadata';
-import ContentSummary = api.content.ContentSummary;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 
 export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON extends ContentSummaryJson> {
 
     private contents: CONTENT[];
-    private aggregations: api.aggregation.Aggregation[];
+    private aggregations: Aggregation[];
     private contentsAsJson: CONTENT_JSON[];
     private metadata: ContentMetadata;
 
     constructor(
         contents: CONTENT[],
-        aggreations: api.aggregation.Aggregation[],
+        aggreations: Aggregation[],
         contentsAsJson: CONTENT_JSON[],
         metadata?: ContentMetadata
     ) {
@@ -29,7 +30,7 @@ export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON ext
         return this.contentsAsJson;
     }
 
-    getAggregations(): api.aggregation.Aggregation[] {
+    getAggregations(): Aggregation[] {
         return this.aggregations;
     }
 

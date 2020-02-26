@@ -1,27 +1,35 @@
+import * as Q from 'q';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {BEl} from 'lib-admin-ui/dom/BEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
-            title: i18n('dialog.unpublish'),
-            class: 'unpublish-dialog',
+                title: i18n('dialog.unpublish'),
+                class: 'unpublish-dialog',
                 dialogSubName: i18n('dialog.unpublish.subname'),
-            dependantsName: i18n('dialog.showDependants'),
-            dependantsDescription: i18n('dialog.unpublish.dependants'),
+                dependantsName: i18n('dialog.showDependants'),
+                dependantsDescription: i18n('dialog.unpublish.dependants'),
                 processingLabel: `${i18n('field.progress.unpublishing')}...`,
                 processHandler: () => {
                     new ContentUnpublishPromptEvent([]).fire();
                 },
             }
         );
+        // Sub title uses html decorated text, that can't be passed into the super config
+        this.useDefaultSubTitle();
     }
 
     protected initElements() {
@@ -39,13 +47,22 @@ export class ContentUnpublishDialog
 
         this.actionButton.getAction().onExecuted(this.doUnpublish.bind(this));
 
-        this.getItemList().onItemsRemoved((items: ContentSummaryAndCompareStatus[]) => {
+        this.getItemList().onItemsRemoved(() => {
             if (!this.isIgnoreItemsChanged()) {
                 this.reloadUnpublishDependencies().done();
             }
         });
 
-        this.onProgressComplete(() => this.setSubTitle(i18n('dialog.unpublish.subname'), false));
+        this.onProgressComplete(() => {
+            this.useDefaultSubTitle();
+        });
+    }
+
+    private useDefaultSubTitle() {
+        this.setSubTitleChildren([
+            BEl.fromText(i18n('dialog.unpublish.subname')),
+            SpanEl.fromText(i18n('dialog.unpublish.subname.description'))
+        ]);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -65,9 +82,9 @@ export class ContentUnpublishDialog
         super.open();
     }
 
-    private reloadUnpublishDependencies(): wemQ.Promise<void> {
+    private reloadUnpublishDependencies(): Q.Promise<void> {
         if (this.isProgressBarEnabled()) {
-            return wemQ<void>(null);
+            return Q<void>(null);
         }
 
         this.showLoadMask();
@@ -84,7 +101,7 @@ export class ContentUnpublishDialog
                 this.unlockControls();
             }).finally(() => {
                 this.hideLoadMask();
-                return wemQ(null);
+                return Q(null);
             });
         });
 
@@ -135,20 +152,20 @@ export class ContentUnpublishDialog
             .setIncludeChildren(true)
             .setIds(selectedIds)
             .sendAndParse()
-            .then((taskId: api.task.TaskId) => {
+            .then((taskId: TaskId) => {
                 this.pollTask(taskId);
             }).catch((reason) => {
             this.unlockControls();
             this.close();
             if (reason && reason.message) {
-                api.notify.showError(reason.message);
+                showError(reason.message);
             }
         });
     }
 }
 
 export class ContentUnpublishDialogAction
-    extends api.ui.Action {
+    extends Action {
     constructor() {
         super(i18n('action.unpublish'));
         this.setIconClass('unpublish-action');

@@ -31,7 +31,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             assert.isTrue(result, `No items to publish' should be displayed, because items were not selected`);
         });
 
-    it(`GIVEN existing 'open' task is clicked and Task Details dialog is opened WHEN 'Close Task' button has been pressed THEN the issue is getting closed`,
+    it(`GIVEN existing 'open' task is clicked and Task Details dialog is opened WHEN 'Close Task' button has been pressed THEN the task gets 'Closed'`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -40,13 +40,13 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueListDialog.clickOnIssue(issueTitle);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Click on 'Close Issue' button:
-            await taskDetailsDialog.clickOnCloseIssueButton();
+            await taskDetailsDialog.clickOnCloseTaskButton();
             studioUtils.saveScreenshot("empty_issue_closed");
             //'The issue is Closed.' - this message should appear
-            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_CLOSED_MESSAGE);
+            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_CLOSED_MESSAGE);
         });
 
-    it(`GIVEN 'closed' issue is clicked and Task Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the issue is getting 'open'`,
+    it(`GIVEN 'closed' task is clicked and Task Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the tsk gets 'Open'`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -57,15 +57,15 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueListDialog.clickOnIssue(issueTitle);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Reopen the task:
-            await taskDetailsDialog.clickOnReopenIssueButton();
+            await taskDetailsDialog.clickOnReopenTaskButton();
             studioUtils.saveScreenshot("empty_task_reopened");
             //3. 'The issue is Open - this message should appear:
-            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.ISSUE_OPENED_MESSAGE);
-            let result = await taskDetailsDialog.isCloseIssueButtonDisplayed();
+            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_OPENED_MESSAGE);
+            let result = await taskDetailsDialog.isCloseTaskButtonDisplayed();
             assert.isTrue(result, '`Close Issue` button should appear again, because the issue is reopened');
         });
 
-    it(`GIVEN Issue Details dialog is opened WHEN 'Esc' key has been pressed THEN modal dialog should be closed`,
+    it(`GIVEN Task Details dialog is opened WHEN 'Esc' key has been pressed THEN modal dialog should be closed`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -83,13 +83,13 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueListDialog.waitForDialogClosed();
         });
 
-    it(`GIVEN Issue Details dialog is opened WHEN 'back-button' key has been pressed THEN Issues list dialog gets visible`,
+    it(`GIVEN Task Details dialog is opened WHEN 'back-button' key has been pressed THEN Issues list dialog gets visible`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             //1. Open Issues List
             await studioUtils.openIssuesListDialog();
-            //2. Open Issue Details Dialog
+            //2. Open Task Details Dialog:
             await issueListDialog.clickOnIssue(issueTitle);
             await taskDetailsDialog.waitForDialogOpened();
             //3. Click on Back button:

@@ -1,4 +1,4 @@
-import './../api.ts';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {ItemType} from './ItemType';
 import {ItemTypeConfig, ItemTypeConfigJson} from './ItemTypeConfig';
 
@@ -15,7 +15,7 @@ export class RegionItemType
         super('region');
     }
 
-    static getRegionName(element: api.dom.Element): string {
+    static getRegionName(element: Element): string {
         return element.getEl().getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
     }
 

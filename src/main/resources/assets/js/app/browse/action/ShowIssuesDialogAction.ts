@@ -1,7 +1,8 @@
-import '../../../api.ts';
 import {ShowIssuesDialogEvent} from '../ShowIssuesDialogEvent';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class ShowIssuesDialogAction extends api.ui.Action {
+export class ShowIssuesDialogAction
+    extends Action {
 
     private assignedToMe: boolean = false;
     private createdByMe: boolean = false;

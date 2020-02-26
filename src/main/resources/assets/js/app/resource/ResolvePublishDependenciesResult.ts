@@ -1,4 +1,4 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 
 export class ResolvePublishDependenciesResult {

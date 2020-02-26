@@ -1,14 +1,17 @@
-export class PartDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-    private resourcePath: api.rest.Path;
+export class PartDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+
+    private resourcePath: Path;
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'content', 'page', 'part', 'descriptor');
+        this.resourcePath = Path.fromParent(super.getRestPath(), 'content', 'page', 'part', 'descriptor');
     }
 
-    getResourcePath(): api.rest.Path {
+    getResourcePath(): Path {
         return this.resourcePath;
     }
 }

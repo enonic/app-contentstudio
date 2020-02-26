@@ -25,8 +25,11 @@ function handleGet() {
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: portal.serviceUrl({service: 'styles'}),
-        i18nUrl: portal.serviceUrl({service: 'i18n'}),
+        services: {
+            stylesUrl: portal.serviceUrl({service: 'styles'}),
+            i18nUrl: portal.serviceUrl({service: 'i18n'}),
+            contentServiceUrl: portal.serviceUrl({service: 'content'})
+        },
         allowScriptsInEditor: allowScriptsInEditor
     };
 

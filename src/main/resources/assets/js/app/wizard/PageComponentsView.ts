@@ -1,3 +1,15 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
@@ -19,19 +31,20 @@ import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import {Content} from '../content/Content';
 import {Component} from '../page/region/Component';
-import TreeNode = api.ui.treegrid.TreeNode;
-import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import i18n = api.util.i18n;
-import Action = api.ui.Action;
-import KeyBinding = api.ui.KeyBinding;
-import ObjectHelper = api.ObjectHelper;
-import DataChangedType = api.ui.treegrid.DataChangedType;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
+import {H3El} from 'lib-admin-ui/dom/H3El';
+import {CloseButton} from 'lib-admin-ui/ui/button/CloseButton';
+import {H2El} from 'lib-admin-ui/dom/H2El';
+import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class PageComponentsView
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private content: Content;
     private pageView: PageView;
@@ -41,7 +54,7 @@ export class PageComponentsView
     private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
-    private header: api.dom.H3El;
+    private header: H3El;
     private modal: boolean;
     private floating: boolean;
     private draggable: boolean;
@@ -88,17 +101,17 @@ export class PageComponentsView
     }
 
     private initElements() {
-        const closeButton = new api.ui.button.CloseButton();
+        const closeButton = new CloseButton();
         closeButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
             this.hide();
         });
 
-        this.header = new api.dom.H2El('header');
+        this.header = new H2El('header');
         this.header.setHtml(i18n('field.components'));
 
-        this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(api.dom.Body.get(), (item: ResponsiveItem) => {
+        this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
             const smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
             const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
             this.toggleClass('compact', compactSize);
@@ -116,7 +129,7 @@ export class PageComponentsView
             }
         });
 
-        this.appendChildren(<api.dom.Element>closeButton, this.header);
+        this.appendChildren(<Element>closeButton, this.header);
     }
 
     private setupListeners() {
@@ -140,7 +153,7 @@ export class PageComponentsView
     }
 
     show() {
-        api.ui.KeyBindings.get().bindKeys(this.keyBinding);
+        KeyBindings.get().bindKeys(this.keyBinding);
         super.show();
 
         if (this.tree) {
@@ -150,7 +163,7 @@ export class PageComponentsView
 
     hide() {
         super.hide();
-        api.ui.KeyBindings.get().unbindKeys(this.keyBinding);
+        KeyBindings.get().unbindKeys(this.keyBinding);
     }
 
     setPageView(pageView: PageView) {
@@ -225,7 +238,7 @@ export class PageComponentsView
                 if (added) {
                     this.handleComponentAdded(event);
                 }
-            }).catch(api.DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle);
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -239,12 +252,12 @@ export class PageComponentsView
 
         this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent) => {
             this.refreshComponentViewNode(event.getNewComponentView(), event.getOldComponentView()).then(() => {
-                if (api.ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
                     this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
                     this.bindFragmentLoadErrorHandler(<FragmentComponentView>event.getNewComponentView());
                     return;
                 }
-                if (api.ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
                     const componentDataId = this.tree.getDataId(event.getNewComponentView());
                     const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
 
@@ -263,17 +276,17 @@ export class PageComponentsView
         });
     }
 
-    private addComponent(event: ComponentAddedEvent): wemQ.Promise<boolean> {
+    private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
         const parentNode: TreeNode<ItemView> =
             this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
         if (!parentNode) {
-            return wemQ(false);
+            return Q(false);
         }
         // deselect all otherwise node is going to be added as child to selection (that is weird btw)
         this.tree.deselectAll();
         const index: number = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
         if (index < 0) {
-            return wemQ(false);
+            return Q(false);
         }
 
         return this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
@@ -299,7 +312,7 @@ export class PageComponentsView
             }
         }
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
             this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
         }
 
@@ -308,7 +321,7 @@ export class PageComponentsView
     }
 
     private refreshComponentViewNode(componentView: ComponentView<Component>,
-                                     oldComponentView: ComponentView<Component>): wemQ.Promise<void> {
+                                     oldComponentView: ComponentView<Component>): Q.Promise<void> {
         const oldDataId = this.tree.getDataId(oldComponentView);
         const oldNode = this.tree.getRoot().getCurrentRoot().findNode(oldDataId);
 
@@ -331,7 +344,7 @@ export class PageComponentsView
         this.tree = new PageComponentsTreeGrid(content, pageView);
 
         this.clickListener = (event, data) => {
-            let elem = new api.dom.ElementHelper(event.target);
+            let elem = new ElementHelper(event.target);
 
             this.hideContextMenu();
 
@@ -357,7 +370,7 @@ export class PageComponentsView
             }
 
             let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData();
-            let isTextComponent = api.ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
+            let isTextComponent = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
 
             if (isTextComponent) {
                 this.editTextComponent(clickedItemView);
@@ -370,7 +383,7 @@ export class PageComponentsView
 
         this.tree.getGrid().subscribeOnMouseEnter((event, data) => {
 
-            if (api.ui.DragHelper.get().isVisible()) {
+            if (DragHelper.get().isVisible()) {
                 return;
             }
 
@@ -387,8 +400,8 @@ export class PageComponentsView
 
             if (!this.pageView.isLocked()) {
                 this.highlightRow(rowElement, selected);
-                if (this.isMenuIcon(event.target) && api.BrowserHelper.isIOS()) {
-                    this.showContextMenu(new api.dom.ElementHelper(rowElement).getSiblingIndex(), {x: event.pageX, y: event.pageY});
+                if (this.isMenuIcon(event.target) && BrowserHelper.isIOS()) {
+                    this.showContextMenu(new ElementHelper(rowElement).getSiblingIndex(), {x: event.pageX, y: event.pageY});
                 }
             }
         });
@@ -469,7 +482,7 @@ export class PageComponentsView
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
             return dataItem.getData();
         }).filter((itemView: ItemView) => {
-            return api.ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
+            return ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
         }).filter((textComponentView: TextComponentView) => {
             return !textComponentView.getHTMLElement().onpaste; // filtering text components that already have these listeners
         }).forEach((textComponentView: TextComponentView) => {
@@ -481,14 +494,14 @@ export class PageComponentsView
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
             return dataItem.getData();
         }).filter((itemView: ItemView) => {
-            return api.ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
+            return ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
         }).forEach((fragmentComponentView: FragmentComponentView) => {
             this.bindFragmentLoadErrorHandler(fragmentComponentView);
         });
     }
 
     private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
-        let handler = api.util.AppHelper.debounce((event) => {
+        let handler = AppHelper.debounce((event) => {
             this.tree.updateNode(textComponentView);
         }, 500, false);
 
@@ -548,7 +561,7 @@ export class PageComponentsView
     }
 
     setDraggable(draggable: boolean): PageComponentsView {
-        let body = api.dom.Body.get();
+        let body = Body.get();
         if (!this.draggable && draggable) {
             let lastPos;
             if (!this.mouseDownListener) {
@@ -637,7 +650,7 @@ export class PageComponentsView
             parentEl = this.getParentElement().getEl();
             parentOffset = parentEl.getOffset();
         } else {
-            parentEl = api.dom.WindowDOM.get();
+            parentEl = WindowDOM.get();
             parentOffset = {
                 top: 0,
                 left: 0
@@ -787,7 +800,7 @@ export class PageComponentsView
     }
 
     private hidePageComponentsIfInMobileView(action: Action) {
-        if (api.BrowserHelper.isMobile() &&
+        if (BrowserHelper.isMobile() &&
             ((action.hasParentAction() && action.getParentAction().getLabel() === i18n('action.insert'))
              || action.getLabel() === i18n('action.inspect')
              || action.getLabel() === i18n('action.edit')
@@ -797,7 +810,7 @@ export class PageComponentsView
     }
 
     private setMenuOpenStyleOnMenuIcon(row: number) {
-        let stylesHash: Slick.CellCssStylesHash = {};
+        let stylesHash = {};
         stylesHash[row] = {menu: 'menu-open'};
         this.tree.getGrid().setCellCssStyles('menu-open', stylesHash);
     }
@@ -816,18 +829,18 @@ export class PageComponentsView
         if (selected) {
             Highlighter.get().hide();
         } else {
-            let elementHelper = new api.dom.ElementHelper(rowElement);
+            let elementHelper = new ElementHelper(rowElement);
             let dimensions = elementHelper.getDimensions();
             let nodes = this.tree.getRoot().getCurrentRoot().treeToList();
-            let hoveredNode = nodes[new api.dom.ElementHelper(rowElement).getSiblingIndex()];
+            let hoveredNode = nodes[new ElementHelper(rowElement).getSiblingIndex()];
 
             if (hoveredNode) {
                 let data = hoveredNode.getData();
-                if (/*data.getType().isComponentType() && */!api.BrowserHelper.isMobile()) {
+                if (/*data.getType().isComponentType() && */!BrowserHelper.isMobile()) {
                     Highlighter.get().highlightElement(dimensions,
                         data.getType().getConfig().getHighlighterStyle());
                 }
-                if (api.BrowserHelper.isIOS()) {
+                if (BrowserHelper.isIOS()) {
                     this.selectItem(hoveredNode);
                 }
             }

@@ -1,8 +1,19 @@
+import * as Q from 'q';
+import {showError, showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {Issue} from '../Issue';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {Router} from '../../Router';
 import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
+import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
 import {UpdateIssueRequest} from '../resource/UpdateIssueRequest';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
@@ -24,28 +35,29 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {IssueType} from '../IssueType';
 import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
+import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
+import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {PrincipalComboBox, PrincipalComboBoxBuilder} from 'lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
-import AEl = api.dom.AEl;
-import DialogButton = api.ui.dialog.DialogButton;
-import TaskState = api.task.TaskState;
-import ListBox = api.ui.selector.list.ListBox;
-import Action = api.ui.Action;
-import Principal = api.security.Principal;
-import i18n = api.util.i18n;
-import Tooltip = api.ui.Tooltip;
-import NavigatedDeckPanel = api.ui.panel.NavigatedDeckPanel;
-import TabBar = api.ui.tab.TabBar;
-import TabBarItemBuilder = api.ui.tab.TabBarItemBuilder;
-import Panel = api.ui.panel.Panel;
-import AppHelper = api.util.AppHelper;
-import TabBarItem = api.ui.tab.TabBarItem;
-import PrincipalComboBoxBuilder = api.ui.security.PrincipalComboBoxBuilder;
-import PrincipalType = api.security.PrincipalType;
-import PrincipalKey = api.security.PrincipalKey;
-import PrincipalLoader = api.security.PrincipalLoader;
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import ContentId = api.content.ContentId;
-import PropertySet = api.data.PropertySet;
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -64,13 +76,13 @@ export class IssueDetailsDialog
 
     private assigneesTab: TabBarItem;
 
-    private tabPanel: api.ui.panel.NavigatedDeckPanel;
+    private tabPanel: NavigatedDeckPanel;
 
-    private closeAction: api.ui.Action;
+    private closeAction: Action;
 
-    private reopenAction: api.ui.Action;
+    private reopenAction: Action;
 
-    private commentAction: api.ui.Action;
+    private commentAction: Action;
 
     private detailsSubTitle: IssueDetailsDialogSubTitle;
 
@@ -102,34 +114,35 @@ export class IssueDetailsDialog
 
     private commentTextArea: IssueCommentTextArea;
 
-    private assigneesCombobox: api.ui.security.PrincipalComboBox;
+    private assigneesCombobox: PrincipalComboBox;
 
-    private scheduleAction: api.ui.Action;
+    private scheduleAction: Action;
 
     private publishScheduleForm: PublishScheduleForm;
 
-    private scheduleFormPropertySet: api.data.PropertySet;
+    private scheduleFormPropertySet: PropertySet;
 
     private updatedListeners: { (issue: Issue): void }[] = [];
 
+    private scheduleFormToggle: ButtonEl;
+
     private backButtonClickedListeners: { (): void }[] = [];
 
-    private scheduleFormToggle: api.dom.ButtonEl;
-
-    private publishMessage: api.dom.H6El;
+    private publishMessage: H6El;
 
     private isUpdatePending: boolean;
 
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
-            title: i18n('dialog.issue'),
-            class: 'issue-dialog issue-details-dialog grey-header',
+                title: i18n('dialog.issue'),
+                class: 'issue-dialog issue-details-dialog grey-header',
                 dialogSubName: i18n('dialog.issue.resolving'),
                 processingLabel: `${i18n('field.progress.publishing')}...`,
                 buttonRow: new IssueDetailsDialogButtonRow(),
                 processHandler: () => {
                     new ContentPublishPromptEvent({model: []}).fire();
                 },
+                confirmation: {}
             }
         );
     }
@@ -156,7 +169,7 @@ export class IssueDetailsDialog
             this.detailsSubTitle.setUser(currentUser);
         });
 
-        this.scheduleFormPropertySet = new api.data.PropertySet();
+        this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
         this.publishScheduleForm.layout(false);
         this.scheduleFormToggle = this.publishScheduleForm.createExternalToggle();
@@ -194,7 +207,7 @@ export class IssueDetailsDialog
     }
 
     private static createTabBar(name: string): TabBarItem {
-        const tab = new TabBarItemBuilder().setLabel(i18n(`field.${name}`)).build();
+        const tab = new TabBarItemBuilder().setLabel(i18n(`field.${name}`)).setAddLabelTitleAttribute(false).build();
         tab.addClass(`${name}-tab`);
         return tab;
     }
@@ -274,14 +287,14 @@ export class IssueDetailsDialog
         });
 
         this.commentsList.onItemsAdded((itemsAdded: IssueComment[]) => {
-            const debouncedScroll: Function = api.util.AppHelper.debounce(() => {
+            const debouncedScroll: Function = AppHelper.debounce(() => {
                 if (this.commentsList.isVisible()) {
                     const element: HTMLElement = this.getBody().getHTMLElement();
                     element.scrollTop = element.scrollHeight - element.clientHeight;
                 }
             }, 100);
             itemsAdded.forEach((itemAdded: IssueComment) => {
-                const itemView: api.dom.Element = this.commentsList.getItemView(itemAdded);
+                const itemView: Element = this.commentsList.getItemView(itemAdded);
                 if (!!itemView && !itemView.isRendered()) {
                     const renderedHandler = () => {
                         debouncedScroll();
@@ -316,18 +329,18 @@ export class IssueDetailsDialog
             this.toggleClass('tab-assignees', isAssignees);
             this.toggleClass('tab-comments', isComments);
             this.toggleClass('tab-items', !isAssignees && !isComments);
-            const hasComment = isComments && !api.util.StringHelper.isEmpty(this.commentTextArea.getValue());
+            const hasComment = isComments && !StringHelper.isEmpty(this.commentTextArea.getValue());
             this.updateCloseButtonLabel(hasComment);
         });
 
         this.closeAction.onExecuted(action => {
             const comment = this.commentTextArea.getValue();
-            const hasComment = !api.util.StringHelper.isEmpty(comment);
+            const hasComment = !StringHelper.isEmpty(comment);
             if (hasComment) {
                 action.setEnabled(false);
                 this.saveComment(comment, this.commentAction, true).then(() => {
                     this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
-                }).catch(api.DefaultErrorHandler.handle).finally(() => {
+                }).catch(DefaultErrorHandler.handle).finally(() => {
                     action.setEnabled(true);
                 });
             } else {
@@ -373,7 +386,7 @@ export class IssueDetailsDialog
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
-        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count));
+        this.tabBar.getNavigationItem(tabIndex).setLabel(IssueDetailsDialog.makeLabelWithCounter(label, count), false, false);
     }
 
     private static makeLabelWithCounter(label: string, count: number = 0): string {
@@ -397,14 +410,14 @@ export class IssueDetailsDialog
 
             const itemList = this.getItemList();
             itemList.setCanBeEmpty(!isPublishRequest);
-            this.itemsPanel.appendChildren<api.dom.DivEl>(this.publishScheduleForm, this.itemSelector, itemList,
+            this.itemsPanel.appendChildren<DivEl>(this.publishScheduleForm, this.itemSelector, itemList,
                 this.getDependantsContainer());
 
             this.tabPanel.addNavigablePanel(this.commentsTab, this.commentsPanel, !isPublishRequest);
             this.tabPanel.addNavigablePanel(this.itemsTab, this.itemsPanel, isPublishRequest);
             this.tabPanel.addNavigablePanel(this.assigneesTab, this.assigneesPanel);
 
-            this.publishMessage = new api.dom.H6El('sub-title');
+            this.publishMessage = new H6El('sub-title');
             this.appendChildToHeader(this.publishMessage);
 
             this.appendChildToHeader(this.tabBar);
@@ -590,15 +603,15 @@ export class IssueDetailsDialog
         return this.publishProcessor.getDependantIds();
     }
 
-    private loadCurrentUser(): wemQ.Promise<Principal> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+    private loadCurrentUser(): Q.Promise<Principal> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
             this.currentUser = loginResult.getUser();
             return this.currentUser;
         });
     }
 
     private handleIssueGlobalEvents() {
-        const updateHandler: Function = api.util.AppHelper.debounce((issue: Issue) => {
+        const updateHandler: Function = AppHelper.debounce((issue: Issue) => {
             this.setIssue(issue);
         }, 3000, true);
 
@@ -688,10 +701,10 @@ export class IssueDetailsDialog
             if (issue.getPublishFrom() || issue.getPublishTo()) {
                 publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
                 if (issue.getPublishFrom()) {
-                    publishScheduleSet.setLocalDateTime('from', 0, api.util.LocalDateTime.fromDate(issue.getPublishFrom()));
+                    publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
                 }
                 if (issue.getPublishTo()) {
-                    publishScheduleSet.setLocalDateTime('to', 0, api.util.LocalDateTime.fromDate(issue.getPublishTo()));
+                    publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
                 }
                 this.publishScheduleForm.setFormVisible(true, true);
             } else {
@@ -715,7 +728,7 @@ export class IssueDetailsDialog
 
     private updateLabels() {
         const isComments = this.tabPanel.getPanelShown() === this.commentsPanel;
-        const hasComment = isComments && !api.util.StringHelper.isEmpty(this.commentTextArea.getValue());
+        const hasComment = isComments && !StringHelper.isEmpty(this.commentTextArea.getValue());
 
         this.updateItemsCount();
         this.closeAction.setLabel(this.getCloseButtonLabel(hasComment));
@@ -744,7 +757,7 @@ export class IssueDetailsDialog
         }, false);
     }
 
-    private saveComment(text: string, action: Action, silent?: boolean): wemQ.Promise<void> {
+    private saveComment(text: string, action: Action, silent?: boolean): Q.Promise<void> {
         this.skipNextServerUpdatedEvent = true;
         action.setEnabled(false);
         return new CreateIssueCommentRequest(this.issue.getId())
@@ -755,7 +768,7 @@ export class IssueDetailsDialog
                 this.commentsList.addItem(issueComment);
                 this.commentTextArea.setValue('').giveFocus();
                 const messageKey = this.isPublishRequest() ? 'notify.publishRequest.commentAdded' : 'notify.issue.commentAdded';
-                api.notify.showFeedback(i18n(messageKey));
+                showFeedback(i18n(messageKey));
             });
     }
 
@@ -763,11 +776,11 @@ export class IssueDetailsDialog
         this.closeAction = new Action(this.getCloseButtonLabel());
         this.reopenAction = new Action(this.getReopenButtonLabel());
         this.publishAction = new ContentPublishDialogAction(() => this.publish(), this.getPublishButtonLabel());
-        this.scheduleAction = new api.ui.Action('action.schedule').onExecuted(() => this.publish());
+        this.scheduleAction = new Action('action.schedule').onExecuted(() => this.publish());
         this.commentAction = new Action(i18n('action.commentIssue'));
     }
 
-    protected createHeader(title: string): api.ui.dialog.ModalDialogHeader {
+    protected createHeader(title: string): ModalDialogHeader {
         const header = new IssueDetailsDialogHeader(title);
         header.onTitleChanged(() => {
             this.updateIssue();
@@ -803,7 +816,7 @@ export class IssueDetailsDialog
     }
 
     private createNoActionMessage() {
-        const divEl = new api.dom.DivEl('no-action-message');
+        const divEl = new DivEl('no-action-message');
         divEl.setHtml(i18n('dialog.issue.noItems'));
         this.getButtonRow().appendChild(divEl);
     }
@@ -813,50 +826,53 @@ export class IssueDetailsDialog
 
         if (isPublishRequest) {
             this.doPublish();
-        } else {
-            const contents = this.getItemList().getItems();
-            const exceptedContentIds = contents.filter(content => {
-                return this.areChildrenIncludedInIssue(content.getContentId());
-            }).map(content => content.getContentId());
-
-            const excludedIds = this.publishProcessor.getExcludedIds();
-
-            const includeChildItems = false;
-            const message = this.issue.getTitle();
-
-            new ContentPublishPromptEvent({
-                model: contents,
-                includeChildItems,
-                exceptedContentIds,
-                excludedIds,
-                message
-            }).fire();
-
+            return;
         }
+
+        const contents = this.getItemList().getItems();
+        const exceptedContentIds = contents.filter(content => {
+            return this.areChildrenIncludedInIssue(content.getContentId());
+        }).map(content => content.getContentId());
+
+        const excludedIds = this.publishProcessor.getExcludedIds();
+
+        const includeChildItems = false;
+        const message = this.issue.getTitle();
+
+        new ContentPublishPromptEvent({
+            model: contents,
+            includeChildItems,
+            exceptedContentIds,
+            excludedIds,
+            message
+        }).fire();
+
+        const publishDialog = ContentPublishDialog.get();
+        const closedListener = () => {
+            publishDialog.unProgressComplete(progressCompleteListener);
+            publishDialog.unClosed(closedListener);
+        };
+        const progressCompleteListener = (taskState: TaskState) => {
+            if (taskState === TaskState.FINISHED) {
+                this.doUpdateIssueAfterPublish(this.issue);
+            }
+        };
+
+        publishDialog.onProgressComplete(progressCompleteListener);
+        publishDialog.onClosed(closedListener);
     }
 
-    private doPublish(): wemQ.Promise<void> {
+    private doPublish(): Q.Promise<void> {
 
         this.publishMessage.setHtml(i18n('dialog.publish.publishing', this.countTotal()));
 
         return this.createPublishContentRequest().sendAndParse()
-            .then((taskId: api.task.TaskId) => {
+            .then((taskId: TaskId) => {
                 const issue = this.issue;
                 this.ignoreNextExcludeChildrenEvent = true;
                 const issuePublishedHandler = (taskState: TaskState) => {
                     if (taskState === TaskState.FINISHED) {
-                        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
-
-                        this.populateSchedule(request).sendAndParse()
-                            .then((updatedIssue: Issue) => {
-                                this.setIssue(updatedIssue);
-                                this.notifyIssueUpdated(updatedIssue);
-                                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
-                                api.notify.showFeedback(i18n(messageKey, updatedIssue.getTitle()));
-                            }).catch(() => {
-                            const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
-                            api.notify.showError(i18n(messageKey, issue.getTitle()));
-                        }).finally(() => {
+                        this.doUpdateIssueAfterPublish(issue).finally(() => {
                             this.unProgressComplete(issuePublishedHandler);
                         });
                     }
@@ -867,9 +883,24 @@ export class IssueDetailsDialog
                 this.unlockControls();
                 this.close();
                 if (reason && reason.message) {
-                    api.notify.showError(reason.message);
+                    showError(reason.message);
                     throw reason.message;
                 }
+            });
+    }
+
+    private doUpdateIssueAfterPublish(issue: Issue): Q.Promise<void> {
+        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
+
+        return this.populateSchedule(request).sendAndParse()
+            .then((updatedIssue: Issue) => {
+                this.setIssue(updatedIssue);
+                this.notifyIssueUpdated(updatedIssue);
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closed' : 'notify.issue.closed';
+                showFeedback(i18n(messageKey, updatedIssue.getTitle()));
+            }).catch(() => {
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.closeError' : 'notify.issue.closeError';
+                showError(i18n(messageKey, issue.getTitle()));
             });
     }
 
@@ -903,7 +934,7 @@ export class IssueDetailsDialog
         this.debouncedUpdateIssue();
     }
 
-    private doUpdateIssue(): wemQ.Promise<void> {
+    private doUpdateIssue(): Q.Promise<void> {
         if (!this.isUpdatePending || !this.isOpen()) {
             return;
         }
@@ -925,17 +956,17 @@ export class IssueDetailsDialog
             .then((updatedIssue: Issue) => {
                 if (statusChanged) {
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.status' : 'notify.issue.status';
-                    api.notify.showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(status)));
+                    showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(status)));
                     this.toggleControlsAccordingToStatus(status);
                     this.detailsSubTitle.setIssue(updatedIssue, true);
                 } else {
                     const messageKey = this.isPublishRequest() ? 'notify.publishRequest.updated' : 'notify.issue.updated';
-                    api.notify.showFeedback(i18n(messageKey));
+                    showFeedback(i18n(messageKey));
                 }
                 this.notifyIssueUpdated(updatedIssue);
                 this.skipNextServerUpdatedEvent = true;
             })
-            .catch((reason: any) => api.DefaultErrorHandler.handle(reason));
+            .catch((reason: any) => DefaultErrorHandler.handle(reason));
     }
 
     private createPublishRequest(): PublishRequest {

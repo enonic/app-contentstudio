@@ -1,10 +1,7 @@
 /**
  * Created on 17.05.2018.
- *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -18,42 +15,35 @@ describe('Browse toolbar shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-
-    it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, () => {
+    it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let deleteContentDialog = new  DeleteContentDialog();
-        return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
-            return contentBrowsePanel.hotKeyDelete();
-        }).then(() => {
-            return deleteContentDialog.waitForDialogOpened();
-        }).then(result => {
-            assert.isTrue(result, 'Delete Dialog should be present');
-        })
+        let deleteContentDialog = new DeleteContentDialog();
+        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+        await contentBrowsePanel.hotKeyDelete();
+        //'Delete Dialog' should be loaded(otherwise exception will be thrown)
+        await deleteContentDialog.waitForDialogOpened();
     });
 
-    it(`GIVEN content is selected WHEN 'Ctrl+e' have been pressed THEN 'Content Wizard' should be loaded`, () => {
+    it(`GIVEN content is selected WHEN 'Ctrl+e' have been pressed THEN 'Content Wizard' should be loaded`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let contentWizard = new  ContentWizard();
-        return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
-            return contentBrowsePanel.hotKeyEdit();
-        }).then(() => {
-            return studioUtils.switchToContentTabWindow('All Content types images');
-        }).then(() => {
-            return contentWizard.waitForOpened();
-        }).then(result => {
-            assert.isTrue(result, 'Content Wizard should be loaded');
-        })
+        let contentWizard = new ContentWizard();
+        //1. Select the folder:
+        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+        //2. 'Control'+ 'e'
+        await contentBrowsePanel.hotKeyEdit();
+        await studioUtils.switchToContentTabWindow('All Content types images');
+        //'Content Wizard' should be loaded(otherwise exception will be thrown):
+        await contentWizard.waitForOpened();
     });
-    it(`WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded`, () => {
+
+    it("WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let newContentDialog = new NewContentDialog()
-        return studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME).then(() => {
-            return contentBrowsePanel.hotKeyNew();
-        }).then(() => {
-            return newContentDialog.waitForOpened();
-        }).then(result => {
-            assert.isTrue(result, 'New Content Dialog should be loaded');
-        });
+        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+        //'Alt'+ 'n' have been pressed:
+        await contentBrowsePanel.hotKeyNew();
+        //'New Content Dialog should be loaded:
+        await newContentDialog.waitForOpened();
     });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1,5 +1,6 @@
-import PostLoader = api.util.loader.PostLoader;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
 import {CustomSelectorRequest, CustomSelectorResponse} from './CustomSelectorRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
 
@@ -24,7 +25,7 @@ export class CustomSelectorLoader
         return this.request;
     }
 
-    search(searchString: string): wemQ.Promise<CustomSelectorItem[]> {
+    search(searchString: string): Q.Promise<CustomSelectorItem[]> {
 
         this.getRequest().setQuery(searchString);
         return this.load();
@@ -37,14 +38,14 @@ export class CustomSelectorLoader
 
     sendRequest(): Q.Promise<CustomSelectorItem[]> {
         if (!this.request.hasRequestPath()) {
-            return wemQ.reject(i18n('field.customSelector.noService'));
+            return Q.reject(i18n('field.customSelector.noService'));
         }
         return super.sendRequest();
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<CustomSelectorItem[]> {
         if (!this.request.hasRequestPath()) {
-            return wemQ.reject(i18n('field.customSelector.noService'));
+            return Q.reject(i18n('field.customSelector.noService'));
         }
         return this.getRequest().setIds(ids.split(';')).sendAndParse().then((results) => {
             this.getRequest().setIds([]);

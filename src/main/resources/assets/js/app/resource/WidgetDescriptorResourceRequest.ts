@@ -1,22 +1,25 @@
-import Widget = api.content.Widget;
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {Widget} from 'lib-admin-ui/content/Widget';
+import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
 
 export class WidgetDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
-    private resourcePath: api.rest.Path;
+    private resourcePath: Path;
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'widget');
+        this.resourcePath = Path.fromParent(super.getRestPath(), 'widget');
     }
 
-    getResourcePath(): api.rest.Path {
+    getResourcePath(): Path {
         return this.resourcePath;
     }
 
-    static fromJson(json: api.content.json.WidgetDescriptorJson[]): Widget[] {
+    static fromJson(json: WidgetDescriptorJson[]): Widget[] {
         let result: Widget[] = [];
-        json.forEach((widgetDescriptorJson: api.content.json.WidgetDescriptorJson) => {
+        json.forEach((widgetDescriptorJson: WidgetDescriptorJson) => {
             result.push(Widget.fromJson(widgetDescriptorJson));
         });
         return result;

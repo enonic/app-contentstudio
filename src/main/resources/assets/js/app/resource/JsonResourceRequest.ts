@@ -1,5 +1,5 @@
-import ResourceRequest = api.rest.ResourceRequest;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Content, ContentBuilder} from '../content/Content';
 import {SiteBuilder} from '../content/Site';
 import {PageTemplateBuilder} from '../content/PageTemplate';

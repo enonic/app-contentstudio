@@ -1,5 +1,8 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
 
 export class IsContentReadOnlyRequest
     extends ContentResourceRequest<string[], string[]> {
@@ -18,12 +21,12 @@ export class IsContentReadOnlyRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'isReadOnlyContent');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'isReadOnlyContent');
     }
 
-    sendAndParse(): wemQ.Promise<string[]> {
-        return this.send().then((response: api.rest.JsonResponse<string[]>) => {
+    sendAndParse(): Q.Promise<string[]> {
+        return this.send().then((response: JsonResponse<string[]>) => {
             return response.getResult();
         });
     }

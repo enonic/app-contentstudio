@@ -1,16 +1,17 @@
+import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResourceRequest} from './JsonResourceRequest';
 
 export class PageResourceRequest<JSON_TYPE, PARSED_TYPE>
     extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
-    private resourcePath: api.rest.Path;
+    private resourcePath: Path;
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'content', 'page');
+        this.resourcePath = Path.fromParent(super.getRestPath(), 'content', 'page');
     }
 
-    getResourcePath(): api.rest.Path {
+    getResourcePath(): Path {
         return this.resourcePath;
     }
 }

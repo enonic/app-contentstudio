@@ -1,10 +1,12 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {ListIssueCommentsResult} from './ListIssueCommentsResult';
 import {ListIssueCommentsResponse} from './ListIssueCommentsResponse';
 import {IssueComment} from '../IssueComment';
 import {IssueMetadata} from '../IssueMetadata';
-import PrincipalKey = api.security.PrincipalKey;
-import Path = api.rest.Path;
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class ListIssueCommentsRequest
     extends IssueResourceRequest<ListIssueCommentsResult, ListIssueCommentsResponse> {
@@ -61,8 +63,8 @@ export class ListIssueCommentsRequest
         return Path.fromParent(super.getResourcePath(), 'comment/list');
     }
 
-    sendAndParse(): wemQ.Promise<ListIssueCommentsResponse> {
-        return this.send().then((response: api.rest.JsonResponse<ListIssueCommentsResult>) => {
+    sendAndParse(): Q.Promise<ListIssueCommentsResponse> {
+        return this.send().then((response: JsonResponse<ListIssueCommentsResult>) => {
 
             const issueComments: IssueComment[] = response.getResult().issueComments.map(IssueComment.fromJson).sort((a, b) => {
                 return a.getCreatedTime().getTime() - b.getCreatedTime().getTime();

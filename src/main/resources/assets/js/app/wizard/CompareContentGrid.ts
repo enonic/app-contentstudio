@@ -4,12 +4,13 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import TreeGrid = api.ui.treegrid.TreeGrid;
-import TreeNode = api.ui.treegrid.TreeNode;
-import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import i18n = api.util.i18n;
+import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Comparator} from 'lib-admin-ui/Comparator';
 
 export class CompareContentGrid
     extends TreeGrid<ContentSummaryAndCompareStatus> {
@@ -46,7 +47,7 @@ export class CompareContentGrid
         });
     }
 
-    fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentSummaryAndCompareStatus[]> {
         let parentContentId = parentNode && parentNode.getData() ? parentNode.getData().getContentId() : null;
         return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
@@ -62,7 +63,7 @@ export class CompareContentGrid
         return data.getId();
     }
 
-    refreshNodeData(parentNode: TreeNode<ContentSummaryAndCompareStatus>): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
+    refreshNodeData(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
         return ContentSummaryAndCompareStatusFetcher.fetch(parentNode.getData().getContentId()).then(
             (content: ContentSummaryAndCompareStatus) => {
                 parentNode.setData(content);
@@ -72,7 +73,7 @@ export class CompareContentGrid
     }
 
     sortNodeChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
-        let comparator: api.Comparator<TreeNode<ContentSummaryAndCompareStatus>>;
+        let comparator: Comparator<TreeNode<ContentSummaryAndCompareStatus>>;
         if (this.getRoot().getCurrentRoot() === node) {
             comparator = new ContentNodeByDisplayNameComparator();
         } else {

@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ResolvePublishDependenciesResult} from './ResolvePublishDependenciesResult';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
@@ -34,13 +37,13 @@ export class ResolvePublishDependenciesRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'resolvePublishContent');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'resolvePublishContent');
     }
 
-    sendAndParse(): wemQ.Promise<ResolvePublishDependenciesResult> {
+    sendAndParse(): Q.Promise<ResolvePublishDependenciesResult> {
 
-        return this.send().then((response: api.rest.JsonResponse<ResolvePublishContentResultJson>) => {
+        return this.send().then((response: JsonResponse<ResolvePublishContentResultJson>) => {
             return ResolvePublishDependenciesResult.fromJson(response.getResult());
         });
     }

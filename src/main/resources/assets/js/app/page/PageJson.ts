@@ -1,4 +1,4 @@
-import PropertyArrayJson = api.data.PropertyArrayJson;
+import {PropertyArrayJson} from 'lib-admin-ui/data/PropertyArrayJson';
 import {ComponentJson} from './region/ComponentJson';
 import {RegionJson} from './region/RegionJson';
 

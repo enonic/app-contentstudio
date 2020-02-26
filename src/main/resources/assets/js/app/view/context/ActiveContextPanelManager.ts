@@ -1,10 +1,11 @@
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContextPanel} from './ContextPanel';
 
 export class ActiveContextPanelManager {
 
     private static activeContextPanel: ContextPanel;
 
-    private static debouncedSetActiveContextPanel: (contextPanel: ContextPanel) => void = api.util.AppHelper.debounce(
+    private static debouncedSetActiveContextPanel: (contextPanel: ContextPanel) => void = AppHelper.debounce(
         ActiveContextPanelManager.doSetActiveContextPanel, 300, true);
 
     static setActiveContextPanel(contextPanelToMakeActive: ContextPanel) {

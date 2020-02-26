@@ -1,17 +1,20 @@
-import ApplicationKey = api.application.ApplicationKey;
-import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 import {Site} from '../../content/Site';
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class PageTemplateContentTypeLoader
-    extends api.util.loader.BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
+    extends BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super(new GetAllContentTypesRequest());
         this.contentId = contentId;
     }
@@ -22,7 +25,7 @@ export class PageTemplateContentTypeLoader
                contentType.getDisplayName().toString().toLowerCase().indexOf(searchString) !== -1;
     }
 
-    sendRequest(): wemQ.Promise<ContentTypeSummary[]> {
+    sendRequest(): Q.Promise<ContentTypeSummary[]> {
         return new GetAllContentTypesRequest().sendAndParse().then((contentTypeArray: ContentTypeSummary[]) => {
             return new GetNearestSiteRequest(this.contentId).sendAndParse().then(
                 (parentSite: Site) => {

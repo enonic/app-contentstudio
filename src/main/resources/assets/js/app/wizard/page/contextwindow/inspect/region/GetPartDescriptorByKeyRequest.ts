@@ -1,19 +1,23 @@
-import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartDescriptorJson = api.content.page.region.PartDescriptorJson;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
+import {PartDescriptorJson} from 'lib-admin-ui/content/page/region/PartDescriptorJson';
 import {GetPartDescriptorsByApplicationRequest} from '../../../../../resource/GetPartDescriptorsByApplicationRequest';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 
 export class GetPartDescriptorByKeyRequest
-    extends api.rest.ResourceRequest<PartDescriptorJson, PartDescriptor> {
+    extends ResourceRequest<PartDescriptorJson, PartDescriptor> {
 
-    private key: api.content.page.DescriptorKey;
+    private key: DescriptorKey;
 
-    constructor(key: api.content.page.DescriptorKey) {
+    constructor(key: DescriptorKey) {
         super();
         this.key = key;
     }
 
-    sendAndParse(): wemQ.Promise<PartDescriptor> {
-        let deferred = wemQ.defer<PartDescriptor>();
+    sendAndParse(): Q.Promise<PartDescriptor> {
+        let deferred = Q.defer<PartDescriptor>();
 
         new GetPartDescriptorsByApplicationRequest(this.key.getApplicationKey()).sendAndParse()
             .then((descriptors: PartDescriptor[]) => {
@@ -23,7 +27,7 @@ export class GetPartDescriptorByKeyRequest
                     }
                 });
             }).catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).done();
 
         return deferred.promise;

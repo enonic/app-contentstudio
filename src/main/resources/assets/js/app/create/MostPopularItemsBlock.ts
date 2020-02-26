@@ -1,17 +1,19 @@
-import '../../api.ts';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {MostPopularItemsList} from './MostPopularItemsList';
-import i18n = api.util.i18n;
+import {H2El} from 'lib-admin-ui/dom/H2El';
 
-export class MostPopularItemsBlock extends api.dom.DivEl {
+export class MostPopularItemsBlock
+    extends DivEl {
 
     private mostPopularItemsList: MostPopularItemsList;
 
-    private title: api.dom.H2El;
+    private title: H2El;
 
     constructor(title: string = i18n('field.mostPopular')) {
         super('most-popular-content-types-container');
 
-        this.title = new api.dom.H2El();
+        this.title = new H2El();
         this.title.setHtml(title);
 
         this.mostPopularItemsList = new MostPopularItemsList();

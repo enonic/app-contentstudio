@@ -3,9 +3,9 @@ import {PublishRequest} from '../PublishRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
 import {IssueType} from '../IssueType';
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
-import PrincipalKey = api.security.PrincipalKey;
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 export class CreateIssueRequest
     extends IssueResourceRequest<IssueJson, Issue> {
@@ -84,7 +84,7 @@ export class CreateIssueRequest
         return Path.fromParent(super.getResourcePath(), 'create');
     }
 
-    sendAndParse(): wemQ.Promise<Issue> {
+    sendAndParse(): Q.Promise<Issue> {
         return this.send().then((response: JsonResponse<IssueJson>) => {
             return Issue.fromJson(response.getResult());
         });

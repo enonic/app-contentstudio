@@ -1,3 +1,9 @@
+import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
@@ -14,8 +20,14 @@ import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
-import Promise = Q.Promise;
-import i18n = api.util.i18n;
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
+import {FormEl} from 'lib-admin-ui/dom/FormEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 declare var CONFIG;
 
@@ -30,7 +42,7 @@ export class TextComponentViewBuilder
 export class TextComponentView
     extends ComponentView<TextComponent> {
 
-    private rootElement: api.dom.Element;
+    private rootElement: Element;
 
     private htmlAreaEditor: HtmlEditor;
 
@@ -38,7 +50,7 @@ export class TextComponentView
 
     private focusOnInit: boolean;
 
-    private editorContainer: api.dom.DivEl;
+    private editorContainer: DivEl;
 
     public static debug: boolean = false;
 
@@ -54,7 +66,7 @@ export class TextComponentView
     private modalDialog: ModalDialog;
     private currentDialogConfig: any;
 
-    private authRequest: Promise<void>;
+    private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;
     private winBlurred: boolean;
 
@@ -73,7 +85,7 @@ export class TextComponentView
         this.rootElement.getHTMLElement().onpaste = this.handlePasteEvent.bind(this);
 
         this.authRequest =
-            new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                 this.editableSourceCode = loginResult.isContentExpert();
             });
 
@@ -101,7 +113,7 @@ export class TextComponentView
     }
 
     private bindWindowFocusEvents() {
-        const win = api.dom.WindowDOM.get();
+        const win = WindowDOM.get();
 
         win.onBlur((e: FocusEvent) => {
             if (e.target === win.getHTMLElement()) {
@@ -133,15 +145,15 @@ export class TextComponentView
         this.editorContainer = null;
     }
 
-    private getContent(): api.content.ContentSummary {
+    private getContent(): ContentSummary {
         return this.liveEditModel.getContent();
     }
 
-    private getContentPath(): api.content.ContentPath {
+    private getContentPath(): ContentPath {
         return this.liveEditModel.getContent().getPath();
     }
 
-    private getApplicationKeys(): api.application.ApplicationKey[] {
+    private getApplicationKeys(): ApplicationKey[] {
         return this.liveEditModel.getSiteModel().getSite().getApplicationKeys();
     }
 
@@ -185,7 +197,7 @@ export class TextComponentView
         }
         if (!this.rootElement) {
             // create it in case of new component
-            this.rootElement = new api.dom.SectionEl();
+            this.rootElement = new SectionEl();
             this.prependChild(this.rootElement);
         }
     }
@@ -343,9 +355,9 @@ export class TextComponentView
             PageViewController.get().setTextEditMode(false);
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
         } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
-            let nextFocusable = api.dom.FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
+            let nextFocusable = FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
             if (nextFocusable) {
-                wemjq(nextFocusable.getHTMLElement()).simulate('click');
+                $(nextFocusable.getHTMLElement()).simulate('click');
                 nextFocusable.giveFocus();
             } else {
                 this.htmlAreaEditor.fire('blur');
@@ -374,7 +386,7 @@ export class TextComponentView
         this.addClass(id);
 
         if (!this.editorContainer) {
-            this.editorContainer = new api.dom.DivEl('');
+            this.editorContainer = new DivEl('');
             this.editorContainer.setContentEditable(true).getEl().setAttribute('id', this.getId() + '_editor');
             this.appendChild(this.editorContainer);
         }
@@ -501,7 +513,7 @@ export class TextComponentView
 
     private addTextContextMenuActions() {
         this.addContextMenuActions([
-            new api.ui.Action(i18n('action.edit')).onExecuted(() => {
+            new Action(i18n('action.edit')).onExecuted(() => {
                 this.startPageTextEditMode();
                 this.focusOnInit = true;
                 this.forceEditorFocus();
@@ -520,6 +532,6 @@ export class TextComponentView
             return this.htmlAreaEditor.extractText();
         }
 
-        return wemjq(this.getHTMLElement()).text().trim();
+        return $(this.getHTMLElement()).text().trim();
     }
 }

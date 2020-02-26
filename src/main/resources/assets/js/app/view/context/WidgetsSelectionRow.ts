@@ -1,10 +1,13 @@
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {WidgetView} from './WidgetView';
 import {ContextView} from './ContextView';
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import NamesAndIconViewer = api.ui.NamesAndIconViewer;
+import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
-export class WidgetsSelectionRow extends api.dom.DivEl {
+export class WidgetsSelectionRow
+    extends DivEl {
 
     private contextView: ContextView;
 
@@ -113,7 +116,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             this.navigateToSelectedOption();
         });
 
-        api.util.AppHelper.focusInOut(this, () => {
+        AppHelper.focusInOut(this, () => {
             this.hideDropdown();
         });
     }

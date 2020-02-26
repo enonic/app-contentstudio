@@ -1,8 +1,10 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
 import {PublishStatus} from '../publish/PublishStatus';
 
 export class GetPublishStatusResult
-    implements api.Equitable {
+    implements Equitable {
 
     publishStatus: PublishStatus;
 
@@ -22,19 +24,19 @@ export class GetPublishStatusResult
         return this.publishStatus;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, GetPublishStatusResult)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, GetPublishStatusResult)) {
             return false;
         }
 
         let other = <GetPublishStatusResult>o;
 
-        if (!api.ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
+        if (!ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
             return false;
         }
 
-        if (!api.ObjectHelper.objectEquals(this.publishStatus, other.publishStatus)) {
+        if (!ObjectHelper.objectEquals(this.publishStatus, other.publishStatus)) {
             return false;
         }
 

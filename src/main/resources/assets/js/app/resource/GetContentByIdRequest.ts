@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
@@ -36,13 +39,13 @@ export class GetContentByIdRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
+    getRequestPath(): Path {
         return super.getResourcePath();
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
+    sendAndParse(): Q.Promise<Content> {
 
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return this.fromJsonToContent(response.getResult());
         });
     }

@@ -5,8 +5,6 @@
  *  Issue List Dialog - closed issues are not displayed until you create a new issue
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -19,7 +17,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 
-describe('publish.close.issue.spec: publish a content and close the issue.', function () {
+describe('publish.close.task.spec: publish a content and close the task.', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TASK_TITLE = appConstant.generateRandomName('task');
@@ -42,12 +40,12 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
         await taskDetailsDialog.waitForDialogOpened();
     });
 
-    it(`GIVEN Issue Details Dialog is opened AND Items-tab activated WHEN 'Publish...' button has been pressed AND Publish Now has been pressed on the loaded wizard THEN the content should be published`,
+    it(`GIVEN Issue Details Dialog is opened AND Items-tab activated WHEN 'Publish...' button has been pressed AND 'Publish Now' has been pressed in the loaded wizard THEN the content should be published`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
-            //1. Open issues-list dialog and click on the issue:
+            //1. Open issues-list dialog and click on the task:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
@@ -62,15 +60,12 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             let message = await taskDetailsDialog.waitForNotificationMessage();
             let expected = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
             assert.equal(message, expected, 'expected message should be displayed');
-            //TODO this behaviour will be changed!!!
-            //eventually, Issues List dialog should be loaded:
-            //await issueListDialog.waitForDialogOpened();
-
-            await taskDetailsDialogItemsTab.clickOnCloseIssueButton();
+            //5. 'Reopen Task' button should appear in the bottom of the dialog:
+            await taskDetailsDialogItemsTab.waitForReopenTaskButtonDisplayed();
         });
 
     //verifies: Issue List Dialog - closed issues are not displayed until you create a new issue (app-contentstudio/issues/246)
-    it(`GIVEN just closed issue WHEN issue list dialog opened THEN the issue should be present in 'closed' issues`,
+    it(`GIVEN just closed task WHEN issue list dialog opened THEN the task should be present in 'closed' issues`,
         async () => {
             let issueListDialog = new IssueListDialog();
             //1. Open Issues List Dialog:
@@ -80,7 +75,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             await issueListDialog.clickOnClosedButton();
             studioUtils.saveScreenshot('navigate_closed_issues');
             let result = await issueListDialog.isIssuePresent(TASK_TITLE);
-            assert.isTrue(result, 'required issue should be present in `closed issues`');
+            assert.isTrue(result, 'required task should be present in `closed issues`');
         });
 
     it(`GIVEN task is published and closed WHEN when content that is present in the task is selected in the grid THEN Published status should be displayed`,

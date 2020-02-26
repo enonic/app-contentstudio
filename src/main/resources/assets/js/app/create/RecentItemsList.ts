@@ -1,4 +1,3 @@
-import '../../api.ts';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
 import {RecentItems} from './RecentItems';
 import {NewContentDialogList} from './NewContentDialogList';

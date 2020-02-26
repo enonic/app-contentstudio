@@ -1,8 +1,8 @@
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import IssueServerEvent = api.issue.event.IssueServerEvent;
-import IssueServerChangeItem = api.issue.event.IssueServerChangeItem;
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {IssueServerEvent} from 'lib-admin-ui/issue/event/IssueServerEvent';
 import {GetIssuesRequest} from '../resource/GetIssuesRequest';
 import {Issue} from '../Issue';
+import {IssueServerChangeItem} from 'lib-admin-ui/issue/event/IssueServerChange';
 
 export class IssueServerEventsHandler {
 

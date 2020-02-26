@@ -1,7 +1,10 @@
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 
 export class ItemViewPlaceholder
-    extends api.dom.DivEl {
+    extends DivEl {
 
     static PAGE_EDITOR_PREFIX: string = 'xp-page-editor-';
 
@@ -14,9 +17,9 @@ export class ItemViewPlaceholder
         this.removeChildren();
         this.addClass('rendering-error');
 
-        let errorTitle = new api.dom.PEl().setHtml(errorMessage);
+        let errorTitle = new PEl().setHtml(errorMessage);
 
-        let urlAnchor = new api.dom.AEl().setUrl(url, '_blank').setHtml(i18n('live.view.component.render.error.urltext'));
+        let urlAnchor = new AEl().setUrl(url, '_blank').setHtml(i18n('live.view.component.render.error.urltext'));
 
         this.appendChildren(errorTitle, urlAnchor);
     }

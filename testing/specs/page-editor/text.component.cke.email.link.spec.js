@@ -2,8 +2,6 @@
  * Created on 14.06.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -32,53 +30,43 @@ describe('Text Component with CKE - insert email link  specification', function 
         });
 
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'email-link' has been inserted THEN correct data should be present in the CKE`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                return textComponentCke.clickOnInsertLinkButton();
-            }).then(() => {
-                return studioUtils.insertEmailLinkInCke("test", TEST_EMAIL);
-            }).then(() => {
-                return contentWizard.pause(1000);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                studioUtils.saveScreenshot('email_link_inserted');
-                return textComponentCke.getTextFromEditor();
-            }).then(result => {
-                assert.isTrue(result.includes(EXPECTED_SRC), 'correct data should be in CKE');
-            }).then(() => {
-                return textComponentCke.switchToParentFrame();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            })
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new text-component
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            //3. Open 'Insert Link' dialog and insert email-link:
+            await textComponentCke.clickOnInsertLinkButton();
+            await studioUtils.insertEmailLinkInCke("test", TEST_EMAIL);
+            await contentWizard.pause(1000);
+            await textComponentCke.switchToLiveEditFrame();
+            //4. Verify inserted link in the page:
+            studioUtils.saveScreenshot('email_link_inserted');
+            let actualText = await textComponentCke.getTextFromEditor();
+            assert.include(actualText, EXPECTED_SRC, 'expected data should be in CKE');
+            //Save the changes:
+            await textComponentCke.switchToParentFrame();
+            await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN email-link should be present on the page`,
-        () => {
+    it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN email-link should be present in the page`,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.clickOnPreviewButton();
-            }).then(() => {
-                return contentBrowsePanel.pause(1000);
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName)
-            }).then(() => {
-                return studioUtils.isElementDisplayed(`a=test`);
-            }).then(result => {
-                studioUtils.saveScreenshot('email_link_present');
-                assert.isTrue(result, 'email link should be present on the page');
-            })
+            //1. Select the site and click on Preview button:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPreviewButton();
+            await contentBrowsePanel.pause(1000);
+            await studioUtils.switchToContentTabWindow(SITE.displayName)
+            //2. Verify that the link is present:
+            let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
+            studioUtils.saveScreenshot('email_link_present');
+            assert.isTrue(isDisplayed, 'email link should be present in the page');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

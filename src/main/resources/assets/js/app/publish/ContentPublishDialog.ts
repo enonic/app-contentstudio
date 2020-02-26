@@ -1,14 +1,23 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ContentId = api.content.ContentId;
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
-import KeyHelper = api.ui.KeyHelper;
-import TaskState = api.task.TaskState;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -25,7 +34,7 @@ export class ContentPublishDialog
 
     private publishSubTitle: ContentPublishDialogSubTitle;
 
-    private scheduleAction: api.ui.Action;
+    private scheduleAction: Action;
 
     private message: string;
 
@@ -61,7 +70,7 @@ export class ContentPublishDialog
 
         this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
 
-        this.scheduleAction = new api.ui.Action('action.schedule')
+        this.scheduleAction = new Action('action.schedule')
             .setIconClass('schedule-action')
             .onExecuted((action: Action) => this.doPublish(true));
     }
@@ -126,17 +135,19 @@ export class ContentPublishDialog
         const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
         const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
 
-        const anyIncluded = this.getItemList().getItemViews()
-            .some(itemView => {
-                const hasToggler = itemView.getIncludeChildrenToggler() != null;
-                if (hasToggler) {
-                    const isIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
-                    itemView.getIncludeChildrenToggler().toggle(isIncluded);
-                    return isIncluded;
+        let noIdsIncluded: boolean = true;
+        this.getItemList().getItemViews().forEach(itemView => {
+            const toggler = itemView.getIncludeChildrenToggler();
+            if (toggler) {
+                const idIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                toggler.toggle(idIncluded);
+                if (idIncluded && noIdsIncluded) {
+                    noIdsIncluded = false;
                 }
-            });
+            }
+        });
 
-        if (!anyIncluded) {
+        if (noIdsIncluded) {
             // do reload dependencies manually if no children included to update buttons
             this.publishProcessor.reloadPublishDependencies(true);
         }
@@ -161,7 +172,7 @@ export class ContentPublishDialog
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
-            .setMessage(!api.util.StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
+            .setMessage(!StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 
@@ -178,13 +189,13 @@ export class ContentPublishDialog
             }
         }
 
-        publishRequest.sendAndParse().then((taskId: api.task.TaskId) => {
+        publishRequest.sendAndParse().then((taskId: TaskId) => {
             this.pollTask(taskId);
         }).catch((reason) => {
             this.unlockControls();
             this.close();
             if (reason && reason.message) {
-                api.notify.showError(reason.message);
+                showError(reason.message);
             }
         });
     }
@@ -235,8 +246,8 @@ export class ContentPublishDialog
         this.scheduleAction.setEnabled(true);
     }
 
-    setSubTitle(text: string, escapeHtml?: boolean) {
-        this.publishSubTitle.setMessage(text.trim(), escapeHtml);
+    setSubTitle(text: string) {
+        this.publishSubTitle.setMessage(text.trim());
     }
 
     setSubTitleMessage(message: string) {
@@ -249,17 +260,17 @@ export class ContentPublishDialog
 }
 
 export class ContentPublishDialogSubTitle
-    extends api.dom.DivEl {
-    private input: api.ui.text.AutosizeTextInput;
-    private message: api.dom.AEl;
+    extends DivEl {
+    private input: AutosizeTextInput;
+    private message: AEl;
 
     constructor() {
         super('publish-dialog-sub-title');
-        this.input = new api.ui.text.AutosizeTextInput();
+        this.input = new AutosizeTextInput();
         this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
         this.input.setVisible(false);
 
-        this.message = new api.dom.AEl();
+        this.message = new AEl();
         this.message.setHtml(i18n('dialog.publish.messageHint'));
         this.message.onClicked((event: MouseEvent) => {
             event.stopImmediatePropagation();
@@ -288,8 +299,8 @@ export class ContentPublishDialogSubTitle
         this.input.resetBaseValues();
     }
 
-    setMessage(text: string, escapeHtml?: boolean) {
-        this.message.setHtml(text || i18n('dialog.publish.messageHint'), escapeHtml);
+    setMessage(text: string) {
+        this.message.setHtml(text || i18n('dialog.publish.messageHint'));
         this.toggleClass('custom-message', !!text);
     }
 
@@ -320,8 +331,7 @@ export class ContentPublishDialogSubTitle
                 return;
             }
 
-            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey &&
-                                              (KeyHelper.isNumber(event) || KeyHelper.isAlpha(event));
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
 
             if (!isPublishMessageInputFocused && isLetterOrNumber) {
                 this.toggleInput(true);
@@ -338,7 +348,7 @@ export class ContentPublishDialogSubTitle
 
         const clickHandler = (event: MouseEvent) => {
             if (this.input.isVisible()
-                && api.util.StringHelper.isBlank(this.input.getValue())
+                && StringHelper.isBlank(this.input.getValue())
                 && event.target !== this.input.getHTMLElement()) {
 
                 this.toggleInput(false);
@@ -346,17 +356,17 @@ export class ContentPublishDialogSubTitle
         };
 
         this.onShown(() => {
-            api.dom.Body.get().onKeyDown(keyDownHandler);
+            Body.get().onKeyDown(keyDownHandler);
         });
-        this.onHidden(() => api.dom.Body.get().unKeyDown(keyDownHandler));
+        this.onHidden(() => Body.get().unKeyDown(keyDownHandler));
 
-        this.input.onShown(() => api.dom.Body.get().onClicked(clickHandler));
-        this.input.onHidden(() => api.dom.Body.get().unClicked(clickHandler));
+        this.input.onShown(() => Body.get().onClicked(clickHandler));
+        this.input.onHidden(() => Body.get().unClicked(clickHandler));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren<api.dom.Element>(this.message, this.input);
+            this.appendChildren<Element>(this.message, this.input);
             return rendered;
         });
     }

@@ -1,26 +1,27 @@
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ContentTypeSummaryBuilder = api.schema.content.ContentTypeSummaryBuilder;
-import ObjectHelper = api.ObjectHelper;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentTypeSummary, ContentTypeSummaryBuilder} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeJson} from '../../resource/json/ContentTypeJson';
+import {Form} from 'lib-admin-ui/form/Form';
 
 export class ContentType
     extends ContentTypeSummary
-    implements api.Equitable {
+    implements Equitable {
 
-    private form: api.form.Form;
+    private form: Form;
 
     constructor(builder: ContentTypeBuilder) {
         super(builder);
         this.form = builder.form;
     }
 
-    getForm(): api.form.Form {
+    getForm(): Form {
         return this.form;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentType)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentType)) {
             return false;
         }
 
@@ -45,7 +46,7 @@ export class ContentType
 export class ContentTypeBuilder
     extends ContentTypeSummaryBuilder {
 
-    form: api.form.Form;
+    form: Form;
 
     constructor(source?: ContentType) {
         if (source) {
@@ -56,11 +57,11 @@ export class ContentTypeBuilder
 
     fromContentTypeJson(json: ContentTypeJson): ContentTypeBuilder {
         super.fromContentTypeSummaryJson(json);
-        this.form = api.form.FormItemFactory.createForm(json.form);
+        this.form = Form.fromJson(json.form);
         return this;
     }
 
-    setForm(value: api.form.Form): ContentTypeSummaryBuilder {
+    setForm(value: Form): ContentTypeSummaryBuilder {
         this.form = value;
         return this;
     }

@@ -1,7 +1,9 @@
-import ContentId = api.content.ContentId;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class ContentRequiresSaveEvent
-    extends api.event.Event {
+    extends Event {
 
     private contentId: ContentId;
 
@@ -15,10 +17,10 @@ export class ContentRequiresSaveEvent
     }
 
     static on(handler: (event: ContentRequiresSaveEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentRequiresSaveEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

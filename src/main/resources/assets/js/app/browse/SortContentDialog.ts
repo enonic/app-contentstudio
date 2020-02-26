@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {SaveSortedContentAction} from './action/SaveSortedContentAction';
 import {SortContentTreeGrid} from './SortContentTreeGrid';
 import {SortContentTabMenu} from './SortContentTabMenu';
@@ -8,15 +11,15 @@ import {OrderChildMovements} from '../resource/order/OrderChildMovements';
 import {OrderContentRequest} from '../resource/OrderContentRequest';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ChildOrder = api.content.order.ChildOrder;
-import TabMenuItemBuilder = api.ui.tab.TabMenuItemBuilder;
-import DialogButton = api.ui.dialog.DialogButton;
-import i18n = api.util.i18n;
-import TabMenu = api.ui.tab.TabMenu;
-import H6El = api.dom.H6El;
-import TabMenuItem = api.ui.tab.TabMenuItem;
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
+import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
+import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
 
-export class SortContentDialog extends api.ui.dialog.ModalDialog {
+export class SortContentDialog
+    extends ModalDialog {
 
     private sortAction: SaveSortedContentAction;
 
@@ -37,7 +40,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
     private saveButton: DialogButton;
 
     constructor() {
-        super(<api.ui.dialog.ModalDialogConfig>{
+        super(<ModalDialogConfig>{
             title: i18n('dialog.sort'),
             class: 'sort-content-dialog'
         });
@@ -137,11 +140,11 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         if (this.curChildOrder.equals(this.getParentChildOrder()) && !this.curChildOrder.isManual()) {
             this.close();
         } else {
-            this.saveSortOrder().catch(api.DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
+            this.saveSortOrder().catch(DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
         }
     }
 
-    private saveSortOrder(): wemQ.Promise<Content> {
+    private saveSortOrder(): Q.Promise<Content> {
         this.showLoadingSpinner();
 
         if (this.curChildOrder.isManual()) {
@@ -206,7 +209,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
         this.saveButton.removeClass('spinner');
     }
 
-    private setContentChildOrder(): wemQ.Promise<Content> {
+    private setContentChildOrder(): Q.Promise<Content> {
         return new OrderContentRequest()
             .setSilent(false)
             .setContentId(this.parentContent.getContentId())
@@ -214,7 +217,7 @@ export class SortContentDialog extends api.ui.dialog.ModalDialog {
             .sendAndParse();
     }
 
-    private setManualReorder(): wemQ.Promise<Content> {
+    private setManualReorder(): Q.Promise<Content> {
         const order: ChildOrder = this.hasChangedPrevChildOrder() ? this.prevChildOrder : null;
         const movements: OrderChildMovements = this.gridDragHandler.getContentMovements();
 

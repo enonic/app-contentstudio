@@ -1,19 +1,24 @@
-import PropertyTree = api.data.PropertyTree;
-import Option = api.ui.selector.Option;
-import FormView = api.form.FormView;
-import Application = api.application.Application;
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationConfig = api.application.ApplicationConfig;
-import NamesAndIconView = api.app.NamesAndIconView;
-import DivEl = api.dom.DivEl;
-import GetApplicationRequest = api.application.GetApplicationRequest;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Application} from 'lib-admin-ui/application/Application';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
 export class SiteConfiguratorSelectedOptionView
-    extends api.ui.selector.combobox.BaseSelectedOptionView<Application> {
+    extends BaseSelectedOptionView<Application> {
 
     private application: Application;
 
@@ -25,7 +30,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private formContext: ContentFormContext;
 
-    private formValidityChangedHandler: { (event: api.form.FormValidityChangedEvent): void };
+    private formValidityChangedHandler: { (event: FormValidityChangedEvent): void };
 
     private configureDialog: SiteConfiguratorDialog;
 
@@ -47,7 +52,7 @@ export class SiteConfiguratorSelectedOptionView
         }
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         this.namesAndIconView = this.createNamesAndIconView();
 
         const header: DivEl = new DivEl('header');
@@ -55,7 +60,7 @@ export class SiteConfiguratorSelectedOptionView
 
         this.appendChild(header);
 
-        this.formValidityChangedHandler = (event: api.form.FormValidityChangedEvent) => {
+        this.formValidityChangedHandler = (event: FormValidityChangedEvent) => {
             this.toggleClass('invalid', !event.isValid());
         };
 
@@ -67,15 +72,15 @@ export class SiteConfiguratorSelectedOptionView
         this.configureDialog = this.initConfigureDialog();
 
         if (this.configureDialog) {
-            return this.formView.layout().then(() => wemQ(true));
+            return this.formView.layout().then(() => Q(true));
         }
 
-        return wemQ(true);
+        return Q(true);
     }
 
     private createNamesAndIconView() {
-        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(
-            api.app.NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
+        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new NamesAndIconViewBuilder().setSize(
+            NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
             this.application.getName() + (!!this.application.getVersion() ? '-' + this.application.getVersion() : ''));
 
         if (this.application.getIconUrl()) {
@@ -104,7 +109,7 @@ export class SiteConfiguratorSelectedOptionView
             }
 
             this.namesAndIconView.setMainName(app.getDisplayName());
-        }).catch(api.DefaultErrorHandler.handle).done();
+        }).catch(DefaultErrorHandler.handle).done();
     }
 
     protected onEditButtonClicked(e: MouseEvent) {

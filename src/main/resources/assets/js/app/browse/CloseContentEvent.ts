@@ -1,7 +1,6 @@
-import '../../api.ts';
-
-import Event = api.event.Event;
-import Panel = api.ui.panel.Panel;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 
 export class CloseContentEvent extends Event {
 
@@ -24,10 +23,10 @@ export class CloseContentEvent extends Event {
     }
 
     static on(handler: (event: CloseContentEvent) => void) {
-        Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: CloseContentEvent) => void) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

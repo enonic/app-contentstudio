@@ -1,26 +1,27 @@
-import TreeNode = api.ui.treegrid.TreeNode;
-import OptionDataLoaderData = api.ui.selector.OptionDataLoaderData;
-import Option = api.ui.selector.Option;
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
 
     private preloadedDataListeners: { (data: MediaTreeSelectorItem[]): void }[] = [];
 
-    fetch(node: TreeNode<Option<MediaTreeSelectorItem>>): wemQ.Promise<MediaTreeSelectorItem> {
+    fetch(node: TreeNode<Option<MediaTreeSelectorItem>>): Q.Promise<MediaTreeSelectorItem> {
         return super.fetch(node).then((data) => {
             return this.wrapItem(data);
         });
     }
 
     fetchChildren(parentNode: TreeNode<Option<MediaTreeSelectorItem>>, from: number = 0,
-                  size: number = -1): wemQ.Promise<OptionDataLoaderData<MediaTreeSelectorItem>> {
+                  size: number = -1): Q.Promise<OptionDataLoaderData<MediaTreeSelectorItem>> {
         return super.fetchChildren(parentNode, from, size).then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
                 return this.createOptionData(data.getData(), data.getHits(), data.getTotalHits());
             }

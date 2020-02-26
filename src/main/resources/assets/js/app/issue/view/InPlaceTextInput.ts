@@ -1,7 +1,9 @@
-import CompositeFormInputEl = api.dom.CompositeFormInputEl;
-import H2El = api.dom.H2El;
-import TextInput = api.ui.text.TextInput;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
+import {H2El} from 'lib-admin-ui/dom/H2El';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 
 export class InPlaceTextInput
     extends CompositeFormInputEl {
@@ -63,7 +65,7 @@ export class InPlaceTextInput
     }
 
     private isInputValid(): boolean {
-        return !api.util.StringHelper.isBlank(this.input.getValue());
+        return !StringHelper.isBlank(this.input.getValue());
     }
 
     public setEditMode(enableEdit: boolean, cancel?: boolean) {
@@ -85,7 +87,7 @@ export class InPlaceTextInput
     }
 
     private bindOutsideClickListener(enableEdit: boolean) {
-        const body = api.dom.Body.get();
+        const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
                 if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {

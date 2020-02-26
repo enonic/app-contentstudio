@@ -1,13 +1,10 @@
-import './../../../../../../api.ts';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
-import Option = api.ui.selector.Option;
-
-import ContentSummary = api.content.ContentSummary;
-
-import RichDropdown = api.ui.selector.dropdown.RichDropdown;
-import ContentSummaryViewer = api.content.ContentSummaryViewer;
-import ContentId = api.content.ContentId;
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class FragmentDropdown
     extends RichDropdown<ContentSummary> {
@@ -68,6 +65,7 @@ export class FragmentDropdown
             }
         } else {
             this.reset();
+            this.hideDropdown();
         }
     }
 

@@ -1,31 +1,39 @@
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+
 export class AttachmentItem
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private link: api.dom.AEl;
+    private link: AEl;
 
-    private removeEl: api.dom.DivEl;
+    private removeEl: DivEl;
 
     private value: string;
 
-    constructor(contentId: string, value: string, removeCallback?: (value: any) => void) {
+    constructor(contentId: string, value: string) {
         super('attachment-item');
 
         this.value = value;
 
-        this.link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri('content/media/' + contentId + '/' + encodeURIComponent(value)));
+        this.link = new AEl().setUrl(UriHelper.getRestUri('content/media/' + contentId + '/' + encodeURIComponent(value)));
         this.link.setHtml(value);
 
-        this.initRemoveButton(removeCallback);
+        this.initRemoveButton();
     }
 
-    private initRemoveButton(callback?: (value: any) => void) {
-        this.removeEl = new api.dom.DivEl('icon remove');
+    private initRemoveButton() {
+        this.removeEl = new DivEl('icon remove');
 
         this.removeEl.onClicked(() => {
-            if (callback) {
-                callback(this.value);
-                this.remove();
-            }
+            this.remove();
+        });
+    }
+
+    onRemoveClicked(callback: (value: any) => void) {
+        this.removeEl.onClicked(() => {
+            callback(this.value);
         });
     }
 
@@ -33,7 +41,7 @@ export class AttachmentItem
         return this.value;
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
             this.removeChildren();

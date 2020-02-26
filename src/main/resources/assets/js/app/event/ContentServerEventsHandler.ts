@@ -1,14 +1,15 @@
-import ContentPath = api.content.ContentPath;
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import ContentServerChange = api.content.event.ContentServerChange;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentServerChange, ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
+import {ContentIds} from '../ContentIds';
 
 /**
  * Class that listens to server events and fires UI events
@@ -39,7 +40,7 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
-    private contentPermissionsUpdatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentPermissionsUpdatedListeners: { (contentIds: ContentIds): void }[] = [];
 
     private static debug: boolean = false;
 
@@ -66,7 +67,7 @@ export class ContentServerEventsHandler {
         }
     }
 
-    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    onContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
         this.contentPermissionsUpdatedListeners.push(listener);
     }
 
@@ -209,9 +210,9 @@ export class ContentServerEventsHandler {
         this.notifyContentSorted(data);
     }
 
-    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    unContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
         this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+            this.contentPermissionsUpdatedListeners.filter((currentListener: (contentIds: ContentIds) => void) => {
                 return currentListener !== listener;
             });
     }
@@ -402,7 +403,7 @@ export class ContentServerEventsHandler {
             }, []);
 
             let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
-            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
+            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.contentId,
                 d.contentId)));
 
             this.handleContentDeleted(deletedItems);
@@ -416,6 +417,8 @@ export class ContentServerEventsHandler {
                 .then((summaries) => {
                     this.handleContentMoved(summaries, this.extractContentPaths(changes));
                 });
+        } else if (event.getType() === NodeServerChangeType.UPDATE_PERMISSIONS) {
+            this.handleContentPermissionsUpdated(this.extractContentIds(changes));
         } else {
             ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(changes))
                 .then((summaries) => {
@@ -450,9 +453,6 @@ export class ContentServerEventsHandler {
                     case NodeServerChangeType.SORT:
                         this.handleContentSorted(summaries);
                         break;
-                    case NodeServerChangeType.UPDATE_PERMISSIONS:
-                        this.handleContentPermissionsUpdated(summaries);
-                        break;
                     case NodeServerChangeType.UNKNOWN:
                         break;
                     default:
@@ -462,16 +462,16 @@ export class ContentServerEventsHandler {
         }
     }
 
-    private handleContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
+    private handleContentPermissionsUpdated(contentIds: ContentId[]) {
         if (ContentServerEventsHandler.debug) {
-            console.debug('ContentServerEventsHandler: permissions updated', data);
+            console.debug('ContentServerEventsHandler: permissions updated', contentIds);
         }
-        this.notifyContentPermissionsUpdated(data);
+        this.notifyContentPermissionsUpdated(ContentIds.from(contentIds));
     }
 
-    private notifyContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
-        this.contentPermissionsUpdatedListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-            listener(data);
+    private notifyContentPermissionsUpdated(contentIds: ContentIds) {
+        this.contentPermissionsUpdatedListeners.forEach((listener: (contentIds: ContentIds) => void) => {
+            listener(contentIds);
         });
     }
 

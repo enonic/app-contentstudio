@@ -1,8 +1,9 @@
-import Button = api.ui.button.Button;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class SelectionToolbar
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private editButton: Button;
 

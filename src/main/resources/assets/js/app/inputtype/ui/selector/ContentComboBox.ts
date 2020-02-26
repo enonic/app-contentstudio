@@ -1,18 +1,18 @@
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import Option = api.ui.selector.Option;
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import Viewer = api.ui.Viewer;
-import OptionsFactory = api.ui.selector.OptionsFactory;
-import StringHelper = api.util.StringHelper;
-import OptionDataHelper = api.ui.selector.OptionDataHelper;
-import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
-import ComboBoxConfig = api.ui.selector.combobox.ComboBoxConfig;
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import ValueChangedEvent = api.ValueChangedEvent;
-import i18n = api.util.i18n;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {OptionsFactory} from 'lib-admin-ui/ui/selector/OptionsFactory';
+import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ModeTogglerButton} from './ModeTogglerButton';
 import {ContentSummaryOptionDataLoader} from './ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
@@ -22,6 +22,13 @@ import {ContentSummaryOptionDataHelper} from '../../../util/ContentSummaryOption
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -48,7 +55,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>loader).setMaxHeight(230);
 
         if (builder.showStatus) {
-            const columns = [new api.ui.grid.GridColumnBuilder().setId('status').setName('Status').setField(
+            const columns = [new GridColumnBuilder().setId('status').setName('Status').setField(
                 'displayValue').setFormatter(
                 ContentRowFormatter.statusSelectorFormatter).setCssClass('status').setBoundaryWidth(75, 75).build()];
 
@@ -170,7 +177,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         });
     }
 
-    protected createOptions(items: ITEM_TYPE[]): wemQ.Promise<Option<ITEM_TYPE>[]> {
+    protected createOptions(items: ITEM_TYPE[]): Q.Promise<Option<ITEM_TYPE>[]> {
         return this.optionsFactory.createOptions(items);
     }
 
@@ -178,7 +185,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         let option;
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem)) {
             option = this.optionsFactory.createOption(<ITEM_TYPE>data, readOnly);
         } else {
             option = {
@@ -190,15 +197,15 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return option;
     }
 
-    protected reload(inputValue: string): wemQ.Promise<any> {
+    protected reload(inputValue: string): Q.Promise<any> {
 
-        const deferred = wemQ.defer<void>();
+        const deferred = Q.defer<void>();
 
         if (this.ifFlatLoadingMode(inputValue)) {
             this.getLoader().search(inputValue).then(() => {
                 deferred.resolve(null);
             }).catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
+                DefaultErrorHandler.handle(reason);
             }).done();
         } else {
             this.getLoader().setTreeFilterValue(inputValue);
@@ -212,7 +219,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
                 deferred.resolve(null);
             }).catch((reason: any) => {
-                api.DefaultErrorHandler.handle(reason);
+                DefaultErrorHandler.handle(reason);
             }).done();
         }
 
@@ -236,20 +243,20 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 }
 
 export class ContentSelectedOptionsView
-    extends api.ui.selector.combobox.BaseSelectedOptionsView<ContentTreeSelectorItem> {
+    extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
 
-    createSelectedOption(option: api.ui.selector.Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
+    createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
         let optionView = !!option.displayValue ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 }
 
 export class MissingContentSelectedOptionView
-    extends api.ui.selector.combobox.BaseSelectedOptionView<ContentTreeSelectorItem> {
+    extends BaseSelectedOptionView<ContentTreeSelectorItem> {
 
     private id: string;
 
-    constructor(option: api.ui.selector.Option<ContentTreeSelectorItem>) {
+    constructor(option: Option<ContentTreeSelectorItem>) {
         super(option);
         this.id = option.value;
         this.setEditable(false);
@@ -258,7 +265,7 @@ export class MissingContentSelectedOptionView
     protected appendActionButtons() {
         super.appendActionButtons();
 
-        let message = new api.dom.H6El('missing-content');
+        let message = new H6El('missing-content');
         message.setHtml(i18n('field.content.noaccess', this.id));
 
         this.appendChild(message);
@@ -266,11 +273,11 @@ export class MissingContentSelectedOptionView
 }
 
 export class ContentSelectedOptionView
-    extends api.ui.selector.combobox.RichSelectedOptionView<ContentTreeSelectorItem> {
+    extends RichSelectedOptionView<ContentTreeSelectorItem> {
 
-    constructor(option: api.ui.selector.Option<ContentTreeSelectorItem>) {
+    constructor(option: Option<ContentTreeSelectorItem>) {
         super(
-            new api.ui.selector.combobox.RichSelectedOptionViewBuilder<ContentTreeSelectorItem>(option)
+            new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>(option)
                 .setEditable(true)
                 .setDraggable(true)
         );
@@ -396,7 +403,7 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     setOptionDisplayValueViewer(value: Viewer<any>): ContentComboBoxBuilder<ITEM_TYPE> {
-        super.setOptionDisplayValueViewer(value ? value : new api.content.ContentSummaryViewer());
+        super.setOptionDisplayValueViewer(value ? value : new ContentSummaryViewer());
         return this;
     }
 

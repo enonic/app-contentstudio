@@ -1,9 +1,13 @@
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {Branch} from '../versioning/Branch';
 import {RepositoryId} from '../repository/RepositoryId';
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 
 interface OpenedWindow {
     openedWindow: Window;
@@ -15,10 +19,10 @@ export class BasePreviewAction extends Action {
     private notifyBlocked: () => void;
 
     constructor(label: string) {
-        super(label, api.BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
+        super(label, BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         // Notification is shown not less than once in a minute, if triggered
-        this.notifyBlocked = api.util.AppHelper.debounce(() => {
-            api.notify.showWarning(i18n('notify.popupBlocker.sites'), false);
+        this.notifyBlocked = AppHelper.debounce(() => {
+            showWarning(i18n('notify.popupBlocker.sites'), false);
         }, 60000, true);
     }
 
@@ -33,7 +37,7 @@ export class BasePreviewAction extends Action {
     }
 
     // should be called only in async block
-    protected openWindow(content: api.content.ContentSummary) {
+    protected openWindow(content: ContentSummary) {
         const targetWindow = this.openBlankWindow(content);
         if (!targetWindow.isBlocked) {
             this.updateLocation(targetWindow.openedWindow, content, false);
@@ -41,18 +45,18 @@ export class BasePreviewAction extends Action {
     }
 
     // should be called only in async block
-    protected openWindows(contents: api.content.ContentSummary[]) {
+    protected openWindows(contents: ContentSummary[]) {
         contents.forEach((content) => this.openWindow(content));
     }
 
     // should be called only in async block
-    protected openBlankWindow(content: api.content.ContentSummary): OpenedWindow {
+    protected openBlankWindow(content: ContentSummary): OpenedWindow {
         const openedWindow = window.open('', content.getId());
         const isBlocked = this.popupCheck(openedWindow);
         return {openedWindow, isBlocked};
     }
 
-    protected updateLocation(targetWindow: Window, content: api.content.ContentSummary, focus: boolean = true) {
+    protected updateLocation(targetWindow: Window, content: ContentSummary, focus: boolean = true) {
         targetWindow.location.href = UriHelper.getPortalUri(content.getPath().toString(),
             RenderingMode.PREVIEW, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
         if (focus) {

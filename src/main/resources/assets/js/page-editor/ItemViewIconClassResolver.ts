@@ -1,4 +1,4 @@
-import './../api.ts';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ItemView} from './ItemView';
 
 export class ItemViewIconClassResolver {
@@ -11,6 +11,6 @@ export class ItemViewIconClassResolver {
     }
 
     public static resolveByType(itemType: string, size?: string): string {
-        return api.StyleHelper.getCommonIconCls(itemType.toLowerCase()) + (size ? ' ' + size : '');
+        return StyleHelper.getCommonIconCls(itemType.toLowerCase()) + (size ? ' ' + size : '');
     }
 }

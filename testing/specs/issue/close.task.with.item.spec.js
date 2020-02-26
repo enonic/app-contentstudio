@@ -12,7 +12,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
-describe('close.task.with.item.spec: close an issue and verify control elements on the ItemPreview Panel', function () {
+describe('close.task.with.item.spec: close an task and verify control elements on the ItemPreview Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let issueTitle = appConstant.generateRandomName('task');
@@ -56,7 +56,7 @@ describe('close.task.with.item.spec: close an issue and verify control elements 
             await contentItemPreviewPanel.clickOnIssueMenuButton();
             await taskDetailsDialog.waitForDialogOpened();
             //the task has been closed:
-            await taskDetailsDialog.clickOnCloseIssueButton();
+            await taskDetailsDialog.clickOnCloseTaskButton();
             //modal dialog has been closed:
             await taskDetailsDialog.clickOnCancelTopButton();
             // 'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');

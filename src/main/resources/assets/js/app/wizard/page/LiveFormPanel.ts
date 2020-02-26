@@ -1,3 +1,13 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Event} from 'lib-admin-ui/event/Event';
+import {showError, showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultModels} from './DefaultModels';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
@@ -69,9 +79,17 @@ import {PageMode} from '../../page/PageMode';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
-import ContentTypeName = api.schema.content.ContentTypeName;
-import Panel = api.ui.panel.Panel;
-import i18n = api.util.i18n;
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentIds} from '../../ContentIds';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {BrEl} from 'lib-admin-ui/dom/BrEl';
 
 export interface LiveFormPanelConfig {
 
@@ -88,7 +106,7 @@ export interface PageEditorData {
 }
 
 export class LiveFormPanel
-    extends api.ui.panel.Panel {
+    extends Panel {
 
     public static debug: boolean = false;
 
@@ -134,8 +152,9 @@ export class LiveFormPanel
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private componentPropertyChangedHandler: (event: ComponentPropertyChangedEvent) => void;
-    private propertyChangedHandler: (event: api.PropertyChangedEvent) => void;
+    private propertyChangedHandler: (event: PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
 
     private pageViewReadyListeners: { (pageView: PageView): void }[];
 
@@ -168,7 +187,7 @@ export class LiveFormPanel
         ShowSplitEditEvent.on(this.showLoadMaskHandler);
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
-        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentUpdatedHandler);
+        ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
     }
 
     private initEventHandlers() {
@@ -197,18 +216,18 @@ export class LiveFormPanel
     private initPropertyChangedHandlers() {
         this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
 
-            if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
                 if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
 
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
-                        if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
+                        if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
                             const partView = <PartComponentView>componentView;
                             const partComponent: PartComponent = partView.getComponent();
                             if (partComponent.hasDescriptor()) {
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
-                        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+                        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
                             const layoutView = <LayoutComponentView>componentView;
                             const layoutComponent: LayoutComponent = layoutView.getComponent();
                             if (layoutComponent.hasDescriptor()) {
@@ -219,14 +238,14 @@ export class LiveFormPanel
                         console.debug('ComponentView by path not found: ' + event.getPath().toString());
                     }
                 }
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
+            } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
                 if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
                         this.saveAndReloadOnlyComponent(componentView);
                     }
                 }
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
+            } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
                 if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
@@ -236,18 +255,18 @@ export class LiveFormPanel
             }
         };
 
-        this.propertyChangedHandler = (event: api.PropertyChangedEvent) => {
+        this.propertyChangedHandler = (event: PropertyChangedEvent) => {
 
             // NB: To make the event.getSource() check work,
             // all calls from this to PageModel that changes a property must done with this as eventSource argument
-            if (!api.ObjectHelper.objectEquals(this, event.getSource())) {
+            if (!ObjectHelper.objectEquals(this, event.getSource())) {
 
                 const oldValue = event.getOldValue();
                 const newValue = event.getNewValue();
 
-                if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !api.ObjectHelper.objectEquals(oldValue, newValue)) {
+                if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !ObjectHelper.objectEquals(oldValue, newValue)) {
                     this.contentWizardPanel.saveChanges().catch((error: any) => {
-                        api.DefaultErrorHandler.handle(error);
+                        DefaultErrorHandler.handle(error);
                     });
                 }
                 if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE) {
@@ -260,7 +279,7 @@ export class LiveFormPanel
                         this.pageInspectionPanel.refreshInspectionHandler();
                         this.lockPageAfterProxyLoad = true;
                         this.contentWizardPanel.saveChanges().catch((error: any) => {
-                            api.DefaultErrorHandler.handle(error);
+                            DefaultErrorHandler.handle(error);
                         });
                     }
                 }
@@ -278,6 +297,20 @@ export class LiveFormPanel
                 }
             });
         };
+
+        this.contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+                .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
+                    contentSummary.getContentSummary()))
+                .catch(DefaultErrorHandler.handle);
+        };
     }
 
     private createLiveEditPageProxy(): LiveEditPageProxy {
@@ -294,7 +327,7 @@ export class LiveFormPanel
             this.imageInspectionPanel.refresh();
         });
 
-        if (api.BrowserHelper.isIE()) { // have to cleanup objects loaded by current live edit frame so IE won't fail after frame reload
+        if (BrowserHelper.isIE()) { // have to cleanup objects loaded by current live edit frame so IE won't fail after frame reload
             liveEditPageProxy.onBeforeLoad(() => {
                 this.fragmentInspectionPanel.cleanUp();
                 this.imageInspectionPanel.cleanUp();
@@ -324,12 +357,12 @@ export class LiveFormPanel
     }
 
     private createInspectionsPanel(model: LiveEditModel, saveAsTemplateAction: SaveAsTemplateAction): InspectionsPanel {
-        let saveAction = new api.ui.Action(i18n('action.apply'));
+        let saveAction = new Action(i18n('action.apply'));
         saveAction.onExecuted(() => {
 
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
-                if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                     this.saveAndReloadOnlyComponent(<ComponentView<Component>> itemView);
 
                     return;
@@ -337,7 +370,7 @@ export class LiveFormPanel
             }
 
             this.contentWizardPanel.saveChanges().catch((error: any) => {
-                api.DefaultErrorHandler.handle(error);
+                DefaultErrorHandler.handle(error);
             });
         });
 
@@ -379,7 +412,7 @@ export class LiveFormPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
 
-            api.dom.WindowDOM.get().onBeforeUnload((event) => {
+            WindowDOM.get().onBeforeUnload((event) => {
                 console.log('onbeforeunload ' + this.liveEditModel.getContent().getDisplayName());
                 // the reload is triggered by the main frame,
                 // so let the live edit know it to skip the popup
@@ -393,18 +426,22 @@ export class LiveFormPanel
             }
 
             this.frameContainer = new Panel('frame-container');
-            this.frameContainer.appendChildren<api.dom.Element>(this.liveEditPageProxy.getIFrame(),
+            this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
                 this.liveEditPageProxy.getPlaceholderIFrame(), this.liveEditPageProxy.getDragMask());
 
-            let noPreviewMessageEl = new api.dom.PEl('no-preview-message').setHtml(i18n('field.preview.failed'), false);
+            const noPreviewMessageEl = new PEl('no-preview-message').appendChildren<any>(
+                SpanEl.fromText(i18n('field.preview.failed')),
+                new BrEl(),
+                SpanEl.fromText(i18n('field.preview.failed.description'))
+            );
 
             // append mask here in order for the context window to be above
-            this.appendChildren<api.dom.Element>(this.frameContainer, noPreviewMessageEl);
+            this.appendChildren<Element>(this.frameContainer, noPreviewMessageEl);
 
             this.liveEditListen();
 
             // delay rendered event until live edit page is fully loaded
-            let liveEditDeferred = wemQ.defer<boolean>();
+            let liveEditDeferred = Q.defer<boolean>();
 
             this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
                 liveEditDeferred.resolve(rendered);
@@ -451,10 +488,10 @@ export class LiveFormPanel
         this.pageModel.setIgnorePropertyChanges(true);
 
         const site: Site = this.content.isSite()
-            ? <Site>this.content
-            : liveEditModel.getSiteModel()
-                               ? this.liveEditModel.getSiteModel().getSite()
-                               : null;
+                           ? <Site>this.content
+                           : liveEditModel.getSiteModel()
+                             ? this.liveEditModel.getSiteModel().getSite()
+                             : null;
 
         this.saveAsTemplateAction
             .setContentSummary(this.content)
@@ -498,7 +535,7 @@ export class LiveFormPanel
         this.liveEditPageProxy.skipNextReloadConfirmation(skip);
     }
 
-    propagateEvent(event: api.event.Event) {
+    propagateEvent(event: Event) {
         this.liveEditPageProxy.propagateEvent(event);
     }
 
@@ -533,7 +570,7 @@ export class LiveFormPanel
 
     saveAndReloadOnlyComponent(componentView: ComponentView<Component>) {
 
-        api.util.assertNotNull(componentView, 'componentView cannot be null');
+        assertNotNull(componentView, 'componentView cannot be null');
 
         this.pageSkipReload = true;
         const componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
@@ -548,7 +585,7 @@ export class LiveFormPanel
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl);
         }).catch((error: any) => {
 
-            api.DefaultErrorHandler.handle(error);
+            DefaultErrorHandler.handle(error);
 
             componentView.hideLoadingSpinner();
             componentView.showRenderingError(componentUrl, error.message);
@@ -584,26 +621,26 @@ export class LiveFormPanel
                 return;
             }
             const selected = this.pageView.getSelectedView();
-            if (api.ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
                 path = (<ComponentView<any>>selected).getComponentPath();
                 isComponentView = true;
-            } else if (api.ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
+            } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
                 path = (<RegionView>selected).getRegionPath();
             }
 
-            if (path && api.BrowserHelper.isIE()) {
+            if (path && BrowserHelper.isIE()) {
                 path = path.toString();
             }
         });
 
         const restoreSelection = () => {
             if (path) {
-                if (api.BrowserHelper.isIE()) {
+                if (BrowserHelper.isIE()) {
                     path = isComponentView ? ComponentPath.fromString(path) : RegionPath.fromString(path);
                 }
-                const selected: ComponentView<Component> | RegionView = api.ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
-                    ? this.pageView.getComponentViewByPath(path)
-                    : this.pageView.getRegionViewByPath(path);
+                const selected: ComponentView<Component> | RegionView = ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
+                                                                        ? this.pageView.getComponentViewByPath(path)
+                                                                        : this.pageView.getRegionViewByPath(path);
                 if (selected) {
                     selected.selectWithoutMenu(true);
                 }
@@ -634,7 +671,7 @@ export class LiveFormPanel
             const defaultClicked = !event.isRightClicked();
             const newSelection = !event.isRestoredSelection();
 
-            if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                 this.inspectComponent(<ComponentView<Component>>itemView, newSelection, newSelection && defaultClicked);
             }
         });
@@ -678,7 +715,7 @@ export class LiveFormPanel
             let fragmentView: FragmentComponentView = event.getComponentView();
             let componentType = event.getSourceComponentType().getShortName();
             let componentName = fragmentView.getComponent().getName().toString();
-            api.notify.showSuccess(i18n('notify.fragment.created', componentName, componentType));
+            showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
             this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
 
@@ -687,7 +724,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
-            api.notify.showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
+            showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
 
             this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
         });
@@ -703,7 +740,7 @@ export class LiveFormPanel
 
             fragmentView.showLoadingSpinner();
             this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
-                api.DefaultErrorHandler.handle(errorMessage);
+                DefaultErrorHandler.handle(errorMessage);
 
                 fragmentView.hideLoadingSpinner();
                 fragmentView.showRenderingError(componentUrl, errorMessage);
@@ -711,7 +748,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onShowWarning((event: ShowWarningLiveEditEvent) => {
-            api.notify.showWarning(event.getMessage());
+            showWarning(event.getMessage());
         });
 
         this.liveEditPageProxy.onEditContent((event: EditContentEvent) => {
@@ -719,7 +756,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
-            api.notify.showError(event.getMessage(), false);
+            showError(event.getMessage(), false);
             new ShowContentFormEvent().fire();
             this.contentWizardPanel.showForm();
         });
@@ -825,34 +862,34 @@ export class LiveFormPanel
     }
 
     private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true, showPanel: boolean = true) {
-        api.util.assertNotNull(componentView, 'componentView cannot be null');
+        assertNotNull(componentView, 'componentView cannot be null');
 
         const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, showPanel);
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
             this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
             showInspectionPanel(this.imageInspectionPanel);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
             this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
             showInspectionPanel(this.partInspectionPanel);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
             this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
             showInspectionPanel(this.layoutInspectionPanel);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
             showInspectionPanel(this.textInspectionPanel);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
             this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
             this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
             showInspectionPanel(this.fragmentInspectionPanel);
         } else {
-            throw new Error('ComponentView cannot be selected: ' + api.ClassHelper.getClassName(componentView));
+            throw new Error('ComponentView cannot be selected: ' + ClassHelper.getClassName(componentView));
         }
     }
 
     isShown(): boolean {
-        return !api.ObjectHelper.stringEquals(this.getHTMLElement().style.display, 'none');
+        return !ObjectHelper.stringEquals(this.getHTMLElement().style.display, 'none');
     }
 
     onPageViewReady(listener: (pageView: PageView) => void) {

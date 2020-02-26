@@ -3,9 +3,9 @@ import {IssueType} from '../issue/IssueType';
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {BasePublishAction} from '../wizard/action/BasePublishAction';
-import Action = api.ui.Action;
-import ActionButton = api.ui.button.ActionButton;
-import ContentId = api.content.ContentId;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export interface ContentWizardPublishMenuButtonConfig extends ContentPublishMenuButtonConfig {
     openRequestAction: Action;
@@ -78,7 +78,7 @@ export class ContentWizardPublishMenuButton
         return [this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.openRequestButton, this.createIssueButton];
     }
 
-    protected findIssues(contentId: ContentId): wemQ.Promise<Issue[]> {
+    protected findIssues(contentId: ContentId): Q.Promise<Issue[]> {
         return super.findIssues(contentId).then((issues: Issue[]) => {
             this.createPublishRequestAction(issues);
             return issues;

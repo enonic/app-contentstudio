@@ -1,7 +1,7 @@
-import ApplicationKey = api.application.ApplicationKey;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentSummary = api.content.ContentSummary;
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 
 let TYPES_ALLOWED_EVERYWHERE: { [key: string]: ContentTypeName } = {};
 [

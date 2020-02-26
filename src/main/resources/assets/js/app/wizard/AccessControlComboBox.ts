@@ -1,20 +1,25 @@
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {AccessControlEntryViewer} from '../view/AccessControlEntryViewer';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {AccessControlListView} from '../view/AccessControlListView';
 import {AccessControlEntryLoader} from './AccessControlEntryLoader';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {SelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 
 export class AccessControlComboBox
-    extends api.ui.selector.combobox.RichComboBox<AccessControlEntry> {
+    extends RichComboBox<AccessControlEntry> {
 
     private aceSelectedOptionsView: ACESelectedOptionsView;
 
     constructor() {
-        let builder = new api.ui.selector.combobox.RichComboBoxBuilder<AccessControlEntry>().setMaximumOccurrences(0).setComboBoxName(
+        let builder = new RichComboBoxBuilder<AccessControlEntry>().setMaximumOccurrences(0).setComboBoxName(
             'principalSelector').setIdentifierMethod('getPrincipalKey').setLoader(
             new AccessControlEntryLoader()).setHideComboBoxWhenMaxReached(false).setSelectedOptionsView(
             new ACESelectedOptionsView()).setOptionDisplayValueViewer(new AccessControlEntryViewer()).setDelayedInputValueChangedHandling(
@@ -36,7 +41,7 @@ export class AccessControlComboBox
 
 class ACESelectedOptionView
     extends AccessControlEntryView
-    implements api.ui.selector.combobox.SelectedOptionView<AccessControlEntry> {
+    implements SelectedOptionView<AccessControlEntry> {
 
     private option: Option<AccessControlEntry>;
 
@@ -63,7 +68,7 @@ class ACESelectedOptionView
 
 class ACESelectedOptionsView
     extends AccessControlListView
-    implements api.ui.selector.combobox.SelectedOptionsView<AccessControlEntry> {
+    implements SelectedOptionsView<AccessControlEntry> {
 
     private maximumOccurrences: number;
     private list: SelectedOption<AccessControlEntry>[] = [];
@@ -128,10 +133,10 @@ class ACESelectedOptionsView
     }
 
     removeOption(optionToRemove: Option<AccessControlEntry>, silent: boolean = false) {
-        api.util.assertNotNull(optionToRemove, 'optionToRemove cannot be null');
+        assertNotNull(optionToRemove, 'optionToRemove cannot be null');
 
         let selectedOption = this.getByOption(optionToRemove);
-        api.util.assertNotNull(selectedOption, 'Did not find any selected option to remove from option: ' + optionToRemove.value);
+        assertNotNull(selectedOption, 'Did not find any selected option to remove from option: ' + optionToRemove.value);
 
         this.removeItem(optionToRemove.displayValue);
 
@@ -185,8 +190,8 @@ class ACESelectedOptionsView
     }
 
     moveOccurrence(formIndex: number, toIndex: number) {
-        api.util.ArrayHelper.moveElement(formIndex, toIndex, this.list);
-        api.util.ArrayHelper.moveElement(formIndex, toIndex, this.getChildren());
+        ArrayHelper.moveElement(formIndex, toIndex, this.list);
+        ArrayHelper.moveElement(formIndex, toIndex, this.getChildren());
 
         this.list.forEach((selectedOption: SelectedOption<AccessControlEntry>, index: number) => selectedOption.setIndex(index));
     }

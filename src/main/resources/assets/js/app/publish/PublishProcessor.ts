@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
@@ -7,7 +11,6 @@ import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDepend
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
-import ContentId = api.content.ContentId;
 
 export class PublishProcessor {
 
@@ -44,7 +47,7 @@ export class PublishProcessor {
     constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList) {
         this.itemList = itemList;
         this.dependantList = dependantList;
-        this.reloadDependenciesDebounced = api.util.AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
+        this.reloadDependenciesDebounced = AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
 
         this.initListeners();
     }
@@ -140,7 +143,7 @@ export class PublishProcessor {
             });
         }).catch((reason: any) => {
             this.notifyLoadingFailed();
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 
@@ -164,11 +167,11 @@ export class PublishProcessor {
         this.allPendingDelete = result.isAllPendingDelete();
     }
 
-    private loadDescendants(): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    private loadDescendants(): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const noDependantItems: boolean = this.dependantIds.length === 0;
 
         if (noDependantItems) {
-            return wemQ([]);
+            return Q([]);
         }
 
         const slicedIds = this.dependantIds.slice(0, 0 + GetDescendantsOfContentsRequest.LOAD_SIZE);
@@ -231,11 +234,12 @@ export class PublishProcessor {
     }
 
     public containsItemsInProgress(): boolean {
-        return this.itemList.getItems().some(this.isOfflineItemInProgress) || this.dependantList.getItems().some(this.isItemInProgress);
+        return this.itemList.getItems().some(this.isOfflineItemInProgress.bind(this)) ||
+               this.dependantList.getItems().some(this.isItemInProgress.bind(this));
     }
 
     private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
+        return !item.isOnline() && this.isItemInProgress(item) && !item.getContentSummary().getContentState().isPendingDelete();
     }
 
     private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {

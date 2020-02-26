@@ -1,7 +1,8 @@
-import './../api.ts';
+import {Element, ElementFromHelperBuilder} from 'lib-admin-ui/dom/Element';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ElementDimensions, ItemView} from './ItemView';
 import {HighlighterStyle} from './ItemTypeConfig';
-import {PageViewController} from './PageViewController';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export enum HighlighterMode {
     RECTANGLE,
@@ -9,11 +10,11 @@ export enum HighlighterMode {
 }
 
 export class Highlighter
-    extends api.dom.Element {
+    extends Element {
 
-    private rectangle: api.dom.Element;
+    private rectangle: Element;
 
-    private path: api.dom.Element;
+    private path: Element;
 
     private static INSTANCE: Highlighter;
 
@@ -24,20 +25,20 @@ export class Highlighter
     constructor(type?: HighlighterMode) {
         // Needs to be a SVG element as the css has pointer-events:none
         // CSS pointer-events only works for SVG in IE
-        let svgCls = api.StyleHelper.getCls('highlighter');
+        let svgCls = StyleHelper.getCls('highlighter');
         let html = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="${svgCls}" style="top:-5000px;left:-5000px">
-                           <rect width="150" height="150"/>
-                           <path d=""/>
-                       </svg>`;
+                        <rect width="150" height="150"/>
+                        <path d=""/>
+                    </svg>`;
 
-        super(new api.dom.ElementFromHelperBuilder().setHelper(api.dom.Element.fromString(html).getEl()).setLoadExistingChildren(true));
+        super(ElementFromHelperBuilder.fromString(html));
 
         this.setMode(type || HighlighterMode.RECTANGLE);
 
         this.rectangle = this.getChildren()[0];
         this.path = this.getChildren()[1];
 
-        api.dom.Body.get().appendChild(this);
+        Body.get().appendChild(this);
     }
 
     public static get(): Highlighter {
@@ -126,7 +127,7 @@ export class Highlighter
             this.getEl().setWidthPx(w).setHeightPx(h).setTopPx(top).setLeftPx(left);
             break;
         case HighlighterMode.CROSSHAIR:
-            let bodyEl = api.dom.Body.get().getEl();
+            let bodyEl = Body.get().getEl();
             let screenH = bodyEl.getHeight();
             let screenW = bodyEl.getWidth();
 

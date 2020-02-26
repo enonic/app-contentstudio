@@ -1,11 +1,16 @@
-import PropertyPath = api.data.PropertyPath;
-import FormState = api.app.wizard.FormState;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {Input} from 'lib-admin-ui/form/Input';
+import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
 import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
 import {Content} from './content/Content';
 import {Site} from './content/Site';
+import {FormContext, FormContextBuilder} from 'lib-admin-ui/form/FormContext';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
 
 export class ContentFormContext
-    extends api.form.FormContext {
+    extends FormContext {
 
     private site: Site;
 
@@ -13,7 +18,7 @@ export class ContentFormContext
 
     private persistedContent: Content;
 
-    private contentTypeName: api.schema.content.ContentTypeName;
+    private contentTypeName: ContentTypeName;
 
     private formState: FormState;
 
@@ -40,18 +45,18 @@ export class ContentFormContext
         return this.formState;
     }
 
-    getContentId(): api.content.ContentId {
+    getContentId(): ContentId {
         return this.persistedContent != null ? this.persistedContent.getContentId() : null;
     }
 
-    getContentPath(): api.content.ContentPath {
+    getContentPath(): ContentPath {
         return this.persistedContent != null ? this.persistedContent.getPath() : null;
     }
 
-    getParentContentPath(): api.content.ContentPath {
+    getParentContentPath(): ContentPath {
 
         if (this.parentContent == null) {
-            return api.content.ContentPath.ROOT;
+            return ContentPath.ROOT;
         }
 
         return this.parentContent.getPath();
@@ -66,11 +71,11 @@ export class ContentFormContext
         this.contentUpdatedListeners.forEach(listener => listener(content));
     }
 
-    getContentTypeName(): api.schema.content.ContentTypeName {
+    getContentTypeName(): ContentTypeName {
         return this.contentTypeName;
     }
 
-    createInputTypeViewContext(inputTypeConfig: any, parentPropertyPath: PropertyPath, input: api.form.Input): ContentInputTypeViewContext {
+    createInputTypeViewContext(inputTypeConfig: any, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
         const viewContext = <ContentInputTypeViewContext> {
             formContext: this,
             input: input,
@@ -95,7 +100,7 @@ export class ContentFormContext
 }
 
 export class ContentFormContextBuilder
-    extends api.form.FormContextBuilder {
+    extends FormContextBuilder {
 
     site: Site;
 
@@ -103,7 +108,7 @@ export class ContentFormContextBuilder
 
     persistedContent: Content;
 
-    contentTypeName: api.schema.content.ContentTypeName;
+    contentTypeName: ContentTypeName;
 
     formState: FormState;
 
@@ -122,7 +127,7 @@ export class ContentFormContextBuilder
         return this;
     }
 
-    public setContentTypeName(value: api.schema.content.ContentTypeName): ContentFormContextBuilder {
+    public setContentTypeName(value: ContentTypeName): ContentFormContextBuilder {
         this.contentTypeName = value;
         return this;
     }

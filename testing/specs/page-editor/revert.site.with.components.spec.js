@@ -2,8 +2,6 @@
  * Created on 05.11.2019.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -31,7 +29,7 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 await studioUtils.doAddSite(SITE);
             });
 
-        it(`Preconditions: GIVEN existing site is opened AND a test image has been inserted`,
+        it(`Preconditions: GIVEN existing site is opened AND an image has been inserted`,
             async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
@@ -92,12 +90,11 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 await versionPanel.clickAndExpandVersion(1);
                 await versionPanel.clickOnRevertButton();
                 studioUtils.saveScreenshot("site_reverted1");
-
                 await contentWizard.switchToLiveEditFrame();
-                //3. Image should not be present in Live Frame
+                //3. After reverting - Image should not be present in Live Frame
                 await liveFormPanel.waitForImageNotDisplayed(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();
-                //4. Save button should be disabled after the reverting:
+                //4.Verify - Save button should be disabled after the reverting:
                 await contentWizard.waitForSaveButtonDisabled();
             });
 

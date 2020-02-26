@@ -1,16 +1,17 @@
-import Application = api.application.Application;
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationViewer = api.application.ApplicationViewer;
-import SiteApplicationLoader = api.application.SiteApplicationLoader;
-import FormView = api.form.FormView;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import ApplicationConfigProvider = api.form.inputtype.appconfig.ApplicationConfigProvider;
+import {Application} from 'lib-admin-ui/application/Application';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationViewer} from 'lib-admin-ui/application/ApplicationViewer';
+import {SiteApplicationLoader} from 'lib-admin-ui/application/SiteApplicationLoader';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfiguratorSelectedOptionsView} from './SiteConfiguratorSelectedOptionsView';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 
 export class SiteConfiguratorComboBox
-    extends api.ui.selector.combobox.RichComboBox<Application> {
+    extends RichComboBox<Application> {
 
     private siteConfiguratorSelectedOptionsView: SiteConfiguratorSelectedOptionsView;
 
@@ -21,7 +22,7 @@ export class SiteConfiguratorComboBox
             state: Application.STATE_STARTED
         };
 
-        let builder = new api.ui.selector.combobox.RichComboBoxBuilder<Application>();
+        let builder = new RichComboBoxBuilder<Application>();
         builder.setMaximumOccurrences(maxOccurrences).setIdentifierMethod('getApplicationKey').setComboBoxName(
             'applicationSelector').setLoader(new SiteApplicationLoader(filterObject)).setSelectedOptionsView(
             new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext)).setOptionDisplayValueViewer(

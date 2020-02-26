@@ -1,13 +1,19 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {XDataJson} from '../resource/json/XDataJson';
 import {XDataName} from './XDataName';
+import {Schema, SchemaBuilder} from 'lib-admin-ui/schema/Schema';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
+import {FormItemFactoryImpl} from 'lib-admin-ui/form/FormItemFactoryImpl';
 
 export class XData
-    extends api.schema.Schema
-    implements api.Equitable {
+    extends Schema
+    implements Equitable {
 
     private schemaKey: string;
 
-    private formItems: api.form.FormItem[];
+    private formItems: FormItem[];
 
     private optional: boolean;
 
@@ -26,7 +32,7 @@ export class XData
         return new XDataName(this.getName());
     }
 
-    getFormItems(): api.form.FormItem[] {
+    getFormItems(): FormItem[] {
         return this.formItems;
     }
 
@@ -38,9 +44,9 @@ export class XData
         return this.optional;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, XData)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, XData)) {
             return false;
         }
 
@@ -50,32 +56,32 @@ export class XData
 
         let other = <XData>o;
 
-        if (!api.ObjectHelper.stringEquals(this.schemaKey, other.schemaKey)) {
+        if (!ObjectHelper.stringEquals(this.schemaKey, other.schemaKey)) {
             return false;
         }
 
-        if (!api.ObjectHelper.arrayEquals(this.formItems, other.formItems)) {
+        if (!ObjectHelper.arrayEquals(this.formItems, other.formItems)) {
             return false;
         }
-        if (!api.ObjectHelper.booleanEquals(this.optional, other.optional)) {
+        if (!ObjectHelper.booleanEquals(this.optional, other.optional)) {
             return false;
         }
 
         return true;
     }
 
-    toForm(): api.form.Form {
-        return new api.form.FormBuilder().addFormItems(this.formItems).build();
+    toForm(): Form {
+        return new FormBuilder().addFormItems(this.formItems).build();
     }
 
 }
 
 export class XDataBuilder
-    extends api.schema.SchemaBuilder {
+    extends SchemaBuilder {
 
     schemaKey: string;
 
-    formItems: api.form.FormItem[];
+    formItems: FormItem[];
 
     optional: boolean;
 
@@ -95,7 +101,7 @@ export class XDataBuilder
         this.formItems = [];
         if (xDataJson.form && xDataJson.form.formItems) {
             xDataJson.form.formItems.forEach((formItemJson) => {
-                let formItem = api.form.FormItemFactory.createFormItem(formItemJson);
+                let formItem = FormItemFactoryImpl.get().createFormItem(formItemJson);
                 if (formItem) {
                     this.formItems.push(formItem);
                 }

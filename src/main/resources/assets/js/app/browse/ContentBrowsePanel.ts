@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid} from './ContentTreeGrid';
@@ -26,28 +31,27 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
-import TreeNode = api.ui.treegrid.TreeNode;
-import BrowseItem = api.app.browse.BrowseItem;
-import UploadItem = api.ui.uploader.UploadItem;
-import ContentSummary = api.content.ContentSummary;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ContentPath = api.content.ContentPath;
-import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
-import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
-import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import RepositoryEvent = api.content.event.RepositoryEvent;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import SplitPanel = api.ui.panel.SplitPanel;
-import DataChangedType = api.ui.treegrid.DataChangedType;
-import Action = api.ui.Action;
-import AppHelper = api.util.AppHelper;
-import ViewItem = api.app.view.ViewItem;
-import BrowserHelper = api.BrowserHelper;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
+import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {ContentIds} from '../ContentIds';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContentBrowsePanel
-    extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
+    extends BrowsePanel<ContentSummaryAndCompareStatus> {
 
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
@@ -75,7 +79,7 @@ export class ContentBrowsePanel
         this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
     }
 
-    protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): wemQ.Promise<any> {
+    protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
         const previewHandler: PreviewContentHandler = this.getBrowseActions().getPreviewHandler();
         return previewHandler.checkIfItemIsRenderable(browseItem);
     }
@@ -84,7 +88,7 @@ export class ContentBrowsePanel
         return <ContentTreeGridActions>super.getBrowseActions();
     }
 
-    getNonToolbarActions(): api.ui.Action[] {
+    getNonToolbarActions(): Action[] {
         return this.getBrowseActions().getPublishActions();
     }
 
@@ -168,7 +172,7 @@ export class ContentBrowsePanel
         super.disableSelectionMode();
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
@@ -329,7 +333,7 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+        handler.onContentPermissionsUpdated((contentIds: ContentIds) => this.handleContentPermissionsUpdated(contentIds));
 
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentRenamed(data, oldPaths);
@@ -393,6 +397,24 @@ export class ContentBrowsePanel
         });
     }
 
+    private handleContentPermissionsUpdated(contentIds: ContentIds) {
+        if (ContentBrowsePanel.debug) {
+            console.debug('ContentBrowsePanel: permissions updated', contentIds);
+        }
+
+        const contentsToUpdateIds: ContentId[] = this.treeGrid.getAllNodes()
+            .map((treeNode: TreeNode<ContentSummaryAndCompareStatus>) => treeNode.getData().getContentId())
+            .filter((contentId: ContentId) => contentIds.contains(contentId));
+
+        if (contentsToUpdateIds.length === 0) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+            .then(this.handleContentUpdated.bind(this))
+            .catch(DefaultErrorHandler.handle);
+    }
+
     private handleContentDeleted(paths: ContentPath[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: deleted', paths);
@@ -440,7 +462,7 @@ export class ContentBrowsePanel
         }, 1000);
     }
 
-    private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
+    private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
         this.updateContextPanel(data);
         return this.treeGrid.updateContentNodes(data);
     }
@@ -503,9 +525,9 @@ export class ContentBrowsePanel
     }
 
     private isAnyContentIdWithinPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
-                                            updatedContents: ContentSummaryAndCompareStatus[]): wemQ.Promise<boolean> {
+                                            updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
         return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
-            const promises: wemQ.Promise<void>[] = [];
+            const promises: Q.Promise<void>[] = [];
             let result: boolean = false;
 
             updatedContents.forEach((content: ContentSummaryAndCompareStatus) => {
@@ -517,7 +539,7 @@ export class ContentBrowsePanel
                     }));
             });
 
-            return wemQ.all(promises).then(() => {
+            return Q.all(promises).then(() => {
                 return result;
             });
 
@@ -525,8 +547,8 @@ export class ContentBrowsePanel
     }
 
     private isAnyContentReferencedByPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
-                                                updatedContents: ContentSummaryAndCompareStatus[]): wemQ.Promise<boolean> {
-        return wemQ.all(updatedContents.map(updatedContent =>
+                                                updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
+        return Q.all(updatedContents.map(updatedContent =>
             ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getModel().getContentId()))
         ).then((results: boolean[]) => results.some(result => result));
     }

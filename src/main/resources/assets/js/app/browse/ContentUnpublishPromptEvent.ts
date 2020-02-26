@@ -1,3 +1,5 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
@@ -8,10 +10,10 @@ export class ContentUnpublishPromptEvent extends BaseContentModelEvent {
     }
 
     static on(handler: (event: ContentUnpublishPromptEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentUnpublishPromptEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

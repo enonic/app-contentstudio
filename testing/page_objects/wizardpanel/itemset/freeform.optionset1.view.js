@@ -5,9 +5,9 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    optionSet: "//div[contains(@id,'api.form.FormOptionSetOptionView')]",
-    imageRadioButton: "//span[contains(@id,'ui.RadioButton') and descendant::label[text()='image']]",
-    textRadioButton: "//span[contains(@id,'ui.RadioButton') and descendant::label[text()='text']]"
+    optionSet: "//div[contains(@id,'FormOptionSetOptionView')]",
+    imageRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='image']]",
+    textRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='text']]"
 };
 
 class FreeFormOptionSet1 extends Page {
@@ -22,24 +22,24 @@ class FreeFormOptionSet1 extends Page {
         return xpath.optionSet + xpath.textRadioButton;
     }
 
-    clickOnImageRadioButton() {
-        return this.waitForElementDisplayed(this.imageRadioButton, appConst.TIMEOUT_2).then(() => {
-            return this.clickOnElement(this.imageRadioButton);
-        }).catch(() => {
+    async clickOnImageRadioButton() {
+        try {
+            await this.waitForElementDisplayed(this.imageRadioButton, appConst.TIMEOUT_2);
+            return await this.clickOnElement(this.imageRadioButton);
+        } catch (err) {
             this.saveScreenshot("err_free_form_image_radio");
-            throw new Error("Free Form Wizard - Error when clicking on Image radio button");
-        });
+            throw new Error("Free Form Wizard - Error when clicking on Image radio button" + err);
+        }
     }
 
-    clickOnTextRadioButton() {
-        return this.waitForElementDisplayed(this.textRadioButton, appConst.TIMEOUT_2).then(() => {
-            return this.clickOnElement(this.textRadioButton);
-        }).catch(() => {
+    async clickOnTextRadioButton() {
+        try {
+            await this.waitForElementDisplayed(this.textRadioButton, appConst.TIMEOUT_2);
+            return await this.clickOnElement(this.textRadioButton);
+        } catch (err) {
             this.saveScreenshot("err_free_form_text_radio");
             throw new Error("Free Form Wizard - Error when clicking on Text radio button");
-        });
+        }
     }
 };
 module.exports = FreeFormOptionSet1;
-
-

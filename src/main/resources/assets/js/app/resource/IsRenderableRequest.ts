@@ -1,5 +1,8 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
-import ContentId = api.content.ContentId;
 
 export class IsRenderableRequest
     extends PageTemplateResourceRequest<boolean, boolean> {
@@ -23,13 +26,13 @@ export class IsRenderableRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'isRenderable');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'isRenderable');
     }
 
-    sendAndParse(): wemQ.Promise<boolean> {
+    sendAndParse(): Q.Promise<boolean> {
 
-        return this.send().then((response: api.rest.JsonResponse<boolean>) => {
+        return this.send().then((response: JsonResponse<boolean>) => {
             return response.getResult();
         });
     }

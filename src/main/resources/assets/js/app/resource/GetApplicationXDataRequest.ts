@@ -1,5 +1,8 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ApplicationKey = api.application.ApplicationKey;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {XDataResourceRequest} from './XDataResourceRequest';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
@@ -26,13 +29,13 @@ export class GetApplicationXDataRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getApplicationXDataForContentType');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'getApplicationXDataForContentType');
     }
 
-    sendAndParse(): wemQ.Promise<XData[]> {
+    sendAndParse(): Q.Promise<XData[]> {
 
-        return this.send().then((response: api.rest.JsonResponse<XDataListJson>) => {
+        return this.send().then((response: JsonResponse<XDataListJson>) => {
             return response.getResult().xdatas.map((xDataJson: XDataJson) => {
                 return this.fromJsonToXData(xDataJson);
             });

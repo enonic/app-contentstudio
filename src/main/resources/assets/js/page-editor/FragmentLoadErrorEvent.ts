@@ -1,6 +1,6 @@
-import './../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
-import Event = api.event.Event;
 
 export class FragmentLoadErrorEvent
     extends Event {
@@ -17,10 +17,10 @@ export class FragmentLoadErrorEvent
     }
 
     static on(handler: (event: FragmentLoadErrorEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: FragmentLoadErrorEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,7 +1,6 @@
-import '../../api.ts';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class NewContentDialogListItem {
 

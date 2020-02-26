@@ -1,4 +1,4 @@
-import PrincipalJson = api.security.PrincipalJson;
+import {PrincipalJson} from 'lib-admin-ui/security/PrincipalJson';
 
 export interface AccessControlEntryJson {
 

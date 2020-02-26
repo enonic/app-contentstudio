@@ -6,9 +6,9 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {GetLayoutDescriptorByKeyRequest} from './GetLayoutDescriptorByKeyRequest';
 import {LayoutDescriptorDropdown} from './LayoutDescriptorDropdown';
 import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import DescriptorKey = api.content.page.DescriptorKey;
-import i18n = api.util.i18n;
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class LayoutInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<LayoutComponent, LayoutDescriptor> {

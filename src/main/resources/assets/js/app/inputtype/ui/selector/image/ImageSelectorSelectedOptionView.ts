@@ -1,32 +1,40 @@
-import LoadMask = api.ui.mask.LoadMask;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import BaseSelectedOptionView = api.ui.selector.combobox.BaseSelectedOptionView;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
+import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
 export class ImageSelectorSelectedOptionView
     extends BaseSelectedOptionView<MediaTreeSelectorItem> {
 
     private static IMAGE_SIZE: number = 270;
 
-    private icon: api.dom.ImgEl;
+    private icon: ImgEl;
 
-    private label: api.dom.DivEl;
+    private label: DivEl;
 
-    private check: api.ui.Checkbox;
+    private check: Checkbox;
 
-    private progress: api.ui.ProgressBar;
+    private progress: ProgressBar;
 
-    private error: api.dom.DivEl;
+    private error: DivEl;
 
     private loadMask: LoadMask;
 
     private selectionChangeListeners: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }[] = [];
 
-    constructor(option: api.ui.selector.Option<MediaTreeSelectorItem>) {
+    constructor(option: Option<MediaTreeSelectorItem>) {
         super(option);
     }
 
-    setOption(option: api.ui.selector.Option<MediaTreeSelectorItem>) {
+    setOption(option: Option<MediaTreeSelectorItem>) {
         super.setOption(option);
 
         let displayValue: MediaTreeSelectorItem = option.displayValue;
@@ -70,16 +78,16 @@ export class ImageSelectorSelectedOptionView
         }
     }
 
-    doRender(): wemQ.Promise<boolean> {
-        this.icon = new api.dom.ImgEl();
-        this.label = new api.dom.DivEl('label');
-        this.check = api.ui.Checkbox.create().build();
-        this.progress = new api.ui.ProgressBar();
-        this.error = new api.dom.DivEl('error');
+    doRender(): Q.Promise<boolean> {
+        this.icon = new ImgEl();
+        this.label = new DivEl('label');
+        this.check = Checkbox.create().build();
+        this.progress = new ProgressBar();
+        this.error = new DivEl('error');
         this.loadMask = new LoadMask(this);
 
-        let squaredContent = new api.dom.DivEl('squared-content');
-        squaredContent.appendChildren<api.dom.Element>(this.icon, this.label, this.check, this.progress, this.error, this.loadMask);
+        let squaredContent = new DivEl('squared-content');
+        squaredContent.appendChildren<Element>(this.icon, this.label, this.check, this.progress, this.error, this.loadMask);
 
         this.appendChild(squaredContent, true);
 
@@ -96,7 +104,7 @@ export class ImageSelectorSelectedOptionView
             event.preventDefault();
         });
 
-        this.check.onValueChanged((event: api.ValueChangedEvent) => {
+        this.check.onValueChanged((event: ValueChangedEvent) => {
             this.notifyChecked(event.getNewValue() === 'true');
         });
 
@@ -115,7 +123,7 @@ export class ImageSelectorSelectedOptionView
             ResponsiveManager.fireResizeEvent();
         });
 
-        return wemQ(true);
+        return Q(true);
     }
 
     private showProgress() {
@@ -155,15 +163,15 @@ export class ImageSelectorSelectedOptionView
         this.centerVertically(this.error, contentHeight);
     }
 
-    private centerVertically(el: api.dom.Element, contentHeight: number) {
+    private centerVertically(el: Element, contentHeight: number) {
         el.getEl().setMarginTop(Math.max(0, (contentHeight - el.getEl().getHeight()) / 2) + 'px');
     }
 
-    getIcon(): api.dom.ImgEl {
+    getIcon(): ImgEl {
         return this.icon;
     }
 
-    getCheckbox(): api.ui.Checkbox {
+    getCheckbox(): Checkbox {
         return this.check;
     }
 

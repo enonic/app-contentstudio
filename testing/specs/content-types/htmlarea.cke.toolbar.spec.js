@@ -2,8 +2,6 @@
  * Created on 03.05.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -17,7 +15,7 @@ const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.speci
 const InsertMacroDialog = require('../../page_objects/wizardpanel/insert.macro.dialog.cke');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
-describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`', function () {
+describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
@@ -37,7 +35,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             studioUtils.saveScreenshot('cke_insert_image_dialog1');
-            //'Insert Image Dialog should appear'
+            //'Insert Image Dialog should appear:
             await insertImageDialog.waitForDialogVisible();
         });
 
@@ -48,7 +46,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
             studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
-            //'Insert Anchor Dialog should appear'
+            //'Insert Anchor' Dialog should appear:
             await insertAnchorDialog.waitForDialogLoaded();
         });
 
@@ -58,8 +56,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
             let insertSpecialDialog = new InsertSpecialDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
-            await insertSpecialDialog.waitForDialogLoaded();
             studioUtils.saveScreenshot('cke_insert_special_char_dialog');
+            await insertSpecialDialog.waitForDialogLoaded();
         });
 
     it(`GIVEN 'insert macro' dialog is opened WHEN 'Cancel' button has been pressed THEN 'Insert Macro Dialog' should be closed`,
@@ -87,29 +85,27 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
         });
 
     it(`WHEN 'htmlArea' content is opened THEN Increase Indent, Bulleted List, Align Right,Table buttons should be present on the toolbar`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.showToolbar();
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isBulletedListButtonDisplayed(), 'Bulleted List button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isAlignLeftButtonDisplayed(), 'Align Left button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isNumberedListButtonDisplayed(), 'Bulleted List button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isAlignRightButtonDisplayed(), 'Align Right button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isCenterButtonDisplayed(), 'Center button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isIncreaseIndentButtonDisplayed(), 'Increase Indent button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isTableButtonDisplayed(), 'Table button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isIncreaseIndentButtonDisplayed(), 'Increase Indent button should be present');
-            }).then(() => {
-                return assert.eventually.isTrue(htmlAreaForm.isDecreaseIndentDisplayed(), 'Decrease Indent button should be present');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.showToolbar();
+
+            let result = await htmlAreaForm.isBulletedListButtonDisplayed();
+            assert.isTrue(result, 'Bulleted List button should be present');
+            await htmlAreaForm.isAlignLeftButtonDisplayed();
+            assert.isTrue(result, 'Align Left button should be present');
+            result = await htmlAreaForm.isNumberedListButtonDisplayed();
+            assert.isTrue(result, 'Numbered List button should be present');
+            result = await htmlAreaForm.isAlignRightButtonDisplayed();
+            assert.isTrue(result, 'Align Right button should be present');
+            result = await htmlAreaForm.isCenterButtonDisplayed();
+            assert.isTrue(result, 'Center button should be present');
+            result = await htmlAreaForm.isIncreaseIndentButtonDisplayed();
+            assert.isTrue(result, 'Center button should be present');
+            result = await htmlAreaForm.isTableButtonDisplayed();
+            assert.isTrue(result, 'Table button should be present');
+            result = await htmlAreaForm.isDecreaseIndentDisplayed();
+            assert.isTrue(result, 'Decrease Indent button should be present');
         });
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
@@ -149,22 +145,20 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
         });
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.pause(1000);
-            }).then(() => {
-                return htmlAreaForm.typeTextInHtmlArea("test");
-            }).then(() => {
-                return htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
-            }).then(() => {
-                return htmlAreaForm.selectFormatOption('Heading 1');
-            }).then(() => {
-                return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result => {
-                studioUtils.saveScreenshot('heading_1_cke');
-                assert.equal(result[0], "<h1>test</h1>", 'expected text should be in area');
-            });
+            //1. Open new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            await htmlAreaForm.typeTextInHtmlArea("test");
+            //2. Click on the dropdown handle:
+            await htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
+            //3. Select Heading 1 :
+            await htmlAreaForm.selectFormatOption('Heading 1');
+            //4. Check text in the area:
+            let result = await htmlAreaForm.getTextFromHtmlArea();
+            studioUtils.saveScreenshot('heading_1_cke');
+            assert.equal(result[0], "<h1>test</h1>", 'expected text should be in area');
         });
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appear`,
@@ -176,8 +170,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)`
             //Insert Table button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnTableButton();
             studioUtils.saveScreenshot('table_drop_down_menu_cke');
-            //'drop down menu with table should appears'
-            await htmlAreaForm.isTableDropDownMenuVisible();
+            //drop down menu with table should appears:
+            await htmlAreaForm.isTableMenuItemVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

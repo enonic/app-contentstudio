@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ViewContentEvent} from './browse/ViewContentEvent';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {NewContentEvent} from './create/NewContentEvent';
@@ -14,17 +18,19 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import ContentId = api.content.ContentId;
-import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
-import AppPanel = api.app.AppPanel;
-import i18n = api.util.i18n;
+import {ShowBrowsePanelEvent} from 'lib-admin-ui/app/ShowBrowsePanelEvent';
+import {AppPanel} from 'lib-admin-ui/app/AppPanel';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
 
-    private path: api.rest.Path;
+    private path: Path;
 
-    constructor(path?: api.rest.Path) {
+    constructor(path?: Path) {
         super();
         this.path = path;
     }
@@ -36,7 +42,7 @@ export class ContentAppPanel
         });
     }
 
-    private route(path?: api.rest.Path) {
+    private route(path?: Path) {
         const action = path ? path.getElement(0) : null;
         const id = path ? path.getElement(1) : null;
         const type = path ? path.getElement(2) : null;
@@ -104,7 +110,7 @@ export class ContentAppPanel
         }
     }
 
-    protected resolveActions(panel: api.ui.panel.Panel): api.ui.Action[] {
+    protected resolveActions(panel: Panel): Action[] {
         const actions = super.resolveActions(panel);
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
@@ -128,15 +134,15 @@ export class ContentAppPanel
             const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
 
             const hasDependencies: boolean = inbound
-                ? dependencyEntry.getDependency().inbound.length > 0
-                : dependencyEntry.getDependency().outbound.length > 0;
+                                             ? dependencyEntry.getDependency().inbound.length > 0
+                                             : dependencyEntry.getDependency().outbound.length > 0;
 
             if (hasDependencies) {
                 this.toggleSearchPanelWithDependencies(id, inbound, type);
             } else {
-                api.notify.showFeedback(i18n('notify.dependencies.absent', id));
+                showFeedback(i18n('notify.dependencies.absent', id));
             }
-        }).catch(reason => api.DefaultErrorHandler.handle(reason));
+        }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
     private toggleSearchPanelWithDependencies(id: string, inbound: boolean, type?: string) {

@@ -1,8 +1,8 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {UndoPendingDeleteContentRequest} from '../../resource/UndoPendingDeleteContentRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import Action = api.ui.Action;
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class UndoPendingDeleteContentAction extends Action {
 

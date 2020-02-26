@@ -1,10 +1,15 @@
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationEvent = api.application.ApplicationEvent;
-import ApplicationEventType = api.application.ApplicationEventType;
-import ApplicationCaches = api.application.ApplicationCaches;
-import Descriptor = api.content.page.Descriptor;
-import DescriptorKey = api.content.page.DescriptorKey;
-import ResourceRequest = api.rest.ResourceRequest;
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {ApplicationCaches} from 'lib-admin-ui/application/ApplicationCaches';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {Cache} from 'lib-admin-ui/cache/Cache';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export interface CacheableRequest {
     new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<any, Descriptor[]>;
@@ -14,13 +19,13 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
     // tslint:disable-next-line variable-name
     static registerCache<T extends Descriptor>(descriptor: typeof Descriptor, Request: CacheableRequest): ApplicationBasedCache<T> {
-        const w = api.dom.WindowDOM.get();
+        const w = WindowDOM.get();
         const topWindow: any = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();
 
-        const cacheName = `${api.ClassHelper.getFunctionName(descriptor)}Cache`;
+        const cacheName = `${ClassHelper.getFunctionName(descriptor)}Cache`;
 
-        if (!topWindow[cacheName] || api.BrowserHelper.isIE()) { // IE: Cache fails to work after frame reload (issue with freed script)
-            const loadByApplications = (keys: ApplicationKey[]) => new Request(keys).sendAndParse().catch(api.DefaultErrorHandler.handle);
+        if (!topWindow[cacheName] || BrowserHelper.isIE()) { // IE: Cache fails to work after frame reload (issue with freed script)
+            const loadByApplications = (keys: ApplicationKey[]) => new Request(keys).sendAndParse().catch(DefaultErrorHandler.handle);
             topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplications);
         }
         return topWindow[cacheName];
@@ -34,7 +39,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
         ApplicationEvent.on((event: ApplicationEvent) => {
             const key = event.getApplicationKey().toString();
-            const className = api.ClassHelper.getClassName(this);
+            const className = ClassHelper.getClassName(this);
 
             if (ApplicationEventType.STARTED === event.getEventType()) {
                 console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key}`);
@@ -47,7 +52,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
     }
 
     getByApplications(applicationKeys: ApplicationKey[]): T[] {
-        api.util.assertNotNull(applicationKeys, 'applicationKeys not given');
+        assertNotNull(applicationKeys, 'applicationKeys not given');
 
         let caches = [];
         const allCached = applicationKeys.every((key) => {
@@ -62,7 +67,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
     }
 
     getByKey(key: DescriptorKey): T {
-        api.util.assertNotNull(key, 'key not given');
+        assertNotNull(key, 'key not given');
 
         const applicationKey = key.getApplicationKey();
         const cache = this.applicationCaches.getByKey(applicationKey);
@@ -70,7 +75,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
     }
 
     put(descriptor: T) {
-        api.util.assertNotNull(descriptor, 'a object to cache must be given');
+        assertNotNull(descriptor, 'a object to cache must be given');
 
         const key = descriptor.getKey().getApplicationKey();
 
@@ -102,7 +107,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
 }
 
 export class SimpleApplicationCache<T extends Descriptor>
-    extends api.cache.Cache<T, DescriptorKey> {
+    extends Cache<T, DescriptorKey> {
 
     copy(object: T): T {
         return <T>object.clone();

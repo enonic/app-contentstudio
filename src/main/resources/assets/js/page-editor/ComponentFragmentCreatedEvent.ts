@@ -1,10 +1,11 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {Content} from '../app/content/Content';
 import {ComponentType} from '../app/page/region/ComponentType';
-import Event = api.event.Event;
 
 export class ComponentFragmentCreatedEvent
-    extends api.event.Event {
+    extends Event {
 
     private sourceComponentType: ComponentType;
 
@@ -33,10 +34,10 @@ export class ComponentFragmentCreatedEvent
     }
 
     static on(handler: (event: ComponentFragmentCreatedEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ComponentFragmentCreatedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

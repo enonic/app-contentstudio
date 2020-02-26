@@ -1,5 +1,7 @@
 <service>
   <allow>
     <principal>role:cms.cm.app</principal>
+    <principal>role:cms.expert</principal>
+    <principal>role:cms.admin</principal>
   </allow>
 </service>

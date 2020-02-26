@@ -1,7 +1,7 @@
-import '../../../../api.ts';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
 
 export class NonMobileContextPanelToggleButton
-    extends api.dom.ButtonEl {
+    extends ButtonEl {
 
     constructor() {
         super();

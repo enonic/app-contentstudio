@@ -1,7 +1,11 @@
-export class PageTemplateKey
-    extends api.content.ContentId {
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
-    public static fromContentId(id: api.content.ContentId): PageTemplateKey {
+export class PageTemplateKey
+    extends ContentId {
+
+    public static fromContentId(id: ContentId): PageTemplateKey {
 
         return new PageTemplateKey(id.toString());
     }
@@ -15,9 +19,9 @@ export class PageTemplateKey
         super(s);
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PageTemplateKey)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, PageTemplateKey)) {
             return false;
         }
 

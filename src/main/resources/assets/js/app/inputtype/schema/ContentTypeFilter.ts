@@ -1,19 +1,23 @@
-import PropertyArray = api.data.PropertyArray;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import Input = api.form.Input;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import BaseLoader = api.util.loader.BaseLoader;
-import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
+import * as Q from 'q';
+import {Input} from 'lib-admin-ui/form/Input';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 import {ContentTypeComboBox} from './ContentTypeComboBox';
 import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
 import {ContentTypeSummaryByDisplayNameComparator} from './ContentTypeSummaryByDisplayNameComparator';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
@@ -87,7 +91,7 @@ export class ContentTypeFilter
         this.combobox.unLoaded(this.onContentTypesLoadedHandler);
     }
 
-    private onContentTypeSelected(selectedOption: api.ui.selector.combobox.SelectedOption<ContentTypeSummary>): void {
+    private onContentTypeSelected(selectedOption: SelectedOption<ContentTypeSummary>): void {
         if (this.isLayoutInProgress()) {
             return;
         }
@@ -110,9 +114,9 @@ export class ContentTypeFilter
         this.ignorePropertyChange = false;
     }
 
-    layout(input: Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
-            propertyArray.convertValues(ValueTypes.STRING);
+            propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
         super.layout(input, propertyArray);
 
@@ -120,11 +124,11 @@ export class ContentTypeFilter
 
         return this.combobox.getLoader().load().then(() => {
             this.validate(false);
-            return wemQ<void>(null);
+            return Q<void>(null);
         });
     }
 
-    update(propertyArray: api.data.PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
         let superPromise = super.update(propertyArray, unchangedOnly);
 
         if (!unchangedOnly || !this.combobox.isDirty()) {
@@ -167,4 +171,4 @@ export class ContentTypeFilter
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('ContentTypeFilter', ContentTypeFilter));
+InputTypeManager.register(new Class('ContentTypeFilter', ContentTypeFilter));

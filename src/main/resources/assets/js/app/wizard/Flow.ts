@@ -21,11 +21,11 @@ export class Flow {
         return this.thisOfProducer;
     }
 
-    public doExecute(context: RoutineContext): wemQ.Promise<RoutineContext> {
+    public doExecute(context: RoutineContext): Q.Promise<RoutineContext> {
         return this.doExecuteNext(context);
     }
 
-    doExecuteNext(_context: RoutineContext): wemQ.Promise<RoutineContext> {
+    doExecuteNext(_context: RoutineContext): Q.Promise<RoutineContext> {
         throw new Error('Must be implemented by inheritor');
     }
 }

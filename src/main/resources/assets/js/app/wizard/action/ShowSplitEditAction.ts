@@ -1,9 +1,10 @@
-import '../../../api.ts';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class ShowSplitEditAction extends api.ui.Action {
+export class ShowSplitEditAction
+    extends Action {
 
     constructor(wizard: ContentWizardPanel) {
         super(i18n('action.split'));

@@ -1,9 +1,10 @@
 import {TextComponentView} from './TextComponentView';
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {TextComponent} from '../../app/page/region/TextComponent';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class TextComponentViewer
-    extends api.ui.NamesAndIconViewer<TextComponent> {
+    extends NamesAndIconViewer<TextComponent> {
 
     constructor() {
         super();

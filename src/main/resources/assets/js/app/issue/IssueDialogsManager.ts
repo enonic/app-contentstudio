@@ -1,3 +1,4 @@
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
 import {IssueListDialog} from './view/IssueListDialog';
 import {Issue} from './Issue';
@@ -8,7 +9,6 @@ import {ContentPublishDialog} from '../publish/ContentPublishDialog';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
-import ModalDialog = api.ui.dialog.ModalDialog;
 
 export class IssueDialogsManager {
 

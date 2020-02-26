@@ -1,6 +1,5 @@
 /**
  * Created on 05.07.2018.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -11,7 +10,6 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const SettingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
-
 
 describe('Browse panel, properties widget, language spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -44,7 +42,6 @@ describe('Browse panel, properties widget, language spec`', function () {
             await studioUtils.doSwitchToContentBrowsePanel();
             //3. Open details panel:
             await studioUtils.openBrowseDetailsPanel();
-
             //4. Language should not be present in the widget now :
             studioUtils.saveScreenshot("details_panel_language_removed");
             await propertiesWidget.waitForLanguageNotVisible();

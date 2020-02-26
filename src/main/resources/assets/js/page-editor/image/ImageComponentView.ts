@@ -1,11 +1,12 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {ImageItemType} from './ImageItemType';
 import {ImageComponentViewer} from './ImageComponentViewer';
 import {ImagePlaceholder} from './ImagePlaceholder';
 import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentId = api.content.ContentId;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class ImageComponentViewBuilder
     extends ContentBasedComponentViewBuilder<ImageComponent> {
@@ -20,7 +21,7 @@ export class ImageComponentViewBuilder
 export class ImageComponentView
     extends ContentBasedComponentView<ImageComponent> {
 
-    private image: api.dom.Element;
+    private image: Element;
 
     constructor(builder: ImageComponentViewBuilder) {
         super(<ImageComponentViewBuilder>builder.setViewer(new ImageComponentViewer()).setInspectActionRequired(true));

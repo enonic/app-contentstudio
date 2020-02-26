@@ -1,3 +1,6 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DuplicateContentAction} from './DuplicateContentAction';
 import {DeleteContentAction} from './DeleteContentAction';
@@ -24,13 +27,15 @@ import {MarkAsReadyAction} from './MarkAsReadyAction';
 import {RequestPublishAction} from './RequestPublishAction';
 import {OpenRequestAction} from './OpenRequestAction';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import Action = api.ui.Action;
-import CloseAction = api.app.wizard.CloseAction;
-import i18n = api.util.i18n;
-import ManagedActionManager = api.managedaction.ManagedActionManager;
-import ManagedActionExecutor = api.managedaction.ManagedActionExecutor;
-import ManagedActionState = api.managedaction.ManagedActionState;
-import ActionsStateManager = api.ui.ActionsStateManager;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
+import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
+import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
+import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
+import {ActionsStateManager} from 'lib-admin-ui/ui/ActionsStateManager';
+import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 type ActionNames =
     'SAVE' |
@@ -49,7 +54,6 @@ type ActionNames =
     'SHOW_FORM' |
     'SHOW_SPLIT_EDIT' |
     'SAVE_AND_CLOSE' |
-    'PUBLISH_MOBILE' |
     'UNDO_PENDING_DELETE';
 
 type ActionsMap = {
@@ -69,7 +73,6 @@ type ActionsMap = {
     SHOW_FORM?: Action,
     SHOW_SPLIT_EDIT?: Action,
     SAVE_AND_CLOSE?: Action,
-    PUBLISH_MOBILE?: Action,
     UNDO_PENDING_DELETE?: Action,
 };
 
@@ -90,12 +93,11 @@ type ActionsState = {
     SHOW_FORM?: boolean,
     SHOW_SPLIT_EDIT?: boolean,
     SAVE_AND_CLOSE?: boolean,
-    PUBLISH_MOBILE?: boolean,
     UNDO_PENDING_DELETE?: boolean,
 };
 
 export class ContentWizardActions
-    extends api.app.wizard.WizardActions<Content> {
+    extends WizardActions<Content> {
 
     private deleteOnlyMode: boolean = false;
 
@@ -146,7 +148,6 @@ export class ContentWizardActions
             new ShowFormAction(wizardPanel),
             new ShowSplitEditAction(wizardPanel),
             new SaveAndCloseAction(wizardPanel),
-            new PublishAction(wizardPanel),
             new UndoPendingDeleteAction(wizardPanel)
         );
 
@@ -171,8 +172,7 @@ export class ContentWizardActions
             SHOW_FORM: actions[13],
             SHOW_SPLIT_EDIT: actions[14],
             SAVE_AND_CLOSE: actions[15],
-            PUBLISH_MOBILE: actions[16],
-            UNDO_PENDING_DELETE: actions[17],
+            UNDO_PENDING_DELETE: actions[16],
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -181,7 +181,6 @@ export class ContentWizardActions
             PUBLISH: this.actionsMap.PUBLISH,
             PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
             UNPUBLISH: this.actionsMap.UNPUBLISH,
-            PUBLISH_MOBILE: this.actionsMap.PUBLISH_MOBILE,
         };
 
         this.stateManager = new ActionsStateManager(this.actionsMap);
@@ -206,7 +205,7 @@ export class ContentWizardActions
             this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
         }
 
-        this.checkSaveActionStateHandler = api.util.AppHelper.debounce(() => {
+        this.checkSaveActionStateHandler = AppHelper.debounce(() => {
             let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
 
             if (this.persistedContent) {
@@ -246,7 +245,7 @@ export class ContentWizardActions
         return this.stateManager.isActionEnabled(name);
     }
 
-    refreshPendingDeleteDecorations(): wemQ.Promise<any> {
+    refreshPendingDeleteDecorations(): Q.Promise<any> {
         const isPendingDelete = this.isPendingDelete();
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
@@ -270,7 +269,7 @@ export class ContentWizardActions
             }
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 
     isPendingDelete(): boolean {
@@ -285,7 +284,7 @@ export class ContentWizardActions
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
-    enableActionsForExisting(existing: Content): wemQ.Promise<any> {
+    enableActionsForExisting(existing: Content): Q.Promise<any> {
         this.persistedContent = existing;
 
         this.enableActions({
@@ -311,10 +310,7 @@ export class ContentWizardActions
             PUBLISH: nonDeleteMode,
             CREATE_ISSUE: nonDeleteMode,
             UNPUBLISH: nonDeleteMode,
-            PUBLISH_MOBILE: nonDeleteMode,
         });
-
-        this.actionsMap.PUBLISH_MOBILE.setVisible(!valueOn);
 
         if (valueOn) {
             this.enableDeleteIfAllowed(content);
@@ -325,15 +321,15 @@ export class ContentWizardActions
     }
 
     private enableDeleteIfAllowed(content: Content) {
-        new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE,
                 loginResult, content.getPermissions());
             this.enableActions({DELETE: hasDeletePermission});
         });
     }
 
-    private enableActionsForExistingByPermissions(existing: Content): wemQ.Promise<any> {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult: api.security.auth.LoginResult) => {
+    private enableActionsForExistingByPermissions(existing: Content): Q.Promise<any> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
 
             const hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
             const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
@@ -353,10 +349,7 @@ export class ContentWizardActions
                     CREATE_ISSUE: true,
                     UNPUBLISH: false,
                     PUBLISH_TREE: false,
-                    PUBLISH_MOBILE: false,
                 });
-
-                this.actionsMap.PUBLISH_MOBILE.setVisible(false);
             }
 
             if (existing.hasParent()) {
@@ -443,13 +436,11 @@ export class ContentWizardActions
             PUBLISH: canBePublished,
             CREATE_ISSUE: true,
             UNPUBLISH: canBeUnpublished,
-            PUBLISH_MOBILE: canBePublished,
             MARK_AS_READY: canBeMarkedAsReady,
             REQUEST_PUBLISH: canBeRequestedPublish,
             OPEN_REQUEST: this.hasPublishRequest
         });
 
-        this.actionsMap.PUBLISH_MOBILE.setVisible(canBePublished);
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
     }
 
@@ -555,10 +546,6 @@ export class ContentWizardActions
 
     getShowSplitEditAction(): Action {
         return this.actionsMap.SHOW_SPLIT_EDIT;
-    }
-
-    getPublishMobileAction(): Action {
-        return this.actionsMap.PUBLISH_MOBILE;
     }
 
     getUndoPendingDeleteAction(): Action {

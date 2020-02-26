@@ -1,4 +1,7 @@
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
@@ -32,12 +35,12 @@ export class DeleteAttachmentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'deleteAttachment');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'deleteAttachment');
     }
 
-    sendAndParse(): wemQ.Promise<Content> {
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
+    sendAndParse(): Q.Promise<Content> {
+        return this.send().then((response: JsonResponse<ContentJson>) => {
             return this.fromJsonToContent(response.getResult());
         });
     }

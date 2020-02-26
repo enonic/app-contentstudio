@@ -3,7 +3,7 @@ const Page = require('./page');
 class LoginPage extends Page {
 
     get usernameInput() {
-        return `input[id^='username-input']`
+        return `//div[contains(@class,'home-main-container')]//input[contains(@id,'username-input')]`
     }
 
     get passwordInput() {
@@ -21,17 +21,6 @@ class LoginPage extends Page {
 
     async clickOnLoginButton() {
         return this.clickOnElement(this.loginButton);
-    }
-
-    typePassword() {
-        //this.passwordInput.click();
-    }
-
-    waitForPageLoaded1() {
-        let elem = this.browser.findElement("By.xpath", "//input[contains(@id,'username-input')]").then(result => {
-            //const elem = $(`input[id^='username-input']`);
-            return result.waitForDisplayed(3000);
-        });
     }
 
     waitForPageLoaded(ms) {

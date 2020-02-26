@@ -1,14 +1,17 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
 import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {Issue} from '../issue/Issue';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
-import MenuButton = api.ui.button.MenuButton;
-import Action = api.ui.Action;
-import MenuButtonProgressBarManager = api.ui.button.MenuButtonProgressBarManager;
-import ActionButton = api.ui.button.ActionButton;
-import ContentId = api.content.ContentId;
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {MenuButtonProgressBarManager} from 'lib-admin-ui/ui/button/MenuButtonProgressBarManager';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;
@@ -44,11 +47,12 @@ export class ContentPublishMenuButton
     extends MenuButton {
 
     private issueActionsList: Action[];
-    private issuesRequest: wemQ.Promise<void>;
+    private issuesRequest: Q.Promise<void>;
 
     private activeClass: string;
 
     private initializedListeners: Function[] = [];
+    private actionUpdatedHandler: Function;
 
     protected publishAction: ContentPublishMenuAction;
     protected unpublishAction: ContentPublishMenuAction;
@@ -70,7 +74,7 @@ export class ContentPublishMenuButton
         super(config.publishAction);
         this.addClass('content-publish-menu transparent');
 
-        this.debouncedFetch = api.util.AppHelper.debounce(this.fetchIssues, 500);
+        this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 500);
 
         this.initMenuActions(config);
         this.addMenuActions(this.getActions());
@@ -136,6 +140,10 @@ export class ContentPublishMenuButton
 
     setRefreshDisabled(value: boolean) {
         this.isRefreshDisabled = value;
+
+        if (!value) {
+            this.actionUpdatedHandler();
+        }
     }
 
     private notifyInitialized() {
@@ -168,13 +176,13 @@ export class ContentPublishMenuButton
     }
 
     private handleActionsUpdated() {
-        const actionUpdatedHandler = api.util.AppHelper.debounce(() => {
+        this.actionUpdatedHandler = AppHelper.debounce(() => {
             this.updateActiveClass();
         }, 50);
 
         this.getActions().forEach((action: Action) => action.onPropertyChanged(() => {
             if (!this.isRefreshDisabled) {
-                actionUpdatedHandler();
+                this.actionUpdatedHandler();
             }
         }));
     }
@@ -233,14 +241,14 @@ export class ContentPublishMenuButton
         if (!this.issuesRequest && highlightedOrSelected) {
             const contentId = highlightedOrSelected.getContentSummary().getContentId();
             this.issuesRequest = this.findIssues(contentId)
-                .catch(api.DefaultErrorHandler.handle)
+                .catch(DefaultErrorHandler.handle)
                 .finally(() => {
                     this.issuesRequest = undefined;
                 });
         }
     }
 
-    protected findIssues(contentId: ContentId): wemQ.Promise<Issue[]> {
+    protected findIssues(contentId: ContentId): Q.Promise<Issue[]> {
         return new FindIssuesRequest()
             .addContentId(contentId)
             .setIssueStatus(IssueStatus.OPEN)

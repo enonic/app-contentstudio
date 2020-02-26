@@ -1,3 +1,6 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {FragmentComponentView} from './FragmentComponentView';
 import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
@@ -9,8 +12,7 @@ import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import {Content} from '../../app/content/Content';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import i18n = api.util.i18n;
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {
@@ -19,14 +21,14 @@ export class FragmentPlaceholder
 
     private comboBox: ContentComboBox<ContentTreeSelectorItem>;
 
-    private comboboxWrapper: api.dom.DivEl;
+    private comboboxWrapper: DivEl;
 
     constructor(fragmentView: FragmentComponentView) {
         super();
         this.addClassEx('fragment-placeholder');
         this.fragmentComponentView = fragmentView;
 
-        this.comboboxWrapper = new api.dom.DivEl('rich-combobox-wrapper');
+        this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
 
         let sitePath = this.fragmentComponentView.getLiveEditModel().getSiteModel().getSite().getPath().toString();
         let loader = new FragmentOptionDataLoader().setParentSitePath(sitePath);
@@ -51,7 +53,7 @@ export class FragmentPlaceholder
                 new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {
                     let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
-                    if (fragmentComponent && api.ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
+                    if (fragmentComponent && ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
                         this.comboBox.clearSelection();
                         new ShowWarningLiveEditEvent(i18n('notify.nestedLayouts')).fire();
 
@@ -76,7 +78,7 @@ export class FragmentPlaceholder
         if (!parent) {
             return false;
         }
-        return api.ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
+        return ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
     }
 
     select() {

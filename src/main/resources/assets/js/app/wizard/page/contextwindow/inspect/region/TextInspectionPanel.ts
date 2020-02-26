@@ -1,20 +1,22 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {TextComponentView} from '../../../../../../page-editor/text/TextComponentView';
 import {TextComponentViewer} from '../../../../../../page-editor/text/TextComponentViewer';
 import {TextComponent} from '../../../../../page/region/TextComponent';
-import i18n = api.util.i18n;
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
 export class TextInspectionPanel
     extends BaseInspectionPanel {
 
-    private namesAndIcon: api.app.NamesAndIconView;
+    private namesAndIcon: NamesAndIconView;
 
     constructor() {
         super();
 
         this.namesAndIcon =
-            new api.app.NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.medium)).setIconClass(
+            new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium)).setIconClass(
                 ItemViewIconClassResolver.resolveByType('text'));
 
         this.appendChild(this.namesAndIcon);

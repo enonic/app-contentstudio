@@ -14,7 +14,6 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     imageComponentByDisplayName:
         displayName => `//figure[contains(@id,'ImageComponentView')]//img[contains(@src,'${displayName}')]`,
-
 };
 
 class LiveFormPanel extends Page {
@@ -35,6 +34,20 @@ class LiveFormPanel extends Page {
         } catch (err) {
             this.saveScreenshot('err_select_image_' + displayName);
             throw new Error(`Error when selecting the image:  ${displayName} in Live Edit - ` + err);
+        }
+    }
+
+    async selectLayoutByDisplayName(displayName) {
+        try {
+            let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;
+            let contentWizard = new ContentWizard();
+            let loaderComboBox = new LoaderComboBox();
+            await contentWizard.switchToLiveEditFrame();
+            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_select_layout_' + displayName);
+            throw new Error(`Error when selecting the layout:  ${displayName} in Live Edit - ` + err);
         }
     }
 

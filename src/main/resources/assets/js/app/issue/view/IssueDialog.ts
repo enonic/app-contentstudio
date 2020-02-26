@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 import {IssueDialogForm} from './IssueDialogForm';
 import {PublishProcessor} from '../../publish/PublishProcessor';
@@ -7,11 +12,8 @@ import {PublishDialogDependantList} from '../../publish/PublishDialogDependantLi
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import ContentSummary = api.content.ContentSummary;
-import ListBox = api.ui.selector.list.ListBox;
-import ModalDialog = api.ui.dialog.ModalDialog;
-import ArrayHelper = api.util.ArrayHelper;
-import ContentId = api.content.ContentId;
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 
 export abstract class IssueDialog
     extends DependantItemsDialog {
@@ -108,7 +110,7 @@ export abstract class IssueDialog
 
         this.closeIcon.onClicked(() => this.opener ? this.opener.close() : true);
 
-        this.debouncedAddItems = api.util.AppHelper.debounce(() => {
+        this.debouncedAddItems = AppHelper.debounce(() => {
             ContentSummaryAndCompareStatusFetcher.fetchByIds(
                 this.newItems.map(summary => summary.getContentId())).then((result) => {
 

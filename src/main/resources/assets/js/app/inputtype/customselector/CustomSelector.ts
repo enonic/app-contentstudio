@@ -1,18 +1,24 @@
-import PropertyArray = api.data.PropertyArray;
-import Value = api.data.Value;
-import ValueType = api.data.ValueType;
-import ValueTypes = api.data.ValueTypes;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import StringHelper = api.util.StringHelper;
-import UriHelper = api.util.UriHelper;
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
+import * as Q from 'q';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {Input} from 'lib-admin-ui/form/Input';
+import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
 
 export class CustomSelector
-    extends api.form.inputtype.support.BaseInputTypeManagingAdd {
+    extends BaseInputTypeManagingAdd {
 
     public static debug: boolean = false;
 
@@ -61,9 +67,9 @@ export class CustomSelector
         return null;
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
-            propertyArray.convertValues(ValueTypes.STRING);
+            propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
         super.layout(input, propertyArray);
 
@@ -74,10 +80,10 @@ export class CustomSelector
         this.setupSortable();
         this.setLayoutInProgress(false);
 
-        return wemQ<void>(null);
+        return Q<void>(null);
     }
 
-    update(propertyArray: api.data.PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
+    update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         const superPromise = super.update(propertyArray, unchangedOnly);
 
         if (!unchangedOnly || !this.comboBox.isDirty()) {
@@ -94,11 +100,11 @@ export class CustomSelector
         this.comboBox.resetBaseValues();
     }
 
-    createComboBox(input: api.form.Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
+    createComboBox(input: Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
 
         let comboBox = new CustomSelectorComboBox(input, this.requestPath, this.getValueFromPropertyArray(propertyArray));
         /*
-         comboBox.onOptionFilterInputValueChanged((event: api.ui.selector.OptionFilterInputValueChangedEvent<string>) => {
+         comboBox.onOptionFilterInputValueChanged((event: OptionFilterInputValueChangedEvent<string>) => {
          comboBox.setFilterArgs({searchString: event.getNewValue()});
          });
          */
@@ -192,4 +198,4 @@ export class CustomSelector
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('CustomSelector', CustomSelector));
+InputTypeManager.register(new Class('CustomSelector', CustomSelector));

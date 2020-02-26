@@ -2,8 +2,6 @@
  * Created on 27.04.2018.
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -30,131 +28,97 @@ describe('htmlarea1_0.cke.spec:  html area with CKE`', function () {
         });
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN html area is empty and the content has been saved THEN red icon should not be present, because the input is not required`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return contentWizard.typeDisplayName('test_area0_1');
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                return contentWizard.isContentInvalid();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
-                assert.isFalse(result, EXPECTED_TEXT_TEXT1, 'the content should be valid, because the input is not required');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await contentWizard.typeDisplayName('test_area0_1');
+            await contentWizard.waitAndClickOnSave();
+            let result = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+            assert.isFalse(result, EXPECTED_TEXT_TEXT1, 'the content should be valid, because the input is not required');
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN text has been typed THEN the text should be present in the area `,
-        () => {
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return htmlAreaForm.typeTextInHtmlArea(TEXT_TO_TYPE)
-            }).then(() => {
-                return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_htmlarea_0_1');
-                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.typeTextInHtmlArea(TEXT_TO_TYPE)
+            let result = await htmlAreaForm.getTextFromHtmlArea();
+            studioUtils.saveScreenshot('cke_htmlarea_0_1');
+            assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN correct notification message should be displayed `,
-        () => {
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN expected notification message should be displayed `,
+        async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(()=>{
-                return contentWizard.pause(1000);
-            }).then(() => {
-                return contentWizard.typeData(htmlAreaContent);
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' is saved';
-                return contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-            }).then(result => {
-                studioUtils.saveScreenshot('content_htmlarea_0_1');
-                assert.isTrue(result, 'correct notification message should be displayed');
-            });
-        });
-    it(`GIVEN existing 'htmlArea 0:1' WHEN it has been opened THEN expected text should be displayed in the area`,
-        () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
-                return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result => {
-                studioUtils.saveScreenshot('htmlarea_0_1_check_value');
-                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
-            });
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await contentWizard.pause(1000);
+            await contentWizard.typeData(htmlAreaContent);
+            await contentWizard.waitAndClickOnSave();
+            let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' is saved';
+            await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
         });
 
-    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'fullscreen' button has been pressed THEN expected text should be present in full screen`,
-        () => {
+    it(`GIVEN existing 'htmlArea 0:1' WHEN it has been reopened THEN expected text should be displayed in the area`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            let result = await htmlAreaForm.getTextFromHtmlArea();
+            studioUtils.saveScreenshot('htmlarea_0_1_check_value');
+            assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
+        });
+
+    it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'fullscreen' button has been pressed THEN expected text should be present in the full screen`,
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let fullScreenDialog = new FullScreenDialog();
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
-                return htmlAreaForm.clickOnFullScreenButton();
-            }).then(() => {
-                return fullScreenDialog.waitForDialogLoaded();
-            }).then(() => {
-                return fullScreenDialog.getTextFromHtmlArea();
-            }).then(result => {
-                studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
-                assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
-            });
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await htmlAreaForm.clickOnFullScreenButton();
+            await fullScreenDialog.waitForDialogLoaded();
+            let result = await fullScreenDialog.getTextFromHtmlArea();
+            studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
+            assert.equal(result[0], EXPECTED_TEXT_TEXT1, "expected text should be present in 'full screen' dialog");
         });
 
     it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
-                return htmlAreaForm.clickOnSourceButton();
-            }).then(() => {
-                return sourceCodeDialog.waitForDialogLoaded();
-            }).then(() => {
-                return sourceCodeDialog.getText();
-            }).then(result => {
-                studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
-                assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
-            });
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await htmlAreaForm.clickOnSourceButton();
+            await sourceCodeDialog.waitForDialogLoaded();
+            let result = await sourceCodeDialog.getText();
+            studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
+            assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
         });
 
     it(`GIVEN 'Source Code' dialog is opened WHEN text has been cleared THEN htmlArea should be cleared as well`,
-        () => {
+        async () => {
             let sourceCodeDialog = new SourceCodeDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
-                return htmlAreaForm.clickOnSourceButton();
-            }).then(() => {
-                return sourceCodeDialog.waitForDialogLoaded();
-            }).then(() => {
-                return sourceCodeDialog.typeText("");
-            }).then(() => {
-                return sourceCodeDialog.clickOnOkButton();
-            }).then(() => {
-                return htmlAreaForm.getTextFromHtmlArea();
-            }).then(result => {
-                studioUtils.saveScreenshot('htmlarea_0_1_cleared');
-                assert.equal(result[0], "", 'htmlArea should be cleared as well');
-            });
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await htmlAreaForm.clickOnSourceButton();
+            await sourceCodeDialog.waitForDialogLoaded();
+            await sourceCodeDialog.typeText("");
+            await sourceCodeDialog.clickOnOkButton();
+            let result = await htmlAreaForm.getTextFromHtmlArea();
+            studioUtils.saveScreenshot('htmlarea_0_1_cleared');
+            assert.equal(result[0], "", 'htmlArea should be cleared as well');
         });
 
     it(`GIVEN existing 'htmlArea 0:1' in full screen mode is opened WHEN 'Esc' key has been pressed THEN 'fullscreen'-dialog should be closed`,
-        () => {
+        async () => {
             let fullScreenDialog = new FullScreenDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            return studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName).then(() => {
-                return htmlAreaForm.clickOnFullScreenButton();
-            }).then(() => {
-                return fullScreenDialog.waitForDialogLoaded();
-            }).then(() => {
-                return fullScreenDialog.pressEscKey();
-            }).then(() => {
-                return fullScreenDialog.waitForDialogClosed();
-            }).then(result => {
-                studioUtils.saveScreenshot('htmlarea_full_screen_mode_closed');
-                assert.isTrue(result, 'full screen dialog should be closed');
-            });
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await htmlAreaForm.clickOnFullScreenButton();
+            await fullScreenDialog.waitForDialogLoaded();
+            // click on ESC:
+            await fullScreenDialog.pressEscKey();
+            //'full screen dialog should be closed:
+            await fullScreenDialog.waitForDialogClosed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

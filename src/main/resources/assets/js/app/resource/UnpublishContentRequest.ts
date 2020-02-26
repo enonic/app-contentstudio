@@ -1,6 +1,9 @@
-import TaskIdJson = api.task.TaskIdJson;
-import TaskId = api.task.TaskId;
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class UnpublishContentRequest
@@ -43,13 +46,13 @@ export class UnpublishContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'unpublish');
+    getRequestPath(): Path {
+        return Path.fromParent(super.getResourcePath(), 'unpublish');
     }
 
-    sendAndParse(): wemQ.Promise<api.task.TaskId> {
-        return this.send().then((response: api.rest.JsonResponse<api.task.TaskIdJson>) => {
-            return api.task.TaskId.fromJson(response.getResult());
+    sendAndParse(): Q.Promise<TaskId> {
+        return this.send().then((response: JsonResponse<TaskIdJson>) => {
+            return TaskId.fromJson(response.getResult());
         });
     }
 }

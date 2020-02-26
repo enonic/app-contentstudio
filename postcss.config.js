@@ -2,9 +2,9 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const plugins = Object.assign(
     {
-        "postcss-normalize": {},
+        'postcss-normalize': {},
         autoprefixer: {},
-        "css-mqpacker": {}
+        'css-mqpacker': {}
     },
     isProd ? {cssnano: {}} : {}
 );

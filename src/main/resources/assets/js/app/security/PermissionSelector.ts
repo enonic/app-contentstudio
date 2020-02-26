@@ -1,5 +1,8 @@
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {Permission, PermissionState} from '../access/Permission';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 
 export interface PermissionSelectorOption {
     value: Permission;
@@ -7,11 +10,11 @@ export interface PermissionSelectorOption {
 }
 
 export class PermissionSelector
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private toggles: PermissionToggle[] = [];
     private oldValue: { allow: Permission[]; deny: Permission[] };
-    private valueChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
     private enabled: boolean = true;
 
     constructor() {
@@ -22,7 +25,7 @@ export class PermissionSelector
             toggle.setEnabled(this.enabled);
             toggle.onValueChanged(() => {
                 let newValue = this.getValue();
-                this.notifyValueChanged(new api.ValueChangedEvent(JSON.stringify(this.oldValue), JSON.stringify(newValue)));
+                this.notifyValueChanged(new ValueChangedEvent(JSON.stringify(this.oldValue), JSON.stringify(newValue)));
                 this.oldValue = newValue;
             });
             this.toggles.push(toggle);
@@ -91,23 +94,23 @@ export class PermissionSelector
             toggle.setState(state, true);
         });
         if (!silent) {
-            this.notifyValueChanged(new api.ValueChangedEvent(JSON.stringify(this.oldValue), JSON.stringify(newValue)));
+            this.notifyValueChanged(new ValueChangedEvent(JSON.stringify(this.oldValue), JSON.stringify(newValue)));
         }
         this.oldValue = newValue;
         return this;
     }
 
-    onValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    notifyValueChanged(event: api.ValueChangedEvent) {
+    notifyValueChanged(event: ValueChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });
@@ -115,10 +118,10 @@ export class PermissionSelector
 }
 
 export class PermissionToggle
-    extends api.dom.AEl {
+    extends AEl {
 
     private static STATES: PermissionState[] = [PermissionState.ALLOW, PermissionState.DENY, PermissionState.INHERIT];
-    private valueChangedListeners: { (event: api.ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
 
     private originalStateIndex: number = -1;
     private stateIndex: number = -1;
@@ -179,23 +182,23 @@ export class PermissionToggle
 
             this.stateIndex = newStateIndex;
             if (!silent) {
-                this.notifyValueChanged(new api.ValueChangedEvent(PermissionState[oldState], PermissionState[newState]));
+                this.notifyValueChanged(new ValueChangedEvent(PermissionState[oldState], PermissionState[newState]));
             }
         }
         return this;
     }
 
-    onValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: api.ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: ValueChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyValueChanged(event: api.ValueChangedEvent) {
+    private notifyValueChanged(event: ValueChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });

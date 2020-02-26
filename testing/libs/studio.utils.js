@@ -19,6 +19,7 @@ const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
+const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -42,6 +43,9 @@ module.exports = {
     async isElementDisplayed(selector) {
         let el = await webDriverHelper.browser.$(selector);
         return await el.isDisplayed();
+    },
+    getPageSource() {
+        return webDriverHelper.browser.getPageSource();
     },
 
     async switchToFrameBySrc(src) {
@@ -131,26 +135,36 @@ module.exports = {
             throw new Error("Error when opening Create Task Dialog " + err);
         }
     },
+    async createPublishRequest(text) {
+        try {
+            let browsePanel = new BrowsePanel();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.waitForDialogLoaded();
+            await createRequestPublishDialog.pause(300);
+            await createRequestPublishDialog.clickOnNextButton();
+            await createRequestPublishDialog.typeInChangesInput(text);
+            return await createRequestPublishDialog.clickOnCreateRequestButton();
+        } catch (err) {
+            throw new Error("Error when create Publish Request " + err);
+        }
+    },
     async openPublishMenuAndClickOnCreateTask() {
         let browsePanel = new BrowsePanel();
         let createTaskDialog = new CreateTaskDialog();
         await browsePanel.openPublishMenuAndClickOnCreateTask();
         return await createTaskDialog.waitForDialogLoaded();
     },
-    openBrowseDetailsPanel: function () {
+    async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();
         let browseDetailsPanel = new BrowseDetailsPanel();
-        return browseDetailsPanel.isPanelVisible().then(result => {
-            if (!result) {
-                return browsePanel.clickOnDetailsPanelToggleButton();
-            }
-        }).then(() => {
-            return browseDetailsPanel.waitForDetailsPanelLoaded();
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
-        }).then(() => {
-            return browsePanel.pause(1000);
-        });
+        let result = await browseDetailsPanel.isPanelVisible();
+        if (!result) {
+            await browsePanel.clickOnDetailsPanelToggleButton();
+        }
+        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+        return await browsePanel.pause(1000);
     },
     async openContentWizard(contentType) {
         let browsePanel = new BrowsePanel();
@@ -164,16 +178,13 @@ module.exports = {
         await this.doSwitchToNewWizard();
         return await contentWizardPanel.waitForOpened();
     },
-    selectAndOpenContentInWizard: function (contentName) {
+    async selectAndOpenContentInWizard(contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
-        return this.findAndSelectItem(contentName).then(() => {
-            return browsePanel.clickOnEditButton();
-        }).then(() => {
-            return this.doSwitchToNewWizard();
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        })
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnEditButton();
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
     },
 
     async doAddShortcut(shortcut) {
@@ -300,7 +311,7 @@ module.exports = {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         //1. Click on Unpublish menu item:
-        await contentWizardPanel.clickOnUnpublishmenuItem();
+        await contentWizardPanel.clickOnUnpublishMenuItem();
         await contentUnpublishDialog.waitForDialogOpened();
         //2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
@@ -340,6 +351,17 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItem(name);
+        //Open modal dialog:
+        await browsePanel.clickOnDeleteButton();
+        await deleteContentDialog.waitForDialogOpened();
+        //Click on 'Delete Now' button in the modal dialog:
+        await deleteContentDialog.clickOnDeleteNowButton();
+        return await deleteContentDialog.waitForDialogClosed();
+    },
+    async doDeleteContentByDisplayName(displayName) {
+        let browsePanel = new BrowsePanel();
+        let deleteContentDialog = new DeleteContentDialog();
+        await this.findAndSelectContentByDisplayName(displayName);
         //Open modal dialog:
         await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
@@ -399,22 +421,22 @@ module.exports = {
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
-    typeNameInFilterPanel: function (name) {
-        let browsePanel = new BrowsePanel();
-        let filterPanel = new FilterPanel();
-        return filterPanel.isPanelVisible().then((result) => {
+    async typeNameInFilterPanel(name) {
+        try {
+            let browsePanel = new BrowsePanel();
+            let filterPanel = new FilterPanel();
+            let result = await filterPanel.isPanelVisible();
             if (!result) {
-                return browsePanel.clickOnSearchButton().then(() => {
-                    return filterPanel.waitForOpened();
-                })
+                await browsePanel.clickOnSearchButton();
+                await filterPanel.waitForOpened();
             }
-        }).then(() => {
-            return filterPanel.typeSearchText(name);
-        }).then(() => {
-            return browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-        }).then(() => {
-            return browsePanel.pause(300);
-        })
+            await filterPanel.typeSearchText(name);
+            await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+            return await browsePanel.pause(300);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName('err_spinner'))
+            throw new Error("Filter Panel-  error : " + err);
+        }
     },
 
     navigateToContentStudioApp: function (userName, password) {
@@ -435,14 +457,12 @@ module.exports = {
             throw new Error('error when navigate to Content Studio app ' + err);
         });
     },
-    doLoginAndClickOnContentStudio: function (userName, password) {
+    async doLoginAndClickOnContentStudio(userName, password) {
         let loginPage = new LoginPage();
-        return loginPage.doLogin(userName, password).then(() => {
-            let launcherPanel = new LauncherPanel();
-            return launcherPanel.clickOnContentStudioLink();
-        }).then(() => {
-            return loginPage.pause(700);
-        })
+        await loginPage.doLogin(userName, password);
+        let launcherPanel = new LauncherPanel();
+        await launcherPanel.clickOnContentStudioLink();
+        return await loginPage.pause(700);
     },
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Browse panel...');
@@ -556,5 +576,17 @@ module.exports = {
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
+    },
+    sendRequestGetHeaders() {
+        return webDriverHelper.browser.executeAsync(
+            "var callback = arguments[arguments.length - 1];" +
+            "var xhr = new XMLHttpRequest();" +
+            "xhr.open('GET', '', true);" +
+            "xhr.onreadystatechange = function() {" +
+            "  if (xhr.readyState == 4) {" +
+            "    callback(xhr.getAllResponseHeaders());" +
+            "  }" +
+            "};" +
+            "xhr.send();");
     }
 };

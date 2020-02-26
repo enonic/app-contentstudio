@@ -96,7 +96,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await issueDetailsDialog.clickOnCancelTopButton();
             //'Tasks-dropdown handle' should appear in the preview toolbar(the second issue is created)
             await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
-            //Issue name should be updated on the preview panel:
+            //Issue name should be updated in the preview panel:
             return contentItemPreviewPanel.waitForIssueNameInMenuButton(secondIssueTitle);
         });
 
@@ -152,7 +152,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await contentItemPreviewPanel.clickOnIssueMenuButton();
             await taskDetailsDialog.waitForDialogOpened();
             //2. Close the task:
-            await taskDetailsDialog.clickOnCloseIssueButton();
+            await taskDetailsDialog.clickOnCloseTaskButton();
             //3. Close the modal dialog:
             await taskDetailsDialog.clickOnCancelTopButton();
             studioUtils.saveScreenshot("issue_menu_button_updated");

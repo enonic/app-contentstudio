@@ -1,12 +1,11 @@
-import SplitPanelBuilder = api.ui.panel.SplitPanelBuilder;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ViewItem = api.app.view.ViewItem;
-import SplitPanel = api.ui.panel.SplitPanel;
-import SplitPanelAlignment = api.ui.panel.SplitPanelAlignment;
-import SplitPanelUnit = api.ui.panel.SplitPanelUnit;
-import Panel = api.ui.panel.Panel;
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
 import {NonMobileContextPanelsManager, NonMobileContextPanelsManagerBuilder} from './NonMobileContextPanelsManager';
 import {ContextView} from './ContextView';
@@ -30,13 +29,13 @@ export class ContextSplitPanel
     private dockedContextPanel: DockedContextPanel;
     private floatingContextPanel: FloatingContextPanel;
     private mobileContentItemStatisticsPanel: MobileContentItemStatisticsPanel;
-    private actions: api.ui.Action[];
+    private actions: Action[];
     private nonMobileContextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
-    private leftPanel: api.ui.panel.Panel;
+    private leftPanel: Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: PageEditorData) {
+    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData) {
         const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
@@ -165,7 +164,7 @@ export class ContextSplitPanel
 
     private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
 
-        const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
+        const debouncedResponsiveHandler = AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
             // Do not replace with non-strict equality!
             if (this.mobileMode === undefined) {

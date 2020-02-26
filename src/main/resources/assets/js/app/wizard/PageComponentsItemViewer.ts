@@ -1,3 +1,5 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ItemView} from '../../page-editor/ItemView';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
@@ -12,10 +14,10 @@ import {PartItemType} from '../../page-editor/part/PartItemType';
 import {PartComponentView} from '../../page-editor/part/PartComponentView';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {PageView} from '../../page-editor/PageView';
-import i18n = api.util.i18n;
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class PageComponentsItemViewer
-    extends api.ui.NamesAndIconViewer<ItemView> {
+    extends NamesAndIconViewer<ItemView> {
 
     private content: Content;
 
@@ -26,23 +28,15 @@ export class PageComponentsItemViewer
     }
 
     resolveDisplayName(object: ItemView): string {
-        if (api.ObjectHelper.iFrameSafeInstanceOf(object.getType(), TextItemType)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), TextItemType)) {
             let textView = <TextComponentView> object;
             let textComponent = <TextComponent>textView.getComponent();
             let viewer = <TextComponentViewer>object.getViewer();
             return viewer.resolveDisplayName(textComponent, textView);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
             let fragmentView = <FragmentComponentView> object;
-            let fragmentComponent = fragmentView.getFragmentRootComponent();
-            if (fragmentComponent && api.ObjectHelper.iFrameSafeInstanceOf(fragmentComponent, TextComponent)) {
-                return this.extractTextFromTextComponent(<TextComponent>fragmentComponent) || fragmentComponent.getName().toString();
-            }
             if (fragmentView.isLoaded()) {
                 return fragmentView.getFragmentDisplayName();
-            } else {
-                fragmentView.onFragmentContentLoaded(() => {
-                    return fragmentView.getFragmentDisplayName();
-                });
             }
         }
 
@@ -50,7 +44,7 @@ export class PageComponentsItemViewer
     }
 
     resolveSubName(object: ItemView, relativePath: boolean = false): string {
-        if (api.ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
             let fragmentView = <FragmentComponentView> object;
             let fragmentComponent = fragmentView.getFragmentRootComponent();
             if (fragmentComponent) {
@@ -99,11 +93,5 @@ export class PageComponentsItemViewer
 
     resolveIconClass(object: ItemView): string {
         return object.getIconClass();
-    }
-
-    private extractTextFromTextComponent(textComponent: TextComponent): string {
-        let tmp = document.createElement('DIV');
-        tmp.innerHTML = textComponent.getText() || '';
-        return (tmp.textContent || tmp.innerText || '').trim();
     }
 }

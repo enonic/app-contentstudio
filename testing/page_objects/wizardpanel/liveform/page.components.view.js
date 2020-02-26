@@ -19,6 +19,9 @@ const xpath = {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]` +
                lib.P_SUB_NAME;
     },
+    componentByDescription: function (description) {
+        return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
+    },
 };
 
 //Modal Dialog:
@@ -38,6 +41,18 @@ class PageComponentView extends Page {
     async openMenu(componentName) {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
+            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await this.clickOnElement(menuButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_component_view');
+            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
+        }
+    }
+
+    async openMenuByDescription(description) {
+        try {
+            let menuButton = xpath.componentByDescription(description) + "/../..//div[contains(@class,'menu-icon')]";
             await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
@@ -121,11 +136,31 @@ class PageComponentView extends Page {
         await this.pause(1000);
     }
 
-    async getComponentDescription(name) {
+    async getComponentDescription(name, index) {
         let selector = xpath.container + xpath.componentDescriptionByName(name);
-        //let elems = await this.findElements(selector);
-        //await this.waitForElementDisplayed(selector,appConst.TIMEOUT_4);
-        return await this.getText(selector);
+        if (typeof index === 'undefined' || index === null) {
+            return await this.getText(selector);
+        } else {
+            let result = await this.getTextInElements(selector);
+            if (index > result.length) {
+                throw new Error(`Component with the index ${index} was not found`)
+            }
+            return result[index];
+        }
+    }
+
+    async isItemWithDefaultIcon(partDisplayName, index) {
+        let selector = xpath.componentByName(partDisplayName) +
+                       "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'xp-admin-common-wrapper')]" +
+                       "//div[contains(@class,'font-icon-default')]";
+        let items = await this.findElements(selector);
+        if (!items.length) {
+            throw new Error("Component-item with an icon was not found! " + partDisplayName);
+        }
+        if (typeof index === 'undefined' || index === null) {
+            return await items[0].isDisplayed();
+        }
+        return await items[index].isDisplayed();
     }
 };
 module.exports = PageComponentView;

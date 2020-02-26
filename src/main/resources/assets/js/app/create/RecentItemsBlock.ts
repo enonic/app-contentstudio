@@ -1,18 +1,20 @@
-import '../../api.ts';
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {RecentItemsList} from './RecentItemsList';
-import i18n = api.util.i18n;
+import {H2El} from 'lib-admin-ui/dom/H2El';
 
 export class RecentItemsBlock
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private recentItemsList: RecentItemsList;
 
-    private title: api.dom.H2El;
+    private title: H2El;
 
     constructor(title: string = i18n('field.recentlyUsed')) {
         super('column');
 
-        this.title = new api.dom.H2El();
+        this.title = new H2El();
         this.title.setHtml(title);
 
         this.recentItemsList = new RecentItemsList();

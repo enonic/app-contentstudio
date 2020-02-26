@@ -2,11 +2,11 @@ import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/D
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import BrowseItem = api.app.browse.BrowseItem;
-import ArrayHelper = api.util.ArrayHelper;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {

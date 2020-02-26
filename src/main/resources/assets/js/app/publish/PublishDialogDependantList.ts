@@ -1,14 +1,16 @@
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
 import {ContentIds} from '../ContentIds';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import Element = api.dom.Element;
-import ContentSummary = api.content.ContentSummary;
+import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 
 export class PublishDialogDependantList
     extends DialogDependantList {
@@ -78,17 +80,22 @@ export class PublishDialogDependantList
 
     private initListItemListeners(item: ContentSummaryAndCompareStatus, view: Element) {
         view.onClicked((event) => {
-            if (!new api.dom.ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
+            if (!new ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
                 this.notifyItemClicked(item);
             }
         });
 
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (data.some(updatedContent => updatedContent.getContentId().equals(item.getContentId()))) {
+        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
+            const itemContentId: ContentId = item.getContentId();
+            if (contentIds.contains(itemContentId)) {
                 this.notifyListChanged();
             }
+        };
+
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
         };
         const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
@@ -96,12 +103,12 @@ export class PublishDialogDependantList
             }
         };
         serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentPermissionsUpdated(updatedHandler);
+        serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
         serverEvents.onContentDeleted(deletedHandler);
 
         view.onRemoved(() => {
             serverEvents.unContentUpdated(updatedHandler);
-            serverEvents.unContentPermissionsUpdated(updatedHandler);
+            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
     }
@@ -111,7 +118,7 @@ export class PublishDialogDependantList
         const summary: ContentSummary = item.getContentSummary();
 
         return status === CompareStatus.PENDING_DELETE ||
-               (summary.isValid() && !api.util.StringHelper.isBlank(summary.getDisplayName()) && !summary.getName().isUnnamed());
+               (summary.isValid() && !StringHelper.isBlank(summary.getDisplayName()) && !summary.getName().isUnnamed());
     }
 
     private isContentSummaryReadOnly(item: ContentSummaryAndCompareStatus): boolean {
@@ -126,7 +133,7 @@ export class PublishDialogDependantList
         return !item.isOnline() && !item.isPendingDelete() && item.getContentSummary().isInProgress();
     }
 
-   onListChanged(listener: () => void) {
+    onListChanged(listener: () => void) {
         this.listChangedListeners.push(listener);
     }
 

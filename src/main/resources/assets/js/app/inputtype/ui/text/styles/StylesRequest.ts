@@ -1,5 +1,10 @@
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+
 declare var CONFIG;
 
 export interface GetStylesResponse {
@@ -8,9 +13,9 @@ export interface GetStylesResponse {
 }
 
 export class StylesRequest
-    extends api.rest.ResourceRequest<GetStylesResponse, Styles> {
+    extends ResourceRequest<GetStylesResponse, Styles> {
 
-    private static requests: { [key: string]:  wemQ.Promise<Styles>; } = {};
+    private static requests: { [key: string]: Q.Promise<Styles>; } = {};
 
     private contentId: string;
 
@@ -20,9 +25,9 @@ export class StylesRequest
         this.contentId = contentId;
     }
 
-    static fetchStyles(contentId: string): wemQ.Promise<Styles> {
+    static fetchStyles(contentId: string): Q.Promise<Styles> {
 
-        const deferred = wemQ.defer<Styles>();
+        const deferred = Q.defer<Styles>();
 
         if (Styles.getInstance(contentId)) {
             deferred.resolve(Styles.getInstance(contentId));
@@ -35,8 +40,8 @@ export class StylesRequest
         return deferred.promise;
     }
 
-    getRequestPath(): api.rest.Path {
-        return CONFIG.stylesUrl;
+    getRequestPath(): Path {
+        return CONFIG.services.stylesUrl;
     }
 
     getParams(): Object {
@@ -45,7 +50,7 @@ export class StylesRequest
         };
     }
 
-    sendAndParse(): wemQ.Promise<Styles> {
+    sendAndParse(): Q.Promise<Styles> {
         if (StylesRequest.requests[this.contentId]) {
             // Avoid sending multiple requests for the same contentId,
             // for example when there are several HTML Area inputs on the same page
@@ -55,13 +60,13 @@ export class StylesRequest
         if (Styles.getInstance(this.contentId)) {
             // If styles are already fetched for this contentId,
             // return them without sending a new request
-            const deferred = wemQ.defer<Styles>();
+            const deferred = Q.defer<Styles>();
             deferred.resolve(Styles.getInstance(this.contentId));
 
             return deferred.promise;
         }
 
-        StylesRequest.requests[this.contentId] = this.send().then((response: api.rest.JsonResponse<GetStylesResponse>) => {
+        StylesRequest.requests[this.contentId] = this.send().then((response: JsonResponse<GetStylesResponse>) => {
             delete StylesRequest.requests[this.contentId];
             return this.fromJson(this.contentId, response.getResult());
         });

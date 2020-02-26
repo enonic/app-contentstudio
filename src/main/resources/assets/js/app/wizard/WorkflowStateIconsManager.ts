@@ -1,3 +1,4 @@
+import {Element} from 'lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
 
 export interface WorkflowStateStatus {
@@ -88,7 +89,7 @@ export class WorkflowStateIconsManager {
         };
     }
 
-    static toggleWorkflowStateClasses(element: api.dom.Element, status: WorkflowStateStatus) {
+    static toggleWorkflowStateClasses(element: Element, status: WorkflowStateStatus) {
         element.toggleClass(WorkflowStateIconsManager.INVALID_CLASS, status.invalid);
         element.toggleClass(WorkflowStateIconsManager.READY_CLASS, status.ready);
         element.toggleClass(WorkflowStateIconsManager.IN_PROGRESS_CLASS, status.inProgress);

@@ -1,4 +1,4 @@
-import '../../../../../api.ts';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 
 export class Insertable {
 
@@ -38,7 +38,7 @@ export class Insertable {
     }
 
     public setIconCls(value: string): Insertable {
-        this.iconCls = api.StyleHelper.getCommonIconCls(value);
+        this.iconCls = StyleHelper.getCommonIconCls(value);
         return this;
     }
 

@@ -176,4 +176,51 @@
       max-width: 200px;
     }
   }
+
+  &._0-240, &._240-360, &._360-540 {
+
+    .issues-panel {
+      .filters-block {
+        @media screen and (max-width: 460px) {
+          display: block;
+
+          .menu-button {
+            width: 100%;
+          }
+
+          .status-filter {
+            padding-top: 10px;
+            justify-content: flex-end;
+          }
+        }
+
+        label {
+          display: none;
+        }
+
+        .menu-button {
+          .@{_COMMON_PREFIX}dropdown-handle {
+            width: 30px;
+          }
+
+          .action-button {
+            margin-right: 31px;
+            padding-left: 12px;
+            padding-right: 12px;
+          }
+        }
+
+        span {
+          font-size: 13px;
+        }
+
+        .status-filter {
+          .status-button {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+      }
+    }
+  }
 }

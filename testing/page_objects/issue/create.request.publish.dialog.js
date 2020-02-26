@@ -12,6 +12,8 @@ const xpath = {
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
+    assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
+    invalidIcon: "//div[contains(@class,'state-icon invalid')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
@@ -24,8 +26,16 @@ const xpath = {
 //Select a content then expand Publish menu and click on 'Request Publishing...' menu item
 class CreateRequestPublishDialog extends Page {
 
+    get invalidIcon() {
+        return xpath.container + xpath.invalidIcon;
+    }
+
     get nextButton() {
         return xpath.container + xpath.nextButton;
+    }
+
+    get assigneesDropDownHandle() {
+        return xpath.container + "//div[contains(@id,'PrincipalSelector')]" + lib.DROP_DOWN_HANDLE;
     }
 
     get cancelButtonTop() {
@@ -84,6 +94,23 @@ class CreateRequestPublishDialog extends Page {
         })
     }
 
+    async waitForInvalidIconDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
+        }
+    }
+    async waitForInvalidIconNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+        } catch (err) {
+            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
+        }
+    }
+
     waitForPreviousButtonDisplayed() {
         return this.waitUntilDisplayed(this.previousButton, appConst.TIMEOUT_3);
     }
@@ -126,10 +153,26 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForNextButtonDisplayed();
             await this.clickOnElement(this.nextButton);
-            await this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             throw new Error("Request Publish Dialog -Error when clicking on Next button:" + err);
         }
+    }
+
+    async clickOnAssigneesDropDownHandle() {
+        try {
+            let result = await this.getDisplayedElements(this.assigneesDropDownHandle);
+            await result[0].click();
+            return await this.pause(300);
+        } catch (err) {
+            throw new Error("Request Publish Dialog -Error when clicking on Assignees button:" + err);
+        }
+    }
+
+    async getAssigneesOptions() {
+        let selector = xpath.container + xpath.assigneesComboBox + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
+        let result = await this.getTextInDisplayedElements(selector);
+        return result;
     }
 
     async clickOnPreviousButton() {
@@ -188,7 +231,7 @@ class CreateRequestPublishDialog extends Page {
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
         await this.clickOnElement(this.createRequestButton);
-        return this.pause(300);
+        return this.pause(400);
     }
 };
 module.exports = CreateRequestPublishDialog;
