@@ -5,8 +5,6 @@
  *  xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -63,8 +61,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-
-            //xp-apps#686 - 'Context Window should be loaded automatically':
+            //Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await liveContextWindow.waitForOpened();
         });
 
@@ -81,7 +78,6 @@ describe('page.template.controller: select a controller in a template-wizard', f
             //3. 'site' has been selected in 'support' and the template has been saved
             await pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
             await contentWizard.waitAndClickOnSave();
-
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //4. Template should be applied in the site-wizard:
             let isNotVisible = await contentWizard.waitForControllerOptionFilterInputNotVisible();
