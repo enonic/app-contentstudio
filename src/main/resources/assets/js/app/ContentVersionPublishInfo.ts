@@ -1,7 +1,8 @@
 import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
 
 export class ContentVersionPublishInfo
-    implements api.Cloneable {
+implements Cloneable {
 
     private message: string;
 

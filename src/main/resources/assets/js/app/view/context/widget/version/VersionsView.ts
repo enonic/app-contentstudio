@@ -2,10 +2,10 @@ import * as $ from 'jquery';
 import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
@@ -13,6 +13,8 @@ import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
@@ -26,7 +28,7 @@ import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 
 export class VersionsView
-    extends api.ui.selector.list.ListBox<ContentVersionListItem> {
+    extends ListBox<ContentVersionListItem> {
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
@@ -55,7 +57,7 @@ export class VersionsView
         });
     }
 
-    createItemView(item: ContentVersionListItem, readOnly: boolean): api.dom.Element {
+    createItemView(item: ContentVersionListItem, readOnly: boolean): Element {
         const itemContainer: LiEl = new LiEl('content-version-item').toggleClass('active', item.isActive());
 
         this.createStatusBlock(item, itemContainer);
@@ -125,7 +127,7 @@ export class VersionsView
         return true;
     }
 
-    private createStatusBlock(item: ContentVersionListItem, itemEl: api.dom.Element) {
+    private createStatusBlock(item: ContentVersionListItem, itemEl: Element) {
         if (this.hasWorkspaces(item.getContentVersion())) {
             this.addStatusDiv(item, itemEl);
         }
@@ -133,7 +135,7 @@ export class VersionsView
         this.createTooltip(item.getContentVersion(), itemEl);
     }
 
-    private addStatusDiv(item: ContentVersionListItem, itemEl: api.dom.Element) {
+    private addStatusDiv(item: ContentVersionListItem, itemEl: Element) {
         const isInMaster: boolean = item.isInMaster();
         const statusText: string = isInMaster ?
                                    CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
@@ -150,23 +152,23 @@ export class VersionsView
         itemEl.addClass(statusClass.toLowerCase());
     }
 
-    private createTooltip(item: ContentVersion, itemEl: api.dom.Element) {
+    private createTooltip(item: ContentVersion, itemEl: Element) {
         const dateTimeStamp: Date = item.getPublishInfo() ? item.getPublishInfo().getTimestamp() : item.getModified();
         const userName: string = item.getPublishInfo() ? item.getPublishInfo().getPublisherDisplayName() : item.getModifierDisplayName();
-        const dateAsString: string = api.ui.treegrid.DateTimeFormatter.createHtml(dateTimeStamp);
+        const dateAsString: string = DateTimeFormatter.createHtml(dateTimeStamp);
         const tooltipText: string = i18n('tooltip.state.published', dateAsString, userName);
 
         return new Tooltip(itemEl, tooltipText, 1000);
     }
 
-    private createDataBlocks(item: ContentVersionListItem, itemEl: api.dom.Element) {
-        const descriptionDiv: api.dom.Element = this.createDescriptionBlock(item);
-        const versionInfoDiv: api.dom.Element = this.createVersionInfoBlock(item);
+    private createDataBlocks(item: ContentVersionListItem, itemEl: Element) {
+        const descriptionDiv: Element = this.createDescriptionBlock(item);
+        const versionInfoDiv: Element = this.createVersionInfoBlock(item);
 
         itemEl.appendChildren(descriptionDiv, versionInfoDiv);
     }
 
-    private createDescriptionBlock(item: ContentVersionListItem): api.dom.Element {
+    private createDescriptionBlock(item: ContentVersionListItem): Element {
         const descriptionDiv: ContentVersionViewer = new ContentVersionViewer();
         descriptionDiv.addClass('description');
         descriptionDiv.setObject(item.getContentVersion(), item.isInMaster());
@@ -188,15 +190,13 @@ export class VersionsView
 
     private openCompareDialog(item: ContentVersionListItem) {
         CompareContentVersionsDialog.get()
-            .setContentId(this.content.getContentId())
-            .setContentDisplayName(this.content.getDisplayName())
-            .setLeftVersion(this.activeVersionId)
-            .setRightVersion(item.getId())
+            .setContent(this.content.getContentSummary())
+            .setLeftVersion(item.getId())
             .setActiveVersion(this.activeVersionId)
             .open();
     }
 
-    private createVersionInfoBlock(item: ContentVersionListItem): api.dom.Element {
+    private createVersionInfoBlock(item: ContentVersionListItem): Element {
         const contentVersion: ContentVersion = item.getContentVersion();
         const versionInfoDiv = new DivEl('version-info hidden');
 
@@ -210,7 +210,7 @@ export class VersionsView
             const publisher: NamesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
             publisher
                 .setMainName(contentVersion.getPublishInfo().getPublisherDisplayName())
-                .setSubName(api.util.DateHelper.getModifiedString(contentVersion.getPublishInfo().getTimestamp()))
+                .setSubName(DateHelper.getModifiedString(contentVersion.getPublishInfo().getTimestamp()))
                 .setIconClass(contentVersion.isInReadyState() ? 'icon-state-ready' : 'icon-state-in-progress');
 
             versionInfoDiv.appendChild(publisher);
@@ -252,12 +252,12 @@ export class VersionsView
         new RevertVersionRequest(item.getId(), this.getContentId().toString()).sendAndParse().then(
             (contentVersionId: string) => {
                 if (contentVersionId === this.activeVersionId) {
-                    api.notify.NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                 } else {
-                    api.notify.NotifyManager.get().showFeedback(i18n('notify.version.changed', item.getId()));
+                    NotifyManager.get().showFeedback(i18n('notify.version.changed', item.getId()));
                     new ActiveContentVersionSetEvent(this.getContentId(), item.getId()).fire();
                 }
-            }).catch(api.DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle);
     }
 
     private addOnClickHandler(itemContainer: Element) {

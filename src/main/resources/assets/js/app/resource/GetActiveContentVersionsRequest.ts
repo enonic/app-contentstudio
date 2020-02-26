@@ -49,10 +49,10 @@ export class GetActiveContentVersionsRequest
             contentVersion = contentVersionsMap[contentVersionJson.id];
             if (!contentVersion) {
                 contentVersion = ContentVersion.fromJson(contentVersionJson, [activeContentVersion.branch]);
-                contentVersionsMap[contentVersion.id] = contentVersion;
+                contentVersionsMap[contentVersion.getId()] = contentVersion;
             } else {
                 // just add new workspace if already exists
-                contentVersion.workspaces.push(activeContentVersion.branch);
+                contentVersion.getWorkspaces().push(activeContentVersion.branch);
             }
         });
 

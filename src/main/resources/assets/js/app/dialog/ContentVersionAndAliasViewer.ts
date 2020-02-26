@@ -25,26 +25,26 @@ export class ContentVersionAndAliasViewer
 
         const version = versionAndAlias.contentVersion;
         const alias = versionAndAlias.alias;
-        const dateTime = `${DateHelper.formatDate(version.modified)} ${DateHelper.getFormattedTimeFromDate(version.modified, false)}`;
+        const dateTime = `${DateHelper.formatDate(version.getModified())} ${DateHelper.getFormattedTimeFromDate(version.getModified(), false)}`;
 
         this.removeClass('divider');
         if (versionAndAlias.alias) {
             this.namesAndIconView
                 .setMainName(alias)
-                .setSubName(i18n('dialog.compareVersions.aliasSubName', dateTime, version.modifierDisplayName))
-                .setIconClass(version.publishInfo
+                .setSubName(i18n('dialog.compareVersions.aliasSubName', dateTime, version.getModifierDisplayName()))
+                .setIconClass(version.hasPublishInfo()
                               ? 'icon-version-published'
-                              : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
+                              : version.isInReadyState()
                                 ? 'icon-state-ready'
                                 : 'icon-version-modified');
 
         } else {
             this.namesAndIconView
                 .setMainName(dateTime)
-                .setSubName(i18n('dialog.compareVersions.nonAliasSubName', version.modifierDisplayName))
-                .setIconClass(version.publishInfo
+                .setSubName(i18n('dialog.compareVersions.nonAliasSubName', version.getModifierDisplayName()))
+                .setIconClass(version.hasPublishInfo()
                               ? 'icon-version-published'
-                              : version.workflowInfo && WorkflowState.READY === version.workflowInfo.getState()
+                              : version.isInReadyState()
                                 ? 'icon-state-ready'
                                 : 'icon-version-modified');
 
