@@ -16,7 +16,9 @@ export class SelectableProjectList
             return;
         }
 
-        this.selectedListItem.removeClass('selected');
+        if (this.selectedListItem) {
+            this.selectedListItem.removeClass('selected');
+        }
         projectListItem.addClass('selected');
         this.selectedListItem = projectListItem;
 

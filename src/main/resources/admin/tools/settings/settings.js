@@ -2,7 +2,6 @@ var admin = require('/lib/xp/admin');
 var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
-var authLib = require('/lib/xp/auth');
 
 function handleGet(req) {
     var view = resolve('./../main/main.html');
@@ -26,8 +25,11 @@ function handleGet(req) {
         locale: admin.getLocale(),
         launcherPath: replaceSettingsInPath(admin.getLauncherPath()),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: replaceSettingsInPath(portal.serviceUrl({service: 'styles'})),
-        i18nUrl: replaceSettingsInPath(portal.serviceUrl({service: 'i18n'})),
+        services: {
+            stylesUrl: portal.serviceUrl({service: 'styles'}),
+            i18nUrl: portal.serviceUrl({service: 'i18n'}),
+            contentServiceUrl: portal.serviceUrl({service: 'content'})
+        },
         allowScriptsInEditor: allowScriptsInEditor,
         mainUrl: portal.pageUrl().replace('/settings', '')
     };

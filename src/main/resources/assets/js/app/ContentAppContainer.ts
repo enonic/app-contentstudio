@@ -9,8 +9,6 @@ import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 import {SettingsServerEvent} from './settings/event/SettingsServerEvent';
-import {NotificationDialog} from 'lib-admin-ui/ui/dialog/NotificationDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 
 export class ContentAppContainer
@@ -30,7 +28,6 @@ export class ContentAppContainer
     }
 
     private handleProjectNotSet() {
-        new NotificationDialog(i18n('notify.settings.project.notInitialized')).open();
         this.appBar.disable();
 
         const projectSetHandler = () => {

@@ -61,10 +61,8 @@ export class ContentBrowsePanel
     private debouncedPreviewRefresh: () => void;
 
     constructor() {
-
         super();
 
-        this.initElements();
         this.handleElementsEvents();
         this.handleGlobalEvents();
     }
