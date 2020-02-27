@@ -24,6 +24,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {AppContext} from './AppContext';
+import {ProjectContext} from './project/ProjectContext';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
@@ -31,7 +32,7 @@ export class ContentAppPanel
     constructor(path?: Path) {
         super();
 
-        if (AppContext.get().isMainMode()) {
+        if (ProjectContext.get().isInitialized() && AppContext.get().isMainMode()) {
             this.route(path);
         }
     }

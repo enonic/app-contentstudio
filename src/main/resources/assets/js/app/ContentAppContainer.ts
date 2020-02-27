@@ -23,6 +23,7 @@ export class ContentAppContainer
             this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
+            this.appBar.updateSelectorValues();
             this.initListeners();
         }
     }
@@ -32,6 +33,7 @@ export class ContentAppContainer
 
         const projectSetHandler = () => {
             this.appBar.enable();
+            this.appBar.updateSelectorValues();
             new ContentEventsListener().start();
             this.initListeners();
             ProjectChangedEvent.un(projectSetHandler);

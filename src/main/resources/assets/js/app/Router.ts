@@ -2,7 +2,6 @@ import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {UrlAction} from './UrlAction';
 
 export class Router {
 
@@ -47,35 +46,8 @@ export class Router {
     }
 
     static getPath(): Path {
-        const pathAsString = window.location.hash ? window.location.hash.substr(1) : `/${ProjectContext.DEFAULT_PROJECT}`;
-        const path: Path = Path.fromString(pathAsString);
-
-        if (Router.containsProject(path)) {
-            return path;
-        }
-
-        return Router.prependDefaultProjectToPath(path);
-    }
-
-    private static prependDefaultProjectToPath(path: Path): Path {
-        const elements: string[] = path.getElements().slice(0);
-        elements.unshift(ProjectContext.DEFAULT_PROJECT);
-        return new Path(elements);
-    }
-
-    private static containsProject(path: Path): boolean {
-        const firstPathEl: string = path.getElement(0);
-
-        if (firstPathEl === UrlAction.BROWSE ||
-            firstPathEl === UrlAction.EDIT ||
-            firstPathEl === UrlAction.NEW ||
-            firstPathEl === UrlAction.INBOUND ||
-            firstPathEl === UrlAction.OUTBOUND ||
-            firstPathEl === UrlAction.ISSUE) {
-            return false;
-        }
-
-        return true;
+        const pathAsString = window.location.hash ? window.location.hash.substr(1) : '/';
+        return Path.fromString(pathAsString);
     }
 
     back() {

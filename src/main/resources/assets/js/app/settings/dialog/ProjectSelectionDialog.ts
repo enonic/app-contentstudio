@@ -48,6 +48,10 @@ export class ProjectSelectionDialog
     close() {
         super.close();
 
+        if (this.config.availableProjects.length === 0) {
+            return;
+        }
+
         const projectToSet: Project = !!this.selectedProject ? this.selectedProject : this.config.availableProjects[0];
         ProjectContext.get().setProject(projectToSet.getName());
     }
