@@ -23,15 +23,12 @@ export class ContentAppBar
 
     private initElements() {
         this.projectSelector = new ProjectSelector();
-        this.projectSelector.hide();
-        this.updateSelectorValues();
         this.showIssuesDialogButton = new ShowIssuesDialogButton();
     }
 
     updateSelectorValues() {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.projectSelector.setProjects(projects);
-            this.projectSelector.show();
         }).catch(DefaultErrorHandler.handle);
     }
 

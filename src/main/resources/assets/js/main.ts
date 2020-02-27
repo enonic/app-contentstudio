@@ -56,6 +56,7 @@ import {AggregatedServerEventsListener} from './app/event/AggregatedServerEvents
 import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
 import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
+import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 // End of Polyfills
 
 declare const CONFIG;
@@ -522,9 +523,12 @@ function initProjectContext(application: Application): Q.Promise<void> {
             return Q(null);
         }
 
-        if (projects.length > 0) {
+        if (projects.length === 1) {
             ProjectContext.get().setProject(projects[0].getName());
+            return Q(null);
         }
+
+        new ProjectSelectionDialog(projects).open();
 
         return Q(null);
     });

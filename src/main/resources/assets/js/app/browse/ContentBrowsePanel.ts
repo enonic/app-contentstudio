@@ -61,12 +61,7 @@ export class ContentBrowsePanel
     private debouncedPreviewRefresh: () => void;
 
     constructor() {
-
         super();
-
-        this.initElements();
-        this.handleElementsEvents();
-        this.handleGlobalEvents();
     }
 
     protected initElements() {
@@ -92,10 +87,23 @@ export class ContentBrowsePanel
             this.toggleFilterPanelAction.setEnabled(true);
             this.contextSplitPanel.enableToggleButton();
             this.treeGrid.setState(State.ENABLED);
+            Router.get().setHash(UrlAction.BROWSE);
             ProjectChangedEvent.un(projectSetHandler);
         };
 
         ProjectChangedEvent.on(projectSetHandler);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.onShown(() => {
+            if (ProjectContext.get().isInitialized()) {
+                Router.get().setHash(UrlAction.BROWSE);
+            }
+        });
+
+        this.handleGlobalEvents();
     }
 
     protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
@@ -295,12 +303,6 @@ export class ContentBrowsePanel
         });
 
         return browseItems;
-    }
-
-    private handleElementsEvents() {
-        this.onShown(() => {
-            Router.get().setHash(UrlAction.BROWSE);
-        });
     }
 
     private handleGlobalEvents() {

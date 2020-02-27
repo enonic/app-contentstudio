@@ -83,6 +83,7 @@ export class ProjectSelector
             );
 
             this.dropdownHandle.up();
+            this.dropdownHandle.hide();
             this.projectList.hide();
 
             return rendered;
