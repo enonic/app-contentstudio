@@ -25,7 +25,8 @@ export class ContentVersionAndAliasViewer
 
         const version = versionAndAlias.contentVersion;
         const alias = versionAndAlias.alias;
-        const dateTime = `${DateHelper.formatDate(version.getModified())} ${DateHelper.getFormattedTimeFromDate(version.getModified(), false)}`;
+        const modifiedDate = version.getModified();
+        const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
 
         this.removeClass('divider');
         if (versionAndAlias.alias) {
