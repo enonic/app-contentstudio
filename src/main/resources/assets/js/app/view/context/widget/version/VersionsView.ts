@@ -191,7 +191,7 @@ export class VersionsView
     private openCompareDialog(item: ContentVersionListItem) {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
-            .setLeftVersion(item.getId())
+            .setLeftVersion(item.getContentVersion().getId())
             .setActiveVersion(this.activeVersionId)
             .open();
     }
