@@ -254,7 +254,7 @@ class VersionItem
             return `${CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true)} ${PublishStatus.PENDING}`.toLowerCase();
         }
 
-        return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL).toLowerCase();
+        return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true).toLowerCase();
     }
 }
 
