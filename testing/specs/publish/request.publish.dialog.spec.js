@@ -17,7 +17,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
     let FOLDER1_NAME;
 
     it(`GIVEN folder is opened AND 'Marked as ready' is done WHEN request publish dialog has been opened THEN 'Next' button AND one item should be present in the dialog`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             FOLDER1_NAME = contentBuilder.generateRandomName('folder');
@@ -61,9 +61,9 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             //1.Select the existing content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //expand the Publish Menu and click on 'Request Publishing...' menu item:
+    //expand the Publish Menu and click on 'Request Publishing...' menu item:
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            //click on the publish-item:
+    //click on the publish-item:
             await createRequestPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER1_NAME);
             //new wizard-tab should be opened
             await contentWizard.waitForOpened();

@@ -90,7 +90,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            //Schedule form gets not visible:
+    //Schedule form gets not visible:
             await scheduleForm.waitForNotDisplayed();
 
             let workflow = await contentWizard.getToolbarWorkflowState();

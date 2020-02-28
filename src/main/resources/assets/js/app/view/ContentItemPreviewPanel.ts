@@ -8,11 +8,9 @@ import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
-import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
-import {RepositoryId} from '../repository/RepositoryId';
 import {EmulatedEvent} from '../event/EmulatedEvent';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
@@ -20,6 +18,9 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
+import {UrlHelper} from '../util/UrlHelper';
+import {ProjectContext} from '../project/ProjectContext';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -48,8 +49,22 @@ export class ContentItemPreviewPanel
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();
-
         this.setupListeners();
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.noSelectionMessage.getFirstChild().setHtml(i18n('settings.projects.nopermissions'));
+
+        const projectSetHandler = () => {
+            this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -318,7 +333,8 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    this.frame.setSrc(UriHelper.getRestUri(
+                        `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -355,7 +371,7 @@ export class ContentItemPreviewPanel
         this.showMask();
         if (item.isRenderable()) {
             this.setPreviewType(PREVIEW_TYPE.PAGE);
-            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
+            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE);
             // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
             $.ajax({
                 type: 'HEAD',

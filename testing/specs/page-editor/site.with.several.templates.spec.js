@@ -54,21 +54,21 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
-            //1. Open the site:
+    //1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToParentFrame();
-            //2. Select the controller:
+    //2. Select the controller:
             await pageInspectionPanel.selectPageTemplateOrController("template1");
-            //3. Confirmation dialog appears:
+    //3. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
-            //4. Confirm it:
+    //4. Confirm it:
             await confirmationDialog.clickOnYesButton();
-            //5. Verify the notification message(the content is saved automatically)
+    //5. Verify the notification message(the content is saved automatically)
             let notificationMessage = await contentWizard.waitForNotificationMessage();
             let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
-            //6. Verify -  'Save' button gets disabled in the wizard-toolbar
+    //6. Verify -  'Save' button gets disabled in the wizard-toolbar
             await contentWizard.waitForSaveButtonDisabled();
         });
 

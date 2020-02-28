@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {SetChildOrderJson} from 'lib-admin-ui/content/json/SetChildOrderJson';
@@ -7,6 +5,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class OrderContentRequest extends ContentResourceRequest<ContentJson, Content> {
 
@@ -18,7 +17,8 @@ export class OrderContentRequest extends ContentResourceRequest<ContentJson, Con
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('setChildOrder');
     }
 
     setContentId(value: ContentId): OrderContentRequest {
@@ -44,17 +44,8 @@ export class OrderContentRequest extends ContentResourceRequest<ContentJson, Con
         return ChildOrder.toSetChildOrderJson(this.contentId, this.childOrder, this.silent);
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'setChildOrder');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-
-            return this.fromJsonToContent(response.getResult());
-
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

@@ -5,7 +5,7 @@ import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {ContentTreeGrid} from './ContentTreeGrid';
+import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
@@ -24,10 +24,8 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {Branch} from '../versioning/Branch';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
@@ -49,6 +47,9 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
+import {UrlAction} from '../UrlAction';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -60,23 +61,49 @@ export class ContentBrowsePanel
     private debouncedPreviewRefresh: () => void;
 
     constructor() {
-
         super();
+    }
 
-        this.onShown(() => {
-            Router.setHash('browse');
-        });
-
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
-        });
-
-        // Required for "enable/disable" actions correctly
-        this.getBrowseActions().updateActionsEnabledState([]);
-
-        this.handleGlobalEvents();
+    protected initElements() {
+        super.initElements();
 
         this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        } else {
+            this.getBrowseActions().updateActionsEnabledState([]);
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.getBrowseActions().setState(State.DISABLED);
+        this.toggleFilterPanelAction.setEnabled(false);
+        this.contextSplitPanel.disableToggleButton();
+        this.treeGrid.setState(State.DISABLED);
+
+        const projectSetHandler = () => {
+            this.getBrowseActions().setState(State.ENABLED);
+            this.toggleFilterPanelAction.setEnabled(true);
+            this.contextSplitPanel.enableToggleButton();
+            this.treeGrid.setState(State.ENABLED);
+            Router.get().setHash(UrlAction.BROWSE);
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.onShown(() => {
+            if (ProjectContext.get().isInitialized()) {
+                Router.get().setHash(UrlAction.BROWSE);
+            }
+        });
+
+        this.handleGlobalEvents();
     }
 
     protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
@@ -279,6 +306,9 @@ export class ContentBrowsePanel
     }
 
     private handleGlobalEvents() {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+        });
 
         ToggleSearchPanelEvent.on(() => {
             this.toggleFilterPanel();
@@ -312,6 +342,11 @@ export class ContentBrowsePanel
                 });
             }
         });
+
+        ProjectChangedEvent.on(() => {
+            this.treeGrid.deselectAll();
+            this.treeGrid.reload();
+        });
     }
 
     private selectInlinedContentInGrid(contentInlinePath: string) {
@@ -322,12 +357,11 @@ export class ContentBrowsePanel
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
-        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID,
-            Branch.DRAFT);
+        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE);
     }
 
     private subscribeOnContentEvents() {
-        let handler = ContentServerEventsHandler.getInstance();
+        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         handler.onContentCreated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 

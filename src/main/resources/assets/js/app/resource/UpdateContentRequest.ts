@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
@@ -10,6 +8,7 @@ import {ExtraData} from '../content/ExtraData';
 import {AccessControlList} from '../access/AccessControlList';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateContentRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -46,7 +45,8 @@ export class UpdateContentRequest
         super();
         this.id = id;
         this.requireValid = false;
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('update');
     }
 
     setId(id: string): UpdateContentRequest {
@@ -138,15 +138,8 @@ export class UpdateContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'update');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

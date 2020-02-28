@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {ListIssueCommentsResult} from './ListIssueCommentsResult';
@@ -7,6 +5,7 @@ import {ListIssueCommentsResponse} from './ListIssueCommentsResponse';
 import {IssueComment} from '../IssueComment';
 import {IssueMetadata} from '../IssueMetadata';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ListIssueCommentsRequest
     extends IssueResourceRequest<ListIssueCommentsResult, ListIssueCommentsResponse> {
@@ -25,8 +24,9 @@ export class ListIssueCommentsRequest
 
     constructor(issueId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.issueId = issueId;
+        this.addRequestPathElements('comment', 'list');
     }
 
     setCreator(key: PrincipalKey): ListIssueCommentsRequest {
@@ -59,21 +59,14 @@ export class ListIssueCommentsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment/list');
-    }
-
-    sendAndParse(): Q.Promise<ListIssueCommentsResponse> {
-        return this.send().then((response: JsonResponse<ListIssueCommentsResult>) => {
-
-            const issueComments: IssueComment[] = response.getResult().issueComments.map(IssueComment.fromJson).sort((a, b) => {
-                return a.getCreatedTime().getTime() - b.getCreatedTime().getTime();
-            });
-
-            const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
-                response.getResult().metadata['totalHits']);
-
-            return new ListIssueCommentsResponse(issueComments, metadata);
+    processResponse(response: JsonResponse<ListIssueCommentsResult>): ListIssueCommentsResponse {
+        const issueComments: IssueComment[] = response.getResult().issueComments.map(IssueComment.fromJson).sort((a, b) => {
+            return a.getCreatedTime().getTime() - b.getCreatedTime().getTime();
         });
+
+        const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
+            response.getResult().metadata['totalHits']);
+
+        return new ListIssueCommentsResponse(issueComments, metadata);
     }
 }

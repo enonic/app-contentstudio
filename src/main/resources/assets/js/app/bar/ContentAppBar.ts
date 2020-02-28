@@ -1,15 +1,19 @@
 import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {Application} from 'lib-admin-ui/app/Application';
+import {ProjectSelector} from '../project/ProjectSelector';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import * as Q from 'q';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Project} from '../settings/data/project/Project';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentAppBar
     extends AppBar {
 
-    private projectInfoBlock: DivEl;
+    private projectSelector: ProjectSelector;
+
+    private showIssuesDialogButton: ShowIssuesDialogButton;
 
     constructor(application: Application) {
         super(application);
@@ -18,16 +22,33 @@ export class ContentAppBar
     }
 
     private initElements() {
-        this.projectInfoBlock = new DivEl('project');
+        this.projectSelector = new ProjectSelector();
+        this.showIssuesDialogButton = new ShowIssuesDialogButton();
+    }
 
+    updateSelectorValues() {
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            this.projectSelector.setProjects(projects);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    disable() {
+        this.showIssuesDialogButton.hide();
+        this.projectSelector.setHeaderPrefix(`<${i18n('settings.projects.notfound')}>`);
+    }
+
+    enable() {
+        this.showIssuesDialogButton.show();
+        this.projectSelector.setHeaderPrefix(i18n('app.context'));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const project: Element = new SpanEl('label').setHtml(i18n('app.context'));
-            const projectName: Element = new SpanEl('name').setHtml('Default');
-            this.projectInfoBlock.appendChildren(project, projectName);
-            this.insertChild(this.projectInfoBlock, 0);
+            this.addClass('appbar-content');
+            this.insertChild(this.projectSelector, 0);
+            const buttonWrapper: DivEl = new DivEl('show-issues-button-wrapper');
+            buttonWrapper.appendChild(this.showIssuesDialogButton);
+            this.appendChild(buttonWrapper);
 
             return rendered;
         });

@@ -1,11 +1,10 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {Issue} from '../Issue';
 import {FindIssuesResult} from './FindIssuesResult';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class FindIssuesRequest
     extends IssueResourceRequest<FindIssuesResult, Issue[]> {
@@ -22,7 +21,8 @@ export class FindIssuesRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('findIssues');
     }
 
     setFrom(value: number): FindIssuesRequest {
@@ -63,19 +63,13 @@ export class FindIssuesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'findIssues');
-    }
+    processResponse(response: JsonResponse<FindIssuesResult>): Issue[] {
+        const issues: Issue[] = response.getResult().issues.map(Issue.fromJson);
 
-    sendAndParse(): Q.Promise<Issue[]> {
-        return this.send().then((response: JsonResponse<FindIssuesResult>) => {
-            const issues: Issue[] = response.getResult().issues.map(Issue.fromJson);
-
-            issues.sort((a, b) => {
-                return b.getModifiedTime().getTime() - a.getModifiedTime().getTime();
-            });
-
-            return issues;
+        issues.sort((a, b) => {
+            return b.getModifiedTime().getTime() - a.getModifiedTime().getTime();
         });
+
+        return issues;
     }
 }

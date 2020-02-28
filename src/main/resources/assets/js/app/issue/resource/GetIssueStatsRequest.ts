@@ -1,9 +1,8 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueType} from '../IssueType';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson, IssueStatsJson> {
 
@@ -11,8 +10,9 @@ export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson, I
 
     constructor(type?: IssueType) {
         super();
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.type = type;
+        this.addRequestPathElements('stats');
     }
 
     getParams(): Object {
@@ -22,13 +22,7 @@ export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson, I
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'stats');
-    }
-
-    sendAndParse(): Q.Promise<IssueStatsJson> {
-        return this.send().then((response: JsonResponse<IssueStatsJson>) => {
-            return response.getResult();
-        });
+    processResponse(response: JsonResponse<IssueStatsJson>): IssueStatsJson {
+        return response.getResult();
     }
 }

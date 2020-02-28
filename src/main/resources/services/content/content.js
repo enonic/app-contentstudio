@@ -17,7 +17,7 @@ exports.get = function (req) {
     }
 };
 
-var getContentByIdAndVersion = function(contentId, versionId) {
+var getContentByIdAndVersion = function (contentId, versionId) {
 
     return contentLib.get({
         key: contentId,

@@ -15,22 +15,17 @@ import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent'
 import {ContentUnpublishPromptEvent} from './app/browse/ContentUnpublishPromptEvent';
 import {ShowNewContentDialogEvent} from './app/browse/ShowNewContentDialogEvent';
 import {ContentWizardPanelParams} from './app/wizard/ContentWizardPanelParams';
-import {ContentEventsListener} from './app/ContentEventsListener';
 import {ContentEventsProcessor} from './app/ContentEventsProcessor';
 import {IssueServerEventsHandler} from './app/issue/event/IssueServerEventsHandler';
 import {CreateIssuePromptEvent} from './app/browse/CreateIssuePromptEvent';
 import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
 import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from './app/browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchPanelWithDependenciesEvent';
 import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
-import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
 import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
 import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
 import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
 import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
 import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
-import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
 import {EditContentEvent} from './app/event/EditContentEvent';
 import {Content} from './app/content/Content';
 import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
@@ -42,7 +37,6 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {Application} from 'lib-admin-ui/app/Application';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
@@ -51,13 +45,18 @@ import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {FormEditEvent} from 'lib-admin-ui/content/event/FormEditEvent';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {AppWrapper} from './app/AppWrapper';
-import {ContentAppBar} from './app/bar/ContentAppBar';
+import {ContentAppHelper} from './app/wizard/ContentAppHelper';
+import {ProjectContext} from './app/project/ProjectContext';
+import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
+import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
+import * as Q from 'q';
+import {Project} from './app/settings/data/project/Project';
+import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 // End of Polyfills
 
 declare const CONFIG;
@@ -78,7 +77,7 @@ function getApplication(): Application {
         CONFIG.appIconUrl,
         `${i18n('app.name')} v${CONFIG.appVersion}`
     );
-    application.setPath(Path.fromString(Router.getPath()));
+    application.setPath(Router.getPath());
     application.setWindow(window);
 
     return application;
@@ -89,9 +88,9 @@ function startLostConnectionDetector(): ConnectionDetector {
 
     const connectionDetector =
         ConnectionDetector.get()
-        .setAuthenticated(true)
-        .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
-        .setNotificationMessage(i18n('notify.connection.loss'));
+            .setAuthenticated(true)
+            .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
+            .setNotificationMessage(i18n('notify.connection.loss'));
 
     connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
@@ -269,10 +268,10 @@ const refreshTab = function (content: Content) {
 };
 
 function preLoadApplication() {
-    let application: Application = getApplication();
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
+    const application: Application = getApplication();
+    if (ContentAppHelper.isContentWizard(application)) {
         clearFavicon();
+        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromApp(application);
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
@@ -296,22 +295,24 @@ function preLoadApplication() {
 }
 
 function startApplication() {
-
     const application: Application = getApplication();
 
-    const serverEventsListener = new AggregatedServerEventsListener([application]);
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
     serverEventsListener.start();
 
     initApplicationEventListener();
-
-    const connectionDetector = startLostConnectionDetector();
-
-    const wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
-        startContentWizard(wizardParams, connectionDetector);
-    } else {
-        startContentApplication(application);
-    }
+    initProjectContext(application)
+        .catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
+        })
+        .finally(() => {
+            if (ContentAppHelper.isContentWizard(application)) {
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+            } else {
+                startContentApplication(application);
+            }
+        });
 
     initToolTip();
 
@@ -392,7 +393,8 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
+function startContentWizard(wizardParams: ContentWizardPanelParams) {
+    const connectionDetector = startLostConnectionDetector();
 
     import('./app/wizard/ContentWizardPanel').then(def => {
 
@@ -455,21 +457,6 @@ function startContentApplication(application: Application) {
 
     import('./app/ContentAppPanel').then(cdef => {
         const commonWrapper = new AppWrapper(application);
-        const appBar = new ContentAppBar(application);
-
-        const appPanel = new cdef.ContentAppPanel(application.getPath());
-        const buttonWrapper = new DivEl('show-issues-button-wrapper');
-
-        buttonWrapper.appendChild(new ShowIssuesDialogButton());
-        appBar.appendChild(buttonWrapper);
-
-        initSearchPanelListener(appPanel);
-
-        const clientEventsListener = new ContentEventsListener();
-        clientEventsListener.start();
-
-        commonWrapper.appendToMain(appBar);
-        appBar.onAdded(() => commonWrapper.appendToMain(appPanel));
         body.appendChild(commonWrapper);
 
         import('./app/create/NewContentDialog').then(def => {
@@ -478,7 +465,7 @@ function startContentApplication(application: Application) {
             ShowNewContentDialogEvent.on((event) => {
 
                 let parentContent: ContentSummary = event.getParentContent()
-                                                                ? event.getParentContent().getContentSummary() : null;
+                                                    ? event.getParentContent().getContentSummary() : null;
 
                 if (parentContent != null) {
                     new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -526,19 +513,24 @@ function startContentApplication(application: Application) {
     });
 }
 
-function initSearchPanelListener(panel: any) {
-    ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
-        if (!panel.getBrowsePanel().getTreeGrid().isEmpty()) {
-            new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-        } else {
+function initProjectContext(application: Application): Q.Promise<void> {
+    const projectName: string = application.getPath().getElement(0);
 
-            const handler = () => {
-                new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-                panel.getBrowsePanel().getTreeGrid().unLoaded(handler);
-            };
-
-            panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
+    return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
+        if (isProjectExisting) {
+            ProjectContext.get().setProject(projectName);
+            return Q(null);
         }
+
+        if (projects.length === 1) {
+            ProjectContext.get().setProject(projects[0].getName());
+            return Q(null);
+        }
+
+        new ProjectSelectionDialog(projects).open();
+
+        return Q(null);
     });
 }
 

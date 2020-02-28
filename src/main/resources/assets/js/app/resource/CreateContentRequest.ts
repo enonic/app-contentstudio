@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
@@ -12,6 +10,7 @@ import {ExtraDataJson} from './json/ExtraDataJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateContentRequest
     extends ContentResourceRequest<ContentJson, Content> {
@@ -38,7 +37,8 @@ export class CreateContentRequest
         super();
         this.valid = false;
         this.requireValid = false;
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('create');
     }
 
     setValid(value: boolean): CreateContentRequest {
@@ -104,17 +104,8 @@ export class CreateContentRequest
         return this.meta ? this.meta.map((extraData: ExtraData) => extraData.toJson()) : null;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-
-            return this.fromJsonToContent(response.getResult());
-
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

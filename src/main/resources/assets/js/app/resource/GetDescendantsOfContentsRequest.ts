@@ -1,11 +1,10 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetDescendantsOfContentsRequest
     extends ContentResourceRequest<ContentIdBaseItemJson[], ContentId[]> {
@@ -18,10 +17,11 @@ export class GetDescendantsOfContentsRequest
 
     constructor(contentPath?: ContentPath) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('getDescendantsOfContents');
     }
 
     setContentPaths(contentPaths: ContentPath[]): GetDescendantsOfContentsRequest {
@@ -49,14 +49,7 @@ export class GetDescendantsOfContentsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getDescendantsOfContents');
-    }
-
-    sendAndParse(): Q.Promise<ContentId[]> {
-
-        return this.send().then((response: JsonResponse<ContentIdBaseItemJson[]>) => {
-            return response.getResult().map((item => new ContentId(item.id)));
-        });
+    protected processResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+        return response.getResult().map((item => new ContentId(item.id)));
     }
 }

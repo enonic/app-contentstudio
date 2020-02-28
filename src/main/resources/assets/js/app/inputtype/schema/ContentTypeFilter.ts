@@ -67,8 +67,11 @@ export class ContentTypeFilter
     }
 
     private createComboBox(): ContentTypeComboBox {
-        let loader = this.createLoader();
-        let comboBox = new ContentTypeComboBox(this.getInput().getOccurrences().getMaximum(), loader);
+        const loader = this.createLoader();
+        const comboBox: ContentTypeComboBox = <ContentTypeComboBox>ContentTypeComboBox.create()
+            .setLoader(loader)
+            .setMaximumOccurrences(this.getInput().getOccurrences().getMaximum())
+            .build();
 
         comboBox.onLoaded(this.onContentTypesLoadedHandler);
 

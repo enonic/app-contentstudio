@@ -48,11 +48,15 @@ class SettingsStepForm extends Page {
         }
     }
 
-    async filterOptionsAndSelectOwner(owner) {
+    async
+
+    filterOptionsAndSelectOwner(owner) {
         try {
-            await this.typeTextInInput(this.ownerFilterInput, owner);
+            await
+            this.typeTextInInput(this.ownerFilterInput, owner);
             let loaderComboBox = new LoaderComboBox()
-            await loaderComboBox.selectOption(owner);
+            await
+            loaderComboBox.selectOption(owner);
             return this.pause(400);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_option'));
@@ -70,20 +74,28 @@ class SettingsStepForm extends Page {
         return this.getText(selector);
     }
 
-    async clickOnRemoveLanguage(displayName) {
+    async
+
+    clickOnRemoveLanguage(displayName) {
         try {
-            await this.clickOnElement(this.removeLanguageButton);
-            return await this.pause(500);
+            await
+            this.clickOnElement(this.removeLanguageButton);
+            return await
+            this.pause(500);
         } catch (err) {
             this.saveScreenshot("err_click_on_remove_language_icon");
             throw new Error('Error when removing the language! ' + err);
         }
     }
 
-    async clickOnRemoveOwner(displayName) {
+    async
+
+    clickOnRemoveOwner(displayName) {
         try {
-            await this.clickOnElement(this.removeOwnerButton);
-            return await this.pause(500);
+            await
+            this.clickOnElement(this.removeOwnerButton);
+            return await
+            this.pause(500);
         } catch (err) {
             this.saveScreenshot("err_click_on_remove_owner_icon");
             throw new Error('Error when removing the owner! ' + err);

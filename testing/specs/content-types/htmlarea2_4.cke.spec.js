@@ -32,120 +32,148 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
         });
 
     it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND Save pressed THEN content should be saved`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContentEmpty = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
-            //1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
-            await contentWizard.pause(1000);
-            //2. Type a name and save
-            await contentWizard.typeDisplayName(displayName);
-            await contentWizard.waitAndClickOnSave();
-            //3. Verify the notification message:
-            let EXPECTED_MESSAGE = appConstant.itemSavedNotificationMessage(displayName);
-            //'expected notification message should appear'
-            await contentWizard.waitForExpectedNotificationMessage(EXPECTED_MESSAGE);
+    //1. Open new wizard:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+    await
+    contentWizard.pause(1000);
+    //2. Type a name and save
+    await
+    contentWizard.typeDisplayName(displayName);
+    await
+    contentWizard.waitAndClickOnSave();
+    //3. Verify the notification message:
+    let EXPECTED_MESSAGE = appConstant.itemSavedNotificationMessage(displayName);
+    //'expected notification message should appear'
+    await
+    contentWizard.waitForExpectedNotificationMessage(EXPECTED_MESSAGE);
         });
 
     it(`GIVEN existing 'htmlArea 2:4'(both areas are empty) WHEN it has been opened THEN validation record should be displayed in the form`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName);
-            let result = await htmlAreaForm.getValidationRecord();
-            studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
-            //2. Verify that validation record is displayed:
-            assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
-            //3. Verify that red icon is present:
-            let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Red icon should be present, because both inputs are empty");
+    //1. Open existing content:
+    await
+    studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName);
+    let result = await
+    htmlAreaForm.getValidationRecord();
+    studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
+    //2. Verify that validation record is displayed:
+    assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
+    //3. Verify that red icon is present:
+    let isInvalid = await
+    contentWizard.isContentInvalid();
+    assert.isTrue(isInvalid, "Red icon should be present, because both inputs are empty");
         });
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
-        async () => {
+        async() = > {
             let contentWizard = new ContentWizard();
-            //1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
-            await contentWizard.typeDisplayName('test_area2_4');
-            //2. Type a name and save:
-            await contentWizard.waitAndClickOnSave();
-            //3. Verify that red icon gets visible:
-            let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
-            assert.isTrue(result, EXPECTED_TEXT_TEXT1, 'the content should be invalid, because the input is required');
+    //1. Open new wizard:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+    await
+    contentWizard.typeDisplayName('test_area2_4');
+    //2. Type a name and save:
+    await
+    contentWizard.waitAndClickOnSave();
+    //3. Verify that red icon gets visible:
+    let result = await
+    contentWizard.isContentInvalid();
+    studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
+    assert.isTrue(result, EXPECTED_TEXT_TEXT1, 'the content should be invalid, because the input is required');
         });
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the first area`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
-            //2. Type a text in the first area
-            await htmlAreaForm.typeTextInHtmlArea("test text");
-            //3. Verify that the text is displayed in the first area:
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('cke_html_area2');
-            assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
-            assert.equal(actualResult[1], '', 'the second area should be empty');
+    //1. Open new wizard:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+    //2. Type a text in the first area
+    await
+    htmlAreaForm.typeTextInHtmlArea("test text");
+    //3. Verify that the text is displayed in the first area:
+    let actualResult = await
+    htmlAreaForm.getTextFromHtmlArea();
+    studioUtils.saveScreenshot('cke_html_area2');
+    assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
+    assert.equal(actualResult[1], '', 'the second area should be empty');
         });
 
     it(`GIVEN wizard for new 'htmlArea 2:4' is opened WHEN a text has been inserted in both areas THEN expected text should be present in areas`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
-            //1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
-            await contentWizard.pause(1000);
-            //2. Type a name and insert text in both areas:
-            await contentWizard.typeData(htmlAreaContent);
-            //3. Save the content:
-            await contentWizard.waitAndClickOnSave();
-            //4. Verify the text
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('cke_html_area2');
-            assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
-            assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equals');
+    //1. Open new wizard:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+    await
+    contentWizard.pause(1000);
+    //2. Type a name and insert text in both areas:
+    await
+    contentWizard.typeData(htmlAreaContent);
+    //3. Save the content:
+    await
+    contentWizard.waitAndClickOnSave();
+    //4. Verify the text
+    let actualResult = await
+    htmlAreaForm.getTextFromHtmlArea();
+    studioUtils.saveScreenshot('cke_html_area2');
+    assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
+    assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equals');
         });
 
     it(`GIVEN existing 'htmlArea 2:4' WHEN it has been opened THEN expected text should be displayed in the area`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
-            //2. Verify the text in both htmlArea
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_2_4_check_value');
-            assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equal');
-            assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equal');
-            //3. Verify that the content is valid:
-            let isRedIconDisplayed = await contentWizard.isContentInvalid();
-            assert.isFalse(isRedIconDisplayed, "Red icon should not be present, because both inputs are filled");
+    //1. Open existing content:
+    await
+    studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+    //2. Verify the text in both htmlArea
+    let actualResult = await
+    htmlAreaForm.getTextFromHtmlArea();
+    studioUtils.saveScreenshot('htmlarea_2_4_check_value');
+    assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equal');
+    assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equal');
+    //3. Verify that the content is valid:
+    let isRedIconDisplayed = await
+    contentWizard.isContentInvalid();
+    assert.isFalse(isRedIconDisplayed, "Red icon should not be present, because both inputs are filled");
         });
 
     //verifies https://github.com/enonic/lib-admin-ui/issues/461
     it(`GIVEN existing 'htmlArea 2:4' WHEN the first area has been cleared THEN red icon should appears in the wizard`,
-        async () => {
+        async() = > {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
-            //2. Clear the first htmlArea
-            await htmlAreaForm.clearHtmlArea(0);
-            //3. Verify the text in both htmlArea:
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_2_4_cleared');
-            assert.equal(actualResult[0], '', 'the first area should be empty');
-            assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'text should be in the second area');
-            //4. Verify that red icon gets visible
-            let isRedIconDisplayed = await contentWizard.isContentInvalid();
-            assert.isTrue(isRedIconDisplayed, "Red icon should appear in the wizard, because both inputs are required");
-            let validationRecord = await htmlAreaForm.getValidationRecord();
-            assert.equal(validationRecord, "Min 2 occurrences required", "Expected validation record gets visible");
+    //1. Open existing content:
+    await
+    studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+    //2. Clear the first htmlArea
+    await
+    htmlAreaForm.clearHtmlArea(0);
+    //3. Verify the text in both htmlArea:
+    let actualResult = await
+    htmlAreaForm.getTextFromHtmlArea();
+    studioUtils.saveScreenshot('htmlarea_2_4_cleared');
+    assert.equal(actualResult[0], '', 'the first area should be empty');
+    assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'text should be in the second area');
+    //4. Verify that red icon gets visible
+    let isRedIconDisplayed = await
+    contentWizard.isContentInvalid();
+    assert.isTrue(isRedIconDisplayed, "Red icon should appear in the wizard, because both inputs are required");
+    let validationRecord = await
+    htmlAreaForm.getValidationRecord();
+    assert.equal(validationRecord, "Min 2 occurrences required", "Expected validation record gets visible");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

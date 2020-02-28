@@ -10,6 +10,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentIds} from '../ContentIds';
+import {Branch} from '../versioning/Branch';
 
 /**
  * Class that listens to server events and fires UI events
@@ -74,7 +75,7 @@ export class ContentServerEventsHandler {
     private hasDraftBranchChanges(changes: ContentServerChange[]): boolean {
         return changes.some((change: ContentServerChange) => {
             return change.getChangeItems().some(changeItem => {
-                return changeItem.getBranch() === 'draft';
+                return changeItem.getBranch() === Branch.DRAFT;
             });
         });
     }
@@ -143,9 +144,9 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: deleted', changeItems);
         }
-        let contentDeletedEvent = new ContentDeletedEvent();
+        const contentDeletedEvent: ContentDeletedEvent = new ContentDeletedEvent();
         changeItems.forEach((changeItem) => {
-            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(), changeItem.getBranch());
+            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(), Branch[changeItem.getBranch().toUpperCase()]);
         });
         contentDeletedEvent.fire();
 
@@ -402,7 +403,7 @@ export class ContentServerEventsHandler {
                 return total.concat(change.getChangeItems());
             }, []);
 
-            let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
+            let deletedItems = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
             let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.contentId,
                 d.contentId)));
 

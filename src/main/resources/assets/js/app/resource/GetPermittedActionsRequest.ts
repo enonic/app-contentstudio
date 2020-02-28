@@ -1,9 +1,8 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Permission} from '../access/Permission';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPermittedActionsRequest
     extends ContentResourceRequest<string[], Permission[]> {
@@ -19,7 +18,8 @@ export class GetPermittedActionsRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('allowedActions');
     }
 
     addContentIds(...contentIds: ContentId[]): GetPermittedActionsRequest {
@@ -46,20 +46,13 @@ export class GetPermittedActionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'allowedActions');
-    }
+    protected processResponse(response: JsonResponse<string[]>): Permission[] {
+        let result = [];
 
-    sendAndParse(): Q.Promise<Permission[]> {
-
-        return this.send().then((response: JsonResponse<string[]>) => {
-            let result = [];
-
-            response.getResult().forEach((entry: string) => {
-                result.push(Permission[entry]);
-            });
-
-            return result;
+        response.getResult().forEach((entry: string) => {
+            result.push(Permission[entry]);
         });
+
+        return result;
     }
 }

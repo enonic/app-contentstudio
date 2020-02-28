@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
@@ -15,6 +14,7 @@ import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentJson} from '../content/ContentJson';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, CONTENT[]> {
@@ -53,9 +53,10 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
 
         this.setSearchString();
+        this.addRequestPathElements('selectorQuery');
     }
 
     setInputName(name: string) {
@@ -134,10 +135,6 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         return this.queryExpr;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'selectorQuery');
-    }
-
     isPartiallyLoaded(): boolean {
         return this.results.length > 0 && !this.loaded;
     }
@@ -179,29 +176,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
         this.loadingFrom = this.from;
         return this.send().then((response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
-
-            let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
-
-            let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
-
-            let contents: CONTENT[];
-
-            if (this.expand === Expand.SUMMARY) {
-                contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
-            } else {
-                contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
-            }
-
-            if (this.from === 0) {
-                this.results = [];
-            }
-            this.loadingFrom = undefined;
-            this.from += responseResult.metadata['hits'];
-            this.loaded = this.from >= responseResult.metadata['totalHits'];
-
-            this.results = this.results.concat(contents);
-
-            return this.results;
+            return this.processResponse(response);
         }).catch(() => {
             return [];
         });
@@ -218,5 +193,30 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         default:
             return 'summary';
         }
+    }
+
+    protected processResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): CONTENT[] {
+        let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
+
+        let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
+
+        let contents: CONTENT[];
+
+        if (this.expand === Expand.SUMMARY) {
+            contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
+        } else {
+            contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+        }
+
+        if (this.from === 0) {
+            this.results = [];
+        }
+        this.loadingFrom = undefined;
+        this.from += responseResult.metadata['hits'];
+        this.loaded = this.from >= responseResult.metadata['totalHits'];
+
+        this.results = this.results.concat(contents);
+
+        return this.results;
     }
 }

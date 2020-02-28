@@ -58,44 +58,56 @@ describe('overwrite.permissions.spec: open details panel, update permissions in 
             });
 
         it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN permissions for 'Anonymous user' has been removed in parent folder THEN permissions for child should not be changed`,
-            async () => {
+            async() = > {
                 let editPermissionsDialog = new EditPermissionsDialog();
-                //1. Open Edit Permissions Dialog and uncheck  'Inherit Permissions' checkbox
-                await clickOnInheritCheckBoxInEditPermissionsDialog(childFolder.displayName);
-                //2. Click on Apply button and close the dialog:
-                await editPermissionsDialog.clickOnApplyButton();
-                //3. Select the parent folder and open "Edit Permissions Dialog"
-                await openEditPermissionsDialog(parentFolder.displayName);
-                //4.Remove 'Anonymous User'- entry (parent folder)
-                await editPermissionsDialog.removeAclEntry("users/anonymous")
-                //5. Click on Apply button and close the dialog:
-                await editPermissionsDialog.clickOnApplyButton();
-                //6. Select the child folder and open 'Edit permission' dialog
-                await openEditPermissionsDialog(childFolder.displayName);
-                studioUtils.saveScreenshot("child_content_overwrite_perm_was_not_checked_1");
-                let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
-                //7. Verify that permissions are not changed in child folder
-                assert.isTrue(result.includes(appConstant.systemUsersDisplayName.ANONYMOUS_USER),
-                    "default permissions for `Anonymous User` should be present for child folder, because 'inherit' checkbox is unchecked");
+        //1. Open Edit Permissions Dialog and uncheck  'Inherit Permissions' checkbox
+        await
+        clickOnInheritCheckBoxInEditPermissionsDialog(childFolder.displayName);
+        //2. Click on Apply button and close the dialog:
+        await
+        editPermissionsDialog.clickOnApplyButton();
+        //3. Select the parent folder and open "Edit Permissions Dialog"
+        await
+        openEditPermissionsDialog(parentFolder.displayName);
+        //4.Remove 'Anonymous User'- entry (parent folder)
+        await
+        editPermissionsDialog.removeAclEntry("users/anonymous")
+        //5. Click on Apply button and close the dialog:
+        await
+        editPermissionsDialog.clickOnApplyButton();
+        //6. Select the child folder and open 'Edit permission' dialog
+        await
+        openEditPermissionsDialog(childFolder.displayName);
+        studioUtils.saveScreenshot("child_content_overwrite_perm_was_not_checked_1");
+        let result = await
+        editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
+        //7. Verify that permissions are not changed in child folder
+        assert.isTrue(result.includes(appConstant.systemUsersDisplayName.ANONYMOUS_USER),
+            "default permissions for `Anonymous User` should be present for child folder, because 'inherit' checkbox is unchecked");
             });
 
         // Default merging strategy:
         // if permission is set in parent entry, use the value from the parent entry
         it(`GIVEN 'Inherit permissions' is unchecked in child folder WHEN default permissions for 'Everyone' has been added in parent THEN default permissions for 'Everyone' should  be added in child content as well`,
-            async () => {
+            async() = > {
                 let editPermissionsDialog = new EditPermissionsDialog();
-                //1. Select parent folder:
-                await openEditPermissionsDialog(parentFolder.displayName);
-                //2. Add default permissions for 'Everyone'
-                await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.EVERYONE);
-                //3. Click on Apply button and close the dialog:
-                await editPermissionsDialog.clickOnApplyButton();
-                //4. Select child folder and open 'Edit permission'
-                await openEditPermissionsDialog(childFolder.displayName);
-                studioUtils.saveScreenshot("child_content_overwrite_perm_was_not_checked_2");
-                let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
-                assert.isTrue(result.includes(appConstant.systemUsersDisplayName.EVERYONE),
-                    "default permissions for 'Everyone' should  be added in child content as well, because `Default merging strategy` is applied");
+        //1. Select parent folder:
+        await
+        openEditPermissionsDialog(parentFolder.displayName);
+        //2. Add default permissions for 'Everyone'
+        await
+        editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.EVERYONE);
+        //3. Click on Apply button and close the dialog:
+        await
+        editPermissionsDialog.clickOnApplyButton();
+        //4. Select child folder and open 'Edit permission'
+        await
+        openEditPermissionsDialog(childFolder.displayName);
+        studioUtils.saveScreenshot("child_content_overwrite_perm_was_not_checked_2");
+        let result = await
+        editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
+        assert.isTrue(result.includes(appConstant.systemUsersDisplayName.EVERYONE),
+            "default permissions for 'Everyone' should  be added in child content as well, because `Default merging strategy` is applied");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

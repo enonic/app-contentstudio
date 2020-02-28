@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueJson} from '../json/IssueJson';
@@ -7,6 +6,7 @@ import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
 import {PublishRequest} from '../PublishRequest';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateIssueRequest
     extends IssueResourceRequest<IssueJson, Issue> {
@@ -33,8 +33,9 @@ export class UpdateIssueRequest
 
     constructor(id: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.id = id;
+        this.addRequestPathElements('update');
     }
 
     setId(id: string): UpdateIssueRequest {
@@ -106,13 +107,13 @@ export class UpdateIssueRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'update');
-    }
-
     sendAndParse(): Q.Promise<Issue> {
         return this.send().then((response: JsonResponse<IssueJson>) => {
             return Issue.fromJson(response.getResult());
         });
+    }
+
+    processResponse(response: JsonResponse<IssueJson>): Issue {
+        return Issue.fromJson(response.getResult());
     }
 }

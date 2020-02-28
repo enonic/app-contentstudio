@@ -796,12 +796,12 @@ export class ContentWizardPanel
 
         let shownAndLoadedHandler = () => {
             if (this.getPersistedItem()) {
-                Router.setHash('edit/' + this.getPersistedItem().getId());
+                Router.get().setHash('edit/' + this.getPersistedItem().getId());
                 if (!window.name) {
                     window.name = `edit:${this.getPersistedItem().getId()}`;
                 }
             } else {
-                Router.setHash('new/' + this.contentType.getName());
+                Router.get().setHash('new/' + this.contentType.getName());
             }
         };
 

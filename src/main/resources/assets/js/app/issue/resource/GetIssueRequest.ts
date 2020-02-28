@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Issue} from '../Issue';
 import {IssueJson} from '../json/IssueJson';
@@ -11,22 +10,22 @@ export class GetIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
 
     constructor(id: string) {
         super();
-        super.setMethod('GET');
 
         this.id = id;
+        this.addRequestPathElements('id');
     }
 
     getParams(): Object {
         return {id: this.id};
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'id');
-    }
-
     sendAndParse(): Q.Promise<Issue> {
         return this.send().then((response: JsonResponse<IssueJson>) => {
             return Issue.fromJson(response.getResult());
         });
+    }
+
+    processResponse(response: JsonResponse<IssueJson>): Issue {
+        return Issue.fromJson(response.getResult());
     }
 }

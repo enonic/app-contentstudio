@@ -1,10 +1,9 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UnpublishContentRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
@@ -16,10 +15,11 @@ export class UnpublishContentRequest
     constructor(contentId?: ContentId) {
         super();
         this.setHeavyOperation(true);
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentId) {
             this.addId(contentId);
         }
+        this.addRequestPathElements('unpublish');
     }
 
     setIds(contentIds: ContentId[]): UnpublishContentRequest {
@@ -46,13 +46,7 @@ export class UnpublishContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'unpublish');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

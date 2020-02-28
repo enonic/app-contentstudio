@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
@@ -15,8 +13,8 @@ export class DeletePageRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('delete');
     }
 
     getParams(): Object {
@@ -25,14 +23,7 @@ export class DeletePageRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'delete');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

@@ -122,6 +122,35 @@
     }
   }
 
+  .project-info {
+    overflow: auto;
+
+    .@{_COMMON_PREFIX}wrapper {
+      height: @toolbar-height;
+      width: @toolbar-height;
+      line-height: @toolbar-height;
+      margin-right: 0px;
+      cursor: pointer;
+    }
+
+    .@{_COMMON_PREFIX}names-view {
+
+      .@{_COMMON_PREFIX}main-name {
+        height: @toolbar-height;
+        line-height: @toolbar-height;
+        color: @admin-font-gray3;
+        border-right: 1px solid @admin-bg-light-gray;
+        padding-right: 14px;
+      }
+    }
+
+    &.single-repo {
+      .@{_COMMON_PREFIX}names-view {
+        display: none;
+      }
+    }
+  }
+
   &.publish-request .toolbar-state-icon.ready::before {
     display: block;
     width: 20px;
@@ -165,7 +194,6 @@
       margin-left: auto;
     }
 
-
     .toolbar-state-icon {
       margin-left: auto;
 
@@ -174,6 +202,12 @@
         + .cycle-button {
           margin-left: 0;
         }
+      }
+    }
+
+    .project-info {
+      .@{_COMMON_PREFIX}names-view {
+        display: none;
       }
     }
 

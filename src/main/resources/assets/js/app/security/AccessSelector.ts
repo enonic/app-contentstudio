@@ -1,23 +1,26 @@
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
-import {Access, ACCESS_OPTIONS, AccessOption} from './Access';
+import {Access, ACCESS_OPTIONS} from './Access';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AccessChangedEvent} from './AccessChangedEvent';
 
 export class AccessSelector
     extends TabMenu {
 
     private value: Access;
-    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: AccessChangedEvent): void }[] = [];
 
     constructor() {
         super('access-selector');
 
-        ACCESS_OPTIONS.forEach((option: AccessOption) => {
-            let menuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(option.name).setAddLabelTitleAttribute(
-                false)).build();
+        ACCESS_OPTIONS.forEach((option: Access) => {
+            let menuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder()
+                .setLabel(i18n(`security.access.${option}`))
+                .setAddLabelTitleAttribute(false))
+                .build();
             this.addNavigationItem(menuItem);
         });
 
@@ -27,7 +30,7 @@ export class AccessSelector
     initEventHandlers() {
         this.onNavigationItemSelected((event: NavigatorEvent) => {
             let item: TabMenuItem = <TabMenuItem> event.getItem();
-            this.setValue(ACCESS_OPTIONS[item.getIndex()].value);
+            this.setValue(ACCESS_OPTIONS[item.getIndex()]);
         });
 
         this.getTabMenuButtonEl().onKeyDown((event: KeyboardEvent) => {
@@ -66,11 +69,11 @@ export class AccessSelector
     }
 
     setValue(value: Access, silent?: boolean): AccessSelector {
-        let option = ACCESS_OPTIONS.filter((accessOption: AccessOption) => accessOption.value === value)[0];
+        const option: Access = ACCESS_OPTIONS.filter((accessOption: Access) => accessOption === value)[0];
         if (option) {
             this.selectNavigationItem(ACCESS_OPTIONS.indexOf(option));
             if (!silent) {
-                this.notifyValueChanged(new ValueChangedEvent(Access[this.value], Access[value]));
+                this.notifyValueChanged(new AccessChangedEvent(this.value, value));
             }
             this.value = value;
         }
@@ -108,17 +111,17 @@ export class AccessSelector
         this.focus();
     }
 
-    onValueChanged(listener: (event: ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: AccessChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: AccessChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyValueChanged(event: ValueChangedEvent) {
+    private notifyValueChanged(event: AccessChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });

@@ -7,7 +7,7 @@ import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
-import {NonMobileContextPanelsManager, NonMobileContextPanelsManagerBuilder} from './NonMobileContextPanelsManager';
+import {NonMobileContextPanelsManager} from './NonMobileContextPanelsManager';
 import {ContextView} from './ContextView';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
@@ -59,6 +59,29 @@ export class ContextSplitPanel
         this.mobilePanelSlideListeners = [];
 
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
+        this.initPanels();
+    }
+
+    private initPanels() {
+        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
+        if (this.isPageEditorPresent()) {
+            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
+            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
+                return this.isMobileMode();
+            });
+        }
+        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
+        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
+        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
+        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
+        if (this.isInsideWizard()) {
+            this.mobileContextPanel = new MobileContextPanel(this.contextView);
+        } else {
+            this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.contextView);
+        }
+
+        this.nonMobileContextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
     }
 
     private isInsideWizard(): boolean {
@@ -70,23 +93,14 @@ export class ContextSplitPanel
     }
 
     private renderAfterDockedPanelReady() {
-        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        if (this.isPageEditorPresent()) {
-            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
-            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
-                return this.isMobileMode();
-            });
-        }
-        this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
-        this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
+        this.floatingContextPanel.insertAfterEl(this);
+
         if (this.isInsideWizard()) {
-            this.initMobileContextPanelOnly();
+            this.addMobileContextPanel();
         } else {
-            this.initMobileItemStatisticsPanel();
+            this.addMobileItemStatisticsPanel();
         }
 
-        this.nonMobileContextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
         if (this.nonMobileContextPanelsManager.requiresCollapsedContextPanel()) {
             this.nonMobileContextPanelsManager.hideDockedContextPanel();
         }
@@ -103,20 +117,7 @@ export class ContextSplitPanel
         this.subscribeContextPanelsOnEvents(this.nonMobileContextPanelsManager);
     }
 
-    private initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
-
-        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
-        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
-    }
-
-    private initFloatingContextPanel(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
-        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
-        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
-        this.floatingContextPanel.insertAfterEl(this);
-    }
-
-    private initMobileContextPanelOnly() {
-        this.mobileContextPanel = new MobileContextPanel(this.contextView);
+    private addMobileContextPanel() {
         this.mobileContextPanel.insertAfterEl(this);
         this.mobileContextPanel.slideOut(true);
 
@@ -124,21 +125,12 @@ export class ContextSplitPanel
         this.mobileContextPanel.onSlidedIn(() => this.notifyMobilePanelSlide(false));
     }
 
-    private initMobileItemStatisticsPanel() {
-        this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.contextView);
+    private addMobileItemStatisticsPanel() {
         this.mobileContentItemStatisticsPanel.insertAfterEl(this);
         this.mobileContentItemStatisticsPanel.slideAllOut(true);
 
         this.mobileContentItemStatisticsPanel.onSlideOut(() => this.notifyMobilePanelSlide(true));
         this.mobileContentItemStatisticsPanel.onSlideIn(() => this.notifyMobilePanelSlide(false));
-    }
-
-    private setActiveContextPanel(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
-        if (this.isMobileMode()) {
-            ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
-        } else {
-            ActiveContextPanelManager.setActiveContextPanel(nonMobileContextPanelsManager.getActivePanel());
-        }
     }
 
     private getMobileContextPanel(): ContextPanel {
@@ -275,5 +267,13 @@ export class ContextSplitPanel
 
     isMobileMode(): boolean {
         return this.mobileMode;
+    }
+
+    enableToggleButton() {
+        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(true);
+    }
+
+    disableToggleButton() {
+        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(false);
     }
 }

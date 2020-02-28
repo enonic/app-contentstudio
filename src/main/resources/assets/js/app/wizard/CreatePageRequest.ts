@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
@@ -11,6 +9,7 @@ import {Regions} from '../page/region/Regions';
 import {Component} from '../page/region/Component';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageRequest
     extends PageResourceRequest<ContentJson, Content>
@@ -32,8 +31,9 @@ export class CreatePageRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
+        this.addRequestPathElements('create');
     }
 
     setController(controller: DescriptorKey): CreatePageRequest {
@@ -78,14 +78,7 @@ export class CreatePageRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

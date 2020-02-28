@@ -17,7 +17,6 @@ export class GetContentVersionRequest
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
     }
 
@@ -42,5 +41,9 @@ export class GetContentVersionRequest
         return this.send().then((response: JsonResponse<ContentJson>) => {
             return response.getResult();
         });
+    }
+
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 }

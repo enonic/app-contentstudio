@@ -3,12 +3,12 @@ import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {AccessControlEntryJson} from './AccessControlEntryJson';
 import {Permission} from './Permission';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {PrincipalContainer} from 'lib-admin-ui/ui/security/PrincipalContainer';
 
 export class AccessControlEntry
+    extends PrincipalContainer
     implements Equitable, Cloneable {
 
     private static ALL_PERMISSIONS: Permission[] = [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE,
@@ -16,32 +16,14 @@ export class AccessControlEntry
         Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS
     ];
 
-    private principal: Principal;
-
     private allowedPermissions: Permission[];
 
     private deniedPermissions: Permission[];
 
     constructor(principal: Principal) {
-        this.principal = assertNotNull(principal);
+        super(principal);
         this.allowedPermissions = [];
         this.deniedPermissions = [];
-    }
-
-    getPrincipal(): Principal {
-        return this.principal;
-    }
-
-    getPrincipalKey(): PrincipalKey {
-        return this.principal.getKey();
-    }
-
-    getPrincipalDisplayName(): string {
-        return this.principal.getDisplayName();
-    }
-
-    getPrincipalTypeName(): string {
-        return this.principal.getTypeName();
     }
 
     getAllowedPermissions(): Permission[] {

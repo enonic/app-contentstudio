@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
@@ -17,7 +16,6 @@ export class GetPageDescriptorByKeyRequest
 
     constructor(key: DescriptorKey) {
         super();
-        super.setMethod('GET');
         this.key = key;
         this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationRequest);
     }
@@ -28,18 +26,16 @@ export class GetPageDescriptorByKeyRequest
         };
     }
 
-    getRequestPath(): Path {
-        return super.getResourcePath();
-    }
-
     sendAndParse(): Q.Promise<PageDescriptor> {
-        let pageDescriptor = this.cache.getByKey(this.key);
+        const pageDescriptor: PageDescriptor = this.cache.getByKey(this.key);
         if (pageDescriptor) {
             return Q(pageDescriptor);
-        } else {
-            return this.send().then((response: JsonResponse<PageDescriptorJson>) => {
-                return PageDescriptor.fromJson(response.getResult());
-            });
         }
+
+        return super.sendAndParse();
+    }
+
+    protected processResponse(response: JsonResponse<PageDescriptorJson>): PageDescriptor {
+        return PageDescriptor.fromJson(response.getResult());
     }
 }

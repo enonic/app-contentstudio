@@ -2,6 +2,7 @@ var portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
     var contentId = req.params.contentId;
+    var project = req.params.project || 'default';
     if (!contentId) {
         return {
             status: 400,
@@ -10,7 +11,7 @@ exports.get = function (req) {
         }
     }
 
-    var styles = getStyles(contentId);
+    var styles = getStyles(contentId, project);
     for (var i = 0; i < styles.css.length; i++) {
         styles.css[i] = portalLib.assetUrl({
             path: styles.css[i],
@@ -26,8 +27,9 @@ exports.get = function (req) {
     }
 };
 
-var getStyles = function (contentId) {
+var getStyles = function (contentId, project) {
     var bean = __.newBean('com.enonic.xp.app.contentstudio.style.StyleHandler');
     bean.contentId = __.nullOrValue(contentId);
+    bean.project = __.nullOrValue(project);
     return __.toNativeObject(bean.getStyles());
 };

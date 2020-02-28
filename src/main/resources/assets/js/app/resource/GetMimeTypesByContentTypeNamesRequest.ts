@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -11,8 +9,8 @@ export class GetMimeTypesByContentTypeNamesRequest
 
     constructor(names: ContentTypeName[]) {
         super();
-        super.setMethod('GET');
         this.names = names;
+        this.addRequestPathElements('getMimeTypes');
     }
 
     getParams(): Object {
@@ -21,13 +19,7 @@ export class GetMimeTypesByContentTypeNamesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getMimeTypes');
-    }
-
-    sendAndParse(): Q.Promise<String[]> {
-        return this.send().then((response: JsonResponse<String[]>) => {
-            return response.getJson();
-        });
+    protected processResponse(response: JsonResponse<String[]>): String[] {
+        return response.getJson();
     }
 }

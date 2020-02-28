@@ -1,11 +1,10 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {ContentVersion} from '../ContentVersion';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsRequest
     extends ContentResourceRequest<GetContentVersionsResultsJson, ContentVersion[]> {
@@ -16,8 +15,9 @@ export class GetContentVersionsRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
+        this.addRequestPathElements('getVersions');
     }
 
     setFrom(from: number): GetContentVersionsRequest {
@@ -38,15 +38,8 @@ export class GetContentVersionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getVersions');
-    }
-
-    sendAndParse(): Q.Promise<ContentVersion[]> {
-
-        return this.send().then((response: JsonResponse<GetContentVersionsResultsJson>) => {
-            return this.fromJsonToContentVersions(response.getResult().contentVersions);
-        });
+    protected processResponse(response: JsonResponse<GetContentVersionsResultsJson>): ContentVersion[] {
+        return this.fromJsonToContentVersions(response.getResult().contentVersions);
     }
 
     private fromJsonToContentVersions(json: ContentVersionJson[]): ContentVersion[] {

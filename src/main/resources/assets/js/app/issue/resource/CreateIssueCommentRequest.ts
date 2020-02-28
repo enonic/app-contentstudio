@@ -1,10 +1,9 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateIssueCommentRequest
     extends IssueResourceRequest<IssueCommentJson, IssueComment> {
@@ -16,8 +15,9 @@ export class CreateIssueCommentRequest
 
     constructor(issueId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.issueId = issueId;
+        this.addRequestPathElements('comment');
     }
 
     setCreator(key: PrincipalKey) {
@@ -44,13 +44,7 @@ export class CreateIssueCommentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment');
-    }
-
-    sendAndParse(): Q.Promise<IssueComment> {
-        return this.send().then((response: JsonResponse<IssueCommentJson>) => {
-            return IssueComment.fromJson(response.getResult());
-        });
+    processResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+        return IssueComment.fromJson(response.getResult());
     }
 }

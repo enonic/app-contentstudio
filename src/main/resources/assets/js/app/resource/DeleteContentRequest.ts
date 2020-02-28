@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
@@ -9,6 +8,7 @@ import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {GetTaskInfoRequest} from 'lib-admin-ui/task/GetTaskInfoRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
 
@@ -19,10 +19,11 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
     constructor(contentPath?: ContentPath) {
         super();
         this.setHeavyOperation(true);
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('delete');
     }
 
     setContentPaths(contentPaths: ContentPath[]): DeleteContentRequest {
@@ -49,14 +50,8 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'delete');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 
     sendAndParseWithPolling(): Q.Promise<string> {

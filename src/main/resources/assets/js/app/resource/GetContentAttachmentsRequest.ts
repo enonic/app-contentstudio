@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -13,8 +11,8 @@ export class GetContentAttachmentsRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('getAttachments');
     }
 
     getParams(): Object {
@@ -23,14 +21,8 @@ export class GetContentAttachmentsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getAttachments');
-    }
-
-    sendAndParse(): Q.Promise<any> {
-        return this.send().then((response: JsonResponse<AttachmentJson[]>) => {
-            return response.getResult().length > 0 ? Attachments.create().fromJson(response.getResult()).build() : null;
-        });
+    protected processResponse(response: JsonResponse<AttachmentJson[]>): Attachments {
+        return response.getResult().length > 0 ? Attachments.create().fromJson(response.getResult()).build() : null;
     }
 
 }

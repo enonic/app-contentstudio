@@ -1,20 +1,13 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {JsonResourceRequest} from './JsonResourceRequest';
 import {PageTemplate} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: Path;
+export abstract class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ContentResourceRequest<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'content', 'page', 'template');
-    }
-
-    getResourcePath(): Path {
-        return this.resourcePath;
+        this.addRequestPathElements('page', 'template');
     }
 
     fromJsonToContent(json: ContentJson): PageTemplate {

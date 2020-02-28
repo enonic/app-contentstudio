@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
@@ -11,23 +9,12 @@ export class GetAllContentTypesRequest
 
     constructor() {
         super();
-        super.setMethod('GET');
+        this.addRequestPathElements('all');
     }
 
-    getParams(): Object {
-        return {};
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'all');
-    }
-
-    sendAndParse(): Q.Promise<ContentTypeSummary[]> {
-
-        return this.send().then((response: JsonResponse<ContentTypeSummaryListJson>) => {
-            return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
-                return this.fromJsonToContentTypeSummary(contentTypeJson);
-            });
+    protected processResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
+        return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
+            return this.fromJsonToContentTypeSummary(contentTypeJson);
         });
     }
 }

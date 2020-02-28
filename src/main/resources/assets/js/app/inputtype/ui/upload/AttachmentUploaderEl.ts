@@ -7,6 +7,7 @@ import {AttachmentJson} from '../../../attachment/AttachmentJson';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import * as Q from 'q';
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export interface AttachmentItems {
     existingItems: Element[];
@@ -33,7 +34,7 @@ export class AttachmentUploaderEl
 
     constructor(config: AttachmentUploaderElConfig) {
         if (config.url == null) {
-            config.url = UriHelper.getRestUri('content/createAttachment');
+            config.url = 'content/createAttachment';
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -47,6 +48,11 @@ export class AttachmentUploaderEl
 
         this.contentId = config.contentId;
     }
+
+    protected beforeSubmit() {
+        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+    }
+
 
     doSetValue(value: string): AttachmentUploaderEl {
         const items: AttachmentItems = this.getAttachmentItemsFromString(value);

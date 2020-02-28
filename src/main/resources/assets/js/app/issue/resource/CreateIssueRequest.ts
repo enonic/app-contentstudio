@@ -3,9 +3,9 @@ import {PublishRequest} from '../PublishRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
 import {IssueType} from '../IssueType';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateIssueRequest
     extends IssueResourceRequest<IssueJson, Issue> {
@@ -26,7 +26,8 @@ export class CreateIssueRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('create');
     }
 
     setTitle(value: string): CreateIssueRequest {
@@ -80,13 +81,7 @@ export class CreateIssueRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Issue> {
-        return this.send().then((response: JsonResponse<IssueJson>) => {
-            return Issue.fromJson(response.getResult());
-        });
+    processResponse(response: JsonResponse<IssueJson>): Issue {
+        return Issue.fromJson(response.getResult());
     }
 }

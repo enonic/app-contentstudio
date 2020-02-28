@@ -1,10 +1,9 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ResolvePublishDependenciesResult} from './ResolvePublishDependenciesResult';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolvePublishDependenciesRequest
     extends ContentResourceRequest<ResolvePublishContentResultJson, ResolvePublishDependenciesResult> {
@@ -17,10 +16,11 @@ export class ResolvePublishDependenciesRequest
 
     constructor(builder: ResolvePublishDependenciesRequestBuilder) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = builder.ids;
         this.excludedIds = builder.excludedIds;
         this.excludeChildrenIds = builder.excludeChildrenIds;
+        this.addRequestPathElements('resolvePublishContent');
     }
 
     getParams(): Object {
@@ -37,15 +37,8 @@ export class ResolvePublishDependenciesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'resolvePublishContent');
-    }
-
-    sendAndParse(): Q.Promise<ResolvePublishDependenciesResult> {
-
-        return this.send().then((response: JsonResponse<ResolvePublishContentResultJson>) => {
-            return ResolvePublishDependenciesResult.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ResolvePublishContentResultJson>): ResolvePublishDependenciesResult {
+        return ResolvePublishDependenciesResult.fromJson(response.getResult());
     }
 
     static create() {

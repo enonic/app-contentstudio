@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
@@ -26,8 +24,8 @@ export class ListContentByIdRequest
 
     constructor(parentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.parentId = parentId;
+        this.addRequestPathElements('list');
     }
 
     setExpand(value: Expand): ListContentByIdRequest {
@@ -60,17 +58,10 @@ export class ListContentByIdRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'list');
-    }
-
-    sendAndParse(): Q.Promise<ContentResponse<ContentSummary>> {
-
-        return this.send().then((response: JsonResponse<ListContentResult<ContentSummaryJson>>) => {
-            return new ContentResponse(
-                ContentSummary.fromJsonArray(response.getResult().contents),
-                new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
-            );
-        });
+    protected processResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
+        return new ContentResponse(
+            ContentSummary.fromJsonArray(response.getResult().contents),
+            new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
+        );
     }
 }

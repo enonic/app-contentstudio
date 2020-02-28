@@ -75,6 +75,10 @@ type ActionsState = {
     UNDO_PENDING_DELETE?: boolean
 };
 
+export enum State {
+    ENABLED, DISABLED
+}
+
 export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
     private grid: ContentTreeGrid;
@@ -86,6 +90,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     private beforeActionsStashedListeners: { (): void; }[] = [];
 
     private actionsUnstashedListeners: { (): void; }[] = [];
+
+    private state: State = State.ENABLED;
 
     constructor(grid: ContentTreeGrid) {
         this.grid = grid;
@@ -151,6 +157,33 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.grid.onRemoved(() => {
             this.getPreviewHandler().unPreviewStateChanged(previewStateChangedHandler);
             ManagedActionManager.instance().unManagedActionStateChanged(managedActionsHandler);
+        });
+    }
+
+    setState(state: State) {
+        this.state = state;
+
+        if (this.state === State.DISABLED) {
+            this.disableAllActions();
+        } else {
+            this.updateActionsEnabledState([]);
+        }
+    }
+
+    private disableAllActions() {
+        this.enableActions({
+            SHOW_NEW_DIALOG: false,
+            EDIT: false,
+            DELETE: false,
+            DUPLICATE: false,
+            MOVE: false,
+            SORT: false,
+            PUBLISH_TREE: false,
+            PUBLISH: false,
+            UNPUBLISH: false,
+            MARK_AS_READY: false,
+            REQUEST_PUBLISH: false,
+            CREATE_ISSUE: false,
         });
     }
 
@@ -231,6 +264,9 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     // tslint:disable-next-line:max-line-length
     updateActionsEnabledState(browseItems: ContentBrowseItem[],
                               changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<void> {
+        if (this.state === State.DISABLED) {
+            return Q<void>(null);
+        }
 
         if (changes && changes.getAdded().length === 0 && changes.getRemoved().length === 0) {
             return Q<void>(null);
