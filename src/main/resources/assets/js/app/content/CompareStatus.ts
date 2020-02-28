@@ -1,5 +1,4 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 
 export enum CompareStatus {
@@ -19,63 +18,94 @@ export enum CompareStatus {
 export class CompareStatusFormatter {
 
     public static formatStatusTextFromContent(content: ContentSummaryAndCompareStatus): string {
-        if (content) {
-            return CompareStatusFormatter.formatStatus(content.getCompareStatus(), content.getContentSummary());
+        if (!content) {
+            return '';
         }
 
-        return '';
+        if (content.getCompareStatus() === CompareStatus.NEW) {
+
+            if (content.getContentSummary().getPublishFirstTime()) {
+                return i18n('status.offline');
+            }
+
+            return i18n('status.new');
+        }
+
+        return CompareStatusFormatter.formatStatusText(content.getCompareStatus());
     }
 
     public static formatStatusClassFromContent(content: ContentSummaryAndCompareStatus): string {
-        if (content) {
-            return CompareStatusFormatter.formatStatus(content.getCompareStatus(), content.getContentSummary(), true);
+        if (!content) {
+            return '';
         }
 
-        return '';
+        if (content.getCompareStatus() === CompareStatus.NEW) {
+
+            if (content.getContentSummary().getPublishFirstTime()) {
+                return 'offline';
+            }
+
+            return 'new';
+        }
+
+        return CompareStatusFormatter.formatStatusClass(content.getCompareStatus());
     }
 
-    public static formatStatus(compareStatus: CompareStatus, content?: ContentSummary, isClassName: boolean = false): string {
+    public static formatStatusClass(compareStatus: CompareStatus): string {
 
         let status;
 
         switch (compareStatus) {
-        case CompareStatus.NEW:
-            if (content && !content.getPublishFirstTime()) {
-                status = isClassName ? 'New' : i18n('status.new');
-            } else {
-                status = isClassName ? 'Offline' : i18n('status.offline');
-            }
-            break;
-        case CompareStatus.NEWER:
-            status = isClassName ? 'Modified' : i18n('status.modified');
-            break;
-        case CompareStatus.OLDER:
-            status = isClassName ? 'Out-of-date' : i18n('status.outofdate');
-            break;
-        case CompareStatus.PENDING_DELETE:
-            status = isClassName ? 'Deleted' : i18n('status.deleted');
-            break;
-        case CompareStatus.EQUAL:
-            status = isClassName ? 'Online' : i18n('status.online');
-            break;
-        case CompareStatus.MOVED:
-            status = isClassName ? 'Moved' : i18n('status.moved');
-            break;
-        case CompareStatus.PENDING_DELETE_TARGET:
-            status = isClassName ? 'Deleted in prod' : i18n('status.deletedinprod');
-            break;
-        case CompareStatus.NEW_TARGET:
-            status = isClassName ? 'New in prod' : i18n('status.newinprod');
-            break;
-        case CompareStatus.CONFLICT_PATH_EXISTS:
-            status = isClassName ? 'Conflict' : i18n('status.conflict');
-            break;
-        default:
-            status = isClassName ? 'Unknown' : i18n('status.unknown');
+            case CompareStatus.NEW:
+                status = 'New';
+                break;
+            case CompareStatus.NEWER:
+                status = 'Modified';
+                break;
+            case CompareStatus.OLDER:
+                status = 'Out-of-date';
+                break;
+            case CompareStatus.PENDING_DELETE:
+                status = 'Deleted';
+                break;
+            case CompareStatus.EQUAL:
+                status = 'Online';
+                break;
+            case CompareStatus.MOVED:
+                status = 'Moved';
+                break;
+            default:
+                status = 'Unknown';
         }
 
-        if (!!CompareStatus[status]) {
-            return isClassName ? 'Unknown' : i18n('status.unknown');
+        return status.toLowerCase();
+    }
+
+    public static formatStatusText(compareStatus: CompareStatus): string {
+
+        let status;
+
+        switch (compareStatus) {
+            case CompareStatus.NEW:
+                status = i18n('status.new');
+                break;
+            case CompareStatus.NEWER:
+                status = i18n('status.modified');
+                break;
+            case CompareStatus.OLDER:
+                status = i18n('status.outofdate');
+                break;
+            case CompareStatus.PENDING_DELETE:
+                status = i18n('status.deleted');
+                break;
+            case CompareStatus.EQUAL:
+                status = i18n('status.online');
+                break;
+            case CompareStatus.MOVED:
+                status = i18n('status.moved');
+                break;
+            default:
+                status = i18n('status.unknown');
         }
 
         return status;

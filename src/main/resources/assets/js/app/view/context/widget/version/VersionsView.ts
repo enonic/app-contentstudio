@@ -149,18 +149,6 @@ class VersionItem
         return statusDiv;
     }
 
-    private getStatusText(): string {
-        if (!this.contentVersion.isInMaster()) {
-            return CompareStatusFormatter.formatStatusTextFromContent(this.content);
-        }
-
-        if (this.isPublishPending()) {
-            return `${CompareStatusFormatter.formatStatus(CompareStatus.EQUAL)} (${i18n('status.pending')})`;
-        }
-
-        return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL);
-    }
-
     private isPublishPending(): boolean {
         return this.content.getPublishStatus() === PublishStatus.PENDING;
     }
@@ -245,16 +233,24 @@ class VersionItem
         });
     }
 
+    private getStatusText(): string {
+        if (!this.contentVersion.isInMaster()) {
+            return CompareStatusFormatter.formatStatusTextFromContent(this.content);
+        }
+
+        const statusPostfix = this.isPublishPending() ? ` (${PublishStatus.PENDING})` : '';
+
+        return `${CompareStatusFormatter.formatStatusText(CompareStatus.EQUAL)} ${statusPostfix}`;
+    }
+
     private getStatusClass(): string {
         if (!this.contentVersion.isInMaster()) {
-            return CompareStatusFormatter.formatStatusClassFromContent(this.content).toLowerCase();
+            return CompareStatusFormatter.formatStatusClassFromContent(this.content);
         }
 
-        if (this.isPublishPending()) {
-            return `${CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true)} ${PublishStatus.PENDING}`.toLowerCase();
-        }
+        const statusPostfix = this.isPublishPending() ? ` ${PublishStatus.PENDING}` : '';
 
-        return CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true).toLowerCase();
+        return `${CompareStatusFormatter.formatStatusClass(CompareStatus.EQUAL)}${statusPostfix}`;
     }
 }
 
