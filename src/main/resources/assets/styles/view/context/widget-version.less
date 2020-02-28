@@ -48,7 +48,7 @@
 
         }
 
-        &.online {
+        &.online, &.deleted {
           color: @admin-white;
           background-color: @admin-green;
           border-color: @admin-green;
@@ -85,6 +85,10 @@
               }
             }
           }
+        }
+
+        &.deleted {
+          opacity: 0.5;
         }
 
         .viewer.description {

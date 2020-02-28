@@ -13,8 +13,7 @@ import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
@@ -109,10 +108,6 @@ export class VersionsView
         contentVersions.forEach((contentVersion: ContentVersion) => {
             const isActive: boolean = contentVersion.getId() === this.activeVersionId;
 
-            if (contentVersion.hasBothWorkspaces() && this.getCompareStatus() === CompareStatus.PENDING_DELETE) {
-                result.push(new ContentVersionListItem(contentVersion, ContentVersion.branchDraft, isActive));
-            }
-
             const workspace: string = contentVersion.isInMaster() ? ContentVersion.branchMaster : ContentVersion.branchDraft;
             result.push(new ContentVersionListItem(contentVersion, workspace, isActive));
         });
@@ -137,12 +132,8 @@ export class VersionsView
 
     private addStatusDiv(item: ContentVersionListItem, itemEl: Element) {
         const isInMaster: boolean = item.isInMaster();
-        const statusText: string = isInMaster ?
-                                   CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
-                                   CompareStatusFormatter.formatStatusTextFromContent(this.content);
-        const statusClass: string = isInMaster ?
-                                    CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
-                                    CompareStatusFormatter.formatStatusClassFromContent(this.content);
+        const statusText: string = CompareStatusFormatter.formatStatusTextFromContent(this.content);
+        const statusClass: string = CompareStatusFormatter.formatStatusClassFromContent(this.content);
 
         const statusDiv = new DivEl('status ' + (isInMaster ? ContentVersion.branchMaster : ContentVersion.branchDraft));
         statusDiv.setHtml(statusText);
