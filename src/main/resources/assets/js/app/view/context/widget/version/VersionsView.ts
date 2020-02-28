@@ -238,7 +238,8 @@ class VersionItem
             return CompareStatusFormatter.formatStatusTextFromContent(this.content);
         }
 
-        const statusPostfix = this.isPublishPending() ? ` (${PublishStatus.PENDING})` : '';
+        const statusPostfix = this.isPublishPending() ?
+            ` (${PublishStatus.PENDING.charAt(0).toUpperCase() + PublishStatus.PENDING.slice(1)})` : '';
 
         return `${CompareStatusFormatter.formatStatusText(CompareStatus.EQUAL)} ${statusPostfix}`;
     }
