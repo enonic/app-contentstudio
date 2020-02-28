@@ -54,7 +54,9 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    protected abstract getFormItems(): FormItem[];
+    protected getFormItems(): FormItem[] {
+        return [this.createDescriptionFormItem()];
+    }
 
     protected initListeners() {
         this.descriptionInput.onValueChanged(() => {
@@ -69,13 +71,16 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
     }
 
     private addFormItems() {
-        const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
         const fieldSet: Fieldset = new Fieldset();
+
         this.getFormItems().forEach((formItem: FormItem) => {
             fieldSet.add(formItem);
         });
-        fieldSet.add(descriptionFormItem);
 
         this.form.add(fieldSet);
+    }
+
+    private createDescriptionFormItem(): FormItem {
+        return new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
     }
 }
