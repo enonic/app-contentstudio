@@ -2,6 +2,7 @@ import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {Branch} from './versioning/Branch';
 
 export class ContentVersion {
 
@@ -42,5 +43,31 @@ export class ContentVersion {
 
     isStateReady(): boolean {
         return this.workflowInfo && WorkflowState.READY === this.workflowInfo.getState();
+    }
+
+    isInMaster(): boolean {
+        return this.workspaces.some((workspace) => {
+            return workspace === Branch.MASTER;
+        });
+    }
+
+    hasWorkspaces(): boolean {
+        return this.workspaces.length > 0;
+    }
+
+    hasPublishInfo(): boolean {
+        return !!this.publishInfo;
+    }
+
+    hasPublishInfoMessage(): boolean {
+        return this.publishInfo && !!this.publishInfo.message;
+    }
+
+    getPublishInfoMessage(): string {
+        if (!this.publishInfo) {
+            return '';
+        }
+
+        return this.publishInfo.message;
     }
 }

@@ -2,7 +2,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {CompareStatus} from '../content/CompareStatus';
 
 export enum PublishStatus {
-    ONLINE, PENDING, EXPIRED
+    ONLINE = 'online', PENDING = 'pending', EXPIRED = 'expired'
 }
 
 export class PublishStatusFormatter {
