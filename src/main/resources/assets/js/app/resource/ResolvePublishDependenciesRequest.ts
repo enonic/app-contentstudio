@@ -3,7 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ResolvePublishDependenciesResult} from './ResolvePublishDependenciesResult';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
-import {HttpMethod} from '../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/rest/HttpMethod';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolvePublishDependenciesRequest
     extends ContentResourceRequest<ResolvePublishContentResultJson, ResolvePublishDependenciesResult> {
