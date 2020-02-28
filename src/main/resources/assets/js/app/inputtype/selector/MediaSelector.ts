@@ -17,6 +17,7 @@ import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptio
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {Content} from '../../content/Content';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 
 export class MediaSelector
     extends ContentSelector {
@@ -165,9 +166,9 @@ export class MediaSelector
 
     protected initFailedListener(uploader: MediaUploaderEl) {
         uploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
-            let item = event.getUploadItem();
+            const item: UploadItem<Content> = event.getUploadItem();
 
-            let selectedOption = this.getSelectedOptionsView().getById(item.getId());
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.getSelectedOptionsView().getById(item.getId());
             if (!!selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
@@ -175,14 +176,17 @@ export class MediaSelector
     }
 
     protected getRemainingOccurrences(): number {
-        let inputMaximum = this.getInput().getOccurrences().getMaximum();
-        let countSelected = this.getSelectedOptionsView().count();
-        let rest = -1;
+        const inputMaximum: number = this.getInput().getOccurrences().getMaximum();
+
         if (inputMaximum === 0) {
-            rest = 0;
-        } else {
-            rest = inputMaximum - countSelected;
-            rest = (rest === 0) ? -1 : rest;
+            return Number.MAX_SAFE_INTEGER;
+        }
+
+        const countSelected: number = this.getSelectedOptionsView().count();
+        const rest: number = inputMaximum - countSelected;
+
+        if (rest === 0) {
+            return -1;
         }
 
         return rest;
