@@ -66,27 +66,20 @@ module.exports = {
         let script = `return CKEDITOR.instances['${id}'].getData()`;
         return webDriverHelper.browser.execute(script);
     },
-    insertUrlLinkInCke: function (text, url) {
+    async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.typeText(text).then(() => {
-            return insertLinkDialog.typeUrl(url);
-        }).then(() => {
-            return insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
-        }).then(() => {
-            return webDriverHelper.browser.pause(500);
-        });
+        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.typeUrl(url);
+        await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        return await webDriverHelper.browser.pause(500);
     },
-    insertDownloadLinkInCke: function (text, contentDisplayName) {
+    async insertDownloadLinkInCke(text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.typeText(text).then(() => {
-            return insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
-        }).then(() => {
-            this.saveScreenshot('download_link_dialog');
-            return insertLinkDialog.clickOnInsertButton();
-        }).then(() => {
-            return insertLinkDialog.pause(700);
-        });
-
+        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
+        this.saveScreenshot('download_link_dialog');
+        await insertLinkDialog.clickOnInsertButton();
+        return await insertLinkDialog.pause(700);
     },
     async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -97,16 +90,13 @@ module.exports = {
         return await insertLinkDialog.pause(700);
     },
 
-    insertContentLinkInCke: function (text, contentDisplayName) {
+    async insertContentLinkInCke(text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
-        return insertLinkDialog.typeText(text).then(() => {
-            return insertLinkDialog.selectTargetInContentTab(contentDisplayName);
-        }).then(() => {
-            this.saveScreenshot('content_link_dialog');
-            return insertLinkDialog.clickOnInsertButton();
-        }).then(() => {
-            return insertLinkDialog.pause(700);
-        });
+        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.selectTargetInContentTab(contentDisplayName);
+        this.saveScreenshot('content_link_dialog');
+        await insertLinkDialog.clickOnInsertButton();
+        return await insertLinkDialog.pause(700);
     },
     doCloseCurrentBrowserTab: function () {
         return webDriverHelper.browser.getTitle().then(title => {

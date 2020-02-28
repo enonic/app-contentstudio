@@ -49,5 +49,6 @@ module.exports = Object.freeze({
     DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     ACTION_BUTTON: `//button[contains(@id,'ActionButton')]`,
     SHOW_DEPENDENT_ITEM_LINK: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
-    COMPARE_WITH_CURRENT_VERSION:`//button[contains(@id,'ActionButton') and @title='Compare with current version']`
+    COMPARE_WITH_CURRENT_VERSION:`//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
+    LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
 });

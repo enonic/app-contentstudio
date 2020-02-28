@@ -38,7 +38,6 @@ const XPATH = {
     componentViewToggler: "//button[contains(@id, 'TogglerButton')  and contains(@class,'icon-clipboard')]",
     hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
-    liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
@@ -363,11 +362,11 @@ class ContentWizardPanel extends Page {
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame(XPATH.liveEditFrame);
+        return this.switchToFrame(lib.LIVE_EDIT_FRAME);
     }
 
     async getLiveFramePosition() {
-        let el = await this.findElement(XPATH.liveEditFrame);
+        let el = await this.findElement(lib.LIVE_EDIT_FRAME);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
         return {x: xValue, y: yValue};

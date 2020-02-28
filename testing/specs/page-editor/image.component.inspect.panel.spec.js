@@ -5,8 +5,6 @@
  * Incorrect behavior after applying changes in Inspection Panel
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -16,7 +14,6 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
-
 
 describe("image.component.inspect.panel.spec: Inserts a image component and checks 'Inspect Panel' on the Context Window ",
     function () {
@@ -35,66 +32,55 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
             });
 
         it(`GIVEN existing site is opened AND an image has been inserted WHEN a caption has been typed AND 'Apply' button pressed THEN the site is getting 'saved'`,
-            () => {
+            async () => {
                 let pageComponentView = new PageComponentView();
                 let liveFormPanel = new LiveFormPanel();
                 let contentWizard = new ContentWizard();
                 let imageInspectPanel = new ImageInspectPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    //automatic template does not exist, so no need to unlock the editor
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu("main");
-                }).then(() => {
-                    return pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
-                }).then(() => {
-                    return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    return imageInspectPanel.typeCaption("test image");
-                }).then(() => {
-                    return imageInspectPanel.clickOnApplyButton();
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    // the site should be automatically saved, because Apply button was pressed
-                    return contentWizard.waitForNotificationMessage();
-                }).then(message => {
-                    studioUtils.saveScreenshot('inspect_image_panel_applied');
-                    let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
-                    assert.equal(message, expectedMessage, "expected notification message should appear")
-                })
+                //1. Open existing site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                //automatic template does not exist, so no need to unlock the editor
+                await contentWizard.clickOnShowComponentViewToggler();
+                //2. Insert image component, select an image and set a caption:
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
+                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
+                await contentWizard.switchToMainFrame();
+                await imageInspectPanel.typeCaption("test image");
+                //3. Click on Apply button:
+                await imageInspectPanel.clickOnApplyButton();
+                await contentWizard.switchToMainFrame();
+                //4. Verify - the site should be automatically saved, because Apply button was pressed
+                let actualMessage = await contentWizard.waitForNotificationMessage();
+                //5. Verify the notification message:
+                studioUtils.saveScreenshot('inspect_image_panel_applied');
+                let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
+                assert.equal(actualMessage, expectedMessage, "expected notification message should appear")
             });
 
         //verifies https://github.com/enonic/app-contentstudio/issues/77
-        it(`GIVEN existing site with image-component is opened WHEN the caption in inspection panel has been updated THEN expected caption should be present in the text area`,
-            () => {
+        it(`GIVEN existing site with image-component is opened WHEN the caption in inspection panel has been updated THEN updated caption should be present in the text area`,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let imageInspectPanel = new ImageInspectPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    // image inspection panel should be loaded automatically
-                    return imageInspectPanel.waitForOpened();
-                }).then(() => {
-                    return imageInspectPanel.typeCaption("new caption");
-                }).then(() => {
-                    return imageInspectPanel.clickOnApplyButton();
-                }).then(() => {
-                    return imageInspectPanel.typeCaption("test caption");
-                }).then(() => {
-                    return imageInspectPanel.clickOnApplyButton();
-                }).then(() => {
-                    return imageInspectPanel.pause(1000);
-                }).then(() => {
-                    return imageInspectPanel.getCaptionText();
-                }).then(result => {
-                    assert.equal(result, "test caption", "caption should be updated successfully");
-                })
+                //1. Open existing site and open Page Component View:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME);
+                //2. Verify that image inspection panel should be loaded automatically
+                await imageInspectPanel.waitForOpened();
+                //3. Type the text in caption area:
+                await imageInspectPanel.typeCaption("new caption");
+                //4. click on Apply button:
+                await imageInspectPanel.clickOnApplyButton();
+                //5. Update the caption:
+                await imageInspectPanel.typeCaption("test caption");
+                await imageInspectPanel.clickOnApplyButton();
+                await imageInspectPanel.pause(1000);
+                //6. Verify the text in caption-area:
+                let actualCaption = await imageInspectPanel.getCaptionText();
+                assert.equal(actualCaption, "test caption", "caption should be updated successfully");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
