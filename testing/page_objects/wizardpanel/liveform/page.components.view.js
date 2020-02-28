@@ -50,12 +50,17 @@ class PageComponentView extends Page {
         }
     }
 
-    async openMenuByDescription(description) {
+    async
+
+    openMenuByDescription(description) {
         try {
             let menuButton = xpath.componentByDescription(description) + "/../..//div[contains(@class,'menu-icon')]";
-            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
-            await this.clickOnElement(menuButton);
-            return await this.pause(500);
+            await
+            this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await
+            this.clickOnElement(menuButton);
+            return await
+            this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_component_view');
             throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);

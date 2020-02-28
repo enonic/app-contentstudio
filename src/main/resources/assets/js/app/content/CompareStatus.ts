@@ -56,26 +56,26 @@ export class CompareStatusFormatter {
         let status;
 
         switch (compareStatus) {
-            case CompareStatus.NEW:
-                status = 'New';
-                break;
-            case CompareStatus.NEWER:
-                status = 'Modified';
-                break;
-            case CompareStatus.OLDER:
-                status = 'Out-of-date';
-                break;
-            case CompareStatus.PENDING_DELETE:
-                status = 'Deleted';
-                break;
-            case CompareStatus.EQUAL:
-                status = 'Online';
-                break;
-            case CompareStatus.MOVED:
-                status = 'Moved';
-                break;
-            default:
-                status = 'Unknown';
+        case CompareStatus.NEW:
+            status = 'New';
+            break;
+        case CompareStatus.NEWER:
+            status = 'Modified';
+            break;
+        case CompareStatus.OLDER:
+            status = 'Out-of-date';
+            break;
+        case CompareStatus.PENDING_DELETE:
+            status = 'Deleted';
+            break;
+        case CompareStatus.EQUAL:
+            status = 'Online';
+            break;
+        case CompareStatus.MOVED:
+            status = 'Moved';
+            break;
+        default:
+            status = 'Unknown';
         }
 
         return status.toLowerCase();
@@ -86,26 +86,26 @@ export class CompareStatusFormatter {
         let status;
 
         switch (compareStatus) {
-            case CompareStatus.NEW:
-                status = i18n('status.new');
-                break;
-            case CompareStatus.NEWER:
-                status = i18n('status.modified');
-                break;
-            case CompareStatus.OLDER:
-                status = i18n('status.outofdate');
-                break;
-            case CompareStatus.PENDING_DELETE:
-                status = i18n('status.deleted');
-                break;
-            case CompareStatus.EQUAL:
-                status = i18n('status.online');
-                break;
-            case CompareStatus.MOVED:
-                status = i18n('status.moved');
-                break;
-            default:
-                status = i18n('status.unknown');
+        case CompareStatus.NEW:
+            status = i18n('status.new');
+            break;
+        case CompareStatus.NEWER:
+            status = i18n('status.modified');
+            break;
+        case CompareStatus.OLDER:
+            status = i18n('status.outofdate');
+            break;
+        case CompareStatus.PENDING_DELETE:
+            status = i18n('status.deleted');
+            break;
+        case CompareStatus.EQUAL:
+            status = i18n('status.online');
+            break;
+        case CompareStatus.MOVED:
+            status = i18n('status.moved');
+            break;
+        default:
+            status = i18n('status.unknown');
         }
 
         return status;

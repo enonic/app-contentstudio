@@ -136,45 +136,61 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1523 "Custom icon is overwritten with the default icon in Fragment wizard"
     it(`GIVEN existing content is opened WHEN part with custom icon has been saved as fragment THEN custom icon should be present in fragment-wizard`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            //1. Open the content:
-            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. Open Page Component View:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3. Expand the menu and click on "Save as Fragment" menu item
-            await pageComponentView.openMenu("Html Area Example");
-            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-            //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
-            await studioUtils.switchToContentTabWindow("Html Area Example");
-            //5. Open Page Component View in Fragment Wizard:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //6. Verify that custom icon should be present in Fragment Wizard:
-            let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example");
-            assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
-            //7. Verify that expected part-descriptions should be displayed in the dialog:
-            let actualDescription = await pageComponentView.getComponentDescription("Html Area Example");
-            assert.equal(actualDescription, PART_DESCRIPTION, "Expected description should be present in the menu item");
-        });
+        async() = > {
+        let contentWizard = new ContentWizard();
+    let pageComponentView = new PageComponentView();
+    //1. Open the content:
+    await
+    studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+    //2. Open Page Component View:
+    await
+    contentWizard.clickOnShowComponentViewToggler();
+    //3. Expand the menu and click on "Save as Fragment" menu item
+    await
+    pageComponentView.openMenu("Html Area Example");
+    await
+    pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+    //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
+    await
+    studioUtils.switchToContentTabWindow("Html Area Example");
+    //5. Open Page Component View in Fragment Wizard:
+    await
+    contentWizard.clickOnShowComponentViewToggler();
+    //6. Verify that custom icon should be present in Fragment Wizard:
+    let isDefaultIcon = await
+    pageComponentView.isItemWithDefaultIcon("Html Area Example");
+    assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
+    //7. Verify that expected part-descriptions should be displayed in the dialog:
+    let actualDescription = await
+    pageComponentView.getComponentDescription("Html Area Example");
+    assert.equal(actualDescription, PART_DESCRIPTION, "Expected description should be present in the menu item");
+})
+    ;
 
     it(`GIVEN existing content with fragment(created from a part) is opened WHEN fragment has been detached THEN part with custom icon should appear in the Page Component View`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
-            //1. Open existing content with fragment and part:
-            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. Open 'Page Component View':
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3. Expand the menu and click on "Detach from fragment" menu item
-            await pageComponentView.openMenuByDescription("part");
-            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT);
-            //4. Verify that custom icon should be displayed after the part detached from fragment:
-            let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
-            assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
-            isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
-            assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
-        });
+        async() = > {
+        let contentWizard = new ContentWizard();
+    let pageComponentView = new PageComponentView();
+    //1. Open existing content with fragment and part:
+    await
+    studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+    //2. Open 'Page Component View':
+    await
+    contentWizard.clickOnShowComponentViewToggler();
+    //3. Expand the menu and click on "Detach from fragment" menu item
+    await
+    pageComponentView.openMenuByDescription("part");
+    await
+    pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT);
+    //4. Verify that custom icon should be displayed after the part detached from fragment:
+    let isDefaultIcon = await
+    pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
+    assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
+    isDefaultIcon = await
+    pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
+    assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
+})
+    ;
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

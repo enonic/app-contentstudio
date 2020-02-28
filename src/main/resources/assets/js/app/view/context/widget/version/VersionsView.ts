@@ -24,7 +24,6 @@ import {CompareStatus, CompareStatusFormatter} from '../../../../content/Compare
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
-import {Branch} from '../../../../versioning/Branch';
 import {PublishStatus} from '../../../../publish/PublishStatus';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
@@ -240,7 +239,7 @@ class VersionItem
         }
 
         const statusPostfix = this.isPublishPending() ?
-            ` (${PublishStatus.PENDING.charAt(0).toUpperCase() + PublishStatus.PENDING.slice(1)})` : '';
+                              ` (${PublishStatus.PENDING.charAt(0).toUpperCase() + PublishStatus.PENDING.slice(1)})` : '';
 
         return `${CompareStatusFormatter.formatStatusText(CompareStatus.EQUAL)} ${statusPostfix}`;
     }

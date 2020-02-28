@@ -31,19 +31,32 @@ class TextComponent extends Page {
         return component.toolbox + `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
     }
 
-    async typeTextInCkeEditor(text) {
-        await this.switchToLiveEditFrame();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-        let id = await this.getEditorId();
-        await utils.setTextInCKE(id, text);
-        await this.getBrowser().switchToParentFrame();
-        return await this.pause(1000);
+    async
+
+    typeTextInCkeEditor(text) {
+        await
+        this.switchToLiveEditFrame();
+        await
+        this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+        let id = await
+        this.getEditorId();
+        await
+        utils.setTextInCKE(id, text);
+        await
+        this.getBrowser().switchToParentFrame();
+        return await
+        this.pause(1000);
     }
 
-    async getTextFromEditor() {
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-        let editorId = await this.getEditorId();
-        let result = await utils.getTextInCKE(editorId);
+    async
+
+    getTextFromEditor() {
+        await
+        this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+        let editorId = await
+        this.getEditorId();
+        let result = await
+        utils.getTextInCKE(editorId);
         return result.trim();
     }
 
@@ -56,55 +69,89 @@ class TextComponent extends Page {
 
     }
 
-    async switchToCKETableFrameAndInsertTable() {
-        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
-        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
-        await this.clickOnElement("//div[contains(@class,'cke_panel_block')]");
-        return await this.getBrowser().switchToParentFrame();
+    async
+
+    switchToCKETableFrameAndInsertTable() {
+        await
+        this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
+        await
+        this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+        await
+        this.clickOnElement("//div[contains(@class,'cke_panel_block')]");
+        return await
+        this.getBrowser().switchToParentFrame();
     }
 
-    async waitForTableDisplayedInCke() {
-        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
-        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+    async
+
+    waitForTableDisplayedInCke() {
+        await
+        this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.TIMEOUT_2);
+        await
+        this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
         let table = "//table";
-        let result = await this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
-        await this.getBrowser().switchToParentFrame();
+        let result = await
+        this.waitForElementDisplayed(table, appConst.TIMEOUT_2);
+        await
+        this.getBrowser().switchToParentFrame();
         return result;
     }
 
-    async clickOnInsertTableButton() {
+    async
+
+    clickOnInsertTableButton() {
         console.log('Insert Table dialog');
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-        return await this.clickOnElement(this.insertTableButton);
+        await
+        this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+        return await
+        this.clickOnElement(this.insertTableButton);
     }
 
-    async clickOnInsertLinkButton() {
+    async
+
+    clickOnInsertLinkButton() {
         let insertLinkDialog = new InsertLinkDialog();
         try {
-            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-            await this.clickOnElement(this.insertLinkButton);
-            await this.switchToParentFrame();
-            return await insertLinkDialog.waitForDialogLoaded();
+            await
+            this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+            await
+            this.clickOnElement(this.insertLinkButton);
+            await
+            this.switchToParentFrame();
+            return await
+            insertLinkDialog.waitForDialogLoaded();
         } catch (err) {
             this.saveScreenshot('err_insert_link_cke');
             throw new Error('Text Component - Error when clicking on Insert Link button');
         }
     }
 
-    async clickOnInsertAnchorButton() {
+    async
+
+    clickOnInsertAnchorButton() {
         let insertAnchorDialog = new InsertAnchorDialog();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-        await this.clickOnElement(this.insertAnchorButton);
-        await this.switchToParentFrame();
-        return await insertAnchorDialog.waitForDialogLoaded();
+        await
+        this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+        await
+        this.clickOnElement(this.insertAnchorButton);
+        await
+        this.switchToParentFrame();
+        return await
+        insertAnchorDialog.waitForDialogLoaded();
     }
 
-    async clickOnInsertImageButton() {
+    async
+
+    clickOnInsertImageButton() {
         let insertImageDialog = new InsertImageDialog();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
-        await this.clickOnElement(this.insertImageButton);
-        await this.switchToParentFrame();
-        return await insertImageDialog.waitForDialogVisible();
+        await
+        this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.TIMEOUT_3);
+        await
+        this.clickOnElement(this.insertImageButton);
+        await
+        this.switchToParentFrame();
+        return await
+        insertImageDialog.waitForDialogVisible();
     }
 };
 module.exports = TextComponent;
