@@ -93,6 +93,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
     await
     xDataImageSelector.waitForImageOptionsFilterInputVisible();
         });
+    
     //verifies https://github.com/enonic/app-contentstudio/issues/287
     it(`GIVEN the existing content is opened WHEN x-data disabled THEN 'Save' button gets visible and enabled`,
         async() = > {

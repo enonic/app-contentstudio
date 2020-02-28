@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
@@ -25,6 +25,8 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {Branch} from '../../../../versioning/Branch';
+import {PublishStatus} from '../../../../publish/PublishStatus';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class VersionsView
     extends ListBox<ContentVersion> {
@@ -45,25 +47,33 @@ export class VersionsView
         return this.content ? this.content.getContentId() : null;
     }
 
-    getCompareStatus(): CompareStatus {
-        return this.content ? this.content.getCompareStatus() : null;
-    }
-
     reload(): Q.Promise<void> {
         return this.loadData().then((contentVersions: ContentVersion[]) => {
             this.updateView(contentVersions);
             this.notifyLoaded();
-        });
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private loadData(): Q.Promise<ContentVersion[]> {
+        if (this.getContentId()) {
+            return new GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then(
+                (contentVersions: ContentVersions) => {
+                    this.activeVersion = contentVersions.getActiveVersion();
+                    return contentVersions.getContentVersions();
+                });
+        } else {
+            throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
+        }
+    }
+
+    private updateView(contentVersions: ContentVersion[]) {
+        this.clearItems();
+        this.setItems(contentVersions);
+        this.getItemView(this.activeVersion).addClass('active');
     }
 
     createItemView(item: ContentVersion, readOnly: boolean): Element {
-        let itemContainer = new LiEl('content-version-item');
-
-        this.createStatusBlock(item, itemContainer);
-        this.createDataBlocks(item, itemContainer);
-        this.addOnClickHandler(itemContainer);
-
-        return itemContainer;
+        return new VersionItem(item, this.activeVersion, this.content);
     }
 
     getItemId(item: ContentVersion): string {
@@ -86,136 +96,214 @@ export class VersionsView
         });
     }
 
-    private loadData(): Q.Promise<ContentVersion[]> {
-        if (this.getContentId()) {
-            return new GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then(
-                (contentVersions: ContentVersions) => {
-                    this.activeVersion = contentVersions.getActiveVersion();
-                    return contentVersions.getContentVersions();
-                });
-        } else {
-            throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
+}
+
+class VersionItem
+    extends LiEl {
+
+    private contentVersion: ContentVersion;
+    private activeVersion: ContentVersion;
+    private content: ContentSummaryAndCompareStatus;
+
+    private statusBlock: DivEl;
+    private descriptionBlock: ContentVersionViewer;
+    private versionInfoBlock: VersionItemInfoBlock;
+    private compareButton: ActionButton;
+
+    constructor(version: ContentVersion, activeVersion: ContentVersion, content: ContentSummaryAndCompareStatus) {
+        super('content-version-item');
+
+        this.contentVersion = version;
+        this.activeVersion = activeVersion;
+        this.content = content;
+
+        this.initElements();
+        this.createTooltip();
+        this.initListeners();
+    }
+
+    private initElements() {
+        if (this.hasWorkspaces()) {
+            this.statusBlock = this.createStatusBlock();
         }
+
+        this.descriptionBlock = this.createDescriptionBlock();
+        this.versionInfoBlock = new VersionItemInfoBlock(this.contentVersion, this.activeVersion, this.content);
+        this.compareButton = this.createCompareButton();
     }
 
-    private updateView(contentVersions: ContentVersion[]) {
-        this.clearItems();
-        this.setItems(contentVersions);
-        this.getItemView(this.activeVersion).addClass('active');
-    }
-
-    private hasWorkspaces(contentVersion: ContentVersion): boolean {
-        if (this.getCompareStatus() == null || !contentVersion.workspaces.length) {
+    private hasWorkspaces(): boolean {
+        if (this.getCompareStatus() == null || !this.contentVersion.hasWorkspaces()) {
             return false;
         }
         return true;
     }
 
-    private isInMaster(contentVersion: ContentVersion): boolean {
-        return contentVersion.workspaces.some((workspace) => {
-            return workspace === Branch.MASTER;
-        });
+    private getCompareStatus(): CompareStatus {
+        return this.content ? this.content.getCompareStatus() : null;
     }
 
-    private createStatusBlock(contentVersion: ContentVersion, itemEl: Element) {
-        if (this.hasWorkspaces(contentVersion)) {
-            const isInMaster = this.isInMaster(contentVersion);
-            const statusText = isInMaster ?
-                               CompareStatusFormatter.formatStatus(CompareStatus.EQUAL) :
-                               CompareStatusFormatter.formatStatusTextFromContent(this.content);
-            const statusClass = isInMaster ?
-                                CompareStatusFormatter.formatStatus(CompareStatus.EQUAL, null, true) :
-                                CompareStatusFormatter.formatStatusClassFromContent(this.content);
+    private createStatusBlock(): DivEl {
+        const statusDiv: DivEl = new DivEl('status');
+        statusDiv.setHtml(this.getStatusText());
 
-            let statusDiv = new DivEl('status ' + (isInMaster ? Branch.MASTER : Branch.DRAFT));
-            statusDiv.setHtml(statusText);
-            itemEl.appendChild(statusDiv);
-
-            statusDiv.addClass(statusClass.toLowerCase());
-            itemEl.addClass(statusClass.toLowerCase());
-        }
-
-        this.createTooltip(contentVersion, itemEl);
+        return statusDiv;
     }
 
-    private createTooltip(item: ContentVersion, itemEl: Element) {
-        const dateTimeStamp = item.publishInfo ? item.publishInfo.timestamp : item.modified;
-        const userName = item.publishInfo ? item.publishInfo.publisherDisplayName : item.modifierDisplayName;
-        const dateAsString = DateTimeFormatter.createHtml(dateTimeStamp);
-        const toolTipKey = item.publishInfo ? 'tooltip.state.published' :
-                                (item.isStateReady() ? 'tooltip.state.markedAsReady' : 'tooltip.state.modified');
-        const tooltipText = i18n(toolTipKey, dateAsString, userName);
-
-        return new Tooltip(itemEl, tooltipText, 1000);
+    private isPublishPending(): boolean {
+        return this.content.getPublishStatus() === PublishStatus.PENDING;
     }
 
-    private createDataBlocks(item: ContentVersion, itemEl: Element) {
-        let descriptionDiv = this.createDescriptionBlock(item);
-        let versionInfoDiv = this.createVersionInfoBlock(item);
+    private createDescriptionBlock(): ContentVersionViewer {
+        const descriptionBlock: ContentVersionViewer = new ContentVersionViewer();
+        descriptionBlock.setObject(this.contentVersion);
 
-        itemEl.appendChildren(descriptionDiv, versionInfoDiv);
+        return descriptionBlock;
     }
 
-    private createDescriptionBlock(item: ContentVersion): Element {
-        let descriptionDiv = new ContentVersionViewer();
-        descriptionDiv.addClass('description');
-        descriptionDiv.setObject(item);
-
-        const compareButton = new ActionButton(
-            new Action()
-                .onExecuted((action: Action) => {
-                    CompareContentVersionsDialog.get()
-                        .setContent(this.content.getContentSummary())
-                        .setLeftVersion(item.id)
-                        .setActiveVersion(this.activeVersion.id)
-                        .open();
-                }), false);
+    private createCompareButton(): ActionButton {
+        const compareButton: ActionButton = new ActionButton(new Action(), false);
 
         compareButton
             .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
             .addClass('compare icon-compare icon-medium transparent');
 
-        descriptionDiv.appendChild(compareButton);
-
-        return descriptionDiv;
+        return compareButton;
     }
 
-    private createVersionInfoBlock(item: ContentVersion): Element {
-        const versionInfoDiv = new DivEl('version-info hidden');
+    private createTooltip() {
+        const dateTimeStamp: Date = this.contentVersion.publishInfo
+                                    ? this.contentVersion.publishInfo.timestamp
+                                    : this.contentVersion.modified;
+        const userName: string = this.contentVersion.publishInfo
+                                 ? this.contentVersion.publishInfo.publisherDisplayName
+                                 : this.contentVersion.modifierDisplayName;
+        const dateAsString: string = DateTimeFormatter.createHtml(dateTimeStamp);
+        const toolTipKey: string = this.contentVersion.publishInfo ? 'tooltip.state.published' :
+                                   (this.contentVersion.isStateReady() ? 'tooltip.state.markedAsReady' : 'tooltip.state.modified');
+        const tooltipText: string = i18n(toolTipKey, dateAsString, userName);
 
-        if (item.publishInfo) {
-            if (item.publishInfo.message) {
-                const messageDiv = new DivEl('version-info-message');
-                messageDiv.appendChildren(new PEl('message').setHtml(item.publishInfo.message));
-                versionInfoDiv.appendChild(messageDiv);
+        return new Tooltip(this, tooltipText, 1000);
+    }
+
+    private initListeners() {
+        this.addOnClickHandler();
+        this.addCompareButtonAction();
+    }
+
+    private addOnClickHandler() {
+        this.onClicked(() => {
+            this.collapseAllContentVersionItemViewsExcept(this);
+
+            if (!this.hasClass('active') || this.hasClass('online')) {
+                this.toggleClass('expanded');
+            }
+        });
+    }
+
+    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
+        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+    }
+
+    private addCompareButtonAction() {
+        this.compareButton.getAction().onExecuted(() => {
+            CompareContentVersionsDialog.get()
+                .setContent(this.content.getContentSummary())
+                .setLeftVersion(this.contentVersion.id)
+                .setActiveVersion(this.activeVersion.id)
+                .open();
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            if (this.statusBlock) {
+                const statusClass: string = this.getStatusClass();
+                this.statusBlock.addClass(statusClass);
+                this.addClass(statusClass);
+                this.appendChild(this.statusBlock);
             }
 
-            const publisher = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
-            publisher
-                .setMainName(item.publishInfo.publisherDisplayName)
-                .setSubName(DateHelper.getModifiedString(item.publishInfo.timestamp))
-                .setIconClass(item.isStateReady() ? 'icon-state-ready' : 'icon-state-in-progress');
+            this.descriptionBlock.addClass('description');
+            this.descriptionBlock.appendChild(this.compareButton);
 
-            versionInfoDiv.appendChild(publisher);
+            this.appendChild(this.descriptionBlock);
+            this.appendChild(this.versionInfoBlock);
 
+            return rendered;
+        });
+    }
+
+    private getStatusText(): string {
+        if (!this.contentVersion.isInMaster()) {
+            return CompareStatusFormatter.formatStatusTextFromContent(this.content);
         }
 
-        const isActive = item.id === this.activeVersion.id;
-        const revertButton = new ActionButton(
-            new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert'))
-                .onExecuted((action: Action) => {
-                    if (!isActive) {
-                        new RevertVersionRequest(item.id, this.getContentId().toString()).sendAndParse().then(
-                            (contentVersionId: string) => {
-                                if (contentVersionId === this.activeVersion.id) {
-                                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
-                                } else {
-                                    NotifyManager.get().showFeedback(i18n('notify.version.changed', item.id));
-                                    new ActiveContentVersionSetEvent(this.getContentId(), item.id).fire();
-                                }
-                            });
-                    }
-                }), false);
+        const statusPostfix = this.isPublishPending() ?
+            ` (${PublishStatus.PENDING.charAt(0).toUpperCase() + PublishStatus.PENDING.slice(1)})` : '';
+
+        return `${CompareStatusFormatter.formatStatusText(CompareStatus.EQUAL)} ${statusPostfix}`;
+    }
+
+    private getStatusClass(): string {
+        if (!this.contentVersion.isInMaster()) {
+            return CompareStatusFormatter.formatStatusClassFromContent(this.content);
+        }
+
+        const statusPostfix = this.isPublishPending() ? ` ${PublishStatus.PENDING}` : '';
+
+        return `${CompareStatusFormatter.formatStatusClass(CompareStatus.EQUAL)}${statusPostfix}`;
+    }
+}
+
+class VersionItemInfoBlock
+    extends DivEl {
+
+    private contentVersion: ContentVersion;
+    private activeVersion: ContentVersion;
+    private content: ContentSummaryAndCompareStatus;
+
+    private messageBlock: DivEl;
+    private publisherBlock: NamesAndIconView;
+    private revertButton: ActionButton;
+
+    constructor(version: ContentVersion, activeVersion: ContentVersion, content: ContentSummaryAndCompareStatus) {
+        super('version-info hidden');
+
+        this.contentVersion = version;
+        this.activeVersion = activeVersion;
+        this.content = content;
+
+        this.initElements();
+        this.initListeners();
+    }
+
+    private initElements() {
+        if (this.contentVersion.hasPublishInfo()) {
+            if (this.contentVersion.hasPublishInfoMessage()) {
+                this.messageBlock = new DivEl('version-info-message');
+            }
+
+            this.publisherBlock = this.createPublisherBlock();
+        }
+
+        this.revertButton = this.createRevertButton();
+    }
+
+    private createPublisherBlock(): NamesAndIconView {
+        const publisher: NamesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
+        publisher
+            .setMainName(this.contentVersion.publishInfo.publisherDisplayName)
+            .setSubName(DateHelper.getModifiedString(this.contentVersion.publishInfo.timestamp))
+            .setIconClass(this.contentVersion.isStateReady() ? 'icon-state-ready' : 'icon-state-in-progress');
+
+        return publisher;
+    }
+
+    private createRevertButton(): ActionButton {
+        const isActive: boolean = this.contentVersion.id === this.activeVersion.id;
+        const revertButton: ActionButton = new ActionButton(
+            new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert')), false);
 
         if (isActive) {
             revertButton.addClass('active');
@@ -225,29 +313,57 @@ export class VersionsView
             revertButton.setEnabled(false);
         }
 
-        versionInfoDiv.appendChild(revertButton);
+        return revertButton;
+    }
 
-        revertButton.onClicked((event: MouseEvent) => {
+    private initListeners() {
+        this.addRevertButtonAction();
+    }
+
+    private addRevertButtonAction() {
+        this.revertButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
         });
 
-        versionInfoDiv.appendChildren(revertButton);
+        const isActive: boolean = this.contentVersion.id === this.activeVersion.id;
+        if (isActive) {
+            return;
+        }
 
-        return versionInfoDiv;
+        this.revertButton.getAction().onExecuted(() => this.revert());
     }
 
-    private addOnClickHandler(itemContainer: Element) {
-        itemContainer.onClicked(() => {
-            this.collapseAllContentVersionItemViewsExcept(itemContainer);
+    private revert() {
+        new RevertVersionRequest(this.contentVersion.id, this.getContentId().toString()).sendAndParse().then(
+            (contentVersionId: string) => {
+                if (contentVersionId === this.activeVersion.id) {
+                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                } else {
+                    NotifyManager.get().showFeedback(i18n('notify.version.changed', this.contentVersion.id));
+                    new ActiveContentVersionSetEvent(this.getContentId(), this.contentVersion.id).fire();
+                }
+            }).catch(DefaultErrorHandler.handle);
+    }
 
-            if (!itemContainer.hasClass('active') || itemContainer.hasClass('online')) {
-                itemContainer.toggleClass('expanded');
+    private getContentId(): ContentId {
+        return this.content ? this.content.getContentId() : null;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            if (this.messageBlock) {
+                this.messageBlock.appendChildren(new PEl('message').setHtml(this.contentVersion.getPublishInfoMessage()));
+                this.appendChild(this.messageBlock);
             }
-        });
-    }
 
-    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
-        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+            if (this.publisherBlock) {
+                this.appendChild(this.publisherBlock);
+            }
+
+            this.appendChild(this.revertButton);
+
+            return rendered;
+        });
     }
 }

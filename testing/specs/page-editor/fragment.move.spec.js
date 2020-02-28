@@ -21,6 +21,7 @@ describe('Move Fragment specification', function () {
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
+    let FRAGMENT_TEXT_DESCRIPTION = "text";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -29,80 +30,65 @@ describe('Move Fragment specification', function () {
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verifies - Incorrect description in fragment item after a component has been saved as fragment. https://github.com/enonic/app-contentstudio/issues/1534
     it(`WHEN text-component has been saved as fragment THEN new Fragment-content should be created`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponent = new TextComponent();
-    //1. Open existing site and insert new text component with the text:
-    await
-    studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    await
-    contentWizard.clickOnShowComponentViewToggler();
-    await
-    pageComponentView.openMenu("main");
-    await
-    pageComponentView.selectMenuItem(["Insert", "Text"]);
-    await
-    textComponent.typeTextInCkeEditor('text_component_1')
-    await
-    contentWizard.switchToMainFrame();
-    await
-    contentWizard.waitAndClickOnSave();
-    await
-    contentWizard.pause(1500);
-    //2. wait for (1500) page is rendered and open the menu
-    await
-    pageComponentView.openMenu("text_component_1");
-    //3. Click on Save as Fragment menu item:
-    await
-    pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-    studioUtils.saveScreenshot('text_saved_as_fragment2')
+            //1. Open existing site and insert new text component with the text:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponent.typeTextInCkeEditor('text_component_1')
+            await contentWizard.switchToMainFrame();
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(1500);
+            //2. wait for (1500) page is rendered and open the menu
+            await pageComponentView.openMenu("text_component_1");
+            //3. Click on Save as Fragment menu item:
+            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            studioUtils.saveScreenshot('text_saved_as_fragment2');
+            //4. Wait for the description is refreshing:
+            await contentWizard.pause(5500);
+            //5. Go to the site-wizard and verify description of the new created fragment
+            let actualDescription = await pageComponentView.getComponentDescription("text_component_1");
+            assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, "Expected description should be in the text-fragment");
         });
 
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
     it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
-        async() = > {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let moveContentDialog = new MoveContentDialog();
             let confirmationDialog = new ConfirmationDialog();
-    //1. Select the fragment and click on Move button:
-    await
-    studioUtils.findAndSelectContentByDisplayName('text_component_1');
-    await
-    contentBrowsePanel.clickOnMoveButton();
-    //2. Verify -  modal dialog is loaded and click on Move button:
-    await
-    moveContentDialog.waitForOpened();
-    await
-    moveContentDialog.clickOnMoveButton();
-    //3. Verify - Confirmation dialog should be loaded!
-    await
-    confirmationDialog.waitForDialogOpened();
-    //4. Click on 'Yes' button:
-    await
-    confirmationDialog.clickOnYesButton();
-    //5. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
-    studioUtils.saveScreenshot('fragment_is_moved');
-    let actualMessage = await
-    contentBrowsePanel.waitForNotificationMessage();
-    assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
+            //1. Select the fragment and click on Move button:
+            await studioUtils.findAndSelectContentByDisplayName('text_component_1');
+            await contentBrowsePanel.clickOnMoveButton();
+            //2. Verify -  modal dialog is loaded then click on 'Move' button:
+            await moveContentDialog.waitForOpened();
+            await moveContentDialog.clickOnMoveButton();
+            //3. Verify - Confirmation dialog should be loaded!
+            await confirmationDialog.waitForDialogOpened();
+            //4. Click on 'Yes' button:
+            await confirmationDialog.clickOnYesButton();
+            //5. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
+            studioUtils.saveScreenshot('fragment_is_moved');
+            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
+            assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
         });
 
     //Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting child fragment:
     it(`WHEN existing text-fragment is deleted AND its parent site has been opened THEN wizard page should be loaded`,
-        async() = > {
-        let contentWizard = new ContentWizard();
-    //1. Select the fragment and delete it:
-    await
-    studioUtils.doDeleteContentByDisplayName('text_component_1');
-    //2. Open fragment's parent site:
-    await
-    studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-    await
-    contentWizard.waitForOpened();
-})
-    ;
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Select the fragment and delete it:
+            await studioUtils.doDeleteContentByDisplayName('text_component_1');
+            //2. Open fragment's parent site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.waitForOpened();
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

@@ -558,8 +558,11 @@ export class ContentWizardPanel
             const persistedItem = content.clone();
             if (liveFormPanel) {
                 this.liveEditModel.setContent(persistedItem);
-                if (this.reloadPageEditorOnSave && this.pageEditorUpdatedDuringSave) {
-                    this.updateLiveForm(persistedItem);
+                if (this.pageEditorUpdatedDuringSave) {
+                    if (this.reloadPageEditorOnSave) {
+                        this.updateLiveForm(persistedItem);
+                    }
+                    this.updateXDataStepForms(persistedItem);
                 }
             }
 

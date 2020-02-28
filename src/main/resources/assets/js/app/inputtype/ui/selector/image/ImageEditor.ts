@@ -962,6 +962,7 @@ export class ImageEditor
      * http://sylvana.net/jpegcrop/exif_orientation.html
      */
     setOrientation(orientation: number, originalOrientation?: number, render: boolean = true, silent?: boolean) {
+        const prevOrientation = this.orientation;
         this.orientation = Math.min(Math.max(orientation, 1), 8);
 
         if (this.originalOrientation == null && !originalOrientation) {
@@ -970,16 +971,18 @@ export class ImageEditor
             this.originalOrientation = originalOrientation;
         }
 
-        if (ImageEditor.debug) {
-            console.debug('ImageEditor.setOrientation = ' + this.orientation);
-        }
+        if (this.orientation !== prevOrientation) {
+            if (ImageEditor.debug) {
+                console.debug('ImageEditor.setOrientation = ' + this.orientation);
+            }
 
-        if (render) {
-            this.renderOrientation(this.orientation);
-        }
+            if (render) {
+                this.renderOrientation(this.orientation);
+            }
 
-        if (!silent) {
-            this.notifyOrientationChanged(orientation);
+            if (!silent) {
+                this.notifyOrientationChanged(orientation);
+            }
         }
     }
 
