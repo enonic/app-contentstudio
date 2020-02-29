@@ -24,9 +24,6 @@ export class ContentVersion {
 
     private workflowInfo: Workflow;
 
-    static readonly branchMaster: string = 'master';
-    static readonly branchDraft: string = 'draft';
-
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
@@ -45,7 +42,7 @@ export class ContentVersion {
 
     public isInMaster(): boolean {
         return this.getWorkspaces().some((workspace) => {
-            return workspace === ContentVersion.branchMaster;
+            return workspace === Branch.MASTER;
         });
     }
 
@@ -155,31 +152,5 @@ export class ContentVersionBuilder {
 
     build(): ContentVersion {
         return new ContentVersion(this);
-    }
-
-    isInMaster(): boolean {
-        return this.workspaces.some((workspace) => {
-            return workspace === Branch.MASTER;
-        });
-    }
-
-    hasWorkspaces(): boolean {
-        return this.workspaces.length > 0;
-    }
-
-    hasPublishInfo(): boolean {
-        return !!this.publishInfo;
-    }
-
-    hasPublishInfoMessage(): boolean {
-        return this.publishInfo && !!this.publishInfo.message;
-    }
-
-    getPublishInfoMessage(): string {
-        if (!this.publishInfo) {
-            return '';
-        }
-
-        return this.publishInfo.message;
     }
 }
