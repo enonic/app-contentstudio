@@ -9,12 +9,10 @@ import {ContentVersions} from '../../../../ContentVersions';
 import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {Branch} from '../../../../versioning/Branch';
 import {ContentVersionListItemView} from './ContentVersionListItemView';
-import {ContentVersionListItem} from './ContentVersionListItem';
 
 export class VersionsView
-    extends ListBox<ContentVersionListItem> {
+    extends ListBox<ContentVersion> {
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
@@ -43,14 +41,14 @@ export class VersionsView
         }).catch(DefaultErrorHandler.handle);
     }
 
-    createItemView(item: ContentVersionListItem, readOnly: boolean): Element {
-        const itemContainer: LiEl = new ContentVersionListItemView(item, this.activeVersionId, this.content)
-            .toggleClass('active', item.isActive());
+    createItemView(item: ContentVersion, readOnly: boolean): Element {
+        const itemContainer: LiEl = new ContentVersionListItemView(item, this.activeVersionId, this.content);
+        itemContainer.toggleClass('active', item.getId() === this.activeVersionId);
 
         return itemContainer;
     }
 
-    getItemId(item: ContentVersionListItem): string {
+    getItemId(item: ContentVersion): string {
         return item.getId();
     }
 
@@ -83,20 +81,7 @@ export class VersionsView
 
     private updateView(contentVersions: ContentVersion[]) {
         this.clearItems();
-        this.setItems(this.processContentVersions(contentVersions));
-    }
-
-    private processContentVersions(contentVersions: ContentVersion[]): ContentVersionListItem[] {
-        const result: ContentVersionListItem[] = [];
-
-        contentVersions.forEach((contentVersion: ContentVersion) => {
-            const isActive: boolean = contentVersion.getId() === this.activeVersionId;
-
-            const workspace: Branch = contentVersion.isInMaster() ? Branch.MASTER : Branch.DRAFT;
-            result.push(new ContentVersionListItem(contentVersion, workspace, isActive));
-        });
-
-        return result;
+        this.setItems(contentVersions);
     }
 
 }

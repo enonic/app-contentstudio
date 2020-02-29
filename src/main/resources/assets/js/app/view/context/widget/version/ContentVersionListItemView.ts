@@ -19,15 +19,15 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentVersionListItem} from './ContentVersionListItem';
 import {VersionInfoBlock} from './VersionInfoBlock';
 
 export class ContentVersionListItemView
     extends LiEl {
 
-    private item: ContentVersionListItem;
+    private item: ContentVersion;
     private activeVersionId: string;
     private content: ContentSummaryAndCompareStatus;
+    private isActive: boolean;
 
     private statusBlock: DivEl;
     private descriptionBlock: ContentVersionViewer;
@@ -36,12 +36,13 @@ export class ContentVersionListItemView
     private revertButton: ActionButton;
     private compareButton: ActionButton;
 
-    constructor(item: ContentVersionListItem, activeVersionId: string, content: ContentSummaryAndCompareStatus) {
+    constructor(item: ContentVersion, activeVersionId: string, content: ContentSummaryAndCompareStatus) {
         super('content-version-item');
 
         this.item = item;
         this.activeVersionId = activeVersionId;
         this.content = content;
+        this.isActive = this.item.getId() === this.activeVersionId;
 
         this.initElements();
         this.initListeners();
@@ -54,14 +55,14 @@ export class ContentVersionListItemView
 
         this.createTooltip();
         this.descriptionBlock = new ContentVersionViewer();
-        this.descriptionBlock.setObject(this.item.getContentVersion(), this.item.isInMaster());
-        this.versionInfoBlock = new VersionInfoBlock(this.item.getContentVersion());
+        this.descriptionBlock.setObject(this.item);
+        this.versionInfoBlock = new VersionInfoBlock(this.item);
         this.revertButton = this.createRevertButton();
         this.compareButton = this.createCompareButton();
     }
 
     private hasWorkspaces(): boolean {
-        if (this.getCompareStatus() == null || !this.item.getContentVersion().hasWorkspaces()) {
+        if (this.getCompareStatus() == null || !this.item.hasWorkspaces()) {
             return false;
         }
         return true;
@@ -93,13 +94,12 @@ export class ContentVersionListItemView
     }
 
     private createTooltip() {
-        const contentVersion: ContentVersion = this.item.getContentVersion();
-        const dateTimeStamp: Date = contentVersion.getPublishInfo()
-                                    ? contentVersion.getPublishInfo().getTimestamp()
-                                    : contentVersion.getModified();
-        const userName: string = contentVersion.getPublishInfo()
-                                 ? contentVersion.getPublishInfo().getPublisherDisplayName()
-                                 : contentVersion.getModifierDisplayName();
+        const dateTimeStamp: Date = this.item.getPublishInfo()
+                                    ? this.item.getPublishInfo().getTimestamp()
+                                    : this.item.getModified();
+        const userName: string = this.item.getPublishInfo()
+                                 ? this.item.getPublishInfo().getPublisherDisplayName()
+                                 : this.item.getModifierDisplayName();
         const dateAsString: string = DateTimeFormatter.createHtml(dateTimeStamp);
         const tooltipText: string = i18n('tooltip.state.published', dateAsString, userName);
 
@@ -107,9 +107,8 @@ export class ContentVersionListItemView
     }
 
     private createRevertButton(): ActionButton {
-        const isActive: boolean = this.item.isActive();
         const revertButton: ActionButton = new ActionButton(
-            new Action(isActive ? i18n('field.version.active') : i18n('field.version.revert')), false);
+            new Action(this.isActive ? i18n('field.version.active') : i18n('field.version.revert')), false);
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
@@ -136,9 +135,9 @@ export class ContentVersionListItemView
             event.stopPropagation();
         });
 
-        if (!this.item.isActive()) {
+        if (!this.isActive) {
             this.revertButton.getAction().onExecuted(() => {
-                this.revert(this.item.getContentVersion());
+                this.revert();
             });
         }
 
@@ -148,19 +147,19 @@ export class ContentVersionListItemView
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
-            .setLeftVersion(this.item.getContentVersion().getId())
+            .setLeftVersion(this.item.getId())
             .setActiveVersion(this.activeVersionId)
             .open();
     }
 
-    private revert(item: ContentVersion) {
-        new RevertVersionRequest(item.getId(), this.getContentId().toString()).sendAndParse().then(
+    private revert() {
+        new RevertVersionRequest(this.item.getId(), this.getContentId().toString()).sendAndParse().then(
             (contentVersionId: string) => {
                 if (contentVersionId === this.activeVersionId) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                 } else {
-                    NotifyManager.get().showFeedback(i18n('notify.version.changed', item.getId()));
-                    new ActiveContentVersionSetEvent(this.getContentId(), item.getId()).fire();
+                    NotifyManager.get().showFeedback(i18n('notify.version.changed', this.item.getId()));
+                    new ActiveContentVersionSetEvent(this.getContentId(), this.item.getId()).fire();
                 }
             }).catch(DefaultErrorHandler.handle);
     }
@@ -192,7 +191,7 @@ export class ContentVersionListItemView
                 this.appendChild(this.statusBlock);
             }
 
-            if (this.item.isActive()) {
+            if (this.isActive) {
                 this.revertButton.addClass('active');
             }
 
