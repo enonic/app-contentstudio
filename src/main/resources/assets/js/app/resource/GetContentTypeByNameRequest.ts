@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTypeCache} from '../content/ContentTypeCache';
@@ -16,7 +15,6 @@ export class GetContentTypeByNameRequest
 
     constructor(name: ContentTypeName) {
         super();
-        super.setMethod('GET');
         this.name = name;
     }
 
@@ -27,22 +25,21 @@ export class GetContentTypeByNameRequest
         };
     }
 
-    getRequestPath(): Path {
-        return super.getResourcePath();
-    }
-
     sendAndParse(): Q.Promise<ContentType> {
-
-        let contentTypeCache = ContentTypeCache.get();
-        let contentType = contentTypeCache.getByKey(this.name);
+        const contentTypeCache: ContentTypeCache = ContentTypeCache.get();
+        const contentType: ContentType = contentTypeCache.getByKey(this.name);
         if (contentType) {
             return Q(contentType);
-        } else {
-            return this.send().then((response: JsonResponse<ContentTypeJson>) => {
-                contentType = this.fromJsonToContentType(response.getResult());
-                contentTypeCache.put(contentType);
-                return contentType;
-            });
         }
+
+        return super.sendAndParse();
+
+    }
+
+    protected processResponse(response: JsonResponse<ContentTypeJson>): ContentType {
+        const contentType: ContentType = this.fromJsonToContentType(response.getResult());
+        const contentTypeCache: ContentTypeCache = ContentTypeCache.get();
+        contentTypeCache.put(contentType);
+        return contentType;
     }
 }

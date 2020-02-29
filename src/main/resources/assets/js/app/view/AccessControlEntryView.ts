@@ -4,32 +4,25 @@ import {PermissionSelector} from '../security/PermissionSelector';
 import {Access} from '../security/Access';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
-import {PrincipalViewer} from 'lib-admin-ui/ui/security/PrincipalViewer';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import {AccessChangedEvent} from '../security/AccessChangedEvent';
 
 export class AccessControlEntryView
-    extends PrincipalViewer {
-
-    private ace: AccessControlEntry;
+    extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
 
     private accessSelector: AccessSelector;
     private permissionSelector: PermissionSelector;
 
-    private valueChangedListeners: { (item: AccessControlEntry): void }[] = [];
-
     public static debug: boolean = false;
 
     constructor(ace: AccessControlEntry, readonly: boolean = false) {
-        super('selected-option access-control-entry');
-
-        this.ace = ace;
-        this.setEditable(!readonly);
-
-        this.setAccessControlEntry(this.ace);
+        super(ace, readonly);
     }
 
     doLayout(object: Principal) {
         super.doLayout(object);
+        this.addClass('access-control-entry');
 
         if (AccessControlEntryView.debug) {
             console.debug('AccessControlEntryView.doLayout');
@@ -42,7 +35,7 @@ export class AccessControlEntryView
             this.accessSelector.setEnabled(this.isEditable());
             this.appendChild(this.accessSelector);
         }
-        this.accessSelector.setValue(AccessControlEntryView.getAccessValueFromEntry(this.ace), true);
+        this.accessSelector.setValue(AccessControlEntryView.getAccessValueFromEntry(this.item), true);
 
         this.appendRemoveButton();
 
@@ -51,22 +44,20 @@ export class AccessControlEntryView
             this.permissionSelector.setEnabled(this.isEditable());
             this.permissionSelector.onValueChanged((event: ValueChangedEvent) => {
                 this.toggleClass('dirty', event.getNewValue() !== JSON.stringify({
-                    allow: this.ace.getAllowedPermissions().sort(),
-                    deny: this.ace.getDeniedPermissions().sort()
+                    allow: this.item.getAllowedPermissions().sort(),
+                    deny: this.item.getDeniedPermissions().sort()
                 }));
-                this.notifyValueChanged(this.getAccessControlEntry());
+                this.notifyValueChanged(this.getItem());
             });
 
-            // this.toggleClass('dirty', !ace.isInherited());
-
-            this.accessSelector.onValueChanged((event: ValueChangedEvent) => {
-                if (Access[event.getNewValue()] === Access.CUSTOM) {
+            this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
+                if (event.getNewValue() === Access.CUSTOM) {
                     this.permissionSelector.show();
                 } else {
-                    if (Access[event.getOldValue()] === Access.CUSTOM) {
+                    if (event.getOldValue() === Access.CUSTOM) {
                         this.permissionSelector.hide();
                     }
-                    this.permissionSelector.setValue(this.getPermissionsValueFromAccess(Access[event.getNewValue()]));
+                    this.permissionSelector.setValue(this.getPermissionsValueFromAccess(event.getNewValue()));
                 }
             });
 
@@ -77,7 +68,7 @@ export class AccessControlEntryView
             }
             this.appendChild(this.permissionSelector);
         }
-        this.permissionSelector.setValue({allow: this.ace.getAllowedPermissions(), deny: this.ace.getDeniedPermissions()}, true);
+        this.permissionSelector.setValue({allow: this.item.getAllowedPermissions(), deny: this.item.getDeniedPermissions()}, true);
     }
 
     getPermissionSelector(): PermissionSelector {
@@ -99,35 +90,19 @@ export class AccessControlEntryView
         return this.valueChangedListeners;
     }
 
-    onValueChanged(listener: (item: AccessControlEntry) => void) {
-        this.valueChangedListeners.push(listener);
-    }
+    public setItem(ace: AccessControlEntry) {
+        super.setItem(ace);
 
-    unValueChanged(listener: (item: AccessControlEntry) => void) {
-        this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    notifyValueChanged(item: AccessControlEntry) {
-        this.valueChangedListeners.forEach((listener) => {
-            listener(item);
-        });
-    }
-
-    public setAccessControlEntry(ace: AccessControlEntry) {
-        this.ace = ace;
-
-        let principal: Principal = <Principal>Principal.create().setKey(ace.getPrincipalKey()).setDisplayName(
+        const principal: Principal = <Principal>Principal.create().setKey(ace.getPrincipalKey()).setDisplayName(
             ace.getPrincipalDisplayName()).build();
         this.setObject(principal);
 
         this.doLayout(principal);
     }
 
-    public getAccessControlEntry(): AccessControlEntry {
+    public getItem(): AccessControlEntry {
         let permissions = this.permissionSelector.getValue();
-        let ace = new AccessControlEntry(this.ace.getPrincipal());
+        let ace = new AccessControlEntry(this.item.getPrincipal());
         ace.setAllowedPermissions(permissions.allow);
         ace.setDeniedPermissions(permissions.deny);
         return ace;

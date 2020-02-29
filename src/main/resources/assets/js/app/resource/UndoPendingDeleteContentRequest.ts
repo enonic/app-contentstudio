@@ -1,11 +1,10 @@
-import * as Q from 'q';
 import {showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UndoPendingDeleteContentRequest
     extends ContentResourceRequest<UndoPendingDeleteContentResultJson, number> {
@@ -14,8 +13,9 @@ export class UndoPendingDeleteContentRequest
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
+        this.addRequestPathElements('undoPendingDelete');
     }
 
     getParams(): Object {
@@ -24,14 +24,8 @@ export class UndoPendingDeleteContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'undoPendingDelete');
-    }
-
-    sendAndParse(): Q.Promise<number> {
-        return this.send().then((response: JsonResponse<UndoPendingDeleteContentResultJson>) => {
-            return response.getResult().success;
-        });
+    protected processResponse(response: JsonResponse<UndoPendingDeleteContentResultJson>): number {
+        return response.getResult().success;
     }
 
     static showResponse(result: number) {

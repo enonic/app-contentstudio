@@ -35,8 +35,6 @@ export class IssueDialogForm
 
     private title: TextInput;
 
-    private compactAssigneesView: boolean;
-
     private contentItemsAddedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
 
     private contentItemsRemovedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
@@ -44,16 +42,12 @@ export class IssueDialogForm
     private contentItemsFormItem: FormItem;
     private contentItemsSelectorLocked: boolean;
 
-    constructor(compactAssigneesView?: boolean) {
+    constructor() {
 
         super('issue-dialog-form');
 
-        this.compactAssigneesView = !!compactAssigneesView;
-
         this.initElements();
-
         this.initFormView();
-
     }
 
     public doRender(): Q.Promise<boolean> {
@@ -82,8 +76,7 @@ export class IssueDialogForm
         const principalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
             [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
-        this.approversSelector = PrincipalComboBox.create().setLoader(principalLoader).setMaxOccurences(0).setCompactView(
-            this.compactAssigneesView).build();
+        this.approversSelector = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build();
 
         this.contentItemsSelector = ContentComboBox.create().setShowStatus(true).build();
 

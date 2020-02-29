@@ -1,11 +1,11 @@
 import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {LayoutDescriptorJson} from 'lib-admin-ui/content/page/region/LayoutDescriptorJson';
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {GetLayoutDescriptorsByApplicationRequest} from '../../../../../resource/GetLayoutDescriptorsByApplicationRequest';
 import {LayoutDescriptorResourceRequest} from '../../../../../resource/LayoutDescriptorResourceRequest';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class GetLayoutDescriptorByKeyRequest
     extends LayoutDescriptorResourceRequest<LayoutDescriptorJson, LayoutDescriptor> {
@@ -25,10 +25,6 @@ export class GetLayoutDescriptorByKeyRequest
         throw new Error('Unexpected call');
     }
 
-    getRequestPath(): Path {
-        throw new Error('Unexpected call');
-    }
-
     sendAndParse(): Q.Promise<LayoutDescriptor> {
         let deferred = Q.defer<LayoutDescriptor>();
 
@@ -44,5 +40,9 @@ export class GetLayoutDescriptorByKeyRequest
         }).done();
 
         return deferred.promise;
+    }
+
+    protected processResponse(response: JsonResponse<LayoutDescriptorJson>): LayoutDescriptor {
+        return null;
     }
 }

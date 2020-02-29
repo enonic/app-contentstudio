@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -11,6 +9,7 @@ import {ContentJson} from '../content/ContentJson';
 import {Regions} from '../page/region/Regions';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<ContentJson, Content>
@@ -32,7 +31,8 @@ export class CreatePageTemplateRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('create');
     }
 
     setController(controller: DescriptorKey): CreatePageTemplateRequest {
@@ -82,14 +82,7 @@ export class CreatePageTemplateRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): Q.Promise<Content> {
-
-        return this.send().then((response: JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

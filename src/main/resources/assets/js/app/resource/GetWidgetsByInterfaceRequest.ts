@@ -1,9 +1,7 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {Widget} from 'lib-admin-ui/content/Widget';
 import {WidgetDescriptorResourceRequest} from './WidgetDescriptorResourceRequest';
 import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetWidgetsByInterfaceRequest
     extends WidgetDescriptorResourceRequest<WidgetDescriptorJson[], any> {
@@ -12,22 +10,16 @@ export class GetWidgetsByInterfaceRequest
 
     constructor(widgetInterfaces: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.widgetInterfaces = widgetInterfaces;
+        this.addRequestPathElements('list', 'byinterfaces');
     }
 
     getParams(): Object {
         return this.widgetInterfaces;
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'list/byinterfaces');
-    }
-
-    sendAndParse(): Q.Promise<Widget[]> {
-
-        return this.send().then((response: JsonResponse<WidgetDescriptorJson[]>) => {
-            return WidgetDescriptorResourceRequest.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<WidgetDescriptorJson[]>): any {
+        return WidgetDescriptorResourceRequest.fromJson(response.getResult());
     }
 }

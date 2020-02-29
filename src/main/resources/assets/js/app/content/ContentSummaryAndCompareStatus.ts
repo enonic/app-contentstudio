@@ -139,7 +139,7 @@ export class ContentSummaryAndCompareStatus
         let value = CompareStatusFormatter.formatStatusClassFromContent(this).toLowerCase();
 
         if (PublishStatus.EXPIRED === this.getPublishStatus() || PublishStatus.PENDING === this.getPublishStatus()) {
-            value += ' ' + PublishStatus[this.getPublishStatus()].toLowerCase();
+            value += ' ' + this.getPublishStatus();
         }
 
         return value.toLowerCase().replace('_', '-').replace(' ', '_') || 'unknown';

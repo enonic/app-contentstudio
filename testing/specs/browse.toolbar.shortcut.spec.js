@@ -15,35 +15,45 @@ describe('Browse toolbar shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
+    it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async() = > {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let deleteContentDialog = new DeleteContentDialog();
-        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
-        await contentBrowsePanel.hotKeyDelete();
-        //'Delete Dialog' should be loaded(otherwise exception will be thrown)
-        await deleteContentDialog.waitForDialogOpened();
+    let deleteContentDialog = new DeleteContentDialog();
+    await
+    studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+    await
+    contentBrowsePanel.hotKeyDelete();
+    //'Delete Dialog' should be loaded(otherwise exception will be thrown)
+    await
+    deleteContentDialog.waitForDialogOpened();
     });
 
-    it(`GIVEN content is selected WHEN 'Ctrl+e' have been pressed THEN 'Content Wizard' should be loaded`, async () => {
+    it(`GIVEN content is selected WHEN 'Ctrl+e' have been pressed THEN 'Content Wizard' should be loaded`, async() = > {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let contentWizard = new ContentWizard();
-        //1. Select the folder:
-        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
-        //2. 'Control'+ 'e'
-        await contentBrowsePanel.hotKeyEdit();
-        await studioUtils.switchToContentTabWindow('All Content types images');
-        //'Content Wizard' should be loaded(otherwise exception will be thrown):
-        await contentWizard.waitForOpened();
+    let contentWizard = new ContentWizard();
+    //1. Select the folder:
+    await
+    studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+    //2. 'Control'+ 'e'
+    await
+    contentBrowsePanel.hotKeyEdit();
+    await
+    studioUtils.switchToContentTabWindow('All Content types images');
+    //'Content Wizard' should be loaded(otherwise exception will be thrown):
+    await
+    contentWizard.waitForOpened();
     });
 
-    it("WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded", async () => {
+    it("WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded", async() = > {
         let contentBrowsePanel = new ContentBrowsePanel();
         let newContentDialog = new NewContentDialog()
-        await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
-        //'Alt'+ 'n' have been pressed:
-        await contentBrowsePanel.hotKeyNew();
-        //'New Content Dialog should be loaded:
-        await newContentDialog.waitForOpened();
+    await
+    studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+    //'Alt'+ 'n' have been pressed:
+    await
+    contentBrowsePanel.hotKeyNew();
+    //'New Content Dialog should be loaded:
+    await
+    newContentDialog.waitForOpened();
     });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

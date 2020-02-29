@@ -17,36 +17,45 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
     webDriverHelper.setupBrowser();
 
     it(`GIVEN folder-wizard is opened WHEN 'Version history' menu item in Details panel has been selected THEN 'Version history' widget should be loaded`,
-        async () => {
-            let wizardDetailsPanel = new WizardDetailsPanel();
-            let wizardVersionsWidget = new WizardVersionsWidget();
+        async() = > {
+        let wizardDetailsPanel = new WizardDetailsPanel();
+    let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
-            //1. Open new wizard:
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
-            //2. Version history widget should not be displayed by default!
-            let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
-            assert.isFalse(isLoaded, "VersionsWidget should not be displayed");
-            //3. Click on dropdown handle and open Versions widget:
-            await wizardDetailsPanel.openVersionHistory();
-            studioUtils.saveScreenshot("wizard_versions_widget");
-            //4. Verify that "Versions Widget" should be loaded:
-            await wizardVersionsWidget.waitForVersionsLoaded();
+    //1. Open new wizard:
+    await
+    studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+    await
+    contentWizard.openDetailsPanel();
+    //2. Version history widget should not be displayed by default!
+    let isLoaded = await
+    wizardVersionsWidget.isWidgetLoaded();
+    assert.isFalse(isLoaded, "VersionsWidget should not be displayed");
+    //3. Click on dropdown handle and open Versions widget:
+    await
+    wizardDetailsPanel.openVersionHistory();
+    studioUtils.saveScreenshot("wizard_versions_widget");
+    //4. Verify that "Versions Widget" should be loaded:
+    await
+    wizardVersionsWidget.waitForVersionsLoaded();
         });
 
     it(`GIVEN folder-wizard is opened WHEN 'Dependencies' menu item in Details panel has been selected THEN 'Dependencies' widget should be loaded`,
-        async () => {
+        async() = > {
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            //1. Open new wizard:
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.openDetailsPanel();
-            //2. Click on dropdown handle and select Dependencies menu item:
-            await wizardDetailsPanel.openDependencies();
-            studioUtils.saveScreenshot("wizard_dependencies_widget");
-            //3. Verify that "Dependencies Widget" should be loaded:
-            await wizardDependenciesWidget.waitForWidgetLoaded();
+    //1. Open new wizard:
+    await
+    studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+    await
+    contentWizard.openDetailsPanel();
+    //2. Click on dropdown handle and select Dependencies menu item:
+    await
+    wizardDetailsPanel.openDependencies();
+    studioUtils.saveScreenshot("wizard_dependencies_widget");
+    //3. Verify that "Dependencies Widget" should be loaded:
+    await
+    wizardDependenciesWidget.waitForWidgetLoaded();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

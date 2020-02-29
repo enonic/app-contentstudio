@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
@@ -11,8 +9,8 @@ export class IsRenderableRequest
 
     constructor(contentId: ContentId) {
         super();
-        this.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('isRenderable');
     }
 
     setContentId(value: ContentId): IsRenderableRequest {
@@ -26,14 +24,7 @@ export class IsRenderableRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'isRenderable');
-    }
-
-    sendAndParse(): Q.Promise<boolean> {
-
-        return this.send().then((response: JsonResponse<boolean>) => {
-            return response.getResult();
-        });
+    protected processResponse(response: JsonResponse<boolean>): boolean {
+        return response.getResult();
     }
 }

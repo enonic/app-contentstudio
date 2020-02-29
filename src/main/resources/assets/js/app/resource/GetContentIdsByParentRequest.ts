@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
@@ -15,7 +13,7 @@ export class GetContentIdsByParentRequest
 
     constructor() {
         super();
-        super.setMethod('GET');
+        this.addRequestPathElements('listIds');
     }
 
     setOrder(value: ChildOrder): GetContentIdsByParentRequest {
@@ -35,14 +33,7 @@ export class GetContentIdsByParentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'listIds');
-    }
-
-    sendAndParse(): Q.Promise<ContentId[]> {
-
-        return this.send().then((response: JsonResponse<ContentIdBaseItemJson[]>) => {
-            return response.getResult().map((item => new ContentId(item.id)));
-        });
+    protected processResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+        return response.getResult().map((item => new ContentId(item.id)));
     }
 }

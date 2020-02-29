@@ -62,7 +62,6 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Branch} from '../../versioning/Branch';
 import {Content, ContentBuilder} from '../../content/Content';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -76,7 +75,6 @@ import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
-import {RepositoryId} from '../../repository/RepositoryId';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -575,9 +573,7 @@ export class LiveFormPanel
         this.pageSkipReload = true;
         const componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
-            RenderingMode.EDIT,
-            RepositoryId.CONTENT_REPO_ID,
-            Branch.DRAFT);
+            RenderingMode.EDIT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
@@ -732,11 +728,8 @@ export class LiveFormPanel
         this.liveEditPageProxy.onFragmentReloadRequired((event: FragmentComponentReloadRequiredEvent) => {
             let fragmentView = event.getFragmentComponentView();
 
-            let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
-                fragmentView.getComponentPath(),
-                RenderingMode.EDIT,
-                RepositoryId.CONTENT_REPO_ID,
-                Branch.DRAFT);
+            let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(), fragmentView.getComponentPath(),
+                RenderingMode.EDIT);
 
             fragmentView.showLoadingSpinner();
             this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {

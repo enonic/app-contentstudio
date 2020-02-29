@@ -13,12 +13,15 @@ describe('attachment.preview.spec - Select a *.txt file and check expected text 
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
     it(`WHEN existing *.txt file is selected WHEN expected text should be loaded in Preview Panel`,
-        async () => {
-            let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            await studioUtils.findAndSelectItem("test-text.txt");
-            await contentItemPreviewPanel.pause(500);
-            let result = await contentItemPreviewPanel.getTextInAttachmentPreview();
-            assert.isTrue(result.includes('Belarus'), "expected text should be present in the Preview Panel");
+        async() = > {
+        let contentItemPreviewPanel = new ContentItemPreviewPanel();
+    await
+    studioUtils.findAndSelectItem("test-text.txt");
+    await
+    contentItemPreviewPanel.pause(500);
+    let result = await
+    contentItemPreviewPanel.getTextInAttachmentPreview();
+    assert.isTrue(result.includes('Belarus'), "expected text should be present in the Preview Panel");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

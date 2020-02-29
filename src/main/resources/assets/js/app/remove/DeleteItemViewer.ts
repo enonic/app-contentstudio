@@ -3,8 +3,8 @@ import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {AEl} from 'lib-admin-ui/dom/AEl';
-import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 
 export class DeleteItemViewer
     extends ContentSummaryAndCompareStatusViewer {
@@ -27,14 +27,14 @@ export class DeleteItemViewer
 
             const contentSummary = this.getObject().getContentSummary();
 
-            let tabId = new AppBarTabId('browse', contentSummary.getId());
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.forBrowse(contentSummary.getId());
 
-            let wizardParams = new ContentWizardPanelParams()
+            const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentSummary.getType())
                 .setContentId(contentSummary.getContentId());
 
-            let win = ContentEventsProcessor.openWizardTab(wizardParams, tabId);
+            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
             setTimeout(() => {
                 new ToggleSearchPanelWithDependenciesGlobalEvent(this.getObject().getContentSummary(), true).fire(win);

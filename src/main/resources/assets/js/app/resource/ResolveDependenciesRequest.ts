@@ -1,9 +1,8 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolveDependenciesRequest
     extends ContentResourceRequest<ResolveDependenciesResultJson, ResolveDependenciesResult> {
@@ -12,8 +11,9 @@ export class ResolveDependenciesRequest
 
     constructor(contentIds: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = contentIds;
+        this.addRequestPathElements('getDependencies');
     }
 
     getParams(): Object {
@@ -22,14 +22,7 @@ export class ResolveDependenciesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getDependencies');
-    }
-
-    sendAndParse(): Q.Promise<ResolveDependenciesResult> {
-
-        return this.send().then((response: JsonResponse<any>) => {
-            return ResolveDependenciesResult.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<ResolveDependenciesResultJson>): ResolveDependenciesResult {
+        return ResolveDependenciesResult.fromJson(response.getResult());
     }
 }

@@ -1,7 +1,7 @@
 export enum RenderingMode {
-    EDIT,
-    PREVIEW,
-    INLINE,
-    LIVE,
-    ADMIN
+    EDIT = 'edit',
+    PREVIEW = 'preview',
+    INLINE = 'inline',
+    LIVE = 'live',
+    ADMIN = 'admin'
 }

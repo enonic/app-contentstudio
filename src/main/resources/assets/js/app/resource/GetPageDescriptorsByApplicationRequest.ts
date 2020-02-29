@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageDescriptorResourceRequest} from './PageDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
@@ -17,9 +16,9 @@ export class GetPageDescriptorsByApplicationRequest
 
     constructor(applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.applicationKey = applicationKey;
         this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationRequest);
+        this.addRequestPathElements('list', 'by_application');
     }
 
     getParams(): Object {
@@ -28,23 +27,21 @@ export class GetPageDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'list', 'by_application');
-    }
-
     sendAndParse(): Q.Promise<PageDescriptor[]> {
-        const cached = this.cache.getByApplications([this.applicationKey]);
+        const cached: PageDescriptor[] = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
             return Q(cached);
         }
 
-        return this.send().then((response: JsonResponse<PageDescriptorsJson>) => {
-            this.cache.putApplicationKeys([this.applicationKey]);
-            return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
-                const pageDescriptor = PageDescriptor.fromJson(descriptorJson);
-                this.cache.put(pageDescriptor);
-                return pageDescriptor;
-            });
+        return super.sendAndParse();
+    }
+
+    protected processResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
+        this.cache.putApplicationKeys([this.applicationKey]);
+        return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
+            const pageDescriptor = PageDescriptor.fromJson(descriptorJson);
+            this.cache.put(pageDescriptor);
+            return pageDescriptor;
         });
     }
 }

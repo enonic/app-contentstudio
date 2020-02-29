@@ -75,7 +75,13 @@ export class AttachmentUploader
     }
 
     private getTotalAllowedToUpload(): number {
-        return this.getInput().getOccurrences().getMaximum() - this.uploaderEl.getTotalItems();
+        const maxOccurrences: number = this.getInput().getOccurrences().getMaximum();
+
+        if (maxOccurrences === 0) {
+            return Number.MAX_SAFE_INTEGER;
+        }
+
+        return maxOccurrences - this.uploaderEl.getTotalItems();
     }
 
     reset() {

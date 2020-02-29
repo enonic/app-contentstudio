@@ -16,6 +16,7 @@ import {Input} from 'lib-admin-ui/form/Input';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
+import {CustomSelectorLoader} from './CustomSelectorLoader';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
@@ -102,7 +103,12 @@ export class CustomSelector
 
     createComboBox(input: Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
 
-        let comboBox = new CustomSelectorComboBox(input, this.requestPath, this.getValueFromPropertyArray(propertyArray));
+        const comboBox: CustomSelectorComboBox = <CustomSelectorComboBox>CustomSelectorComboBox.create()
+            .setComboBoxName(input.getName())
+            .setMaximumOccurrences(input.getOccurrences().getMaximum())
+            .setValue(this.getValueFromPropertyArray(propertyArray))
+            .setLoader(new CustomSelectorLoader(this.requestPath))
+            .build();
         /*
          comboBox.onOptionFilterInputValueChanged((event: OptionFilterInputValueChangedEvent<string>) => {
          comboBox.setFilterArgs({searchString: event.getNewValue()});

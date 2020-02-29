@@ -101,10 +101,10 @@ export class UserAccessListItemView
 
     private getOptionName(access: Access): string {
         let currentOption = ACCESS_OPTIONS.filter(option => {
-            return option.value === access;
+            return option === access;
         });
         if (currentOption && currentOption.length > 0) {
-            return currentOption[0].name;
+            return currentOption[0];
         }
 
         return '';

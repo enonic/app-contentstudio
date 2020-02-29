@@ -1,22 +1,15 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-
 export enum Access {
-    FULL,
-    READ,
-    WRITE,
-    PUBLISH,
-    CUSTOM
+    FULL = 'full',
+    READ = 'read',
+    WRITE = 'write',
+    PUBLISH = 'publish',
+    CUSTOM = 'custom'
 }
 
-export interface AccessOption {
-    value: Access;
-    name: string;
-}
-
-export const ACCESS_OPTIONS: AccessOption[] = [
-    {value: Access.FULL, name: i18n('security.access.full')},
-    {value: Access.PUBLISH, name: i18n('security.access.publish')},
-    {value: Access.WRITE, name: i18n('security.access.write')},
-    {value: Access.READ, name: i18n('security.access.read')},
-    {value: Access.CUSTOM, name: i18n('security.access.custom')}
+export const ACCESS_OPTIONS: Access[] = [
+    Access.FULL,
+    Access.PUBLISH,
+    Access.WRITE,
+    Access.READ,
+    Access.CUSTOM,
 ];

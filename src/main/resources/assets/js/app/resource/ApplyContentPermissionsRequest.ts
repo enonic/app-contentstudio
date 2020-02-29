@@ -1,11 +1,10 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {AccessControlList} from '../access/AccessControlList';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ApplyContentPermissionsRequest
     extends ContentResourceRequest<TaskIdJson, TaskId> {
@@ -22,7 +21,8 @@ export class ApplyContentPermissionsRequest
         super();
         this.inheritPermissions = true;
         this.overwriteChildPermissions = false;
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('applyPermissions');
     }
 
     setId(id: ContentId): ApplyContentPermissionsRequest {
@@ -54,15 +54,8 @@ export class ApplyContentPermissionsRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'applyPermissions');
-    }
-
-    sendAndParse(): Q.Promise<TaskId> {
-
-        return this.send().then((response: JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 
 }

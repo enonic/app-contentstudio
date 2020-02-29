@@ -7,6 +7,9 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.Context;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
@@ -19,6 +22,8 @@ public final class StyleHandler
 {
     private static final ApplicationKey SYSTEM_APPLICATION_KEY = ApplicationKey.from( "com.enonic.xp.app.system" );
 
+    private static final String PROJECT_REPO_ID_PREFIX = "com.enonic.cms.";
+
     private StyleDescriptorService styleDescriptorService;
 
     private ContentService contentService;
@@ -27,8 +32,16 @@ public final class StyleHandler
 
     private String contentId;
 
+    private String project;
+
     public StyleDescriptorMapper getStyles()
     {
+        final Context context = ContextBuilder.
+            from( ContextAccessor.current() ).
+            repositoryId( PROJECT_REPO_ID_PREFIX + project ).
+            build();
+        ContextAccessor.INSTANCE.set( context );
+
         final ContentId contentId = ContentId.from( this.contentId );
 
         final ApplicationKeys applicationKeys = resolveKeysFromApps( contentId );
@@ -62,6 +75,11 @@ public final class StyleHandler
     public void setContentId( final String contentId )
     {
         this.contentId = contentId;
+    }
+
+    public void setProject( final String value )
+    {
+        this.project = value;
     }
 
     @Override

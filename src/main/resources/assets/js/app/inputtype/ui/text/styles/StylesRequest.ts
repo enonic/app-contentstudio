@@ -4,6 +4,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ProjectContext} from '../../../../project/ProjectContext';
 
 declare var CONFIG;
 
@@ -46,7 +47,8 @@ export class StylesRequest
 
     getParams(): Object {
         return {
-            contentId: this.contentId
+            contentId: this.contentId,
+            project: ProjectContext.get().getProject()
         };
     }
 

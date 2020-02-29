@@ -2,28 +2,21 @@ import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combob
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {Input} from 'lib-admin-ui/form/Input';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class CustomSelectorComboBox
     extends RichComboBox<CustomSelectorItem> {
 
-    constructor(input: Input, requestPath: string, value: string) {
-        let loader = new CustomSelectorLoader(requestPath);
-
-        let builder = new RichComboBoxBuilder<CustomSelectorItem>()
-            .setComboBoxName(input.getName())
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setOptionDisplayValueViewer(new CustomSelectorItemViewer())
-            .setSelectedOptionsView(new CustomSelectorSelectedOptionsView())
-            .setDelayedInputValueChangedHandling(300)
-            .setLoader(loader)
-            .setValue(value);
-
+    constructor(builder: CustomSelectorComboBoxBuilder) {
         super(builder);
+    }
+
+    static create(): CustomSelectorComboBoxBuilder {
+        return new CustomSelectorComboBoxBuilder();
     }
 }
 
@@ -52,4 +45,18 @@ export class CustomSelectorSelectedOptionView
         return viewer;
     }
 
+}
+
+export class CustomSelectorComboBoxBuilder
+    extends RichComboBoxBuilder<CustomSelectorItem> {
+
+    optionDisplayValueViewer: Viewer<CustomSelectorItem> = new CustomSelectorItemViewer();
+
+    delayedInputValueChangedHandling: number = 300;
+
+    selectedOptionsView: SelectedOptionsView<CustomSelectorItem> = new CustomSelectorSelectedOptionsView();
+
+    build(): CustomSelectorComboBox {
+        return new CustomSelectorComboBox(this);
+    }
 }

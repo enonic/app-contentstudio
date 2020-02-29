@@ -16,9 +16,9 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -234,14 +234,14 @@ export class ContentDuplicateDialog
     }
 
     private openTab(content: ContentSummary) {
-        const tabId = AppBarTabId.forEdit(content.getContentId().toString());
+        const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
 
-        const wizardParams = new ContentWizardPanelParams()
+        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(content.getType())
             .setContentId(content.getContentId());
 
-        ContentEventsProcessor.openWizardTab(wizardParams, tabId);
+        ContentEventsProcessor.openWizardTab(wizardParams);
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {

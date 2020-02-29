@@ -27,28 +27,38 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     //verifies https://github.com/enonic/lib-admin-ui/issues/909
     //Wizard's navigation toolbar scrolls to incorrect step on long forms
     it(`WHEN content with long forms (x-data) is opened AND last step has been clicked THEN required form gets visible`,
-        async () => {
+        async() = > {
             let xDataHtmlArea = new XDataHtmlArea();
             let contentWizard = new ContentWizard();
-            //1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
-            await contentWizard.typeDisplayName(contentName);
-            //2. Do enable the first form
-            await contentWizard.clickOnXdataTogglerByName("Text Area x-data");
-            //3. Do enable the second form
-            await contentWizard.clickOnXdataTogglerByName("X-data (image selector)");
-            //4. Do enable the third form
-            await contentWizard.clickOnXdataTogglerByName("Html Area x-data");
-            //5. Save the content with long forms
-            await contentWizard.waitAndClickOnSave();
-            //6. Close the wizard
-            await studioUtils.doCloseWizardAndSwitchToGrid();
-            //7. Reopen the content
-            await studioUtils.selectContentAndOpenWizard(contentName);
-            //8. Click on the last x-data Wizard-Step:
-            await contentWizard.clickOnWizardStep(X_DATA_STEP_WIZARD);
-            //Verify that the last form (html-area) is visible:
-            await xDataHtmlArea.waitForHtmlAreaVisible();
+    //1. Open new wizard:
+    await
+    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
+    await
+    contentWizard.typeDisplayName(contentName);
+    //2. Do enable the first form
+    await
+    contentWizard.clickOnXdataTogglerByName("Text Area x-data");
+    //3. Do enable the second form
+    await
+    contentWizard.clickOnXdataTogglerByName("X-data (image selector)");
+    //4. Do enable the third form
+    await
+    contentWizard.clickOnXdataTogglerByName("Html Area x-data");
+    //5. Save the content with long forms
+    await
+    contentWizard.waitAndClickOnSave();
+    //6. Close the wizard
+    await
+    studioUtils.doCloseWizardAndSwitchToGrid();
+    //7. Reopen the content
+    await
+    studioUtils.selectContentAndOpenWizard(contentName);
+    //8. Click on the last x-data Wizard-Step:
+    await
+    contentWizard.clickOnWizardStep(X_DATA_STEP_WIZARD);
+    //Verify that the last form (html-area) is visible:
+    await
+    xDataHtmlArea.waitForHtmlAreaVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

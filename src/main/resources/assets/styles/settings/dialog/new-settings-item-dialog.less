@@ -1,0 +1,24 @@
+.new-settings-item-dialog {
+
+  .viewer {
+    padding: 6px 0px;
+
+    &:hover {
+      background-color: @admin-bg-light-gray;
+    }
+
+    .names-and-icon-view {
+      .@{_COMMON_PREFIX}main-name {
+        height: 32px;
+        line-height: 32px;
+      }
+      .@{_COMMON_PREFIX}sub-name {
+        display: none;
+      }
+    }
+
+    * {
+      cursor: pointer;
+    }
+  }
+}

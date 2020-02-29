@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {PartDescriptorsJson} from 'lib-admin-ui/content/page/region/PartDescriptorsJson';
@@ -17,9 +16,9 @@ export class GetPartDescriptorsByApplicationRequest
 
     constructor(applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.applicationKey = applicationKey;
         this.cache = ApplicationBasedCache.registerCache<PartDescriptor>(PartDescriptor, GetPartDescriptorsByApplicationRequest);
+        this.addRequestPathElements('list', 'by_application');
     }
 
     getParams(): Object {
@@ -28,26 +27,24 @@ export class GetPartDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'list', 'by_application');
-    }
-
     sendAndParse(): Q.Promise<PartDescriptor[]> {
         const cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
             return Q(cached);
-        } else {
-            return this.send().then((response: JsonResponse<PartDescriptorsJson>) => {
-                return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
-                    return this.fromJsonToPartDescriptor(descriptorJson);
-                });
-            });
         }
+
+        return super.sendAndParse();
     }
 
     fromJsonToPartDescriptor(json: PartDescriptorJson): PartDescriptor {
         let partDescriptor = PartDescriptor.fromJson(json);
         this.cache.put(partDescriptor);
         return partDescriptor;
+    }
+
+    protected processResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
+        return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
+            return this.fromJsonToPartDescriptor(descriptorJson);
+        });
     }
 }

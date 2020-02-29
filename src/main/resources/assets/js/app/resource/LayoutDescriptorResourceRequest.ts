@@ -1,17 +1,10 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ResourceRequestAdvanced} from '../wizard/ResourceRequestAdvanced';
 
-export class LayoutDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: Path;
+export abstract class LayoutDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
+    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'content', 'page', 'layout', 'descriptor');
-    }
-
-    getResourcePath(): Path {
-        return this.resourcePath;
+        this.addRequestPathElements('content', 'page', 'layout', 'descriptor');
     }
 }

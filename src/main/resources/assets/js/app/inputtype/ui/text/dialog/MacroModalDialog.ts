@@ -128,7 +128,7 @@ export class MacroModalDialog
 
     private createMacroFormItem(): FormItem {
         const macroSelector: MacroComboBox =
-            MacroComboBox.create().setLoader(this.createMacrosLoader()).setMaximumOccurrences(1).build();
+            <MacroComboBox>MacroComboBox.create().setLoader(this.createMacrosLoader()).setMaximumOccurrences(1).build();
         const formItemBuilder = new ModalDialogFormItemBuilder('macroId', i18n('dialog.macro.formitem.macro')).setValidator(
             Validators.required).setInputEl(macroSelector);
 

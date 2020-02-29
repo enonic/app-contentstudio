@@ -1,7 +1,7 @@
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class NonMobileContextPanelToggleButton
-    extends ButtonEl {
+    extends Button {
 
     constructor() {
         super();

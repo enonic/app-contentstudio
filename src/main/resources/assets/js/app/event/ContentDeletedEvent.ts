@@ -4,6 +4,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
+import {Branch} from '../versioning/Branch';
 
 export class ContentDeletedEvent
     extends Event {
@@ -15,7 +16,7 @@ export class ContentDeletedEvent
         super();
     }
 
-    addItem(contentId: ContentId, contentPath: ContentPath, branch: string): ContentDeletedEvent {
+    addItem(contentId: ContentId, contentPath: ContentPath, branch: Branch): ContentDeletedEvent {
         this.contentDeletedItems.push(new ContentDeletedItem(contentId, contentPath, branch));
         return this;
     }
@@ -63,15 +64,15 @@ export class ContentDeletedItem {
 
     private contentId: ContentId;
 
-    private branch: string;
+    private branch: Branch;
 
-    constructor(contentId: ContentId, contentPath: ContentPath, branch: string) {
+    constructor(contentId: ContentId, contentPath: ContentPath, branch: Branch) {
         this.contentPath = contentPath;
         this.contentId = contentId;
         this.branch = branch;
     }
 
-    public getBranch(): string {
+    public getBranch(): Branch {
         return this.branch;
     }
 
@@ -100,7 +101,7 @@ export class ContentPendingDeleteItem
     private compareStatus: CompareStatus;
 
     constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
-        super(contentSummary.getContentId(), contentSummary.getPath(), 'master');
+        super(contentSummary.getContentId(), contentSummary.getPath(), Branch.MASTER);
 
         this.compareStatus = contentSummary.getCompareStatus();
         this.pending = pending;

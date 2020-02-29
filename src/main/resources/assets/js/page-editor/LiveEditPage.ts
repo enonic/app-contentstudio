@@ -22,6 +22,7 @@ import {DefaultItemViewFactory} from './ItemViewFactory';
 import {Exception} from 'lib-admin-ui/Exception';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {ProjectContext} from '../app/project/ProjectContext';
 
 declare const CONFIG;
 
@@ -66,6 +67,8 @@ export class LiveEditPage {
         if (LiveEditPage.debug) {
             console.debug('LiveEditPage: starting live edit initialization');
         }
+
+        ProjectContext.get().setProject(event.getProject());
 
         i18nInit(CONFIG.services.i18nUrl).then(() => {
 

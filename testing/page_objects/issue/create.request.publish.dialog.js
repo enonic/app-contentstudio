@@ -12,8 +12,8 @@ const xpath = {
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
-    assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
-    invalidIcon: "//div[contains(@class,'state-icon invalid')]",
+        assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
+        invalidIcon: "//div[contains(@class,'state-icon invalid')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
@@ -94,17 +94,24 @@ class CreateRequestPublishDialog extends Page {
         })
     }
 
-    async waitForInvalidIconDisplayed() {
+    async
+
+    waitForInvalidIconDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+            await
+            this.waitForElementDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
         } catch (err) {
             this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
         }
     }
-    async waitForInvalidIconNotDisplayed() {
+
+    async
+
+    waitForInvalidIconNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+            await
+            this.waitForElementNotDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
         } catch (err) {
             this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);

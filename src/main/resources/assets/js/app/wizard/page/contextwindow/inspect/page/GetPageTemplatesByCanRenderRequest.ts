@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
@@ -17,9 +15,9 @@ export class GetPageTemplatesByCanRenderRequest
 
     constructor(site: ContentId, contentTypeName: ContentTypeName) {
         super();
-        this.setMethod('GET');
         this.site = site;
         this.contentTypeName = contentTypeName;
+        this.addRequestPathElements('listByCanRender');
     }
 
     getParams(): Object {
@@ -29,16 +27,9 @@ export class GetPageTemplatesByCanRenderRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'listByCanRender');
-    }
-
-    sendAndParse(): Q.Promise<PageTemplate[]> {
-
-        return this.send().then((response: JsonResponse<ListContentResult<ContentJson>>) => {
-            return response.getResult().contents.map((contentJson: ContentJson) => {
-                return this.fromJsonToContent(contentJson);
-            });
+    protected processResponse(response: JsonResponse<ListContentResult<ContentJson>>): PageTemplate[] {
+        return response.getResult().contents.map((contentJson: ContentJson) => {
+            return this.fromJsonToContent(contentJson);
         });
     }
 }

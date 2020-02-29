@@ -30,7 +30,8 @@ function handleGet() {
             i18nUrl: portal.serviceUrl({service: 'i18n'}),
             contentServiceUrl: portal.serviceUrl({service: 'content'})
         },
-        allowScriptsInEditor: allowScriptsInEditor
+        allowScriptsInEditor: allowScriptsInEditor,
+        mainUrl: portal.pageUrl()
     };
 
     return {

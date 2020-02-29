@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
@@ -14,8 +12,8 @@ export class GetContentTypesByContentRequest
 
     constructor(content: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = content;
+        this.addRequestPathElements('byContent');
     }
 
     getParams(): Object {
@@ -24,16 +22,9 @@ export class GetContentTypesByContentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'byContent');
-    }
-
-    sendAndParse(): Q.Promise<ContentTypeSummary[]> {
-
-        return this.send().then((response: JsonResponse<ContentTypeSummaryListJson>) => {
-            return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
-                return this.fromJsonToContentTypeSummary(contentTypeJson);
-            });
+    protected processResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
+        return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
+            return this.fromJsonToContentTypeSummary(contentTypeJson);
         });
     }
 }

@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResponse} from './IssueResponse';
 import {ListIssuesResult} from './ListIssuesResult';
@@ -8,6 +6,7 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, IssueResponse> {
 
@@ -27,7 +26,8 @@ export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, Is
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('list');
     }
 
     setFrom(value: number): ListIssuesRequest {
@@ -71,25 +71,19 @@ export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, Is
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'list');
-    }
-
-    sendAndParse(): Q.Promise<IssueResponse> {
-        return this.send().then((response: JsonResponse<ListIssuesResult>) => {
-            const issuesWithAssignees: IssueWithAssignees[] = response.getResult().issues.map(
-                (issueWithAssigneesJson: IssueWithAssigneesJson) => {
-                    return IssueWithAssignees.fromJson(issueWithAssigneesJson);
-                });
-
-            issuesWithAssignees.sort((a, b) => {
-                return b.getIssue().getModifiedTime().getTime() - a.getIssue().getModifiedTime().getTime();
+    processResponse(response: JsonResponse<ListIssuesResult>): IssueResponse {
+        const issuesWithAssignees: IssueWithAssignees[] = response.getResult().issues.map(
+            (issueWithAssigneesJson: IssueWithAssigneesJson) => {
+                return IssueWithAssignees.fromJson(issueWithAssigneesJson);
             });
 
-            const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
-                response.getResult().metadata['totalHits']);
-
-            return new IssueResponse(issuesWithAssignees, metadata);
+        issuesWithAssignees.sort((a, b) => {
+            return b.getIssue().getModifiedTime().getTime() - a.getIssue().getModifiedTime().getTime();
         });
+
+        const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
+            response.getResult().metadata['totalHits']);
+
+        return new IssueResponse(issuesWithAssignees, metadata);
     }
 }

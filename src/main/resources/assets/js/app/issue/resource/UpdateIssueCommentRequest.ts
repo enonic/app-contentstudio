@@ -1,8 +1,8 @@
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateIssueCommentRequest
     extends IssueResourceRequest<IssueCommentJson, IssueComment> {
@@ -12,8 +12,9 @@ export class UpdateIssueCommentRequest
 
     constructor(commentId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.commentId = commentId;
+        this.addRequestPathElements('comment', 'update');
     }
 
     setText(text: string) {
@@ -28,13 +29,7 @@ export class UpdateIssueCommentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment/update');
-    }
-
-    sendAndParse(): Q.Promise<IssueComment> {
-        return this.send().then((response: JsonResponse<IssueCommentJson>) => {
-            return IssueComment.fromJson(response.getResult());
-        });
+    processResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+        return IssueComment.fromJson(response.getResult());
     }
 }

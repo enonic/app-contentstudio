@@ -1,6 +1,6 @@
 import {IssueResourceRequest} from './IssueResourceRequest';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class DeleteIssueCommentRequest
     extends IssueResourceRequest<any, boolean> {
@@ -9,8 +9,9 @@ export class DeleteIssueCommentRequest
 
     constructor(commentId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.commentId = commentId;
+        this.addRequestPathElements('comment', 'delete');
     }
 
     getParams(): Object {
@@ -19,13 +20,13 @@ export class DeleteIssueCommentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment/delete');
-    }
-
     sendAndParse(): Q.Promise<boolean> {
         return this.send().then((response: JsonResponse<any>) => {
             return response.getResult()['ids'].length > 0;
         });
+    }
+
+    processResponse(response: JsonResponse<any>): boolean {
+        return response.getResult()['ids'].length > 0;
     }
 }

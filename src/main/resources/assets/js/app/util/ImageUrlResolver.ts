@@ -2,6 +2,7 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UrlHelper} from './UrlHelper';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -74,22 +75,21 @@ export class ImageUrlResolver
     }
 
     private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
-        const url = urlPrefix + this.contentId.toString();
+        const url = `${urlPrefix}${this.contentId.toString()}`;
 
         return isAbsoluteUrl ? UriHelper.getRestUri(url) : url;
     }
 
     resolveForRender(styleName: string = ''): string {
-        const isOriginalImageStyle = StyleHelper.isOriginalImage(styleName);
-        const urlPrefix = isOriginalImageStyle ? ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL : ImageUrlResolver.URL_PREFIX_RENDER;
-        const url = this.getBaseUrl(urlPrefix,false);
+        const isOriginalImageStyle: boolean = StyleHelper.isOriginalImage(styleName);
+        const urlPrefix: string = isOriginalImageStyle ? ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL : ImageUrlResolver.URL_PREFIX_RENDER;
+        const url: string = this.getBaseUrl(urlPrefix, false);
 
         return (isOriginalImageStyle || !styleName) ? url : `${url}?style=${styleName}`;
     }
 
     resolveForPreview(): string {
-
-        let url = this.getBaseUrl(ImageUrlResolver.URL_PREFIX_PREVIEW, true);
+        let url = this.getBaseUrl(`${UrlHelper.getCMSPath()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
