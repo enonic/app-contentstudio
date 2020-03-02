@@ -36,14 +36,6 @@ export class UserAccessWidgetItemView
 
     public static debug: boolean = false;
 
-    private static OPTIONS: any = {
-        [Access.FULL]: i18n('field.access.full.everyone'),
-        [Access.PUBLISH]: i18n('field.access.publish.everyone'),
-        [Access.WRITE]: i18n('field.access.write.everyone'),
-        [Access.READ]: i18n('field.access.read.everyone'),
-        [Access.CUSTOM]: i18n('field.access.custom.everyone')
-    };
-
     constructor() {
         super('user-access-widget-item-view');
         this.accessListView = new UserAccessListView();
@@ -171,7 +163,7 @@ export class UserAccessWidgetItemView
     private getEveryoneAccessDescription(content: Content): string {
         const everyoneAccess: Access = this.getEveryoneAccessValue(content);
 
-        return everyoneAccess ? UserAccessWidgetItemView.OPTIONS[everyoneAccess] : i18n('widget.useraccess.restricted');
+        return everyoneAccess ? i18n(`field.access.${everyoneAccess}.everyone`) : i18n('widget.useraccess.restricted');
 
     }
 }
