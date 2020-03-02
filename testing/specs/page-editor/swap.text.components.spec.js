@@ -37,42 +37,29 @@ describe('Swap two Text Component - specification', function () {
         });
 
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-    //1. Open existing site:
-    await
-    studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    await
-    contentWizard.clickOnShowComponentViewToggler();
-    //2. Insert the first text component:
-    await
-    pageComponentView.openMenu("main");
-    await
-    pageComponentView.selectMenuItem(["Insert", "Text"]);
-    await
-    textComponentCke.typeTextInCkeEditor("component1");
-    await
-    contentWizard.switchToMainFrame();
-    //3. Insert the second text component:
-    await
-    pageComponentView.openMenu("main");
-    await
-    pageComponentView.selectMenuItem(["Insert", "Text"]);
-    await
-    textComponentCke.typeTextInCkeEditor("component2");
-    await
-    contentWizard.switchToMainFrame();
-    await
-    contentWizard.hotKeySave();
-    await
-    contentWizard.pause(1200);
-    //4. Swap components:
-    studioUtils.saveScreenshot('text_components_swapped1');
-    await
-    pageComponentView.swapComponents("component1", "component2");
-    studioUtils.saveScreenshot('text_components_swapped2');
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert the first text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("component1");
+            await contentWizard.switchToMainFrame();
+            //3. Insert the second text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("component2");
+            await contentWizard.switchToMainFrame();
+            await contentWizard.hotKeySave();
+            await contentWizard.pause(1200);
+            //4. Swap components:
+            studioUtils.saveScreenshot('text_components_swapped1');
+            await pageComponentView.swapComponents("component1", "component2");
+            studioUtils.saveScreenshot('text_components_swapped2');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

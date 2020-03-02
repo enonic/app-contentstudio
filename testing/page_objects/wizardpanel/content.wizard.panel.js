@@ -38,6 +38,7 @@ const XPATH = {
     componentViewToggler: "//button[contains(@id, 'TogglerButton')  and contains(@class,'icon-clipboard')]",
     hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
+    liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
@@ -45,15 +46,13 @@ const XPATH = {
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
-        stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
+    stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
-        name = > `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
+        name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
-name =
->
-`//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
+        name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
     publishMenuItemByName: function (name) {
@@ -177,10 +176,10 @@ class ContentWizardPanel extends Page {
     }
 
     async openVersionsHistoryPanel() {
-        let detailsPanel = new DetailsPanel();
+        let wizardDetailsPanel = new DetailsPanel();
         let versionPanel = new VersionsWidget();
         await this.openDetailsPanel();
-        await detailsPanel.openVersionHistory();
+        await wizardDetailsPanel.openVersionHistory();
         return await versionPanel.waitForVersionsLoaded();
     }
 
@@ -215,7 +214,7 @@ class ContentWizardPanel extends Page {
 
     waitForWizardStepByTitleNotVisible(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err = > {
+        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err => {
             console.log("Wizard step is not visible: " + title);
             return false;
         })
@@ -364,12 +363,11 @@ class ContentWizardPanel extends Page {
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame(lib.LIVE_EDIT_FRAME);
+        return this.switchToFrame(XPATH.liveEditFrame);
     }
 
     async getLiveFramePosition() {
-        let el = await
-        this.findElement(lib.LIVE_EDIT_FRAME);
+        let el = await this.findElement(XPATH.liveEditFrame);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
         return {x: xValue, y: yValue};
@@ -417,8 +415,7 @@ class ContentWizardPanel extends Page {
         await this.clickOnDelete(this.deleteButton);
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnDeleteNowButton();
-        return await
-        contentDeleteDialog.waitForDialogClosed();
+        return await contentDeleteDialog.waitForDialogClosed();
     }
 
     async doMarkAsDeleted() {
@@ -426,8 +423,7 @@ class ContentWizardPanel extends Page {
         await this.clickOnDelete(this.deleteButton);
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return await
-        contentDeleteDialog.waitForDialogClosed();
+        return await contentDeleteDialog.waitForDialogClosed();
     }
 
     async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
@@ -503,7 +499,7 @@ class ContentWizardPanel extends Page {
             })
         }, 2000).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon2');
-        throw new Error("Validation Error: Red icon is still displayed in the wizard after 2 seconds" + err);
+            throw new Error("Validation Error: Red icon is still displayed in the wizard after 2 seconds" + err);
         });
     }
 
@@ -539,19 +535,13 @@ class ContentWizardPanel extends Page {
         return await this.pause(700);
     }
 
-    async
-
-    doFilterControllersAndClickOnOption(pageControllerDisplayName) {
+    async doFilterControllersAndClickOnOption(pageControllerDisplayName) {
         try {
             let optionSelector = lib.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`, pageControllerDisplayName);
-            await
-            this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
-            await
-            this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
-            await
-            this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
-            await
-            this.clickOnElement(optionSelector);
+            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
+            await this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
+            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.clickOnElement(optionSelector);
             return this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_select_controller_in_wizard');
@@ -560,18 +550,12 @@ class ContentWizardPanel extends Page {
     }
 
     //Select a page descriptor and wait for Context Window is loaded
-    async
-
-    selectPageDescriptor(pageControllerDisplayName) {
-        await
-        this.switchToLiveEditFrame();
-        await
-        this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-        await
-        this.switchToParentFrame();
+    async selectPageDescriptor(pageControllerDisplayName) {
+        await this.switchToLiveEditFrame();
+        await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
+        await this.switchToParentFrame();
         this.saveScreenshot(contentBuilder.generateRandomName("controller"));
-        return await
-        this.waitForContextWindowVisible();
+        return await this.waitForContextWindowVisible();
     }
 
     switchToMainFrame() {
@@ -730,8 +714,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            await
-            this.pause(500);
+            await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
@@ -743,22 +726,16 @@ class ContentWizardPanel extends Page {
     }
 
     //Clicks on publish-menu dropdown handler then click on Publish... menu item
-    async
-
-    openPublishMenuAndPublish() {
+    async openPublishMenuAndPublish() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         //1. Click on Publish... menu item
-        await
-        contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
         //2. Wait for modal dialog opened
-        await
-        contentPublishDialog.waitForDialogOpened();
+        await contentPublishDialog.waitForDialogOpened();
         //3. Click on Publish Now button
-        await
-        contentPublishDialog.clickOnPublishNowButton();
-        return await
-        contentPublishDialog.waitForDialogClosed();
+        await contentPublishDialog.clickOnPublishNowButton();
+        return await contentPublishDialog.waitForDialogClosed();
     }
 
     async openPublishMenuAndCreateRequestPublish(changes, assignees) {

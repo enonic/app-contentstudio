@@ -37,35 +37,28 @@ describe('content.selector.spec: content-selector specification', function () {
         });
 
     it(`WHEN wizard for 'custom-relationship' is opened THEN mode toggler should be present in the content-selector AND 'Flat' mode should be by default`,
-        async() = > {
+        async () => {
             let contentSelector = new ContentSelector();
-    //1. Open the wizard:
-    await
-    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP);
-    await
-    contentSelector.waitForModeTogglerDisplayed();
-    //2. Verify the mode in content-selector:
-    let actualMode = await
-    contentSelector.getMode();
-    studioUtils.saveScreenshot('content_selector_default_mode');
-    assert.equal(actualMode, 'flat', 'Flat mode should be by default');
+            //1. Open the wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP);
+            await contentSelector.waitForModeTogglerDisplayed();
+            //2. Verify the mode in content-selector:
+            let actualMode = await contentSelector.getMode();
+            studioUtils.saveScreenshot('content_selector_default_mode');
+            assert.equal(actualMode, 'flat', 'Flat mode should be by default');
         });
 
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
-        async() = > {
+        async () => {
             let contentSelector = new ContentSelector();
-    await
-    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP);
-    await
-    contentSelector.waitForModeTogglerDisplayed();
-    //1. Click on mode toggler button:
-    await
-    contentSelector.clickOnModeTogglerButton();
-    //2. Verify new mode:
-    let actualMode = await
-    contentSelector.getMode();
-    studioUtils.saveScreenshot('content_selector_tree_mode');
-    assert.equal(actualMode, 'tree', "'Tree' mode should be in the selector");
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP);
+            await contentSelector.waitForModeTogglerDisplayed();
+            //1. Click on mode toggler button:
+            await contentSelector.clickOnModeTogglerButton();
+            //2. Verify new mode:
+            let actualMode = await contentSelector.getMode();
+            studioUtils.saveScreenshot('content_selector_tree_mode');
+            assert.equal(actualMode, 'tree', "'Tree' mode should be in the selector");
         });
 
     it(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been clicked THEN switches to 'Tree'-mode AND parent site should be present in the options`,

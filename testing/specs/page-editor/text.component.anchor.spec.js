@@ -27,38 +27,28 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         });
 
     it(`GIVEN Text component is inserted AND 'Insert Anchor' dialog is opened WHEN 'anchor' has been inserted THEN expected text should be in the CKE`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertAnchorDialog = new InsertAnchorDialog();
-    //1. Open existing site and open 'Page Component View':
-    await
-    studioUtils.selectContentAndOpenWizard(SITE.displayName);
-    await
-    contentWizard.clickOnShowComponentViewToggler();
-    //2. Insert new text-component:
-    await
-    pageComponentView.openMenu("main");
-    await
-    pageComponentView.selectMenuItem(["Insert", "Text"]);
-    await
-    textComponentCke.switchToLiveEditFrame();
-    //3. Open 'Insert Anchor' dialog and type the text:
-    await
-    textComponentCke.clickOnInsertAnchorButton();
-    await
-    insertAnchorDialog.typeInTextInput('test_anchor');
-    studioUtils.saveScreenshot('anchor_text_typed');
-    //4. Click on 'Insert' button and close the dialog:
-    await
-    insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
-    await
-    contentWizard.switchToLiveEditFrame();
-    //5. Verify the text in CKE:
-    let actualText = await
-    textComponentCke.getTextFromEditor();
-    assert.equal(actualText, EXPECTED_DATA_CKE, 'expected text should be in CKE');
+            //1. Open existing site and open 'Page Component View':
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new text-component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            //3. Open 'Insert Anchor' dialog and type the text:
+            await textComponentCke.clickOnInsertAnchorButton();
+            await insertAnchorDialog.typeInTextInput('test_anchor');
+            studioUtils.saveScreenshot('anchor_text_typed');
+            //4. Click on 'Insert' button and close the dialog:
+            await insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
+            await contentWizard.switchToLiveEditFrame();
+            //5. Verify the text in CKE:
+            let actualText = await textComponentCke.getTextFromEditor();
+            assert.equal(actualText, EXPECTED_DATA_CKE, 'expected text should be in CKE');
         });
 
     it(`GIVEN 'Insert Anchor' dialog is opened WHEN ESC key has been pressed THEN dialog should be closed`,
@@ -75,7 +65,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await textComponentCke.switchToLiveEditFrame();
             //Open Insert Anchor modal dialog:
             await textComponentCke.clickOnInsertAnchorButton();
-    //Press 'Esc' key
+            //Press 'Esc' key
             await contentWizard.pressEscKey();
             await insertAnchorDialog.waitForDialogClosed();
         });
@@ -92,12 +82,12 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.switchToLiveEditFrame();
-    //Open Insert Anchor modal dialog and type not correct value:
+            //Open Insert Anchor modal dialog and type not correct value:
             await textComponentCke.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput('test anchor');
             //Click on the Insert button and insert the anchor:
             await insertAnchorDialog.clickOnInsertButton();
-    //Verify the validation message:
+            //Verify the validation message:
             studioUtils.saveScreenshot('not_valid_text_in_anchor');
             let isDisplayed = await insertAnchorDialog.waitForValidationMessage();
             assert.isTrue(isDisplayed, 'Validation message should be present in the modal dialog');

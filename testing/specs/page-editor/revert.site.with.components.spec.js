@@ -30,7 +30,7 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             });
 
         it(`Preconditions: GIVEN existing site is opened AND an image has been inserted`,
-            async() = > {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let imageInspectPanel = new ImageInspectPanel();
@@ -91,10 +91,10 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 await versionPanel.clickOnRevertButton();
                 studioUtils.saveScreenshot("site_reverted1");
                 await contentWizard.switchToLiveEditFrame();
-        //3. After reverting - Image should not be present in Live Frame
+                //3. After reverting - Image should not be present in Live Frame
                 await liveFormPanel.waitForImageNotDisplayed(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();
-        //4.Verify - Save button should be disabled after the reverting:
+                //4.Verify - Save button should be disabled after the reverting:
                 await contentWizard.waitForSaveButtonDisabled();
             });
 

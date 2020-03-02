@@ -10,6 +10,7 @@ const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -796,6 +797,17 @@ class ContentBrowsePanel extends Page {
         await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await confirmContentDeleteDialog.waitForDialogClosed();
+    }
+
+    async openDetailsPanel() {
+        let browseDetailsPanel = new BrowseDetailsPanel();
+        let result = await browseDetailsPanel.isPanelVisible();
+        if (!result) {
+            await this.clickOnDetailsPanelToggleButton();
+        }
+        await browseDetailsPanel.waitForDetailsPanelLoaded();
+        await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+        return await this.pause(500);
     }
 };
 module.exports = ContentBrowsePanel;

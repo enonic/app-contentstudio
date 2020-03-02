@@ -1,7 +1,6 @@
 /**
  * Created on 29/11/2018.
  */
-const baseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 

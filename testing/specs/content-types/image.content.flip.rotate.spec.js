@@ -64,9 +64,8 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
                 await studioUtils.doClickOnEditAndOpenContent(IMAGE_DISPLAY_NAME);
                 // Reset Filter button should be displayed
                 await imageFormPanel.waitForResetFilterDisplayed();
-        //'Save' button should be disabled:
-        await
-        contentWizard.waitForSaveButtonDisabled();
+                //'Save' button should be disabled:
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

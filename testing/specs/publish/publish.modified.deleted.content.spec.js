@@ -18,7 +18,7 @@ describe('publish.modified.deleted.content.spec - modify 2 published folders, se
 
     let FOLDER1;
     let FOLDER2;
-    it(`Precondition: 2 published folders should be added`,
+    it(`Precondition: 2 'published' folders should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let parentFolder = contentBuilder.generateRandomName('folder');
@@ -34,7 +34,7 @@ describe('publish.modified.deleted.content.spec - modify 2 published folders, se
             await studioUtils.doPublish();
         });
 
-    it(`Precondition: 2 published folders have been modified`,
+    it(`Precondition: 2 published folders have been updated(state get 'modified')`,
         async () => {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
