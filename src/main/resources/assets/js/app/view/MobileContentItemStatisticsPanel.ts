@@ -58,9 +58,12 @@ export class MobileContentItemStatisticsPanel
     private initListeners() {
 
         let reloadItemPublishStateChange = (contents: ContentSummaryAndCompareStatus[]) => {
-            let thisContentId = this.getItem().getModel().getId();
+            if (!this.getItem()) {
+                return;
+            }
+            const thisContentId: string = this.getItem().getModel().getId();
 
-            let contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
+            const contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
                 return thisContentId === content.getId();
             })[0];
 

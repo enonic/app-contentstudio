@@ -11,6 +11,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentIds} from '../ContentIds';
 import {Branch} from '../versioning/Branch';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 /**
  * Class that listens to server events and fires UI events
@@ -459,7 +460,7 @@ export class ContentServerEventsHandler {
                     default:
                         //
                     }
-                });
+                }).catch(DefaultErrorHandler.handle);
         }
     }
 
