@@ -41,7 +41,6 @@ class WizardDependenciesWidget extends BaseDependenciesWidget {
             throw new Error('Wizard: Dependencies Widget was not loaded in ' + appConst.TIMEOUT_2);
         });
     }
-
 };
 module.exports = WizardDependenciesWidget;
 

@@ -17,39 +17,30 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
 
     let SITE;
     it("Precondition: site should be added",
-        async() = > {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
-    await
-    studioUtils.doAddSite(SITE);
-    await
-    studioUtils.findAndSelectItem(SITE.displayName);
-    await
-    contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+            await studioUtils.doAddSite(SITE);
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
         });
 
     it(`GIVEN existing site with not valid folder is selected WHEN 'Publish Dialog' has been opened  AND 'include child' pressed THEN 'Publish Now' button gets disabled`,
-        async() = > {
+        async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-    //1. Add no valid child:
-    await
-    addNotValidFolder(SITE.displayName);
-    //2. Site should be Read for publishing:
-    await
-    contentBrowsePanel.clickOnMarkAsReadyButton();
-    //3. Site is selected, open Publish dialog:
-    await
-    contentBrowsePanel.clickOnPublishButton();
-    await
-    contentPublishDialog.waitForDialogOpened();
-    //4. Include not valid child:
-    await
-    contentPublishDialog.clickOnIncludeChildrenToogler();
-    //'Publish Now' button gets disabled:
-    await
-    contentPublishDialog.waitForPublishNowButtonDisabled();
+            //1. Add no valid child:
+            await addNotValidFolder(SITE.displayName);
+            //2. Site should be Read for publishing:
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            //3. Site is selected, open Publish dialog:
+            await contentBrowsePanel.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
+            //4. Include not valid child:
+            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            //'Publish Now' button gets disabled:
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
