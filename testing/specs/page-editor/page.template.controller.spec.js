@@ -61,7 +61,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-    //Verifies xp-apps#686 - 'Context Window should be loaded automatically':
+            //Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await liveContextWindow.waitForOpened();
         });
 

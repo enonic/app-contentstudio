@@ -1,7 +1,6 @@
 /**
  * Created on 12.09.2019.
  */
-
 const PageInspectionPanel = require('./page.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');

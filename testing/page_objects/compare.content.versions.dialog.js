@@ -39,88 +39,58 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    async
-
-    clickOnLeftRevertMenuButton() {
-        await
-        this.waitForLeftRevertButtonDisplayed();
-        await
-        this.clickOnElement(this.leftRevertMenuButton);
-        return await
-        this.pause(300);
+    async clickOnLeftRevertMenuButton() {
+        await this.waitForLeftRevertButtonDisplayed();
+        await this.clickOnElement(this.leftRevertMenuButton);
+        return await this.pause(300);
     }
 
-    async
-
-    waitForLeftRevertMenuItemDisplayed() {
+    async waitForLeftRevertMenuItemDisplayed() {
         let selector = XPATH.container + XPATH.containerRight + XPATH.revertMenuItem;
     }
 
-    async
-
-    waitForLeftRevertButtonDisplayed() {
-        return await
-        this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+    async waitForLeftRevertButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    waitForRightRevertMenuButtonDisplayed() {
-        return await
-        this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+    async waitForRightRevertMenuButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    waitForRightRevertMenuButtonDisabled() {
-        return await
-        this.waitForElementDisabled(this.rightRevertMenuButton, appConst.TIMEOUT_2);
+    async waitForRightRevertMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    waitForLeftRevertMenuButtonEnabled() {
-        return await
-        this.waitForElementEnabled(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+    async waitForLeftRevertMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.TIMEOUT_2);
     }
 
-    async
-
-    clickOnRightRevertButton() {
-        await
-        this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
-        return await
-        this.clickOnElement(this.leftRevertMenuButton);
+    async clickOnRightRevertButton() {
+        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
-    async
+    async clickOnCancelTopButton() {
 
-    clickOnCancelTopButton() {
-
-        return await
-        this.clickOnElement(this.leftRevertMenuButton);
+        return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err = > {
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             throw new Error("CompareContentVersions Dialog is not loaded " + err);
-    })
+        })
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err = > {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
             throw new Error("CompareContentVersions Dialog must be closed " + err);
-    })
+        })
     }
 
-    async
-
-    clickOnCancelButtonTop() {
-        await
-        this.clickOnElement(this.cancelButtonTop);
-        return await
-        this.waitForDialogClosed();
+    async clickOnCancelButtonTop() {
+        await this.clickOnElement(this.cancelButtonTop);
+        return await this.waitForDialogClosed();
     }
 };
 module.exports = CompareContentVersionsDialog;

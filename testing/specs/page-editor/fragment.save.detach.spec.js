@@ -38,7 +38,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //'Hide Component View' should appear:
             await contentWizard.waitForHideComponentViewTogglerDisplayed();
         });
-    //https://github.com/enonic/app-contentstudio/issues/1445
+      //https://github.com/enonic/app-contentstudio/issues/1445
     //Exception after an empty text component has been saved as fragment #1445
     it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN 'Detach from Fragment' menu item should appear`,
         async () => {
@@ -56,8 +56,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.openMenu("Text");
             //Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-    await
-    pageComponentView.pause(3000);
+            await pageComponentView.pause(3000);
             //Open text-component's context menu:
             await pageComponentView.openMenu("Text");
             studioUtils.saveScreenshot('text_saved_as_fragment');

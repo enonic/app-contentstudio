@@ -30,84 +30,66 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
         });
 
     it(`Precondition, new tag should be added in the root of the site: tag-content wizard has been opened and tag with text 'enonic' has been saved`,
-        async() = > {
+        async () => {
             let contentWizard = new ContentWizard();
             let tagForm = new TagForm();
-    //1. Select the site and open new wizard for child content:
-    await
-    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'tag0_5');
-    await
-    contentWizard.typeDisplayName("test-tag1");
-    //2. type 'enonic' in the input and save this tag:
-    await
-    tagForm.doAddTag(TAG_TEXT1);
-    await
-    contentWizard.waitAndClickOnSave();
-    //3. Verify that new content is saved:
-    studioUtils.saveScreenshot('tag1_added');
-    await
-    contentWizard.waitForNotificationMessage();
+            //1. Select the site and open new wizard for child content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'tag0_5');
+            await contentWizard.typeDisplayName("test-tag1");
+            //2. type 'enonic' in the input and save this tag:
+            await tagForm.doAddTag(TAG_TEXT1);
+            await contentWizard.waitAndClickOnSave();
+            //3. Verify that new content is saved:
+            studioUtils.saveScreenshot('tag1_added');
+            await contentWizard.waitForNotificationMessage();
         });
 
     it(`Precondition: new tag-content should be added in the folder that specified in 'allowPath'`,
-        async() = > {
+        async () => {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
             //select 'mytags' folder and open wizard for tag-content
-    await
-    studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
-    await
-    contentWizard.typeDisplayName("test-tag2");
-    //type 'test-enonic' in the input and save this tag:
-    await
-    tagForm.doAddTag(TAG_TEXT2);
-    await
-    contentWizard.waitAndClickOnSave();
-    studioUtils.saveScreenshot('tag2_added');
-    //verify that new content is saved:
-    await
-    contentWizard.waitForNotificationMessage();
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
+            await contentWizard.typeDisplayName("test-tag2");
+            //type 'test-enonic' in the input and save this tag:
+            await tagForm.doAddTag(TAG_TEXT2);
+            await contentWizard.waitAndClickOnSave();
+            studioUtils.saveScreenshot('tag2_added');
+            //verify that new content is saved:
+            await contentWizard.waitForNotificationMessage();
         });
 
     //<allowPath>${site}/mytags/</allowPath>
     it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that is not in 'allowPath' has been typed THEN tag-suggestion should not appear`,
-        async() = > {
+        async () => {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
-    //1. open new wizard in "${site}/mytags/"
-    await
-    studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
-    //2. type a name
-    await
-    contentWizard.typeDisplayName("test-tag3");
-    //3. type the text-part of existing tag(the tag is not in allowed folder)
-    await
-    tagForm.typeInTagInput("enon");
-    //Verify that the suggestion is not visible because tag is not in 'allowPath'
-    let actualSuggestion = await
-    tagForm.getTagSuggestions();
-    studioUtils.saveScreenshot('no_tag_suggestion');
-    assert.equal(actualSuggestion, "", "Tag Suggestion should not be visible");
+            //1. open new wizard in "${site}/mytags/"
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
+            //2. type a name
+            await contentWizard.typeDisplayName("test-tag3");
+            //3. type the text-part of existing tag(the tag is not in allowed folder)
+            await tagForm.typeInTagInput("enon");
+            //Verify that the suggestion is not visible because tag is not in 'allowPath'
+            let actualSuggestion = await tagForm.getTagSuggestions();
+            studioUtils.saveScreenshot('no_tag_suggestion');
+            assert.equal(actualSuggestion, "", "Tag Suggestion should not be visible");
         });
 
     it(`GIVEN wizard for new tag-content is opened WHEN part of the tag that in 'allowed' folder has been typed THEN tag-suggestion should appear`,
-        async() = > {
+        async () => {
             let tagForm = new TagForm();
             let contentWizard = new ContentWizard();
-    //1. open new wizard in "${site}/mytags/"
-    await
-    studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
-    //2. type a name:
-    await
-    contentWizard.typeDisplayName("test-tag3");
-    //3. type the part of text of existing tag(the tag is in allowed folder)
-    await
-    tagForm.typeInTagInput("test");
-    //Verify : suggestion should be visible because allowPath is "${site}/mytags"
-    let actualSuggestion = await
-    tagForm.getTagSuggestions();
-    studioUtils.saveScreenshot('tag_suggestion');
-    assert.equal(actualSuggestion, TAG_TEXT2, "Expected tag-suggestion should appear")
+            //1. open new wizard in "${site}/mytags/"
+            await studioUtils.selectSiteAndOpenNewWizard(MY_TAGS_FOLDER, 'tag0_5');
+            //2. type a name:
+            await contentWizard.typeDisplayName("test-tag3");
+            //3. type the part of text of existing tag(the tag is in allowed folder)
+            await tagForm.typeInTagInput("test");
+            //Verify : suggestion should be visible because allowPath is "${site}/mytags"
+            let actualSuggestion = await tagForm.getTagSuggestions();
+            studioUtils.saveScreenshot('tag_suggestion');
+            assert.equal(actualSuggestion, TAG_TEXT2, "Expected tag-suggestion should appear")
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
