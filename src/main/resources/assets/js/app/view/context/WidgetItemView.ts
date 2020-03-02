@@ -1,6 +1,8 @@
 import * as Q from 'q';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {RepositoryId} from '../../repository/RepositoryId';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class WidgetItemView
     extends DivEl {
@@ -25,8 +27,9 @@ export class WidgetItemView
     }
 
     private static getFullWidgetUrl(url: string, contentId: string) {
-        const {repository, branch} = CONFIG;
-        const repositoryParam = repository ? `repository=${repository}&` : '';
+        const branch: string = CONFIG.branch;
+        const repository: string = `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject()}`;
+        const repositoryParam = `repository=${repository}&`;
         const branchParam = branch ? `branch=${branch}&` : '';
         const contentIdParam = contentId ? `contentId=${contentId}&` : '';
 
