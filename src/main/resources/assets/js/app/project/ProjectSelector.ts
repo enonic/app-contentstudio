@@ -11,7 +11,6 @@ import {Project} from '../settings/data/project/Project';
 import {SelectableProjectList} from './list/SelectableProjectList';
 import {ProjectListItem} from './list/ProjectListItem';
 import {SelectedProjectListItemViewer} from './list/SelectedProjectListItemViewer';
-import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ProjectSelector
     extends DivEl {
@@ -92,7 +91,6 @@ export class ProjectSelector
 
     private initElements() {
         this.headerProjectViewer = new SelectedProjectListItemViewer();
-        this.headerProjectViewer.setPrefix(i18n('app.context'));
         this.dropdownHandle = this.focusedElement = new DropdownHandle();
         this.projectList = new SelectableProjectList();
         this.clickOutsideListener = this.createClickOutsideListener();

@@ -23,70 +23,26 @@
       }
     }
 
-    .selected-project-view {
-      min-width: 200px;
-      height: 44px;
-      padding-left: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-
-      .label {
-        font-size: 16px;
-        padding-right: 10px;
-        color: @admin-shadow-gray;
-      }
-
-      .project-list-item-viewer {
-        height: 100%;
-        width: 100%;
+    .project-list-item-viewer {
+      .names-and-icon-view {
         display: flex;
         align-items: center;
 
-        .names-and-icon-view {
-          display: flex;
-          align-items: center;
+        .@{_COMMON_PREFIX}names-view {
+          margin-left: 0px;
 
-          .@{_COMMON_PREFIX}wrapper {
-            display: none;
-          }
+          .@{_COMMON_PREFIX}main-name {
+            color: @admin-white;
 
-          .@{_COMMON_PREFIX}names-view {
-            margin-left: 0px;
-
-            .@{_COMMON_PREFIX}main-name {
-              font-size: 16px;
-              height: 20px;
-              line-height: 20px;
-
-              .name {
-                display: none;
-              }
-            }
-
-            .@{_COMMON_PREFIX}sub-name {
-              display: none;
+            .name {
+              padding-left: 5px;
+              color: @admin-shadow-gray;
             }
           }
-        }
-      }
-    }
 
-    .project-list-item-viewer {
-
-      .names-and-icon-view {
-        .@{_COMMON_PREFIX}main-name {
-          color: @admin-white;
-
-          .name {
-            padding-left: 5px;
-            color: @admin-shadow-gray;
+          .@{_COMMON_PREFIX}sub-name {
+            color: @admin-font-gray1;
           }
-        }
-
-        .@{_COMMON_PREFIX}sub-name {
-          color: @admin-font-gray1;
         }
 
         .@{_COMMON_PREFIX}names-view.no-description {
@@ -106,8 +62,56 @@
       }
     }
 
+    .selected-project-view {
+      min-width: 200px;
+      height: 44px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+
+      .label {
+        font-size: 16px;
+        padding-right: 10px;
+        color: @admin-shadow-gray;
+      }
+
+      .project-list-item-viewer {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}wrapper {
+            margin-right: 0px;
+            padding: 0px 10px;
+          }
+
+          .@{_COMMON_PREFIX}names-view {
+
+            .@{_COMMON_PREFIX}main-name {
+              font-size: 16px;
+              height: 20px;
+              line-height: 20px;
+
+              .name {
+                display: none;
+              }
+            }
+
+            .@{_COMMON_PREFIX}sub-name {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+
     .xp-admin-common-dropdown-handle {
       position: relative;
+      width: 52px;
 
       &::after {
         border-top-color: @admin-white;
@@ -136,12 +140,8 @@
           display: none;
         }
 
-        padding: 5px 20px 5px 5px;
+        padding: 10px 20px 10px 5px;
         cursor: pointer;
-
-        .project-list-item-viewer {
-          padding: 5px 15px;
-        }
 
         &:hover {
           background-color: @admin-dark-gray;
@@ -149,6 +149,28 @@
 
         &.selected {
           background-color: #3e77ac;
+        }
+
+        .project-list-item-viewer {
+          .names-and-icon-view {
+
+            .@{_COMMON_PREFIX}wrapper {
+              height: 30px;
+              width: 28px;
+              line-height: 28px;
+              margin-right: 0px;
+              padding: 0px 12px;
+
+              .font-icon-default {
+                font-size: 28px;
+
+                &:before {
+                  font-size: 28px;
+                }
+              }
+            }
+
+          }
         }
       }
     }
