@@ -1,5 +1,6 @@
 import {Project} from '../../settings/data/project/Project';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ProjectListItemViewer
     extends NamesAndIconViewer<Project> {
@@ -19,7 +20,7 @@ export class ProjectListItemViewer
     }
 
     resolveSubName(item: Project, relativePath: boolean = false): string {
-        return item.getName();
+        return item.getDescription() || `<${i18n('text.noDescription')}>`;
     }
 
     resolveIconClass(item: Project): string {
