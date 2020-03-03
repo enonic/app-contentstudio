@@ -60,7 +60,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.isFalse(isDisplayed, "Include child icon should not be visible");
         });
 
-    it(`GIVEN existing folder with children is selected WHEN 'Publish' button has been pressed THEN expected control elements should be displayed in the dialog`,
+    it(`GIVEN existing folder with children is selected WHEN 'Publish' button(browse toolbar) has been pressed THEN expected control elements should be displayed in the dialog`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();

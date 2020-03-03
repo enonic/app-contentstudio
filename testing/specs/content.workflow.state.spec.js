@@ -53,7 +53,6 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
     it(`WHEN ready for publishing folder is selected THEN green circle should be displayed in the row with the folder`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let wizard = new ContentWizard();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
             assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING,"'Ready for publishing' icon should be displayed in browse panel");

@@ -55,8 +55,7 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 await siteConfiguratorDialog.typeNumPosts('10');
                 await siteConfiguratorDialog.clickOnApplyButton();
                 await contentWizard.pause(3000);
-        await
-        contentWizard.waitForSpinnerNotVisible(20000);
+                await contentWizard.waitForSpinnerNotVisible(20000);
                 //Image Combobox should not be displayed because the image is selected.
                 let result1 = await imageInspectPanel.isImageComboBoxDisplayed();
                 assert.isFalse(result1, "image-combobox should not be displayed in Inspect Panel");

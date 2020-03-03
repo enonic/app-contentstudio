@@ -9,7 +9,6 @@ const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
-
 };
 
 class WizardDetailsPanel extends BaseDetailsPanel {

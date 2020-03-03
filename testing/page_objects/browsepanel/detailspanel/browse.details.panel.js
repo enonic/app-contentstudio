@@ -1,8 +1,7 @@
 /**
  * Created on 04/07/2018.
  */
-const Page = require('../../page');
-const baseDetailsPanel = require('../../details_panel/base.details.panel');
+const BaseDetailsPanel = require('../../details_panel/base.details.panel');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
@@ -12,10 +11,13 @@ const xpath = {
 
 };
 
-class BrowseDetailsPanel extends Page {
+class BrowseDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdownHandle() {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
+    }
+    get widgetSelectorDropdown() {
+        return xpath.container + xpath.widgetSelectorDropdown;
     }
 
     isPanelVisible() {
@@ -27,7 +29,6 @@ class BrowseDetailsPanel extends Page {
             throw new Error('Details Panel was not loaded in ' + appConst.TIMEOUT_2);
         });
     }
-
 };
 module.exports = BrowseDetailsPanel;
 

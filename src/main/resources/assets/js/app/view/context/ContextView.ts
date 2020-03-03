@@ -36,6 +36,7 @@ import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class ContextView
     extends DivEl {
@@ -154,6 +155,10 @@ export class ContextView
                 }
                 return false;
             });
+        });
+
+        ProjectChangedEvent.on(() => {
+            this.setItem(null);
         });
     }
 

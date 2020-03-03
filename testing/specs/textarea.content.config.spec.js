@@ -49,18 +49,14 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN expected validation recording should appear`,
-        async() = > {
+        async () => {
             let textAreaForm = new TextAreaForm();
-    await
-    studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf');
-    await
-    textAreaForm.typeText(string42);
-    await
-    textAreaForm.pause(1000);
-    let text = await
-    textAreaForm.getValidationRecord();
-    studioUtils.saveScreenshot('textarea_max_length_3');
-    assert.equal(text, 'Text cannot be more than 41 characters long', 'expected validation recording should appear');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf');
+            await textAreaForm.typeText(string42);
+            await textAreaForm.pause(1000);
+            let text = await textAreaForm.getValidationRecord();
+            studioUtils.saveScreenshot('textarea_max_length_3');
+            assert.equal(text, 'Text cannot be more than 41 characters long', 'expected validation recording should appear');
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 41 chars has been typed THEN validation record should not be visible`,

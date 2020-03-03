@@ -7,7 +7,6 @@ function handleGet(req) {
     var view = resolve('./../main/main.html');
 
     var context = contextLib.get();
-    var repository = context.repository;
     var branch = context.branch;
     var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
 
@@ -21,7 +20,6 @@ function handleGet(req) {
         appId: app.name,
         appVersion: app.version,
         branch: branch,
-        repository: repository,
         locale: admin.getLocale(),
         launcherPath: replaceSettingsInPath(admin.getLauncherPath()),
         launcherUrl: admin.getLauncherUrl(),

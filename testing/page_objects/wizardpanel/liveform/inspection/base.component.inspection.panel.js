@@ -8,12 +8,9 @@ const lib = require('../../../../libs/elements');
 //Context Window, Base Inspect tab for all components
 class BaseComponentInspectionPanel extends Page {
 
-    async
-
-    clickOnApplyButton() {
+    async clickOnApplyButton() {
         let selector = "//div[contains(@id,'ContextWindow')]" + lib.ACTION_BUTTON + "/span[text()='Apply']";
-        await
-        this.clickOnElement(selector);
+        await this.clickOnElement(selector);
         return this.pause(2000);
     }
 };
