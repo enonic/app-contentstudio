@@ -63,9 +63,7 @@ export class MobileContentItemStatisticsPanel
             }
             const thisContentId: string = this.getItem().getModel().getId();
 
-            const contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
-                return thisContentId === content.getId();
-            })[0];
+            const contentSummary: ContentSummaryAndCompareStatus = contents.find(content => thisContentId === content.getId());
 
             if (contentSummary) {
                 this.setItem(ContentHelper.createView(contentSummary));
