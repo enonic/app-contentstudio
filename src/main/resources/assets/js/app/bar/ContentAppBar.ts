@@ -39,7 +39,6 @@ export class ContentAppBar
 
     enable() {
         this.showIssuesDialogButton.show();
-        this.projectSelector.setHeaderPrefix(i18n('app.context'));
     }
 
     doRender(): Q.Promise<boolean> {
