@@ -7,11 +7,14 @@ export class SettingsType {
 
     private displayName: string;
 
+    private description: string;
+
     private iconClass: string;
 
     constructor(builder: SettingsTypeBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
+        this.description = builder.description;
         this.iconClass = builder.iconClass;
     }
 
@@ -24,11 +27,15 @@ export class SettingsType {
     }
 
     getDisplayName(): string {
-        return this.name;
+        return this.displayName;
     }
 
     getIconClass(): string {
         return this.iconClass;
+    }
+
+    getDescription(): string {
+        return this.description;
     }
 
     equals(o: Equitable): boolean {
@@ -50,6 +57,8 @@ export class SettingsTypeBuilder {
 
     displayName: string;
 
+    description: string;
+
     iconClass: string;
 
     setName(value: string): SettingsTypeBuilder {
@@ -59,6 +68,11 @@ export class SettingsTypeBuilder {
 
     setDisplayName(value: string): SettingsTypeBuilder {
         this.displayName = value;
+        return this;
+    }
+
+    setDescription(value: string): SettingsTypeBuilder {
+        this.description = value;
         return this;
     }
 

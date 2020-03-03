@@ -1,20 +1,40 @@
 .new-settings-item-dialog {
 
   .viewer {
-    padding: 6px 0px;
+
+    padding-left: 20px;
 
     &:hover {
       background-color: @admin-bg-light-gray;
     }
 
     .names-and-icon-view {
-      .@{_COMMON_PREFIX}main-name {
-        height: 32px;
-        line-height: 32px;
+      display: flex;
+      align-items: center;
+
+      .@{_COMMON_PREFIX}wrapper {
+        height: 36px;
+        margin-right: 20px;
+
+        .font-icon-default:before {
+          font-size: 36px;
+        }
+
       }
-      .@{_COMMON_PREFIX}sub-name {
-        display: none;
+
+      .@{_COMMON_PREFIX}names-view {
+        margin: 0;
+
+        .@{_COMMON_PREFIX}main-name {
+          height: 28px;
+          line-height: 28px;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          padding-bottom: 2px;
+        }
       }
+
     }
 
     * {

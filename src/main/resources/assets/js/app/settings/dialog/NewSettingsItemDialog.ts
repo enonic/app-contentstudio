@@ -29,7 +29,7 @@ export class NewSettingsItemDialog
 
         this.itemsList.onItemClicked((item: SettingsType) => {
             this.close();
-            if (SettingsTypes.PROJECT.equals(item)) {
+            if (SettingsTypes.PROJECT().equals(item)) {
                 new NewProjectEvent().fire();
             }
         });
@@ -38,7 +38,7 @@ export class NewSettingsItemDialog
     protected postInitElements() {
         super.postInitElements();
 
-        this.itemsList.addItem(SettingsTypes.PROJECT);
+        this.itemsList.addItem(SettingsTypes.PROJECT());
     }
 
     doRender(): Q.Promise<boolean> {
