@@ -6,7 +6,6 @@
   align-items: flex-end;
   align-content: stretch;
   padding-right: 40px;
-  padding-left: 15px;
   height: @toolbar-height;
   line-height: @toolbar-height;
 
@@ -124,6 +123,10 @@
 
   .project-info {
     overflow: auto;
+    padding-left: 10px;
+    padding-right: 25px;
+    margin-right: -5px;
+    background-image: linear-gradient(to right, @admin-bg-dark-gray, @admin-bg-almost-white);
 
     .@{_COMMON_PREFIX}wrapper {
       height: @toolbar-height;
@@ -131,6 +134,10 @@
       line-height: @toolbar-height;
       margin-right: 0px;
       cursor: pointer;
+
+      .font-icon-default:before {
+        color: @admin-white;
+      }
     }
 
     .@{_COMMON_PREFIX}names-view {
@@ -138,9 +145,7 @@
       .@{_COMMON_PREFIX}main-name {
         height: @toolbar-height;
         line-height: @toolbar-height;
-        color: @admin-font-gray3;
-        border-right: 1px solid @admin-bg-light-gray;
-        padding-right: 14px;
+        color: @admin-white;
       }
     }
 
