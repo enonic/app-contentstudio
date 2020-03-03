@@ -103,12 +103,16 @@ export class ContentServerEventsHandler {
     }
 
     private extractContentIds(changes: ContentServerChange[]): ContentId[] {
-        let contentIds: ContentId[] = [];
+        const contentIds: ContentId[] = [];
 
         changes.forEach((change: ContentServerChange) => {
-            change.getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
-                contentIds.push(changeItem.getContentId());
-            });
+            change.getChangeItems()
+                .map((changeItem: ContentServerChangeItem) => changeItem.getContentId())
+                .forEach((contentId: ContentId) => {
+                    if (!contentIds.some((item: ContentId) => item.equals(contentId))) {
+                        contentIds.push(contentId);
+                    }
+                });
         });
 
         return contentIds;
