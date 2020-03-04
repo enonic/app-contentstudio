@@ -345,7 +345,11 @@ export class ContentBrowsePanel
 
         ProjectChangedEvent.on(() => {
             this.treeGrid.deselectAll();
-            this.treeGrid.reload();
+            this.filterPanel.reset().then(() => {
+                this.hideFilterPanel();
+                this.toggleFilterPanelButton.removeClass('filtered');
+                this.treeGrid.reload();
+            });
         });
     }
 

@@ -1616,14 +1616,12 @@ export class ContentWizardPanel
     }
 
     private setupWizardLiveEdit() {
-
         const editorEnabled = this.isEditorEnabled();
 
         this.toggleClass('rendered', editorEnabled);
 
         this.wizardActions.getShowLiveEditAction().setEnabled(editorEnabled);
         this.wizardActions.getShowSplitEditAction().setEnabled(editorEnabled);
-        this.wizardActions.getPreviewAction().setVisible(editorEnabled && this.liveEditModel.hasControllerOrDefaultTemplate());
 
         this.getCycleViewModeButton().setVisible(editorEnabled);
 

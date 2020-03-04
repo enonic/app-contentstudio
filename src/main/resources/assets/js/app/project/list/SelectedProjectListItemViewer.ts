@@ -1,5 +1,6 @@
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ProjectListItemViewer} from './ProjectListItemViewer';
+import {Project} from '../../settings/data/project/Project';
 
 export class SelectedProjectListItemViewer
     extends ProjectListItemViewer {
@@ -10,6 +11,11 @@ export class SelectedProjectListItemViewer
         super();
 
         this.prefixElement = new SpanEl('label');
+    }
+
+    setObject(object: Project, relativePath: boolean = false) {
+        this.prefixElement.hide();
+        return super.setObject(object);
     }
 
     setPrefix(value: string) {

@@ -13,7 +13,7 @@ export class SettingsTypeViewer
     }
 
     resolveSubName(item: SettingsType, relativePath: boolean = false): string {
-        return item.getName();
+        return item.getDescription();
     }
 
     resolveIconClass(item: SettingsType): string {

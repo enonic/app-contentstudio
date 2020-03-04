@@ -11,6 +11,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentIds} from '../ContentIds';
 import {Branch} from '../versioning/Branch';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 /**
  * Class that listens to server events and fires UI events
@@ -103,12 +104,16 @@ export class ContentServerEventsHandler {
     }
 
     private extractContentIds(changes: ContentServerChange[]): ContentId[] {
-        let contentIds: ContentId[] = [];
+        const contentIds: ContentId[] = [];
 
         changes.forEach((change: ContentServerChange) => {
-            change.getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
-                contentIds.push(changeItem.getContentId());
-            });
+            change.getChangeItems()
+                .map((changeItem: ContentServerChangeItem) => changeItem.getContentId())
+                .forEach((contentId: ContentId) => {
+                    if (!contentIds.some((item: ContentId) => item.equals(contentId))) {
+                        contentIds.push(contentId);
+                    }
+                });
         });
 
         return contentIds;
@@ -459,7 +464,7 @@ export class ContentServerEventsHandler {
                     default:
                         //
                     }
-                });
+                }).catch(DefaultErrorHandler.handle);
         }
     }
 
