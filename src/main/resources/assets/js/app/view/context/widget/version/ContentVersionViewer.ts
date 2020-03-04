@@ -1,7 +1,6 @@
 import {ContentVersion} from '../../../../ContentVersion';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 
@@ -19,16 +18,16 @@ export class ContentVersionViewer
         return 50;
     }
 
-    setObject(contentVersion: ContentVersion, row?: number) {
+    setObject(contentVersion: ContentVersion) {
 
         this.namesAndIconView
-            .setMainName(contentVersion.modifierDisplayName)
-            .setSubName(DateHelper.getModifiedString(contentVersion.modified))
-            .setIconClass(contentVersion.publishInfo
-                ? 'icon-version-published'
-                : contentVersion.workflowInfo && WorkflowState.READY === contentVersion.workflowInfo.getState()
-                    ? 'icon-state-ready'
-                    : 'icon-version-modified');
+            .setMainName(contentVersion.getModifierDisplayName())
+            .setSubName(DateHelper.getModifiedString(contentVersion.getModified()))
+            .setIconClass(contentVersion.getPublishInfo() && contentVersion.isInMaster()
+                          ? 'icon-version-published'
+                          : contentVersion.isInReadyState()
+                            ? 'icon-state-ready'
+                            : 'icon-version-modified');
 
         return super.setObject(contentVersion);
     }

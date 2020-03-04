@@ -287,7 +287,7 @@ export class CompareContentVersionsDialog
 
                 const options: Option<ContentVersionAndAlias>[] = [];
                 const versions = contentVersions.getContentVersions().sort((v1: ContentVersion, v2: ContentVersion) => {
-                    return v2.modified.getTime() - v1.modified.getTime();
+                    return v2.getModified().getTime() - v1.getModified().getTime();
                 });
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
@@ -386,7 +386,7 @@ export class CompareContentVersionsDialog
         });
         if (!newest) {
             opts.forEach(opt => {
-                if (!newest || opt.displayValue.contentVersion.modified > newest.displayValue.contentVersion.modified) {
+                if (!newest || opt.displayValue.contentVersion.getModified() > newest.displayValue.contentVersion.getModified()) {
                     newest = opt;
                 }
             });
@@ -402,27 +402,28 @@ export class CompareContentVersionsDialog
         let newestVersion: ContentVersion;
 
         const leftOpt = this.findOptionByValue(options, this.normalizeVersion(this.leftVersion));
-        const leftModTime = leftOpt ? leftOpt.displayValue.contentVersion.modified.getTime() : Date.now();
+        const leftModTime = leftOpt ? leftOpt.displayValue.contentVersion.getModified().getTime() : Date.now();
         const rightOpt = this.findOptionByValue(options, this.normalizeVersion(this.rightVersion));
-        const rightModTime = rightOpt ? rightOpt.displayValue.contentVersion.modified.getTime() : 0;
+        const rightModTime = rightOpt ? rightOpt.displayValue.contentVersion.getModified().getTime() : 0;
 
         options.forEach(option => {
             const version = option.displayValue.contentVersion;
-            const modTime = version.modified.getTime();
-            if (version.publishInfo && (!isLeft || modTime <= rightModTime)) {
-                if (!latestPublished || (version.publishInfo.timestamp.getTime() - latestPublished.publishInfo.timestamp.getTime() < 0)) {
+            const modTime = version.getModified().getTime();
+            if (version.hasPublishInfo() && (!isLeft || modTime <= rightModTime)) {
+                if (!latestPublished || (version.getPublishInfo().getTimestamp().getTime() -
+                                        latestPublished.getPublishInfo().getTimestamp().getTime() < 0)) {
                     latestPublished = version;
                 }
             }
             if (isLeft) {
-                if ((!prevVersion || (modTime - prevVersion.modified.getTime() > 0)) && (modTime - rightModTime < 0)) {
+                if ((!prevVersion || (modTime - prevVersion.getModified().getTime() > 0)) && (modTime - rightModTime < 0)) {
                     prevVersion = version;
                 }
             } else {
-                if ((!nextVersion || (modTime - nextVersion.modified.getTime() < 0)) && (modTime - leftModTime > 0)) {
+                if ((!nextVersion || (modTime - nextVersion.getModified().getTime() < 0)) && (modTime - leftModTime > 0)) {
                     nextVersion = version;
                 }
-                if (!newestVersion || (modTime - newestVersion.modified.getTime() > 0)) {
+                if (!newestVersion || (modTime - newestVersion.getModified().getTime() > 0)) {
                     newestVersion = version;
                 }
             }
@@ -446,11 +447,11 @@ export class CompareContentVersionsDialog
     }
 
     private createOption(version: ContentVersion, alias?: string, type?: AliasType): Option<ContentVersionAndAlias> {
-        let value = version.id;
+        let value = version.getId();
         if (alias) {
-            let counter = this.versionIdCounters[version.id] || 0;
+            let counter = this.versionIdCounters[version.getId()] || 0;
             value = `alias|${value}|${++counter}`;
-            this.versionIdCounters[version.id] = counter;
+            this.versionIdCounters[version.getId()] = counter;
         }
         return {
             value: value,
@@ -473,12 +474,12 @@ export class CompareContentVersionsDialog
             // Bubble AliasType.Newest to the top
             return aVal.type - bVal.type;
         }
-        return bVal.contentVersion.modified.getTime() - aVal.contentVersion.modified.getTime();
+        return bVal.contentVersion.getModified().getTime() - aVal.contentVersion.getModified().getTime();
     }
 
     private leftVersionRequiresForcedSelection() {
-        const leftTime = this.leftDropdown.getSelectedOption().displayValue.contentVersion.modified;
-        const rightTime = this.rightDropdown.getSelectedOption().displayValue.contentVersion.modified;
+        const leftTime = this.leftDropdown.getSelectedOption().displayValue.contentVersion.getModified();
+        const rightTime = this.rightDropdown.getSelectedOption().displayValue.contentVersion.getModified();
 
         return leftTime.getTime() > rightTime.getTime();
     }

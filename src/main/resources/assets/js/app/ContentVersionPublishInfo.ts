@@ -1,22 +1,36 @@
 import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
 
-export class ContentVersionPublishInfo {
+export class ContentVersionPublishInfo
+implements Cloneable {
 
-    message: string;
+    private message: string;
 
-    publisherDisplayName: string;
+    private publisherDisplayName: string;
 
-    publisher: string;
+    private publisher: string;
 
-    timestamp: Date;
+    private timestamp: Date;
+
+    private constructor(source?: ContentVersionPublishInfo) {
+        if (source) {
+            this.message = source.getMessage();
+            this.publisherDisplayName = source.getPublisherDisplayName();
+            this.publisher = source.getPublisher();
+            this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
+        }
+    }
+
+    clone(): ContentVersionPublishInfo {
+        return new ContentVersionPublishInfo(this);
+    }
 
     static fromJson(contentVersionPublishInfoJson: ContentVersionPublishInfoJson): ContentVersionPublishInfo {
-
         if (!contentVersionPublishInfoJson) {
             return null;
         }
 
-        let contentVersionPublishInfo: ContentVersionPublishInfo = new ContentVersionPublishInfo();
+        const contentVersionPublishInfo: ContentVersionPublishInfo = new ContentVersionPublishInfo();
 
         contentVersionPublishInfo.message = contentVersionPublishInfoJson.message;
         contentVersionPublishInfo.publisher = contentVersionPublishInfoJson.publisher;
@@ -24,5 +38,21 @@ export class ContentVersionPublishInfo {
         contentVersionPublishInfo.timestamp = new Date(contentVersionPublishInfoJson.timestamp);
 
         return contentVersionPublishInfo;
+    }
+
+    getMessage(): string {
+        return this.message;
+    }
+
+    getPublisherDisplayName(): string {
+        return this.publisherDisplayName;
+    }
+
+    getPublisher(): string {
+        return this.publisher;
+    }
+
+    getTimestamp(): Date {
+        return this.timestamp;
     }
 }

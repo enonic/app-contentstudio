@@ -48,7 +48,7 @@
 
         }
 
-        &.online {
+        &.online, &.deleted {
           color: @admin-white;
           background-color: @admin-green;
           border-color: @admin-green;
@@ -85,15 +85,19 @@
               }
             }
           }
+        }
 
-          &.pending {
+        &.pending {
+          background-color: @admin-orange;
+          border-color: @admin-orange;
+
+          .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-orange;
-            border-color: @admin-orange;
-
-            .viewer .names-and-icon-view .font-icon-default:before {
-              background-color: @admin-orange;
-            }
           }
+        }
+
+        &.deleted {
+          opacity: 0.5;
         }
 
         .viewer.description {
