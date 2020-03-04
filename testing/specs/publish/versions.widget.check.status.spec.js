@@ -12,6 +12,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentSettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('versions.widget.check.status.spec - check content status in Versions Panel`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -98,6 +99,26 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await browseVersionsWidget.waitForVersionsLoaded();
             let status = await browseVersionsWidget.getContentStatus(0);
             assert.equal(status, appConstant.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
+        });
+
+    it(`GIVEN existing folder(Modified) has been published WHEN Version Panel has been opened THEN 'Published' status should be in the latest version`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            //1. Select the folder and publish it:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await contentBrowsePanel.hotKeyPublish();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentBrowsePanel.pause(500);
+            //2. Open version panel and verify status in the top version-item:
+            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowseDetailsPanel.openVersionHistory();
+            await browseVersionsWidget.waitForVersionsLoaded();
+            let status = await browseVersionsWidget.getContentStatus(0);
+            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
