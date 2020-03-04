@@ -127,6 +127,10 @@ class ContentBrowsePanel extends Page {
         return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
     }
 
+    get undoDeleteButton() {
+        return XPATH.toolbar + "/*[contains(@id, 'ActionButton') and child::span[text()='Undo delete']]";
+    }
+
     get numberInToggler() {
         return XPATH.treeGridToolbar + XPATH.numberInSelectionToggler;
     }
@@ -238,6 +242,10 @@ class ContentBrowsePanel extends Page {
         await this.waitForPublishTreeButtonVisible();
         return await this.clickOnElement(this.publishTreeButton);
     }
+    async clickOnUndoDeleteButton() {
+        await this.waitForElementDisplayed(this.undoDeleteButton);
+        return await this.clickOnElement(this.undoDeleteButton);
+    }
 
     //waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
     async clickOnMarkAsReadyButtonAndConfirm() {
@@ -247,6 +255,16 @@ class ContentBrowsePanel extends Page {
         await confirmationDialog.waitForDialogOpened();
         return await confirmationDialog.clickOnYesButton();
     }
+
+    //Opens 'Delete Content Dialog' and clicks on 'Mark as deleted' menu item:
+    async doSelectedContentMarkAsDeleted() {
+        let contentDeleteDialog = new ContentDeleteDialog();
+        await this.clickOnDeleteButton();
+        await contentDeleteDialog.waitForDialogOpened();
+        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
+        return await contentDeleteDialog.waitForDialogClosed();
+    }
+
 
     //When single content is selected, confirmation is no needed
     async clickOnMarkAsReadyButton() {

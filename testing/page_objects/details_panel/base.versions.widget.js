@@ -57,12 +57,17 @@ class BaseVersionsWidget extends Page {
     }
 
     async waitForVersionItemPublished(index) {
-        await this.waitForElementDisplayed(this.versionItems, 2000);
-        let elements = await this.findElements(this.versionItems);
-        await this.getBrowser().waitUntil(async () => {
-            let result = await elements[index].getAttribute("class");
-            return result.includes('online');
-        }, appConst.TIMEOUT_3);
+        try {
+            await this.waitForElementDisplayed(this.versionItems, 2000);
+            let elements = await this.findElements(this.versionItems);
+            await this.getBrowser().waitUntil(async () => {
+                let result = await elements[index].getAttribute("class");
+                return result.includes('online');
+            }, appConst.TIMEOUT_3);
+        }catch(err){
+            this.saveScreenshot("err_wait_for_published_status");
+            throw new Error("Version Panel - error when waiting for published status: "+ err);
+        }
     }
 
     async getContentStatus(index) {

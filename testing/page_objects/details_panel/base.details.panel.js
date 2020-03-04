@@ -26,7 +26,8 @@ class BaseDetailsPanel extends Page {
             let versionHistoryOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.VERSION_HISTORY);
             await this.waitForElementDisplayed(versionHistoryOption, appConst.TIMEOUT_2);
             let elements = await this.getDisplayedElements(versionHistoryOption);
-            return elements[0].click();
+            await elements[0].click();
+            return await this.pause(200);
         } catch (err) {
             throw new Error("Error when opening Version History: " + err);
         }
