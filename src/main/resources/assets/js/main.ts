@@ -49,7 +49,6 @@ import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {AppWrapper} from './app/AppWrapper';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
@@ -455,7 +454,8 @@ function startContentWizard(wizardParams: ContentWizardPanelParams) {
 
 function startContentApplication(application: Application) {
 
-    import('./app/ContentAppPanel').then(cdef => {
+    import('./app/ContentAppPanel').then( async cdef => {
+        const {AppWrapper} = await import ('./app/AppWrapper');
         const commonWrapper = new AppWrapper(application);
         body.appendChild(commonWrapper);
 

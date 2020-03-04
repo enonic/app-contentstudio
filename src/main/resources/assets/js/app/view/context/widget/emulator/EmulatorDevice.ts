@@ -21,7 +21,7 @@ export class EmulatorDevice
         false, true);
     public static LARGE_PHONE: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.largephone'), DeviceType.MOBILE, 414, 736, 'px',
         false, true);
-    public static TABDLET: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
+    public static TABLET: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
         true);
     public static NOTEBOOK_13: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.notebook13'), DeviceType.MONITOR, 1280, 800, 'px',
         false, false);

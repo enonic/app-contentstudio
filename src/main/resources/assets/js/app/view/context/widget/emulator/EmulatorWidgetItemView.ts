@@ -51,7 +51,7 @@ export class EmulatorWidgetItemView
             EmulatorDevice.SMALL_PHONE,
             EmulatorDevice.MEDIUM_PHONE,
             EmulatorDevice.LARGE_PHONE,
-            EmulatorDevice.TABDLET,
+            EmulatorDevice.TABLET,
             EmulatorDevice.NOTEBOOK_13,
             EmulatorDevice.NOTEBOOK_15,
             EmulatorDevice.HDTV
