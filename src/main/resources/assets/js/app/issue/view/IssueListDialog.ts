@@ -14,6 +14,7 @@ import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {
@@ -27,6 +28,8 @@ export class IssueListDialog
     private createAction: Action;
 
     private skipInitialLoad: boolean = false;
+
+    private reloadRequired: boolean = false;
 
     private issueSelectedListeners: { (issue: Issue): void }[] = [];
 
@@ -64,6 +67,9 @@ export class IssueListDialog
     protected initListeners() {
         super.initListeners();
         this.handleIssueGlobalEvents();
+        ProjectChangedEvent.on(() => {
+            this.reloadRequired = true;
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -78,7 +84,7 @@ export class IssueListDialog
     show() {
         Body.get().appendChild(this);
         super.show();
-        if (!this.skipInitialLoad) {
+        if (!this.skipInitialLoad || this.reloadRequired) {
             this.reload();
         } else {
             this.updateTabAndFiltersLabels().catch(DefaultErrorHandler.handle);
@@ -119,7 +125,10 @@ export class IssueListDialog
                 }
             })
             .catch(DefaultErrorHandler.handle)
-            .finally(() => this.hideLoadMask())
+            .finally(() => {
+                this.hideLoadMask();
+                this.reloadRequired = false;
+            })
             .done();
     }
 
