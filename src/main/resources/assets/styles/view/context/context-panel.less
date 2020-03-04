@@ -64,8 +64,10 @@
       position: fixed;
       right: 0;
       top: @app-header-height;
-      width: 41px;
+      width: 43px;
       height: 41px;
+
+      border-bottom: 1px solid #eeeeee;
 
       @media screen and (max-width: @mobile-panel-width) {
         display: none !important;
@@ -81,6 +83,7 @@
 
       &:before {
         font-size: 18px;
+        padding-left: 3px;
       }
 
       animation-duration: 0.5s;
