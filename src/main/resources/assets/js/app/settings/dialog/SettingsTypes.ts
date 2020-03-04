@@ -5,11 +5,11 @@ export class SettingsTypes {
 
     public static PROJECT = (): SettingsType =>
         SettingsType.create()
-                .setName('Project')
-                .setDescription(i18n('settings.items.type.projectDescription'))
-                .setDisplayName(i18n('settings.items.type.project'))
-                .setIconClass('icon-tree-2')
-                .build()
+            .setName('Project')
+            .setDescription(i18n('settings.items.type.projectDescription'))
+            .setDisplayName(i18n('settings.items.type.project'))
+            .setIconClass('icon-tree-2')
+            .build()
 
     private static TYPES: SettingsType[] = [SettingsTypes.PROJECT()];
 
