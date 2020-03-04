@@ -3,6 +3,7 @@ import {NamesView} from 'lib-admin-ui/app/NamesView';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {SettingsItemViewer} from './SettingsItemViewer';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ProjectItemViewer
     extends SettingsItemViewer {
@@ -24,7 +25,6 @@ export class ProjectItemViewer
         const nameEl: Element = new SpanEl('name').setHtml(`(${item.getName()})`);
 
         namesView.setMainNameElements([displayNameEl, nameEl]);
-        namesView.toggleClass('no-description', !item.getDescription());
     }
 
     resolveDisplayName(item: ProjectViewItem): string {
@@ -32,7 +32,7 @@ export class ProjectItemViewer
     }
 
     resolveSubName(item: ProjectViewItem, relativePath: boolean = false): string {
-        return item.getDescription();
+        return item.getDescription() || `<${i18n('text.noDescription')}>`;
     }
 
     resolveIconClass(item: ProjectViewItem): string {
