@@ -20,7 +20,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
 
     let FOLDER;
 
-    it(`GIVEN existing folder is selected then it has been published WHEN Version Panel has been opened THEN 'Published' status should be in the latest version-item`,
+    it(`GIVEN existing folder is selected WHEN it has been published and Version Panel has been opened THEN 'Published' status should be in the latest version-item`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
