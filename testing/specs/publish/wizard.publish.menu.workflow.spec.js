@@ -90,7 +90,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
-    //Schedule form gets not visible:
+            //Schedule form gets not visible:
             await scheduleForm.waitForNotDisplayed();
 
             let workflow = await contentWizard.getToolbarWorkflowState();
@@ -112,7 +112,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await scheduleForm.waitForDisplayed();
             //Workflow state should not be displayed for the Deleted content
             await contentWizard.waitForStateIconNotDisplayed();
-
             //AND: Status should be 'Deleted'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.DELETED);
             //AND: 'Publish...' button should be present on the toolbar:
