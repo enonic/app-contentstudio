@@ -420,7 +420,7 @@ class ContentWizardPanel extends Page {
 
     async doMarkAsDeleted() {
         let contentDeleteDialog = new ContentDeleteDialog();
-        await this.clickOnDelete(this.deleteButton);
+        await this.clickOnDelete();
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
         return await contentDeleteDialog.waitForDialogClosed();
@@ -429,7 +429,7 @@ class ContentWizardPanel extends Page {
     async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
         let contentDeleteDialog = new ContentDeleteDialog();
         let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
-        await this.clickOnDelete(this.deleteButton);
+        await this.clickOnDelete();
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
         await confirmContentDeleteDialog.waitForDialogOpened();
