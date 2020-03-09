@@ -107,14 +107,11 @@ export class ContentVersionListItemView
     }
 
     private createRevertButton(): ActionButton {
-        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')), false);
+        const revertButton: ActionButton = new ActionButton(
+            new Action(this.isActive ? i18n('field.version.active') : i18n('field.version.revert')), false);
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
-        }
-
-        if (!this.isActive) {
-            revertButton.addClass('visible');
         }
 
         return revertButton;
@@ -174,10 +171,7 @@ export class ContentVersionListItemView
     private addOnClickHandler() {
         this.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(this);
-
-            if (!this.hasClass('active') || this.hasClass('online')) {
-                this.toggleClass('expanded');
-            }
+            this.toggleClass('expanded');
         });
     }
 

@@ -33,17 +33,30 @@
           border-color: @admin-bg-light-gray;
 
         }
+
+        &:not(.active) .version-info .action-button {
+          background-color: @admin-dark-gray;
+        }
+
         &.active {
           color: @admin-white;
           background-color: @admin-dark-gray;
           border-color: @admin-dark-gray;
 
-          .viewer .names-and-icon-view .font-icon-default:before {
-            background-color: @admin-dark-gray;
+          .action-button {
+            pointer-events: none;
+
+            &:hover {
+              background-color: @form-button-bg;
+            }
           }
 
-          &:not(.online):hover *{
+          &.expanded * {
             cursor: default;
+          }
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-dark-gray;
           }
 
         }
@@ -202,12 +215,7 @@
             margin: 10px auto 5px auto;
             padding-top: 5px;
             padding-bottom: 5px;
-            background-color: @admin-dark-gray;
-            display: none;
-
-            &.visible {
-              display: block;
-            }
+            display: block;
 
           }
         }
