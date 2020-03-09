@@ -34,6 +34,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             await studioUtils.openSettingsPanel();
             //2. Select 'Projects' folder
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.PROJECTS.ROOT_FOLDER);
+            studioUtils.saveScreenshot("settings_toolbar_2");
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
             //'Delete' button should be disabled
@@ -52,6 +53,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //3. Select 'Default' folder:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.PROJECTS.DEFAULT_PROJECT_NAME);
+            studioUtils.saveScreenshot("settings_toolbar_2");
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
             //'Delete' button should be disabled:
