@@ -17,6 +17,8 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
+    let FOLDER;
+
     it(`Preconditions: a folder should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
@@ -24,7 +26,6 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             await studioUtils.doAddFolder(FOLDER);
         });
 
-    let FOLDER;
     it(`GIVEN 'Edit Permissions' dialog is opened(click on Details Panel) WHEN 'Custom' permissions has been selected AND 'Create' operation has been clicked  AND 'Apply' button pressed THEN correct notification should appear `,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -51,7 +52,7 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
         });
 
-    it(`GIVEN existing folder with 'Custom' permissions is selected WHEN wizard has been opened THEN correct operations should be present in the permissions`,
+    it(`GIVEN existing folder with 'Custom' permissions is selected WHEN wizard has been opened THEN expected operations should be present in the permissions`,
         async () => {
             let accessStepForm = new AccessStepForm();
             let contentWizardPanel = new ContentWizardPanel();
