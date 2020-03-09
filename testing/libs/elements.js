@@ -21,7 +21,7 @@ module.exports = Object.freeze({
     TEXT_INPUT: `//input[@type='text']`,
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
-    CONTENT_SUMMARY_AND_STATUS_VIEWER:"//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
+    CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
@@ -36,6 +36,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
     },
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
+    CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'security.PrincipalSelectedOptionView')]`,
     REMOVE_ICON: `//a[@class='remove']`,
@@ -45,10 +46,12 @@ module.exports = Object.freeze({
     DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
     DETAILS_MENU_OPTION: `//div[text()='Details']`,
     CHECKBOX_INPUT: "//input[@type='checkbox']",
-    CONTENT_SELECTED_OPTION_VIEW:"//div[contains(@id,'ContentSelectedOptionView')]",
+    CONTENT_SELECTED_OPTION_VIEW: "//div[contains(@id,'ContentSelectedOptionView')]",
     DETAILS_PANEL_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     ACTION_BUTTON: `//button[contains(@id,'ActionButton')]`,
     SHOW_DEPENDENT_ITEM_LINK: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     COMPARE_WITH_CURRENT_VERSION: `//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
+    APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
+    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and @title='Settings']"
 });

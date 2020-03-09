@@ -51,6 +51,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             assert.equal(actualText, EXPECTED_DATA_CKE, 'expected text should be in CKE');
         });
 
+    //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
     it(`GIVEN 'Insert Anchor' dialog is opened WHEN ESC key has been pressed THEN dialog should be closed`,
         async () => {
             let contentWizard = new ContentWizard();

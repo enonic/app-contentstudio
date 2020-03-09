@@ -44,7 +44,7 @@ describe('Shortcut parameters specification', function () {
             await contentWizard.waitUntilInvalidIconAppears();
         });
 
-    it(`GIVEN  shortcut-wizard is opened WHEN 'Add Parameters' button has been clicked THEN 2 inputs should appear AND 'Collapse' link gets visible`,
+    it(`GIVEN shortcut-wizard is opened WHEN 'Add Parameters' button has been clicked THEN 2 inputs should appear AND 'Collapse' link gets visible`,
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();

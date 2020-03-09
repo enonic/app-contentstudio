@@ -24,6 +24,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.',
                 await studioUtils.doAddSite(SITE);
             });
 
+        // verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
         it(`GIVEN 'Insert Image' dialog is opened WHEN ESC key has been pressed THEN dialog should be closed`,
             async () => {
                 let contentWizard = new ContentWizard();
@@ -36,6 +37,21 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.',
                 await insertImageDialog.waitForDialogVisible();
                 await contentWizard.pressEscKey();
                 studioUtils.saveScreenshot("insert_image_esc_test2");
+                await insertImageDialog.waitForDialogClosed();
+            });
+
+        it(`GIVEN 'Insert Image' dialog is opened WHEN 'Cancel' button has been clicked THEN dialog should be closed`,
+            async () => {
+                let contentWizard = new ContentWizard();
+                let htmlAreaForm = new HtmlAreaForm();
+                let insertImageDialog = new InsertImageDialog();
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+                await contentWizard.pause(700);
+                await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+                studioUtils.saveScreenshot("insert_image_cancel_test1");
+                await insertImageDialog.waitForDialogVisible();
+                await insertImageDialog.clickOnCancelButton();
+                studioUtils.saveScreenshot("insert_image_cancel_test2");
                 await insertImageDialog.waitForDialogClosed();
             });
 
