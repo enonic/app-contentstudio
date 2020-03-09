@@ -40,11 +40,11 @@ export class VersionInfoBlock
         return super.doRender().then((rendered) => {
             if (this.messageBlock) {
                 this.messageBlock.appendChild(new PEl('message').setHtml(this.contentVersion.getPublishInfo().getMessage()));
-                this.appendChild(this.messageBlock);
+                this.insertChild(this.messageBlock, 0);
             }
 
             if (this.publisherBlock) {
-                this.appendChild(this.publisherBlock);
+                this.insertChild(this.publisherBlock, this.messageBlock ? 1 : 0);
             }
 
             return rendered;

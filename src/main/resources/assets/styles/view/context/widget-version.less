@@ -202,15 +202,11 @@
             margin: 10px auto 5px auto;
             padding-top: 5px;
             padding-bottom: 5px;
-            display: block !important;
             background-color: @admin-dark-gray;
+            display: none;
 
-            &.active {
-              cursor: default;
-              span {
-                cursor: default;
-                color: @admin-white;
-              }
+            &.visible {
+              display: block;
             }
 
           }
