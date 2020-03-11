@@ -99,7 +99,7 @@ export class ProjectItemNameWizardStepForm
         permissions.getExperts().forEach((key: PrincipalKey) => {
             const experts: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
             if (experts.length > 0) {
-                itemsToSelect.push(new ProjectAccessControlEntry(experts[0], ProjectAccess.EXPERT));
+                itemsToSelect.push(new ProjectAccessControlEntry(experts[0], ProjectAccess.EDITOR));
             }
         });
         permissions.getContributors().forEach((key: PrincipalKey) => {
@@ -119,7 +119,7 @@ export class ProjectItemNameWizardStepForm
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
             .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipalKey());
         const experts: PrincipalKey[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EXPERT)
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EDITOR)
             .map((expertEntry: ProjectAccessControlEntry) => expertEntry.getPrincipalKey());
         const contributors: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)

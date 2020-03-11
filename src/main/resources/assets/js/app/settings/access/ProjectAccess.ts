@@ -1,5 +1,5 @@
 export enum ProjectAccess {
-    OWNER = 'OWNER',
-    EXPERT = 'EXPERT',
-    CONTRIBUTOR = 'CONTRIBUTOR'
+    OWNER = 'owner',
+    EDITOR = 'editor',
+    CONTRIBUTOR = 'contributor'
 }
