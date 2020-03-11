@@ -70,6 +70,18 @@ class BaseVersionsWidget extends Page {
         }
     }
 
+    async isActiveLabelDisplayed(index) {
+        try {
+            await this.waitForElementDisplayed(this.versionItems, 2000);
+            let elements = await this.findElements(this.versionItems);
+            let result = await elements[index].$$(".//button/span[text()='This version is active']");
+            return result.length > 0;
+        } catch (err) {
+            this.saveScreenshot("err_versions_widget_active_version");
+            throw new Error("Version Panel - error when trying to find 'This version is active' button: " + err);
+        }
+    }
+
     async getContentStatus(index) {
         let elements = await this.findElements(this.versionItems);
         let statusElements = await elements[index].$$("./div[contains(@class,'status')]");
