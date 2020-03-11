@@ -7,6 +7,7 @@ const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const appConst = require("./app_const");
+const lib = require("./elements");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
@@ -28,6 +29,10 @@ module.exports = {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
             return webDriverHelper.browser.execute(script2);
         })
+    },
+    async waitForElementDisplayed(selector, ms) {
+        let element = await webDriverHelper.browser.$(selector);
+        return await element.waitForDisplayed(ms);
     },
     async clickOnElement(selector) {
         let el = await webDriverHelper.browser.$(selector);
@@ -578,5 +583,12 @@ module.exports = {
             "  }" +
             "};" +
             "xhr.send();");
+    },
+    async openAppModeSwitcher() {
+        return await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+    },
+    async openSettingsPanel() {
+        await this.openAppModeSwitcher();
+        return await this.clickOnElement(lib.SETTINGS_BUTTON);
     }
 };

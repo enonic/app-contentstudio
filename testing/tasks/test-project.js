@@ -3,7 +3,7 @@ const fs = require('fs');
 const globby = require('globby');
 const Mocha = require('mocha');
 const selenium = require('selenium-standalone');
-const testFilesGlob = './specs/**/*.js';
+const testFilesGlob = './specs/project/*.js';
 
 const mocha = new Mocha({
     reporter: 'mochawesome',
@@ -21,9 +21,7 @@ async function runTests() {
     const paths = await globby([testFilesGlob]);
     paths.forEach(function (filePath) {
         console.log(filePath);
-        if (!filePath.includes("project")) {
-            mocha.addFile(filePath);
-        }
+        mocha.addFile(filePath);
     });
 
     mocha.run(function (exitCode) {
@@ -74,4 +72,5 @@ function runSelenium() {
         }
     );
 }
+
 runSelenium();

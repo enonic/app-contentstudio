@@ -1,7 +1,6 @@
 /**
  * Created on 5/31/2017.
  */
-const Page = require('../page');
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
 const CreateTaskDialog = require('../issue/create.task.dialog');
 const lib = require('../../libs/elements');
@@ -11,6 +10,7 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -31,6 +31,7 @@ const XPATH = {
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -57,7 +58,7 @@ const XPATH = {
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
 }
 
-class ContentBrowsePanel extends Page {
+class ContentBrowsePanel extends BaseBrowsePanel {
 
     get deleteButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete...']]`;
@@ -167,35 +168,6 @@ class ContentBrowsePanel extends Page {
         })
     }
 
-    hotKeyNew() {
-        return this.getBrowser().keys(['Alt', 'n']);
-    }
-
-
-    hotKeyDelete() {
-        return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 'Delete']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 'Delete']);
-            }
-        })
-    }
-
-    hotKeyEdit() {
-        return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 'e']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 'e']);
-            }
-        }).then(() => {
-            return this.pause(1000);
-        })
-    }
-
     //Wait for `Publish Menu` Button gets `Publish...`
     waitForPublishButtonVisible() {
         return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).catch(err => {
@@ -242,6 +214,7 @@ class ContentBrowsePanel extends Page {
         await this.waitForPublishTreeButtonVisible();
         return await this.clickOnElement(this.publishTreeButton);
     }
+
     async clickOnUndoDeleteButton() {
         await this.waitForElementDisplayed(this.undoDeleteButton);
         return await this.clickOnElement(this.undoDeleteButton);
@@ -265,20 +238,11 @@ class ContentBrowsePanel extends Page {
         return await contentDeleteDialog.waitForDialogClosed();
     }
 
-
     //When single content is selected, confirmation is no needed
     async clickOnMarkAsReadyButton() {
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(this.markAsReadyButton);
-        return this.pause(500);
-    }
-
-    waitForGridLoaded(ms) {
-        return this.waitForElementDisplayed(lib.GRID_CANVAS, ms).then(() => {
-            return this.waitForSpinnerNotVisible(ms);
-        }).catch(err => {
-            throw new Error('content browse panel was not loaded in ' + ms);
-        });
+        return await this.pause(500);
     }
 
     clickOnMoveButton() {
@@ -313,21 +277,15 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-    clickOnSelectionControllerCheckbox() {
-        return this.clickOnElement(this.selectionControllerCheckBox).catch(() => {
-            this.saveScreenshot('err_click_on_selection_controller');
-            throw new Error(`Error when clicking on Selection controller ` + err);
-        });
-    }
-
-    clickOnExpanderIcon(name) {
-        let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
-        return this.clickOnElement(expanderIcon).then(() => {
-            return this.pause(900);
-        }).catch(err => {
+    async clickOnExpanderIcon(name) {
+        try {
+            let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+            await this.clickOnElement(expanderIcon);
+            return await this.pause(900);
+        } catch (err) {
             this.saveScreenshot('err_click_on_expander');
-            throw new Error('error when click on expander-icon ' + err);
-        })
+            throw new Error('error when clicking on expander-icon ' + err);
+        }
     }
 
     async clickOnShowIssuesListButton() {
@@ -343,51 +301,17 @@ class ContentBrowsePanel extends Page {
         return this.clickOnElement(this.searchButton);
     }
 
-    async clickOnEditButton() {
-        await this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
-        return await this.clickOnElement(this.editButton).catch(err => {
-            this.saveScreenshot('err_browsepanel_edit');
-            throw new Error('Edit button is not enabled! ' + err);
-        })
-    }
-
-    //wait for the "Show Selection" icon on the toolbar
-    async waitForSelectionTogglerVisible() {
-        try {
-            await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.TIMEOUT_3);
-            let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
-            return attr.includes('any-selected');
-        } catch (err) {
-            return false
-        }
-    }
-
-    //gets list of content display names
-    getDisplayNamesInGrid() {
-        return this.getTextInElements(this.displayNames).catch(err => {
-            this.saveScreenshot('err_get_display_name_grid');
-            throw new Error(`Error when getting display names in grid` + err);
-        });
-    }
-
-    waitForPanelVisible(ms) {
-        return this.waitForElementDisplayed(XPATH.toolbar, ms).catch(err => {
-            throw new Error('Content browse panel was not loaded in ' + ms);
-        });
-    }
-
     // clicks on 'Duplicate button' and waits until modal dialog appears
-    clickOnDuplicateButtonAndWait() {
-        return this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3).then(() => {
-            return this.clickOnElement(this.duplicateButton);
-        }).catch(err => {
-            throw new Error('error when clicking on the Duplicate button ' + err);
-        }).then(() => {
+    async clickOnDuplicateButtonAndWait() {
+        try {
+            await this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3);
+            await this.clickOnElement(this.duplicateButton);
+            //Wait for modal dialog loaded:
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            return contentDuplicateDialog.waitForDialogOpened();
-        }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
-        });
+            return await contentDuplicateDialog.waitForDialogOpened();
+        } catch (err) {
+            throw new Error('error when clicking on the Duplicate button ' + err);
+        }
     }
 
     async waitForContentDisplayed(contentName) {
@@ -406,14 +330,6 @@ class ContentBrowsePanel extends Page {
         });
     }
 
-    clickOnNewButton() {
-        return this.waitForElementEnabled(this.newButton, 1000).then(() => {
-            return this.clickOnElement(this.newButton);
-        }).catch(err => {
-            throw new Error('New button is not enabled! ' + err);
-        })
-    }
-
     clickOnDeleteButton() {
         return this.waitForElementEnabled(this.deleteButton, 2000).then(() => {
             return this.clickOnElement(this.deleteButton);
@@ -423,47 +339,19 @@ class ContentBrowsePanel extends Page {
         })
     }
 
-    clickOnPreviewButton() {
-        return this.waitForElementEnabled(this.previewButton, 2000).then(() => {
-            return this.clickOnElement(this.previewButton);
-        }).catch(err => {
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForElementEnabled(this.previewButton, 2000);
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
             this.saveScreenshot('err_browsepanel_preview');
             throw new Error('Error when clicking on Preview button ' + err);
-        }).then(() => {
-            return this.pause(2000);
-        })
+        }
     }
 
     isSearchButtonDisplayed() {
         return this.isElementDisplayed(this.searchButton);
-    }
-
-    waitForNewButtonEnabled() {
-        return this.waitForElementEnabled(this.newButton, 3000).catch(err => {
-            this.saveScreenshot('err_new_button');
-            throw new Error('New button is not enabled in : ' + err);
-        })
-    }
-
-    waitForEditButtonEnabled() {
-        return this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_5).catch(err => {
-            this.saveScreenshot('err_edit_button');
-            throw Error('Edit button is not enabled after ' + appConst.TIMEOUT_5 + 'ms')
-        })
-    }
-
-    waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, 3000).catch(err => {
-            this.saveScreenshot('err_delete_button');
-            throw Error('Delete button is not enabled after ' + 3000 + 'ms')
-        })
-    }
-
-    waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, 3000).catch(err => {
-            this.saveScreenshot('err_delete_disabled_button');
-            throw Error('Delete button should be disabled, timeout: ' + 3000 + 'ms')
-        })
     }
 
     waitForPreviewButtonDisabled() {
@@ -484,20 +372,6 @@ class ContentBrowsePanel extends Page {
         return this.waitForElementDisabled(this.sortButton, 3000).catch(err => {
             this.saveScreenshot('err_sort_disabled_button');
             throw Error('Sort button should be disabled, timeout: ' + 3000 + 'ms')
-        })
-    }
-
-    waitForNewButtonDisabled() {
-        return this.waitForElementDisabled(this.newButton, 3000).catch(err => {
-            this.saveScreenshot('err_new_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
-        })
-    }
-
-    waitForEditButtonDisabled() {
-        return this.waitForElementDisabled(this.editButton, 3000).catch(err => {
-            this.saveScreenshot('err_edit_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
         })
     }
 
@@ -534,18 +408,6 @@ class ContentBrowsePanel extends Page {
             this.saveScreenshot('err_move_disabled_button');
             throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
         })
-    }
-
-    isDeleteButtonEnabled() {
-        return this.isElementEnabled(this.deleteButton);
-    }
-
-    isNewButtonEnabled() {
-        return this.isElementEnabled(this.newButton);
-    }
-
-    isEditButtonEnabled() {
-        return this.isElementEnabled(this.editButton);
     }
 
     clickOnRowByName(name) {
@@ -829,4 +691,3 @@ class ContentBrowsePanel extends Page {
     }
 };
 module.exports = ContentBrowsePanel;
-
