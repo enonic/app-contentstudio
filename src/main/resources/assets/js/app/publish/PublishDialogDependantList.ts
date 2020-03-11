@@ -10,7 +10,7 @@ import {ContentIds} from '../ContentIds';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 export class PublishDialogDependantList
     extends DialogDependantList {
