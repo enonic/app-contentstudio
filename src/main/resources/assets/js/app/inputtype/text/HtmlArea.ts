@@ -33,6 +33,10 @@ import {SelectorOnBlurEvent} from 'lib-admin-ui/ui/selector/SelectorOnBlurEvent'
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ProjectGetRequest} from '../../settings/resource/ProjectGetRequest';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Project} from '../../settings/data/project/Project';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 declare var CONFIG;
 
@@ -64,11 +68,36 @@ export class HtmlArea
         this.inputConfig = config.inputConfig;
 
         this.authRequest =
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.editableSourceCode = loginResult.isContentExpert();
-            });
+            Q.all([new IsAuthenticatedRequest().sendAndParse(), new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse()])
+                .spread((loginResult: LoginResult, project: Project) => {
+                    this.editableSourceCode = this.isAllowedToEditSourceCode(loginResult, project);
+
+                    return null;
+                });
 
         this.setupEventListeners();
+    }
+
+    private isAllowedToEditSourceCode(loginResult: LoginResult, project: Project): boolean {
+        if (loginResult.isContentExpert()) {
+            return true;
+        }
+
+        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
+
+        const isExpert: boolean = project.getPermissions().getExperts().some((expert: PrincipalKey) => {
+            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(expert));
+        });
+
+        if (isExpert) {
+            return true;
+        }
+
+        const isOwner: boolean = project.getPermissions().getOwners().some((owner: PrincipalKey) => {
+            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(owner));
+        });
+
+        return isOwner;
     }
 
     private setupEventListeners() {
