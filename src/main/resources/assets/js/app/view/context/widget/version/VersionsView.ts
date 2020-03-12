@@ -6,7 +6,7 @@ import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
-import {GetContentVersionsForViewRequest} from '../../../../resource/GetContentVersionsForViewRequest';
+import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionListItemView} from './ContentVersionListItemView';
@@ -73,7 +73,7 @@ export class VersionsView
             throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
         }
 
-        return new GetContentVersionsForViewRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
+        return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
             this.activeVersionId = contentVersions.getActiveVersion().getId();
             return contentVersions.getContentVersions();
         });

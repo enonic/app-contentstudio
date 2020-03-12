@@ -27,6 +27,8 @@ export class ContentVersion implements Cloneable {
 
     private alias: ContentVersionAlias;
 
+    private active: boolean = false;
+
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
@@ -139,6 +141,14 @@ export class ContentVersion implements Cloneable {
 
     clone(): ContentVersion {
         return this.newBuilder().build();
+    }
+
+    isActive(): boolean {
+        return this.active;
+    }
+
+    setActive(value: boolean) {
+        this.active = value;
     }
 }
 
