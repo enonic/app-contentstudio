@@ -16,7 +16,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {VersionInfoBlock} from './VersionInfoBlock';
@@ -28,6 +27,7 @@ export class ContentVersionListItemView
     private activeVersionId: string;
     private content: ContentSummaryAndCompareStatus;
     private isActive: boolean;
+    private tooltip: Tooltip;
 
     private statusBlock: DivEl;
     private descriptionBlock: ContentVersionViewer;
@@ -94,16 +94,12 @@ export class ContentVersionListItemView
     }
 
     private createTooltip() {
-        const dateTimeStamp: Date = this.item.getPublishInfo()
-                                    ? this.item.getPublishInfo().getTimestamp()
-                                    : this.item.getModified();
-        const userName: string = this.item.getPublishInfo()
-                                 ? this.item.getPublishInfo().getPublisherDisplayName()
-                                 : this.item.getModifierDisplayName();
-        const dateAsString: string = DateTimeFormatter.createHtml(dateTimeStamp);
-        const tooltipText: string = i18n('tooltip.state.published', dateAsString, userName);
 
-        return new Tooltip(this, tooltipText, 1000);
+        if (!this.item.getPublishInfo() || !this.item.getPublishInfo().getMessage()) {
+            return;
+        }
+
+        this.tooltip = new Tooltip(this, this.item.getPublishInfo().getMessage().trim(), 1000);
     }
 
     private createRevertButton(): ActionButton {
@@ -171,7 +167,14 @@ export class ContentVersionListItemView
     private addOnClickHandler() {
         this.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(this);
+            const wasExpanded = this.hasClass('expanded');
             this.toggleClass('expanded');
+            this.tooltip.setActive(wasExpanded);
+            if (wasExpanded) {
+                this.tooltip.show();
+            } else {
+                this.tooltip.hide();
+            }
         });
     }
 
