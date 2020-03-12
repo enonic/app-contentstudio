@@ -4,6 +4,7 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'NewSettingsItemDialog')]`,
+    title: "//h2[@class='title']"
 };
 
 class NewSettingsItemDialog extends Page {
@@ -39,6 +40,28 @@ class NewSettingsItemDialog extends Page {
 
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    getTitle() {
+        return this.getText(XPATH.container + XPATH.title);
+    }
+
+    async waitForCancelButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("New Setting Item dialog - Cancel button is not displayed :" + err);
+        }
+    }
+
+    waitForCancelButtonTopDisplayed() {
+        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
+    }
+
+    async clickOnProjectItem() {
+        let selector = XPATH.container + lib.itemByDisplayName("Project");
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector);
     }
 };
 module.exports = NewSettingsItemDialog;
