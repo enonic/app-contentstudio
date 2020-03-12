@@ -3,8 +3,9 @@ import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Branch} from './versioning/Branch';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
 
-export class ContentVersion {
+export class ContentVersion implements Cloneable {
 
     private modifier: string;
 
@@ -23,6 +24,10 @@ export class ContentVersion {
     private publishInfo: ContentVersionPublishInfo;
 
     private workflowInfo: Workflow;
+
+    private alias: ContentVersionAlias;
+
+    private active: boolean = false;
 
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
@@ -101,6 +106,50 @@ export class ContentVersion {
     newBuilder(): ContentVersionBuilder {
         return new ContentVersionBuilder(this);
     }
+
+    isAlias(): boolean {
+        return !!this.alias;
+    }
+
+    getAlias(): ContentVersionAlias {
+        return this.alias;
+    }
+
+    getAliasType(): AliasType {
+        if (!this.isAlias()) {
+            return null;
+        }
+
+        return this.getAlias().getType();
+    }
+
+    getAliasDisplayName(): string {
+        if (!this.isAlias()) {
+            return null;
+        }
+
+        return this.getAlias().getDisplayName();
+    }
+
+    createAlias(displayName: string, type: AliasType): ContentVersion {
+        const versionAlias = this.clone();
+        const alias = new ContentVersionAlias(displayName, type);
+        versionAlias.alias = alias;
+
+        return versionAlias;
+    }
+
+    clone(): ContentVersion {
+        return this.newBuilder().build();
+    }
+
+    isActive(): boolean {
+        return this.active;
+    }
+
+    setActive(value: boolean) {
+        this.active = value;
+    }
 }
 
 export class ContentVersionBuilder {
@@ -152,5 +201,29 @@ export class ContentVersionBuilder {
 
     build(): ContentVersion {
         return new ContentVersion(this);
+    }
+}
+
+export enum AliasType {
+    NEWEST, PUBLISHED, NEXT, PREV
+}
+
+export class ContentVersionAlias {
+    private displayName: string;
+
+    private type: AliasType;
+
+    constructor(displayName: string, type: AliasType, divider: boolean = false) {
+        this.displayName = displayName;
+
+        this.type = type;
+    }
+
+    getType(): AliasType {
+        return this.type;
+    }
+
+    getDisplayName(): string {
+        return this.displayName;
     }
 }

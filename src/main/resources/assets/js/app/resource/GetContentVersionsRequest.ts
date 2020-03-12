@@ -1,13 +1,12 @@
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
-import {ContentVersionJson} from './json/ContentVersionJson';
-import {ContentVersion} from '../ContentVersion';
+import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
+import {ContentVersions} from '../ContentVersions';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsRequest
-    extends ContentResourceRequest<GetContentVersionsResultsJson, ContentVersion[]> {
+    extends ContentResourceRequest<GetContentVersionsForViewResultsJson, ContentVersions> {
 
     private contentId: ContentId;
     private from: number;
@@ -17,7 +16,7 @@ export class GetContentVersionsRequest
         super();
         this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
-        this.addRequestPathElements('getVersions');
+        this.addRequestPathElements('getVersionsForView');
     }
 
     setFrom(from: number): GetContentVersionsRequest {
@@ -38,18 +37,7 @@ export class GetContentVersionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<GetContentVersionsResultsJson>): ContentVersion[] {
-        return this.fromJsonToContentVersions(response.getResult().contentVersions);
+    protected processResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
+        return ContentVersions.fromJson(response.getResult());
     }
-
-    private fromJsonToContentVersions(json: ContentVersionJson[]): ContentVersion[] {
-
-        let contentVersions: ContentVersion[] = [];
-        json.forEach((contentVersionJson: ContentVersionJson) => {
-            contentVersions.push(ContentVersion.fromJson(contentVersionJson));
-        });
-
-        return contentVersions;
-    }
-
 }
