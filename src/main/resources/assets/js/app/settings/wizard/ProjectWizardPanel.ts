@@ -13,11 +13,15 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
+import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
+import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
 
     protected wizardStepForm: ProjectItemNameWizardStepForm;
+
+    private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
 
     protected createWizardStepForm(): ProjectItemNameWizardStepForm {
         return new ProjectItemNameWizardStepForm();
@@ -48,9 +52,34 @@ export class ProjectWizardPanel
         return new ProjectWizardActions(this);
     }
 
+    protected createSteps(): WizardStep[] {
+        const steps: WizardStep[] = super.createSteps();
+
+        this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
+        steps.push(new WizardStep(i18n('settings.items.wizard.step.readaccess'), this.readAccessWizardStepForm));
+
+        return steps;
+    }
+
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            if (persistedItem) {
+                this.readAccessWizardStepForm.layout(persistedItem);
+            }
+
+            this.readAccessWizardStepForm.onDataChanged(() => {
+                this.handleDataChanged();
+            });
+
+            return Q(null);
+        });
+    }
+
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.wizardStepForm.getProjectName()) || !this.wizardStepForm.getPermissions().isEmpty()
-               || super.isNewItemChanged();
+        return !StringHelper.isBlank(this.wizardStepForm.getProjectName()) ||
+               !StringHelper.isBlank(this.wizardStepForm.getDescription()) ||
+               !this.wizardStepForm.getPermissions().isEmpty() ||
+               super.isNewItemChanged();
     }
 
     protected isPersistedItemChanged(): boolean {
@@ -60,7 +89,15 @@ export class ProjectWizardPanel
             return true;
         }
 
+        if (!ObjectHelper.stringEquals(item.getDescription(), this.wizardStepForm.getDescription())) {
+            return true;
+        }
+
         if (!item.getPermissions().equals(this.wizardStepForm.getPermissions())) {
+            return true;
+        }
+
+        if (!ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess())) {
             return true;
         }
 
@@ -123,6 +160,7 @@ export class ProjectWizardPanel
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName)
             .setPermissions(this.wizardStepForm.getPermissions())
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setThumbnail(thumbnail);
     }
 
@@ -135,6 +173,15 @@ export class ProjectWizardPanel
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName)
             .setPermissions(this.wizardStepForm.getPermissions())
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setThumbnail(thumbnail);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('project-wizard-panel');
+
+            return rendered;
+        });
     }
 }

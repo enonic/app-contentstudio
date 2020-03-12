@@ -2,6 +2,7 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectJson} from '../../resource/json/ProjectJson';
 import {ProjectPermissions} from './ProjectPermissions';
+import {ProjectReadAccess} from './ProjectReadAccess';
 
 export class Project
     implements Equitable {
@@ -18,12 +19,15 @@ export class Project
 
     private permissions: ProjectPermissions;
 
+    private readAccess: ProjectReadAccess;
+
     constructor(builder: ProjectBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.icon = builder.icon;
         this.permissions = builder.permissions;
+        this.readAccess = builder.readAccess;
     }
 
     static fromJson(json: ProjectJson): Project {
@@ -54,6 +58,10 @@ export class Project
         return this.permissions;
     }
 
+    getReadAccess(): ProjectReadAccess {
+        return this.readAccess;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;
@@ -61,9 +69,12 @@ export class Project
 
         const other: Project = <Project>o;
 
-        return ObjectHelper.objectEquals(this.name, other.name) && ObjectHelper.objectEquals(this.displayName, other.displayName) &&
-               ObjectHelper.objectEquals(this.description, other.description) && ObjectHelper.objectEquals(this.icon, other.icon) &&
-               ObjectHelper.objectEquals(this.permissions, other.permissions);
+        return ObjectHelper.objectEquals(this.name, other.name) &&
+               ObjectHelper.objectEquals(this.displayName, other.displayName) &&
+               ObjectHelper.objectEquals(this.description, other.description) &&
+               ObjectHelper.objectEquals(this.icon, other.icon) &&
+               ObjectHelper.equals(this.permissions, other.permissions) &&
+               ObjectHelper.equals(this.readAccess, other.readAccess);
     }
 
 }
@@ -79,6 +90,8 @@ export class ProjectBuilder {
     icon: string;
 
     permissions: ProjectPermissions;
+
+    readAccess: ProjectReadAccess;
 
     setName(value: string): ProjectBuilder {
         this.name = value;
@@ -105,12 +118,18 @@ export class ProjectBuilder {
         return this;
     }
 
+    setReadAccess(value: ProjectReadAccess): ProjectBuilder {
+        this.readAccess = value;
+        return this;
+    }
+
     fromJson(json: ProjectJson): ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
         this.description = json.description;
         this.icon = json.icon;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
+        this.readAccess = ProjectReadAccess.fromJson(json.readAccess);
 
         return this;
     }
