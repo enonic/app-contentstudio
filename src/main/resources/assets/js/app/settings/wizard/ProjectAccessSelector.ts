@@ -1,31 +1,32 @@
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
+import {ProjectAccessValueChangedEvent} from '../event/ProjectAccessValueChangedEvent';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 interface ProjectAccessSelectorOption {
     value: ProjectAccess;
-    name: string;
+    label: string;
 }
 
 export class ProjectAccessSelector
     extends TabMenu {
 
     private static OPTIONS: ProjectAccessSelectorOption[] = [
-        {value: ProjectAccess.CONTRIBUTOR, name: 'Contributor'},
-        {value: ProjectAccess.EXPERT, name: 'Expert'},
-        {value: ProjectAccess.OWNER, name: 'Owner'}
+        {value: ProjectAccess.CONTRIBUTOR, label: i18n('settings.projects.access.contributor')},
+        {value: ProjectAccess.EDITOR, label: i18n('settings.projects.access.editor')},
+        {value: ProjectAccess.OWNER, label: i18n('settings.projects.access.owner')}
     ];
 
     private value: ProjectAccess;
-    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: { (event: ProjectAccessValueChangedEvent): void }[] = [];
 
     constructor() {
         super('access-selector');
 
         ProjectAccessSelector.OPTIONS.forEach((option: ProjectAccessSelectorOption) => {
-            let menuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(option.name)).build();
+            const menuItem: TabMenuItem = new TabMenuItemBuilder().setLabel(option.label).build();
             this.addNavigationItem(menuItem);
         });
 
@@ -45,7 +46,7 @@ export class ProjectAccessSelector
         if (option) {
             this.selectNavigationItem(ProjectAccessSelector.OPTIONS.indexOf(option));
             if (!silent) {
-                this.notifyValueChanged(new ValueChangedEvent(ProjectAccess[this.value], ProjectAccess[value]));
+                this.notifyValueChanged(new ProjectAccessValueChangedEvent(this.value, value));
             }
             this.value = value;
         }
@@ -62,17 +63,17 @@ export class ProjectAccessSelector
         return undefined;
     }
 
-    onValueChanged(listener: (event: ValueChangedEvent) => void) {
+    onValueChanged(listener: (event: ProjectAccessValueChangedEvent) => void) {
         this.valueChangedListeners.push(listener);
     }
 
-    unValueChanged(listener: (event: ValueChangedEvent) => void) {
+    unValueChanged(listener: (event: ProjectAccessValueChangedEvent) => void) {
         this.valueChangedListeners = this.valueChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyValueChanged(event: ValueChangedEvent) {
+    private notifyValueChanged(event: ProjectAccessValueChangedEvent) {
         this.valueChangedListeners.forEach((listener) => {
             listener(event);
         });

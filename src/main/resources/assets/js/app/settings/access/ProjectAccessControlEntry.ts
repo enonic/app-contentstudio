@@ -19,8 +19,8 @@ export class ProjectAccessControlEntry
         return this.access;
     }
 
-    setAccess(value: string): ProjectAccessControlEntry {
-        this.access = ProjectAccess[value];
+    setAccess(value: ProjectAccess): ProjectAccessControlEntry {
+        this.access = value;
         return this;
     }
 

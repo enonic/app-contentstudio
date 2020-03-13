@@ -1,8 +1,8 @@
 import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {ProjectAccessSelector} from './ProjectAccessSelector';
 import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import {ProjectAccessValueChangedEvent} from '../event/ProjectAccessValueChangedEvent';
 
 export class ProjectAccessControlEntryView
     extends PrincipalContainerSelectedEntryView<ProjectAccessControlEntry> {
@@ -47,7 +47,7 @@ export class ProjectAccessControlEntryView
         if (!this.accessSelector) {
             this.accessSelector = new ProjectAccessSelector();
             this.accessSelector.setEnabled(this.isEditable());
-            this.accessSelector.onValueChanged((event: ValueChangedEvent) => {
+            this.accessSelector.onValueChanged((event: ProjectAccessValueChangedEvent) => {
                 this.item.setAccess(event.getNewValue());
                 this.notifyValueChanged(this.getItem());
             });

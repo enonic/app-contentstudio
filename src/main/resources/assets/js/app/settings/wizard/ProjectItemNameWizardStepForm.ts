@@ -88,7 +88,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     private getPrincipalsFromPermissions(permissions: ProjectPermissions): Q.Promise<Principal[]> {
-        const principalKeys: PrincipalKey[] = [...permissions.getContributors(), ...permissions.getExperts(), ...permissions.getOwners()];
+        const principalKeys: PrincipalKey[] = [...permissions.getContributors(), ...permissions.getEditors(), ...permissions.getOwners()];
         return new GetPrincipalsByKeysRequest(principalKeys).sendAndParse();
     }
 
@@ -101,10 +101,10 @@ export class ProjectItemNameWizardStepForm
                 itemsToSelect.push(new ProjectAccessControlEntry(owners[0], ProjectAccess.OWNER));
             }
         });
-        permissions.getExperts().forEach((key: PrincipalKey) => {
-            const experts: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
-            if (experts.length > 0) {
-                itemsToSelect.push(new ProjectAccessControlEntry(experts[0], ProjectAccess.EXPERT));
+        permissions.getEditors().forEach((key: PrincipalKey) => {
+            const editors: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
+            if (editors.length > 0) {
+                itemsToSelect.push(new ProjectAccessControlEntry(editors[0], ProjectAccess.EDITOR));
             }
         });
         permissions.getContributors().forEach((key: PrincipalKey) => {
@@ -123,14 +123,14 @@ export class ProjectItemNameWizardStepForm
         const owners: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
             .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipalKey());
-        const experts: PrincipalKey[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EXPERT)
-            .map((expertEntry: ProjectAccessControlEntry) => expertEntry.getPrincipalKey());
+        const editors: PrincipalKey[] = selectedAccessEntries
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EDITOR)
+            .map((editorEntry: ProjectAccessControlEntry) => editorEntry.getPrincipalKey());
         const contributors: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)
             .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
 
-        return new ProjectItemPermissionsBuilder().setOwners(owners).setExperts(experts).setContributors(contributors).build();
+        return new ProjectItemPermissionsBuilder().setOwners(owners).setEditors(editors).setContributors(contributors).build();
     }
 
     protected initListeners() {
