@@ -51,11 +51,11 @@ export class ProjectReadAccess
             return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
         }
 
-        if (json.type === ProjectReadAccessType.PUBLIC) {
+        if (json.type.toLowerCase() === ProjectReadAccessType.PUBLIC) {
             return new ProjectReadAccess(ProjectReadAccessType.PUBLIC);
         }
 
-        if (json.type === ProjectReadAccessType.CUSTOM) {
+        if (json.type.toLowerCase() === ProjectReadAccessType.CUSTOM) {
             if (json.principals) {
                 const principals: PrincipalKey[] = json.principals.map(PrincipalKey.fromString);
 

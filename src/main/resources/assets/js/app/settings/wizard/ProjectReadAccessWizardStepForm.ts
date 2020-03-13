@@ -13,6 +13,8 @@ import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectReadAccess, ProjectReadAccessType} from '../data/project/ProjectReadAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Principal} from 'lib-admin-ui/security/Principal';
+import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -33,9 +35,11 @@ export class ProjectReadAccessWizardStepForm
 
         if (readAccess.getType() === ProjectReadAccessType.CUSTOM) {
             this.enablePrincipalCombobox();
-            readAccess.getPrincipals().forEach((principalKey: PrincipalKey) => {
-                this.principalsCombobox.selectOptionByValue(principalKey.toString());
-            });
+            new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
+                principals.forEach((principal: Principal) => {
+                    this.principalsCombobox.select(principal);
+                });
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 
