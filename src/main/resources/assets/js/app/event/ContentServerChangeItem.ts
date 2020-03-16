@@ -6,9 +6,12 @@ import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/ev
 export class ContentServerChangeItem
     extends NodeServerChangeItem {
 
+    public static pathPrefix: string = '/content';
+
     private contentId: ContentId;
 
     private contentPath: ContentPath;
+
 
     constructor(builder: ContentServerChangeItemBuilder) {
         super(builder);
@@ -18,7 +21,7 @@ export class ContentServerChangeItem
     }
 
     protected processPath(path: string): string {
-        return path.substr('/content'.length);
+        return path.substr(ContentServerChangeItem.pathPrefix.length);
     }
 
     static fromJson(json: NodeEventNodeJson): ContentServerChangeItem {

@@ -18,7 +18,7 @@ export class IssueServerEvent
     }
 
     static fromJson(nodeEventJson: NodeEventJson): IssueServerEvent {
-        let change = IssueServerChange.fromJson(nodeEventJson);
+        const change: IssueServerChange = IssueServerChange.fromJson(nodeEventJson);
         return new IssueServerEvent(change);
     }
 

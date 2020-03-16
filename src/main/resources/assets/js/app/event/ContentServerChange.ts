@@ -8,8 +8,6 @@ export class ContentServerChange
 
     private newContentPaths: ContentPath[];
 
-    static pathPrefix: string = '/content';
-
     constructor(builder: ContentServerChangeBuilder) {
         super(builder);
 
@@ -27,8 +25,8 @@ export class ContentServerChange
         const nodeEventType: NodeServerChangeType = this.getNodeServerChangeType(json.type);
 
         if (NodeServerChangeType.MOVE === nodeEventType || NodeServerChangeType.RENAME === nodeEventType) {
-            return json.data.nodes.filter((node) => node.newPath.indexOf(ContentServerChange.pathPrefix) === 0).map(
-                (node: NodeEventNodeJson) => node.newPath.substr(ContentServerChange.pathPrefix.length));
+            return json.data.nodes.filter((node) => node.newPath.indexOf(ContentServerChangeItem.pathPrefix) === 0).map(
+                (node: NodeEventNodeJson) => node.newPath.substr(ContentServerChangeItem.pathPrefix.length));
         }
 
         return null;
@@ -48,7 +46,7 @@ export class ContentServerChangeBuilder
     }
 
     getPathPrefix(): string {
-        return ContentServerChange.pathPrefix;
+        return ContentServerChangeItem.pathPrefix;
     }
 
     nodeJsonToChangeItem(node: NodeEventNodeJson): ContentServerChangeItem {

@@ -1,5 +1,6 @@
 import {ContentServerChange} from './ContentServerChange';
-import {NodeEventJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {ContentServerChangeItem} from './ContentServerChangeItem';
 
 export class ContentServerEvent
     extends NodeServerEvent {
@@ -9,11 +10,12 @@ export class ContentServerEvent
     }
 
     static is(eventJson: NodeEventJson): boolean {
-        return eventJson.data.nodes.some(node => node.path.indexOf('/content') === 0 && node.path !== '/content');
+        return eventJson.data.nodes.some((node: NodeEventNodeJson) =>
+            node.path.indexOf(ContentServerChangeItem.pathPrefix) === 0 && node.path !== ContentServerChangeItem.pathPrefix);
     }
 
     static fromJson(nodeEventJson: NodeEventJson): ContentServerEvent {
-        let change = ContentServerChange.fromJson(nodeEventJson);
+        const change: ContentServerChange = ContentServerChange.fromJson(nodeEventJson);
         return new ContentServerEvent(change);
     }
 

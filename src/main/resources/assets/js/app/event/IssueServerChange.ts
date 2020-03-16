@@ -22,7 +22,7 @@ export class IssueServerChangeBuilder
     }
 
     getPathPrefix(): string {
-        return '/issue';
+        return IssueServerChangeItem.pathPrefix;
     }
 
     nodeJsonToChangeItem(node: NodeEventNodeJson): IssueServerChangeItem {
