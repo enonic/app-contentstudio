@@ -5,13 +5,10 @@ import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
-import {ProjectGetRequest} from '../../../settings/resource/ProjectGetRequest';
-import {ProjectContext} from '../../../project/ProjectContext';
-import {Project} from '../../../settings/data/project/Project';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {ProjectHelper} from "../../../settings/data/project/ProjectHelper";
 
 export class HTMLAreaHelper {
 
@@ -112,30 +109,10 @@ export class HTMLAreaHelper {
                 return Q(true);
             }
 
-            return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
-                return Q(HTMLAreaHelper.isAllowedToEditSourceCode(loginResult, project));
-            });
+            return ProjectHelper.isUserProjectOwnerOrEditor(loginResult);
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
             return Q(false);
         });
-    }
-
-    private static isAllowedToEditSourceCode(loginResult: LoginResult, project: Project): boolean {
-        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
-
-        const isExpert: boolean = project.getPermissions().getEditors().some((expert: PrincipalKey) => {
-            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(expert));
-        });
-
-        if (isExpert) {
-            return true;
-        }
-
-        const isOwner: boolean = project.getPermissions().getOwners().some((owner: PrincipalKey) => {
-            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(owner));
-        });
-
-        return isOwner;
     }
 }
