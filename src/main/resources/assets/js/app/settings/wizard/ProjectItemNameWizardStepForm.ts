@@ -24,6 +24,8 @@ export class ProjectItemNameWizardStepForm
 
     private projectNameFormItem: FormItem;
 
+    private descriptionInput: TextInput;
+
     private accessCombobox: ProjectAccessControlComboBox;
 
     private accessComboBoxFormItem: FormItem;
@@ -49,6 +51,10 @@ export class ProjectItemNameWizardStepForm
         this.projectNameInput.getEl().setDisabled(true);
     }
 
+    getDescription(): string {
+        return this.descriptionInput.getValue();
+    }
+
     disableHelpText() {
         this.helpText.toggleHelpText(false);
     }
@@ -68,8 +74,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
-        super.layout(item);
-
+        this.descriptionInput.setValue(item.getDescription());
         this.projectNameInput.setValue(item.getName());
         this.disableHelpText();
         this.disableProjectNameInput();
@@ -129,7 +134,10 @@ export class ProjectItemNameWizardStepForm
     }
 
     protected initListeners() {
-        super.initListeners();
+        this.descriptionInput.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
+
         this.projectNameInput.onValueChanged(() => {
             this.projectNameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
@@ -147,13 +155,16 @@ export class ProjectItemNameWizardStepForm
             .build();
         this.projectNameFormItem.getLabel().addClass('required');
 
+        this.descriptionInput = new TextInput();
+        const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
+
         this.accessCombobox = new ProjectAccessControlComboBox();
 
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))
             .build();
 
-        return [this.projectNameFormItem, ...super.getFormItems(), this.accessComboBoxFormItem];
+        return [this.projectNameFormItem, descriptionFormItem, this.accessComboBoxFormItem];
     }
 
     private validateProjectName(): string {

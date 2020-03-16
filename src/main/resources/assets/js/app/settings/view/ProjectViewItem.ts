@@ -4,6 +4,7 @@ import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
+import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
@@ -40,6 +41,10 @@ export class ProjectViewItem
 
     getPermissions(): ProjectPermissions {
         return this.data.getPermissions();
+    }
+
+    getReadAccess(): ProjectReadAccess {
+        return this.data.getReadAccess();
     }
 
     getData(): Project {

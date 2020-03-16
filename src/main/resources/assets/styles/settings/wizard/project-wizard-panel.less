@@ -1,0 +1,42 @@
+.project-wizard-panel {
+
+  .wizard-step-form {
+    &.project-item-wizard-step-form {
+      .input-view {
+        .form-input {
+          &:disabled {
+            border: none;
+          }
+        }
+      }
+    }
+
+    &.project-read-access-wizard-step-form {
+      .radio-group {
+        .radio-button {
+          margin-bottom: 15px;
+        }
+      }
+
+      .principal-combobox {
+        &.disabled {
+          opacity: 0.5;
+
+          .remove {
+            display: none;
+          }
+        }
+      }
+
+      .input-view:first-of-type {
+        align-items: flex-start;
+        margin-bottom: 0px;
+      }
+
+      .principal-combobox {
+        margin-left: 133px;
+      }
+    }
+  }
+
+}

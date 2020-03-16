@@ -68,7 +68,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     doLayout(persistedItem: ITEM): Q.Promise<void> {
-
         this.setSteps(this.createSteps());
 
         if (!!persistedItem) {
@@ -198,10 +197,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     protected isPersistedItemChanged(): boolean {
         const item: ITEM = this.getPersistedItem();
 
-        if (!ObjectHelper.stringEquals(item.getDescription(), this.wizardStepForm.getDescription())) {
-            return true;
-        }
-
         if (!ObjectHelper.stringEquals(item.getDisplayName(), this.wizardHeader.getDisplayName())) {
             return true;
         }
@@ -211,8 +206,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.wizardHeader.getName()) ||
-               !StringHelper.isBlank(this.wizardHeader.getDisplayName()) ||
-               !StringHelper.isBlank(this.wizardStepForm.getDescription());
+               !StringHelper.isBlank(this.wizardHeader.getDisplayName());
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
