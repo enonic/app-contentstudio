@@ -20,8 +20,6 @@ import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
@@ -29,10 +27,6 @@ import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import * as Q from 'q';
-import {ProjectGetRequest} from '../../app/settings/resource/ProjectGetRequest';
-import {ProjectContext} from '../../app/project/ProjectContext';
-import {Project} from '../../app/settings/data/project/Project';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 
 declare var CONFIG;
 
@@ -89,13 +83,10 @@ export class TextComponentView
 
         this.rootElement.getHTMLElement().onpaste = this.handlePasteEvent.bind(this);
 
-        this.authRequest =
-            Q.all([new IsAuthenticatedRequest().sendAndParse(), new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse()])
-                .spread((loginResult: LoginResult, project: Project) => {
-                    this.editableSourceCode = this.isAllowedToEditSourceCode(loginResult, project);
-
-                    return null;
-                });
+        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
+            this.editableSourceCode = value;
+            return Q(null);
+        });
 
         this.onAdded(() => { // is triggered on item insert or move
             if (!this.initOnAdd) {
@@ -118,28 +109,6 @@ export class TextComponentView
         this.bindWindowFocusEvents();
 
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
-    }
-
-    private isAllowedToEditSourceCode(loginResult: LoginResult, project: Project): boolean {
-        if (loginResult.isContentExpert()) {
-            return true;
-        }
-
-        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
-
-        const isExpert: boolean = project.getPermissions().getExperts().some((expert: PrincipalKey) => {
-            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(expert));
-        });
-
-        if (isExpert) {
-            return true;
-        }
-
-        const isOwner: boolean = project.getPermissions().getOwners().some((owner: PrincipalKey) => {
-            return userPrincipals.some((userPrincipal: PrincipalKey) => userPrincipal.equals(owner));
-        });
-
-        return isOwner;
     }
 
     private bindWindowFocusEvents() {
