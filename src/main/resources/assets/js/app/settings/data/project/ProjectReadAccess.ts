@@ -24,7 +24,7 @@ export class ProjectReadAccess
     }
 
     getPrincipals(): PrincipalKey[] {
-        return this.principals;
+        return this.principals.slice(0);
     }
 
     isPublic(): boolean {
@@ -47,25 +47,17 @@ export class ProjectReadAccess
     }
 
     static fromJson(json: ProjectReadAccessJson): ProjectReadAccess {
-        if (!json) {
+        const projectType: ProjectReadAccessType = (!!json && !!json.type) ? ProjectReadAccessType[json.type.toUpperCase()] : null;
+
+        if (!projectType) {
             return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
         }
 
-        if (json.type.toLowerCase() === ProjectReadAccessType.PUBLIC) {
-            return new ProjectReadAccess(ProjectReadAccessType.PUBLIC);
+        if (projectType === ProjectReadAccessType.CUSTOM && json.principals) {
+            return new ProjectReadAccess(projectType, json.principals.map(PrincipalKey.fromString));
         }
 
-        if (json.type.toLowerCase() === ProjectReadAccessType.CUSTOM) {
-            if (json.principals) {
-                const principals: PrincipalKey[] = json.principals.map(PrincipalKey.fromString);
-
-                return new ProjectReadAccess(ProjectReadAccessType.CUSTOM, principals);
-            }
-
-            return new ProjectReadAccess(ProjectReadAccessType.CUSTOM);
-        }
-
-        return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
+        return new ProjectReadAccess(projectType);
     }
 
     equals(o: Equitable): boolean {
