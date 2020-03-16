@@ -31,12 +31,12 @@ import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
 import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {ContentIds} from '../../../../ContentIds';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {

@@ -20,13 +20,13 @@ import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDesc
 import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {

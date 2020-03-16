@@ -6,7 +6,7 @@ import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {

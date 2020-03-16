@@ -38,7 +38,6 @@ import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataCh
 import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
@@ -50,6 +49,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -378,7 +378,7 @@ export class ContentBrowsePanel
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getPath()));
+            this.handleContentDeleted(data.map(d => d.getContentPath()));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));

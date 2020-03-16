@@ -1,12 +1,13 @@
 import {NodeEventJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
-import {NodeServerChange, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {SettingsServerChange, SettingsServerChangeItem} from './SettingsServerChange';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {SettingsServerChange} from './SettingsServerChange';
 import {RepositoryId} from '../../repository/RepositoryId';
+import {SettingsServerChangeItem} from './SettingsServerChangeItem';
 
 export class SettingsServerEvent
     extends NodeServerEvent {
 
-    constructor(change: NodeServerChange<string>) {
+    constructor(change: SettingsServerChange) {
         super(change);
     }
 
@@ -15,7 +16,7 @@ export class SettingsServerEvent
     }
 
     static fromJson(nodeEventJson: NodeEventJson): SettingsServerEvent {
-        const change = SettingsServerChange.fromJson(nodeEventJson);
+        const change: SettingsServerChange = SettingsServerChange.fromJson(nodeEventJson);
         return new SettingsServerEvent(change);
     }
 

@@ -2,7 +2,6 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentServerChange, ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
@@ -12,6 +11,8 @@ import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentIds} from '../ContentIds';
 import {Branch} from '../versioning/Branch';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {ContentServerChange} from './ContentServerChange';
 
 /**
  * Class that listens to server events and fires UI events
@@ -86,7 +87,7 @@ export class ContentServerEventsHandler {
 
         changes.forEach((change: ContentServerChange) => {
             change.getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
-                contentPaths.push(changeItem.getPath());
+                contentPaths.push(changeItem.getContentPath());
             });
         });
 
@@ -97,7 +98,7 @@ export class ContentServerEventsHandler {
         let contentPaths: ContentPath[] = [];
 
         changes.forEach((change: ContentServerChange) => {
-            contentPaths = contentPaths.concat(change.getNewPaths());
+            contentPaths = contentPaths.concat(change.getNewContentPaths());
         });
 
         return contentPaths;
@@ -151,7 +152,8 @@ export class ContentServerEventsHandler {
         }
         const contentDeletedEvent: ContentDeletedEvent = new ContentDeletedEvent();
         changeItems.forEach((changeItem) => {
-            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(), Branch[changeItem.getBranch().toUpperCase()]);
+            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getContentPath(),
+                Branch[changeItem.getBranch().toUpperCase()]);
         });
         contentDeletedEvent.fire();
 
@@ -400,20 +402,21 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: received server event', event);
         }
 
-        let changes = event.getEvents().map((change) => change.getNodeChange());
+        const changes: ContentServerChange[] = event.getEvents().map((change) => change.getNodeChange());
 
         if (event.getType() === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changes)) {
             // content has already been deleted so no need to fetch summaries
-            let changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
+            const changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
                 return total.concat(change.getChangeItems());
             }, []);
 
-            let deletedItems = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
-            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.contentId,
-                d.contentId)));
+            const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+            const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
+                d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
+                    d.getContentId())));
 
             this.handleContentDeleted(deletedItems);
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
+            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
                 .then((summaries) => {
                     this.handleContentUnpublished(summaries);
                 });
