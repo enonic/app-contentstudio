@@ -96,6 +96,11 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
     },
+    PROJECTS: {
+        ROOT_FOLDER: "Projects",
+        ROOT_FOLDER_DESCRIPTION: "Manage projects and layers",
+        DEFAULT_PROJECT_NAME: "Default"
+    },
     contentTypes: {
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,

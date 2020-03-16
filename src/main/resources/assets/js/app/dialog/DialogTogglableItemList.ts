@@ -12,8 +12,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {ContentIds} from '../ContentIds';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 export class DialogTogglableItemList
     extends DialogItemList {

@@ -37,7 +37,6 @@ import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilte
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
 import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
 import {BrowseFilterPanel, ConstraintSection} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
-import {ContentServerChangeItem} from 'lib-admin-ui/content/event/ContentServerChange';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {Filter} from 'lib-admin-ui/query/filter/Filter';
@@ -49,6 +48,7 @@ import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../ContentIds';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {

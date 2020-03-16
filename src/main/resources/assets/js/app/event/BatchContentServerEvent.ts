@@ -1,7 +1,7 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {ContentServerEvent} from 'lib-admin-ui/content/event/ContentServerEvent';
+import {ContentServerEvent} from './ContentServerEvent';
 
 export class BatchContentServerEvent
     extends Event {

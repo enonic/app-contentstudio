@@ -47,6 +47,30 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
 
+    //Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
+    it(`GIVEN existing folder(Published) is selected WHEN Version Panel has been opened THEN 'This version is active' button should be in the top version only`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            //1. open the folder and select the language:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2.Open version panel:
+            await contentBrowsePanel.openDetailsPanel();
+            await contentBrowseDetailsPanel.openVersionHistory();
+            await browseVersionsWidget.waitForVersionsLoaded();
+            //3. Click on latest version-item:
+            await browseVersionsWidget.clickAndExpandVersion(0);
+            //4. Verify 'This version is active' label should be present in the top item:
+            let isDisplayed = await browseVersionsWidget.isActiveLabelDisplayed(0);
+            assert.isTrue(isDisplayed, "'This version is active' button should be present in the latest version");
+            await browseVersionsWidget.clickAndExpandVersion(1);
+            studioUtils.saveScreenshot("verify_active_button_in_versions");
+            //5. Verify 'This version is active' label should not be present in previous versions:
+            isDisplayed = await browseVersionsWidget.isActiveLabelDisplayed(1);
+            assert.isFalse(isDisplayed, "'This version is active' button should not be present in previous versions");
+        });
+
     it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in the top version-item`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
