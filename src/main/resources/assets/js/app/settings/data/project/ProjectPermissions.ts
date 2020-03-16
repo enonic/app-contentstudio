@@ -10,12 +10,12 @@ export class ProjectPermissions
 
     private contributors: PrincipalKey[] = [];
 
-    private experts: PrincipalKey[] = [];
+    private editors: PrincipalKey[] = [];
 
     constructor(builder: ProjectItemPermissionsBuilder) {
         this.owners = builder.owners;
         this.contributors = builder.contributors;
-        this.experts = builder.experts;
+        this.editors = builder.editors;
     }
 
     getOwners(): PrincipalKey[] {
@@ -26,19 +26,19 @@ export class ProjectPermissions
         return this.contributors;
     }
 
-    getExperts(): PrincipalKey[] {
-        return this.experts;
+    getEditors(): PrincipalKey[] {
+        return this.editors;
     }
 
     isEmpty(): boolean {
-        return (this.owners.length + this.contributors.length + this.experts.length) === 0;
+        return (this.owners.length + this.contributors.length + this.editors.length) === 0;
     }
 
     toJson(): ProjectPermissionsJson {
         return {
             contributor: this.contributors.map((key: PrincipalKey) => key.toString()),
             owner: this.owners.map((key: PrincipalKey) => key.toString()),
-            expert: this.experts.map((key: PrincipalKey) => key.toString()),
+            editor: this.editors.map((key: PrincipalKey) => key.toString()),
         };
     }
 
@@ -56,9 +56,9 @@ export class ProjectPermissions
             return false;
         }
 
-        const thisExperts: string[] = this.getExperts().map((expert: PrincipalKey) => expert.toString()).sort();
-        const otherExperts: string[] = other.getExperts().map((expert: PrincipalKey) => expert.toString()).sort();
-        if (!ObjectHelper.stringArrayEquals(thisExperts, otherExperts)) {
+        const thisEditors: string[] = this.getEditors().map((editor: PrincipalKey) => editor.toString()).sort();
+        const otherEditors: string[] = other.getEditors().map((editor: PrincipalKey) => editor.toString()).sort();
+        if (!ObjectHelper.stringArrayEquals(thisEditors, otherEditors)) {
             return false;
         }
 
@@ -75,8 +75,8 @@ export class ProjectPermissions
         return this.owners.some(key => key.equals(principalKey));
     }
 
-    isExpert(principalKey: PrincipalKey) {
-        return this.experts.some(key => key.equals(principalKey));
+    isEditor(principalKey: PrincipalKey) {
+        return this.editors.some(key => key.equals(principalKey));
     }
 
     isContributor(principalKey: PrincipalKey) {
@@ -87,7 +87,7 @@ export class ProjectPermissions
         if (json) {
             return new ProjectItemPermissionsBuilder()
                 .setContributors(json.contributor.map(PrincipalKey.fromString))
-                .setExperts(json.expert.map(PrincipalKey.fromString))
+                .setEditors(json.editor.map(PrincipalKey.fromString))
                 .setOwners(json.owner.map(PrincipalKey.fromString))
                 .build();
         }
@@ -102,7 +102,7 @@ export class ProjectItemPermissionsBuilder {
 
     contributors: PrincipalKey[] = [];
 
-    experts: PrincipalKey[] = [];
+    editors: PrincipalKey[] = [];
 
     setOwners(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
         this.owners = value;
@@ -114,8 +114,8 @@ export class ProjectItemPermissionsBuilder {
         return this;
     }
 
-    setExperts(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
-        this.experts = value;
+    setEditors(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
+        this.editors = value;
         return this;
     }
 
