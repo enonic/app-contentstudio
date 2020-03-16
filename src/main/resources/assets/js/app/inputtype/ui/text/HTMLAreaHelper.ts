@@ -8,7 +8,7 @@ import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {ProjectHelper} from "../../../settings/data/project/ProjectHelper";
+import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 
 export class HTMLAreaHelper {
 
