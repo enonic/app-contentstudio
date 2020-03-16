@@ -4,6 +4,11 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 
 export class HTMLAreaHelper {
 
@@ -96,5 +101,18 @@ export class HTMLAreaHelper {
         });
 
         return processedContent;
+    }
+
+    public static isSourceCodeEditable(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            if (loginResult.isContentExpert()) {
+                return Q(true);
+            }
+
+            return ProjectHelper.isUserProjectOwnerOrEditor(loginResult);
+        }).catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            return Q(false);
+        });
     }
 }

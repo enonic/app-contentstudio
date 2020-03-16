@@ -25,8 +25,6 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {BaseInputTypeNotManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
 import {SelectorOnBlurEvent} from 'lib-admin-ui/ui/selector/SelectorOnBlurEvent';
@@ -63,10 +61,10 @@ export class HtmlArea
 
         this.inputConfig = config.inputConfig;
 
-        this.authRequest =
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.editableSourceCode = loginResult.isContentExpert();
-            });
+        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
+            this.editableSourceCode = value;
+            return Q(null);
+        });
 
         this.setupEventListeners();
     }

@@ -20,14 +20,13 @@ import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {Action} from 'lib-admin-ui/ui/Action';
+import * as Q from 'q';
 
 declare var CONFIG;
 
@@ -84,10 +83,10 @@ export class TextComponentView
 
         this.rootElement.getHTMLElement().onpaste = this.handlePasteEvent.bind(this);
 
-        this.authRequest =
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.editableSourceCode = loginResult.isContentExpert();
-            });
+        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
+            this.editableSourceCode = value;
+            return Q(null);
+        });
 
         this.onAdded(() => { // is triggered on item insert or move
             if (!this.initOnAdd) {
