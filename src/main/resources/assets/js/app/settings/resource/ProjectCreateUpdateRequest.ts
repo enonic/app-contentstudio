@@ -62,8 +62,8 @@ export abstract class ProjectCreateUpdateRequest
             name: this.name,
             displayName: this.displayName,
             description: this.description,
-            permissions: JSON.stringify(this.permissions.toJson()),
-            readAccess: JSON.stringify(this.readAccess.toJson())
+            permissions: !!this.permissions ? JSON.stringify(this.permissions.toJson()) : null,
+            readAccess: !!this.readAccess ? JSON.stringify(this.readAccess.toJson()) : null
         };
 
         if (this.thumbnail) {

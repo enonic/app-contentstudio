@@ -15,13 +15,14 @@ import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
 
     protected wizardStepForm: ProjectItemNameWizardStepForm;
 
-    private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
+    private readAccessWizardStepForm?: ProjectReadAccessWizardStepForm;
 
     protected createWizardStepForm(): ProjectItemNameWizardStepForm {
         return new ProjectItemNameWizardStepForm();
@@ -55,6 +56,10 @@ export class ProjectWizardPanel
     protected createSteps(): WizardStep[] {
         const steps: WizardStep[] = super.createSteps();
 
+        if (this.isItemPersisted() && ProjectHelper.isDefault(this.getPersistedItem().getData())) {
+            return steps;
+        }
+
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
         steps.push(new WizardStep(i18n('settings.items.wizard.step.readaccess'), this.readAccessWizardStepForm));
 
@@ -63,9 +68,11 @@ export class ProjectWizardPanel
 
     doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
         return super.doLayout(persistedItem).then(() => {
-            if (persistedItem) {
-                this.readAccessWizardStepForm.layout(persistedItem);
+            if (!!persistedItem && ProjectHelper.isDefault(persistedItem.getData())) {
+                return Q(null);
             }
+
+            this.readAccessWizardStepForm.layout(persistedItem);
 
             this.readAccessWizardStepForm.onDataChanged(() => {
                 this.handleDataChanged();
@@ -93,11 +100,13 @@ export class ProjectWizardPanel
             return true;
         }
 
-        if (!item.getPermissions().equals(this.wizardStepForm.getPermissions())) {
+        if (!ProjectHelper.isDefault(item.getData()) &&
+            !item.getPermissions().equals(this.wizardStepForm.getPermissions())) {
             return true;
         }
 
-        if (!ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess())) {
+        if (!ProjectHelper.isDefault(item.getData()) &&
+            !ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess())) {
             return true;
         }
 
@@ -172,8 +181,12 @@ export class ProjectWizardPanel
             .setDescription(this.wizardStepForm.getDescription())
             .setName(this.wizardStepForm.getProjectName())
             .setDisplayName(displayName)
-            .setPermissions(this.wizardStepForm.getPermissions())
-            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
+            .setPermissions(ProjectHelper.isDefault(this.getPersistedItem().getData()) ?
+                null :
+                this.wizardStepForm.getPermissions())
+            .setReadAccess(ProjectHelper.isDefault(this.getPersistedItem().getData()) ?
+                null :
+                this.readAccessWizardStepForm.getReadAccess())
             .setThumbnail(thumbnail);
     }
 

@@ -70,9 +70,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     doLayout(persistedItem: ITEM): Q.Promise<void> {
         this.setSteps(this.createSteps());
 
-        if (!!persistedItem) {
-            this.wizardStepForm.layout(persistedItem);
-        }
+        this.wizardStepForm.layout(persistedItem);
 
         this.wizardStepForm.onDataChanged(() => {
             this.handleDataChanged();

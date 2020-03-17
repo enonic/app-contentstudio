@@ -30,6 +30,12 @@ export class ProjectReadAccessWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
+        super.layout(item);
+
+        if (!item) {
+            return;
+        }
+
         const readAccess: ProjectReadAccess = item.getData().getReadAccess();
         this.readAccessRadioGroup.setValue(readAccess.getType(), true);
 

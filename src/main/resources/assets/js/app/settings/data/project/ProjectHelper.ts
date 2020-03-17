@@ -25,4 +25,8 @@ export class ProjectHelper {
             editors.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
     }
 
+    public static isDefault(project: Project): boolean {
+        return project.getName() === Project.DEFAULT_PROJECT_NAME;
+    }
+
 }

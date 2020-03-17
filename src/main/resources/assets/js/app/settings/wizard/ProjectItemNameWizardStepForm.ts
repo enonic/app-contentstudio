@@ -14,6 +14,7 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -26,9 +27,9 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
-    private accessCombobox: ProjectAccessControlComboBox;
+    private accessCombobox?: ProjectAccessControlComboBox;
 
-    private accessComboBoxFormItem: FormItem;
+    private accessComboBoxFormItem?: FormItem;
 
     private helpText: HelpTextContainer;
 
@@ -63,7 +64,10 @@ export class ProjectItemNameWizardStepForm
         return super.doRender().then((rendered) => {
             this.addClass('project-item-wizard-step-form');
             this.projectNameFormItem.getParentElement().insertChild(this.helpText.getHelpText(), 1);
-            this.accessComboBoxFormItem.addClass('project-access-control-form-item');
+
+            if (this.accessComboBoxFormItem) {
+                this.accessComboBoxFormItem.addClass('project-access-control-form-item');
+            }
 
             return rendered;
         });
@@ -74,10 +78,20 @@ export class ProjectItemNameWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
+        super.layout(item);
+
+        if (!item) {
+            return;
+        }
+
         this.descriptionInput.setValue(item.getDescription());
         this.projectNameInput.setValue(item.getName());
         this.disableHelpText();
         this.disableProjectNameInput();
+
+        if (ProjectHelper.isDefault(item.getData())) {
+            return;
+        }
 
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
@@ -143,11 +157,13 @@ export class ProjectItemNameWizardStepForm
             this.notifyDataChanged();
         });
 
-        this.accessCombobox.onValueChanged(this.notifyDataChanged.bind(this));
-        this.accessCombobox.onOptionValueChanged(this.notifyDataChanged.bind(this));
+        if (!!this.accessCombobox) {
+            this.accessCombobox.onValueChanged(this.notifyDataChanged.bind(this));
+            this.accessCombobox.onOptionValueChanged(this.notifyDataChanged.bind(this));
+        }
     }
 
-    protected getFormItems(): FormItem[] {
+    protected getFormItems(item?: ProjectViewItem): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = new FormItemBuilder(this.projectNameInput)
             .setValidator(this.validateProjectName.bind(this))
@@ -158,8 +174,11 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        this.accessCombobox = new ProjectAccessControlComboBox();
+        if (!!item && ProjectHelper.isDefault(item.getData())) {
+            return [this.projectNameFormItem, descriptionFormItem];
+        }
 
+        this.accessCombobox = new ProjectAccessControlComboBox();
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))
             .build();
