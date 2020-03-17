@@ -26,6 +26,9 @@ export class RevertVersionRequest
     }
 
     protected processResponse(response: JsonResponse<ContentVersionJson>): string {
+        if (this.versionId === response.getResult().id) {
+            return null;
+        }
         return response.getResult().id;
     }
 }

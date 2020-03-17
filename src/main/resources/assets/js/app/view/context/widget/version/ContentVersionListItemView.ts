@@ -1,3 +1,4 @@
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
@@ -23,7 +24,6 @@ export class ContentVersionListItemView
     extends LiEl {
 
     private version: ContentVersion;
-    private activeVersionId: string;
     private content: ContentSummaryAndCompareStatus;
     private tooltip: Tooltip;
 
@@ -34,11 +34,10 @@ export class ContentVersionListItemView
     private revertButton: ActionButton;
     private compareButton: ActionButton;
 
-    constructor(version: ContentVersion, activeVersionId: string, content: ContentSummaryAndCompareStatus) {
+    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus) {
         super('content-version-item');
 
         this.version = version;
-        this.activeVersionId = activeVersionId;
         this.content = content;
 
         this.initElements();
@@ -154,7 +153,7 @@ export class ContentVersionListItemView
 
         if (!this.version.isActive()) {
             this.revertButton.getAction().onExecuted(() => {
-                this.revert();
+                this.revert(this.getContentId(), this.version);
             });
         }
 
@@ -165,20 +164,27 @@ export class ContentVersionListItemView
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
             .setLeftVersion(this.version)
-            .setActiveVersionId(this.activeVersionId)
+            .setRevertVersionCallback(this.revert)
             .open();
     }
 
-    private revert() {
-        new RevertVersionRequest(this.version.getId(), this.getContentId().toString()).sendAndParse().then(
-            (contentVersionId: string) => {
-                if (contentVersionId === this.activeVersionId) {
+    private revert(contentId: ContentId, version: ContentVersion) {
+        new RevertVersionRequest(version.getId(), contentId.toString())
+            .sendAndParse()
+            .then((newVersionId) => {
+
+                if (!newVersionId) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
-                } else {
-                    NotifyManager.get().showFeedback(i18n('notify.version.changed', this.version.getId()));
-                    new ActiveContentVersionSetEvent(this.getContentId(), this.version.getId()).fire();
+                    return;
                 }
-            }).catch(DefaultErrorHandler.handle);
+
+                const modifiedDate = version.getModified();
+                const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+
+                NotifyManager.get().showFeedback(i18n('notify.version.changed', dateTime));
+                new ActiveContentVersionSetEvent(contentId, version.getId()).fire();
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private getContentId(): ContentId {

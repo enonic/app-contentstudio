@@ -42,7 +42,7 @@ export class VersionsView
     }
 
     createItemView(version: ContentVersion, readOnly: boolean): Element {
-        const itemContainer: LiEl = new ContentVersionListItemView(version, this.activeVersionId, this.content);
+        const itemContainer: LiEl = new ContentVersionListItemView(version, this.content);
         itemContainer.toggleClass('active', version.isActive());
 
         return itemContainer;
