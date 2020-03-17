@@ -41,9 +41,9 @@ export class VersionsView
         }).catch(DefaultErrorHandler.handle);
     }
 
-    createItemView(item: ContentVersion, readOnly: boolean): Element {
-        const itemContainer: LiEl = new ContentVersionListItemView(item, this.activeVersionId, this.content);
-        itemContainer.toggleClass('active', item.getId() === this.activeVersionId);
+    createItemView(version: ContentVersion, readOnly: boolean): Element {
+        const itemContainer: LiEl = new ContentVersionListItemView(version, this.activeVersionId, this.content);
+        itemContainer.toggleClass('active', version.isActive());
 
         return itemContainer;
     }
