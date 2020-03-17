@@ -133,7 +133,6 @@ class BaseBrowsePanel extends Page {
         return this.isElementEnabled(this.editButton);
     }
 
-
     async clickOnNewButton() {
         await this.waitForNewButtonVisible();
         await this.pause(200);
@@ -148,6 +147,18 @@ class BaseBrowsePanel extends Page {
             this.saveScreenshot('err_settings_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
+    }
+
+    clickOnRowByName(name) {
+        let nameXpath = this.treeGrid + lib.itemByName(name);
+        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
+            return this.clickOnElement(nameXpath);
+        }).catch(err => {
+            this.saveScreenshot('err_find_' + name);
+            throw Error('Row with the name ' + name + ' was not found' + err);
+        }).then(() => {
+            return this.pause(300);
+        });
     }
 };
 module.exports = BaseBrowsePanel;

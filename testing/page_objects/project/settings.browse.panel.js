@@ -6,6 +6,8 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
+const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'SettingsBrowsePanel')]",
@@ -45,6 +47,10 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get editButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
+    }
+
+    get treeGrid() {
+        return XPATH.container + XPATH.treeGrid;
     }
 
     get selectionControllerCheckBox() {
@@ -109,18 +115,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-
-    clickOnRowByName(name) {
-        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
-            return this.clickOnElement(nameXpath);
-        }).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' was not found' + err);
-        }).then(() => {
-            return this.pause(300);
-        });
-    }
 
     async clickOnRowByDisplayName(displayName) {
         try {
@@ -206,6 +200,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
         })
+    }
+
+    async openProjectWizard() {
+        let newSettingsItemDialog = new NewSettingsItemDialog();
+        let projectWizard = new ProjectWizard();
+        //2.'New...' button has been clicked:
+        await this.clickOnNewButton();
+        //3. 'NewSettingsItem' dialog should be loaded:
+        await newSettingsItemDialog.waitForDialogLoaded();
+        //4. Expected title should be loaded:
+        await newSettingsItemDialog.clickOnProjectItem();
+        await projectWizard.waitForLoaded();
     }
 };
 module.exports = SettingsBrowsePanel;
