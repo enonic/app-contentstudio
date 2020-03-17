@@ -80,6 +80,8 @@ export class ProjectItemNameWizardStepForm
         this.disableProjectNameInput();
 
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+            this.accessCombobox.clearSelection(true);
+
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
                 this.accessCombobox.select(selectedItem);
@@ -131,6 +133,12 @@ export class ProjectItemNameWizardStepForm
             .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
 
         return new ProjectItemPermissionsBuilder().setOwners(owners).setEditors(editors).setContributors(contributors).build();
+    }
+
+    onAccessComboboxValueChanged(handler: (permissions: ProjectPermissions) => void) {
+        this.accessCombobox.onValueChanged(() => {
+            handler(this.getPermissions());
+        });
     }
 
     protected initListeners() {
