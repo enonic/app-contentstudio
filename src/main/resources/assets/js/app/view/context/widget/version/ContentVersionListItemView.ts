@@ -4,8 +4,7 @@ import {ContentVersionViewer} from './ContentVersionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../../../../ContentVersion';
-import {Branch} from '../../../../versioning/Branch';
-import {PublishStatus} from '../../../../publish/PublishStatus';
+import {PublishStatus, PublishStatusFormatter} from '../../../../publish/PublishStatus';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
@@ -73,20 +72,21 @@ export class ContentVersionListItemView
     }
 
     private createStatusBlock(): DivEl {
-        const isInMaster: boolean = this.item.isInMaster();
         const statusText: string = this.getStatusText();
 
-        const statusDiv = new DivEl('status ' + (isInMaster ? Branch.MASTER : Branch.DRAFT));
+        const statusDiv = new DivEl('status');
         statusDiv.setHtml(statusText);
 
         return statusDiv;
     }
 
     private getStatusText(): string {
-        const statusPostfix: string = this.isPublishPending() ?
-                                      ` (${PublishStatus.PENDING.charAt(0).toUpperCase() + PublishStatus.PENDING.slice(1)})` : '';
+        const isInMaster: boolean = this.item.isInMaster();
+        const statusPostfix: string = this.isPublishPending() ? ` (${PublishStatusFormatter.formatStatus(PublishStatus.PENDING)})` : '';
 
-        return `${CompareStatusFormatter.formatStatusTextFromContent(this.content)} ${statusPostfix}`;
+        return isInMaster ?
+            `${PublishStatusFormatter.formatStatus(PublishStatus.ONLINE)} ${statusPostfix}` :
+            `${CompareStatusFormatter.formatStatusTextFromContent(this.content)}`;
     }
 
     private isPublishPending(): boolean {
@@ -164,17 +164,26 @@ export class ContentVersionListItemView
         return this.content ? this.content.getContentId() : null;
     }
 
+    private toggleTooltip() {
+        if (!this.tooltip) {
+            return;
+        }
+
+        const isActive = this.hasClass('expanded');
+        this.tooltip.setActive(isActive);
+        if (isActive) {
+            this.tooltip.show();
+        } else {
+            this.tooltip.hide();
+        }
+    }
+
     private addOnClickHandler() {
         this.onClicked(() => {
             this.collapseAllContentVersionItemViewsExcept(this);
             const wasExpanded = this.hasClass('expanded');
+            this.toggleTooltip();
             this.toggleClass('expanded');
-            this.tooltip.setActive(wasExpanded);
-            if (wasExpanded) {
-                this.tooltip.show();
-            } else {
-                this.tooltip.hide();
-            }
         });
     }
 
