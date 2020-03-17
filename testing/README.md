@@ -13,9 +13,10 @@ Before trying to run tests, you need to verify that the following software are i
 
 Run tests for app-admin-home.
 go to '/testing' folder and run:
-  1. `gradle testContentStudioApp
-  2. `gradle testContentStudioAppLocally  ( --project-cache-dir d:/cache)
+  1. gradle testContentStudioApp
+  2. gradle testContentStudioAppLocally  ( --project-cache-dir d:/cache)
   3. gradle runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache
+  4. gradle testContentStudioProjects  --project-cache-dir d:/cache
   
 
 ### Reporting
