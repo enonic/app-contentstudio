@@ -62,6 +62,18 @@ export class ProjectWizardPanel
         return [this.projectWizardStepForm, this.readAccessWizardStepForm];
     }
 
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            if (!this.readAccessWizardStepForm) {
+                return;
+            }
+
+            this.projectWizardStepForm.onAccessComboboxValueChanged((permissions: ProjectPermissions) => {
+                this.readAccessWizardStepForm.updateFilteredPrincipalsByPermissions(permissions);
+            });
+        });
+    }
+
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
             !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||

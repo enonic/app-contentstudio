@@ -217,7 +217,9 @@ export class ProjectItemNameWizardStepForm
         }
 
         this.accessCombobox = new ProjectAccessControlComboBox();
-        (<PrincipalLoader>this.accessCombobox.getLoader()).setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
+        loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        loader.skipPrincipal(PrincipalKey.ofAnonymous());
 
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))
