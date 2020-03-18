@@ -1,9 +1,13 @@
 import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
-import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
+import {
+    PrincipalContainerCombobox,
+    PrincipalContainerComboboxBuilder
+} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
+import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
 
 export class ProjectAccessControlComboBox
     extends PrincipalContainerCombobox<ProjectAccessControlEntry> {
@@ -31,4 +35,5 @@ export class ProjectAccessControlComboBoxBuilder
 
     selectedOptionsView: ProjectACESelectedOptionsView = new ProjectACESelectedOptionsView();
 
+    loader: FilterablePrincipalLoader = new FilterablePrincipalLoader();
 }

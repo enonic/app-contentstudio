@@ -6,7 +6,6 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
@@ -21,6 +20,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
+import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
 
 export class IssueDialogForm
     extends Form {
@@ -73,10 +73,11 @@ export class IssueDialogForm
 
         this.descriptionText = new PEl('description-text');
 
-        const principalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
-            [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
+        const loader: FilterablePrincipalLoader = <FilterablePrincipalLoader>new FilterablePrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER])
+            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
-        this.approversSelector = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build();
+        this.approversSelector = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).setMaximumOccurrences(0).build();
 
         this.contentItemsSelector = ContentComboBox.create().setShowStatus(true).build();
 

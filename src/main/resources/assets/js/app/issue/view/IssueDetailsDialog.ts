@@ -23,7 +23,10 @@ import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {
+    DependantItemsWithProgressDialog,
+    DependantItemsWithProgressDialogConfig
+} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
@@ -48,7 +51,6 @@ import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
@@ -58,6 +60,7 @@ import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
+import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -192,9 +195,10 @@ export class IssueDetailsDialog
     }
 
     protected initTabs() {
-        const userLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
-            [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(userLoader).build();
+        const loader: FilterablePrincipalLoader = <FilterablePrincipalLoader>new FilterablePrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER])
+            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
+        this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
         this.commentsList = new IssueCommentsList();
 
         this.assigneesTab = IssueDetailsDialog.createTabBar('assignees');

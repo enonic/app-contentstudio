@@ -4,7 +4,6 @@ import {ProjectViewItem} from '../view/ProjectViewItem';
 import {RadioGroup} from 'lib-admin-ui/ui/RadioGroup';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
@@ -16,6 +15,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -109,7 +109,8 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private createPrincipalFormItem(): FormItem {
-        const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const loader: FilterablePrincipalLoader = <FilterablePrincipalLoader>new FilterablePrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
 
         this.principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
         this.filterPrincipals(this.getDefaultFilteredPrincipals());
@@ -123,8 +124,8 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private filterPrincipals(principals: PrincipalKey[]) {
-        const principalsLoader: PrincipalLoader = <PrincipalLoader>this.principalsCombobox.getLoader();
-        principalsLoader.skipPrincipals(principals);
+        const principalsLoader: FilterablePrincipalLoader = <FilterablePrincipalLoader>this.principalsCombobox.getLoader();
+        principalsLoader.resetForbiddenPrincipals().skipPrincipals(principals);
     }
 
     private disablePrincipalCombobox() {

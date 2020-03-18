@@ -1,7 +1,6 @@
 import {ContentSettingsModel} from './ContentSettingsModel';
 import {Content, ContentBuilder} from '../content/Content';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
@@ -12,6 +11,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {FilterablePrincipalLoader} from '../security/FilterablePrincipalLoader';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {
@@ -53,7 +53,8 @@ export class SettingsWizardStepForm
         this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).setValue(content.getLanguage()).build();
         let localeFormItem = new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
 
-        let loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
+        const loader: FilterablePrincipalLoader = <FilterablePrincipalLoader>new FilterablePrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER]);
 
         this.ownerCombo = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).setMaximumOccurrences(1).setValue(
             content.getOwner() ? content.getOwner().toString() : undefined).setDisplayMissingSelectedOptions(true).build();
