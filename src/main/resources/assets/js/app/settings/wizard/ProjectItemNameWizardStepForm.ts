@@ -14,6 +14,8 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -167,6 +169,7 @@ export class ProjectItemNameWizardStepForm
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
         this.accessCombobox = new ProjectAccessControlComboBox();
+        (<PrincipalLoader>this.accessCombobox.getLoader()).setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
 
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))
