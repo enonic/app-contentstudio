@@ -32,7 +32,7 @@ async function runTests() {
     });
 }
 
-function runSelenium() {
+function runSeleniumTests() {
     selenium.install(
         {
             version: '3.9.0',
@@ -73,4 +73,5 @@ function runSelenium() {
     );
 }
 
-runSelenium();
+runSeleniumTests();
+
