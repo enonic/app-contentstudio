@@ -14,6 +14,8 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -80,6 +82,8 @@ export class ProjectItemNameWizardStepForm
         this.disableProjectNameInput();
 
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+            this.accessCombobox.clearSelection(true);
+
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
                 this.accessCombobox.select(selectedItem);
@@ -155,6 +159,12 @@ export class ProjectItemNameWizardStepForm
             .build();
     }
 
+    onAccessComboboxValueChanged(handler: (permissions: ProjectPermissions) => void) {
+        this.accessCombobox.onValueChanged(() => {
+            handler(this.getPermissions());
+        });
+    }
+
     protected initListeners() {
         this.descriptionInput.onValueChanged(() => {
             this.notifyDataChanged();
@@ -181,6 +191,7 @@ export class ProjectItemNameWizardStepForm
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
         this.accessCombobox = new ProjectAccessControlComboBox();
+        (<PrincipalLoader>this.accessCombobox.getLoader()).setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
 
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))

@@ -15,6 +15,7 @@ import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
+import {ProjectPermissions} from '../data/project/ProjectPermissions';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -69,6 +70,10 @@ export class ProjectWizardPanel
 
             this.readAccessWizardStepForm.onDataChanged(() => {
                 this.handleDataChanged();
+            });
+
+            this.wizardStepForm.onAccessComboboxValueChanged((permissions: ProjectPermissions) => {
+                this.readAccessWizardStepForm.updateFilteredPrincipalsByPermissions(permissions);
             });
 
             return Q(null);
