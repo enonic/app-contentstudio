@@ -124,10 +124,12 @@ export class ContentVersionListItemView
 
     private createRevertButton(): ActionButton {
         const revertButton: ActionButton = new ActionButton(
-            new Action(this.version.isActive() ? i18n('field.version.active') : i18n('field.version.revert')), false);
+            new Action(this.version.isActive() ? i18n('field.version.current') : i18n('field.version.revert')), false);
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
+        } else {
+            revertButton.setTitle(i18n('field.version.makeCurrent'));
         }
 
         return revertButton;

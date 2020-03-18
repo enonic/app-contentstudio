@@ -21,7 +21,6 @@ import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -49,8 +48,6 @@ export class CompareContentVersionsDialog
     private revertLeftButton: Button;
 
     private revertRightButton: Button;
-
-    private diffIcon: SpanEl;
 
     private contentCache: { [key: string]: Object };
 
@@ -116,12 +113,15 @@ export class CompareContentVersionsDialog
 
         const revertAction = new Action(i18n('field.version.revert'))
                                 .onExecuted(() => this.revertVersionCallback(this.contentId, dropdown.getSelectedOption().displayValue));
+        revertAction.setTitle(i18n('field.version.makeCurrent'));
+
         const menu = new Menu([revertAction]);
         menu.onItemClicked(() => {
             this.setMenuVisible(false, menu, button);
         });
+
         const button = new Button();
-        button.addClass('transparent icon-more_vert icon-large');
+        button.addClass('context-menu transparent icon-more_vert icon-large');
         button.onClicked((event: MouseEvent) => {
             event.stopImmediatePropagation();
             event.preventDefault();
@@ -173,7 +173,7 @@ export class CompareContentVersionsDialog
 
             this.leftLabel = new LabelEl(i18n('dialog.compareVersions.olderVersion'));
             const leftContainer = new DivEl('container left');
-            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown, this.leftLabel);
+            leftContainer.appendChildren<Element>(this.leftLabel, this.leftDropdown, this.revertLeftButton);
 
             this.rightLabel = new LabelEl(i18n('dialog.compareVersions.newerVersion'));
             this.rightDropdown = this.createVersionDropdown('right', this.rightVersion);
@@ -193,11 +193,9 @@ export class CompareContentVersionsDialog
             bottomContainer.appendChild(changesCheckbox);
             this.appendChildToFooter(bottomContainer);
 
-            this.diffIcon = new SpanEl('icon-compare icon-large');
-
             return this.reloadVersions().then(() => {
 
-                this.toolbar.appendChildren<any>(leftContainer, this.diffIcon, rightContainer);
+                this.toolbar.appendChildren<any>(leftContainer, rightContainer);
 
                 this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
