@@ -82,8 +82,9 @@ export class ProjectReadAccessWizardStepForm
 
     updateFilteredPrincipalsByPermissions(permissions: ProjectPermissions) {
         this.filterPrincipals([
-            ...permissions.getEditors(),
             ...permissions.getContributors(),
+            ...permissions.getAuthors(),
+            ...permissions.getEditors(),
             ...permissions.getOwners(),
             ...this.getDefaultFilteredPrincipals()
         ]);
