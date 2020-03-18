@@ -22,6 +22,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             let projectWizard = new ProjectWizard();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
+            studioUtils.saveScreenshot("project_wizard_1");
             //2. Verify all inputs and tab-title:
             let tabTitle = await projectWizard.getTabTitle();
             assert.equal(tabTitle, "<Unnamed Project>", "Expected title should be displayed");
@@ -38,6 +39,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            studioUtils.saveScreenshot("project_wizard_2");
             let actualProjectName = await projectWizard.getProjectName();
             //3. Verify that display name and project name are equal:
             assert.equal(PROJECT_DISPLAY_NAME.toLowerCase(), actualProjectName);
@@ -51,6 +53,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Anonymous User' in Access Items selector:
             await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
+            studioUtils.saveScreenshot("project_wizard_3");
             let items = await projectWizard.getSelectedAccessItems();
             assert.equal(items.length, 1, "One access item should be present");
             assert.equal(items[0], appConstant.systemUsersDisplayName.ANONYMOUS_USER,
@@ -67,10 +70,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
             //3. Remove the item:
             await projectWizard.removeAccessItem("anonymous");
+            studioUtils.saveScreenshot("project_wizard_4");
             let items = await projectWizard.getSelectedAccessItems();
             assert.equal(items.length, 0, "no selected options should be in 'project access'");
         });
-
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();
