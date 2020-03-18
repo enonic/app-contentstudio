@@ -12,10 +12,13 @@ export class ProjectPermissions
 
     private editors: PrincipalKey[] = [];
 
+    private authors: PrincipalKey[] = [];
+
     constructor(builder: ProjectItemPermissionsBuilder) {
         this.owners = builder.owners;
         this.contributors = builder.contributors;
         this.editors = builder.editors;
+        this.authors = builder.authors;
     }
 
     getOwners(): PrincipalKey[] {
@@ -30,15 +33,20 @@ export class ProjectPermissions
         return this.editors;
     }
 
+    getAuthors(): PrincipalKey[] {
+        return this.authors;
+    }
+
     isEmpty(): boolean {
-        return (this.owners.length + this.contributors.length + this.editors.length) === 0;
+        return (this.owners.length + this.contributors.length + this.editors.length + this.authors.length) === 0;
     }
 
     toJson(): ProjectPermissionsJson {
         return {
             contributor: this.contributors.map((key: PrincipalKey) => key.toString()),
+            author: this.authors.map((key: PrincipalKey) => key.toString()),
             owner: this.owners.map((key: PrincipalKey) => key.toString()),
-            editor: this.editors.map((key: PrincipalKey) => key.toString()),
+            editor: this.editors.map((key: PrincipalKey) => key.toString())
         };
     }
 
@@ -68,6 +76,12 @@ export class ProjectPermissions
             return false;
         }
 
+        const thisAuthors: string[] = this.getAuthors().map((author: PrincipalKey) => author.toString()).sort();
+        const otherAuthors: string[] = other.getAuthors().map((author: PrincipalKey) => author.toString()).sort();
+        if (!ObjectHelper.stringArrayEquals(thisAuthors, otherAuthors)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -83,12 +97,17 @@ export class ProjectPermissions
         return this.contributors.some(key => key.equals(principalKey));
     }
 
+    isAuthor(principalKey: PrincipalKey) {
+        return this.authors.some(key => key.equals(principalKey));
+    }
+
     static fromJson(json: ProjectPermissionsJson): ProjectPermissions {
         if (json) {
             return new ProjectItemPermissionsBuilder()
                 .setContributors(json.contributor.map(PrincipalKey.fromString))
                 .setEditors(json.editor.map(PrincipalKey.fromString))
                 .setOwners(json.owner.map(PrincipalKey.fromString))
+                .setAuthors(!!json.author ? json.author.map(PrincipalKey.fromString) : [])
                 .build();
         }
 
@@ -104,6 +123,8 @@ export class ProjectItemPermissionsBuilder {
 
     editors: PrincipalKey[] = [];
 
+    authors: PrincipalKey[] = [];
+
     setOwners(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
         this.owners = value;
         return this;
@@ -116,6 +137,11 @@ export class ProjectItemPermissionsBuilder {
 
     setEditors(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
         this.editors = value;
+        return this;
+    }
+
+    setAuthors(value: PrincipalKey[]): ProjectItemPermissionsBuilder {
+        this.authors = value;
         return this;
     }
 

@@ -15,6 +15,8 @@ import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {ProjectHelper} from '../data/project/ProjectHelper';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -92,6 +94,8 @@ export class ProjectItemNameWizardStepForm
         }
 
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+            this.accessCombobox.clearSelection(true);
+
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
                 this.accessCombobox.select(selectedItem);
@@ -100,7 +104,12 @@ export class ProjectItemNameWizardStepForm
     }
 
     private getPrincipalsFromPermissions(permissions: ProjectPermissions): Q.Promise<Principal[]> {
-        const principalKeys: PrincipalKey[] = [...permissions.getContributors(), ...permissions.getEditors(), ...permissions.getOwners()];
+        const principalKeys: PrincipalKey[] = [
+            ...permissions.getContributors(),
+            ...permissions.getEditors(),
+            ...permissions.getOwners(),
+            ...permissions.getAuthors()
+        ];
         return new GetPrincipalsByKeysRequest(principalKeys).sendAndParse();
     }
 
@@ -113,16 +122,25 @@ export class ProjectItemNameWizardStepForm
                 itemsToSelect.push(new ProjectAccessControlEntry(owners[0], ProjectAccess.OWNER));
             }
         });
+
         permissions.getEditors().forEach((key: PrincipalKey) => {
             const editors: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
             if (editors.length > 0) {
                 itemsToSelect.push(new ProjectAccessControlEntry(editors[0], ProjectAccess.EDITOR));
             }
         });
+
         permissions.getContributors().forEach((key: PrincipalKey) => {
             const contributors: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
             if (contributors.length > 0) {
                 itemsToSelect.push(new ProjectAccessControlEntry(contributors[0], ProjectAccess.CONTRIBUTOR));
+            }
+        });
+
+        permissions.getAuthors().forEach((key: PrincipalKey) => {
+            const authors: Principal[] = principals.filter((value: Principal) => value.getKey().equals(key));
+            if (authors.length > 0) {
+                itemsToSelect.push(new ProjectAccessControlEntry(authors[0], ProjectAccess.AUTHOR));
             }
         });
 
@@ -149,8 +167,22 @@ export class ProjectItemNameWizardStepForm
         const contributors: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)
             .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
+        const authors: PrincipalKey[] = selectedAccessEntries
+            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.AUTHOR)
+            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
 
-        return new ProjectItemPermissionsBuilder().setOwners(owners).setEditors(editors).setContributors(contributors).build();
+        return new ProjectItemPermissionsBuilder()
+            .setOwners(owners)
+            .setEditors(editors)
+            .setContributors(contributors)
+            .setAuthors(authors)
+            .build();
+    }
+
+    onAccessComboboxValueChanged(handler: (permissions: ProjectPermissions) => void) {
+        this.accessCombobox.onValueChanged(() => {
+            handler(this.getPermissions());
+        });
     }
 
     protected initListeners() {
@@ -185,6 +217,8 @@ export class ProjectItemNameWizardStepForm
         }
 
         this.accessCombobox = new ProjectAccessControlComboBox();
+        (<PrincipalLoader>this.accessCombobox.getLoader()).setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))
             .build();

@@ -16,6 +16,7 @@ import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
+import {ProjectPermissions} from '../data/project/ProjectPermissions';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {

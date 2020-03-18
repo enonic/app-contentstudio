@@ -15,6 +15,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ProjectPermissions} from '../data/project/ProjectPermissions';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -37,8 +38,11 @@ export class ProjectReadAccessWizardStepForm
         const readAccess: ProjectReadAccess = item.getData().getReadAccess();
         this.readAccessRadioGroup.setValue(readAccess.getType(), true);
 
+        this.updateFilteredPrincipalsByPermissions(item.getPermissions());
+
         if (readAccess.getType() === ProjectReadAccessType.CUSTOM) {
             this.enablePrincipalCombobox();
+
             new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
                 principals.forEach((principal: Principal) => {
                     this.principalsCombobox.select(principal);
@@ -84,6 +88,16 @@ export class ProjectReadAccessWizardStepForm
         return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
     }
 
+    updateFilteredPrincipalsByPermissions(permissions: ProjectPermissions) {
+        this.filterPrincipals([
+            ...permissions.getContributors(),
+            ...permissions.getAuthors(),
+            ...permissions.getEditors(),
+            ...permissions.getOwners(),
+            ...this.getDefaultFilteredPrincipals()
+        ]);
+    }
+
     protected getFormItems(): FormItem[] {
         return [this.createReadAccessRadioGroupFormItem(), this.createPrincipalFormItem()];
     }
@@ -104,12 +118,22 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private createPrincipalFormItem(): FormItem {
-        const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
+        const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
 
         this.principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
+        this.filterPrincipals(this.getDefaultFilteredPrincipals());
         this.disablePrincipalCombobox();
 
         return new FormItemBuilder(this.principalsCombobox).build();
+    }
+
+    private getDefaultFilteredPrincipals(): PrincipalKey[] {
+        return [PrincipalKey.ofAnonymous()];
+    }
+
+    private filterPrincipals(principals: PrincipalKey[]) {
+        const principalsLoader: PrincipalLoader = <PrincipalLoader>this.principalsCombobox.getLoader();
+        principalsLoader.skipPrincipals(principals);
     }
 
     private disablePrincipalCombobox() {

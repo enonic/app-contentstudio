@@ -15,6 +15,7 @@ export class ProjectAccessSelector
 
     private static OPTIONS: ProjectAccessSelectorOption[] = [
         {value: ProjectAccess.CONTRIBUTOR, label: i18n('settings.projects.access.contributor')},
+        {value: ProjectAccess.AUTHOR, label: i18n('settings.projects.access.author')},
         {value: ProjectAccess.EDITOR, label: i18n('settings.projects.access.editor')},
         {value: ProjectAccess.OWNER, label: i18n('settings.projects.access.owner')}
     ];
