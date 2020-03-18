@@ -41,6 +41,7 @@ describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog'
             await settingsBrowsePanel.clickOnNewButton();
             //3. 'NewSettingsItem' dialog should be loaded:
             await newSettingsItemDialog.waitForDialogLoaded();
+            studioUtils.saveScreenshot("setting_item_dialog_1");
             //4. 'Cancel' button has been clicked
             await newSettingsItemDialog.clickOnCancelButton();
             await newSettingsItemDialog.waitForDialogClosed();
