@@ -78,8 +78,6 @@ export class ProjectItemNameWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
-        super.layout(item);
-
         if (!item) {
             return;
         }
@@ -131,7 +129,15 @@ export class ProjectItemNameWizardStepForm
         return itemsToSelect;
     }
 
+    public getName(): string {
+        return i18n('settings.items.type.project');
+    }
+
     getPermissions(): ProjectPermissions {
+        if (!this.accessCombobox) {
+            return null;
+        }
+
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
 
         const owners: PrincipalKey[] = selectedAccessEntries

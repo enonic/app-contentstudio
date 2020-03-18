@@ -30,7 +30,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected wizardActions: SettingsDataItemWizardActions<ITEM>;
 
-    protected wizardStepForm: SettingDataItemWizardStepForm<ITEM>;
+    protected wizardStepForms: SettingDataItemWizardStepForm<ITEM>[] = [];
 
     private deleteConfirmationDialog: ConfirmationDialog;
 
@@ -68,15 +68,29 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     doLayout(persistedItem: ITEM): Q.Promise<void> {
+        this.wizardStepForms = this.createStepsForms();
         this.setSteps(this.createSteps());
 
-        this.wizardStepForm.layout(persistedItem);
+        this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
+            stepForm.setup(persistedItem);
+            stepForm.layout(persistedItem);
 
-        this.wizardStepForm.onDataChanged(() => {
-            this.handleDataChanged();
+            stepForm.onDataChanged(() => {
+                this.handleDataChanged();
+            });
         });
 
         return Q<void>(null);
+    }
+
+    protected createSteps(): WizardStep[] {
+        const steps: WizardStep[] = [];
+
+        this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
+            steps.push(new WizardStep(stepForm.getName(), stepForm));
+        });
+
+        return steps;
     }
 
     hasUnsavedChanges(): boolean {
@@ -107,9 +121,13 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         if (item.equals(this.getPersistedItem())) {
             return;
         }
+
         this.setPersistedItem(item);
+
         this.wizardHeader.initNames(item.getDisplayName(), item.getId(), false);
-        this.wizardStepForm.layout(item);
+        this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
+            stepForm.layout(item);
+        });
     }
 
     onNewItemSaved(listener: (item: ITEM) => void) {
@@ -180,17 +198,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }
     }
 
-    protected createSteps(): WizardStep[] {
-        const steps: WizardStep[] = [];
-
-        this.wizardStepForm = this.createWizardStepForm();
-
-        steps.push(new WizardStep(i18n('settings.items.type.project'), this.wizardStepForm));
-
-        return steps;
-    }
-
-    protected abstract createWizardStepForm(): SettingDataItemWizardStepForm<ITEM>;
+    protected abstract createStepsForms(): SettingDataItemWizardStepForm<ITEM>[];
 
     protected isPersistedItemChanged(): boolean {
         const item: ITEM = this.getPersistedItem();

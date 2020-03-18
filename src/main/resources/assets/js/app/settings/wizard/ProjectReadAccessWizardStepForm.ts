@@ -30,8 +30,6 @@ export class ProjectReadAccessWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
-        super.layout(item);
-
         if (!item) {
             return;
         }
@@ -47,6 +45,10 @@ export class ProjectReadAccessWizardStepForm
                 });
             }).catch(DefaultErrorHandler.handle);
         }
+    }
+
+    public getName(): string {
+        return i18n('settings.items.wizard.step.readaccess');
     }
 
     doRender(): Q.Promise<boolean> {

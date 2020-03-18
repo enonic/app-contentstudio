@@ -19,10 +19,12 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         this.form = new Form(FormView.VALIDATION_CLASS);
     }
 
-    layout(item?: ITEM) {
+    setup(item?: ITEM) {
         this.addFormItems(item);
         this.initListeners();
     }
+
+    abstract layout(item: ITEM);
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
@@ -42,6 +44,8 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
             return listener === currentListener;
         });
     }
+
+    public abstract getName(): string;
 
     protected abstract getFormItems(item?: ITEM): FormItem[];
 
