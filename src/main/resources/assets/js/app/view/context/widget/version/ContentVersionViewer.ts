@@ -29,7 +29,7 @@ export class ContentVersionViewer
         const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
         const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', modifierName);
 
-        this.toggleClass('divider', version.isActive());
+        this.toggleClass('divider', version.isActive() && !version.isAlias());
 
         this.namesAndIconView
             .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)

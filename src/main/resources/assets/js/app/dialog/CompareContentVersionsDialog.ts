@@ -301,15 +301,6 @@ export class CompareContentVersionsDialog
             });
     }
 
-    private findOptionByValue(options: Option<ContentVersion>[], value: string): Option<ContentVersion> {
-        if (!options || options.length === 0) {
-            return;
-        }
-        return options.find((option) => {
-            return option.value === value;
-        });
-    }
-
     private updateAliases(isLeft: boolean): boolean {
         const dropdown = isLeft ? this.leftDropdown : this.rightDropdown;
         let selectedAliasType: AliasType;
@@ -363,52 +354,73 @@ export class CompareContentVersionsDialog
         return newest;
     }
 
+    private getNewestPublishedVersion(options: Option<ContentVersion>[], maxDateTime: number): ContentVersion {
+        return options
+            .map(option => option.displayValue)
+            .filter(version => !!version.getPublishInfo() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
+            .sort((v1, v2) => v2.getPublishInfo().getTimestamp().getTime() - v1.getPublishInfo().getTimestamp().getTime())[0];
+
+    }
+
+    private getNewestVersion(options: Option<ContentVersion>[]): ContentVersion {
+        return options
+            .map(option => option.displayValue)
+            .sort((v1, v2) => v2.getModified().getTime() - v1.getModified().getTime())[0];
+    }
+
+    private getVersionIndexInOptions(options: Option<ContentVersion>[], versionId: string) {
+        return options.findIndex((option: Option<ContentVersion>) => option.displayValue.getId() === versionId);
+    }
+
+    private getPreviousVersion(options: Option<ContentVersion>[]): ContentVersion {
+        const versionIndex = this.getVersionIndexInOptions(options, this.rightVersion.getId());
+
+        if (versionIndex === -1 || versionIndex === options.length - 1) {
+            return null;
+        }
+
+        return options[versionIndex + 1].displayValue;
+    }
+
+    private getNextVersion(options: Option<ContentVersion>[]): ContentVersion {
+        const versionIndex = this.getVersionIndexInOptions(options, this.leftVersion.getId());
+
+        if (versionIndex <= 0) {
+            return null;
+        }
+
+        return options[versionIndex - 1].displayValue;
+    }
+
     private createAliases(options: Option<ContentVersion>[], isLeft: boolean): Option<ContentVersion>[] {
-        let latestPublished: ContentVersion;
-        let prevVersion: ContentVersion;
-        let nextVersion: ContentVersion;
-        let newestVersion: ContentVersion;
-
-        const leftOpt = this.findOptionByValue(options, this.leftVersion.getId());
-        const leftModTime = leftOpt ? leftOpt.displayValue.getModified().getTime() : Date.now();
-        const rightOpt = this.findOptionByValue(options, this.rightVersion.getId());
-        const rightModTime = rightOpt ? rightOpt.displayValue.getModified().getTime() : 0;
-
-        options.forEach(option => {
-            const version = option.displayValue;
-            const modTime = version.getModified().getTime();
-            if (version.hasPublishInfo() && (!isLeft || modTime <= rightModTime)) {
-                if (!latestPublished || (version.getPublishInfo().getTimestamp().getTime() -
-                                        latestPublished.getPublishInfo().getTimestamp().getTime() < 0)) {
-                    latestPublished = version;
-                }
-            }
-            if (isLeft) {
-                if ((!prevVersion || (modTime - prevVersion.getModified().getTime() > 0)) && (modTime - rightModTime < 0)) {
-                    prevVersion = version;
-                }
-            } else {
-                if ((!nextVersion || (modTime - nextVersion.getModified().getTime() < 0)) && (modTime - leftModTime > 0)) {
-                    nextVersion = version;
-                }
-                if (!newestVersion || (modTime - newestVersion.getModified().getTime() > 0)) {
-                    newestVersion = version;
-                }
-            }
-        });
-
         const aliases: Option<ContentVersion>[] = [];
-        if (latestPublished) {
-            aliases.push(this.createAliasOption(latestPublished, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED));
+
+        const newestPublishedVersion: ContentVersion =
+            this.getNewestPublishedVersion(options, isLeft ? this.rightVersion.getModified().getTime() : Date.now());
+
+        if (newestPublishedVersion) {
+            aliases.push(
+                this.createAliasOption(newestPublishedVersion, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED)
+            );
         }
-        if (prevVersion) {
-            aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
-        }
-        if (nextVersion) {
-            aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
-        }
-        if (newestVersion) {
-            aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
+
+        if (isLeft) {
+            const prevVersion: ContentVersion = this.getPreviousVersion(options);
+            if (prevVersion) {
+                aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
+            }
+        } else {
+            const nextVersion: ContentVersion = this.getNextVersion(options);
+
+            if (nextVersion) {
+                aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
+            }
+
+            const newestVersion: ContentVersion = this.getNewestVersion(options);
+
+            if (newestVersion) {
+                aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
+            }
         }
 
         return aliases;

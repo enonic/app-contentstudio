@@ -128,6 +128,7 @@ export class ContentVersion implements Cloneable {
         const versionAlias = this.clone();
         const alias = new ContentVersionAlias(displayName, type);
         versionAlias.alias = alias;
+        versionAlias.active = this.active;
 
         return versionAlias;
     }
