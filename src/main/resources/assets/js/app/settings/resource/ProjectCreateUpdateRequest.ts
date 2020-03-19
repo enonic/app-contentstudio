@@ -61,10 +61,16 @@ export abstract class ProjectCreateUpdateRequest
         const params: any = {
             name: this.name,
             displayName: this.displayName,
-            description: this.description,
-            permissions: !!this.permissions ? JSON.stringify(this.permissions.toJson()) : null,
-            readAccess: !!this.readAccess ? JSON.stringify(this.readAccess.toJson()) : null
+            description: this.description
         };
+
+        if (this.permissions) {
+            params.permissions = JSON.stringify(this.permissions.toJson());
+        }
+
+        if (this.readAccess) {
+            params.readAccess = JSON.stringify(this.readAccess.toJson());
+        }
 
         if (this.thumbnail) {
             params.icon = this.thumbnail;
