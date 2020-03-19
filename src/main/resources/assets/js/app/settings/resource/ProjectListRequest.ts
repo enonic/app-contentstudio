@@ -2,6 +2,7 @@ import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Project} from '../data/project/Project';
 import {ProjectJson} from './json/ProjectJson';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectListRequest
     extends ProjectResourceRequest<ProjectJson[], Project[]> {
@@ -20,11 +21,11 @@ export class ProjectListRequest
     }
 
     private sortProjects(item1: Project, item2: Project): number {
-        if (item1.getName() === Project.DEFAULT_PROJECT_NAME) {
+        if (ProjectHelper.isDefault(item1)) {
             return -1;
         }
 
-        if (item2.getName() === Project.DEFAULT_PROJECT_NAME) {
+        if (ProjectHelper.isDefault(item2)) {
             return 1;
         }
 

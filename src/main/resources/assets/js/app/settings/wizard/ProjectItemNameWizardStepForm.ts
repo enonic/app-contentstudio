@@ -14,6 +14,7 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
@@ -28,9 +29,9 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
-    private accessCombobox: ProjectAccessControlComboBox;
+    private accessCombobox?: ProjectAccessControlComboBox;
 
-    private accessComboBoxFormItem: FormItem;
+    private accessComboBoxFormItem?: FormItem;
 
     private helpText: HelpTextContainer;
 
@@ -65,7 +66,10 @@ export class ProjectItemNameWizardStepForm
         return super.doRender().then((rendered) => {
             this.addClass('project-item-wizard-step-form');
             this.projectNameFormItem.getParentElement().insertChild(this.helpText.getHelpText(), 1);
-            this.accessComboBoxFormItem.addClass('project-access-control-form-item');
+
+            if (this.accessComboBoxFormItem) {
+                this.accessComboBoxFormItem.addClass('project-access-control-form-item');
+            }
 
             return rendered;
         });
@@ -76,10 +80,18 @@ export class ProjectItemNameWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
+        if (!item) {
+            return;
+        }
+
         this.descriptionInput.setValue(item.getDescription());
         this.projectNameInput.setValue(item.getName());
         this.disableHelpText();
         this.disableProjectNameInput();
+
+        if (ProjectHelper.isDefault(item.getData())) {
+            return;
+        }
 
         this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
             this.accessCombobox.clearSelection(true);
@@ -135,7 +147,15 @@ export class ProjectItemNameWizardStepForm
         return itemsToSelect;
     }
 
+    public getName(): string {
+        return i18n('settings.items.type.project');
+    }
+
     getPermissions(): ProjectPermissions {
+        if (!this.accessCombobox) {
+            return null;
+        }
+
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
 
         const owners: PrincipalKey[] = selectedAccessEntries
@@ -175,11 +195,13 @@ export class ProjectItemNameWizardStepForm
             this.notifyDataChanged();
         });
 
-        this.accessCombobox.onValueChanged(this.notifyDataChanged.bind(this));
-        this.accessCombobox.onOptionValueChanged(this.notifyDataChanged.bind(this));
+        if (!!this.accessCombobox) {
+            this.accessCombobox.onValueChanged(this.notifyDataChanged.bind(this));
+            this.accessCombobox.onOptionValueChanged(this.notifyDataChanged.bind(this));
+        }
     }
 
-    protected getFormItems(): FormItem[] {
+    protected getFormItems(item?: ProjectViewItem): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = new FormItemBuilder(this.projectNameInput)
             .setValidator(this.validateProjectName.bind(this))
@@ -190,8 +212,14 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
+        if (!!item && ProjectHelper.isDefault(item.getData())) {
+            return [this.projectNameFormItem, descriptionFormItem];
+        }
+
         this.accessCombobox = new ProjectAccessControlComboBox();
-        (<PrincipalLoader>this.accessCombobox.getLoader()).setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
+        loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        loader.skipPrincipal(PrincipalKey.ofAnonymous());
 
         this.accessComboBoxFormItem = new FormItemBuilder(this.accessCombobox)
             .setLabel(i18n('settings.field.project.access'))

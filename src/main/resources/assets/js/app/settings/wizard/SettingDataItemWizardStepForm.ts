@@ -17,8 +17,10 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         super();
 
         this.form = new Form(FormView.VALIDATION_CLASS);
+    }
 
-        this.addFormItems();
+    setup(item?: ITEM) {
+        this.addFormItems(item);
         this.initListeners();
     }
 
@@ -43,7 +45,9 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    protected abstract getFormItems(): FormItem[];
+    public abstract getName(): string;
+
+    protected abstract getFormItems(item?: ITEM): FormItem[];
 
     protected abstract initListeners();
 
@@ -53,10 +57,10 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    private addFormItems() {
+    private addFormItems(item?: ITEM) {
         const fieldSet: Fieldset = new Fieldset();
 
-        this.getFormItems().forEach((formItem: FormItem) => {
+        this.getFormItems(item).forEach((formItem: FormItem) => {
             fieldSet.add(formItem);
         });
 

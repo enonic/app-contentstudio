@@ -31,6 +31,10 @@ export class ProjectReadAccessWizardStepForm
     }
 
     layout(item: ProjectViewItem) {
+        if (!item) {
+            return;
+        }
+
         const readAccess: ProjectReadAccess = item.getData().getReadAccess();
         this.readAccessRadioGroup.setValue(readAccess.getType(), true);
 
@@ -45,6 +49,10 @@ export class ProjectReadAccessWizardStepForm
                 });
             }).catch(DefaultErrorHandler.handle);
         }
+    }
+
+    public getName(): string {
+        return i18n('settings.items.wizard.step.readaccess');
     }
 
     doRender(): Q.Promise<boolean> {
