@@ -39,7 +39,7 @@ function runSeleniumTests() {
             baseURL: 'https://selenium-release.storage.googleapis.com',
             drivers: {
                 chrome: {
-                    version: '79.0.3945.36',
+                    version: '76.0.3809.126',
                     arch: process.arch,
                     baseURL: 'https://chromedriver.storage.googleapis.com'
                 }
@@ -56,7 +56,7 @@ function runSeleniumTests() {
                 version: '3.9.0',
                 drivers: {
                     chrome: {
-                        version: '79.0.3945.36'
+                        version: '76.0.3809.126'
                     }
                 }
             }, (error, child) => {
