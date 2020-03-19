@@ -270,6 +270,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
         this.wizardActions.getSaveAction().onExecuted(() => {
             this.saveChanges().catch((reason: any) => {
+                this.wizardActions.getSaveAction().setEnabled(true);
                 DefaultErrorHandler.handle(reason);
             });
         });
