@@ -21,10 +21,12 @@ plugins {
     id 'com.moowork.gulp' version '0.13'
     id 'com.github.psxpaul.execfork' version '0.1.8'
 }
+    group = 'com.enonic.xp.js_testing'
+    version = '1.0'
 
-group = 'com.enonic.xp.js_testing'
-version = '1.0'
-
+subprojects {
+    name = 'app-contentstudio-projects'
+}
 configurations {
     distro
 }
@@ -144,7 +146,7 @@ jar.enabled = true
 task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
         xpServer.installDir = file( distroDir )
-        xpServer.startupDelay = 50000
+        xpServer.startupDelay = 60000
         xpServer.start()
     }
     copyConfig.mustRunAfter unpackDistro

@@ -20,12 +20,18 @@ const XPATH = {
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
-    rowByDisplayName:
+
+    contextMenuItemByName: (name) => {
+        return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
+    },
+    rootFolderByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName: function (name) {
-        return `${lib.itemByName(
-            name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+    projectItemByDisplayName:
+        displayName => `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
+
+    checkboxByName: name => {
+        `${lib.itemByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
 
     checkboxByDisplayName: displayName => XPATH.container + lib.itemByDisplayName(displayName) +
@@ -212,6 +218,24 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         //4. Expected title should be loaded:
         await newSettingsItemDialog.clickOnProjectItem();
         await projectWizard.waitForLoaded();
+    }
+
+    rightClickOnProjects() {
+        const nameXpath = XPATH.container + XPATH.rootFolderByDisplayName("Projects");
+        return this.waitForElementDisplayed(nameXpath, appConst.TIMEOUT_3).then(() => {
+            return this.doRightClick(nameXpath);
+        }).catch(err => {
+            throw Error(`Error when do right click on the row:` + err);
+        })
+    }
+
+    rightClickOnProjectItemByDisplayName(displayName) {
+        const nameXpath = XPATH.container + XPATH.projectItemByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, appConst.TIMEOUT_3).then(() => {
+            return this.doRightClick(nameXpath);
+        }).catch(err => {
+            throw Error(`Error when do right click on the row:` + err);
+        })
     }
 };
 module.exports = SettingsBrowsePanel;

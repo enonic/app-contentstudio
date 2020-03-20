@@ -8,7 +8,6 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DockedContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
-
 };
 
 class BrowseDetailsPanel extends BaseDetailsPanel {

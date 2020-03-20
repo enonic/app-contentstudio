@@ -5,7 +5,14 @@ const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 
-const XPATH = {};
+const XPATH = {
+    enabledContextMenuButton: name => {
+        return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and not(contains(@class,'disabled')) and contains(.,'${name}')]`;
+    },
+    contextMenuItemByName: (name) => {
+        return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
+    },
+};
 
 class BaseBrowsePanel extends Page {
 
@@ -160,7 +167,43 @@ class BaseBrowsePanel extends Page {
             return this.pause(300);
         });
     }
+
+    async waitForContextMenuDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(lib.TREE_GRID_CONTEXT_MENU);
+            return result.length;
+        }, appConst.TIMEOUT_3, "Context menu was not loaded");
+    }
+
+    async waitForContextMenuItemEnabled(menuItem) {
+        let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
+        let el = await this.getDisplayedElements(menuItemSelector);
+        if (!el.length) {
+            throw new Error("Menu item is not displayed: " + menuItem);
+        }
+        return await this.browser.waitUntil(async () => {
+            let result = await el[0].getAttribute("class");
+            return !result.includes("disabled");
+        }, appConst.TIMEOUT_3, "context menu item is not enabled in 3000 ms");
+    }
+
+    async waitForContextMenuItemDisabled(menuItem) {
+        let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
+        let el = await this.getDisplayedElements(menuItemSelector);
+        if (!el.length) {
+            throw new Error("Menu item is not displayed: " + menuItem);
+        }
+        return await this.browser.waitUntil(async () => {
+            let result = await el[0].getAttribute("class");
+            return result.includes("disabled");
+        }, appConst.TIMEOUT_3, "context menu item is not disabled in 3000 ms");
+    }
+
+    async clickOnMenuItem(menuItem) {
+        let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
+        await this.waitForContextMenuItemEnabled(menuItem);
+        let el = await this.getDisplayedElements(menuItemSelector);
+        return await el[0].click();
+    }
 };
 module.exports = BaseBrowsePanel;
-
-

@@ -43,7 +43,7 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
             logLevel: "error",
             capabilities: {
                 browserName: browser_name,
-                platformName:platform_name,
+
                 'goog:chromeOptions': makeChromeOptions(isHeadless, width)
             }
         };

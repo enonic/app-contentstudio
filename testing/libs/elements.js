@@ -39,6 +39,7 @@ module.exports = Object.freeze({
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and child::label[contains(.,'${label}')]]`
     },
+    TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
     CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
