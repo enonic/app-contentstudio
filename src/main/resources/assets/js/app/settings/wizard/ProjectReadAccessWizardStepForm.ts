@@ -125,7 +125,7 @@ export class ProjectReadAccessWizardStepForm
 
     private filterPrincipals(principals: PrincipalKey[]) {
         const principalsLoader: FilterablePrincipalLoader = <FilterablePrincipalLoader>this.principalsCombobox.getLoader();
-        principalsLoader.resetForbiddenPrincipals().skipPrincipals(principals);
+        principalsLoader.resetSkippedPrincipals().skipPrincipals(principals);
     }
 
     private disablePrincipalCombobox() {

@@ -1,56 +1,43 @@
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
-import {FindPrincipalListRequest} from 'lib-admin-ui/security/FindPrincipalListRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+
+interface PrincipalPattern {
+    type?: PrincipalType;
+    id: string;
+}
 
 export class FilterablePrincipalLoader extends PrincipalLoader {
 
-    private static PROJECT_ROLE_PREFIX: string = 'cms.project.';
+    private forbiddenPrincipalPatterns: PrincipalPattern[] = [];
 
-    private forbiddenPrincipals: { [key: string]: PrincipalKey; } = {};
+    private static PROJECT_ROLE_PREFIX: string = 'com.enonic.cms';
+
+    private static defaultForbiddenPrincipalPattern: PrincipalPattern = {
+        type: PrincipalType.ROLE,
+        id: `^${FilterablePrincipalLoader.PROJECT_ROLE_PREFIX}`
+    };
 
     constructor() {
         super();
+
+        this.forbiddenPrincipalPatterns.push(FilterablePrincipalLoader.defaultForbiddenPrincipalPattern);
     }
 
-    resetForbiddenPrincipals(): FilterablePrincipalLoader {
-        this.forbiddenPrincipals = {};
+    addForbiddenPattern(forbiddenPrincipalPattern: PrincipalPattern): FilterablePrincipalLoader {
+        this.forbiddenPrincipalPatterns.push(forbiddenPrincipalPattern);
 
         return this;
     }
 
-    skipPrincipals(principalKeys: PrincipalKey[]): FilterablePrincipalLoader {
-        principalKeys.forEach((principalKey: PrincipalKey) => {
-            this.forbiddenPrincipals[principalKey.toString()] = principalKey;
-        });
-
-        return this;
+    protected isAllowedPrincipal(principal: Principal): boolean {
+        return super.isAllowedPrincipal(principal) && !this.matchesForbiddenPattern(principal.getKey());
     }
 
-    skipPrincipal(principalKey: PrincipalKey): FilterablePrincipalLoader {
-        this.forbiddenPrincipals[principalKey.toString()] = principalKey;
-
-        return this;
-    }
-
-    protected createRequest(): FindPrincipalListRequest {
-        const request: FindPrincipalListRequest = new FindPrincipalListRequest().setSize(10);
-        request.setResultFilter(this.isAllowedPrincipal.bind(this));
-
-        return request;
-    }
-
-    private isAllowedPrincipal(principal: Principal): boolean {
-        const principalKey: PrincipalKey = principal.getKey();
-
-        if (this.forbiddenPrincipals[principalKey.toString()]) {
-            return false;
-        }
-
-        if (principalKey.isRole() && principalKey.getId().indexOf(FilterablePrincipalLoader.PROJECT_ROLE_PREFIX) === 0) {
-            return false;
-        }
-
-        return true;
+    private matchesForbiddenPattern(principalKey: PrincipalKey): boolean {
+        return this.forbiddenPrincipalPatterns.some((principalPattern: PrincipalPattern) =>
+            (!principalPattern.type || principalPattern.type === principalKey.getType()) && principalKey.getId().match(principalPattern.id)
+        );
     }
 }
