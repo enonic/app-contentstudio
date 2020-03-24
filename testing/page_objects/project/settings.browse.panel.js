@@ -217,7 +217,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         await newSettingsItemDialog.waitForDialogLoaded();
         //4. Expected title should be loaded:
         await newSettingsItemDialog.clickOnProjectItem();
-        await projectWizard.waitForLoaded();
+        return await projectWizard.waitForLoaded();
     }
 
     rightClickOnProjects() {
@@ -236,6 +236,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }).catch(err => {
             throw Error(`Error when do right click on the row:` + err);
         })
+    }
+
+    async openProjectByDisplayName(displayName) {
+        //TODO finish it
+        let projectWizard = new ProjectWizard();
+
     }
 };
 module.exports = SettingsBrowsePanel;

@@ -9,6 +9,7 @@ const XPATH = {
     displayNameInput: `//input[contains(@name,'displayName')]`,
     tabTitle: "//li[contains(@id,'AppBarTabMenuItem')]",
     toolbar: `//div[contains(@id,'Toolbar')]`,
+    saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     selectedAccessItems: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     accessItemByName:
@@ -44,8 +45,7 @@ class ProjectWizardPanel extends Page {
     async waitAndClickOnSave() {
         await this.waitForSaveButtonEnabled();
         await this.clickOnElement(this.saveButton);
-        await this.waitForSavingButtonNotVisible();
-        return await this.pause(1200);
+        return await this.pause(200);
     }
 
     waitForLoaded() {
@@ -71,6 +71,21 @@ class ProjectWizardPanel extends Page {
         }
     }
 
+    async waitForSaveButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Save button is not enabled :" + err);
+        }
+    }
+
+    async waitForSaveButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Save button is not disabled :" + err);
+        }
+    }
     waitForCancelButtonTopDisplayed() {
         return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
     }
