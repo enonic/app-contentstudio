@@ -15,7 +15,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
-import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
+import {FilterablePrincipalLoader} from 'lib-admin-ui/security/FilterablePrincipalLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {

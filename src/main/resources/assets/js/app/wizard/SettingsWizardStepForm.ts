@@ -11,7 +11,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {FilterablePrincipalLoader} from '../security/FilterablePrincipalLoader';
+import {FilterablePrincipalLoader} from 'lib-admin-ui/security/FilterablePrincipalLoader';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {

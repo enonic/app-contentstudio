@@ -8,7 +8,7 @@ import {
 } from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {FilterablePrincipalLoader} from '../security/FilterablePrincipalLoader';
+import {FilterablePrincipalLoader} from 'lib-admin-ui/security/FilterablePrincipalLoader';
 
 export class AccessControlComboBox
     extends PrincipalContainerCombobox<AccessControlEntry> {

@@ -60,7 +60,7 @@ import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
-import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
+import {FilterablePrincipalLoader} from 'lib-admin-ui/security/FilterablePrincipalLoader';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {

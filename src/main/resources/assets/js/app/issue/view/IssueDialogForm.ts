@@ -20,7 +20,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
-import {FilterablePrincipalLoader} from '../../security/FilterablePrincipalLoader';
+import {FilterablePrincipalLoader} from 'lib-admin-ui/security/FilterablePrincipalLoader';
 
 export class IssueDialogForm
     extends Form {
