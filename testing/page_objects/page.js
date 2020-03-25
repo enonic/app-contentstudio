@@ -282,7 +282,31 @@ class Page {
         return await this.getText(selector);
     }
 
-    async doRightClick(selector, offsetX, offsetY) {
+    async doRightClick(selector) {
+        let el = await this.findElement(selector);
+        await el.moveTo();
+        let x = await el.getLocation('x');
+        let y = await el.getLocation('y');
+        console.log("X:" + x + "Y " + y);
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {
+                    type: 'pointerDown',
+                    button: 2
+                }, {
+                    type: 'pointerUp',
+                    button: 2
+                }]
+        }]);
+    }
+
+    async doRightClickWithOffset(selector, offsetX, offsetY) {
         let el = await this.findElement(selector);
         await el.moveTo();
         let xValue = await el.getLocation('x');

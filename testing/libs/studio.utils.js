@@ -21,6 +21,7 @@ const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/bro
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
+const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -452,6 +453,15 @@ module.exports = {
             throw new Error('error when navigate to Content Studio app ' + err);
         });
     },
+    //Clicks on Cancel button and switches to Default project
+    async closeProjectSelectionDialog() {
+        let projectSelectionDialog = new ProjectSelectionDialog();
+        let isLoaded = await projectSelectionDialog.isDialogLoaded();
+        if (isLoaded) {
+            await projectSelectionDialog.clickOnCancelButtonTop();
+            return await projectSelectionDialog.waitForDialogClosed();
+        }
+    },
     async doLoginAndClickOnContentStudio(userName, password) {
         let loginPage = new LoginPage();
         await loginPage.doLogin(userName, password);
@@ -590,5 +600,9 @@ module.exports = {
     async openSettingsPanel() {
         await this.openAppModeSwitcher();
         return await this.clickOnElement(lib.SETTINGS_BUTTON);
-    }
+    },
+    generateRandomName: function (part) {
+        return part + Math.round(Math.random() * 1000000);
+    },
+
 };

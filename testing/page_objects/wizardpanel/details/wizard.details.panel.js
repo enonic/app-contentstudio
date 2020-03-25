@@ -49,7 +49,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 return getPanelWidth(width) > 0;
             });
         }, appConst.TIMEOUT_1).catch(err => {
-            console.log("Wizard details panel was not loaded" + err);
+            console.log("Wizard details panel is not loaded" + err);
             return false;
         });
     }

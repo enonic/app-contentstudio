@@ -4,6 +4,7 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class VersionInfoBlock
     extends DivEl {
@@ -29,10 +30,12 @@ export class VersionInfoBlock
             this.messageBlock = new DivEl('version-info-message');
         }
 
+        const modifiedDate = this.contentVersion.getModified();
+        const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
         this.publisherBlock = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         this.publisherBlock
-            .setMainName(this.contentVersion.getPublishInfo().getPublisherDisplayName())
-            .setSubName(DateHelper.getModifiedString(this.contentVersion.getPublishInfo().getTimestamp()))
+            .setMainName(dateTime)
+            .setSubName(i18n('dialog.compareVersions.versionSubName', '', this.contentVersion.getModifierDisplayName()))
             .setIconClass(this.contentVersion.isInReadyState() ? 'icon-state-ready' : 'icon-state-in-progress');
     }
 

@@ -157,6 +157,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.treeGrid + lib.H6_DISPLAY_NAME;
     }
 
+    get treeGrid() {
+        return XPATH.container + XPATH.treeGrid;
+    }
+
     hotKeyPublish() {
         return this.getBrowser().status().then(status => {
             if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
@@ -408,18 +412,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot('err_move_disabled_button');
             throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
         })
-    }
-
-    clickOnRowByName(name) {
-        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
-            return this.clickOnElement(nameXpath);
-        }).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' was not found' + err);
-        }).then(() => {
-            return this.pause(300);
-        });
     }
 
     clickOnRowByDisplayName(displayName) {

@@ -5,6 +5,7 @@
   "license": "ISC",
   "scripts": {
     "test": "node ./tasks/test.js",
+    "test_project": "node ./tasks/test-project.js",
     "test_by_name": "node ./tasks/test-by-name.js"
   },
   "devDependencies": {
@@ -17,6 +18,6 @@
     "mochawesome": "4.0.1",
     "properties-reader": "0.0.15",
     "selenium-standalone": "^6.16.0",
-    "webdriverio": "5.16.11"
+    "webdriverio": "5.18.7"
   }
 }

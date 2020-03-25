@@ -34,12 +34,16 @@ class NewSettingsItemDialog extends Page {
     waitForDialogLoaded() {
         return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
             this.saveScreenshot('err_open_insert_anchor_dialog');
-            throw new Error('Insert Special Character Dialog should be opened!' + err);
+            throw new Error('New Settings dialog Dialog should be opened!' + err);
         });
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Dialog should be closed " + err);
+        }
     }
 
     getTitle() {

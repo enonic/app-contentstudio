@@ -25,46 +25,23 @@
   }
 
   .toolbar-container {
-    padding: 0;
+    padding: 20px 20px 20px 40px;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     flex-wrap: wrap;
     margin: 20px -20px -10px -30px;
     position: relative;
     background: #fff;
-
-    &:before {
-      content: ' ';
-      height: 0;
-      top: 0;
-      left: 0;
-      width: 100%;
-      position: absolute;
-      display: block;
-      border-bottom: 1px solid #ccc;
-    }
-
-    &:after {
-      content: ' ';
-      height: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      position: absolute;
-      display: block;
-      border-top: 1px solid #ccc;
-    }
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 
     .container {
+      position: relative;
       display: flex;
-      flex-direction: row;
-      align-items: stretch;
-      z-index: 1;
+      flex-direction: column;
 
-      label {
-        align-self: center;
-        margin: 0 10px;
-      }
+      width: 350px;
 
       .font-icon-default {
         font-size: 24px;
@@ -82,12 +59,10 @@
         margin-top: 10px;
       }
 
-      .@{_COMMON_PREFIX}dropdown,
-      .active-indicator {
-        width: 230px;
-      }
-
       .@{_COMMON_PREFIX}dropdown {
+
+        width: 300px;
+
         .grid .viewer.divider {
           border-top: 1px solid @admin-dark-gray-border;
           padding-top: 10px;
@@ -101,11 +76,15 @@
       line-height: 46px;
     }
 
-    .@{_COMMON_PREFIX}button, .icon-compare {
+    .@{_COMMON_PREFIX}button.context-menu {
       text-align: center;
-      position: relative;
+      position: absolute;
       padding: 0;
-      width: 47px;
+      width: 50px;
+      height: 47px;
+      right: 0;
+      top: 17px;
+      z-index: 1000;
 
       &.expanded:before {
         transform: rotate(90deg);
@@ -115,9 +94,6 @@
         display: inline-block;
         transition-property: transform;
         transition-duration: 100ms;
-      }
-
-      &:before {
         vertical-align: middle;
       }
 
@@ -125,6 +101,7 @@
         position: absolute;
         z-index: 1;
         background-color: #fff;
+        right: 0;
       }
     }
   }
@@ -161,26 +138,11 @@
 }
 
 body {
+
   &._0-240,
   &._240-360,
   &._360-540,
   &._540-720 {
-    .compare-content-versions-dialog {
-
-      .modal-dialog-header {
-
-        .toolbar-container {
-          margin-left: -20px;
-        }
-      }
-    }
-  }
-
-  &._0-240,
-  &._240-360,
-  &._360-540,
-  &._540-720,
-  &._720-960 {
 
     .compare-content-versions-dialog {
       width: 100%;
@@ -188,63 +150,39 @@ body {
       margin: 0;
       min-width: unset;
 
-      .modal-dialog-footer .container.bottom {
-        bottom: 30px;
-      }
-
       .modal-dialog-header {
         font-size: inherit;
 
         .toolbar-container {
-          flex-direction: column;
 
-          span.icon-compare {
-            display: none;
-          }
+          padding: 10px 10px 10px 30px;
 
           .container {
-
-            label {
-              width: 100px;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
-            }
-
-            .@{_COMMON_PREFIX}button {
-              ul.menu {
-                right: 0;
-              }
-            }
+            width: 100%;
 
             .@{_COMMON_PREFIX}dropdown {
-              flex: 1;
-              max-width: unset;
-            }
 
-            &.left {
-              z-index: 2;
-              flex-direction: row-reverse;
-            }
+              width: calc(100% - 50px);
 
-            &.right {
-              position: relative;
-              flex-direction: row;
-              justify-content: flex-end;
-              margin-top: -1px;
-
-              &:before {
-                content: ' ';
-                height: 0;
-                top: 0;
-                left: 0;
-                width: 100%;
-                position: absolute;
-                display: block;
-                border-bottom: 1px solid #ccc;
-              }
             }
           }
+
+          .container.right {
+            margin: 20px 0 10px 0;
+          }
+        }
+      }
+
+      .modal-dialog-body {
+        padding: 0;
+      }
+
+      .modal-dialog-footer {
+
+        border-top: 1px solid #ccc;
+
+        .container.bottom {
+          bottom: 20px;
         }
       }
     }

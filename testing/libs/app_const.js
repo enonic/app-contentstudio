@@ -5,8 +5,8 @@ module.exports = Object.freeze({
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    itemMarkedAsReadyMessage(name){
-       return  `Item \"${name}\" is marked as ready`
+    itemMarkedAsReadyMessage(name) {
+        return `Item \"${name}\" is marked as ready`
     },
     itemSavedNotificationMessage: function (name) {
         return `Item \"${name}\" is saved.`
@@ -35,10 +35,12 @@ module.exports = Object.freeze({
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
-    THIS_PUBLISH_REQUEST_OPEN:'The publish request is Open.',
-    REQUEST_CREATED_MESSAGE:'New publish request created successfully.',
+    projectCreatedMessage: name => `Project \"${name}\" is created.`,
+    projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
+    THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
+    REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
-    PUBLISH_REQUEST_CLOSED_MESSAGE:'The publish request is Closed.',
+    PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
@@ -51,6 +53,7 @@ module.exports = Object.freeze({
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
+    CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,
@@ -84,10 +87,10 @@ module.exports = Object.freeze({
         BOOK: 'book',
         POP_03: 'Pop_03',
         KOTEY: 'kotey',
-        SHIP:'cat',
-        FOSS:'foss',
-        SENG:'seng',
-        PES:'morgopes'
+        SHIP: 'cat',
+        FOSS: 'foss',
+        SENG: 'seng',
+        PES: 'morgopes'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',
@@ -171,11 +174,11 @@ module.exports = Object.freeze({
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
-    ISSUE_LIST_TYPE_FILTER:{
-        ALL:'All',
+    ISSUE_LIST_TYPE_FILTER: {
+        ALL: 'All',
         ASSIGNED_TO_ME: 'Assigned to Me',
-        CREATED_BY_ME:'Created by Me',
-        PUBLISH_REQUESTS:'Publish requests',
-        TASKS:'Tasks'
+        CREATED_BY_ME: 'Created by Me',
+        PUBLISH_REQUESTS: 'Publish requests',
+        TASKS: 'Tasks'
     }
 });

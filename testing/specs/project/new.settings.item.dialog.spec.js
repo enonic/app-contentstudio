@@ -41,6 +41,7 @@ describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog'
             await settingsBrowsePanel.clickOnNewButton();
             //3. 'NewSettingsItem' dialog should be loaded:
             await newSettingsItemDialog.waitForDialogLoaded();
+            studioUtils.saveScreenshot("setting_item_dialog_1");
             //4. 'Cancel' button has been clicked
             await newSettingsItemDialog.clickOnCancelButton();
             await newSettingsItemDialog.waitForDialogClosed();
@@ -76,7 +77,11 @@ describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog'
             await newSettingsItemDialog.waitForDialogClosed();
         });
 
-    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    beforeEach(async () => {
+        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.closeProjectSelectionDialog();
+        return await studioUtils.openSettingsPanel();
+    });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification is starting: ' + this.title);
