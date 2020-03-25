@@ -10,25 +10,28 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('project.save.delete.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
+describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 
-    it(`GIVEN required inputs in project wizard are filled WHEN 'Save' button has been pressed THEN expected notification should appear`,
+    //verifies #1627 "Settings browse panel - grid is not refreshed after saving new project"
+    it(`GIVEN a name has been saved in new Project wizard WHEN 'Home' button has been pressed THEN new project should appear beneath 'Projects' folder`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'Open new wizard:
+            //1.Expand Projects-folder then Open new project wizard:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a name:
+            //2. Type a name then click on Save button:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            //2. Verify that Save button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
-            let actualMessage = await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_saved_1");
-            assert.equal(actualMessage, appConstant.projectCreatedMessage(PROJECT_DISPLAY_NAME))
+            //3. Click on 'Home' button and go to the grid:
+            let actualMessage = await settingsBrowsePanel.clickOnHomeButton();
+            //Verify the issue #1627:
+            studioUtils.saveScreenshot("home_button_project_saved_4");
+            await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_DISPLAY_NAME);
         });
 
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,

@@ -11,9 +11,11 @@ const NewSettingsItemDialog = require('../../page_objects/project/new.settings.i
 
 const XPATH = {
     container: "//div[contains(@id,'SettingsBrowsePanel')]",
+    settingsAppContainer: "//div[contains(@id,'SettingsAppContainer')]",
+    appBar: "//div[contains(@id,'SettingsAppBar')]",
+    homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
     toolbar: `//div[contains(@id,'SettingsBrowseToolbar')]`,
-    treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
-    treeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
+    itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     treeGridToolbar: `//div[contains(@id,'TreeGridToolbar')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
@@ -47,6 +49,10 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete']]`;
     }
 
+    get homeButton() {
+        return XPATH.settingsAppContainer + XPATH.homeButton;
+    }
+
     get newButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='New...']]`;
     }
@@ -56,11 +62,11 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get treeGrid() {
-        return XPATH.container + XPATH.treeGrid;
+        return XPATH.container + XPATH.itemsTreeGrid;
     }
 
     get selectionControllerCheckBox() {
-        return XPATH.treeGridToolbar + XPATH.selectionControllerCheckBox;
+        return XPATH.container + XPATH.treeGridToolbar + XPATH.selectionControllerCheckBox;
     }
 
     get selectionPanelToggler() {
@@ -72,12 +78,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.treeGrid + lib.H6_DISPLAY_NAME;
+        return XPATH.itemsTreeGrid + lib.H6_DISPLAY_NAME;
     }
 
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+            let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
             return await this.pause(900);
         } catch (err) {
@@ -88,7 +94,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(projectName), appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + lib.itemByName(projectName), appConst.TIMEOUT_3);
         } catch (err) {
             console.log("item is not displayed:" + projectName);
             this.saveScreenshot('err_find_' + projectName)
@@ -98,7 +104,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemByDisplayNameDisplayed(displayName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByDisplayName(displayName), appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName), appConst.TIMEOUT_3);
         } catch (err) {
             console.log("item is not displayed:" + displayName);
             this.saveScreenshot('err_find_' + displayName)
@@ -107,9 +113,13 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForProjectNotDisplayed(projectName) {
-        return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(projectName), appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.itemsTreeGrid + lib.itemByName(projectName), appConst.TIMEOUT_3).catch(err => {
             throw new Error("projectName is still displayed :" + err);
         });
+    }
+
+    clickOnHomeButton() {
+        return this.clickOnElement(this.homeButton);
     }
 
     clickOnDeleteButton() {
@@ -124,7 +134,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnRowByDisplayName(displayName) {
         try {
-            let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, 3000);
             await this.clickOnElement(nameXpath);
             return await this.pause(300);
@@ -135,7 +145,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForRowByNameVisible(name) {
-        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
+        let nameXpath = XPATH.itemsTreeGrid + lib.itemByName(name);
         return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
             this.saveScreenshot('err_find_' + name);
             throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
@@ -144,7 +154,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForProjectByDisplayNameVisible(displayName) {
         try {
-            let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(nameXpath, 3000);
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);
@@ -201,7 +211,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     isExpanderIconPresent(name) {
-        let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
+        let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
         return this.waitForElementDisplayed(expanderIcon).catch(err => {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
@@ -239,9 +249,15 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     async openProjectByDisplayName(displayName) {
-        //TODO finish it
         let projectWizard = new ProjectWizard();
-
+        //1.Expand the root folder:
+        await this.clickOnExpanderIcon(appConst.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+        //2. click on the project:
+        await this.clickOnRowByDisplayName(displayName);
+        //3. wait for Edit button gets enabled:
+        await this.clickOnEditButton();
+        //4. wait for Project is loaded in the wizard page:
+        return await projectWizard.waitForLoaded();
     }
 };
 module.exports = SettingsBrowsePanel;

@@ -61,6 +61,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();
+        await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
