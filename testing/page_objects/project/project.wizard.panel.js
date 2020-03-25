@@ -10,6 +10,7 @@ const XPATH = {
     tabTitle: "//li[contains(@id,'AppBarTabMenuItem')]",
     toolbar: `//div[contains(@id,'Toolbar')]`,
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
+    deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete']]`,
     selectedAccessItems: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     accessItemByName:
@@ -86,6 +87,15 @@ class ProjectWizardPanel extends Page {
             throw new Error("Save button is not disabled :" + err);
         }
     }
+
+    async waitForDeleteButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Delete button is not disabled :" + err);
+        }
+    }
+
     waitForCancelButtonTopDisplayed() {
         return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
     }
@@ -143,6 +153,10 @@ class ProjectWizardPanel extends Page {
             this.saveScreenshot("err_remove_access_entry");
             throw new Error("Error when trying to remove project Access Item " + err);
         }
+    }
+
+    clickOnDeleteButton() {
+        return this.clickOnElement(this.deleteButton);
     }
 };
 module.exports = ProjectWizardPanel;
