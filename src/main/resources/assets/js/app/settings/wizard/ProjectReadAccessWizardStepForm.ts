@@ -32,7 +32,6 @@ export class ProjectReadAccessWizardStepForm
 
     layout(item: ProjectViewItem) {
         if (!item) {
-            this.readAccessRadioGroup.setValue(ProjectReadAccessType.PRIVATE, true);
             return;
         }
 

@@ -15,7 +15,7 @@
       .help-text {
         position: relative;
         bottom: 14px;
-        padding: 5px 0px 5px 110px;
+        padding-left: @form-label-width - 10px;
       }
 
       .input-view {
@@ -24,7 +24,7 @@
         flex-wrap: wrap;
 
         label {
-          width: 120px;
+          width: @form-label-width;
         }
 
         .form-input {
@@ -32,11 +32,19 @@
           flex-grow: 1;
         }
 
-        .error {
-          display: block;
-          width: 100%;
-          margin-left: 0px;
-          padding-bottom: 10px;
+        &.invalid {
+          padding-bottom: 40px;
+
+          .help-text {
+            padding-left: @form-label-width;
+          }
+
+          .error {
+            position: absolute;
+            bottom: 10px;
+            left: @form-label-width;
+          }
+
         }
       }
     }
@@ -46,12 +54,42 @@
   ._240-360 &,
   ._360-540 &,
   ._540-720 & {
+
+    .header-and-navigator-container {
+
+      .wizard-header {
+        margin-left: 46px;
+      }
+
+      .@{_COMMON_PREFIX}form-icon {
+        margin: 5px;
+      }
+    }
+
     .wizard-step-form {
-      .input-view {
-        flex-direction: column;
-        align-items: flex-start;
-        .form-input {
-          width: 100%;
+
+      .form-view {
+
+        .help-text {
+          padding-left: 0;
+        }
+
+        .input-view {
+          flex-direction: column;
+          align-items: flex-start;
+
+          .form-input:not([type="radio"]) {
+            width: 100%;
+          }
+
+          .radio-group {
+            margin-top: 10px;
+          }
+
+
+          .error {
+            left: 10px;
+          }
         }
       }
     }

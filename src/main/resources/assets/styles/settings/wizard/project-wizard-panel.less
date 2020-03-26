@@ -19,6 +19,9 @@
       }
 
       .principal-combobox {
+
+        padding-left: @form-label-width - 10px;
+
         &.disabled {
           opacity: 0.5;
 
@@ -39,4 +42,17 @@
     }
   }
 
+
+  ._0-240 &,
+  ._240-360 &,
+  ._360-540 &,
+  ._540-720 & {
+
+    .wizard-step-form.project-read-access-wizard-step-form {
+
+      .principal-combobox {
+        padding-left: 0;
+      }
+    }
+  }
 }
