@@ -105,8 +105,20 @@ class ProjectWizardPanel extends Page {
         return await this.typeTextInInput(this.displayNameInput, name);
     }
 
+    typeDescription(description) {
+        return this.typeTextInInput(this.descriptionInput, description);
+    }
+
+    getDescription() {
+        return this.getTextInInput(this.descriptionInput);
+    }
+
     getProjectName() {
         return this.getTextInInput(this.projectNameInput);
+    }
+
+    waitForProjectNameInputDisabled() {
+        return this.waitForElementDisabled(this.projectNameInput, appConst.TIMEOUT_2);
     }
 
     async typeInProjectName(name) {
@@ -157,6 +169,10 @@ class ProjectWizardPanel extends Page {
 
     clickOnDeleteButton() {
         return this.clickOnElement(this.deleteButton);
+    }
+
+    hotKeyClose() {
+        return this.getBrowser().keys(['Alt', 'w']);
     }
 };
 module.exports = ProjectWizardPanel;

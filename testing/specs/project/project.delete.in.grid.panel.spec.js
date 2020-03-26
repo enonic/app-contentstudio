@@ -52,7 +52,9 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
             //6. Verify the notification message:
             let actualMessage = await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_deleted_1");
-            assert.equal(actualMessage, appConstant.projectDeletedMessage(PROJECT_DISPLAY_NAME))
+            assert.equal(actualMessage, appConstant.projectDeletedMessage(PROJECT_DISPLAY_NAME));
+            //7. Verify that the project is not present in Browse Panel:
+            await settingsBrowsePanel.waitForProjectNotDisplayed(PROJECT_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

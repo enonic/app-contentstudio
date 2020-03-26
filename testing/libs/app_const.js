@@ -23,6 +23,7 @@ module.exports = Object.freeze({
     permissionsAppliedNotificationMessage: function (name) {
         return `Permissions for \"${name}\" are applied.`
     },
+    projectModifiedMessage: displayName => `Project \"${displayName}\" is modified.`,
     markedAsReadyMessage: function (name) {
         return `Item \"${name}\" is marked as ready`;
     },

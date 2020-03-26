@@ -13,6 +13,7 @@ const XPATH = {
     container: "//div[contains(@id,'SettingsBrowsePanel')]",
     settingsAppContainer: "//div[contains(@id,'SettingsAppContainer')]",
     appBar: "//div[contains(@id,'SettingsAppBar')]",
+    appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
     toolbar: `//div[contains(@id,'SettingsBrowseToolbar')]`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
@@ -35,12 +36,21 @@ const XPATH = {
     checkboxByName: name => {
         `${lib.itemByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
+    projectItemByName: function (name) {
+        return `//div[contains(@id,'NamesView') and descendant::span[@class='name' and contains(.,'${name}')]]`
+    },
 
     checkboxByDisplayName: displayName => XPATH.container + lib.itemByDisplayName(displayName) +
                                           "/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label",
 
     expanderIconByName: name => `${lib.itemByName(
         name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
+
+    getProjectDescription: name => `${lib.itemByName(
+        name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
+
+    tabCloseIcon: projectDisplayName => XPATH.appBarTabMenu +
+                                        `//li[contains(@id,'AppBarTabMenuItem') and descendant::a[contains(.,'${projectDisplayName}')]]/button`
 }
 
 class SettingsBrowsePanel extends BaseBrowsePanel {
@@ -104,18 +114,22 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemByDisplayNameDisplayed(displayName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName), appConst.TIMEOUT_3);
+            let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
+            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
         } catch (err) {
             console.log("item is not displayed:" + displayName);
             this.saveScreenshot('err_find_' + displayName)
-            throw new Error('Setings: item was not found ! ' + displayName + "  " + err);
+            throw new Error('Settings: item was not found ! ' + displayName + "  " + err);
         }
     }
 
-    waitForProjectNotDisplayed(projectName) {
-        return this.waitForElementNotDisplayed(XPATH.itemsTreeGrid + lib.itemByName(projectName), appConst.TIMEOUT_3).catch(err => {
+    async waitForProjectNotDisplayed(projectDisplayName) {
+        try {
+            let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(projectDisplayName);
+            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+        } catch (err) {
             throw new Error("projectName is still displayed :" + err);
-        });
+        }
     }
 
     clickOnHomeButton() {
@@ -144,7 +158,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForRowByNameVisible(name) {
+    waitForItemByNameVisible(name) {
         let nameXpath = XPATH.itemsTreeGrid + lib.itemByName(name);
         return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
             this.saveScreenshot('err_find_' + name);
@@ -258,6 +272,22 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         await this.clickOnEditButton();
         //4. wait for Project is loaded in the wizard page:
         return await projectWizard.waitForLoaded();
+    }
+
+    getProjectDisplayName(name) {
+        let selector = XPATH.projectItemByName(name) + "//span[@class='display-name']";
+        return this.getText(selector)
+    }
+
+    getProjectDescription(name) {
+        let selector = XPATH.projectItemByName(name) + "//p[contains(@class,'sub-name')]"
+        return this.getText(selector)
+    }
+
+    async clickOnCloseIcon(displayName) {
+        let selector = XPATH.tabCloseIcon(displayName);
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector);
     }
 };
 module.exports = SettingsBrowsePanel;
