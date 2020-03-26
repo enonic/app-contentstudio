@@ -107,7 +107,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 await wizardVersionsWidget.clickOnRevertButton();
                 //4. Verify  the notification message:
                 let actualMessage = await contentWizard.waitForNotificationMessage();
-                assert.include(actualMessage, "Version was changed to", "Expected notification message should appear");
+                    assert.include(actualMessage, appConstant.CONTENT_REVERTED_MESSAGE, "Expected notification message should appear");
                 //5. Verify that widget is displayed :
                 let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
                 assert.isTrue(isDisplayed, "Versions widget should be present in Details Panel")

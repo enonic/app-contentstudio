@@ -109,6 +109,45 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
     }
 
+    close(checkCanClose: boolean = false) {
+        if (!checkCanClose || this.canClose()) {
+            super.close(checkCanClose);
+        }
+    }
+
+    canClose(): boolean {
+        if (this.hasUnsavedChanges()) {
+            this.openSaveBeforeCloseDialog();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private openSaveBeforeCloseDialog() {
+        const isValid: boolean = this.isValid();
+        const question: string = isValid ? i18n('dialog.saveBeforeClose.msg') : i18n('dialog.confirmClose.invalidData');
+        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : this.close.bind(this);
+        const noCallback: () => void = isValid ? this.close.bind(this) : null;
+
+        new ConfirmationDialog()
+            .setQuestion(question)
+            .setYesCallback(yesCallback)
+            .setNoCallback(noCallback)
+            .open();
+    }
+
+    private saveAndClose() {
+        this.saveChanges().then(() => {
+            this.close();
+        }).catch((reason: any) => {
+            if (this.isValid()) {
+                this.wizardActions.getSaveAction().setEnabled(true);
+            }
+            DefaultErrorHandler.handle(reason);
+        });
+    }
+
     getCloseAction(): Action {
         return this.wizardActions.getCloseAction();
     }
@@ -270,6 +309,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
         this.wizardActions.getSaveAction().onExecuted(() => {
             this.saveChanges().catch((reason: any) => {
+                this.wizardActions.getSaveAction().setEnabled(true);
                 DefaultErrorHandler.handle(reason);
             });
         });

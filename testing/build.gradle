@@ -20,12 +20,13 @@ plugins {
     id 'com.moowork.node' version '0.13'
     id 'com.moowork.gulp' version '0.13'
     id 'com.github.psxpaul.execfork' version '0.1.8'
-
 }
+    group = 'com.enonic.xp.js_testing'
+    version = '1.0'
 
-group = 'com.enonic.xp.js_testing'
-version = '1.0'
-
+subprojects {
+    name = 'app-contentstudio-projects'
+}
 configurations {
     distro
 }
@@ -33,10 +34,10 @@ configurations {
 apply plugin: 'com.enonic.defaults'
 apply plugin: 'com.moowork.node'
 apply plugin: 'com.moowork.gulp'
+
 ext.extProgram = new Properties()
 extProgram.load( new FileInputStream( "../gradle.properties" ) )
 extProgram['xpVersion']
-
 
 enonic {
     publishRepo = 'inhouse'
@@ -117,12 +118,6 @@ task deployContentStudio( type: DefaultTask ) {
     }
 }
 
-task startSeleniumDaemon( type: com.github.psxpaul.task.ExecFork ) {
-    commandLine = "${seleniumDir}${File.separator}selenium-server.sh"
-    standardOutput = "${buildDir}${File.separator}selenium-daemon.log"
-    errorOutput = "${buildDir}${File.separator}selenium-daemon-error.log"
-}
-
 task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
@@ -151,7 +146,7 @@ jar.enabled = true
 task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
         xpServer.installDir = file( distroDir )
-        xpServer.startupDelay = 50000
+        xpServer.startupDelay = 60000
         xpServer.start()
     }
     copyConfig.mustRunAfter unpackDistro
@@ -189,11 +184,19 @@ task testContentStudioApp( type: NpmTask,
     copyApps.mustRunAfter startServer
 }
 
-task testContentStudioAppLocallySelenium( type: NpmTask, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
-    inputs.files fileTree( dir: '.' )
-    outputs.files fileTree( dir: '/test-results' )
-    args = ['test-sel-server-local']
-    startSeleniumDaemon.mustRunAfter npmInstall
+task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'test_project']
+    startServer.mustRunAfter npmInstall
+    copyApps.mustRunAfter startServer
+}
+
+task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
+    if ( project.hasProperty( "t_name" ) )
+    {
+        println( "N_A_M_E: " + t_name );
+        environment = ['t_name': t_name]
+        commandLine 'node', './tasks/test-by-name.js'
+    }
 }
 
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
@@ -202,18 +205,6 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureS
     args = ['test']
 }
 
-
-task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, startSeleniumDaemon, ensureScreenshotsDirectory] ) {
-    inputs.files fileTree( dir: '.' )
-    outputs.files fileTree( dir: '/test-results' )
-    if ( project.hasProperty( "t_name" ) )
-    {
-        println( "N_A_M_E: " + t_name );
-        environment = ['t_name': t_name]
-        commandLine 'node', './tasks/test-by-name.js'
-        startSeleniumDaemon.mustRunAfter npmInstall
-    }
-}
 testContentStudioApp.finalizedBy = ['stopServer']
 
 repositories {

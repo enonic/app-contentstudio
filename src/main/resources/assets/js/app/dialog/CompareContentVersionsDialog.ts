@@ -1,15 +1,11 @@
 import * as Q from 'q';
-import * as $ from 'jquery';
 import {AliasType, ContentVersion} from '../ContentVersion';
-import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {ContentVersions} from '../ContentVersions';
-import {RevertVersionRequest} from '../resource/RevertVersionRequest';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
@@ -25,7 +21,6 @@ import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -35,8 +30,6 @@ export class CompareContentVersionsDialog
     private leftVersion: ContentVersion;
 
     private rightVersion: ContentVersion;
-
-    private activeVersionId: string;
 
     private contentId: ContentId;
 
@@ -56,19 +49,17 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: Button;
 
-    private diffIcon: SpanEl;
-
     private contentCache: { [key: string]: Object };
 
     private diffPatcher: DiffPatcher;
 
     private htmlFormatter: any;
 
-    private content: ContentSummary;
-
     private outsideClickListener: (event: MouseEvent) => void;
 
     private versionIdCounters: { [id: string]: number };
+
+    private revertVersionCallback: (contentId: ContentId, version: ContentVersion) => void;
 
     protected constructor() {
         super(<ModalDialogConfig>{
@@ -120,15 +111,17 @@ export class CompareContentVersionsDialog
 
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
 
-        const revertAction = new Action(i18n('field.version.revert')).onExecuted(() => {
-            this.restoreVersion(dropdown.getValue());
-        });
+        const revertAction = new Action(i18n('field.version.revert'))
+                                .onExecuted(() => this.revertVersionCallback(this.contentId, dropdown.getSelectedOption().displayValue));
+        revertAction.setTitle(i18n('field.version.makeCurrent'));
+
         const menu = new Menu([revertAction]);
         menu.onItemClicked(() => {
             this.setMenuVisible(false, menu, button);
         });
+
         const button = new Button();
-        button.addClass('transparent icon-more_vert icon-large');
+        button.addClass('context-menu transparent icon-more_vert icon-large');
         button.onClicked((event: MouseEvent) => {
             event.stopImmediatePropagation();
             event.preventDefault();
@@ -180,7 +173,7 @@ export class CompareContentVersionsDialog
 
             this.leftLabel = new LabelEl(i18n('dialog.compareVersions.olderVersion'));
             const leftContainer = new DivEl('container left');
-            leftContainer.appendChildren<Element>(this.revertLeftButton, this.leftDropdown, this.leftLabel);
+            leftContainer.appendChildren<Element>(this.leftLabel, this.leftDropdown, this.revertLeftButton);
 
             this.rightLabel = new LabelEl(i18n('dialog.compareVersions.newerVersion'));
             this.rightDropdown = this.createVersionDropdown('right', this.rightVersion);
@@ -200,11 +193,9 @@ export class CompareContentVersionsDialog
             bottomContainer.appendChild(changesCheckbox);
             this.appendChildToFooter(bottomContainer);
 
-            this.diffIcon = new SpanEl('icon-compare icon-large');
-
             return this.reloadVersions().then(() => {
 
-                this.toolbar.appendChildren<any>(leftContainer, this.diffIcon, rightContainer);
+                this.toolbar.appendChildren<any>(leftContainer, rightContainer);
 
                 this.comparisonContainer = new DivEl('jsondiffpatch-delta');
 
@@ -226,20 +217,19 @@ export class CompareContentVersionsDialog
         return CompareContentVersionsDialog.INSTANCE;
     }
 
+    setRevertVersionCallback(callback: (contentId: ContentId, version: ContentVersion) => void): CompareContentVersionsDialog {
+        this.revertVersionCallback = callback;
+        return this;
+    }
+
     setLeftVersion(version: ContentVersion): CompareContentVersionsDialog {
         this.leftVersion = version;
         return this;
     }
 
-    setActiveVersionId(value: string): CompareContentVersionsDialog {
-        this.activeVersionId = value;
-        return this;
-    }
-
-    setContent(value: ContentSummary): CompareContentVersionsDialog {
-        this.content = value;
-        this.contentId = value ? value.getContentId() : null;
-        (<CompareContentVersionsDialogHeader>this.header).setSubTitle(value ? value.getPath().toString() : null);
+    setContent(content: ContentSummary): CompareContentVersionsDialog {
+        this.contentId = content ? content.getContentId() : null;
+        (<CompareContentVersionsDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
         return this;
     }
 
@@ -278,9 +268,6 @@ export class CompareContentVersionsDialog
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
                     const option = this.createOption(version);
-                    /*if (i === 0) {
-                        option.displayValue.setDivider(); // Mark newest version as a divider to separate versions from aliases
-                    }*/
                     options.push(option);
                 }
 
@@ -312,15 +299,6 @@ export class CompareContentVersionsDialog
                 this.forceSelectVersion(this.leftDropdown, this.leftVersion, true);
                 this.forceSelectVersion(this.rightDropdown, this.rightVersion);
             });
-    }
-
-    private findOptionByValue(options: Option<ContentVersion>[], value: string): Option<ContentVersion> {
-        if (!options || options.length === 0) {
-            return;
-        }
-        return options.find((option) => {
-            return option.value === value;
-        });
     }
 
     private updateAliases(isLeft: boolean): boolean {
@@ -376,52 +354,73 @@ export class CompareContentVersionsDialog
         return newest;
     }
 
+    private getNewestPublishedVersion(options: Option<ContentVersion>[], maxDateTime: number): ContentVersion {
+        return options
+            .map(option => option.displayValue)
+            .filter(version => !!version.getPublishInfo() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
+            .sort((v1, v2) => v2.getPublishInfo().getTimestamp().getTime() - v1.getPublishInfo().getTimestamp().getTime())[0];
+
+    }
+
+    private getNewestVersion(options: Option<ContentVersion>[]): ContentVersion {
+        return options
+            .map(option => option.displayValue)
+            .sort((v1, v2) => v2.getModified().getTime() - v1.getModified().getTime())[0];
+    }
+
+    private getVersionIndexInOptions(options: Option<ContentVersion>[], versionId: string) {
+        return options.findIndex((option: Option<ContentVersion>) => option.displayValue.getId() === versionId);
+    }
+
+    private getPreviousVersion(options: Option<ContentVersion>[]): ContentVersion {
+        const versionIndex = this.getVersionIndexInOptions(options, this.rightVersion.getId());
+
+        if (versionIndex === -1 || versionIndex === options.length - 1) {
+            return null;
+        }
+
+        return options[versionIndex + 1].displayValue;
+    }
+
+    private getNextVersion(options: Option<ContentVersion>[]): ContentVersion {
+        const versionIndex = this.getVersionIndexInOptions(options, this.leftVersion.getId());
+
+        if (versionIndex <= 0) {
+            return null;
+        }
+
+        return options[versionIndex - 1].displayValue;
+    }
+
     private createAliases(options: Option<ContentVersion>[], isLeft: boolean): Option<ContentVersion>[] {
-        let latestPublished: ContentVersion;
-        let prevVersion: ContentVersion;
-        let nextVersion: ContentVersion;
-        let newestVersion: ContentVersion;
-
-        const leftOpt = this.findOptionByValue(options, this.leftVersion.getId());
-        const leftModTime = leftOpt ? leftOpt.displayValue.getModified().getTime() : Date.now();
-        const rightOpt = this.findOptionByValue(options, this.rightVersion.getId());
-        const rightModTime = rightOpt ? rightOpt.displayValue.getModified().getTime() : 0;
-
-        options.forEach(option => {
-            const version = option.displayValue;
-            const modTime = version.getModified().getTime();
-            if (version.hasPublishInfo() && (!isLeft || modTime <= rightModTime)) {
-                if (!latestPublished || (version.getPublishInfo().getTimestamp().getTime() -
-                                        latestPublished.getPublishInfo().getTimestamp().getTime() < 0)) {
-                    latestPublished = version;
-                }
-            }
-            if (isLeft) {
-                if ((!prevVersion || (modTime - prevVersion.getModified().getTime() > 0)) && (modTime - rightModTime < 0)) {
-                    prevVersion = version;
-                }
-            } else {
-                if ((!nextVersion || (modTime - nextVersion.getModified().getTime() < 0)) && (modTime - leftModTime > 0)) {
-                    nextVersion = version;
-                }
-                if (!newestVersion || (modTime - newestVersion.getModified().getTime() > 0)) {
-                    newestVersion = version;
-                }
-            }
-        });
-
         const aliases: Option<ContentVersion>[] = [];
-        if (latestPublished) {
-            aliases.push(this.createAliasOption(latestPublished, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED));
+
+        const newestPublishedVersion: ContentVersion =
+            this.getNewestPublishedVersion(options, isLeft ? this.rightVersion.getModified().getTime() : Date.now());
+
+        if (newestPublishedVersion) {
+            aliases.push(
+                this.createAliasOption(newestPublishedVersion, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED)
+            );
         }
-        if (prevVersion) {
-            aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
-        }
-        if (nextVersion) {
-            aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
-        }
-        if (newestVersion) {
-            aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
+
+        if (isLeft) {
+            const prevVersion: ContentVersion = this.getPreviousVersion(options);
+            if (prevVersion) {
+                aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
+            }
+        } else {
+            const nextVersion: ContentVersion = this.getNextVersion(options);
+
+            if (nextVersion) {
+                aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
+            }
+
+            const newestVersion: ContentVersion = this.getNewestVersion(options);
+
+            if (newestVersion) {
+                aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
+            }
         }
 
         return aliases;
@@ -589,23 +588,9 @@ export class CompareContentVersionsDialog
         });
     }
 
-    private restoreVersion(version: string): Q.Promise<void> {
-        return new RevertVersionRequest(version, this.contentId.toString()).sendAndParse()
-            .then((versionId: string) => {
-                if (versionId === this.activeVersionId) {
-                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
-                } else {
-                    NotifyManager.get().showFeedback(i18n('notify.version.changed', versionId));
-                    new ActiveContentVersionSetEvent(this.contentId, versionId).fire();
-                    this.activeVersionId = versionId;
-                    return this.reloadVersions();
-                }
-            });
-    }
-
     private updateButtonsState() {
-        const isLeftVersionActive = this.leftDropdown.getSelectedOption().displayValue.getId() === this.activeVersionId;
-        const isRightVersionActive = this.rightDropdown.getSelectedOption().displayValue.getId() === this.activeVersionId;
+        const isLeftVersionActive = this.leftDropdown.getSelectedOption().displayValue.isActive();
+        const isRightVersionActive = this.rightDropdown.getSelectedOption().displayValue.isActive();
 
         const leftLabel = i18n(isLeftVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.olderVersion');
         const rightLabel = i18n(isRightVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.newerVersion');

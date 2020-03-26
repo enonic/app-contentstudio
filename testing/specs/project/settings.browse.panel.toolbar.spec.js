@@ -63,7 +63,11 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         });
 
 
-    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    beforeEach(async () => {
+        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.closeProjectSelectionDialog();
+        return await studioUtils.openSettingsPanel();
+    });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification is starting: ' + this.title);

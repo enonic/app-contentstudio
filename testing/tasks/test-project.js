@@ -4,6 +4,11 @@ const globby = require('globby');
 const Mocha = require('mocha');
 const selenium = require('selenium-standalone');
 const testFilesGlob = './specs/project/*.js';
+const PropertiesReader = require('properties-reader');
+const file = path.join(__dirname, '/../browser.properties');
+const properties = PropertiesReader(file);
+const driverVersion = properties.get('chromedriver.version');
+const seleniumVersion = properties.get('selenium.version');
 
 const mocha = new Mocha({
     reporter: 'mochawesome',
@@ -32,14 +37,14 @@ async function runTests() {
     });
 }
 
-function runSelenium() {
+function runSeleniumTests() {
     selenium.install(
         {
-            version: '3.9.0',
+            version: seleniumVersion,
             baseURL: 'https://selenium-release.storage.googleapis.com',
             drivers: {
                 chrome: {
-                    version: '76.0.3809.126',
+                    version: driverVersion,
                     arch: process.arch,
                     baseURL: 'https://chromedriver.storage.googleapis.com'
                 }
@@ -49,14 +54,16 @@ function runSelenium() {
         },
         function (error) {
             if (error) {
+                console.log("CHROMEDRIVER VERSION -  " + driverVersion);
                 console.log("Selenium server is not started! 1" + error);
                 return error;
             }
+            console.log("CHROMEDRIVER VERSION - " + driverVersion);
             selenium.start({
-                version: '3.9.0',
+                version: seleniumVersion,
                 drivers: {
                     chrome: {
-                        version: '76.0.3809.126'
+                        version: driverVersion
                     }
                 }
             }, (error, child) => {
@@ -73,4 +80,5 @@ function runSelenium() {
     );
 }
 
-runSelenium();
+runSeleniumTests();
+

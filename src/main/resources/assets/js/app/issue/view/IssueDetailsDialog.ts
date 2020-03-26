@@ -23,7 +23,10 @@ import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {
+    DependantItemsWithProgressDialog,
+    DependantItemsWithProgressDialogConfig
+} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
@@ -719,8 +722,6 @@ export class IssueDetailsDialog
 
         if (shouldUpdateDialog) {
             this.updateLabels();
-
-            this.tabBar.selectNavigationItem(isPublishRequest ? 1 : 0);
         }
 
         return this;

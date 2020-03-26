@@ -2,7 +2,6 @@ import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {Branch} from './versioning/Branch';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
 
 export class ContentVersion implements Cloneable {
@@ -43,12 +42,6 @@ export class ContentVersion implements Cloneable {
 
     static fromJson(contentVersionJson: ContentVersionJson, workspaces?: string[]): ContentVersion {
         return new ContentVersionBuilder().fromJson(contentVersionJson, workspaces).build();
-    }
-
-    public isInMaster(): boolean {
-        return this.getWorkspaces().some((workspace) => {
-            return workspace === Branch.MASTER;
-        });
     }
 
     getModifier(): string {
@@ -135,6 +128,7 @@ export class ContentVersion implements Cloneable {
         const versionAlias = this.clone();
         const alias = new ContentVersionAlias(displayName, type);
         versionAlias.alias = alias;
+        versionAlias.active = this.active;
 
         return versionAlias;
     }

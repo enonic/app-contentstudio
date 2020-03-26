@@ -21,12 +21,15 @@ export class ContentVersionViewer
     }
 
     setObject(version: ContentVersion) {
-        const modifiedDate = version.getModified();
+        const modifiedDate = version.hasPublishInfo() ?
+                                version.getPublishInfo().getTimestamp() : version.getModified();
+        const modifierName = version.hasPublishInfo() ?
+                                version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias = version.isAlias();
         const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
-        const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', version.getModifierDisplayName());
+        const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', modifierName);
 
-        this.toggleClass('divider', version.isActive());
+        this.toggleClass('divider', version.isActive() && !version.isAlias());
 
         this.namesAndIconView
             .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)

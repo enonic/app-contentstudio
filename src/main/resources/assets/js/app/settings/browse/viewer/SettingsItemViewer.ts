@@ -12,7 +12,7 @@ export abstract class SettingsItemViewer
         return '';
     }
 
-    resolveSubName(item: SettingsViewItem, relativePath: boolean = false): string {
+    resolveSubName(item: SettingsViewItem): string {
         return item.getDescription();
     }
 

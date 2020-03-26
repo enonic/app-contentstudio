@@ -20,8 +20,8 @@ function stopSelenuim() {
 async function runTests() {
     const paths = await globby([testFilesGlob]);
     paths.forEach(function (filePath) {
-        console.log(filePath);
         if (!filePath.includes("project")) {
+            console.log("test file: " + filePath);
             mocha.addFile(filePath);
         }
     });
@@ -74,4 +74,5 @@ function runSelenium() {
         }
     );
 }
+
 runSelenium();

@@ -101,7 +101,7 @@ class LiveFormPanel extends Page {
                 throw new Error("Error when clicking on Image Component  in Live Frame!")
             }
             let selector = xpath.imageComponentByDisplayName(imageName);
-            await this.doRightClick(selector, liveFrameX + 35, liveFrameY + 35);
+            await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 35);
             return await this.pause(200);
         } catch (err) {
             this.saveScreenshot("err_live_frame_right_click");

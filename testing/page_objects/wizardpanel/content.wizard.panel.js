@@ -162,17 +162,22 @@ class ContentWizardPanel extends Page {
         let detailsPanel = new DetailsPanel();
         return detailsPanel.isDetailsPanelLoaded().then(result => {
             if (!result) {
-                return this.clickOnElement(this.detailsPanelToggleButton).catch(err => {
-                    throw new Error("Error when trying to open Details Panel in Wizard");
-                }).then(() => {
+                return this.clickOnDetailsPanelToggleButton().then(() => {
                     return detailsPanel.waitForDetailsPanelLoaded();
-                }).then(() => {
-                    return this.pause(400);
                 })
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
             }
         })
+    }
+
+    async clickOnDetailsPanelToggleButton() {
+        try {
+            await this.clickOnElement(this.detailsPanelToggleButton);
+            return await this.pause(300);
+        } catch (err) {
+            throw new Error("Error when trying to open Details Panel in Wizard");
+        }
     }
 
     async openVersionsHistoryPanel() {
@@ -290,6 +295,17 @@ class ContentWizardPanel extends Page {
     clickOnShowComponentViewToggler() {
         return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.TIMEOUT_2).then(() => {
             return this.clickOnElement(this.showComponentViewToggler);
+        }).catch(err => {
+            this.saveScreenshot('err_click_on_show_component_view');
+            throw new Error("Error when clicking on 'Show Component View!'" + err);
+        }).then(() => {
+            return this.pause(500);
+        });
+    }
+
+    clickOnComponentViewToggler() {
+        return this.waitForElementDisplayed(this.componentViewToggler, appConst.TIMEOUT_2).then(() => {
+            return this.clickOnElement(this.componentViewToggler);
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');
             throw new Error("Error when clicking on 'Show Component View!'" + err);
@@ -828,6 +844,7 @@ class ContentWizardPanel extends Page {
         }
     }
 };
+
 module.exports = ContentWizardPanel;
 
 

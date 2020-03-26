@@ -61,7 +61,8 @@ export class ContentDropdownTreeGrid extends TreeGrid<ContentSummary> {
                 viewer = new ContentSummaryViewer();
                 node.setViewer('name', viewer);
             }
-            viewer.setObject(node.getData(), node.calcLevel() > 1);
+            viewer.setIsRelativePath(node.calcLevel() > 1);
+            viewer.setObject(node.getData());
             return viewer ? viewer.toString() : '';
         }
 
