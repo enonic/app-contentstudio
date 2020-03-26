@@ -54,7 +54,8 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
             let viewer: ContentSummaryViewer = <ContentSummaryViewer>node.getViewer('name');
             if (!viewer) {
                 viewer = new ContentSummaryViewer();
-                viewer.setObject(node.getData().getContentSummary(), node.calcLevel() > 1);
+                viewer.setIsRelativePath(node.calcLevel() > 1);
+                viewer.setObject(node.getData().getContentSummary());
                 node.setViewer('name', viewer);
             }
             return viewer.toString();
