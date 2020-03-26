@@ -11,25 +11,33 @@
   }
 
   .wizard-step-form {
-    .input-view {
-      display: flex;
-      align-items: center;
-
-      label {
-        width: 120px;
-      }
-
-      .form-input {
-        margin-left: 0px;
-        flex-grow: 1;
-      }
-    }
-
     .form-view {
       .help-text {
         position: relative;
         bottom: 14px;
         padding: 5px 0px 5px 110px;
+      }
+
+      .input-view {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        label {
+          width: 120px;
+        }
+
+        .form-input {
+          margin-left: 0px;
+          flex-grow: 1;
+        }
+
+        .error {
+          display: block;
+          width: 100%;
+          margin-left: 0px;
+          padding-bottom: 10px;
+        }
       }
     }
   }

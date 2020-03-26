@@ -125,10 +125,15 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     private openSaveBeforeCloseDialog() {
+        const isValid: boolean = this.isValid();
+        const question: string = isValid ? i18n('dialog.saveBeforeClose.msg') : i18n('dialog.confirmClose.invalidData');
+        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : this.close.bind(this);
+        const noCallback: () => void = isValid ? this.close.bind(this) : null;
+
         new ConfirmationDialog()
-            .setQuestion(i18n('dialog.saveBeforeClose.msg'))
-            .setYesCallback(this.saveAndClose.bind(this))
-            .setNoCallback(this.close.bind(this))
+            .setQuestion(question)
+            .setYesCallback(yesCallback)
+            .setNoCallback(noCallback)
             .open();
     }
 
@@ -136,7 +141,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         this.saveChanges().then(() => {
             this.close();
         }).catch((reason: any) => {
-            this.wizardActions.getSaveAction().setEnabled(true);
+            if (this.isValid()) {
+                this.wizardActions.getSaveAction().setEnabled(true);
+            }
             DefaultErrorHandler.handle(reason);
         });
     }
