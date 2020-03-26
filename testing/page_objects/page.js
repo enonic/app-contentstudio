@@ -75,7 +75,6 @@ class Page {
 
     async typeTextInInput(selector, text) {
         let inputElement = await this.findElement(selector);
-
         await inputElement.setValue(text);
         let value = await inputElement.getValue();
         //workaround for issue in WebdriverIO

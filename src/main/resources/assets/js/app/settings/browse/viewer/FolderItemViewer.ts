@@ -12,8 +12,8 @@ export class FolderItemViewer
         return super.resolveUnnamedDisplayName(item);
     }
 
-    resolveSubName(item: FolderViewItem, relativePath: boolean = false): string {
-        return super.resolveSubName(item, relativePath);
+    resolveSubName(item: FolderViewItem): string {
+        return super.resolveSubName(item);
     }
 
     resolveIconClass(item: FolderViewItem): string {

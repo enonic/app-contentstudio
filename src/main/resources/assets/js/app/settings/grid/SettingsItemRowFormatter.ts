@@ -14,7 +14,7 @@ export class SettingsItemRowFormatter {
 
         if (!viewer) {
             viewer = SettingsItemRowFormatter.getViewerForSettingsItem(dataContext.getData());
-            viewer.setObject(dataContext.getData(), dataContext.calcLevel() > 1);
+            viewer.setObject(dataContext.getData());
             dataContext.setViewer('displayName', viewer);
         }
         return viewer.toString();

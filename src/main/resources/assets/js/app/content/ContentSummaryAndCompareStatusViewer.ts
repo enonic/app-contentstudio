@@ -37,9 +37,9 @@ export class ContentSummaryAndCompareStatusViewer
         return (contentSummary && contentSummary.getType()) ? contentSummary.getType().getLocalName() : '';
     }
 
-    resolveSubName(object: ContentSummaryAndCompareStatus, relativePath: boolean = false): string {
+    resolveSubName(object: ContentSummaryAndCompareStatus): string {
         if (object.hasContentSummary()) {
-            return this.resolveSubNameForContentSummary(object, relativePath);
+            return this.resolveSubNameForContentSummary(object);
         }
 
         if (object.hasUploadItem()) {
@@ -49,18 +49,18 @@ export class ContentSummaryAndCompareStatusViewer
         return '';
     }
 
-    private resolveSubNameForContentSummary(object: ContentSummaryAndCompareStatus, relativePath: boolean): string {
+    private resolveSubNameForContentSummary(object: ContentSummaryAndCompareStatus): string {
         const contentSummary: ContentSummary = object.getContentSummary();
         const contentName: ContentName = contentSummary.getName();
 
-        if (relativePath) {
+        if (this.isRelativePath) {
             return !contentName.isUnnamed() ? contentName.toString() :
                    ContentUnnamed.prettifyUnnamed();
-        } else {
-            return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-                   ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                       ContentUnnamed.prettifyUnnamed()).toString();
         }
+
+        return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
+               ContentPath.fromParent(contentSummary.getPath().getParentPath(),
+                   ContentUnnamed.prettifyUnnamed()).toString();
     }
 
     private toggleState(object: ContentSummaryAndCompareStatus) {

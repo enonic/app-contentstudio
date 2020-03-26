@@ -10,7 +10,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('project.save.delete.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
+describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -30,7 +30,6 @@ describe('project.save.delete.wizard.panel.spec - ui-tests for saving/deleting a
             studioUtils.saveScreenshot("project_saved_1");
             assert.equal(actualMessage, appConstant.projectCreatedMessage(PROJECT_DISPLAY_NAME))
         });
-
 
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,
         async () => {
@@ -63,7 +62,6 @@ describe('project.save.delete.wizard.panel.spec - ui-tests for saving/deleting a
             await projectWizard.waitForSaveButtonDisabled();
             await projectWizard.waitForDeleteButtonDisabled();
         });
-
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();
