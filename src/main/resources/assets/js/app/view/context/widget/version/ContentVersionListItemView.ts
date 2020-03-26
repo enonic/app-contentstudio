@@ -96,7 +96,9 @@ export class ContentVersionListItemView
             statusPostfix += ` ${CompareStatusFormatter.formatStatusClass(CompareStatus.PENDING_DELETE)}`;
         }
 
-        return this.version.isActive() ? `${CompareStatusFormatter.formatStatusClassFromContent(this.content)}${statusPostfix}` : `${PublishStatus.ONLINE}${statusPostfix}`;
+        return this.version.isActive() ?
+            `${CompareStatusFormatter.formatStatusClassFromContent(this.content)}${statusPostfix}` :
+            `${PublishStatus.ONLINE}${statusPostfix}`;
     }
 
     private getStatusText(): string {
@@ -106,7 +108,9 @@ export class ContentVersionListItemView
 
         const statusPostfix: string = this.isPublishPending() ? ` (${PublishStatusFormatter.formatStatus(PublishStatus.PENDING)})` : '';
 
-        return this.version.isActive() ? this.content.getStatusText() : `${PublishStatusFormatter.formatStatus(PublishStatus.ONLINE)}${statusPostfix}`;
+        return this.version.isActive() ?
+            this.content.getStatusText() :
+            `${PublishStatusFormatter.formatStatus(PublishStatus.ONLINE)}${statusPostfix}`;
     }
 
     private isPublishPending(): boolean {
