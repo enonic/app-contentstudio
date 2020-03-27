@@ -63,7 +63,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await browseVersionsWidget.clickAndExpandVersion(0);
             //4. Verify 'This version is active' label should be present in the top item:
             let isDisplayed = await browseVersionsWidget.isActiveLabelDisplayed(0);
-            assert.isTrue(isDisplayed, "'This version is active' button should be present in the latest version");
+                assert.isTrue(isDisplayed, "'This version is current' button should be present in the latest version");
             await browseVersionsWidget.clickAndExpandVersion(1);
             studioUtils.saveScreenshot("verify_active_button_in_versions");
             //5. Verify 'This version is active' label should not be present in previous versions:
