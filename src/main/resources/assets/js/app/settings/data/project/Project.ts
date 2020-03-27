@@ -21,6 +21,8 @@ export class Project
 
     private readAccess: ProjectReadAccess;
 
+    private language: string;
+
     constructor(builder: ProjectBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -28,6 +30,7 @@ export class Project
         this.icon = builder.icon;
         this.permissions = builder.permissions;
         this.readAccess = builder.readAccess;
+        this.language = builder.language;
     }
 
     static fromJson(json: ProjectJson): Project {
@@ -62,6 +65,10 @@ export class Project
         return this.readAccess;
     }
 
+    getLanguage(): string {
+        return this.language;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;
@@ -70,11 +77,12 @@ export class Project
         const other: Project = <Project>o;
 
         return ObjectHelper.objectEquals(this.name, other.name) &&
-               ObjectHelper.objectEquals(this.displayName, other.displayName) &&
-               ObjectHelper.objectEquals(this.description, other.description) &&
-               ObjectHelper.objectEquals(this.icon, other.icon) &&
-               ObjectHelper.equals(this.permissions, other.permissions) &&
-               ObjectHelper.equals(this.readAccess, other.readAccess);
+            ObjectHelper.objectEquals(this.displayName, other.displayName) &&
+            ObjectHelper.objectEquals(this.description, other.description) &&
+            ObjectHelper.objectEquals(this.icon, other.icon) &&
+            ObjectHelper.objectEquals(this.language, other.language) &&
+            ObjectHelper.equals(this.permissions, other.permissions) &&
+            ObjectHelper.equals(this.readAccess, other.readAccess);
     }
 
 }
@@ -92,6 +100,8 @@ export class ProjectBuilder {
     permissions: ProjectPermissions;
 
     readAccess: ProjectReadAccess;
+
+    language: string;
 
     setName(value: string): ProjectBuilder {
         this.name = value;
@@ -123,6 +133,11 @@ export class ProjectBuilder {
         return this;
     }
 
+    setLanguage(value: string): ProjectBuilder {
+        this.language = value;
+        return this;
+    }
+
     fromJson(json: ProjectJson): ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
@@ -130,6 +145,7 @@ export class ProjectBuilder {
         this.icon = json.icon;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
         this.readAccess = ProjectReadAccess.fromJson(json.readAccess);
+        this.language = json.language;
 
         return this;
     }

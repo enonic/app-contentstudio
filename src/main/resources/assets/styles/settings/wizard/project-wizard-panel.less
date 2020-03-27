@@ -9,6 +9,14 @@
           }
         }
       }
+
+      .project-access-control-form-item {
+        align-items: flex-start;
+
+        label {
+          margin-top: 10px;
+        }
+      }
     }
 
     &.project-read-access-wizard-step-form {
@@ -31,13 +39,27 @@
         }
       }
 
-      .input-view:first-of-type {
+      .input-view.read-access {
         align-items: flex-start;
         margin-bottom: 0px;
       }
 
       .principal-combobox {
         margin-left: 133px;
+      }
+
+      .locale-selected-option-view {
+        display: flex;
+        align-items: center;
+        padding-top: 0px;
+
+        .@{_COMMON_PREFIX}names-view {
+          flex-grow: 1;
+        }
+
+        .remove {
+          position: static;
+        }
       }
     }
   }

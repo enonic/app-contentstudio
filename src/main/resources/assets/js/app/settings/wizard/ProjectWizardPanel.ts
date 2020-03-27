@@ -14,7 +14,6 @@ import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
-import {ProjectHelper} from '../data/project/ProjectHelper';
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
 
@@ -23,7 +22,7 @@ export class ProjectWizardPanel
 
     private projectWizardStepForm: ProjectItemNameWizardStepForm;
 
-    private readAccessWizardStepForm?: ProjectReadAccessWizardStepForm;
+    private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
 
     protected getIconClass(): string {
         return 'icon-tree-2';
@@ -52,11 +51,6 @@ export class ProjectWizardPanel
 
     protected createStepsForms(): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
-
-        if (this.isItemPersisted() && ProjectHelper.isDefault(this.getPersistedItem().getData())) {
-            return [this.projectWizardStepForm];
-        }
-
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
         return [this.projectWizardStepForm, this.readAccessWizardStepForm];
@@ -64,7 +58,7 @@ export class ProjectWizardPanel
 
     doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
         return super.doLayout(persistedItem).then(() => {
-            if (!this.readAccessWizardStepForm) {
+            if (persistedItem.isDefaultProject()) {
                 return;
             }
 
@@ -92,7 +86,11 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const isDefaultProject: boolean = ProjectHelper.isDefault(item.getData());
+        if (!ObjectHelper.stringEquals(item.getLanguage(), this.readAccessWizardStepForm.getLanguage())) {
+            return true;
+        }
+
+        const isDefaultProject: boolean = item.isDefaultProject();
 
         if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.projectWizardStepForm.getPermissions())) {
             return true;
@@ -162,6 +160,7 @@ export class ProjectWizardPanel
             .setDisplayName(displayName)
             .setPermissions(this.projectWizardStepForm.getPermissions())
             .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
+            .setLanguage(this.readAccessWizardStepForm.getLanguage())
             .setThumbnail(thumbnail);
     }
 
@@ -174,7 +173,8 @@ export class ProjectWizardPanel
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName)
             .setPermissions(this.projectWizardStepForm.getPermissions())
-            .setReadAccess(!!this.readAccessWizardStepForm ? this.readAccessWizardStepForm.getReadAccess() : null)
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
+            .setLanguage(this.readAccessWizardStepForm.getLanguage())
             .setThumbnail(thumbnail);
     }
 

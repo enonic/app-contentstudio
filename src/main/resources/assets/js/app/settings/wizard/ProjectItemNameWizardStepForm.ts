@@ -14,7 +14,6 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
-import {ProjectHelper} from '../data/project/ProjectHelper';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
@@ -89,7 +88,7 @@ export class ProjectItemNameWizardStepForm
         this.disableHelpText();
         this.disableProjectNameInput();
 
-        if (ProjectHelper.isDefault(item.getData())) {
+        if (item.isDefaultProject()) {
             return;
         }
 
@@ -212,7 +211,7 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        if (!!item && ProjectHelper.isDefault(item.getData())) {
+        if (!!item && item.isDefaultProject()) {
             return [this.projectNameFormItem, descriptionFormItem];
         }
 
