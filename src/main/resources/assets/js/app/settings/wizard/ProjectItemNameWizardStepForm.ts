@@ -14,6 +14,7 @@ import * as Q from 'q';
 import {ProjectAccess} from '../access/ProjectAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -61,6 +62,12 @@ export class ProjectItemNameWizardStepForm
 
             return rendered;
         });
+    }
+
+    public validate(): ValidationRecording {
+        this.projectNameFormItem.validate(new ValidationResult(), true);
+
+        return new ValidationRecording();
     }
 
     public isValid(): boolean {
