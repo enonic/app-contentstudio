@@ -109,6 +109,12 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
     }
 
+    public validate(_silent?: boolean) {
+        this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
+            stepForm.validate();
+        });
+    }
+
     close(checkCanClose: boolean = false) {
         if (!checkCanClose || this.canClose()) {
             super.close(checkCanClose);
@@ -126,9 +132,11 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     private openSaveBeforeCloseDialog() {
         const isValid: boolean = this.isValid();
-        const question: string = isValid ? i18n('dialog.saveBeforeClose.msg') : i18n('dialog.confirmClose.invalidData');
-        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : this.close.bind(this);
-        const noCallback: () => void = isValid ? this.close.bind(this) : null;
+        const question: string = i18n('dialog.confirm.unsavedChanges');
+        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : () => {
+            this.validate();
+        };
+        const noCallback: () => void = this.close.bind(this);
 
         new ConfirmationDialog()
             .setQuestion(question)
