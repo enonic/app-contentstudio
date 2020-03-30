@@ -52,6 +52,13 @@ export class ProjectReadAccessWizardStepForm
         }
     }
 
+    setup(item?: ProjectViewItem) {
+        super.setup(item);
+
+        this.filterPrincipals(this.getDefaultFilteredPrincipals());
+        this.disablePrincipalCombobox();
+    }
+
     public getName(): string {
         return i18n('settings.items.wizard.step.readaccess');
     }
@@ -129,10 +136,7 @@ export class ProjectReadAccessWizardStepForm
 
     private createPrincipalsCombobox(): PrincipalComboBox {
         const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
-
         const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
-        this.filterPrincipals(this.getDefaultFilteredPrincipals());
-        this.disablePrincipalCombobox();
 
         return principalsCombobox;
     }
