@@ -64,7 +64,7 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
-    public validate(_silent?: boolean): ValidationRecording {
+    public validate(): ValidationRecording {
         this.projectNameFormItem.validate(new ValidationResult(), true);
 
         return new ValidationRecording();
