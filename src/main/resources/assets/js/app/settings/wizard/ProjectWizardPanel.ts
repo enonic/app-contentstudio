@@ -58,7 +58,7 @@ export class ProjectWizardPanel
 
     doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
         return super.doLayout(persistedItem).then(() => {
-            if (persistedItem.isDefaultProject()) {
+            if (!!persistedItem && persistedItem.isDefaultProject()) {
                 return;
             }
 
