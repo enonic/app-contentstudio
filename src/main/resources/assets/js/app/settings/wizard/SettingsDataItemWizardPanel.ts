@@ -126,14 +126,13 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     private openSaveBeforeCloseDialog() {
         const isValid: boolean = this.isValid();
-        const question: string = isValid ? i18n('dialog.saveBeforeClose.msg') : i18n('dialog.confirmClose.invalidData');
-        const yesCallback: () => void = isValid ? this.saveAndClose.bind(this) : this.close.bind(this);
-        const noCallback: () => void = isValid ? this.close.bind(this) : null;
 
         new ConfirmationDialog()
-            .setQuestion(question)
-            .setYesCallback(yesCallback)
-            .setNoCallback(noCallback)
+            .setQuestion(i18n('dialog.confirm.unsavedChanges'))
+            .setYesCallback(isValid ? this.saveAndClose.bind(this) : () => {
+                this.wizardStepForm.validate();
+            })
+            .setNoCallback(this.close.bind(this))
             .open();
     }
 

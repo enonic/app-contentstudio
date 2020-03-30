@@ -55,6 +55,7 @@ module.exports = Object.freeze({
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
+    PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,

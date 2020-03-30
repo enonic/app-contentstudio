@@ -4,7 +4,7 @@ const plugins = Object.assign(
     {
         'postcss-normalize': {},
         autoprefixer: {},
-        'css-mqpacker': {}
+        'postcss-sort-media-queries': {sort: 'desktop-first'}
     },
     isProd ? {cssnano: {}} : {}
 );
