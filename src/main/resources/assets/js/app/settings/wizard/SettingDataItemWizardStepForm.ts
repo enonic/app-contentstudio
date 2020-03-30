@@ -36,7 +36,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    validate(_silent?: boolean): ValidationRecording {
+    validate(): ValidationRecording {
         this.form.validate(true);
 
         return new ValidationRecording();
