@@ -74,7 +74,7 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.versionItems, 2000);
             let elements = await this.findElements(this.versionItems);
-            let result = await elements[index].$$(".//button/span[text()='This version is active']");
+            let result = await elements[index].$$(".//button/span[text()='This version is current']");
             return result.length > 0;
         } catch (err) {
             this.saveScreenshot("err_versions_widget_active_version");
