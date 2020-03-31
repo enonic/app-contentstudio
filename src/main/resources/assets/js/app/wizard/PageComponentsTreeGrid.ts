@@ -28,6 +28,8 @@ import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
+import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemView> {
@@ -88,6 +90,31 @@ export class PageComponentsTreeGrid
 
         // tslint:disable-next-line:no-unused-expression
         (new PageComponentsGridDragHandler(this));
+    }
+
+    dataToTreeNode(data: ItemView, parent: TreeNode<ItemView>, expandAllowed?: boolean): TreeNode<ItemView> {
+        const node: TreeNode<ItemView> = super.dataToTreeNode(data, parent, expandAllowed);
+
+        if (ObjectHelper.iFrameSafeInstanceOf(data.getType(), FragmentItemType)) {
+            this.updateTreeNodeWithFragmentsOnLoad(node);
+        }
+
+        return node;
+    }
+
+    private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemView>) {
+        const fragmentView: FragmentComponentView = <FragmentComponentView>node.getData();
+
+        if (fragmentView.isLoaded()) {
+            return;
+        }
+
+        const loadedListener = () => {
+            this.invalidateNodes([node]);
+            fragmentView.unFragmentContentLoaded(loadedListener);
+        };
+
+        fragmentView.onFragmentContentLoaded(loadedListener);
     }
 
     toggleCompact(flag: boolean) {
