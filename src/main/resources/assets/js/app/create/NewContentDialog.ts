@@ -36,6 +36,7 @@ import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {PEl} from 'lib-admin-ui/dom/PEl';
+import {ProjectHelper} from "../settings/data/project/ProjectHelper";
 
 export class NewContentDialog
     extends ModalDialog {
@@ -318,10 +319,25 @@ export class NewContentDialog
         return requests;
     }
 
-    private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): ContentTypeSummaries {
+    private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): Q.Promise<ContentTypeSummaries> {
         const isContentAdmin: boolean = loginResult.isContentAdmin();
-        return contentTypes.filter(contentType => !contentType.isUnstructured() && (isContentAdmin || !contentType.isSite()));
+
+        if (isContentAdmin) {
+            const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured());
+            return Q(result);
+        }
+
+        return ProjectHelper.isUserProjectOwnerOrEditor(loginResult).then((isOwnerOrEditor: boolean) => {
+            if (isOwnerOrEditor) {
+                const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured());
+                return Q(result);
+            }
+
+            const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured() && !contentType.isSite());
+            return Q(result);
+        });
     }
+
 
     private updateDialogTitlePath() {
         if (this.parentContent) {
