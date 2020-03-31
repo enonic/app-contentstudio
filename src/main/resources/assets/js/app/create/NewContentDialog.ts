@@ -36,7 +36,7 @@ import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ProjectHelper} from "../settings/data/project/ProjectHelper";
+import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 
 export class NewContentDialog
     extends ModalDialog {
@@ -323,19 +323,28 @@ export class NewContentDialog
         const isContentAdmin: boolean = loginResult.isContentAdmin();
 
         if (isContentAdmin) {
-            const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured());
-            return Q(result);
+            return Q(this.doFilterContentTypes(contentTypes));
         }
 
         return ProjectHelper.isUserProjectOwnerOrEditor(loginResult).then((isOwnerOrEditor: boolean) => {
             if (isOwnerOrEditor) {
-                const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured());
-                return Q(result);
+                return Q(this.doFilterContentTypes(contentTypes));
             }
 
-            const result: ContentTypeSummaries = contentTypes.filter(contentType => !contentType.isUnstructured() && !contentType.isSite());
-            return Q(result);
+            return Q(this.doFilterContentTypes(contentTypes, false));
         });
+    }
+
+    private doFilterContentTypes(contentTypes: ContentTypeSummaries, isSiteAllowed: boolean = true): ContentTypeSummaries {
+        return contentTypes.filter((contentType: ContentTypeSummary) => this.isContentTypeAllowed(contentType, isSiteAllowed));
+    }
+
+    private isContentTypeAllowed(contentType: ContentTypeSummary, isSiteAllowed: boolean = true): boolean {
+        if (contentType.isUnstructured()) {
+            return false;
+        }
+
+        return isSiteAllowed || !contentType.isSite();
     }
 
 
