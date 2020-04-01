@@ -213,11 +213,11 @@ export class ProjectSelector
 
     private showProjectsList() {
         this.addClass('open');
-        KeyBindings.get().shelveBindings();
         Body.get().onMouseDown(this.clickOutsideListener);
         this.isProjectsListShown = true;
         this.dropdownHandle.down();
         this.projectList.show();
+        KeyBindings.get().shelveBindings();
         this.bindKeys();
     }
 
@@ -227,12 +227,12 @@ export class ProjectSelector
 
     private hideProjectsList() {
         this.removeClass('open');
-        KeyBindings.get().unshelveBindings();
         Body.get().unMouseDown(this.clickOutsideListener);
         this.isProjectsListShown = false;
         this.dropdownHandle.up();
         this.projectList.hide();
         this.unBindKeys();
+        KeyBindings.get().unshelveBindings();
     }
 
     private unBindKeys() {

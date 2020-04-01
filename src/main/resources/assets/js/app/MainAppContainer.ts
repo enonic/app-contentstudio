@@ -54,7 +54,11 @@ export abstract class MainAppContainer
 
     show() {
         super.show();
-        this.appPanel.handleBrowse();
+
+        if (!this.appPanel.getPanelShown()) {
+            this.appPanel.handleBrowse();
+        }
+
         this.appPanel.bindKeys();
     }
 
