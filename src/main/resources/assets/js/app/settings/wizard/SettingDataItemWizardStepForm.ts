@@ -1,7 +1,5 @@
 import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
@@ -11,8 +9,6 @@ import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
 
-    private descriptionInput: TextInput;
-
     private form: Form;
 
     private dataChangedListeners: { (): void }[] = [];
@@ -20,20 +16,15 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
     constructor() {
         super();
 
-        this.descriptionInput = new TextInput();
         this.form = new Form(FormView.VALIDATION_CLASS);
+    }
 
-        this.addFormItems();
+    setup(item?: ITEM) {
+        this.addFormItems(item);
         this.initListeners();
     }
 
-    getDescription(): string {
-        return this.descriptionInput.getValue();
-    }
-
-    layout(item: ITEM) {
-        this.descriptionInput.setValue(item.getDescription());
-    }
+    abstract layout(item: ITEM);
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
@@ -54,15 +45,11 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    protected getFormItems(): FormItem[] {
-        return [this.createDescriptionFormItem()];
-    }
+    public abstract getName(): string;
 
-    protected initListeners() {
-        this.descriptionInput.onValueChanged(() => {
-            this.notifyDataChanged();
-        });
-    }
+    protected abstract getFormItems(item?: ITEM): FormItem[];
+
+    protected abstract initListeners();
 
     protected notifyDataChanged() {
         this.dataChangedListeners.forEach((listener: () => void) => {
@@ -70,17 +57,14 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    private addFormItems() {
+    private addFormItems(item?: ITEM) {
         const fieldSet: Fieldset = new Fieldset();
 
-        this.getFormItems().forEach((formItem: FormItem) => {
+        this.getFormItems(item).forEach((formItem: FormItem) => {
             fieldSet.add(formItem);
         });
 
         this.form.add(fieldSet);
     }
 
-    private createDescriptionFormItem(): FormItem {
-        return new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
-    }
 }

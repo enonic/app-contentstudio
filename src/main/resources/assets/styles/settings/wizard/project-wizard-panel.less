@@ -1,0 +1,58 @@
+.project-wizard-panel {
+
+  .wizard-step-form {
+    &.project-item-wizard-step-form {
+      .input-view {
+        .form-input {
+          &:disabled {
+            border: none;
+          }
+        }
+      }
+    }
+
+    &.project-read-access-wizard-step-form {
+      .radio-group {
+        .radio-button {
+          margin-bottom: 15px;
+        }
+      }
+
+      .principal-combobox {
+
+        padding-left: @form-label-width - 10px;
+
+        &.disabled {
+          opacity: 0.5;
+
+          .remove {
+            display: none;
+          }
+        }
+      }
+
+      .input-view:first-of-type {
+        align-items: flex-start;
+        margin-bottom: 0px;
+      }
+
+      .principal-combobox {
+        margin-left: 133px;
+      }
+    }
+  }
+
+
+  ._0-240 &,
+  ._240-360 &,
+  ._360-540 &,
+  ._540-720 & {
+
+    .wizard-step-form.project-read-access-wizard-step-form {
+
+      .principal-combobox {
+        padding-left: 0;
+      }
+    }
+  }
+}

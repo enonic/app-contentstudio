@@ -2,7 +2,9 @@ export interface ProjectPermissionsJson {
 
     contributor: string[];
 
-    expert: string[];
+    author: string[];
+
+    editor: string[];
 
     owner: string[];
 }

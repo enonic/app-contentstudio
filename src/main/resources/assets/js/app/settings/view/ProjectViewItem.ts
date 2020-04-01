@@ -4,6 +4,8 @@ import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
+import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
@@ -42,6 +44,10 @@ export class ProjectViewItem
         return this.data.getPermissions();
     }
 
+    getReadAccess(): ProjectReadAccess {
+        return this.data.getReadAccess();
+    }
+
     getData(): Project {
         return this.data;
     }
@@ -59,7 +65,7 @@ export class ProjectViewItem
     }
 
     isDeleteAllowed(loginResult: LoginResult): boolean {
-        return loginResult.isContentAdmin() && Project.DEFAULT_PROJECT_NAME !== this.getName();
+        return loginResult.isContentAdmin() && !ProjectHelper.isDefault(this.getData());
     }
 
     equals(o: Equitable): boolean {

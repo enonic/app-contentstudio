@@ -13,15 +13,17 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {Project} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
+import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
+import {ProjectHelper} from '../data/project/ProjectHelper';
+import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
+import {ProjectPermissions} from '../data/project/ProjectPermissions';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
 
-    protected wizardStepForm: ProjectItemNameWizardStepForm;
+    private projectWizardStepForm: ProjectItemNameWizardStepForm;
 
-    protected createWizardStepForm(): ProjectItemNameWizardStepForm {
-        return new ProjectItemNameWizardStepForm();
-    }
+    private readAccessWizardStepForm?: ProjectReadAccessWizardStepForm;
 
     protected getIconClass(): string {
         return 'icon-tree-2';
@@ -34,7 +36,7 @@ export class ProjectWizardPanel
                 return;
             }
 
-            this.wizardStepForm.setProjectName(header.getDisplayName()
+            this.projectWizardStepForm.setProjectName(header.getDisplayName()
                 .trim()
                 .replace(/\s+/g, '-')
                 .toLowerCase()
@@ -48,19 +50,55 @@ export class ProjectWizardPanel
         return new ProjectWizardActions(this);
     }
 
+    protected createStepsForms(): SettingDataItemWizardStepForm<ProjectViewItem>[] {
+        this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
+
+        if (this.isItemPersisted() && ProjectHelper.isDefault(this.getPersistedItem().getData())) {
+            return [this.projectWizardStepForm];
+        }
+
+        this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
+
+        return [this.projectWizardStepForm, this.readAccessWizardStepForm];
+    }
+
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            if (!this.readAccessWizardStepForm) {
+                return;
+            }
+
+            this.projectWizardStepForm.onAccessComboboxValueChanged((permissions: ProjectPermissions) => {
+                this.readAccessWizardStepForm.updateFilteredPrincipalsByPermissions(permissions);
+            });
+        });
+    }
+
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.wizardStepForm.getProjectName()) || !this.wizardStepForm.getPermissions().isEmpty()
-               || super.isNewItemChanged();
+        return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
+            !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
+            !this.projectWizardStepForm.getPermissions().isEmpty() ||
+               super.isNewItemChanged();
     }
 
     protected isPersistedItemChanged(): boolean {
         const item: ProjectViewItem = this.getPersistedItem();
 
-        if (!ObjectHelper.stringEquals(item.getName(), this.wizardStepForm.getProjectName())) {
+        if (!ObjectHelper.stringEquals(item.getName(), this.projectWizardStepForm.getProjectName())) {
             return true;
         }
 
-        if (!item.getPermissions().equals(this.wizardStepForm.getPermissions())) {
+        if (!ObjectHelper.stringEquals(item.getDescription(), this.projectWizardStepForm.getDescription())) {
+            return true;
+        }
+
+        const isDefaultProject: boolean = ProjectHelper.isDefault(item.getData());
+
+        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.projectWizardStepForm.getPermissions())) {
+            return true;
+        }
+
+        if (!isDefaultProject && !ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess())) {
             return true;
         }
 
@@ -69,8 +107,8 @@ export class ProjectWizardPanel
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
         return super.postPersistNewItem(item).then(() => {
-            this.wizardStepForm.disableProjectNameInput();
-            this.wizardStepForm.disableHelpText();
+            this.projectWizardStepForm.disableProjectNameInput();
+            this.projectWizardStepForm.disableHelpText();
 
             return Q(item);
         });
@@ -119,10 +157,11 @@ export class ProjectWizardPanel
         const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectCreateRequest()
-            .setDescription(this.wizardStepForm.getDescription())
-            .setName(this.wizardStepForm.getProjectName())
+            .setDescription(this.projectWizardStepForm.getDescription())
+            .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName)
-            .setPermissions(this.wizardStepForm.getPermissions())
+            .setPermissions(this.projectWizardStepForm.getPermissions())
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setThumbnail(thumbnail);
     }
 
@@ -131,10 +170,19 @@ export class ProjectWizardPanel
         const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectUpdateRequest()
-            .setDescription(this.wizardStepForm.getDescription())
-            .setName(this.wizardStepForm.getProjectName())
+            .setDescription(this.projectWizardStepForm.getDescription())
+            .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName)
-            .setPermissions(this.wizardStepForm.getPermissions())
+            .setPermissions(this.projectWizardStepForm.getPermissions())
+            .setReadAccess(!!this.readAccessWizardStepForm ? this.readAccessWizardStepForm.getReadAccess() : null)
             .setThumbnail(thumbnail);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('project-wizard-panel');
+
+            return rendered;
+        });
     }
 }
