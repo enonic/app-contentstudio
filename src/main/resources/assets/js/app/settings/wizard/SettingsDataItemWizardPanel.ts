@@ -109,7 +109,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
     }
 
-    public validate(_silent?: boolean) {
+    public validate() {
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
             stepForm.validate();
         });

@@ -12,6 +12,11 @@
 
   .wizard-step-form {
     .form-view {
+
+      &.display-validation-errors .input-view.invalid .form-input:not(.option-filter-input) {
+        background-color: @input-light-red;
+      }
+
       .help-text {
         position: relative;
         bottom: 14px;

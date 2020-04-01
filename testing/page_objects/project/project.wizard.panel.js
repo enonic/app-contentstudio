@@ -56,8 +56,8 @@ class ProjectWizardPanel extends Page {
         });
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    waitForWizardClosed() {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_5);
     }
 
     getTabTitle() {

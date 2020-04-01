@@ -5,8 +5,8 @@ const Page = require('./page');
 const appConst = require('../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'ConfirmationDialog')]`,
-    yesButton: `//button[contains(@id,'DialogButton') and child::span[text()='Yes']]`,
-    noButton: `//div[@class='dialog-buttons']//button/span[text()='No']`
+    yesButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='Y'] and child::span[text()='es']]`,
+    noButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='N'] and child::span[text()='o']]`,
 };
 
 class ConfirmationDialog extends Page {
