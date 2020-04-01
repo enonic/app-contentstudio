@@ -16,6 +16,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 
 export class ProjectReadAccessWizardStepForm
@@ -60,6 +61,13 @@ export class ProjectReadAccessWizardStepForm
                 });
             }).catch(DefaultErrorHandler.handle);
         }
+    }
+
+    setup(item?: ProjectViewItem) {
+        super.setup(item);
+
+        this.filterPrincipals(this.getDefaultFilteredPrincipals());
+        this.disablePrincipalCombobox();
     }
 
     public getName(): string {
@@ -117,12 +125,14 @@ export class ProjectReadAccessWizardStepForm
         ]);
     }
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
-        if (!!item && item.isDefaultProject()) {
-            return [this.createLanguageFormItem()];
-        }
+    public validate(): ValidationRecording {
+        this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
 
-        return [this.createReadAccessRadioGroupFormItem(), this.createPrincipalFormItem(), this.createLanguageFormItem()];
+        return new ValidationRecording();
+    }
+
+    protected getFormItems(): FormItem[] {
+        return [this.createReadAccessRadioGroupFormItem(), this.createLanguageFormItem()];
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
@@ -139,17 +149,17 @@ export class ProjectReadAccessWizardStepForm
 
         this.readAccessRadioGroupFormItem.addClass('read-access');
 
+        this.principalsCombobox = this.createPrincipalsCombobox();
+        this.readAccessRadioGroupFormItem.appendChild(this.principalsCombobox);
+
         return this.readAccessRadioGroupFormItem;
     }
 
-    private createPrincipalFormItem(): FormItem {
+    private createPrincipalsCombobox(): PrincipalComboBox {
         const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
 
-        this.principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
-        this.filterPrincipals(this.getDefaultFilteredPrincipals());
-        this.disablePrincipalCombobox();
-
-        return new FormItemBuilder(this.principalsCombobox).build();
+        return principalsCombobox;
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {

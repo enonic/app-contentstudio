@@ -5,6 +5,7 @@ import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import * as Q from 'q';
 import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
+import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
@@ -33,6 +34,12 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
             return rendered;
         });
+    }
+
+    validate(): ValidationRecording {
+        this.form.validate(true);
+
+        return new ValidationRecording();
     }
 
     onDataChanged(listener: () => void) {
