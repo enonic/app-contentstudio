@@ -17,15 +17,18 @@ import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByK
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
+import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
 
-    private readAccessRadioGroup: RadioGroup;
+    private readAccessRadioGroup?: RadioGroup;
 
-    private readAccessRadioGroupFormItem: FormItem;
+    private readAccessRadioGroupFormItem?: FormItem;
 
-    private principalsCombobox: PrincipalComboBox;
+    private principalsCombobox?: PrincipalComboBox;
+
+    private localeCombobox: LocaleComboBox;
 
     constructor() {
         super();
@@ -33,6 +36,14 @@ export class ProjectReadAccessWizardStepForm
 
     layout(item: ProjectViewItem) {
         if (!item) {
+            return;
+        }
+
+        if (item.getLanguage()) {
+            this.localeCombobox.setValue(item.getLanguage());
+        }
+
+        if (item.isDefaultProject()) {
             return;
         }
 
@@ -55,6 +66,10 @@ export class ProjectReadAccessWizardStepForm
     setup(item?: ProjectViewItem) {
         super.setup(item);
 
+        if (!this.principalsCombobox) {
+            return;
+        }
+
         this.filterPrincipals(this.getDefaultFilteredPrincipals());
         this.disablePrincipalCombobox();
     }
@@ -72,10 +87,18 @@ export class ProjectReadAccessWizardStepForm
     }
 
     isValid(): boolean {
-        return !!this.readAccessRadioGroup.getValue();
+        if (this.readAccessRadioGroup) {
+            return !!this.readAccessRadioGroup.getValue();
+        }
+
+        return true;
     }
 
     getReadAccess(): ProjectReadAccess {
+        if (!this.readAccessRadioGroup) {
+            return null;
+        }
+
         const readAccessString: string = this.readAccessRadioGroup.getValue();
 
         if (readAccessString === ProjectReadAccessType.PUBLIC) {
@@ -112,8 +135,12 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(): FormItem[] {
-        return [this.createReadAccessRadioGroupFormItem()];
+    protected getFormItems(item?: ProjectViewItem): FormItem[] {
+        if (!!item && item.isDefaultProject()) {
+            return [this.createLanguageFormItem()];
+        }
+
+        return [this.createLanguageFormItem(), this.createReadAccessRadioGroupFormItem()];
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
@@ -127,6 +154,8 @@ export class ProjectReadAccessWizardStepForm
             .setLabel(i18n('settings.items.wizard.readaccess.label'))
             .setValidator(Validators.required)
             .build();
+
+        this.readAccessRadioGroupFormItem.addClass('read-access');
 
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.readAccessRadioGroupFormItem.appendChild(this.principalsCombobox);
@@ -160,7 +189,27 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox.removeClass('disabled');
     }
 
+    private createLanguageFormItem(): FormItem {
+        this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
+
+        return new FormItemBuilder(this.localeCombobox)
+            .setLabel(i18n('settings.items.wizard.language.label'))
+            .build();
+    }
+
+    getLanguage(): string {
+        return this.localeCombobox.getValue();
+    }
+
     protected initListeners() {
+        this.localeCombobox.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
+
+        if (!this.readAccessRadioGroup) {
+            return;
+        }
+
         this.readAccessRadioGroup.onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
 

@@ -21,6 +21,8 @@ export abstract class ProjectCreateUpdateRequest
 
     protected readAccess: ProjectReadAccess;
 
+    protected language: string;
+
     constructor() {
         super();
         this.setMethod(HttpMethod.POST);
@@ -57,11 +59,17 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
+    setLanguage(value: string): ProjectCreateUpdateRequest {
+        this.language = value;
+        return this;
+    }
+
     getParams(): Object {
         const params: any = {
             name: this.name,
             displayName: this.displayName,
-            description: this.description
+            description: this.description,
+            language: this.language
         };
 
         if (this.permissions) {
