@@ -66,6 +66,10 @@ export class ProjectReadAccessWizardStepForm
     setup(item?: ProjectViewItem) {
         super.setup(item);
 
+        if (!this.principalsCombobox) {
+            return;
+        }
+
         this.filterPrincipals(this.getDefaultFilteredPrincipals());
         this.disablePrincipalCombobox();
     }
@@ -131,8 +135,12 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(): FormItem[] {
-        return [this.createReadAccessRadioGroupFormItem(), this.createLanguageFormItem()];
+    protected getFormItems(item?: ProjectViewItem): FormItem[] {
+        if (!!item && item.isDefaultProject()) {
+            return [this.createLanguageFormItem()];
+        }
+
+        return [this.createLanguageFormItem(), this.createReadAccessRadioGroupFormItem()];
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
