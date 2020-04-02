@@ -52,11 +52,11 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
+            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
             studioUtils.saveScreenshot("project_wizard_3");
             let items = await projectWizard.getSelectedAccessItems();
             assert.equal(items.length, 1, "One access item should be present");
-            assert.equal(items[0], appConstant.systemUsersDisplayName.ANONYMOUS_USER,
+            assert.equal(items[0], appConstant.systemUsersDisplayName.SUPER_USER,
                 "Expected item should be displayed in selected options");
         });
 
@@ -67,9 +67,9 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
+            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
             //3. Remove the item:
-            await projectWizard.removeAccessItem("anonymous");
+            await projectWizard.removeAccessItem("su");
             studioUtils.saveScreenshot("project_wizard_4");
             let items = await projectWizard.getSelectedAccessItems();
             assert.equal(items.length, 0, "no selected options should be in 'project access'");

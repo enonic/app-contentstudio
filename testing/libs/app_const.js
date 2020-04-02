@@ -37,6 +37,7 @@ module.exports = Object.freeze({
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
+    projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
     THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
     REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
