@@ -8,13 +8,24 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('project.wizard.validation.spec - validation specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+
+    it(`GIVEN new project wizard is opened WHEN just a name and display name have been typed THEN 'Save' should be disabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            //1.Open new wizard:
+            await settingsBrowsePanel.openProjectWizard();
+            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            //2. Verify that 'Save' button is disabled(Read access is not selected):
+            await projectWizard.waitForSaveButtonDisabled();
+            studioUtils.saveScreenshot("project_validation_0");
+        });
 
     it(`GIVEN name and 'Read access' are filled WHEN the project name contains a white space THEN 'Save' should be disabled and error message gets visible`,
         async () => {
