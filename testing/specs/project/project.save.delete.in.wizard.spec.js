@@ -22,13 +22,30 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let projectWizard = new ProjectWizard();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a name:
+            //2. Type a name and select the read access:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            //2. Verify that Save button gets enabled, then click on it
+            await projectWizard.selectReadAccess("Private");
+            //3. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_saved_1");
             assert.equal(actualMessage, appConstant.projectCreatedMessage(PROJECT_DISPLAY_NAME))
+        });
+
+    it(`GIVEN new project wizard is opened WHEN try to save an name that is already being used by existing project THEN expected notification should appear`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            //1.'Open new wizard:
+            await settingsBrowsePanel.openProjectWizard();
+            //2. Type a name that is already being used by existing project:
+            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            await projectWizard.selectReadAccess("Private");
+            //3. Verify that `Save` button gets enabled, then click on it
+            await projectWizard.waitAndClickOnSave();
+            let actualMessage = await projectWizard.waitForNotificationMessage();
+            studioUtils.saveScreenshot("project_name_already_used");
+            assert.equal(actualMessage, appConstant.projectNameAlreadyExistsMessage(PROJECT_DISPLAY_NAME))
         });
 
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,
