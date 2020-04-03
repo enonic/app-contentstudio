@@ -326,12 +326,8 @@ export class NewContentDialog
             return Q(this.doFilterContentTypes(contentTypes));
         }
 
-        return ProjectHelper.isUserProjectOwnerOrEditor(loginResult).then((isOwnerOrEditor: boolean) => {
-            if (isOwnerOrEditor) {
-                return Q(this.doFilterContentTypes(contentTypes));
-            }
-
-            return Q(this.doFilterContentTypes(contentTypes, false));
+        return ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
+            return Q(this.doFilterContentTypes(contentTypes, isOwner));
         });
     }
 
