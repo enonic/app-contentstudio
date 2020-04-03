@@ -68,8 +68,7 @@ export abstract class ProjectCreateUpdateRequest
         const params: any = {
             name: this.name,
             displayName: this.displayName,
-            description: this.description,
-            language: this.language
+            description: this.description
         };
 
         if (this.permissions) {
@@ -82,6 +81,10 @@ export abstract class ProjectCreateUpdateRequest
 
         if (this.thumbnail) {
             params.icon = this.thumbnail;
+        }
+
+        if (this.language) {
+            params.language = this.language;
         }
 
         return params;
