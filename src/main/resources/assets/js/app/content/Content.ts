@@ -57,7 +57,11 @@ export class Content
         return this.attachments;
     }
 
-    getExtraData(name: XDataName): ExtraData {
+    getExtraDataByNameString(name: string): ExtraData {
+        return this.extraData.find((item: ExtraData) => item.getName().toString() === name);
+    }
+
+    getExtraDataByName(name: XDataName): ExtraData {
         return this.extraData.filter((item: ExtraData) => item.getName().equals(name))[0];
     }
 
