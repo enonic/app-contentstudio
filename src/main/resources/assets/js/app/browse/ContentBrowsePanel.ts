@@ -50,6 +50,7 @@ import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {SelectionChange} from 'lib-admin-ui/ui/treegrid/SelectionChange';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -215,30 +216,29 @@ export class ContentBrowsePanel
         });
     }
 
-    private updateContextPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
+    private updateContextPanelOnItemChange(itemNode?: TreeNode<ContentSummaryAndCompareStatus>) {
         if (!this.contextSplitPanel.isMobileMode()) {
             // no need to update on selection change in mobile mode as it opens in a separate screen
-            const item: BrowseItem<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedBrowseItem(selection);
-            this.doUpdateContextPanel(item ? item.getModel() : null);
+            const node: TreeNode<ContentSummaryAndCompareStatus> =
+                !!itemNode ? itemNode : this.treeGrid.getFirstSelectedOrHighlightedNode();
+            this.doUpdateContextPanel(!!node ? node.getData() : null);
         }
     }
 
     private subscribeContextPanelsOnEvents() {
-
-        this.getTreeGrid().onSelectionChanged((currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
-                                               fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]) => {
-            this.updateContextPanelOnItemChange(fullSelection);
+        this.getTreeGrid().onSelectionChanged((change: SelectionChange<ContentSummaryAndCompareStatus>) => {
+            const newSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = change.getAdded().length > 0 ? change.getAdded()[0] : null;
+            this.updateContextPanelOnItemChange(change.getAdded()[0]);
         });
 
-        const onHighlightingChanged = AppHelper.debounce(() => {
-            this.updateContextPanelOnItemChange();
+        const onHighlightingChanged = AppHelper.debounce((highlightedNode: TreeNode<ContentSummaryAndCompareStatus>) => {
+            this.updateContextPanelOnItemChange(highlightedNode);
         }, 500);
 
-        this.getTreeGrid().onHighlightingChanged(() => onHighlightingChanged());
+        this.getTreeGrid().onHighlightingChanged((node: TreeNode<ContentSummaryAndCompareStatus>) => onHighlightingChanged(node));
     }
 
     private subscribeMobilePanelOnEvents() {
-
         // selection opens detail panel in mobile mode, so deselect it when returning back to grid
         this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
             if (out) {
@@ -258,19 +258,11 @@ export class ContentBrowsePanel
     // tslint:disable-next-line:max-line-length
     private getFirstSelectedOrHighlightedBrowseItem(fullSelection?: TreeNode<ContentSummaryAndCompareStatus>[]): BrowseItem<ContentSummaryAndCompareStatus> {
         const highlightedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getFirstSelectedOrHighlightedNode();
-        if (!fullSelection && !highlightedNode) {
+        if (!highlightedNode) {
             return null;
         }
 
-        let nodes: TreeNode<ContentSummaryAndCompareStatus>[] = [];
-
-        if (fullSelection && fullSelection.length > 0) {
-            nodes = fullSelection;
-        } else if (highlightedNode) {
-            nodes = [highlightedNode];
-        }
-
-        return this.treeNodeToBrowseItem(nodes[0]);
+        return this.treeNodeToBrowseItem(highlightedNode);
     }
 
     treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
@@ -337,8 +329,7 @@ export class ContentBrowsePanel
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
-                    const fullSelection = this.treeGrid.getRoot().getFullSelection();
-                    this.updateContextPanelOnItemChange(fullSelection);
+                    this.updateContextPanelOnItemChange();
                 });
             }
         });
@@ -659,11 +650,10 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        let previousSelectionSize = this.treeGrid.getRoot().getFullSelection().length;
-        this.treeGrid.onSelectionChanged((
-            currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
-            fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]
-        ) => {
+        let previousSelectionSize: number = this.treeGrid.getRoot().getFullSelection().length;
+
+        this.treeGrid.onSelectionChanged((change: SelectionChange<ContentSummaryAndCompareStatus>) => {
+            const fullSelection: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.getRoot().getFullSelection();
             const isSingleSelected = fullSelection.length === 1;
             const hadMultipleSelection = previousSelectionSize > 1;
 
