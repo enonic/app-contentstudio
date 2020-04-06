@@ -48,6 +48,58 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             assert.equal(result, 0, "There should not be a single item in the Tab");
         });
 
+
+    it(`WHEN two existing projects are checked THEN Edit,New,Delete buttons should be enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Click on both project's checkboxes:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //'New...' button should be enabled :
+            await settingsBrowsePanel.waitForNewButtonEnabled();
+            //'Delete' button should be disabled
+            await settingsBrowsePanel.waitForDeleteButtonEnabled();
+            //'Edit' button should be disabled:
+            await settingsBrowsePanel.waitForDeleteButtonEnabled();
+        });
+
+    it(`GIVEN two existing projects are checked WHEN context menu has been opened THEN Edit,New,Delete items should be enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Click on both just created project's checkboxes:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //2. Open context menu:
+            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
+            await settingsBrowsePanel.waitForContextMenuDisplayed();
+            studioUtils.saveScreenshot("multiselect_context_menu_1");
+            //Verify that New.. item is enabled:
+            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
+            //Verify that Delete menu item is disabled:
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
+        });
+
+    it(`GIVEN Projects is expanded AND Selection Controller checkbox is checked WHEN context menu has been opened THEN New item should be enabled but Delete,Edit items should be disabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Expand Projects folder then click Selection Controller checkbox and select all project:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            await settingsBrowsePanel.clickOnSelectionControllerCheckbox(PROJECT_DISPLAY_NAME_1);
+            //2. Open context menu:
+            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
+            await settingsBrowsePanel.waitForContextMenuDisplayed();
+            studioUtils.saveScreenshot("multiselect_context_menu_2");
+            //Verify that New.. item is enabled:
+            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            //Verify that Edit menu item is disabled:
+            await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
+            //Verify that Delete menu item is disabled:
+            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
+        });
+
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioApp();
         await studioUtils.closeProjectSelectionDialog();
