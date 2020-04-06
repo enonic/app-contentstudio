@@ -36,6 +36,9 @@ module.exports = Object.freeze({
     itemByName: function (name) {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
     },
+    projectByName: (name) => {
+        return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
+    },
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and child::label[contains(.,'${label}')]]`
     },

@@ -618,7 +618,7 @@ module.exports = {
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
-        await projectWizard.pause(1000);
+        await projectWizard.pause(2500);
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
         return await settingsBrowsePanel.pause(500);
