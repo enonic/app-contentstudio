@@ -12,32 +12,29 @@
     }
 
     &.project-read-access-wizard-step-form {
-      .radio-group {
-        .radio-button {
-          margin-bottom: 15px;
-        }
-      }
+      .form-view .input-view {
+        .radio-group {
 
-      .principal-combobox {
+          padding: 15px 0 0 20px;
 
-        padding-left: @form-label-width - 10px;
-
-        &.disabled {
-          opacity: 0.5;
-
-          .remove {
-            display: none;
+          .radio-button {
+            margin-bottom: 15px;
           }
         }
-      }
 
-      .input-view:first-of-type {
-        align-items: flex-start;
-        margin-bottom: 0px;
-      }
+        .principal-combobox {
 
-      .principal-combobox {
-        margin-left: 133px;
+          width: auto;
+          padding-left: 40px;
+
+          &.disabled {
+            opacity: 0.5;
+
+            .remove {
+              display: none;
+            }
+          }
+        }
       }
     }
   }
@@ -51,7 +48,7 @@
     .wizard-step-form.project-read-access-wizard-step-form {
 
       .principal-combobox {
-        padding-left: 0;
+        padding-left: 0 !important;
       }
     }
   }

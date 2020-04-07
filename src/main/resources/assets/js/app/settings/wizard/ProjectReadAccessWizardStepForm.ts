@@ -129,7 +129,7 @@ export class ProjectReadAccessWizardStepForm
             .build();
 
         this.principalsCombobox = this.createPrincipalsCombobox();
-        this.readAccessRadioGroupFormItem.appendChild(this.principalsCombobox);
+        this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
         return this.readAccessRadioGroupFormItem;
     }
