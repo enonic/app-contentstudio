@@ -5,7 +5,7 @@ import {AttachmentJson} from '../attachment/AttachmentJson';
 import {Attachments} from '../attachment/Attachments';
 
 export class GetContentAttachmentsRequest
-    extends ContentResourceRequest<any, any> {
+    extends ContentResourceRequest<any> {
 
     private contentId: ContentId;
 
@@ -21,7 +21,7 @@ export class GetContentAttachmentsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<AttachmentJson[]>): Attachments {
+    protected parseResponse(response: JsonResponse<AttachmentJson[]>): Attachments {
         return response.getResult().length > 0 ? Attachments.create().fromJson(response.getResult()).build() : null;
     }
 

@@ -5,7 +5,7 @@ import {PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
 
 export class GetContentPermissionsByIdRequest
-    extends ContentResourceRequest<PermissionsJson, AccessControlList> {
+    extends ContentResourceRequest<AccessControlList> {
 
     private contentId: ContentId;
 
@@ -21,7 +21,7 @@ export class GetContentPermissionsByIdRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<PermissionsJson>): AccessControlList {
+    protected parseResponse(response: JsonResponse<PermissionsJson>): AccessControlList {
         return AccessControlList.fromJson(response.getResult());
     }
 }

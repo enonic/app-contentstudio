@@ -1,7 +1,7 @@
-import {ResourceRequestAdvanced} from '../wizard/ResourceRequestAdvanced';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-export abstract class PageDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
+export abstract class PageDescriptorResourceRequest<PARSED_TYPE>
+    extends ResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

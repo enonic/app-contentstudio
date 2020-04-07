@@ -17,7 +17,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
-    extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, ContentQueryResult<CONTENT, CONTENT_JSON>> {
+    extends ContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
 
     private contentQuery: ContentQuery;
 
@@ -68,7 +68,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): ContentQueryResult<CONTENT, CONTENT_JSON> {
+    protected parseResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): ContentQueryResult<CONTENT, CONTENT_JSON> {
         let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
         let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;

@@ -2,12 +2,11 @@ import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
-import {PartDescriptorJson} from 'lib-admin-ui/content/page/region/PartDescriptorJson';
 import {GetPartDescriptorsByApplicationRequest} from '../../../../../resource/GetPartDescriptorsByApplicationRequest';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 
 export class GetPartDescriptorByKeyRequest
-    extends ResourceRequest<PartDescriptorJson, PartDescriptor> {
+    extends ResourceRequest<PartDescriptor> {
 
     private key: DescriptorKey;
 

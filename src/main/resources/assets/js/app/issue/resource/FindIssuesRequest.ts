@@ -7,7 +7,7 @@ import {FindIssuesResult} from './FindIssuesResult';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class FindIssuesRequest
-    extends IssueResourceRequest<FindIssuesResult, Issue[]> {
+    extends IssueResourceRequest<Issue[]> {
 
     private static DEFAULT_FETCH_SIZE: number = 10;
 
@@ -63,7 +63,7 @@ export class FindIssuesRequest
         };
     }
 
-    processResponse(response: JsonResponse<FindIssuesResult>): Issue[] {
+    parseResponse(response: JsonResponse<FindIssuesResult>): Issue[] {
         const issues: Issue[] = response.getResult().issues.map(Issue.fromJson);
 
         issues.sort((a, b) => {

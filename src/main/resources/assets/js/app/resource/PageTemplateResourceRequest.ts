@@ -2,8 +2,8 @@ import {PageTemplate} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
-export abstract class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ContentResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class PageTemplateResourceRequest<PARSED_TYPE>
+    extends ContentResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

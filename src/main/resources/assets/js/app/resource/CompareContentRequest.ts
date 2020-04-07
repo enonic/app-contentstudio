@@ -6,7 +6,7 @@ import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CompareContentRequest
-    extends ContentResourceRequest<CompareContentResultsJson, CompareContentResults> {
+    extends ContentResourceRequest<CompareContentResults> {
 
     private ids: string[];
 
@@ -39,7 +39,7 @@ export class CompareContentRequest
         return CompareContentResults.fromJson(json);
     }
 
-    protected processResponse(response: JsonResponse<CompareContentResultsJson>): CompareContentResults {
+    protected parseResponse(response: JsonResponse<CompareContentResultsJson>): CompareContentResults {
         return this.fromJsonToCompareResults(response.getResult());
     }
 }

@@ -5,7 +5,7 @@ import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetContentSummaryByIdRequest
-    extends ContentResourceRequest<ContentSummaryJson, ContentSummary> {
+    extends ContentResourceRequest<ContentSummary> {
 
     private id: ContentId;
 
@@ -24,7 +24,7 @@ export class GetContentSummaryByIdRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentSummaryJson>): ContentSummary {
+    protected parseResponse(response: JsonResponse<ContentSummaryJson>): ContentSummary {
         return this.fromJsonToContentSummary(response.getResult());
     }
 }

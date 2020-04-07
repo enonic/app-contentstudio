@@ -5,9 +5,9 @@ import {GetComponentDescriptorsByApplicationsRequest} from './GetComponentDescri
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 
 export class GetPartDescriptorsByApplicationsRequest
-    extends GetComponentDescriptorsByApplicationsRequest<PartDescriptorsJson, PartDescriptor> {
+    extends GetComponentDescriptorsByApplicationsRequest<PartDescriptor> {
 
-    protected parseResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
+    protected doParseResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
         return response.getResult().descriptors.map(PartDescriptor.fromJson);
     }
 

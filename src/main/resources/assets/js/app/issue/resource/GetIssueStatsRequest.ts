@@ -4,7 +4,7 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueType} from '../IssueType';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson, IssueStatsJson> {
+export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson> {
 
     private readonly type: IssueType;
 
@@ -22,7 +22,7 @@ export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson, I
         };
     }
 
-    processResponse(response: JsonResponse<IssueStatsJson>): IssueStatsJson {
+    parseResponse(response: JsonResponse<IssueStatsJson>): IssueStatsJson {
         return response.getResult();
     }
 }

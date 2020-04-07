@@ -7,7 +7,7 @@ import {ContentJson} from '../../../../../content/ContentJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetPageTemplatesByCanRenderRequest
-    extends PageTemplateResourceRequest<ListContentResult<ContentJson>, PageTemplate[]> {
+    extends PageTemplateResourceRequest<PageTemplate[]> {
 
     private site: ContentId;
 
@@ -27,7 +27,7 @@ export class GetPageTemplatesByCanRenderRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ListContentResult<ContentJson>>): PageTemplate[] {
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentJson>>): PageTemplate[] {
         return response.getResult().contents.map((contentJson: ContentJson) => {
             return this.fromJsonToContent(contentJson);
         });

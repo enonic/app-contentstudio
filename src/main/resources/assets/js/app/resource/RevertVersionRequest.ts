@@ -4,7 +4,7 @@ import {ContentVersionJson} from './json/ContentVersionJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class RevertVersionRequest
-    extends ContentResourceRequest<ContentVersionJson, string> {
+    extends ContentResourceRequest<string> {
 
     private versionId: string;
 
@@ -25,7 +25,7 @@ export class RevertVersionRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentVersionJson>): string {
+    protected parseResponse(response: JsonResponse<ContentVersionJson>): string {
         if (this.versionId === response.getResult().id) {
             return null;
         }

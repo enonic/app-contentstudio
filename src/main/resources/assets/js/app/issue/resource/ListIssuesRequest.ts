@@ -8,7 +8,7 @@ import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, IssueResponse> {
+export class ListIssuesRequest extends IssueResourceRequest<IssueResponse> {
 
     private static DEFAULT_FETCH_SIZE: number = 10;
 
@@ -71,7 +71,7 @@ export class ListIssuesRequest extends IssueResourceRequest<ListIssuesResult, Is
         };
     }
 
-    processResponse(response: JsonResponse<ListIssuesResult>): IssueResponse {
+    parseResponse(response: JsonResponse<ListIssuesResult>): IssueResponse {
         const issuesWithAssignees: IssueWithAssignees[] = response.getResult().issues.map(
             (issueWithAssigneesJson: IssueWithAssigneesJson) => {
                 return IssueWithAssignees.fromJson(issueWithAssigneesJson);

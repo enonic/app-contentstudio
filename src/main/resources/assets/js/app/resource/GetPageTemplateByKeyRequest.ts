@@ -6,7 +6,7 @@ import {PageTemplateKey} from '../page/PageTemplateKey';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export class GetPageTemplateByKeyRequest
-    extends PageTemplateResourceRequest<ContentJson, PageTemplate> {
+    extends PageTemplateResourceRequest<PageTemplate> {
 
     private pageTemplateKey: PageTemplateKey;
 
@@ -25,7 +25,7 @@ export class GetPageTemplateByKeyRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): PageTemplate {
+    protected parseResponse(response: JsonResponse<ContentJson>): PageTemplate {
         return this.fromJsonToContent(response.getResult());
     }
 }

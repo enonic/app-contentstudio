@@ -17,7 +17,7 @@ import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
-    extends ContentResourceRequest<ContentQueryResultJson<CONTENT_JSON>, CONTENT[]> {
+    extends ContentResourceRequest<CONTENT[]> {
 
     public static DEFAULT_SIZE: number = 15;
 
@@ -169,15 +169,13 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
     }
 
     sendAndParse(): Q.Promise<CONTENT[]> {
-
         if (this.isConcurrentLoad()) {
             return Q(this.results);
         }
 
         this.loadingFrom = this.from;
-        return this.send().then((response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>) => {
-            return this.processResponse(response);
-        }).catch(() => {
+
+        return super.sendAndParse().catch(() => {
             return [];
         });
     }
@@ -195,7 +193,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         }
     }
 
-    protected processResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): CONTENT[] {
+    protected parseResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): CONTENT[] {
         let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
 
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;

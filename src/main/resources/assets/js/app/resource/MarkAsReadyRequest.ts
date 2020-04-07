@@ -4,7 +4,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class MarkAsReadyRequest
-    extends ContentResourceRequest<void, void> {
+    extends ContentResourceRequest<void> {
 
     private ids: ContentId[];
 
@@ -21,7 +21,7 @@ export class MarkAsReadyRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<void>): void {
+    protected parseResponse(response: JsonResponse<void>): void {
         return;
     }
 

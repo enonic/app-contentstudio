@@ -7,8 +7,8 @@ import {PageTemplateBuilder} from '../content/PageTemplate';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
-export abstract class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ProjectBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class ContentResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     public static EXPAND_NONE: string = 'none';
     public static EXPAND_SUMMARY: string = 'summary';

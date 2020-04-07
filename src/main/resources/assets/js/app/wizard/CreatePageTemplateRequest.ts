@@ -12,7 +12,7 @@ import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageTemplateRequest
-    extends PageTemplateResourceRequest<ContentJson, Content>
+    extends PageTemplateResourceRequest<Content>
     implements PageCUDRequest {
 
     private controller: DescriptorKey;
@@ -82,7 +82,7 @@ export class CreatePageTemplateRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

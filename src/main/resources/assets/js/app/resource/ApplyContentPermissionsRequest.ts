@@ -7,7 +7,7 @@ import {AccessControlList} from '../access/AccessControlList';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ApplyContentPermissionsRequest
-    extends ContentResourceRequest<TaskIdJson, TaskId> {
+    extends ContentResourceRequest<TaskId> {
 
     private id: ContentId;
 
@@ -54,7 +54,7 @@ export class ApplyContentPermissionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
         return TaskId.fromJson(response.getResult());
     }
 

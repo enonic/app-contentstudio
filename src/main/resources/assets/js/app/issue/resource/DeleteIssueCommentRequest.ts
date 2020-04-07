@@ -3,7 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class DeleteIssueCommentRequest
-    extends IssueResourceRequest<any, boolean> {
+    extends IssueResourceRequest<boolean> {
 
     private commentId: string;
 
@@ -26,7 +26,7 @@ export class DeleteIssueCommentRequest
         });
     }
 
-    processResponse(response: JsonResponse<any>): boolean {
+    parseResponse(response: JsonResponse<any>): boolean {
         return response.getResult()['ids'].length > 0;
     }
 }
