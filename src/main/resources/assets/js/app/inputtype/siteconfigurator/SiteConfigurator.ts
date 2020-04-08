@@ -23,6 +23,8 @@ import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/Base
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
@@ -41,10 +43,22 @@ export class SiteConfigurator
         super('application-configurator');
         this.formContext = config.formContext;
 
-        this.readOnlyPromise =
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                this.readOnly = !loginResult.isContentAdmin();
+        this.readOnlyPromise = this.isReadOnly().then((value: boolean) => {
+            this.readOnly = value;
+            return Q(null);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private isReadOnly(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            if (loginResult.isContentAdmin()) {
+                return Q(false);
+            }
+
+            return ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
+                return Q(!isOwner);
             });
+        });
     }
 
     getValueType(): ValueType {
@@ -67,13 +81,10 @@ export class SiteConfigurator
         this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange = false);
 
         this.comboBox = this.createComboBox(input, this.siteConfigProvider);
-        if (this.readOnlyPromise.isFulfilled()) {
+
+        this.readOnlyPromise.then(() => {
             this.comboBox.setReadOnly(this.readOnly);
-        } else {
-            this.readOnlyPromise.then(() => {
-                this.comboBox.setReadOnly(this.readOnly);
-            });
-        }
+        });
 
         this.appendChild(this.comboBox);
 

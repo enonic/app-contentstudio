@@ -14,6 +14,12 @@ export class ProjectHelper {
         });
     }
 
+    public static isUserProjectOwner(loginResult: LoginResult): Q.Promise<boolean> {
+        return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+            return Q(ProjectHelper.isProjectOwner(loginResult, project));
+        });
+    }
+
     private static isProjectOwnerOrEditor(loginResult: LoginResult, project: Project): boolean {
         const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
         const permissions: ProjectPermissions = project.getPermissions();
@@ -23,6 +29,14 @@ export class ProjectHelper {
         return userPrincipals.some((userPrincipal: PrincipalKey) =>
             owners.some((owner: PrincipalKey) => owner.equals(userPrincipal)) ||
             editors.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
+    }
+
+    private static isProjectOwner(loginResult: LoginResult, project: Project): boolean {
+        const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
+        const permissions: ProjectPermissions = project.getPermissions();
+        const owners: PrincipalKey[] = permissions.getOwners();
+
+        return userPrincipals.some((userPrincipal: PrincipalKey) => owners.some((owner: PrincipalKey) => owner.equals(userPrincipal)));
     }
 
     public static isDefault(project: Project): boolean {
