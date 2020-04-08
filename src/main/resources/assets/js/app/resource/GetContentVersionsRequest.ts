@@ -6,7 +6,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsRequest
-    extends ContentResourceRequest<GetContentVersionsForViewResultsJson, ContentVersions> {
+    extends ContentResourceRequest<ContentVersions> {
 
     private contentId: ContentId;
     private from: number;
@@ -37,7 +37,7 @@ export class GetContentVersionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
+    protected parseResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
         return ContentVersions.fromJson(response.getResult());
     }
 }

@@ -8,7 +8,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateIssueRequest
-    extends IssueResourceRequest<IssueJson, Issue> {
+    extends IssueResourceRequest<Issue> {
 
     private title: string;
 
@@ -81,7 +81,7 @@ export class CreateIssueRequest
         };
     }
 
-    processResponse(response: JsonResponse<IssueJson>): Issue {
+    parseResponse(response: JsonResponse<IssueJson>): Issue {
         return Issue.fromJson(response.getResult());
     }
 }

@@ -7,7 +7,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class MoveContentRequest
-    extends ContentResourceRequest<TaskIdJson, TaskId> {
+    extends ContentResourceRequest<TaskId> {
 
     private ids: ContentIds;
 
@@ -29,7 +29,7 @@ export class MoveContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
         return TaskId.fromJson(response.getResult());
     }
 }

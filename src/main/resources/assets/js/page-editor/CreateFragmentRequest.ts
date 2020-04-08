@@ -9,7 +9,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateFragmentRequest
-    extends FragmentResourceRequest<ContentJson, Content> {
+    extends FragmentResourceRequest<Content> {
 
     private contentId: ContentId;
 
@@ -50,7 +50,7 @@ export class CreateFragmentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

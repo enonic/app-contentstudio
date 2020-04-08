@@ -5,7 +5,7 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssuesJson} from '../json/IssuesJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class GetIssuesRequest extends IssueResourceRequest<IssuesJson, Issue[]> {
+export class GetIssuesRequest extends IssueResourceRequest<Issue[]> {
 
     private ids: string[];
 
@@ -21,7 +21,7 @@ export class GetIssuesRequest extends IssueResourceRequest<IssuesJson, Issue[]> 
         return {ids: this.ids};
     }
 
-    processResponse(response: JsonResponse<IssuesJson>): Issue[] {
+    parseResponse(response: JsonResponse<IssuesJson>): Issue[] {
         return response.getResult().issues.map((issueJson: IssueJson) => {
             return Issue.fromJson(issueJson);
         });

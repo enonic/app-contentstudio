@@ -8,7 +8,7 @@ import {PageDescriptorJson} from 'lib-admin-ui/content/page/PageDescriptorJson';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetPageDescriptorsByApplicationRequest
-    extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
+    extends PageDescriptorResourceRequest<PageDescriptor[]> {
 
     private applicationKey: ApplicationKey;
 
@@ -36,7 +36,7 @@ export class GetPageDescriptorsByApplicationRequest
         return super.sendAndParse();
     }
 
-    protected processResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
+    protected parseResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
         this.cache.putApplicationKeys([this.applicationKey]);
         return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
             const pageDescriptor = PageDescriptor.fromJson(descriptorJson);

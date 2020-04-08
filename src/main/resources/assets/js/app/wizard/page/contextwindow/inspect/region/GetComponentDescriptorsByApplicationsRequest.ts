@@ -4,10 +4,10 @@ import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ResourceRequestAdvanced} from '../../../../ResourceRequestAdvanced';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIPTOR extends Descriptor>
-    extends ResourceRequestAdvanced<JSON, DESCRIPTOR[]> {
+export abstract class GetComponentDescriptorsByApplicationsRequest<DESCRIPTOR extends Descriptor>
+    extends ResourceRequest<DESCRIPTOR[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -41,9 +41,9 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
         return super.sendAndParse();
     }
 
-    protected processResponse(response: JsonResponse<JSON>): DESCRIPTOR[] {
+    protected parseResponse(response: JsonResponse<any>): DESCRIPTOR[] {
         this.cache.putApplicationKeys(this.applicationKeys);
-        return this.parseResponse(response).map((descriptor: DESCRIPTOR) => {
+        return this.doParseResponse(response).map((descriptor: DESCRIPTOR) => {
             this.cache.put(descriptor);
             return descriptor;
         });
@@ -51,7 +51,7 @@ export abstract class GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIP
 
     protected abstract registerCache(): ApplicationBasedCache<DESCRIPTOR>;
 
-    protected abstract parseResponse(response: JsonResponse<JSON>): DESCRIPTOR[];
+    protected abstract doParseResponse(response: JsonResponse<any>): DESCRIPTOR[];
 
     protected abstract getComponentPathName(): string;
 }

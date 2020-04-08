@@ -1,9 +1,9 @@
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequestAdvanced} from './ResourceRequestAdvanced';
 import {UrlHelper} from '../util/UrlHelper';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-export abstract class ProjectBasedResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
+export abstract class ProjectBasedResourceRequest<PARSED_TYPE>
+    extends ResourceRequest<PARSED_TYPE> {
 
     getRestPath(): Path {
         return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPath());

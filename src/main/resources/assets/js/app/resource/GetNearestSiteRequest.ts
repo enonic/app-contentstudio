@@ -6,7 +6,7 @@ import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetNearestSiteRequest
-    extends ContentResourceRequest<ContentJson, Site> {
+    extends ContentResourceRequest<Site> {
 
     private contentId: ContentId;
 
@@ -23,7 +23,7 @@ export class GetNearestSiteRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Site {
+    protected parseResponse(response: JsonResponse<ContentJson>): Site {
         return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
     }
 

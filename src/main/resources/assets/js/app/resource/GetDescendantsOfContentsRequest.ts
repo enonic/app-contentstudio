@@ -7,7 +7,7 @@ import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetDescendantsOfContentsRequest
-    extends ContentResourceRequest<ContentIdBaseItemJson[], ContentId[]> {
+    extends ContentResourceRequest<ContentId[]> {
 
     private contentPaths: ContentPath[] = [];
 
@@ -49,7 +49,7 @@ export class GetDescendantsOfContentsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+    protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
         return response.getResult().map((item => new ContentId(item.id)));
     }
 }

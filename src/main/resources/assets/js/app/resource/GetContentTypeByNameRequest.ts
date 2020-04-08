@@ -7,7 +7,7 @@ import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeJson} from './json/ContentTypeJson';
 
 export class GetContentTypeByNameRequest
-    extends ContentTypeResourceRequest<ContentTypeJson, ContentType> {
+    extends ContentTypeResourceRequest<ContentType> {
 
     private name: ContentTypeName;
 
@@ -36,7 +36,7 @@ export class GetContentTypeByNameRequest
 
     }
 
-    protected processResponse(response: JsonResponse<ContentTypeJson>): ContentType {
+    protected parseResponse(response: JsonResponse<ContentTypeJson>): ContentType {
         const contentType: ContentType = this.fromJsonToContentType(response.getResult());
         const contentTypeCache: ContentTypeCache = ContentTypeCache.get();
         contentTypeCache.put(contentType);

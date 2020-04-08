@@ -6,7 +6,7 @@ import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class DeleteAttachmentRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private contentId: ContentId;
 
@@ -35,7 +35,7 @@ export class DeleteAttachmentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 }

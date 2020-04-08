@@ -137,7 +137,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<any, DESCRIPTOR>;
+    protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<DESCRIPTOR>;
 
     protected abstract createSelector(): ComponentDescriptorDropdown<DESCRIPTOR>;
 

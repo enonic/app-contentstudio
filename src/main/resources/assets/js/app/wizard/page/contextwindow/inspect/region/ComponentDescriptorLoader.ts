@@ -4,10 +4,10 @@ import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameCompa
 import {GetComponentDescriptorsByApplicationsRequest} from './GetComponentDescriptorsByApplicationsRequest';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
-export abstract class ComponentDescriptorLoader<JSON, DESCRIPTOR extends Descriptor>
-    extends BaseLoader<JSON, DESCRIPTOR> {
+export abstract class ComponentDescriptorLoader<DESCRIPTOR extends Descriptor>
+    extends BaseLoader<DESCRIPTOR> {
 
-    protected request: GetComponentDescriptorsByApplicationsRequest<JSON, DESCRIPTOR>;
+    protected request: GetComponentDescriptorsByApplicationsRequest<DESCRIPTOR>;
 
     constructor() {
         super();

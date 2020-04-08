@@ -9,7 +9,7 @@ import {ContentJson} from '../content/ContentJson';
 declare var CONFIG;
 
 export class GetContentVersionRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private id: ContentId;
 
@@ -43,7 +43,7 @@ export class GetContentVersionRequest
         });
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 }

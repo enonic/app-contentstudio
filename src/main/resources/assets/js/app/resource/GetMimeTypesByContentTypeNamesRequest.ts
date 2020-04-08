@@ -3,7 +3,7 @@ import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetMimeTypesByContentTypeNamesRequest
-    extends ContentTypeResourceRequest<String[], String[]> {
+    extends ContentTypeResourceRequest<String[]> {
 
     private names: ContentTypeName[];
 
@@ -19,7 +19,7 @@ export class GetMimeTypesByContentTypeNamesRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<String[]>): String[] {
+    protected parseResponse(response: JsonResponse<String[]>): String[] {
         return response.getJson();
     }
 }

@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
@@ -10,7 +9,7 @@ import {Site} from '../../content/Site';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class PageTemplateContentTypeLoader
-    extends BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
+    extends BaseLoader<ContentTypeSummary> {
 
     private contentId: ContentId;
 

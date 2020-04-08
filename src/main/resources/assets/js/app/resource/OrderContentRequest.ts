@@ -7,7 +7,7 @@ import {ContentJson} from '../content/ContentJson';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class OrderContentRequest extends ContentResourceRequest<ContentJson, Content> {
+export class OrderContentRequest extends ContentResourceRequest<Content> {
 
     private silent: boolean = false;
 
@@ -44,7 +44,7 @@ export class OrderContentRequest extends ContentResourceRequest<ContentJson, Con
         return ChildOrder.toSetChildOrderJson(this.contentId, this.childOrder, this.silent);
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 

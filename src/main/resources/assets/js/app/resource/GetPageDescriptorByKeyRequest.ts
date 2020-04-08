@@ -8,7 +8,7 @@ import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
 import {GetPageDescriptorsByApplicationRequest} from './GetPageDescriptorsByApplicationRequest';
 
 export class GetPageDescriptorByKeyRequest
-    extends PageDescriptorResourceRequest<PageDescriptorJson, PageDescriptor> {
+    extends PageDescriptorResourceRequest<PageDescriptor> {
 
     private key: DescriptorKey;
 
@@ -35,7 +35,7 @@ export class GetPageDescriptorByKeyRequest
         return super.sendAndParse();
     }
 
-    protected processResponse(response: JsonResponse<PageDescriptorJson>): PageDescriptor {
+    protected parseResponse(response: JsonResponse<PageDescriptorJson>): PageDescriptor {
         return PageDescriptor.fromJson(response.getResult());
     }
 }

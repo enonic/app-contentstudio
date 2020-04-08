@@ -5,7 +5,7 @@ import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 
 export class GetContentByPathRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private contentPath: ContentPath;
 
@@ -21,7 +21,7 @@ export class GetContentByPathRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 }

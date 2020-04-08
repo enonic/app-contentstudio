@@ -5,7 +5,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPublishStatusesRequest
-    extends ContentResourceRequest<GetPublishStatusesResultJson, GetPublishStatusesResult> {
+    extends ContentResourceRequest<GetPublishStatusesResult> {
 
     private ids: string[];
 
@@ -22,7 +22,7 @@ export class GetPublishStatusesRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<GetPublishStatusesResultJson>): GetPublishStatusesResult {
+    protected parseResponse(response: JsonResponse<GetPublishStatusesResultJson>): GetPublishStatusesResult {
         return this.fromJsonToGetPublishStatusesResult(response.getResult());
     }
 

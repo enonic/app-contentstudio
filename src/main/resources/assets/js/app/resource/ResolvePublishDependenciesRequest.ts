@@ -6,7 +6,7 @@ import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResul
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolvePublishDependenciesRequest
-    extends ContentResourceRequest<ResolvePublishContentResultJson, ResolvePublishDependenciesResult> {
+    extends ContentResourceRequest<ResolvePublishDependenciesResult> {
 
     private ids: ContentId[] = [];
 
@@ -37,7 +37,7 @@ export class ResolvePublishDependenciesRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ResolvePublishContentResultJson>): ResolvePublishDependenciesResult {
+    protected parseResponse(response: JsonResponse<ResolvePublishContentResultJson>): ResolvePublishDependenciesResult {
         return ResolvePublishDependenciesResult.fromJson(response.getResult());
     }
 

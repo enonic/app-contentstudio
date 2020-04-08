@@ -5,9 +5,9 @@ import {GetComponentDescriptorsByApplicationsRequest} from './GetComponentDescri
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 
 export class GetLayoutDescriptorsByApplicationsRequest
-    extends GetComponentDescriptorsByApplicationsRequest<LayoutDescriptorsJson, LayoutDescriptor> {
+    extends GetComponentDescriptorsByApplicationsRequest<LayoutDescriptor> {
 
-    protected parseResponse(response: JsonResponse<LayoutDescriptorsJson>): LayoutDescriptor[] {
+    protected doParseResponse(response: JsonResponse<LayoutDescriptorsJson>): LayoutDescriptor[] {
         return response.getResult().descriptors.map(LayoutDescriptor.fromJson);
     }
 
