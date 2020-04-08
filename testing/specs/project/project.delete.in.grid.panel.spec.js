@@ -26,7 +26,7 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
             await settingsBrowsePanel.openProjectWizard();
             //2. Type a name then click on Save button:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.selectReadAccess("Private");
+            await projectWizard.clickOnReadAccessRadio("Private");
             await projectWizard.waitAndClickOnSave();
             //3. Click on 'Home' button and go to the grid:
             let actualMessage = await settingsBrowsePanel.clickOnHomeButton();
