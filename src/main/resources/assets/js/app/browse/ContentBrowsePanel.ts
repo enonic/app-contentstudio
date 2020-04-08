@@ -255,16 +255,6 @@ export class ContentBrowsePanel
         });
     }
 
-    // tslint:disable-next-line:max-line-length
-    private getFirstSelectedOrHighlightedBrowseItem(fullSelection?: TreeNode<ContentSummaryAndCompareStatus>[]): BrowseItem<ContentSummaryAndCompareStatus> {
-        const highlightedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getFirstSelectedOrHighlightedNode();
-        if (!highlightedNode) {
-            return null;
-        }
-
-        return this.treeNodeToBrowseItem(highlightedNode);
-    }
-
     treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
         const data: ContentSummaryAndCompareStatus = node ? node.getData() : null;
         return (!data || !data.getContentSummary()) ? null : <ContentBrowseItem>new ContentBrowseItem(data)
