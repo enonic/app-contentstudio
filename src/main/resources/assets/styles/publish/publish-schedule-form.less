@@ -1,10 +1,6 @@
 .publish-schedule-form {
   background-color: @admin-bg-light-gray;
 
-  &.invalid {
-    background: @input-light-red;
-  }
-
   .form-wrapper {
     margin-bottom: 15px;
     display: flex;
@@ -15,13 +11,15 @@
     .form-view {
       flex: 1;
       padding: 0 !important;
-      padding-right: 20px !important;
 
       .input-view {
         padding: 10px;
 
         .label {
+          margin-bottom: 10px;
           font-size: 14px;
+          line-height: 14px;
+          overflow: visible;
         }
       }
     }
@@ -34,12 +32,13 @@
       cursor: pointer;
       position: absolute;
       right: 5px;
-      top: calc(50% - 9px);
+      top: 5px;
     }
 
     .help-text-toggler {
-      top: -2px;
-      right: -24px;
+      float: none;
+      display: inline-block;
+      margin-left: 20px;
     }
   }
 }

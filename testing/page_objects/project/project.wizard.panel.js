@@ -13,14 +13,20 @@ const XPATH = {
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete']]`,
     selectedAccessItems: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
+    projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
-
+    radioButtonByDescription: descr => XPATH.projectReadAccessWizardStepForm +
+                                       `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${descr}')]]`,
 };
 
 class ProjectWizardPanel extends Page {
     get projectNameInput() {
         return XPATH.container + lib.formItemByLabel("Project name") + lib.TEXT_INPUT;
+    }
+
+    get projectNameValidationMessage() {
+        return XPATH.container + lib.formItemByLabel("Project name") + "//span[@class='error']";
     }
 
     get displayNameInput() {
@@ -47,6 +53,15 @@ class ProjectWizardPanel extends Page {
         await this.waitForSaveButtonEnabled();
         await this.clickOnElement(this.saveButton);
         return await this.pause(200);
+    }
+
+    async getProjectNameValidationMessage() {
+        await this.waitForElementDisplayed(this.projectNameValidationMessage, appConst.TIMEOUT_2)
+        return await this.getText(this.projectNameValidationMessage);
+    }
+
+    async getProjectNameValidationMessageNotVisible() {
+        return await this.waitForElementNotDisplayed(this.projectNameValidationMessage, appConst.TIMEOUT_2);
     }
 
     waitForLoaded() {
@@ -173,6 +188,12 @@ class ProjectWizardPanel extends Page {
 
     hotKeyClose() {
         return this.getBrowser().keys(['Alt', 'w']);
+    }
+
+    async selectReadAccess(access) {
+        let selector = XPATH.radioButtonByDescription(access) + "/input[@type='radio']";
+        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(access), appConst.TIMEOUT_2);
+        return await this.clickOnElement(selector);
     }
 };
 module.exports = ProjectWizardPanel;

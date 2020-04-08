@@ -15,7 +15,10 @@
 
   .@{_COMMON_PREFIX}button {
     z-index: 1;
-    line-height: @toolbar-height;
+
+    span {
+      line-height: @toolbar-height;
+    }
   }
 
   .fold-button .@{_COMMON_PREFIX}button {
@@ -125,9 +128,8 @@
   .project-info {
     overflow: auto;
     padding-left: 10px;
-    padding-right: 35px;
-    margin-right: -15px;
-    background-image: linear-gradient(to right, @admin-bg-dark-gray, @admin-bg-almost-white);
+    padding-right: 15px;
+    border-right: 1px solid @admin-font-gray;
 
     .@{_COMMON_PREFIX}wrapper {
       height: @toolbar-height;
@@ -136,8 +138,8 @@
       margin-right: 0px;
       cursor: pointer;
 
-      .font-icon-default:before {
-        color: @admin-white;
+      .font-icon-default {
+        height: 32px;
       }
     }
 
@@ -145,8 +147,7 @@
 
       .@{_COMMON_PREFIX}main-name {
         height: @toolbar-height;
-        line-height: @toolbar-height - 2;
-        color: @admin-white;
+        line-height: @toolbar-height;
         font-size: 16px;
       }
     }

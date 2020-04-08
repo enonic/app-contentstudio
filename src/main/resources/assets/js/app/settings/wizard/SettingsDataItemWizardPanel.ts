@@ -116,7 +116,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     close(checkCanClose: boolean = false) {
-        if (!checkCanClose || this.canClose()) {
+        if (!checkCanClose || !this.isRendered() || this.canClose()) {
             super.close(checkCanClose);
         }
     }

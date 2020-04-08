@@ -158,7 +158,7 @@ export class ProjectReadAccessWizardStepForm
         this.readAccessRadioGroupFormItem.addClass('read-access');
 
         this.principalsCombobox = this.createPrincipalsCombobox();
-        this.readAccessRadioGroupFormItem.appendChild(this.principalsCombobox);
+        this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
         return this.readAccessRadioGroupFormItem;
     }

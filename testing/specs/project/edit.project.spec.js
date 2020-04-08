@@ -27,6 +27,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             //2. Type a name and description then click on 'Save' button:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
             await projectWizard.typeDescription(TEST_DESCRIPTION);
+            await projectWizard.selectReadAccess("Private");
             await projectWizard.waitAndClickOnSave();
             //3. verify the saved data:
             let actualDescription = await projectWizard.getDescription();

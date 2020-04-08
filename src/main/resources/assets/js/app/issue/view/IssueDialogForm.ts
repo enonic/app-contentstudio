@@ -19,8 +19,6 @@ import {Form} from 'lib-admin-ui/ui/form/Form';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
-import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
 
 export class IssueDialogForm
     extends Form {
@@ -95,16 +93,13 @@ export class IssueDialogForm
 
         const fieldSet: Fieldset = new Fieldset();
 
-        const titleFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.title).setLabel(i18n('field.title')).setValidator(Validators.required).build());
+        const titleFormItem = new FormItemBuilder(this.title).setLabel(i18n('field.title')).setValidator(Validators.required).build();
         fieldSet.add(titleFormItem);
 
-        const descriptionFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.description).setLabel(i18n('field.description')).build());
+        const descriptionFormItem = new FormItemBuilder(this.description).setLabel(i18n('field.description')).build();
         fieldSet.add(descriptionFormItem);
 
-        const selectorFormItem = this.addValidationViewer(
-            new FormItemBuilder(this.approversSelector).setLabel(i18n('field.assignees')).build());
+        const selectorFormItem = new FormItemBuilder(this.approversSelector).setLabel(i18n('field.assignees')).build();
         selectorFormItem.addClass('issue-approver-selector');
         fieldSet.add(selectorFormItem);
 
@@ -254,18 +249,6 @@ export class IssueDialogForm
             this.contentItemsSelector.deselect(value, silent);
         });
         this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedValues().length > 0);
-    }
-
-    private addValidationViewer(formItem: FormItem): FormItem {
-        let validationRecordingViewer = new ValidationRecordingViewer();
-
-        formItem.appendChild(validationRecordingViewer);
-
-        formItem.onValidityChanged((event: ValidityChangedEvent) => {
-            validationRecordingViewer.setError(formItem.getError());
-        });
-
-        return formItem;
     }
 
     private setApprovers(approvers: PrincipalKey[]) {

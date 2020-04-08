@@ -22,6 +22,8 @@ const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspan
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
+const ProjectWizard = require('../page_objects/project/project.wizard.panel');
+const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -604,5 +606,22 @@ module.exports = {
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
+    async saveTestProject(name, description) {
+        let projectWizard = new ProjectWizard();
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await settingsBrowsePanel.openProjectWizard();
+        //2. Type a name that is already being used by existing project:
+        await projectWizard.typeName(name);
+        await projectWizard.typeDescription(description);
+        await projectWizard.selectReadAccess("Private");
+        //3. Verify that `Save` button gets enabled, then click on it
+        await projectWizard.pause(400);
+        await projectWizard.waitAndClickOnSave();
+        await projectWizard.waitForNotificationMessage();
+        await projectWizard.pause(2500);
+        await settingsBrowsePanel.clickOnCloseIcon(name);
+        await projectWizard.waitForWizardClosed();
+        return await settingsBrowsePanel.pause(500);
+    }
 
 };

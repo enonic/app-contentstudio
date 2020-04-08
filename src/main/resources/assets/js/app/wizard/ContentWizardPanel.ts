@@ -1575,7 +1575,7 @@ export class ContentWizardPanel
     // as this is intended action from XP, not user - it should be present in persisted content
     private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
         let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraData(xDataName);
+        let extraData = persistedContent.getExtraDataByName(xDataName);
         if (!extraData) { // ensure ExtraData object corresponds to each step form
             this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
         } else {
@@ -1874,7 +1874,7 @@ export class ContentWizardPanel
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
-        const extraData = content.getExtraData(xDataStepForm.getXData().getXDataName());
+        const extraData = content.getExtraDataByName(xDataStepForm.getXData().getXDataName());
         const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
@@ -2316,7 +2316,7 @@ export class ContentWizardPanel
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
-            const extraData: ExtraData = content.getExtraData(xDataName);
+            const extraData: ExtraData = content.getExtraDataByName(xDataName);
 
             //fill empty fields by empty values in persisted xdata
             const viewedData = form.getData().copy();
