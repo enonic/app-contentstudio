@@ -34,7 +34,7 @@ describe('project.wizard.validation.spec - validation specification', function (
             //1.Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.selectReadAccess("Public");
+            await projectWizard.clickOnReadAccessRadio("Public");
             //2. Type a project-name with white space:
             await projectWizard.typeInProjectName("my project");
             //3. Verify that 'Save' button gets disabled:
@@ -51,7 +51,7 @@ describe('project.wizard.validation.spec - validation specification', function (
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.selectReadAccess("Custom");
+            await projectWizard.clickOnReadAccessRadio("Custom");
             //2. Type a project-name with white space:
             await projectWizard.typeInProjectName("my project");
             //3. Verify that 'Save' button gets disabled:

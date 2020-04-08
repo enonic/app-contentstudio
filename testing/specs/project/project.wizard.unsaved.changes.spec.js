@@ -64,7 +64,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
             await projectWizard.typeName(projectDisplayName);
-            await projectWizard.selectReadAccess("Private");
+            await projectWizard.clickOnReadAccessRadio("Private");
             //3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");

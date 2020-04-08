@@ -65,7 +65,7 @@ class PageComponentView extends Page {
     async clickOnComponent(componentName) {
         try {
             let component = xpath.componentByName(componentName);
-            await this.waitForElementDisplayed(component, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(component, appConst.TIMEOUT_3);
             await this.clickOnElement(component);
             return await this.pause(500);
         } catch (err) {
