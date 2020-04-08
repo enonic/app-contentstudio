@@ -235,11 +235,10 @@ export class ImageModalDialog
                 return;
             }
 
+            this.previewImage(imageSelectorItem.getContent());
             formItem.addClass('selected-item-preview');
 
             new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).sendAndParse().then((content: Content) => {
-                this.previewImage(content);
-
                 this.setAltTextFieldValue(ImageHelper.getImageAltText(content));
                 this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
             }).catch(DefaultErrorHandler.handle).done();
@@ -333,7 +332,7 @@ export class ImageModalDialog
         this.previewFrame.getEl().setHeightPx(imageHeight);
     }
 
-    private previewImage(imageContent: Content, presetStyles?: string) {
+    private previewImage(imageContent: ContentSummary, presetStyles?: string) {
         if (!this.previewFrame) {
             this.createPreviewFrame();
         }
@@ -350,12 +349,8 @@ export class ImageModalDialog
             this.imagePreviewContainer.removeClass('upload');
 
             this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
-            this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
-
-            if (!this.supportsScaling(imageContent)) {
-                this.imageToolbar.disableScaling();
-            }
+            this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
 
             $(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
 
@@ -380,33 +375,13 @@ export class ImageModalDialog
         this.imageUploaderEl.hide();
     }
 
-    private supportsScaling(imageContent: Content) {
-        const metaData = imageContent.getExtraDataByNameString('media:imageInfo');
-        if (!metaData) {
-            return true;
-        }
 
-        return metaData.getData().getString('contentType') !== 'image/gif';
-    }
-
-    private createImageUrlResolverFromSrc(imageContent: ContentSummary, src: string) {
-        const params = UriHelper.decodeUrlParams(src);
-
-        return new ImageUrlResolver()
-            .setContentId(imageContent.getContentId())
-            .setTimestamp(imageContent.getModifiedTime())
-            .setScaleWidth(!!params.scaleWidth);
-    }
-
-    private createImageUrlResolver(imageContent: Content) {
-        return new ImageUrlResolver()
-            .setContentId(imageContent.getContentId())
-            .setTimestamp(imageContent.getModifiedTime())
-            .setScaleWidth(this.supportsScaling(imageContent));
-    }
-
-    private prepareImageUrlResolver(imgUrlResolver: ImageUrlResolver, size?: number, style?: Style) {
+    private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
+        const imgUrlResolver = new ImageUrlResolver()
+            .setContentId(imageContent.getContentId())
+            .setTimestamp(imageContent.getModifiedTime())
+            .setScaleWidth(true);
 
         if (size && !isOriginalImage) {
             imgUrlResolver.setSize(size);
@@ -422,6 +397,8 @@ export class ImageModalDialog
                 .setAspectRatio(style.getAspectRatio())
                 .setFilter(style.getFilter());
         }
+
+        return imgUrlResolver;
     }
 
     private getImagePreviewSrc(): string {
@@ -438,7 +415,7 @@ export class ImageModalDialog
         return imgSrcAttr;
     }
 
-    private createImgElForPreview(imageContent: Content): ImgEl {
+    private createImgElForPreview(imageContent: ContentSummary): ImgEl {
         let imgSrcAttr = '';
         let imgDataSrcAttr = '';
 
@@ -446,10 +423,9 @@ export class ImageModalDialog
             imgSrcAttr = this.getImagePreviewSrc();
             imgDataSrcAttr = this.presetImageEl.getAttribute('data-src');
         } else {
-            const imageUrlResolver = this.createImageUrlResolver(imageContent);
-            this.prepareImageUrlResolver(imageUrlResolver, this.imagePreviewContainer.getEl().getWidth());
-            imgSrcAttr = imageUrlResolver.resolveForPreview();
-            imgDataSrcAttr = imageUrlResolver.resolveForRender();
+            const imageUrlBuilder = this.createImageUrlResolver(imageContent, this.imagePreviewContainer.getEl().getWidth());
+            imgSrcAttr = imageUrlBuilder.resolveForPreview();
+            imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
 
         const imageEl = new ImgEl(imgSrcAttr);
@@ -629,11 +605,10 @@ export class ImageModalDialog
         const imageContent = this.imageSelector.getSelectedContent();
         const processingStyle = this.imageToolbar.getProcessingStyle();
 
-        const imageUrlResolver = this.createImageUrlResolverFromSrc(imageContent, imageEl.getAttribute('src'));
-        this.prepareImageUrlResolver(imageUrlResolver, width, processingStyle);
+        const imageUrlBuilder = this.createImageUrlResolver(imageContent, width, processingStyle);
 
-        imageEl.setAttribute('src', imageUrlResolver.resolveForPreview());
-        imageEl.setAttribute('data-src', imageUrlResolver.resolveForRender(processingStyle ? processingStyle.getName() : ''));
+        imageEl.setAttribute('src', imageUrlBuilder.resolveForPreview());
+        imageEl.setAttribute('data-src', imageUrlBuilder.resolveForRender(processingStyle ? processingStyle.getName() : ''));
     }
 
     private applyStylingToPreview(classNames: string) {
@@ -905,11 +880,6 @@ export class ImageDialogToolbar
         }
 
         return;
-    }
-
-    disableScaling() {
-        this.imageStyleSelector.removeAllOptions();
-        this.imageStyleSelector.addClass('disabled');
     }
 
     private getStyleCls(): string {
