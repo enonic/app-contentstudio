@@ -7,7 +7,6 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
@@ -45,34 +44,34 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             assert.equal(PROJECT_DISPLAY_NAME.toLowerCase(), actualProjectName);
         });
 
-    it(`GIVEN new project wizard is opened WHEN an 'Access Item' has been selected THEN the item should appear in 'project access'`,
+    it(`GIVEN new project wizard is opened WHEN 'SU' has been selected in 'Project Access' THEN the item should appear in the selected options`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectProjectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
             studioUtils.saveScreenshot("project_wizard_3");
-            let items = await projectWizard.getSelectedAccessItems();
-            assert.equal(items.length, 1, "One access item should be present");
-            assert.equal(items[0], appConstant.systemUsersDisplayName.SUPER_USER,
+            let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
+            assert.equal(projectAccessItems.length, 1, "One access item should be present");
+            assert.equal(projectAccessItems[0], appConstant.systemUsersDisplayName.SUPER_USER,
                 "Expected item should be displayed in selected options");
         });
 
-    it(`GIVEN an 'Access Item' is selected WHEN the item has been removed THEN the item should not be present in 'selected options'`,
+    it(`GIVEN 'SU' is selected in Project Access WHEN the item has been removed THEN the item should not be present in the selected options`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectProjectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
             //3. Remove the item:
-            await projectWizard.removeAccessItem("su");
+            await projectWizard.removeProjectAccessItem("su");
             studioUtils.saveScreenshot("project_wizard_4");
-            let items = await projectWizard.getSelectedAccessItems();
-            assert.equal(items.length, 0, "no selected options should be in 'project access'");
+            let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
+            assert.equal(projectAccessItems.length, 0, "no selected options should be in 'project access'");
         });
 
     beforeEach(async () => {

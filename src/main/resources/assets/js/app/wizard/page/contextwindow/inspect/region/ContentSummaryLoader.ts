@@ -3,14 +3,12 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
-import {ContentQueryResultJson} from '../../../../../resource/json/ContentQueryResultJson';
 import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentSummaryLoader
-    extends PostLoader<ContentQueryResultJson<ContentSummaryJson>, ContentSummary> {
+    extends PostLoader<ContentSummary> {
 
     protected request: ContentSummaryRequest;
 

@@ -4,7 +4,7 @@ import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJs
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetWidgetsByInterfaceRequest
-    extends WidgetDescriptorResourceRequest<WidgetDescriptorJson[], any> {
+    extends WidgetDescriptorResourceRequest<any> {
 
     private widgetInterfaces: string[];
 
@@ -19,7 +19,7 @@ export class GetWidgetsByInterfaceRequest
         return this.widgetInterfaces;
     }
 
-    protected processResponse(response: JsonResponse<WidgetDescriptorJson[]>): any {
+    protected parseResponse(response: JsonResponse<WidgetDescriptorJson[]>): any {
         return WidgetDescriptorResourceRequest.fromJson(response.getResult());
     }
 }

@@ -15,7 +15,7 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
-    extends ContentResourceRequest<any, DATA[]> {
+    extends ContentResourceRequest<DATA[]> {
 
     private queryExpr: QueryExpr;
 
@@ -170,7 +170,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         return this.metadata;
     }
 
-    protected processResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
+    protected parseResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
         if (response.getResult() && response.getResult().items.length > 0) {
             this.metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
             return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));

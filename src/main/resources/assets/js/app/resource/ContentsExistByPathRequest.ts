@@ -5,7 +5,7 @@ import {ContentsExistByPathResult} from './ContentsExistByPathResult';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentsExistByPathRequest
-    extends ContentResourceRequest<ContentsExistByPathJson, ContentsExistByPathResult> {
+    extends ContentResourceRequest<ContentsExistByPathResult> {
 
     private contentPaths: string[] = [];
 
@@ -22,7 +22,7 @@ export class ContentsExistByPathRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentsExistByPathJson>): ContentsExistByPathResult {
+    protected parseResponse(response: JsonResponse<ContentsExistByPathJson>): ContentsExistByPathResult {
         return new ContentsExistByPathResult(response.getResult());
     }
 }

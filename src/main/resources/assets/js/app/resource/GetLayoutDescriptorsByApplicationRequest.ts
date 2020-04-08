@@ -8,7 +8,7 @@ import {LayoutDescriptorResourceRequest} from './LayoutDescriptorResourceRequest
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetLayoutDescriptorsByApplicationRequest
-    extends LayoutDescriptorResourceRequest<LayoutDescriptorsJson, LayoutDescriptor[]> {
+    extends LayoutDescriptorResourceRequest<LayoutDescriptor[]> {
 
     private applicationKey: ApplicationKey;
 
@@ -36,7 +36,7 @@ export class GetLayoutDescriptorsByApplicationRequest
         return super.sendAndParse();
     }
 
-    protected processResponse(response: JsonResponse<LayoutDescriptorsJson>): LayoutDescriptor[] {
+    protected parseResponse(response: JsonResponse<LayoutDescriptorsJson>): LayoutDescriptor[] {
         // mark applicationKeys as cached to prevent request when there are no descriptors defined in app
         this.cache.putApplicationKeys([this.applicationKey]);
         return response.getResult().descriptors.map((descriptorJson: LayoutDescriptorJson) => {

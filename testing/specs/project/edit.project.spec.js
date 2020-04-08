@@ -27,7 +27,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             //2. Type a name and description then click on 'Save' button:
             await projectWizard.typeName(PROJECT_DISPLAY_NAME);
             await projectWizard.typeDescription(TEST_DESCRIPTION);
-            await projectWizard.selectReadAccess("Private");
+            await projectWizard.clickOnReadAccessRadio("Private");
             await projectWizard.waitAndClickOnSave();
             //3. verify the saved data:
             let actualDescription = await projectWizard.getDescription();
@@ -60,6 +60,60 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             studioUtils.saveScreenshot("project_description_updated");
             let actualDescription = await settingsBrowsePanel.getProjectDescription(PROJECT_DISPLAY_NAME);
             assert.equal(actualDescription, NEW_DESCRIPTION, "Description should be updated in grid");
+        });
+
+    it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            //1.Expand Projects-folder then Open existing project:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //2.Click on the project and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //3. click on 'Custom' radio:
+            await projectWizard.clickOnReadAccessRadio("Custom");
+            //4. Select SU in the selector's options:
+            await projectWizard.selectCustomReadAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.waitAndClickOnSave();
+            //5. Verify that SU is added in 'Custom Read Access'
+            let result = await projectWizard.getSelectedCustomReadAccessOptions();
+            assert.equal(result.length, 1, "One option should be selected in Custom Read Access");
+            assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
+        });
+
+    it(`WHEN existing project with selected 'Custom Read Access' has been opened THEN expected option should be displayed in 'Custom Read Access'`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            //1.Expand Projects-folder then Open existing project:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //2.Click on the project and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //3. Verify that expected user is displayed in Custom Read Access
+            let result = await projectWizard.getSelectedCustomReadAccessOptions();
+            assert.equal(result.length, 1, "One option should be selected in Custom Read Access");
+            assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "'SU' option should be in 'Custom Read Access'");
+        });
+
+    it(`GIVEN existing project with selected 'Custom Read Access' WHEN 'Public' radio has been clicked THEN 'Custom Read Access' combobox gets disabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            //1.Expand Projects-folder then Open existing project:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //2.Click on the project and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            await projectWizard.clickOnReadAccessRadio("Public");
+            //3. Verify that combobox in 'Custom' option gets disabled:
+            await projectWizard.waitForCustomReadAccessComboboxDisabled();
+            //4. Verify that Save button gets enabled:
+            await projectWizard.waitForSaveButtonEnabled();
         });
 
     beforeEach(async () => {

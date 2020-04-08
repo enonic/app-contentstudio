@@ -6,7 +6,7 @@ import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 
 export class GetContentXDataRequest
-    extends XDataResourceRequest<XDataListJson, XData[]> {
+    extends XDataResourceRequest<XData[]> {
 
     private contentId: ContentId;
 
@@ -22,7 +22,7 @@ export class GetContentXDataRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<XDataListJson>): XData[] {
+    protected parseResponse(response: JsonResponse<XDataListJson>): XData[] {
         return response.getResult().xdatas.map((xDataJson: XDataJson) => {
             return this.fromJsonToXData(xDataJson);
         });

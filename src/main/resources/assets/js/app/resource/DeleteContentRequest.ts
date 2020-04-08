@@ -10,7 +10,7 @@ import {GetTaskInfoRequest} from 'lib-admin-ui/task/GetTaskInfoRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
+export class DeleteContentRequest extends ContentResourceRequest<TaskId> {
 
     private contentPaths: ContentPath[] = [];
 
@@ -50,7 +50,7 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
         };
     }
 
-    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
         return TaskId.fromJson(response.getResult());
     }
 

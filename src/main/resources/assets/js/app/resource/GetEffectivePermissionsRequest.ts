@@ -5,7 +5,7 @@ import {EffectivePermissionJson} from './json/EffectivePermissionJson';
 import {EffectivePermission} from '../security/EffectivePermission';
 
 export class GetEffectivePermissionsRequest
-    extends ContentResourceRequest<EffectivePermissionJson[], EffectivePermission[]> {
+    extends ContentResourceRequest<EffectivePermission[]> {
 
     private contentId: ContentId;
 
@@ -21,7 +21,7 @@ export class GetEffectivePermissionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<EffectivePermissionJson[]>): EffectivePermission[] {
+    protected parseResponse(response: JsonResponse<EffectivePermissionJson[]>): EffectivePermission[] {
         if (response.getJson()) {
             return response.getJson().map((json) => {
                 return EffectivePermission.fromJson(json);

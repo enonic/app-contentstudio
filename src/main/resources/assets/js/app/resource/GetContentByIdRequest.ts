@@ -5,7 +5,7 @@ import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 
 export class GetContentByIdRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private id: ContentId;
 
@@ -36,7 +36,7 @@ export class GetContentByIdRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 }

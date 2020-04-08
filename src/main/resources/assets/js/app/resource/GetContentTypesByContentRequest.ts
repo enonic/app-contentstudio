@@ -6,7 +6,7 @@ import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSum
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 
 export class GetContentTypesByContentRequest
-    extends ContentTypeResourceRequest<ContentTypeSummaryListJson, ContentTypeSummary[]> {
+    extends ContentTypeResourceRequest<ContentTypeSummary[]> {
 
     private contentId: ContentId;
 
@@ -22,7 +22,7 @@ export class GetContentTypesByContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
+    protected parseResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
         return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
             return this.fromJsonToContentTypeSummary(contentTypeJson);
         });

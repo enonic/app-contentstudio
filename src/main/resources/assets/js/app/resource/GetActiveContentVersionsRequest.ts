@@ -7,7 +7,7 @@ import {ContentVersion} from '../ContentVersion';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetActiveContentVersionsRequest
-    extends ContentResourceRequest<GetActiveContentVersionsResultsJson, ContentVersion[]> {
+    extends ContentResourceRequest<ContentVersion[]> {
 
     private id: ContentId;
 
@@ -23,7 +23,7 @@ export class GetActiveContentVersionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<GetActiveContentVersionsResultsJson>): ContentVersion[] {
+    protected parseResponse(response: JsonResponse<GetActiveContentVersionsResultsJson>): ContentVersion[] {
         return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
     }
 

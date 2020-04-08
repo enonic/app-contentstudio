@@ -1,12 +1,11 @@
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {GetPageDescriptorsByApplicationsRequest} from './GetPageDescriptorsByApplicationsRequest';
 import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class PageDescriptorLoader
-    extends BaseLoader<PageDescriptorsJson, PageDescriptor> {
+    extends BaseLoader<PageDescriptor> {
 
     protected request: GetPageDescriptorsByApplicationsRequest;
 

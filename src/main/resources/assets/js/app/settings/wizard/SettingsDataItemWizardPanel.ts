@@ -201,7 +201,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected abstract createWizardActions(): SettingsDataItemWizardActions<ITEM>;
 
-    protected abstract createDeleteRequest(): ResourceRequest<boolean, boolean> ;
+    protected abstract createDeleteRequest(): ResourceRequest<boolean> ;
 
     protected abstract getSuccessfulDeleteMessage(): string;
 

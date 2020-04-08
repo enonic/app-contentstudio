@@ -8,7 +8,7 @@ import {ApplicationBasedCache} from '../../../../../application/ApplicationBased
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPageDescriptorsByApplicationsRequest
-    extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
+    extends PageDescriptorResourceRequest<PageDescriptor[]> {
 
     private applicationKeys: ApplicationKey[];
 
@@ -42,7 +42,7 @@ export class GetPageDescriptorsByApplicationsRequest
         return super.sendAndParse();
     }
 
-    protected processResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
+    protected parseResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
         this.cache.putApplicationKeys(this.applicationKeys);
         return response.getResult().descriptors.map((descJson) => {
             const desc = PageDescriptor.fromJson(descJson);

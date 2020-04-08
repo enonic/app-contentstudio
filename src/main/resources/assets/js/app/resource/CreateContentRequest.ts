@@ -13,7 +13,7 @@ import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateContentRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private valid: boolean;
 
@@ -104,7 +104,7 @@ export class CreateContentRequest
         return this.meta ? this.meta.map((extraData: ExtraData) => extraData.toJson()) : null;
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 

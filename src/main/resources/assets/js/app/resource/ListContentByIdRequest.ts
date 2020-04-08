@@ -10,7 +10,7 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export class ListContentByIdRequest
-    extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentResponse<ContentSummary>> {
+    extends ContentResourceRequest<ContentResponse<ContentSummary>> {
 
     private parentId: ContentId;
 
@@ -58,7 +58,7 @@ export class ListContentByIdRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
         return new ContentResponse(
             ContentSummary.fromJsonArray(response.getResult().contents),
             new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])

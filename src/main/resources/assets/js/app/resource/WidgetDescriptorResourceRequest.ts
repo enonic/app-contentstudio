@@ -1,9 +1,9 @@
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
-import {ResourceRequestAdvanced} from '../wizard/ResourceRequestAdvanced';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
-export abstract class WidgetDescriptorResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ResourceRequestAdvanced<JSON_TYPE, PARSED_TYPE> {
+export abstract class WidgetDescriptorResourceRequest<PARSED_TYPE>
+    extends ResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

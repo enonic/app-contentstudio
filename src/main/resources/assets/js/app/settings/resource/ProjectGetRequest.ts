@@ -4,7 +4,7 @@ import {Project} from '../data/project/Project';
 import {ProjectJson} from './json/ProjectJson';
 
 export class ProjectGetRequest
-    extends ProjectResourceRequest<ProjectJson, Project> {
+    extends ProjectResourceRequest<Project> {
 
     private name: string;
 
@@ -21,7 +21,7 @@ export class ProjectGetRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+    protected parseResponse(response: JsonResponse<ProjectJson>): Project {
         return Project.fromJson(response.getResult());
     }
 }

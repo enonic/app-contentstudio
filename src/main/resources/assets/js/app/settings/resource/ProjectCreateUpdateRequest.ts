@@ -7,7 +7,7 @@ import {Project} from '../data/project/Project';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 
 export abstract class ProjectCreateUpdateRequest
-    extends ProjectResourceRequest<ProjectJson, Project> {
+    extends ProjectResourceRequest<Project> {
 
     protected name: string;
 
@@ -87,7 +87,7 @@ export abstract class ProjectCreateUpdateRequest
         return params;
     }
 
-    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+    protected parseResponse(response: JsonResponse<ProjectJson>): Project {
         return Project.fromJson(response.getResult());
     }
 }

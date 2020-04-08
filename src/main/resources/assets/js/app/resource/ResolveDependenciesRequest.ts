@@ -5,7 +5,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolveDependenciesRequest
-    extends ContentResourceRequest<ResolveDependenciesResultJson, ResolveDependenciesResult> {
+    extends ContentResourceRequest<ResolveDependenciesResult> {
 
     private ids: ContentId[];
 
@@ -22,7 +22,7 @@ export class ResolveDependenciesRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ResolveDependenciesResultJson>): ResolveDependenciesResult {
+    protected parseResponse(response: JsonResponse<ResolveDependenciesResultJson>): ResolveDependenciesResult {
         return ResolveDependenciesResult.fromJson(response.getResult());
     }
 }

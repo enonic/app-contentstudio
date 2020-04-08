@@ -3,7 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class MediaAllowsPreviewRequest
-    extends ContentResourceRequest<boolean, boolean> {
+    extends ContentResourceRequest<boolean> {
 
     private contentId: ContentId;
 
@@ -23,7 +23,7 @@ export class MediaAllowsPreviewRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<boolean>): boolean {
+    protected parseResponse(response: JsonResponse<boolean>): boolean {
         return response.getResult();
     }
 }
